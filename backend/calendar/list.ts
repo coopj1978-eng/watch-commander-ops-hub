@@ -40,7 +40,8 @@ export const list = api<ListEventsRequest, ListEventsResponse>(
     const visibilityCondition = `
       (ce.event_type != 'reminder' OR 
        n.created_by_user_id = $${paramIndex} OR 
-       n.reminder_recipient_user_id = $${paramIndex})
+       n.reminder_recipient_user_id = $${paramIndex} OR
+       $${paramIndex} = ANY(ce.visible_to_user_ids))
     `;
     conditions.push(visibilityCondition);
     params.push(auth.userID);

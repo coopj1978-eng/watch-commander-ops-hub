@@ -138,8 +138,8 @@ export default function ProfileDetail() {
   });
 
   const { data: allUsersData, isLoading: allUsersLoading } = useQuery({
-    queryKey: ["users-all"],
-    queryFn: async () => backend.user.list({}),
+    queryKey: ["users-basic"],
+    queryFn: async () => backend.user.listBasic(),
   });
 
   const updateProfileMutation = useMutation({
@@ -205,6 +205,11 @@ export default function ProfileDetail() {
   const createNoteMutation = useMutation({
     mutationFn: async () => {
       if (!profile) throw new Error("No profile found");
+      
+      if (newNote.reminder_enabled && !newNote.next_follow_up_date) {
+        throw new Error("Follow-up date is required when reminder is enabled");
+      }
+      
       return await backend.note.create({
         profile_id: profile.id,
         note_text: newNote.note_text,
@@ -942,7 +947,7 @@ export default function ProfileDetail() {
                       )}
                       <p className="text-xs text-muted-foreground mt-1">
                         {newNote.reminder_recipient_user_id
-                          ? "Reminder will appear in both your calendar and the recipient's calendar"
+                          ? "Reminder will appear in both calendars"
                           : "Reminder will only appear in your calendar"}
                       </p>
                     </div>

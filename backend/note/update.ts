@@ -118,31 +118,44 @@ export const update = api(
       const endTime = new Date(dbNote.next_follow_up_date!);
       endTime.setHours(23, 59, 59);
 
+      const visibleToUserIds = [auth.userID];
+      if (dbNote.reminder_recipient_user_id && dbNote.reminder_recipient_user_id !== auth.userID) {
+        visibleToUserIds.push(dbNote.reminder_recipient_user_id);
+      }
+
       if (dbNote.calendar_event_id) {
-        await db.exec`
+        const updateQuery = `
           UPDATE calendar_events
           SET 
-            title = ${title},
-            description = ${description},
-            start_time = ${startTime},
-            end_time = ${endTime},
+            title = $1,
+            description = $2,
+            start_time = $3,
+            end_time = $4,
+            visible_to_user_ids = $5,
             updated_at = NOW()
-          WHERE id = ${dbNote.calendar_event_id}
+          WHERE id = $6
         `;
+        await db.rawExec(updateQuery, title, description, startTime, endTime, visibleToUserIds, dbNote.calendar_event_id);
       } else {
-        const calendarEvent = await db.queryRow<{ id: number }>`
+        const insertQuery = `
           INSERT INTO calendar_events (
             title, description, start_time, end_time, 
-            event_type, created_by, all_day
+            event_type, created_by, all_day, visible_to_user_ids
           )
-          VALUES (
-            ${title}, ${description}, 
-            ${startTime}, 
-            ${endTime},
-            'reminder', ${auth.userID}, TRUE
-          )
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
           RETURNING id
         `;
+        const calendarEvent = await db.rawQueryRow<{ id: number }>(
+          insertQuery,
+          title,
+          description,
+          startTime,
+          endTime,
+          'reminder',
+          auth.userID,
+          true,
+          visibleToUserIds
+        );
 
         if (calendarEvent) {
           await db.exec`
