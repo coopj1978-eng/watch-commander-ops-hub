@@ -37,7 +37,6 @@ export const auth = authHandler<AuthParams, AuthData>(async (data) => {
   try {
     const verifiedToken = await verifyToken(token, {
       secretKey: clerkSecretKey(),
-      jwtKey: clerkSecretKey(),
     });
 
     const clerkUser = await clerkClient.users.getUser(verifiedToken.sub);
@@ -117,6 +116,11 @@ export const auth = authHandler<AuthParams, AuthData>(async (data) => {
 
     return authData;
   } catch (err) {
+    console.error("Authentication error:", {
+      error: err,
+      message: err instanceof Error ? err.message : "Unknown error",
+      tokenPreview: token?.substring(0, 20) + "...",
+    });
     if (err instanceof APIError) {
       throw err;
     }
