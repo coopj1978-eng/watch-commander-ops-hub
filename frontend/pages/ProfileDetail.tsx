@@ -112,14 +112,13 @@ export default function ProfileDetail() {
     queryFn: async () => backend.settings.get(),
   });
 
-  // Temporarily disabled
-  // const { data: notesData } = useQuery({
-  //   queryKey: ["notes", profile?.id],
-  //   queryFn: async () => backend.note.list({ profile_id: profile!.id }),
-  //   enabled: !!profile?.id,
-  // });
+  const { data: notesData } = useQuery({
+    queryKey: ["notes", profile?.id],
+    queryFn: async () => backend.note.list({ profile_id: profile!.id }),
+    enabled: !!profile?.id,
+  });
 
-  const notes: any[] = [];
+  const notes = notesData?.notes || [];
 
   // Temporarily disabled
   // const { data: documentsData } = useQuery({
@@ -193,12 +192,40 @@ export default function ProfileDetail() {
     note_text: "",
     next_follow_up_date: "",
     reminder_enabled: false,
+    reminder_recipient_user_id: "",
   });
 
-  // Temporarily disabled
   const createNoteMutation = useMutation({
     mutationFn: async () => {
-      return { success: true };
+      if (!profile) throw new Error("No profile found");
+      return await backend.note.create({
+        profile_id: profile.id,
+        note_text: newNote.note_text,
+        next_follow_up_date: newNote.next_follow_up_date || undefined,
+        reminder_enabled: newNote.reminder_enabled,
+        reminder_recipient_user_id: newNote.reminder_recipient_user_id || undefined,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notes", profile?.id] });
+      toast({
+        title: "Note added",
+        description: "Note saved successfully",
+      });
+      setNewNote({
+        note_text: "",
+        next_follow_up_date: "",
+        reminder_enabled: false,
+        reminder_recipient_user_id: "",
+      });
+    },
+    onError: (error: any) => {
+      console.error("Failed to create note:", error);
+      toast({
+        title: "Failed to add note",
+        description: error?.message || "An error occurred",
+        variant: "destructive",
+      });
     },
   });
 
@@ -804,28 +831,58 @@ export default function ProfileDetail() {
                     className="mt-1"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Follow-up Date</Label>
-                    <Input
-                      type="date"
-                      value={newNote.next_follow_up_date}
-                      onChange={(e) => setNewNote({ ...newNote, next_follow_up_date: e.target.value })}
-                      className="mt-1"
-                    />
-                  </div>
-                  <div className="flex items-end">
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        id="reminder"
-                        checked={newNote.reminder_enabled}
-                        onCheckedChange={(checked) =>
-                          setNewNote({ ...newNote, reminder_enabled: !!checked })
-                        }
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Follow-up Date</Label>
+                      <Input
+                        type="date"
+                        value={newNote.next_follow_up_date}
+                        onChange={(e) => setNewNote({ ...newNote, next_follow_up_date: e.target.value })}
+                        className="mt-1"
                       />
-                      <Label htmlFor="reminder" className="cursor-pointer">Set reminder</Label>
+                    </div>
+                    <div className="flex items-end">
+                      <div className="flex items-center gap-2">
+                        <Checkbox
+                          id="reminder"
+                          checked={newNote.reminder_enabled}
+                          onCheckedChange={(checked) =>
+                            setNewNote({ ...newNote, reminder_enabled: !!checked })
+                          }
+                        />
+                        <Label htmlFor="reminder" className="cursor-pointer">Set reminder</Label>
+                      </div>
                     </div>
                   </div>
+                  {newNote.reminder_enabled && (
+                    <div>
+                      <Label>Reminder Recipient</Label>
+                      <Select
+                        value={newNote.reminder_recipient_user_id}
+                        onValueChange={(value) =>
+                          setNewNote({ ...newNote, reminder_recipient_user_id: value })
+                        }
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue placeholder="Only me (personal reminder)" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">Only me (personal reminder)</SelectItem>
+                          {userId && (
+                            <SelectItem value={userId}>
+                              {user?.name} (shared reminder)
+                            </SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {newNote.reminder_recipient_user_id
+                          ? "Reminder will appear in both your calendar and the recipient's calendar"
+                          : "Reminder will only appear in your calendar"}
+                      </p>
+                    </div>
+                  )}
                 </div>
                 <Button
                   onClick={() => createNoteMutation.mutate()}
@@ -851,14 +908,26 @@ export default function ProfileDetail() {
                     <div key={note.id} className="border-l-2 border-red-600 pl-4 py-2">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
                             <span className="text-sm font-medium text-muted-foreground">
                               {new Date(note.created_at).toLocaleDateString()}
                             </span>
                             {note.reminder_enabled && note.next_follow_up_date && (
                               <Badge variant="outline" className="text-xs">
+                                <CalendarIcon className="h-3 w-3 mr-1" />
+                                {new Date(note.next_follow_up_date).toLocaleDateString()}
+                              </Badge>
+                            )}
+                            {note.reminder_enabled && note.reminder_recipient_user_id && (
+                              <Badge variant="outline" className="text-xs bg-blue-500/10 text-blue-600 border-blue-500/20">
+                                <User className="h-3 w-3 mr-1" />
+                                Shared reminder
+                              </Badge>
+                            )}
+                            {note.reminder_enabled && !note.reminder_recipient_user_id && (
+                              <Badge variant="outline" className="text-xs">
                                 <Bell className="h-3 w-3 mr-1" />
-                                Follow-up: {new Date(note.next_follow_up_date).toLocaleDateString()}
+                                Personal reminder
                               </Badge>
                             )}
                           </div>

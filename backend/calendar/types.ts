@@ -1,4 +1,4 @@
-export type EventType = "watch" | "personal" | "training" | "meeting" | "inspection" | "maintenance";
+export type EventType = "watch" | "personal" | "training" | "meeting" | "inspection" | "maintenance" | "reminder";
 
 export interface CalendarEvent {
   id: number;
