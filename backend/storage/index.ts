@@ -6,6 +6,6 @@ export const policyDocuments = new Bucket("policy-documents", {
 });
 
 export const attachments = new Bucket("attachments", {
-  public: false,
+  public: true,
   versioned: false,
 });

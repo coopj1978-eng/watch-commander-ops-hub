@@ -201,6 +201,7 @@ export default function ProfileDetail() {
     reminder_enabled: false,
     reminder_recipient_user_id: "",
   });
+  const [uploadingFiles, setUploadingFiles] = useState<File[]>([]);
 
   const createNoteMutation = useMutation({
     mutationFn: async () => {
@@ -210,13 +211,45 @@ export default function ProfileDetail() {
         throw new Error("Follow-up date is required when reminder is enabled");
       }
       
-      return await backend.note.create({
+      const note = await backend.note.create({
         profile_id: profile.id,
         note_text: newNote.note_text,
         next_follow_up_date: newNote.next_follow_up_date || undefined,
         reminder_enabled: newNote.reminder_enabled,
         reminder_recipient_user_id: newNote.reminder_recipient_user_id || undefined,
       });
+
+      if (uploadingFiles.length > 0) {
+        for (const file of uploadingFiles) {
+          try {
+            const { upload_url, file_key } = await backend.note.getUploadUrl({
+              note_id: note.id,
+              filename: file.name,
+              content_type: file.type,
+            });
+
+            await fetch(upload_url, {
+              method: 'PUT',
+              body: file,
+              headers: {
+                'Content-Type': file.type,
+              },
+            });
+
+            await backend.note.saveAttachment({
+              note_id: note.id,
+              file_key,
+              filename: file.name,
+              file_type: file.type,
+              file_size: file.size,
+            });
+          } catch (error) {
+            console.error(`Failed to upload ${file.name}:`, error);
+          }
+        }
+      }
+
+      return note;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notes", profile?.id] });
@@ -230,6 +263,7 @@ export default function ProfileDetail() {
         reminder_enabled: false,
         reminder_recipient_user_id: "",
       });
+      setUploadingFiles([]);
     },
     onError: (error: any) => {
       console.error("Failed to create note:", error);
@@ -953,6 +987,34 @@ export default function ProfileDetail() {
                     </div>
                   )}
                 </div>
+                <div>
+                  <Label>Attachments (optional)</Label>
+                  <Input
+                    type="file"
+                    multiple
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif"
+                    onChange={(e) => {
+                      if (e.target.files) {
+                        setUploadingFiles(Array.from(e.target.files));
+                      }
+                    }}
+                    className="mt-1"
+                  />
+                  {uploadingFiles.length > 0 && (
+                    <div className="mt-2 space-y-1">
+                      {uploadingFiles.map((file, idx) => (
+                        <div key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <FileText className="h-4 w-4" />
+                          <span>{file.name}</span>
+                          <span className="text-xs">({(file.size / 1024).toFixed(1)} KB)</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Supported: PDF, Word, Excel, Images (JPG, PNG, GIF)
+                  </p>
+                </div>
                 <Button
                   onClick={() => createNoteMutation.mutate()}
                   disabled={!newNote.note_text || createNoteMutation.isPending}
@@ -1001,6 +1063,26 @@ export default function ProfileDetail() {
                             )}
                           </div>
                           <p className="text-foreground whitespace-pre-wrap">{note.note_text}</p>
+                          {note.attachments && note.attachments.length > 0 && (
+                            <div className="mt-3 space-y-2">
+                              {note.attachments.map((attachment, idx) => (
+                                <a
+                                  key={idx}
+                                  href={attachment.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 hover:underline"
+                                >
+                                  <FileText className="h-4 w-4" />
+                                  <span>{attachment.filename}</span>
+                                  <span className="text-xs text-muted-foreground">
+                                    ({(attachment.fileSize / 1024).toFixed(1)} KB)
+                                  </span>
+                                  <Download className="h-3 w-3" />
+                                </a>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>

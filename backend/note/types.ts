@@ -1,3 +1,11 @@
+export interface NoteAttachment {
+  filename: string;
+  url: string;
+  fileType: string;
+  fileSize: number;
+  uploadedAt: string;
+}
+
 export interface Note {
   id: number;
   profile_id: number;
@@ -7,6 +15,7 @@ export interface Note {
   reminder_enabled: boolean;
   reminder_recipient_user_id?: string;
   calendar_event_id?: number;
+  attachments?: NoteAttachment[];
   created_at: Date;
   updated_at: Date;
 }
