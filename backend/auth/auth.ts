@@ -76,8 +76,8 @@ export const auth = authHandler<AuthParams, AuthData>(async (data) => {
       imageUrl: dbUser.avatar_url || "",
       email: dbUser.email,
       role,
-      watchUnit: dbUser.watch_unit,
-      rank: dbUser.rank,
+      watchUnit: dbUser.watch_unit || "",
+      rank: dbUser.rank || "",
     };
 
     await logSignIn(authData);
