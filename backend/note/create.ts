@@ -33,6 +33,14 @@ export const create = api<CreateNoteRequest, Note>(
   async (req) => {
     const auth = getAuthData()!;
 
+    console.log("Backend received note creation request:", {
+      profile_id: req.profile_id,
+      note_text: req.note_text?.substring(0, 50),
+      next_follow_up_date: req.next_follow_up_date,
+      reminder_enabled: req.reminder_enabled,
+      reminder_recipient_user_id: req.reminder_recipient_user_id,
+    });
+
     if (req.reminder_enabled && !req.next_follow_up_date) {
       throw APIError.invalidArgument(
         "next_follow_up_date is required when reminder is enabled"

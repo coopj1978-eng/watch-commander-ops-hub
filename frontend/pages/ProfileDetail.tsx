@@ -222,6 +222,14 @@ export default function ProfileDetail() {
         throw new Error("Follow-up date is required when reminder is enabled");
       }
       
+      console.log("Creating note with:", {
+        profile_id: profile.id,
+        note_text: newNote.note_text,
+        next_follow_up_date: newNote.next_follow_up_date,
+        reminder_enabled: newNote.reminder_enabled,
+        reminder_recipient_user_id: newNote.reminder_recipient_user_id,
+      });
+      
       const note = await backend.note.create({
         profile_id: profile.id,
         note_text: newNote.note_text,
