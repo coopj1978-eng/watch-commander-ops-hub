@@ -1,7 +1,7 @@
-import { api } from "encore.dev/api";
+import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
-import { requirePermission, Permission } from "../auth/rbac";
+import { hasPermission, Permission } from "../auth/rbac";
 import { logActivity } from "../logging/logger";
 import type { CreateSkillRenewalRequest, SkillRenewal } from "./types";
 
@@ -21,7 +21,22 @@ export const create = api<CreateSkillRenewalRequest, SkillRenewal>(
   { auth: true, expose: true, method: "POST", path: "/skills/renewals" },
   async (req) => {
     const auth = getAuthData()!;
-    requirePermission(auth, Permission.EDIT_ALL_PROFILES);
+
+    const profile = await db.queryRow<{ user_id: string }>`
+      SELECT user_id FROM firefighter_profiles WHERE id = ${req.profile_id}
+    `;
+
+    if (!profile) {
+      throw APIError.notFound("profile not found");
+    }
+
+    const canEditAllProfiles = hasPermission(auth, Permission.EDIT_ALL_PROFILES);
+    const canEditOwnProfile = hasPermission(auth, Permission.EDIT_OWN_PROFILE) && profile.user_id === auth.userID;
+    const canEditAssignedFirefighters = hasPermission(auth, Permission.EDIT_ASSIGNED_FIREFIGHTERS);
+
+    if (!canEditAllProfiles && !canEditOwnProfile && !canEditAssignedFirefighters) {
+      throw APIError.permissionDenied("You don't have permission to add skills to this profile");
+    }
 
     const dbSkill = await db.queryRow<DBSkillRenewal>`
       INSERT INTO skill_renewals (
