@@ -256,7 +256,7 @@ export default function ProfileDetail() {
 
     try {
       if (Object.keys(userUpdates).length > 0 && userId) {
-        await backend.user.update({ id: userId, ...userUpdates });
+        await backend.user.update({ id: userId, updates: userUpdates });
       }
       if (Object.keys(profileUpdates).length > 0) {
         updateProfileMutation.mutate(profileUpdates);
