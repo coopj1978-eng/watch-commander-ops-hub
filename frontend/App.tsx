@@ -23,7 +23,7 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import { applyTheme, getStoredTheme } from "./lib/theme";
 
-const PUBLISHABLE_KEY = "pk_test_c3dlZXBpbmctYW50ZWxvcGUtMjkuY2xlcmsuYWNjb3VudHMuZGV2JA";
+const PUBLISHABLE_KEY = "pk_test_d2lzZS1za3lsYXJrLTIxLmNsZXJrLmFjY291bnRzLmRldiQ";
 
 if (!PUBLISHABLE_KEY) {
   throw new Error("Missing Clerk Publishable Key. Please set VITE_CLERK_PUBLISHABLE_KEY in your environment.");
