@@ -1,4 +1,4 @@
-import { useUser, UserButton } from "@clerk/clerk-react";
+import { useAuth } from "@/App";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import backend from "~backend/client";
 import { Bell, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import ThemeSwitcher from "./ThemeSwitcher";
 
 export default function TopBar() {
-  const { user } = useUser();
+  const { user, signOut } = useAuth();
   const queryClient = useQueryClient();
 
   // Notifications temporarily disabled
@@ -39,7 +39,7 @@ export default function TopBar() {
     return "Good evening";
   };
 
-  const firstName = user?.firstName || user?.username || "there";
+  const firstName = user?.name?.split(" ")[0] || "there";
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between px-8 py-4 bg-background/80 backdrop-blur-md border-b border-border">
@@ -110,14 +110,26 @@ export default function TopBar() {
         </DropdownMenu>
 
         <div className="flex items-center gap-2 pl-2 border-l border-border">
-          <UserButton 
-            afterSignOutUrl="/"
-            appearance={{
-              elements: {
-                avatarBox: "h-10 w-10 rounded-xl ring-2 ring-offset-2 ring-offset-background ring-transparent hover:ring-primary transition-all duration-200",
-              },
-            }}
-          />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="h-10 px-3 rounded-xl hover:bg-muted transition-all duration-200"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-lg bg-red-600 flex items-center justify-center text-white font-semibold">
+                    {user?.name?.charAt(0).toUpperCase() || "U"}
+                  </div>
+                  <span className="text-sm font-medium">{user?.name || "User"}</span>
+                </div>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={signOut}>
+                Sign Out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>
