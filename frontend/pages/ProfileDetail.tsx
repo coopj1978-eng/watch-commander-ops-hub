@@ -137,9 +137,20 @@ export default function ProfileDetail() {
     enabled: !!userId,
   });
 
-  const { data: allUsersData, isLoading: allUsersLoading } = useQuery({
+  const { data: allUsersData, isLoading: allUsersLoading, error: allUsersError } = useQuery({
     queryKey: ["users-basic"],
-    queryFn: async () => backend.user.listBasic(),
+    queryFn: async () => {
+      try {
+        const result = await backend.user.listBasic();
+        console.log("✓ Users loaded:", result.users?.length || 0, "users");
+        return result;
+      } catch (error) {
+        console.error("✗ Failed to load users:", error);
+        throw error;
+      }
+    },
+    retry: 3,
+    staleTime: 5 * 60 * 1000,
   });
 
   const updateProfileMutation = useMutation({
@@ -245,18 +256,41 @@ export default function ProfileDetail() {
             });
           } catch (error) {
             console.error(`Failed to upload ${file.name}:`, error);
+            toast({
+              title: "File upload warning",
+              description: `Failed to upload ${file.name}. Note was saved without this attachment.`,
+              variant: "destructive",
+            });
           }
         }
       }
 
       return note;
     },
-    onSuccess: () => {
+    onSuccess: (note) => {
       queryClient.invalidateQueries({ queryKey: ["notes", profile?.id] });
+      
+      if (newNote.reminder_enabled) {
+        queryClient.invalidateQueries({ queryKey: ["calendar-events"] });
+      }
+      
+      const hasAttachments = uploadingFiles.length > 0;
+      const hasReminder = newNote.reminder_enabled;
+      
+      let description = "Note saved successfully";
+      if (hasAttachments && hasReminder) {
+        description = `Note, ${uploadingFiles.length} file(s), and reminder created`;
+      } else if (hasAttachments) {
+        description = `Note and ${uploadingFiles.length} file(s) saved`;
+      } else if (hasReminder) {
+        description = "Note and reminder created";
+      }
+      
       toast({
         title: "Note added",
-        description: "Note saved successfully",
+        description,
       });
+      
       setNewNote({
         note_text: "",
         next_follow_up_date: "",
@@ -911,13 +945,16 @@ export default function ProfileDetail() {
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label>Follow-up Date</Label>
+                      <Label>Follow-up Date {newNote.reminder_enabled && <span className="text-red-600">*</span>}</Label>
                       <Input
                         type="date"
                         value={newNote.next_follow_up_date}
                         onChange={(e) => setNewNote({ ...newNote, next_follow_up_date: e.target.value })}
                         className="mt-1"
                       />
+                      {newNote.reminder_enabled && !newNote.next_follow_up_date && (
+                        <p className="text-xs text-red-600 mt-1">Required when reminder is enabled</p>
+                      )}
                     </div>
                     <div className="flex items-end">
                       <div className="flex items-center gap-2">
@@ -939,9 +976,13 @@ export default function ProfileDetail() {
                         <div className="mt-1 p-2 border rounded-md">
                           <p className="text-sm text-muted-foreground">Loading users...</p>
                         </div>
-                      ) : !allUsersData?.users ? (
-                        <div className="mt-1 p-2 border rounded-md">
-                          <p className="text-sm text-muted-foreground">Unable to load users</p>
+                      ) : allUsersError ? (
+                        <div className="mt-1 p-2 border rounded-md border-yellow-500/20 bg-yellow-500/10">
+                          <p className="text-sm text-yellow-600">Failed to load users. You can still create a personal reminder.</p>
+                        </div>
+                      ) : !allUsersData?.users || allUsersData.users.length === 0 ? (
+                        <div className="mt-1 p-2 border rounded-md border-yellow-500/20 bg-yellow-500/10">
+                          <p className="text-sm text-yellow-600">No users found. Creating personal reminder only.</p>
                         </div>
                       ) : (
                         <Select
@@ -982,7 +1023,7 @@ export default function ProfileDetail() {
                       <p className="text-xs text-muted-foreground mt-1">
                         {newNote.reminder_recipient_user_id
                           ? "Reminder will appear in both calendars"
-                          : "Reminder will only appear in your calendar"}
+                          : "Reminder will appear in your calendar"}
                       </p>
                     </div>
                   )}
