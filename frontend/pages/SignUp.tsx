@@ -41,12 +41,13 @@ export default function SignUp() {
     setLoading(true);
 
     try {
-      await backendClient.localauth.signUp({
+      const response = await backendClient.localauth.signUp({
         email,
         password,
         name,
       });
 
+      localStorage.setItem("auth_token", response.token);
       window.location.href = "/";
     } catch (error: any) {
       console.error("Sign up error:", error);

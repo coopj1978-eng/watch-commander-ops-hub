@@ -27,8 +27,7 @@ export interface AuthData {
 }
 
 export const auth = authHandler<AuthParams, AuthData>(async (data) => {
-  const token =
-    data.authorization?.replace("Bearer ", "") ?? data.auth_token?.value;
+  const token = data.authorization?.replace("Bearer ", "");
   if (!token) {
     throw APIError.unauthenticated("missing token");
   }

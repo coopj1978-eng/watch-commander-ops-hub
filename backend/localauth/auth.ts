@@ -25,7 +25,7 @@ interface AuthResponse {
     name: string;
     role: string;
   };
-  token: Cookie<"auth_token">;
+  token: string;
 }
 
 export const signUp = api<SignUpRequest, AuthResponse>(
@@ -86,13 +86,7 @@ export const signUp = api<SignUpRequest, AuthResponse>(
         name: newUser.name,
         role: newUser.role,
       },
-      token: {
-        value: token,
-        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-        httpOnly: true,
-        secure: true,
-        sameSite: "Lax",
-      },
+      token,
     };
   }
 );
@@ -135,13 +129,7 @@ export const signIn = api<SignInRequest, AuthResponse>(
         name: user.name,
         role: user.role,
       },
-      token: {
-        value: token,
-        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-        httpOnly: true,
-        secure: true,
-        sameSite: "Lax",
-      },
+      token,
     };
   }
 );

@@ -20,11 +20,12 @@ export default function SignIn() {
     setLoading(true);
 
     try {
-      await backendClient.localauth.signIn({
+      const response = await backendClient.localauth.signIn({
         email,
         password,
       });
 
+      localStorage.setItem("auth_token", response.token);
       window.location.href = "/";
     } catch (error: any) {
       console.error("Sign in error:", error);
