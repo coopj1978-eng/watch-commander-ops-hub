@@ -874,7 +874,7 @@ export default function ProfileDetail() {
                         <SelectTrigger className="mt-1">
                           <SelectValue placeholder="Search for a user or select 'Only me'">
                             {newNote.reminder_recipient_user_id ? (
-                              allUsersData?.users.find(u => u.id === newNote.reminder_recipient_user_id)?.name || "Selected user"
+                              allUsersData?.users?.find(u => u.id === newNote.reminder_recipient_user_id)?.name || "Selected user"
                             ) : (
                               "Only me (personal reminder)"
                             )}
@@ -891,7 +891,7 @@ export default function ProfileDetail() {
                             />
                           </div>
                           <SelectItem value="">Only me (personal reminder)</SelectItem>
-                          {allUsersData?.users
+                          {allUsersData?.users && allUsersData.users
                             .filter(u => 
                               !userSearchQuery || 
                               u.name.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
