@@ -13,6 +13,7 @@ interface DBNote {
   reminder_enabled: boolean;
   reminder_recipient_user_id?: string;
   calendar_event_id?: number;
+  attachments?: any;
   created_at: Date;
   updated_at: Date;
 }
@@ -23,6 +24,7 @@ function transformNote(dbNote: DBNote): Note {
     next_follow_up_date: dbNote.next_follow_up_date
       ? dbNote.next_follow_up_date.toISOString().split("T")[0]
       : undefined,
+    attachments: dbNote.attachments || [],
   };
 }
 
