@@ -54,62 +54,32 @@ export const auth = authHandler<AuthParams, AuthData>(async (data) => {
       
       const defaultRole: UserRole = "FF";
       
-      const existingPendingUser = await db.queryRow<User>`
-        SELECT * FROM users WHERE email = ${userEmail} AND is_active = false
+      dbUser = await db.queryRow<User>`
+        INSERT INTO users (id, email, name, role, avatar_url, is_active)
+        VALUES (
+          ${clerkUser.id},
+          ${userEmail || `user-${clerkUser.id}@temp.local`},
+          ${userName},
+          ${defaultRole},
+          ${clerkUser.imageUrl},
+          ${true}
+        )
+        RETURNING *
       `;
-      
-      if (existingPendingUser) {
-        await db.exec`
-          UPDATE users 
-          SET id = ${clerkUser.id}, 
-              name = ${userName},
-              avatar_url = ${clerkUser.imageUrl},
-              is_active = true,
-              updated_at = NOW()
-          WHERE id = ${existingPendingUser.id}
-        `;
-        
-        await db.exec`
-          UPDATE firefighter_profiles
-          SET user_id = ${clerkUser.id}
-          WHERE user_id = ${existingPendingUser.id}
-        `;
-        
-        dbUser = await db.queryRow<User>`
-          SELECT * FROM users WHERE id = ${clerkUser.id}
-        `;
-        
-        if (!dbUser) {
-          throw APIError.internal("Failed to link user account");
-        }
-      } else {
-        dbUser = await db.queryRow<User>`
-          INSERT INTO users (id, email, name, role, avatar_url, is_active)
-          VALUES (
-            ${clerkUser.id},
-            ${userEmail || `user-${clerkUser.id}@temp.local`},
-            ${userName},
-            ${defaultRole},
-            ${clerkUser.imageUrl},
-            ${true}
-          )
-          RETURNING *
-        `;
 
-        if (!dbUser) {
-          throw APIError.internal("Failed to create user in database");
-        }
-        
-        await db.exec`
-          INSERT INTO firefighter_profiles (
-            user_id, rolling_sick_episodes, rolling_sick_days, 
-            trigger_stage, driver_lgv, driver_erd
-          )
-          VALUES (
-            ${clerkUser.id}, 0, 0, 'None', false, false
-          )
-        `;
+      if (!dbUser) {
+        throw APIError.internal("Failed to create user in database");
       }
+      
+      await db.exec`
+        INSERT INTO firefighter_profiles (
+          user_id, rolling_sick_episodes, rolling_sick_days, 
+          trigger_stage, driver_lgv, driver_erd
+        )
+        VALUES (
+          ${clerkUser.id}, 0, 0, 'None', false, false
+        )
+      `;
     }
 
     if (!dbUser.is_active) {
