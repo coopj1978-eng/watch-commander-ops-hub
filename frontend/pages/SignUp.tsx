@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import backend from "~backend/client";
+import { backendClient } from "@/lib/backend";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -41,7 +41,7 @@ export default function SignUp() {
     setLoading(true);
 
     try {
-      await backend.localauth.signUp({
+      await backendClient.localauth.signUp({
         email,
         password,
         name,

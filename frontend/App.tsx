@@ -21,7 +21,7 @@ import CrewCommanderHome from "./pages/CrewCommanderHome";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import { applyTheme, getStoredTheme } from "./lib/theme";
-import backend from "~backend/client";
+import { backendClient } from "./lib/backend";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -85,7 +85,7 @@ function AppInner() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const result = await backend.user.get({ id: "me" });
+        const result = await backendClient.user.get({ id: "me" });
         setAuthState({
           user: {
             id: result.id,
@@ -107,7 +107,7 @@ function AppInner() {
   }, []);
 
   const signOut = async () => {
-    await backend.localauth.signOut();
+    await backendClient.localauth.signOut();
     document.cookie = "auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     setAuthState({ user: null, isLoaded: true });
     window.location.href = "/sign-in";
