@@ -1,0 +1,2 @@
+ALTER TABLE policy_docs
+ALTER COLUMN file_url DROP NOT NULL;

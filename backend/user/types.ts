@@ -1,0 +1,39 @@
+export type UserRole = "WC" | "CC" | "FF" | "RO";
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: UserRole;
+  watch_unit?: string;
+  rank?: string;
+  avatar_url?: string;
+  last_login_at?: Date;
+  is_active: boolean;
+  left_at?: Date;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface CreateUserRequest {
+  id: string;
+  email: string;
+  name: string;
+  role: UserRole;
+  watch_unit?: string;
+  rank?: string;
+  avatar_url?: string;
+  is_active?: boolean;
+}
+
+export interface UpdateUserRequest {
+  email?: string;
+  name?: string;
+  role?: UserRole;
+  watch_unit?: string;
+  rank?: string;
+  avatar_url?: string;
+  last_login_at?: Date;
+  is_active?: boolean;
+  left_at?: Date;
+}

@@ -1,0 +1,27 @@
+import PageContainer from "@/components/PageContainer";
+import { CrewKPIs } from "@/components/CrewKPIs";
+import { QuickAssignTasks } from "@/components/QuickAssignTasks";
+import { CrewUpcomingInspections } from "@/components/CrewUpcomingInspections";
+import { CrewOneToOnes } from "@/components/CrewOneToOnes";
+
+export default function CrewCommanderHome() {
+  return (
+    <PageContainer>
+      <div className="p-6 space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Crew Commander Dashboard</h1>
+          <p className="text-muted-foreground mt-1">Manage your crew and assignments</p>
+        </div>
+
+        <CrewKPIs />
+
+        <div className="grid gap-6 md:grid-cols-2">
+          <CrewUpcomingInspections />
+          <CrewOneToOnes />
+        </div>
+
+        <QuickAssignTasks />
+      </div>
+    </PageContainer>
+  );
+}
