@@ -1,7 +1,7 @@
 import { api, APIError, Cookie } from "encore.dev/api";
 import { secret } from "encore.dev/config";
 import * as bcrypt from "bcrypt";
-import * as jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import db from "../db";
 import type { User } from "../user/types";
 

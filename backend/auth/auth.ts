@@ -1,7 +1,7 @@
 import { Header, Cookie, APIError, Gateway } from "encore.dev/api";
 import { authHandler } from "encore.dev/auth";
 import { secret } from "encore.dev/config";
-import * as jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { logSignIn } from "./login_logger";
 import { adminEmail } from "./secrets";
 import db from "../db";
