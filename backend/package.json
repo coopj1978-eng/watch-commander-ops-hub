@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@clerk/backend": "^1.27.0",
-    "encore.dev": "^1.53.0"
+    "encore.dev": "^1.53.2"
   },
   "devDependencies": {
     "@clerk/backend": "^1.27.0",

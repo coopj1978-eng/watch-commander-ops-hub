@@ -39,7 +39,9 @@ export class Client {
     public readonly crew: crew.ServiceClient
     public readonly dictionary: dictionary.ServiceClient
     public readonly inspection: inspection.ServiceClient
+    public readonly localauth: localauth.ServiceClient
     public readonly mock: mock.ServiceClient
+    public readonly note: note.ServiceClient
     public readonly policy: policy.ServiceClient
     public readonly profile: profile.ServiceClient
     public readonly report: report.ServiceClient
@@ -68,7 +70,9 @@ export class Client {
         this.crew = new crew.ServiceClient(base)
         this.dictionary = new dictionary.ServiceClient(base)
         this.inspection = new inspection.ServiceClient(base)
+        this.localauth = new localauth.ServiceClient(base)
         this.mock = new mock.ServiceClient(base)
+        this.note = new note.ServiceClient(base)
         this.policy = new policy.ServiceClient(base)
         this.profile = new profile.ServiceClient(base)
         this.report = new report.ServiceClient(base)
@@ -184,7 +188,9 @@ import { changeRole as api_admin_change_role_changeRole } from "~backend/admin/c
 import { checkWC as api_admin_check_wc_checkWC } from "~backend/admin/check_wc";
 import { createActivityLog as api_admin_create_activity_log_createActivityLog } from "~backend/admin/create_activity_log";
 import { deactivateUser as api_admin_deactivate_user_deactivateUser } from "~backend/admin/deactivate_user";
+import { fixMyRole as api_admin_fix_my_role_fixMyRole } from "~backend/admin/fix_my_role";
 import { getActivityLog as api_admin_get_activity_log_getActivityLog } from "~backend/admin/get_activity_log";
+import { getInviteLink as api_admin_get_invite_link_getInviteLink } from "~backend/admin/get_invite_link";
 import { inviteUser as api_admin_invite_user_inviteUser } from "~backend/admin/invite_user";
 import { listUsers as api_admin_list_users_listUsers } from "~backend/admin/list_users";
 import { reactivateUser as api_admin_reactivate_user_reactivateUser } from "~backend/admin/reactivate_user";
@@ -205,7 +211,9 @@ export namespace admin {
             this.checkWC = this.checkWC.bind(this)
             this.createActivityLog = this.createActivityLog.bind(this)
             this.deactivateUser = this.deactivateUser.bind(this)
+            this.fixMyRole = this.fixMyRole.bind(this)
             this.getActivityLog = this.getActivityLog.bind(this)
+            this.getInviteLink = this.getInviteLink.bind(this)
             this.getReassignmentPreview = this.getReassignmentPreview.bind(this)
             this.inviteUser = this.inviteUser.bind(this)
             this.listUsers = this.listUsers.bind(this)
@@ -255,6 +263,12 @@ export namespace admin {
             await this.baseClient.callTypedAPI(`/api/admin/users/${encodeURIComponent(params.userId)}/deactivate`, {method: "POST", body: JSON.stringify(body)})
         }
 
+        public async fixMyRole(): Promise<ResponseType<typeof api_admin_fix_my_role_fixMyRole>> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/admin/fix-my-role`, {method: "POST", body: undefined})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_admin_fix_my_role_fixMyRole>
+        }
+
         public async getActivityLog(params: RequestType<typeof api_admin_get_activity_log_getActivityLog>): Promise<ResponseType<typeof api_admin_get_activity_log_getActivityLog>> {
             // Convert our params into the objects we need for the request
             const query = makeRecord<string, string | string[]>({
@@ -267,6 +281,12 @@ export namespace admin {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI(`/admin/activity-log`, {query, method: "GET", body: undefined})
             return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_admin_get_activity_log_getActivityLog>
+        }
+
+        public async getInviteLink(params: RequestType<typeof api_admin_get_invite_link_getInviteLink>): Promise<ResponseType<typeof api_admin_get_invite_link_getInviteLink>> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/admin/get-invite-link`, {method: "POST", body: JSON.stringify(params)})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_admin_get_invite_link_getInviteLink>
         }
 
         public async getReassignmentPreview(params: { userId: string }): Promise<ResponseType<typeof api_admin_reassign_assets_getReassignmentPreview>> {
@@ -536,6 +556,55 @@ export namespace inspection {
  * Import the endpoint handlers to derive the types for the client.
  */
 import {
+    signIn as api_localauth_auth_signIn,
+    signOut as api_localauth_auth_signOut,
+    signUp as api_localauth_auth_signUp
+} from "~backend/localauth/auth";
+import { createAdmin as api_localauth_create_admin_createAdmin } from "~backend/localauth/create_admin";
+
+export namespace localauth {
+
+    export class ServiceClient {
+        private baseClient: BaseClient
+
+        constructor(baseClient: BaseClient) {
+            this.baseClient = baseClient
+            this.createAdmin = this.createAdmin.bind(this)
+            this.signIn = this.signIn.bind(this)
+            this.signOut = this.signOut.bind(this)
+            this.signUp = this.signUp.bind(this)
+        }
+
+        public async createAdmin(): Promise<ResponseType<typeof api_localauth_create_admin_createAdmin>> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/localauth/create-admin`, {method: "POST", body: undefined})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_localauth_create_admin_createAdmin>
+        }
+
+        public async signIn(params: RequestType<typeof api_localauth_auth_signIn>): Promise<ResponseType<typeof api_localauth_auth_signIn>> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/auth/signin`, {method: "POST", body: JSON.stringify(params)})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_localauth_auth_signIn>
+        }
+
+        public async signOut(): Promise<ResponseType<typeof api_localauth_auth_signOut>> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/auth/signout`, {method: "POST", body: undefined})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_localauth_auth_signOut>
+        }
+
+        public async signUp(params: RequestType<typeof api_localauth_auth_signUp>): Promise<ResponseType<typeof api_localauth_auth_signUp>> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/auth/signup`, {method: "POST", body: JSON.stringify(params)})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_localauth_auth_signUp>
+        }
+    }
+}
+
+/**
+ * Import the endpoint handlers to derive the types for the client.
+ */
+import {
     createMockAbsence as api_mock_api_absences_createMockAbsence,
     getMockAbsences as api_mock_api_absences_getMockAbsences
 } from "~backend/mock/api_absences";
@@ -784,6 +853,99 @@ export namespace mock {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI(`/api/people/${encodeURIComponent(params.id)}`, {method: "PUT", body: JSON.stringify(body)})
             return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_mock_api_people_updateMockPerson>
+        }
+    }
+}
+
+/**
+ * Import the endpoint handlers to derive the types for the client.
+ */
+import { create as api_note_create_create } from "~backend/note/create";
+import { deleteNote as api_note_delete_deleteNote } from "~backend/note/delete";
+import { list as api_note_list_list } from "~backend/note/list";
+import { update as api_note_update_update } from "~backend/note/update";
+import {
+    getUploadUrl as api_note_upload_attachment_getUploadUrl,
+    saveAttachment as api_note_upload_attachment_saveAttachment
+} from "~backend/note/upload_attachment";
+
+export namespace note {
+
+    export class ServiceClient {
+        private baseClient: BaseClient
+
+        constructor(baseClient: BaseClient) {
+            this.baseClient = baseClient
+            this.create = this.create.bind(this)
+            this.deleteNote = this.deleteNote.bind(this)
+            this.getUploadUrl = this.getUploadUrl.bind(this)
+            this.list = this.list.bind(this)
+            this.saveAttachment = this.saveAttachment.bind(this)
+            this.update = this.update.bind(this)
+        }
+
+        public async create(params: RequestType<typeof api_note_create_create>): Promise<ResponseType<typeof api_note_create_create>> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/notes`, {method: "POST", body: JSON.stringify(params)})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_note_create_create>
+        }
+
+        public async deleteNote(params: { id: number }): Promise<ResponseType<typeof api_note_delete_deleteNote>> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/notes/${encodeURIComponent(params.id)}`, {method: "DELETE", body: undefined})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_note_delete_deleteNote>
+        }
+
+        public async getUploadUrl(params: RequestType<typeof api_note_upload_attachment_getUploadUrl>): Promise<ResponseType<typeof api_note_upload_attachment_getUploadUrl>> {
+            // Construct the body with only the fields which we want encoded within the body (excluding query string or header fields)
+            const body: Record<string, any> = {
+                "content_type": params["content_type"],
+                filename:       params.filename,
+            }
+
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/notes/${encodeURIComponent(params.note_id)}/attachments/upload-url`, {method: "POST", body: JSON.stringify(body)})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_note_upload_attachment_getUploadUrl>
+        }
+
+        public async list(params: RequestType<typeof api_note_list_list>): Promise<ResponseType<typeof api_note_list_list>> {
+            // Convert our params into the objects we need for the request
+            const query = makeRecord<string, string | string[]>({
+                "profile_id": params["profile_id"] === undefined ? undefined : String(params["profile_id"]),
+                "user_id":    params["user_id"],
+            })
+
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/notes`, {query, method: "GET", body: undefined})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_note_list_list>
+        }
+
+        public async saveAttachment(params: RequestType<typeof api_note_upload_attachment_saveAttachment>): Promise<ResponseType<typeof api_note_upload_attachment_saveAttachment>> {
+            // Construct the body with only the fields which we want encoded within the body (excluding query string or header fields)
+            const body: Record<string, any> = {
+                "file_key":  params["file_key"],
+                "file_size": params["file_size"],
+                "file_type": params["file_type"],
+                filename:    params.filename,
+            }
+
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/notes/${encodeURIComponent(params.note_id)}/attachments`, {method: "POST", body: JSON.stringify(body)})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_note_upload_attachment_saveAttachment>
+        }
+
+        public async update(params: RequestType<typeof api_note_update_update>): Promise<ResponseType<typeof api_note_update_update>> {
+            // Construct the body with only the fields which we want encoded within the body (excluding query string or header fields)
+            const body: Record<string, any> = {
+                "next_follow_up_date":        params["next_follow_up_date"],
+                "note_text":                  params["note_text"],
+                "reminder_enabled":           params["reminder_enabled"],
+                "reminder_recipient_user_id": params["reminder_recipient_user_id"],
+            }
+
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/notes/${encodeURIComponent(params.id)}`, {method: "PATCH", body: JSON.stringify(body)})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_note_update_update>
         }
     }
 }
@@ -1288,6 +1450,7 @@ import { create as api_user_create_create } from "~backend/user/create";
 import { deleteUser as api_user_delete_deleteUser } from "~backend/user/delete";
 import { get as api_user_get_get } from "~backend/user/get";
 import { list as api_user_list_list } from "~backend/user/list";
+import { listBasic as api_user_list_basic_listBasic } from "~backend/user/list_basic";
 import { update as api_user_update_update } from "~backend/user/update";
 
 export namespace user {
@@ -1301,6 +1464,7 @@ export namespace user {
             this.deleteUser = this.deleteUser.bind(this)
             this.get = this.get.bind(this)
             this.list = this.list.bind(this)
+            this.listBasic = this.listBasic.bind(this)
             this.update = this.update.bind(this)
         }
 
@@ -1331,6 +1495,12 @@ export namespace user {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI(`/users`, {query, method: "GET", body: undefined})
             return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_list_list>
+        }
+
+        public async listBasic(): Promise<ResponseType<typeof api_user_list_basic_listBasic>> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/users/basic`, {method: "GET", body: undefined})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_list_basic_listBasic>
         }
 
         public async update(params: RequestType<typeof api_user_update_update>): Promise<ResponseType<typeof api_user_update_update>> {
