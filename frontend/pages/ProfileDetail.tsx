@@ -900,22 +900,20 @@ export default function ProfileDetail() {
                         <div className="mt-1 p-2 border rounded-md">
                           <p className="text-sm text-muted-foreground">Loading users...</p>
                         </div>
+                      ) : !allUsersData?.users ? (
+                        <div className="mt-1 p-2 border rounded-md">
+                          <p className="text-sm text-muted-foreground">Unable to load users</p>
+                        </div>
                       ) : (
                         <Select
-                          value={newNote.reminder_recipient_user_id}
+                          value={newNote.reminder_recipient_user_id || ""}
                           onValueChange={(value) => {
                             setNewNote({ ...newNote, reminder_recipient_user_id: value });
                             setUserSearchQuery("");
                           }}
                         >
                           <SelectTrigger className="mt-1">
-                            <SelectValue placeholder="Search for a user or select 'Only me'">
-                              {newNote.reminder_recipient_user_id ? (
-                                allUsersData?.users?.find(u => u.id === newNote.reminder_recipient_user_id)?.name || "Selected user"
-                              ) : (
-                                "Only me (personal reminder)"
-                              )}
-                            </SelectValue>
+                            <SelectValue placeholder="Only me (personal reminder)" />
                           </SelectTrigger>
                           <SelectContent>
                             <div className="p-2 sticky top-0 bg-background border-b">
@@ -928,7 +926,7 @@ export default function ProfileDetail() {
                               />
                             </div>
                             <SelectItem value="">Only me (personal reminder)</SelectItem>
-                            {allUsersData?.users && allUsersData.users
+                            {allUsersData.users
                               .filter(u => 
                                 !userSearchQuery || 
                                 u.name.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
