@@ -55,7 +55,7 @@ export const auth = authHandler<AuthParams, AuthData>(async (data) => {
       const defaultRole: UserRole = "FF";
       
       const existingPendingUser = await db.queryRow<User>`
-        SELECT * FROM users WHERE email = ${userEmail}
+        SELECT * FROM users WHERE email = ${userEmail} AND is_active = false
       `;
       
       if (existingPendingUser) {
@@ -66,7 +66,7 @@ export const auth = authHandler<AuthParams, AuthData>(async (data) => {
               avatar_url = ${clerkUser.imageUrl},
               is_active = true,
               updated_at = NOW()
-          WHERE email = ${userEmail}
+          WHERE id = ${existingPendingUser.id}
         `;
         
         await db.exec`
