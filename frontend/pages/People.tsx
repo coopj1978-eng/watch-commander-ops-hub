@@ -477,7 +477,16 @@ export default function People() {
                     onClick={() => navigate(`/people/${user.id}`)}
                   >
                     {visibleColumns.name && (
-                      <TableCell className="font-medium">{user.name}</TableCell>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          {user.name}
+                          {!user.is_active && (
+                            <Badge variant="outline" className="text-xs bg-yellow-500/10 text-yellow-600 border-yellow-500/20">
+                              Pending Sign-up
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
                     )}
                     {visibleColumns.watch && (
                       <TableCell>

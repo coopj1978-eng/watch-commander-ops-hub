@@ -16,6 +16,13 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -67,6 +74,8 @@ import {
   Award,
   Truck,
   CheckCircle2,
+  Send,
+  Copy,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
@@ -88,6 +97,8 @@ export default function ProfileDetail() {
   const [editedUser, setEditedUser] = useState<{ role?: string }>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [userSearchQuery, setUserSearchQuery] = useState("");
+  const [showInviteDialog, setShowInviteDialog] = useState(false);
+  const [inviteLink, setInviteLink] = useState("");
 
   const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ["user", userId],
@@ -514,7 +525,14 @@ export default function ProfileDetail() {
             {user?.name.charAt(0)}
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-foreground">{user?.name}</h1>
+            <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
+              {user?.name}
+              {!user?.is_active && (
+                <Badge variant="outline" className="text-xs bg-yellow-500/10 text-yellow-600 border-yellow-500/20">
+                  Pending Sign-up
+                </Badge>
+              )}
+            </h1>
             <p className="text-muted-foreground mt-1">{user?.email}</p>
             {profile?.service_number && (
               <p className="text-sm text-muted-foreground">Service #{profile.service_number}</p>
@@ -523,6 +541,29 @@ export default function ProfileDetail() {
         </div>
         {(canEdit || (userRole === "FF" && isViewingOwnProfile)) && (
           <div className="flex gap-2">
+            {!user?.is_active && isWC && user && (
+              <Button 
+                variant="outline"
+                onClick={async () => {
+                  try {
+                    const result = await backend.admin.getInviteLink({ email: user.email });
+                    setInviteLink(result.invite_link);
+                    setShowInviteDialog(true);
+                  } catch (error: any) {
+                    console.error("Failed to generate invite link:", error);
+                    toast({
+                      title: "Error",
+                      description: error?.message || "Failed to generate invite link",
+                      variant: "destructive",
+                    });
+                  }
+                }}
+                className="border-yellow-500 text-yellow-600 hover:bg-yellow-50"
+              >
+                <Send className="h-4 w-4 mr-2" />
+                Send Invite Link
+              </Button>
+            )}
             {editMode ? (
               <>
                 <Button variant="outline" onClick={handleCancelEdit}>
@@ -1401,6 +1442,46 @@ export default function ProfileDetail() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <Dialog open={showInviteDialog} onOpenChange={setShowInviteDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Invite {user?.name}</DialogTitle>
+            <DialogDescription>
+              Share this link with {user?.name} to invite them to sign up and claim their profile.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Input
+                readOnly
+                value={inviteLink}
+                className="flex-1"
+              />
+              <Button
+                size="sm"
+                onClick={() => {
+                  navigator.clipboard.writeText(inviteLink);
+                  toast({
+                    title: "Copied!",
+                    description: "Invite link copied to clipboard",
+                  });
+                }}
+              >
+                <Copy className="h-4 w-4" />
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              When they sign up using this link, their Clerk account will be automatically linked to this profile.
+            </p>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowInviteDialog(false)}>
+                Close
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

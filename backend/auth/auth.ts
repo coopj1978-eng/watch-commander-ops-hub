@@ -78,6 +78,10 @@ export const auth = authHandler<AuthParams, AuthData>(async (data) => {
         dbUser = await db.queryRow<User>`
           SELECT * FROM users WHERE id = ${clerkUser.id}
         `;
+        
+        if (!dbUser) {
+          throw APIError.internal("Failed to link user account");
+        }
       } else {
         dbUser = await db.queryRow<User>`
           INSERT INTO users (id, email, name, role, avatar_url, is_active)
