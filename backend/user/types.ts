@@ -11,6 +11,9 @@ export interface User {
   last_login_at?: Date;
   is_active: boolean;
   left_at?: Date;
+  password_hash?: string;
+  password_reset_token?: string;
+  password_reset_expires?: Date;
   created_at: Date;
   updated_at: Date;
 }

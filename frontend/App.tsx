@@ -1,7 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState, createContext, useContext } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ClerkProvider, useUser } from "@clerk/clerk-react";
 import { Toaster } from "@/components/ui/toaster";
 import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
@@ -22,123 +21,177 @@ import CrewCommanderHome from "./pages/CrewCommanderHome";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import { applyTheme, getStoredTheme } from "./lib/theme";
-
-const PUBLISHABLE_KEY = "pk_test_d2lzZS1za3lsYXJrLTIxLmNsZXJrLmFjY291bnRzLmRldiQ";
-
-if (!PUBLISHABLE_KEY) {
-  throw new Error("Missing Clerk Publishable Key. Please set VITE_CLERK_PUBLISHABLE_KEY in your environment.");
-}
+import backend from "~backend/client";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: false,
+      staleTime: 1000 * 60 * 5,
       retry: 1,
     },
   },
 });
 
-function AppRoutes() {
-  const { isLoaded, isSignedIn, user } = useUser();
+interface AuthUser {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+}
 
-  console.log("AppRoutes - isLoaded:", isLoaded, "isSignedIn:", isSignedIn, "user:", user?.id);
+interface AuthContextType {
+  user: AuthUser | null;
+  isLoaded: boolean;
+  isSignedIn: boolean;
+  signOut: () => Promise<void>;
+}
 
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  isLoaded: false,
+  isSignedIn: false,
+  signOut: async () => {},
+});
+
+export const useAuth = () => useContext(AuthContext);
+
+function App() {
+  console.log("App rendering");
   useEffect(() => {
-    if (!isLoaded) {
-      console.log("Waiting for Clerk to load...");
-    } else {
-      console.log("Clerk loaded successfully!", { isSignedIn, userId: user?.id });
-    }
-  }, [isLoaded, isSignedIn, user]);
-
-  if (!isLoaded) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-indigo-600 mx-auto mb-4" />
-          <p className="text-gray-600">Loading authentication...</p>
-          <p className="text-xs text-gray-400 mt-2">Connecting to Clerk...</p>
-        </div>
-      </div>
-    );
-  }
-
-  console.log("Clerk loaded, rendering routes");
+    const themeData = getStoredTheme();
+    applyTheme(themeData.mode, themeData.customColors);
+  }, []);
 
   return (
-    <Routes>
-      <Route path="/sign-in/*" element={<SignIn />} />
-      <Route path="/sign-up/*" element={<SignUp />} />
-      
-      <Route
-        path="/"
-        element={
-          isSignedIn ? (
-            <Navigate to="/dashboard" replace />
-          ) : (
-            <Navigate to="/sign-in" replace />
-          )
-        }
-      />
-
-      <Route
-        path="/*"
-        element={
-          isSignedIn ? (
-            <Layout />
-          ) : (
-            <Navigate to="/sign-in" replace />
-          )
-        }
-      >
-        <Route path="dashboard" element={<Dashboard />} />
-        
-        <Route path="people" element={<People />} />
-        <Route path="people/:userId" element={<ProfileDetail />} />
-        
-        <Route path="watch-calendar" element={<WatchCalendar />} />
-        <Route path="personal-calendar" element={<PersonalCalendar />} />
-        <Route path="tasks" element={<Tasks />} />
-        
-        <Route path="inspections" element={<Inspections />} />
-        <Route path="targets" element={<Targets />} />
-        
-        <Route path="policies" element={<Policies />} />
-        <Route path="policy-qa" element={<PolicyQA />} />
-        
-        <Route path="reports" element={<Reports />} />
-        <Route path="admin" element={<AdminPanel />} />
-        <Route path="settings" element={<Settings />} />
-        <Route path="staff" element={<StaffPortal />} />
-        <Route path="crew-home" element={<CrewCommanderHome />} />
-      </Route>
-    </Routes>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <AppInner />
+      </BrowserRouter>
+      <Toaster />
+    </QueryClientProvider>
   );
 }
 
 function AppInner() {
   console.log("AppInner rendering");
-  
+  const [authState, setAuthState] = useState<{
+    user: AuthUser | null;
+    isLoaded: boolean;
+  }>({
+    user: null,
+    isLoaded: false,
+  });
+
   useEffect(() => {
-    const { mode, customColors } = getStoredTheme();
-    applyTheme(mode, customColors);
+    const checkAuth = async () => {
+      try {
+        const result = await backend.user.get({ id: "me" });
+        setAuthState({
+          user: {
+            id: result.id,
+            email: result.email,
+            name: result.name,
+            role: result.role,
+          },
+          isLoaded: true,
+        });
+      } catch (error) {
+        setAuthState({
+          user: null,
+          isLoaded: true,
+        });
+      }
+    };
+
+    checkAuth();
   }, []);
 
+  const signOut = async () => {
+    await backend.localauth.signOut();
+    document.cookie = "auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    setAuthState({ user: null, isLoaded: true });
+    window.location.href = "/sign-in";
+  };
+
+  const isSignedIn = !!authState.user;
+
+  console.log("Auth state:", {
+    isLoaded: authState.isLoaded,
+    isSignedIn,
+    user: authState.user,
+  });
+
+  if (!authState.isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
+
   return (
-    <BrowserRouter>
+    <AuthContext.Provider
+      value={{
+        user: authState.user,
+        isLoaded: authState.isLoaded,
+        isSignedIn,
+        signOut,
+      }}
+    >
       <AppRoutes />
-      <Toaster />
-    </BrowserRouter>
+    </AuthContext.Provider>
   );
 }
 
-export default function App() {
-  console.log("App rendering");
+function AppRoutes() {
+  const { isSignedIn, user } = useAuth();
+
+  console.log("AppRoutes - isSignedIn:", isSignedIn, "user:", user);
+
+  if (!isSignedIn) {
+    return (
+      <Routes>
+        <Route path="/sign-in" element={<SignIn />} />
+        <Route path="/sign-up" element={<SignUp />} />
+        <Route path="*" element={<Navigate to="/sign-in" replace />} />
+      </Routes>
+    );
+  }
+
+  const role = user?.role;
+
   return (
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
-      <QueryClientProvider client={queryClient}>
-        <AppInner />
-      </QueryClientProvider>
-    </ClerkProvider>
+    <Routes>
+      <Route path="/sign-in" element={<Navigate to="/" replace />} />
+      <Route path="/sign-up" element={<Navigate to="/" replace />} />
+      <Route element={<Layout />}>
+        <Route
+          path="/"
+          element={
+            role === "WC" ? (
+              <Dashboard />
+            ) : role === "CC" ? (
+              <CrewCommanderHome />
+            ) : (
+              <StaffPortal />
+            )
+          }
+        />
+        <Route path="/people" element={<People />} />
+        <Route path="/people/:userId" element={<ProfileDetail />} />
+        <Route path="/calendar/watch" element={<WatchCalendar />} />
+        <Route path="/calendar/personal" element={<PersonalCalendar />} />
+        <Route path="/tasks" element={<Tasks />} />
+        <Route path="/inspections" element={<Inspections />} />
+        <Route path="/targets" element={<Targets />} />
+        <Route path="/policies" element={<Policies />} />
+        <Route path="/policies/qa" element={<PolicyQA />} />
+        <Route path="/reports" element={<Reports />} />
+        <Route path="/admin" element={<AdminPanel />} />
+        <Route path="/settings" element={<Settings />} />
+      </Route>
+    </Routes>
   );
 }
+
+export default App;

@@ -1,4 +1,5 @@
 import { api, APIError } from "encore.dev/api";
+import { getAuthData } from "~encore/auth";
 import db from "../db";
 import type { User } from "./types";
 
@@ -9,8 +10,12 @@ interface GetUserRequest {
 export const get = api<GetUserRequest, User>(
   { auth: true, expose: true, method: "GET", path: "/users/:id" },
   async ({ id }) => {
+    const auth = getAuthData()!;
+    
+    const userId = id === "me" ? auth.userID : id;
+    
     const user = await db.queryRow<User>`
-      SELECT * FROM users WHERE id = ${id}
+      SELECT * FROM users WHERE id = ${userId}
     `;
 
     if (!user) {

@@ -1,18 +1,17 @@
-import { createClerkClient, verifyToken } from "@clerk/backend";
 import { Header, Cookie, APIError, Gateway } from "encore.dev/api";
 import { authHandler } from "encore.dev/auth";
 import { secret } from "encore.dev/config";
+import * as jwt from "jsonwebtoken";
 import { logSignIn } from "./login_logger";
 import { adminEmail } from "./secrets";
 import db from "../db";
 import type { User } from "../user/types";
 
-const clerkSecretKey = secret("ClerkSecretKey");
-const clerkClient = createClerkClient({ secretKey: clerkSecretKey() });
+const jwtSecret = secret("JWTSecret");
 
 interface AuthParams {
   authorization?: Header<"Authorization">;
-  session?: Cookie<"session">;
+  auth_token?: Cookie<"auth_token">;
 }
 
 export type UserRole = "WC" | "CC" | "FF" | "RO";
@@ -29,64 +28,31 @@ export interface AuthData {
 
 export const auth = authHandler<AuthParams, AuthData>(async (data) => {
   const token =
-    data.authorization?.replace("Bearer ", "") ?? data.session?.value;
+    data.authorization?.replace("Bearer ", "") ?? data.auth_token?.value;
   if (!token) {
     throw APIError.unauthenticated("missing token");
   }
 
   try {
-    const verifiedToken = await verifyToken(token, {
-      secretKey: clerkSecretKey(),
-    });
+    const decoded = jwt.verify(token, jwtSecret()) as {
+      userId: string;
+      email: string;
+      role: string;
+    };
 
-    const clerkUser = await clerkClient.users.getUser(verifiedToken.sub);
-    const metadata = clerkUser.publicMetadata || {};
-    const userEmail = clerkUser.emailAddresses[0]?.emailAddress ?? null;
-    
     let dbUser = await db.queryRow<User>`
-      SELECT * FROM users WHERE id = ${clerkUser.id}
+      SELECT * FROM users WHERE id = ${decoded.userId}
     `;
 
     if (!dbUser) {
-      const userName = clerkUser.firstName && clerkUser.lastName
-        ? `${clerkUser.firstName} ${clerkUser.lastName}`
-        : clerkUser.username || clerkUser.emailAddresses[0]?.emailAddress || "User";
-      
-      const defaultRole: UserRole = "FF";
-      
-      dbUser = await db.queryRow<User>`
-        INSERT INTO users (id, email, name, role, avatar_url, is_active)
-        VALUES (
-          ${clerkUser.id},
-          ${userEmail || `user-${clerkUser.id}@temp.local`},
-          ${userName},
-          ${defaultRole},
-          ${clerkUser.imageUrl},
-          ${true}
-        )
-        RETURNING *
-      `;
-
-      if (!dbUser) {
-        throw APIError.internal("Failed to create user in database");
-      }
-      
-      await db.exec`
-        INSERT INTO firefighter_profiles (
-          user_id, rolling_sick_episodes, rolling_sick_days, 
-          trigger_stage, driver_lgv, driver_erd
-        )
-        VALUES (
-          ${clerkUser.id}, 0, 0, 'None', false, false
-        )
-      `;
+      throw APIError.unauthenticated("user not found");
     }
 
     if (!dbUser.is_active) {
       throw APIError.permissionDenied("Account is inactive. Please contact your administrator.");
     }
 
-    let role = (metadata.role as UserRole) || dbUser.role || "FF";
+    let role = dbUser.role as UserRole;
 
     const existingWC = await db.queryRow<User>`
       SELECT * FROM users WHERE role = 'WC' LIMIT 1
@@ -95,31 +61,24 @@ export const auth = authHandler<AuthParams, AuthData>(async (data) => {
     if (!existingWC) {
       role = "WC";
       await db.exec`
-        UPDATE users SET role = 'WC' WHERE id = ${clerkUser.id}
+        UPDATE users SET role = 'WC' WHERE id = ${dbUser.id}
       `;
-      await clerkClient.users.updateUserMetadata(clerkUser.id, {
-        publicMetadata: { ...metadata, role: "WC" },
-      });
-    } else if (userEmail === adminEmail()) {
+    } else if (dbUser.email === adminEmail()) {
       role = "WC";
       if (dbUser.role !== "WC") {
         await db.exec`
-          UPDATE users SET role = 'WC' WHERE id = ${clerkUser.id}
+          UPDATE users SET role = 'WC' WHERE id = ${dbUser.id}
         `;
-        await clerkClient.users.updateUserMetadata(clerkUser.id, {
-          publicMetadata: { ...metadata, role: "WC" },
-        });
       }
     }
     
     const authData: AuthData = {
-      userID: clerkUser.id,
-      imageUrl: clerkUser.imageUrl,
-      email: userEmail,
+      userID: dbUser.id,
+      imageUrl: dbUser.avatar_url || "",
+      email: dbUser.email,
       role,
-      watchUnit: metadata.watch_unit as string | undefined,
-      rank: metadata.rank as string | undefined,
-      assignedCrews: metadata.assigned_crews as string[] | undefined,
+      watchUnit: dbUser.watch_unit,
+      rank: dbUser.rank,
     };
 
     await logSignIn(authData);
