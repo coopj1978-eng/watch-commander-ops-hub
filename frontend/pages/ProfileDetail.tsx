@@ -86,6 +86,7 @@ export default function ProfileDetail() {
   const [editedProfile, setEditedProfile] = useState<Partial<FirefighterProfile>>({});
   const [editedUser, setEditedUser] = useState<{ role?: string }>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [userSearchQuery, setUserSearchQuery] = useState("");
 
   const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ["user", userId],
@@ -133,6 +134,11 @@ export default function ProfileDetail() {
     queryKey: ["activity-log", userId],
     queryFn: async () => backend.admin.getActivityLog({ user_id: userId }),
     enabled: !!userId,
+  });
+
+  const { data: allUsersData } = useQuery({
+    queryKey: ["users-all"],
+    queryFn: async () => backend.user.list({}),
   });
 
   const updateProfileMutation = useMutation({
@@ -860,20 +866,42 @@ export default function ProfileDetail() {
                       <Label>Reminder Recipient</Label>
                       <Select
                         value={newNote.reminder_recipient_user_id}
-                        onValueChange={(value) =>
-                          setNewNote({ ...newNote, reminder_recipient_user_id: value })
-                        }
+                        onValueChange={(value) => {
+                          setNewNote({ ...newNote, reminder_recipient_user_id: value });
+                          setUserSearchQuery("");
+                        }}
                       >
                         <SelectTrigger className="mt-1">
-                          <SelectValue placeholder="Only me (personal reminder)" />
+                          <SelectValue placeholder="Search for a user or select 'Only me'">
+                            {newNote.reminder_recipient_user_id ? (
+                              allUsersData?.users.find(u => u.id === newNote.reminder_recipient_user_id)?.name || "Selected user"
+                            ) : (
+                              "Only me (personal reminder)"
+                            )}
+                          </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
+                          <div className="p-2 sticky top-0 bg-background border-b">
+                            <Input
+                              placeholder="Search users..."
+                              value={userSearchQuery}
+                              onChange={(e) => setUserSearchQuery(e.target.value)}
+                              className="h-8"
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          </div>
                           <SelectItem value="">Only me (personal reminder)</SelectItem>
-                          {userId && (
-                            <SelectItem value={userId}>
-                              {user?.name} (shared reminder)
-                            </SelectItem>
-                          )}
+                          {allUsersData?.users
+                            .filter(u => 
+                              !userSearchQuery || 
+                              u.name.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+                              u.email.toLowerCase().includes(userSearchQuery.toLowerCase())
+                            )
+                            .map(u => (
+                              <SelectItem key={u.id} value={u.id}>
+                                {u.name} ({u.email})
+                              </SelectItem>
+                            ))}
                         </SelectContent>
                       </Select>
                       <p className="text-xs text-muted-foreground mt-1">
