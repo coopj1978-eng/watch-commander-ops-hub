@@ -58,30 +58,34 @@ function transformProfile(dbProfile: DBProfile): FirefighterProfile {
     last_conversation_text,
     ...rest
   } = dbProfile;
-  return {
+  
+  const profile: FirefighterProfile = {
     ...rest,
-    watch: rest.watch as any,
+    watch: (rest.watch as any) || undefined,
     driver: {
       lgv: driver_lgv || false,
       erd: driver_erd || false,
     },
-    driverPathway: driver_pathway_status
-      ? {
-          status: driver_pathway_status as any,
-          lgvPassedDate: driver_pathway_lgv_passed_date
-            ? driver_pathway_lgv_passed_date.toISOString().split("T")[0]
-            : undefined,
-        }
-      : undefined,
-    lastConversation:
-      last_conversation_date && last_conversation_text
-        ? {
-            date: last_conversation_date.toISOString().split("T")[0],
-            text: last_conversation_text,
-          }
-        : undefined,
     trigger_stage: rest.trigger_stage as any,
   };
+
+  if (driver_pathway_status) {
+    profile.driverPathway = {
+      status: driver_pathway_status as any,
+      lgvPassedDate: driver_pathway_lgv_passed_date
+        ? driver_pathway_lgv_passed_date.toISOString().split("T")[0]
+        : undefined,
+    };
+  }
+
+  if (last_conversation_date && last_conversation_text) {
+    profile.lastConversation = {
+      date: last_conversation_date.toISOString().split("T")[0],
+      text: last_conversation_text,
+    };
+  }
+
+  return profile;
 }
 
 export const list = api<ListProfilesRequest, ListProfilesResponse>(

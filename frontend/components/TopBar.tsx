@@ -16,23 +16,9 @@ export default function TopBar() {
   const { user } = useUser();
   const queryClient = useQueryClient();
 
-  const { data: notificationsData } = useQuery({
-    queryKey: ["notifications"],
-    queryFn: async () => backend.notification.list(),
-    refetchInterval: 60000,
-  });
-
-  const notifications = notificationsData?.notifications || [];
-  const unreadCount = notificationsData?.unread_count || 0;
-
-  const markReadMutation = useMutation({
-    mutationFn: async (notificationId: number) => {
-      return await backend.notification.markRead({ notification_id: notificationId });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
-    },
-  });
+  // Notifications temporarily disabled
+  const notifications: any[] = [];
+  const unreadCount = 0;
 
   const formatTimeAgo = (date: Date) => {
     const now = new Date();
@@ -117,36 +103,9 @@ export default function TopBar() {
               <h3 className="font-semibold text-foreground">Notifications</h3>
               <p className="text-xs text-muted-foreground">{unreadCount} unread</p>
             </div>
-            {notifications.length > 0 ? (
-              notifications.map((notification) => (
-                <DropdownMenuItem
-                  key={notification.id}
-                  className={`flex flex-col items-start gap-1 p-4 cursor-pointer ${
-                    !notification.is_read ? "bg-muted/50" : ""
-                  }`}
-                  onClick={() => {
-                    if (!notification.is_read) {
-                      markReadMutation.mutate(notification.id);
-                    }
-                  }}
-                >
-                  <div className="flex items-start justify-between w-full">
-                    <span className="font-medium text-sm">{notification.title}</span>
-                    {!notification.is_read && (
-                      <span className="h-2 w-2 rounded-full bg-red-600" aria-label="Unread" />
-                    )}
-                  </div>
-                  <p className="text-xs text-muted-foreground">{notification.message}</p>
-                  <span className="text-xs text-muted-foreground">
-                    Due: {new Date(notification.due_date).toLocaleDateString()}
-                  </span>
-                </DropdownMenuItem>
-              ))
-            ) : (
-              <div className="p-4 text-center text-muted-foreground text-sm">
-                No reminders
-              </div>
-            )}
+            <div className="p-4 text-center text-muted-foreground text-sm">
+              No notifications
+            </div>
           </DropdownMenuContent>
         </DropdownMenu>
 

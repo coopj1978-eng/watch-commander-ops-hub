@@ -1,4 +1,5 @@
-CREATE TABLE firefighter_profiles (
+-- Firefighter profile table
+CREATE TABLE IF NOT EXISTS firefighter_profiles (
   id BIGSERIAL PRIMARY KEY,
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   service_number TEXT UNIQUE,
@@ -22,6 +23,6 @@ CREATE TABLE firefighter_profiles (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_firefighter_profiles_user_id ON firefighter_profiles(user_id);
-CREATE INDEX idx_firefighter_profiles_service_number ON firefighter_profiles(service_number);
-CREATE INDEX idx_firefighter_profiles_station ON firefighter_profiles(station);
+CREATE INDEX IF NOT EXISTS idx_firefighter_profiles_user_id ON firefighter_profiles(user_id);
+CREATE INDEX IF NOT EXISTS idx_firefighter_profiles_service_number ON firefighter_profiles(service_number);
+CREATE INDEX IF NOT EXISTS idx_firefighter_profiles_station ON firefighter_profiles(station);

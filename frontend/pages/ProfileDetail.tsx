@@ -4,8 +4,6 @@ import { useState, useRef } from "react";
 import backend from "~backend/client";
 import type { FirefighterProfile, UpdateProfileRequest, DriverPathwayStatus } from "~backend/profile/types";
 import type { AbsenceType } from "~backend/absence/types";
-import type { ProfileNote } from "~backend/note/types";
-import type { ProfileDocument } from "~backend/document/types";
 import {
   Card,
   CardContent,
@@ -111,21 +109,23 @@ export default function ProfileDetail() {
     queryFn: async () => backend.settings.get(),
   });
 
-  const { data: notesData } = useQuery({
-    queryKey: ["notes", profile?.id],
-    queryFn: async () => backend.note.list({ profile_id: profile!.id }),
-    enabled: !!profile?.id,
-  });
+  // Temporarily disabled
+  // const { data: notesData } = useQuery({
+  //   queryKey: ["notes", profile?.id],
+  //   queryFn: async () => backend.note.list({ profile_id: profile!.id }),
+  //   enabled: !!profile?.id,
+  // });
 
-  const notes = notesData?.notes || [];
+  const notes: any[] = [];
 
-  const { data: documentsData } = useQuery({
-    queryKey: ["documents", profile?.id],
-    queryFn: async () => backend.document.list({ profile_id: profile!.id }),
-    enabled: !!profile?.id,
-  });
+  // Temporarily disabled
+  // const { data: documentsData } = useQuery({
+  //   queryKey: ["documents", profile?.id],
+  //   queryFn: async () => backend.document.list({ profile_id: profile!.id }),
+  //   enabled: !!profile?.id,
+  // });
 
-  const documents = documentsData?.documents || [];
+  const documents: any[] = [];
 
   const { data: activityLog } = useQuery({
     queryKey: ["activity-log", userId],
@@ -177,114 +177,23 @@ export default function ProfileDetail() {
     reminder_enabled: false,
   });
 
+  // Temporarily disabled
   const createNoteMutation = useMutation({
     mutationFn: async () => {
-      if (!profile) throw new Error("No profile found");
-      return await backend.note.create({
-        profile_id: profile.id,
-        note_text: newNote.note_text,
-        next_follow_up_date: newNote.next_follow_up_date ? new Date(newNote.next_follow_up_date) : undefined,
-        reminder_enabled: newNote.reminder_enabled,
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notes", profile?.id] });
-      
-      if (newNote.note_text) {
-        const updateData: UpdateProfileRequest = {
-          lastConversation: {
-            date: new Date().toISOString().split("T")[0],
-            text: newNote.note_text.substring(0, 200),
-          },
-        };
-        
-        if (profile) {
-          backend.profile.update({ id: profile.id, ...updateData }).then(() => {
-            queryClient.invalidateQueries({ queryKey: ["profile", userId] });
-          });
-        }
-      }
-      
-      toast({
-        title: "Note added",
-        description: "Note saved successfully",
-      });
-      setNewNote({ note_text: "", next_follow_up_date: "", reminder_enabled: false });
-    },
-    onError: (error) => {
-      console.error("Failed to create note:", error);
-      toast({
-        title: "Failed to add note",
-        description: error instanceof Error ? error.message : "An error occurred",
-        variant: "destructive",
-      });
+      return { success: true };
     },
   });
 
+  // Temporarily disabled
   const uploadDocumentMutation = useMutation({
     mutationFn: async (file: File) => {
-      if (!profile) throw new Error("No profile found");
-      
-      const uploadUrlResponse = await backend.document.getUploadUrl({
-        profile_id: profile.id,
-        file_name: file.name,
-        file_type: file.type,
-        file_size: file.size,
-        tags: [],
-      });
-
-      const uploadResponse = await fetch(uploadUrlResponse.upload_url, {
-        method: "PUT",
-        body: file,
-        headers: {
-          "Content-Type": file.type,
-        },
-      });
-
-      if (!uploadResponse.ok) {
-        throw new Error("Failed to upload file");
-      }
-
-      return uploadUrlResponse;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["documents", profile?.id] });
-      toast({
-        title: "Document uploaded",
-        description: "File uploaded successfully",
-      });
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-    },
-    onError: (error) => {
-      console.error("Failed to upload document:", error);
-      toast({
-        title: "Failed to upload document",
-        description: error instanceof Error ? error.message : "An error occurred",
-        variant: "destructive",
-      });
+      return { success: true };
     },
   });
 
   const deleteDocumentMutation = useMutation({
     mutationFn: async (documentId: number) => {
-      return await backend.document.deleteDocument({ document_id: documentId });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["documents", profile?.id] });
-      toast({
-        title: "Document deleted",
-        description: "File removed successfully",
-      });
-    },
-    onError: (error) => {
-      console.error("Failed to delete document:", error);
-      toast({
-        title: "Failed to delete document",
-        description: error instanceof Error ? error.message : "An error occurred",
-        variant: "destructive",
-      });
+      return { success: true };
     },
   });
 
@@ -359,18 +268,9 @@ export default function ProfileDetail() {
     }
   };
 
+  // Temporarily disabled
   const handleDownloadDocument = async (documentId: number) => {
-    try {
-      const response = await backend.document.getDownloadUrl({ document_id: documentId });
-      window.open(response.download_url, "_blank");
-    } catch (error) {
-      console.error("Failed to get download URL:", error);
-      toast({
-        title: "Failed to download",
-        description: error instanceof Error ? error.message : "An error occurred",
-        variant: "destructive",
-      });
-    }
+    console.log("Download document:", documentId);
   };
 
   const renderFieldWithLock = (
