@@ -22,6 +22,8 @@ interface AddPersonModalProps {
   onClose: () => void;
 }
 
+import { WatchDot } from "./WatchBadge";
+
 const WATCH_OPTIONS = ["Green", "Red", "White", "Blue", "Amber"];
 const RANK_OPTIONS = ["SC", "WC", "CC", "FF"];
 
@@ -212,7 +214,12 @@ export default function AddPersonModal({ isOpen, onClose }: AddPersonModalProps)
                 <SelectContent>
                   <SelectItem value="_none">Select watch</SelectItem>
                   {WATCH_OPTIONS.map(w => (
-                    <SelectItem key={w} value={w}>{w}</SelectItem>
+                    <SelectItem key={w} value={w}>
+                      <div className="flex items-center gap-2">
+                        <WatchDot watch={w} />
+                        {w}
+                      </div>
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>

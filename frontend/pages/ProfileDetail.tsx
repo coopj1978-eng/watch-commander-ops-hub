@@ -6,6 +6,7 @@ import type { FirefighterProfile, UpdateProfileRequest, DriverPathwayStatus } fr
 import type { AbsenceType } from "~backend/absence/types";
 import SkillsTab from "@/components/SkillsTab";
 import SkillsSummaryCard from "@/components/SkillsSummaryCard";
+import { WatchBadge, WatchDot } from "@/components/WatchBadge";
 import {
   Card,
   CardContent,
@@ -657,15 +658,46 @@ export default function ProfileDetail() {
                         <SelectValue placeholder="Select watch" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Green">Green</SelectItem>
-                        <SelectItem value="Red">Red</SelectItem>
-                        <SelectItem value="White">White</SelectItem>
-                        <SelectItem value="Blue">Blue</SelectItem>
-                        <SelectItem value="Amber">Amber</SelectItem>
+                        <SelectItem value="Green">
+                          <div className="flex items-center gap-2">
+                            <WatchDot watch="Green" />
+                            Green
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="Red">
+                          <div className="flex items-center gap-2">
+                            <WatchDot watch="Red" />
+                            Red
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="White">
+                          <div className="flex items-center gap-2">
+                            <WatchDot watch="White" />
+                            White
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="Blue">
+                          <div className="flex items-center gap-2">
+                            <WatchDot watch="Blue" />
+                            Blue
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="Amber">
+                          <div className="flex items-center gap-2">
+                            <WatchDot watch="Amber" />
+                            Amber
+                          </div>
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   ) : (
-                    <p className="text-foreground font-medium mt-1">{profile?.watch || user?.watch_unit || "-"}</p>
+                    <div className="mt-1">
+                      {profile?.watch || user?.watch_unit ? (
+                        <WatchBadge watch={profile?.watch || user?.watch_unit || ""} />
+                      ) : (
+                        <span className="text-foreground">-</span>
+                      )}
+                    </div>
                   )}
                 </div>
               </CardContent>

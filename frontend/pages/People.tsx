@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { WatchBadge, WatchDot } from "@/components/WatchBadge";
 import {
   Select,
   SelectContent,
@@ -345,6 +346,7 @@ export default function People() {
                       checked={watchFilters.includes(watch)}
                       onCheckedChange={() => toggleFilter(watch, watchFilters, setWatchFilters)}
                     />
+                    <WatchDot watch={watch} size="sm" />
                     <span className="text-sm">{watch}</span>
                   </label>
                 ))}
@@ -480,7 +482,7 @@ export default function People() {
                     {visibleColumns.watch && (
                       <TableCell>
                         {profile?.watch ? (
-                          <Badge variant="outline">{profile.watch}</Badge>
+                          <WatchBadge watch={profile.watch} />
                         ) : (
                           <span className="text-muted-foreground">-</span>
                         )}
