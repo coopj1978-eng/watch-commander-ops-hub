@@ -1,5 +1,5 @@
 import { createContext, useContext, ReactNode } from "react";
-import backend from "~backend/client";
+import backend from "@/lib/backend";
 import { useAuth } from "@/App";
 
 export function useBackend() {
