@@ -8,7 +8,7 @@ interface DBNote {
   profile_id: number;
   created_by_user_id: string;
   note_text: string;
-  next_follow_up_date?: Date;
+  next_follow_up_date?: Date | string;
   reminder_enabled: boolean;
   reminder_recipient_user_id?: string;
   calendar_event_id?: number;
@@ -18,11 +18,18 @@ interface DBNote {
 }
 
 function transformNote(dbNote: DBNote): Note {
+  let followUpDate: string | undefined;
+  if (dbNote.next_follow_up_date) {
+    if (typeof dbNote.next_follow_up_date === 'string') {
+      followUpDate = dbNote.next_follow_up_date.split('T')[0];
+    } else {
+      followUpDate = dbNote.next_follow_up_date.toISOString().split('T')[0];
+    }
+  }
+  
   return {
     ...dbNote,
-    next_follow_up_date: dbNote.next_follow_up_date
-      ? dbNote.next_follow_up_date.toISOString().split("T")[0]
-      : undefined,
+    next_follow_up_date: followUpDate,
     attachments: dbNote.attachments || [],
   };
 }
