@@ -70,6 +70,22 @@ export const auth = authHandler<AuthParams, AuthData>(async (data) => {
       if (!dbUser) {
         throw APIError.internal("Failed to create user in database");
       }
+      
+      const profileExists = await db.queryRow<{ id: number }>`
+        SELECT id FROM firefighter_profiles WHERE user_id = ${clerkUser.id}
+      `;
+      
+      if (!profileExists) {
+        await db.exec`
+          INSERT INTO firefighter_profiles (
+            user_id, rolling_sick_episodes, rolling_sick_days, 
+            trigger_stage, driver_lgv, driver_erd
+          )
+          VALUES (
+            ${clerkUser.id}, 0, 0, 'None', false, false
+          )
+        `;
+      }
     }
 
     if (!dbUser.is_active) {
