@@ -1,11 +1,7 @@
 import backend from "~backend/client";
 
-export const backendClient = backend.with({
-  requestInit: {
-    credentials: "include",
-  },
-});
+export const backendClient = backend;
 
 export function useBackend() {
-  return backendClient;
+  return backend;
 }
