@@ -37,6 +37,7 @@ export const auth = authHandler<AuthParams, AuthData>(async (data) => {
   try {
     const verifiedToken = await verifyToken(token, {
       secretKey: clerkSecretKey(),
+      jwtKey: clerkSecretKey(),
     });
 
     const clerkUser = await clerkClient.users.getUser(verifiedToken.sub);
