@@ -174,7 +174,7 @@ export const createPerson = api<CreatePersonRequest, CreatePersonResponse>(
           'FF',
           ${req.watch_unit || null},
           ${req.rank || null},
-          true
+          false
         )
         RETURNING *
       `;
