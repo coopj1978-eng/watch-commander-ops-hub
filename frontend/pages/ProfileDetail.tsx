@@ -139,7 +139,7 @@ export default function ProfileDetail() {
   const updateProfileMutation = useMutation({
     mutationFn: async (data: UpdateProfileRequest) => {
       if (!profile) throw new Error("No profile found");
-      return await backend.profile.update({ id: profile.id }, data);
+      return await backend.profile.update({ id: profile.id, ...data });
     },
     onSuccess: async () => {
       if (currentUser?.id) {
