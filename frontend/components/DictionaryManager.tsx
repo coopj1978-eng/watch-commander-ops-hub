@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 import { useIsWC } from "@/lib/rbac";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth } from "@/App";
 import { Loader2, Plus, Pencil, Trash2, X, Check, BookOpen, Award, Lock } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -42,7 +42,7 @@ export function DictionaryManager({ type, title, description, icon, isOpen, onCl
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const isWC = useIsWC();
-  const { user } = useUser();
+  const { user } = useAuth();
 
   const [newValue, setNewValue] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);

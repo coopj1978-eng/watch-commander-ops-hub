@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import backend from "~backend/client";
+import backend from "@/lib/backend";
 import type { Target, TargetMetric } from "~backend/targets/types";
 import {
   Card,

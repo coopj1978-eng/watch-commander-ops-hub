@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useUser } from "@clerk/clerk-react";
-import backend from "~backend/client";
+import { useAuth } from "@/App";
+import backend from "@/lib/backend";
 import type { Task, TaskStatus } from "~backend/task/types";
 import {
   Card,
@@ -27,7 +27,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 type ViewMode = "board" | "list";
 
 export default function MyTasks() {
-  const { user } = useUser();
+  const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [viewMode, setViewMode] = useState<ViewMode>("board");

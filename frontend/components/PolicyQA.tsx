@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
 import { Send, Loader2, FileText, AlertCircle, CheckCircle2 } from "lucide-react";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth } from "@/App";
 
 interface PolicyQAProps {
   onQueryComplete?: () => void;
@@ -23,7 +23,7 @@ interface PolicyQAProps {
 export default function PolicyQA({ onQueryComplete }: PolicyQAProps) {
   const backend = useBackend();
   const { toast } = useToast();
-  const { user } = useUser();
+  const { user } = useAuth();
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState<string | null>(null);
   const [citations, setCitations] = useState<Citation[]>([]);

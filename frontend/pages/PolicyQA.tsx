@@ -29,12 +29,12 @@ import {
 } from "@/components/ui/table";
 import { Search, MessageSquare, FileText, Filter } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth } from "@/App";
 import { Button } from "@/components/ui/button";
 
 export default function PolicyQAPage() {
   const backend = useBackend();
-  const { user } = useUser();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [confidenceFilter, setConfidenceFilter] = useState<string>("");

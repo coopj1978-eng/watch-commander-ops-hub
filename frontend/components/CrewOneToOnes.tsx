@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { useAuth } from "@clerk/clerk-react";
-import backend from "~backend/client";
+import { useAuth } from "@/App";
+import backend from "@/lib/backend";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -8,15 +8,15 @@ import { Calendar, User, AlertTriangle } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 
 export function CrewOneToOnes() {
-  const { userId } = useAuth();
+  const { user: currentUser } = useAuth();
 
   const { data: user } = useQuery({
-    queryKey: ["current-user", userId],
+    queryKey: ["current-user", currentUser?.id],
     queryFn: async () => {
-      if (!userId) return null;
-      return await backend.user.get({ id: userId });
+      if (!currentUser?.id) return null;
+      return await backend.user.get({ id: currentUser.id });
     },
-    enabled: !!userId,
+    enabled: !!currentUser?.id,
   });
 
   const { data: crewMembers } = useQuery({

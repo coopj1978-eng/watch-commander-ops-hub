@@ -1,6 +1,6 @@
 import { useAuth } from "@/App";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import backend from "~backend/client";
+import backend from "@/lib/backend";
 import { Bell, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {

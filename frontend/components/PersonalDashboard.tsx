@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { useUser } from "@clerk/clerk-react";
-import backend from "~backend/client";
+import { useAuth } from "@/App";
+import backend from "@/lib/backend";
 import {
   Card,
   CardContent,
@@ -21,7 +21,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function PersonalDashboard() {
-  const { user } = useUser();
+  const { user } = useAuth();
 
   const { data: tasks, isLoading: tasksLoading } = useQuery({
     queryKey: ["my-tasks", user?.id],
@@ -79,7 +79,7 @@ export default function PersonalDashboard() {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-foreground">
-          Welcome back, {user?.firstName || "Firefighter"}
+          Welcome back, {user?.name?.split(" ")[0] || "Firefighter"}
         </h2>
         <p className="text-muted-foreground mt-1">
           Here's your overview for today

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import backend from "~backend/client";
+import backend from "@/lib/backend";
 import {
   Card,
   CardContent,

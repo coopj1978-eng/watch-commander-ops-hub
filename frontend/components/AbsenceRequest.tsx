@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useUser } from "@clerk/clerk-react";
-import backend from "~backend/client";
+import { useAuth } from "@/App";
+import backend from "@/lib/backend";
 import type { AbsenceType } from "~backend/absence/types";
 import {
   Card,
@@ -25,7 +25,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Send, Calendar, AlertCircle, CheckCircle2 } from "lucide-react";
 
 export default function AbsenceRequest() {
-  const { user } = useUser();
+  const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useUser } from "@clerk/clerk-react";
-import backend from "~backend/client";
+import { useAuth } from "@/App";
+import backend from "@/lib/backend";
 import {
   Card,
   CardContent,
@@ -30,7 +30,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function MyProfile() {
-  const { user } = useUser();
+  const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [editMode, setEditMode] = useState(false);
@@ -156,13 +156,13 @@ export default function MyProfile() {
           <CardContent className="space-y-4">
             <div>
               <Label className="text-muted-foreground">Full Name</Label>
-              <p className="text-foreground font-medium mt-1">{user?.fullName || "Not set"}</p>
+              <p className="text-foreground font-medium mt-1">{user?.name || "Not set"}</p>
             </div>
             <div>
               <Label className="text-muted-foreground">Email</Label>
               <div className="flex items-center gap-2 mt-1">
                 <Mail className="h-4 w-4 text-muted-foreground" />
-                <p className="text-foreground">{user?.primaryEmailAddress?.emailAddress}</p>
+                <p className="text-foreground">{user?.email}</p>
               </div>
             </div>
             <div>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import backend from "~backend/client";
+import backend from "@/lib/backend";
 import CalendarWidget from "../components/CalendarWidget";
 import DayModal from "../components/DayModal";
 import { useToast } from "@/components/ui/use-toast";

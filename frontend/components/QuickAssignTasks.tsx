@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAuth } from "@clerk/clerk-react";
-import backend from "~backend/client";
+import { useAuth } from "@/App";
+import backend from "@/lib/backend";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +16,7 @@ const CATEGORIES = ["Training", "Inspection", "HFSV", "Admin", "Other"];
 const PRIORITIES = ["Low", "Med", "High"];
 
 export function QuickAssignTasks() {
-  const { userId } = useAuth();
+  const { user: currentUser } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -35,10 +35,10 @@ export function QuickAssignTasks() {
     queryKey: ["crew-firefighters"],
     queryFn: async () => {
       const response = await backend.user.list({});
-      const currentUser = response.users.find((u) => u.id === userId);
-      if (!currentUser?.watch_unit) return [];
+      const foundUser = response.users.find((u) => u.id === currentUser?.id);
+      if (!foundUser?.watch_unit) return [];
       return response.users.filter(
-        (u) => u.role === "FF" && u.watch_unit === currentUser.watch_unit
+        (u) => u.role === "FF" && u.watch_unit === foundUser.watch_unit
       );
     },
   });

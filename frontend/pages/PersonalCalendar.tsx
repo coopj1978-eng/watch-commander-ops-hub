@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useUser } from "@clerk/clerk-react";
-import backend from "~backend/client";
+import { useAuth } from "@/App";
+import backend from "@/lib/backend";
 import CalendarWidget from "../components/CalendarWidget";
 import DayModal from "../components/DayModal";
 import { useToast } from "@/components/ui/use-toast";
@@ -21,7 +21,7 @@ interface CalendarItem {
 type CalendarViewType = "day" | "week" | "month" | "3month" | "year" | "custom";
 
 export default function PersonalCalendar() {
-  const { user } = useUser();
+  const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [currentDate, setCurrentDate] = useState(new Date());

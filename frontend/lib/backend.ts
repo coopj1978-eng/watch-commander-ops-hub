@@ -1,6 +1,6 @@
-import backend from "~backend/client";
+import backendDefault from "~backend/client";
 
-export const backendClient = backend.with({
+export const backendClient = backendDefault.with({
   auth: () => {
     const token = localStorage.getItem("auth_token");
     if (token) {
@@ -9,6 +9,8 @@ export const backendClient = backend.with({
     return undefined;
   },
 });
+
+export default backendClient;
 
 export function useBackend() {
   return backendClient;

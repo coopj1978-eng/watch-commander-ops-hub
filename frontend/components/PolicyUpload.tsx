@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { Upload, FileText, Loader2 } from "lucide-react";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth } from "@/App";
 
 interface PolicyUploadProps {
   open: boolean;
@@ -26,7 +26,7 @@ export default function PolicyUpload({ open, onOpenChange }: PolicyUploadProps) 
   const backend = useBackend();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { user } = useUser();
+  const { user } = useAuth();
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");

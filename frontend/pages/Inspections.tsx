@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import backend from "~backend/client";
+import backend from "@/lib/backend";
 import type { Inspection } from "~backend/inspection/types";
 import InspectionTable from "@/components/InspectionTable";
 import InspectionForm from "@/components/InspectionForm";

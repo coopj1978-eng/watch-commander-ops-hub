@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useUser } from "@clerk/clerk-react";
-import backend from "~backend/client";
+import { useAuth } from "@/App";
+import backend from "@/lib/backend";
 import type { Task } from "~backend/task/types";
 import {
   Card,
@@ -15,7 +15,7 @@ import { Calendar, Clock, MapPin } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function MyCalendar() {
-  const { user } = useUser();
+  const { user } = useAuth();
 
   const { data: tasksData, isLoading: tasksLoading } = useQuery({
     queryKey: ["my-calendar-tasks", user?.id],

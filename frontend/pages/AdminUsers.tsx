@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import backend from "~backend/client";
+import backend from "@/lib/backend";
 import type { User, UserRole } from "~backend/user/types";
 import { PageContainer } from "@/components/PageContainer";
 import { Button } from "@/components/ui/button";

@@ -80,13 +80,13 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import { useCanEditProfiles, useIsWC, useUserRole } from "@/lib/rbac";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth } from "@/App";
 
 export default function ProfileDetail() {
   const { userId } = useParams<{ userId: string }>();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { user: currentUser } = useUser();
+  const { user: currentUser } = useAuth();
   const backend = useBackend();
   const canEdit = useCanEditProfiles();
   const isWC = useIsWC();

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import backend from "~backend/client";
+import backend from "@/lib/backend";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Users, ListTodo, CheckCircle2, AlertCircle, ClipboardCheck, Calendar } from "lucide-react";

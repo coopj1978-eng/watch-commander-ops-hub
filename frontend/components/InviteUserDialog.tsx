@@ -1,5 +1,5 @@
 import { useState } from "react";
-import backend from "~backend/client";
+import backend from "@/lib/backend";
 import type { UserRole } from "~backend/user/types";
 import {
   Dialog,

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import backend from "~backend/client";
+import backend from "@/lib/backend";
 import type { Inspection, InspectionType, InspectionStatus, InspectionPriority } from "~backend/inspection/types";
 import {
   Dialog,
