@@ -186,6 +186,10 @@ export function canViewProfile(
   return hasPermission(auth, Permission.VIEW_ALL_PROFILES);
 }
 
+export function canEditProfiles(auth: AuthData): boolean {
+  return auth.role === "WC" || auth.role === "CC";
+}
+
 export function filterByRole<T extends { assigned_to_user_id?: string | null }>(
   auth: AuthData,
   items: T[]

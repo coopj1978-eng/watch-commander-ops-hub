@@ -1,9 +1,11 @@
 import { useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import backend from "~backend/client";
-import type { FirefighterProfile, UpdateProfileRequest } from "~backend/profile/types";
+import type { FirefighterProfile, UpdateProfileRequest, DriverPathwayStatus } from "~backend/profile/types";
 import type { AbsenceType } from "~backend/absence/types";
+import type { ProfileNote } from "~backend/note/types";
+import type { ProfileDocument } from "~backend/document/types";
 import {
   Card,
   CardContent,
@@ -43,8 +45,6 @@ import {
   Edit,
   Phone,
   Mail,
-  Calendar,
-  Award,
   Save,
   X,
   Plus,
@@ -56,6 +56,16 @@ import {
   FileText,
   Lock,
   AlertTriangle,
+  Download,
+  Trash2,
+  Upload,
+  MessageSquare,
+  Bell,
+  Calendar as CalendarIcon,
+  History,
+  Award,
+  Truck,
+  CheckCircle2,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
@@ -73,6 +83,8 @@ export default function ProfileDetail() {
   const isViewingOwnProfile = currentUser?.id === userId;
   const [editMode, setEditMode] = useState(false);
   const [editedProfile, setEditedProfile] = useState<Partial<FirefighterProfile>>({});
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [newSkill, setNewSkill] = useState("");
 
   const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ["user", userId],
@@ -94,15 +106,31 @@ export default function ProfileDetail() {
 
   const absences = absencesData?.absences;
 
-  const { data: absenceStats } = useQuery({
-    queryKey: ["absence-stats", userId],
-    queryFn: async () => backend.absence.getStats({ user_id: userId! }),
-    enabled: !!userId,
-  });
-
   const { data: settings } = useQuery({
     queryKey: ["settings"],
     queryFn: async () => backend.settings.get(),
+  });
+
+  const { data: notesData } = useQuery({
+    queryKey: ["notes", profile?.id],
+    queryFn: async () => backend.note.list({ profile_id: profile!.id }),
+    enabled: !!profile?.id,
+  });
+
+  const notes = notesData?.notes || [];
+
+  const { data: documentsData } = useQuery({
+    queryKey: ["documents", profile?.id],
+    queryFn: async () => backend.document.list({ profile_id: profile!.id }),
+    enabled: !!profile?.id,
+  });
+
+  const documents = documentsData?.documents || [];
+
+  const { data: activityLog } = useQuery({
+    queryKey: ["activity-log", userId],
+    queryFn: async () => backend.admin.getActivityLog({ user_id: userId }),
+    enabled: !!userId,
   });
 
   const updateProfileMutation = useMutation({
@@ -143,57 +171,117 @@ export default function ProfileDetail() {
     },
   });
 
-  const [newAbsence, setNewAbsence] = useState({
-    type: "sickness" as AbsenceType,
-    start_date: "",
-    end_date: "",
-    reason: "",
+  const [newNote, setNewNote] = useState({
+    note_text: "",
+    next_follow_up_date: "",
+    reminder_enabled: false,
   });
-  const [showAbsenceForm, setShowAbsenceForm] = useState(false);
 
-  const createAbsenceMutation = useMutation({
+  const createNoteMutation = useMutation({
     mutationFn: async () => {
-      return await backend.absence.create({
-        user_id: userId!,
-        type: newAbsence.type,
-        start_date: new Date(newAbsence.start_date),
-        end_date: new Date(newAbsence.end_date),
-        reason: newAbsence.reason,
+      if (!profile) throw new Error("No profile found");
+      return await backend.note.create({
+        profile_id: profile.id,
+        note_text: newNote.note_text,
+        next_follow_up_date: newNote.next_follow_up_date ? new Date(newNote.next_follow_up_date) : undefined,
+        reminder_enabled: newNote.reminder_enabled,
       });
     },
-    onSuccess: async (data) => {
-      if (currentUser?.id) {
-        try {
-          await backend.admin.createActivityLog({
-            actor_user_id: currentUser.id,
-            action: "create_absence",
-            entity_type: "absence",
-            entity_id: data.id.toString(),
-            metadata: { user_id: userId, type: newAbsence.type },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notes", profile?.id] });
+      
+      if (newNote.note_text) {
+        const updateData: UpdateProfileRequest = {
+          lastConversation: {
+            date: new Date().toISOString().split("T")[0],
+            text: newNote.note_text.substring(0, 200),
+          },
+        };
+        
+        if (profile) {
+          backend.profile.update({ id: profile.id, ...updateData }).then(() => {
+            queryClient.invalidateQueries({ queryKey: ["profile", userId] });
           });
-        } catch (error) {
-          console.error("Failed to log activity:", error);
         }
       }
       
-      queryClient.invalidateQueries({ queryKey: ["absences", userId] });
-      queryClient.invalidateQueries({ queryKey: ["absence-stats", userId] });
       toast({
-        title: "Absence recorded",
-        description: "Absence has been created successfully",
+        title: "Note added",
+        description: "Note saved successfully",
       });
-      setShowAbsenceForm(false);
-      setNewAbsence({
-        type: "sickness",
-        start_date: "",
-        end_date: "",
-        reason: "",
+      setNewNote({ note_text: "", next_follow_up_date: "", reminder_enabled: false });
+    },
+    onError: (error) => {
+      console.error("Failed to create note:", error);
+      toast({
+        title: "Failed to add note",
+        description: error instanceof Error ? error.message : "An error occurred",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const uploadDocumentMutation = useMutation({
+    mutationFn: async (file: File) => {
+      if (!profile) throw new Error("No profile found");
+      
+      const uploadUrlResponse = await backend.document.getUploadUrl({
+        profile_id: profile.id,
+        file_name: file.name,
+        file_type: file.type,
+        file_size: file.size,
+        tags: [],
+      });
+
+      const uploadResponse = await fetch(uploadUrlResponse.upload_url, {
+        method: "PUT",
+        body: file,
+        headers: {
+          "Content-Type": file.type,
+        },
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error("Failed to upload file");
+      }
+
+      return uploadUrlResponse;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["documents", profile?.id] });
+      toast({
+        title: "Document uploaded",
+        description: "File uploaded successfully",
+      });
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    },
+    onError: (error) => {
+      console.error("Failed to upload document:", error);
+      toast({
+        title: "Failed to upload document",
+        description: error instanceof Error ? error.message : "An error occurred",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteDocumentMutation = useMutation({
+    mutationFn: async (documentId: number) => {
+      return await backend.document.deleteDocument({ document_id: documentId });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["documents", profile?.id] });
+      toast({
+        title: "Document deleted",
+        description: "File removed successfully",
       });
     },
     onError: (error) => {
-      console.error("Failed to create absence:", error);
+      console.error("Failed to delete document:", error);
       toast({
-        title: "Failed to create absence",
+        title: "Failed to delete document",
         description: error instanceof Error ? error.message : "An error occurred",
         variant: "destructive",
       });
@@ -213,11 +301,10 @@ export default function ProfileDetail() {
     if (editedProfile.skills !== undefined) updates.skills = editedProfile.skills;
     if (editedProfile.certifications !== undefined) updates.certifications = editedProfile.certifications;
     if (editedProfile.driver !== undefined) updates.driver = editedProfile.driver;
+    if (editedProfile.driverPathway !== undefined) updates.driverPathway = editedProfile.driverPathway;
     if (editedProfile.prps !== undefined) updates.prps = editedProfile.prps;
     if (editedProfile.ba !== undefined) updates.ba = editedProfile.ba;
     if (editedProfile.notes !== undefined) updates.notes = editedProfile.notes;
-    if (editedProfile.last_one_to_one_date !== undefined) updates.last_one_to_one_date = editedProfile.last_one_to_one_date;
-    if (editedProfile.next_one_to_one_date !== undefined) updates.next_one_to_one_date = editedProfile.next_one_to_one_date;
 
     updateProfileMutation.mutate(updates);
   };
@@ -240,7 +327,7 @@ export default function ProfileDetail() {
     }
     
     if (userRole === "FF" && isViewingOwnProfile) {
-      const ffEditableFields = ["phone", "emergency_contact_name", "emergency_contact_phone"];
+      const ffEditableFields = ["phone", "emergency_contact_name", "emergency_contact_phone", "skills"];
       return ffEditableFields.includes(fieldName);
     }
     
@@ -251,20 +338,72 @@ export default function ProfileDetail() {
     return editMode && !canEditField(fieldName);
   };
 
-  const handleSkillToggle = (skill: string) => {
+  const handleSkillAdd = () => {
+    if (!newSkill.trim()) return;
     const currentSkills = getDisplayValue("skills") || [];
-    const newSkills = currentSkills.includes(skill)
-      ? currentSkills.filter(s => s !== skill)
-      : [...currentSkills, skill];
-    setEditedProfile({ ...editedProfile, skills: newSkills });
+    if (!currentSkills.includes(newSkill.trim())) {
+      setEditedProfile({ ...editedProfile, skills: [...currentSkills, newSkill.trim()] });
+    }
+    setNewSkill("");
   };
 
-  const handleCertToggle = (cert: string) => {
-    const currentCerts = getDisplayValue("certifications") || [];
-    const newCerts = currentCerts.includes(cert)
-      ? currentCerts.filter(c => c !== cert)
-      : [...currentCerts, cert];
-    setEditedProfile({ ...editedProfile, certifications: newCerts });
+  const handleSkillRemove = (skill: string) => {
+    const currentSkills = getDisplayValue("skills") || [];
+    setEditedProfile({ ...editedProfile, skills: currentSkills.filter(s => s !== skill) });
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      uploadDocumentMutation.mutate(file);
+    }
+  };
+
+  const handleDownloadDocument = async (documentId: number) => {
+    try {
+      const response = await backend.document.getDownloadUrl({ document_id: documentId });
+      window.open(response.download_url, "_blank");
+    } catch (error) {
+      console.error("Failed to get download URL:", error);
+      toast({
+        title: "Failed to download",
+        description: error instanceof Error ? error.message : "An error occurred",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const renderFieldWithLock = (
+    fieldName: string,
+    label: string,
+    renderInput: () => React.ReactNode,
+    renderDisplay: () => React.ReactNode
+  ) => {
+    const locked = isFieldLocked(fieldName);
+    
+    if (!editMode) {
+      return renderDisplay();
+    }
+
+    if (locked) {
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="relative">
+                {renderDisplay()}
+                <Lock className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>You don't have permission to edit this field</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    }
+
+    return renderInput();
   };
 
   if (userLoading || profileLoading) {
@@ -293,38 +432,15 @@ export default function ProfileDetail() {
     rejected: "bg-red-500/10 text-red-500",
   };
 
-  const renderFieldWithLock = (
-    fieldName: string,
-    label: string,
-    renderInput: () => React.ReactNode,
-    renderDisplay: () => React.ReactNode
-  ) => {
-    const locked = isFieldLocked(fieldName);
-    
-    if (!editMode) {
-      return renderDisplay();
-    }
-
-    if (locked) {
-      return (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="relative">
-                {renderDisplay()}
-                <Lock className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Only Watch Commander can edit this field</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      );
-    }
-
-    return renderInput();
-  };
+  const driverPathwayStatuses: { value: DriverPathwayStatus; label: string }[] = [
+    { value: "medical_due", label: "Medical Due" },
+    { value: "application_sent", label: "Application Sent" },
+    { value: "awaiting_theory", label: "Awaiting Theory" },
+    { value: "awaiting_course", label: "Awaiting Course" },
+    { value: "passed_LGV", label: "Passed LGV" },
+    { value: "awaiting_ERD", label: "Awaiting ERD" },
+    { value: "passed", label: "Passed" },
+  ];
 
   return (
     <div className="p-8 space-y-6">
@@ -371,9 +487,10 @@ export default function ProfileDetail() {
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="skills">Skills & Certifications</TabsTrigger>
-          <TabsTrigger value="absences">Absences</TabsTrigger>
           <TabsTrigger value="notes">Notes & 1:1s</TabsTrigger>
+          <TabsTrigger value="absences">Absences</TabsTrigger>
+          <TabsTrigger value="documents">Documents</TabsTrigger>
+          <TabsTrigger value="activity">Activity Log</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -524,8 +641,84 @@ export default function ProfileDetail() {
                 </div>
                 <div>
                   <Label className="text-muted-foreground">Watch Unit</Label>
-                  <p className="text-foreground font-medium mt-1">{user?.watch_unit || "-"}</p>
+                  <p className="text-foreground font-medium mt-1">{profile?.watch || user?.watch_unit || "-"}</p>
                 </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Truck className="h-5 w-5" />
+                  Driver Pathway
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label className="text-muted-foreground">Status</Label>
+                  {editMode && canEditField("driverPathway") ? (
+                    <Select
+                      value={getDisplayValue("driverPathway")?.status || ""}
+                      onValueChange={(value: DriverPathwayStatus) =>
+                        setEditedProfile({
+                          ...editedProfile,
+                          driverPathway: {
+                            status: value,
+                            lgvPassedDate: getDisplayValue("driverPathway")?.lgvPassedDate,
+                          },
+                        })
+                      }
+                    >
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {driverPathwayStatuses.map((status) => (
+                          <SelectItem key={status.value} value={status.value}>
+                            {status.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <div className="mt-1">
+                      {profile?.driverPathway?.status ? (
+                        <Badge>
+                          {driverPathwayStatuses.find(s => s.value === profile.driverPathway?.status)?.label || profile.driverPathway.status}
+                        </Badge>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </div>
+                  )}
+                </div>
+                {(getDisplayValue("driverPathway")?.status === "passed_LGV" || 
+                  getDisplayValue("driverPathway")?.status === "awaiting_ERD" || 
+                  getDisplayValue("driverPathway")?.status === "passed") && (
+                  <div>
+                    <Label className="text-muted-foreground">LGV Passed Date</Label>
+                    {editMode && canEditField("driverPathway") ? (
+                      <Input
+                        type="date"
+                        value={getDisplayValue("driverPathway")?.lgvPassedDate || ""}
+                        onChange={(e) =>
+                          setEditedProfile({
+                            ...editedProfile,
+                            driverPathway: {
+                              status: getDisplayValue("driverPathway")?.status || "passed_LGV",
+                              lgvPassedDate: e.target.value,
+                            },
+                          })
+                        }
+                        className="mt-1"
+                      />
+                    ) : (
+                      <p className="text-foreground font-medium mt-1">
+                        {profile?.driverPathway?.lgvPassedDate || "-"}
+                      </p>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -618,49 +811,56 @@ export default function ProfileDetail() {
               </CardContent>
             </Card>
 
-            {absenceStats && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Absence Summary</CardTitle>
-                  <CardDescription>6-month rolling period</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Total Days</span>
-                    <span className="font-medium text-foreground">
-                      {absenceStats.six_month_total}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Sick Days</span>
-                    <span className="font-medium text-foreground">
-                      {absenceStats.sick_days}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Annual Leave</span>
-                    <span className="font-medium text-foreground">
-                      {absenceStats.vacation_days}
-                    </span>
-                  </div>
-                  {absenceStats.stage_alert && (
-                    <div className="mt-4">
-                      <Badge
-                        className={
-                          absenceStats.stage_alert.includes("Critical")
-                            ? "bg-red-500/10 text-red-500"
-                            : absenceStats.stage_alert.includes("Warning")
-                            ? "bg-yellow-500/10 text-yellow-500"
-                            : "bg-blue-500/10 text-blue-500"
-                        }
-                      >
-                        {absenceStats.stage_alert}
-                      </Badge>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Award className="h-5 w-5" />
+                  Skills
+                </CardTitle>
+                <CardDescription>Auto-added to dictionary</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {editMode && canEditField("skills") ? (
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      <Input
+                        value={newSkill}
+                        onChange={(e) => setNewSkill(e.target.value)}
+                        placeholder="Add skill..."
+                        onKeyPress={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleSkillAdd();
+                          }
+                        }}
+                      />
+                      <Button onClick={handleSkillAdd} size="sm">
+                        <Plus className="h-4 w-4" />
+                      </Button>
                     </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
+                    <div className="flex flex-wrap gap-2">
+                      {(getDisplayValue("skills") || []).map((skill, index) => (
+                        <Badge key={index} variant="outline" className="cursor-pointer" onClick={() => handleSkillRemove(skill)}>
+                          {skill} <X className="h-3 w-3 ml-1" />
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {profile?.skills && profile.skills.length > 0 ? (
+                      profile.skills.map((skill, index) => (
+                        <Badge key={index} variant="outline">
+                          {skill}
+                        </Badge>
+                      ))
+                    ) : (
+                      <p className="text-muted-foreground text-sm">No skills recorded</p>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
             <Card>
               <CardHeader>
@@ -713,115 +913,112 @@ export default function ProfileDetail() {
                 </div>
               </CardContent>
             </Card>
+
+            {profile?.lastConversation && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MessageSquare className="h-5 w-5" />
+                    Last Conversation
+                  </CardTitle>
+                  <CardDescription>
+                    {new Date(profile.lastConversation.date).toLocaleDateString()}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-foreground">{profile.lastConversation.text}</p>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </TabsContent>
 
-        <TabsContent value="skills" className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2">
+        <TabsContent value="notes" className="space-y-6">
+          {canEdit && (
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Award className="h-5 w-5" />
-                  Skills
-                </CardTitle>
-                <CardDescription>Technical and operational skills</CardDescription>
+                <CardTitle>Add Note / 1:1 Entry</CardTitle>
               </CardHeader>
-              <CardContent>
-                {editMode && canEditField("skills") ? (
-                  <div className="space-y-3">
-                    {settings?.skills_dictionary && settings.skills_dictionary.length > 0 ? (
-                      <div className="space-y-2">
-                        {settings.skills_dictionary.map((skill) => (
-                          <div key={skill} className="flex items-center gap-2">
-                            <Checkbox
-                              id={`skill-${skill}`}
-                              checked={getDisplayValue("skills")?.includes(skill) || false}
-                              onCheckedChange={() => handleSkillToggle(skill)}
-                            />
-                            <Label htmlFor={`skill-${skill}`} className="cursor-pointer">
-                              {skill}
-                            </Label>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-muted-foreground text-sm">No skills configured in settings</p>
-                    )}
+              <CardContent className="space-y-4">
+                <div>
+                  <Label>Note</Label>
+                  <Textarea
+                    value={newNote.note_text}
+                    onChange={(e) => setNewNote({ ...newNote, note_text: e.target.value })}
+                    placeholder="Enter conversation notes..."
+                    rows={4}
+                    className="mt-1"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Follow-up Date</Label>
+                    <Input
+                      type="date"
+                      value={newNote.next_follow_up_date}
+                      onChange={(e) => setNewNote({ ...newNote, next_follow_up_date: e.target.value })}
+                      className="mt-1"
+                    />
                   </div>
-                ) : (
-                  <div className="flex flex-wrap gap-2">
-                    {profile?.skills && profile.skills.length > 0 ? (
-                      profile.skills.map((skill, index) => (
-                        <Badge key={index} variant="outline">
-                          {skill}
-                        </Badge>
-                      ))
-                    ) : (
-                      <p className="text-muted-foreground text-sm">No skills recorded</p>
-                    )}
-                    {isFieldLocked("skills") && (
-                      <div className="w-full mt-2 flex items-center gap-2 text-muted-foreground text-sm">
-                        <Lock className="h-4 w-4" />
-                        <span>Locked - WC access required</span>
-                      </div>
-                    )}
+                  <div className="flex items-end">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="reminder"
+                        checked={newNote.reminder_enabled}
+                        onCheckedChange={(checked) =>
+                          setNewNote({ ...newNote, reminder_enabled: !!checked })
+                        }
+                      />
+                      <Label htmlFor="reminder" className="cursor-pointer">Set reminder</Label>
+                    </div>
                   </div>
-                )}
+                </div>
+                <Button
+                  onClick={() => createNoteMutation.mutate()}
+                  disabled={!newNote.note_text || createNoteMutation.isPending}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Note
+                </Button>
               </CardContent>
             </Card>
+          )}
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Award className="h-5 w-5" />
-                  Certifications
-                </CardTitle>
-                <CardDescription>Professional certifications</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {editMode && canEditField("certifications") ? (
-                  <div className="space-y-3">
-                    {settings?.certifications_dictionary && settings.certifications_dictionary.length > 0 ? (
-                      <div className="space-y-2">
-                        {settings.certifications_dictionary.map((cert) => (
-                          <div key={cert} className="flex items-center gap-2">
-                            <Checkbox
-                              id={`cert-${cert}`}
-                              checked={getDisplayValue("certifications")?.includes(cert) || false}
-                              onCheckedChange={() => handleCertToggle(cert)}
-                            />
-                            <Label htmlFor={`cert-${cert}`} className="cursor-pointer">
-                              {cert}
-                            </Label>
+          <Card>
+            <CardHeader>
+              <CardTitle>Timeline</CardTitle>
+              <CardDescription>All notes and 1:1 conversations</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {notes.length > 0 ? (
+                <div className="space-y-4">
+                  {notes.map((note) => (
+                    <div key={note.id} className="border-l-2 border-red-600 pl-4 py-2">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-sm font-medium text-muted-foreground">
+                              {new Date(note.created_at).toLocaleDateString()}
+                            </span>
+                            {note.reminder_enabled && note.next_follow_up_date && (
+                              <Badge variant="outline" className="text-xs">
+                                <Bell className="h-3 w-3 mr-1" />
+                                Follow-up: {new Date(note.next_follow_up_date).toLocaleDateString()}
+                              </Badge>
+                            )}
                           </div>
-                        ))}
+                          <p className="text-foreground whitespace-pre-wrap">{note.note_text}</p>
+                        </div>
                       </div>
-                    ) : (
-                      <p className="text-muted-foreground text-sm">No certifications configured in settings</p>
-                    )}
-                  </div>
-                ) : (
-                  <div className="flex flex-wrap gap-2">
-                    {profile?.certifications && profile.certifications.length > 0 ? (
-                      profile.certifications.map((cert, index) => (
-                        <Badge key={index} variant="outline">
-                          {cert}
-                        </Badge>
-                      ))
-                    ) : (
-                      <p className="text-muted-foreground text-sm">No certifications recorded</p>
-                    )}
-                    {isFieldLocked("certifications") && (
-                      <div className="w-full mt-2 flex items-center gap-2 text-muted-foreground text-sm">
-                        <Lock className="h-4 w-4" />
-                        <span>Locked - WC access required</span>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center py-8 text-muted-foreground">No notes recorded</p>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="absences" className="space-y-6">
@@ -864,264 +1061,201 @@ export default function ProfileDetail() {
             </div>
           )}
 
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold">Absence History</h3>
-              <p className="text-sm text-muted-foreground">
-                All recorded absences
-                {profile && (
-                  <span className="ml-2">
-                    • Rolling 6-month sickness: <strong>{profile.rolling_sick_episodes} episodes</strong>, <strong>{profile.rolling_sick_days} days</strong>
-                  </span>
-                )}
-              </p>
-            </div>
-            {canEdit && (
-              <Button
-                className="bg-red-600 hover:bg-red-700"
-                onClick={() => setShowAbsenceForm(!showAbsenceForm)}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Record Absence
-              </Button>
-            )}
-          </div>
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Absence History</CardTitle>
+                  <CardDescription>
+                    Rolling 6-month totals: <strong>{profile?.rolling_sick_episodes || 0} episodes</strong>, <strong>{profile?.rolling_sick_days || 0} days</strong>
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Start Date</TableHead>
+                    <TableHead>End Date</TableHead>
+                    <TableHead>Days</TableHead>
+                    <TableHead>Reason</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {absencesLoading ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-8">
+                        <Skeleton className="h-6 w-full" />
+                      </TableCell>
+                    </TableRow>
+                  ) : absences && absences.length > 0 ? (
+                    absences.map((absence) => {
+                      const days = Math.ceil(
+                        (new Date(absence.end_date).getTime() - new Date(absence.start_date).getTime()) /
+                          (1000 * 60 * 60 * 24)
+                      ) + 1;
+                      return (
+                        <TableRow key={absence.id}>
+                          <TableCell>
+                            <Badge variant="outline">{absenceTypeLabels[absence.type]}</Badge>
+                          </TableCell>
+                          <TableCell>{new Date(absence.start_date).toLocaleDateString()}</TableCell>
+                          <TableCell>{new Date(absence.end_date).toLocaleDateString()}</TableCell>
+                          <TableCell>{days}</TableCell>
+                          <TableCell className="max-w-xs truncate">{absence.reason}</TableCell>
+                          <TableCell>
+                            <Badge className={absenceStatusColors[absence.status]}>
+                              {absence.status}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                        No absences recorded
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-          {showAbsenceForm && (
+        <TabsContent value="documents" className="space-y-6">
+          {canEdit && (
             <Card>
               <CardHeader>
-                <CardTitle>Record New Absence</CardTitle>
+                <CardTitle>Upload Document</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Type</Label>
-                    <Select
-                      value={newAbsence.type}
-                      onValueChange={(value: AbsenceType) =>
-                        setNewAbsence({ ...newAbsence, type: value })
-                      }
-                    >
-                      <SelectTrigger className="mt-1">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="sickness">Sickness</SelectItem>
-                        <SelectItem value="AL">Annual Leave</SelectItem>
-                        <SelectItem value="TOIL">TOIL</SelectItem>
-                        <SelectItem value="parental">Parental</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Reason</Label>
-                    <Input
-                      value={newAbsence.reason}
-                      onChange={(e) => setNewAbsence({ ...newAbsence, reason: e.target.value })}
-                      placeholder="Brief description"
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label>Start Date</Label>
-                    <Input
-                      type="date"
-                      value={newAbsence.start_date}
-                      onChange={(e) => setNewAbsence({ ...newAbsence, start_date: e.target.value })}
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label>End Date</Label>
-                    <Input
-                      type="date"
-                      value={newAbsence.end_date}
-                      onChange={(e) => setNewAbsence({ ...newAbsence, end_date: e.target.value })}
-                      className="mt-1"
-                    />
-                  </div>
-                </div>
-                <div className="flex gap-2">
+              <CardContent>
+                <div className="flex items-center gap-2">
+                  <Input
+                    ref={fileInputRef}
+                    type="file"
+                    onChange={handleFileUpload}
+                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                    disabled={uploadDocumentMutation.isPending}
+                  />
                   <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploadDocumentMutation.isPending}
                     className="bg-red-600 hover:bg-red-700"
-                    onClick={() => createAbsenceMutation.mutate()}
-                    disabled={
-                      !newAbsence.start_date ||
-                      !newAbsence.end_date ||
-                      !newAbsence.reason ||
-                      createAbsenceMutation.isPending
-                    }
                   >
-                    Save Absence
-                  </Button>
-                  <Button variant="outline" onClick={() => setShowAbsenceForm(false)}>
-                    Cancel
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload
                   </Button>
                 </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Supported: PDF, JPG, PNG, Word documents
+                </p>
               </CardContent>
             </Card>
           )}
 
           <Card>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Start Date</TableHead>
-                  <TableHead>End Date</TableHead>
-                  <TableHead>Days</TableHead>
-                  <TableHead>Reason</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {absencesLoading ? (
+            <CardHeader>
+              <CardTitle>Documents</CardTitle>
+              <CardDescription>All uploaded files</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8">
-                      <Skeleton className="h-6 w-full" />
-                    </TableCell>
+                    <TableHead>File Name</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Uploaded</TableHead>
+                    <TableHead>Size</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
-                ) : absences && absences.length > 0 ? (
-                  absences.map((absence) => {
-                    const days = Math.ceil(
-                      (new Date(absence.end_date).getTime() - new Date(absence.start_date).getTime()) /
-                        (1000 * 60 * 60 * 24)
-                    ) + 1;
-                    return (
-                      <TableRow key={absence.id}>
+                </TableHeader>
+                <TableBody>
+                  {documents.length > 0 ? (
+                    documents.map((doc) => (
+                      <TableRow key={doc.id}>
+                        <TableCell className="font-medium">{doc.file_name}</TableCell>
                         <TableCell>
-                          <Badge variant="outline">{absenceTypeLabels[absence.type]}</Badge>
+                          <Badge variant="outline">{doc.file_type}</Badge>
                         </TableCell>
-                        <TableCell>{new Date(absence.start_date).toLocaleDateString()}</TableCell>
-                        <TableCell>{new Date(absence.end_date).toLocaleDateString()}</TableCell>
-                        <TableCell>{days}</TableCell>
-                        <TableCell className="max-w-xs truncate">{absence.reason}</TableCell>
+                        <TableCell>{new Date(doc.uploaded_at).toLocaleDateString()}</TableCell>
+                        <TableCell>{(doc.file_size / 1024).toFixed(1)} KB</TableCell>
                         <TableCell>
-                          <Badge className={absenceStatusColors[absence.status]}>
-                            {absence.status}
-                          </Badge>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDownloadDocument(doc.id)}
+                            >
+                              <Download className="h-4 w-4" />
+                            </Button>
+                            {canEdit && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => deleteDocumentMutation.mutate(doc.id)}
+                                disabled={deleteDocumentMutation.isPending}
+                              >
+                                <Trash2 className="h-4 w-4 text-red-600" />
+                              </Button>
+                            )}
+                          </div>
                         </TableCell>
                       </TableRow>
-                    );
-                  })
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                      No absences recorded
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                        No documents uploaded
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="notes" className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Clock className="h-5 w-5" />
-                  One-to-One Meetings
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label className="text-muted-foreground">Last 1:1 Date</Label>
-                  {editMode && canEditField("last_one_to_one_date") ? (
-                    <Input
-                      type="date"
-                      value={
-                        getDisplayValue("last_one_to_one_date")
-                          ? new Date(getDisplayValue("last_one_to_one_date")!).toISOString().split("T")[0]
-                          : ""
-                      }
-                      onChange={(e) =>
-                        setEditedProfile({
-                          ...editedProfile,
-                          last_one_to_one_date: e.target.value ? new Date(e.target.value) : undefined,
-                        })
-                      }
-                      className="mt-1"
-                    />
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <p className="text-foreground font-medium mt-1">
-                        {profile?.last_one_to_one_date
-                          ? new Date(profile.last_one_to_one_date).toLocaleDateString()
-                          : "Not scheduled"}
-                      </p>
-                      {isFieldLocked("last_one_to_one_date") && <Lock className="h-4 w-4 text-muted-foreground" />}
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">Next 1:1 Date</Label>
-                  {editMode && canEditField("next_one_to_one_date") ? (
-                    <Input
-                      type="date"
-                      value={
-                        getDisplayValue("next_one_to_one_date")
-                          ? new Date(getDisplayValue("next_one_to_one_date")!).toISOString().split("T")[0]
-                          : ""
-                      }
-                      onChange={(e) =>
-                        setEditedProfile({
-                          ...editedProfile,
-                          next_one_to_one_date: e.target.value ? new Date(e.target.value) : undefined,
-                        })
-                      }
-                      className="mt-1"
-                    />
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <p className="text-foreground font-medium mt-1">
-                        {profile?.next_one_to_one_date
-                          ? new Date(profile.next_one_to_one_date).toLocaleDateString()
-                          : "Not scheduled"}
-                      </p>
-                      {isFieldLocked("next_one_to_one_date") && <Lock className="h-4 w-4 text-muted-foreground" />}
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Notes
-                </CardTitle>
-                <CardDescription>Personal notes and observations</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {editMode && canEditField("notes") ? (
-                  <Textarea
-                    value={getDisplayValue("notes") || ""}
-                    onChange={(e) => setEditedProfile({ ...editedProfile, notes: e.target.value })}
-                    placeholder="Add notes about this person..."
-                    rows={6}
-                  />
-                ) : (
-                  <div>
-                    <p className="text-foreground whitespace-pre-wrap">
-                      {profile?.notes || (
-                        <span className="text-muted-foreground text-sm">No notes recorded</span>
-                      )}
-                    </p>
-                    {isFieldLocked("notes") && (
-                      <div className="mt-2 flex items-center gap-2 text-muted-foreground text-sm">
-                        <Lock className="h-4 w-4" />
-                        <span>Locked - WC access required</span>
+        <TabsContent value="activity" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <History className="h-5 w-5" />
+                Activity Log
+              </CardTitle>
+              <CardDescription>All changes to this profile</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {activityLog && activityLog.logs.length > 0 ? (
+                <div className="space-y-3">
+                  {activityLog.logs.map((log) => (
+                    <div key={log.id} className="flex items-start gap-3 py-2 border-b last:border-0">
+                      <CheckCircle2 className="h-5 w-5 text-muted-foreground mt-0.5" />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-foreground">{log.action}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(log.timestamp).toLocaleString()}
+                          </span>
+                        </div>
+                        {log.metadata && (
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Changed: {Object.keys(log.metadata).join(", ")}
+                          </p>
+                        )}
                       </div>
-                    )}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center py-8 text-muted-foreground">No activity recorded</p>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>

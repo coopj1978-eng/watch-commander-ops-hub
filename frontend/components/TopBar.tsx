@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { useUser, UserButton } from "@clerk/clerk-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import backend from "~backend/client";
+import type { Notification } from "~backend/notification/types";
 import { Bell, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,41 +14,39 @@ import {
 import { Badge } from "@/components/ui/badge";
 import ThemeSwitcher from "./ThemeSwitcher";
 
-interface Notification {
-  id: string;
-  title: string;
-  message: string;
-  time: string;
-  unread: boolean;
-}
-
 export default function TopBar() {
   const { user } = useUser();
-  const [notifications] = useState<Notification[]>([
-    {
-      id: "1",
-      title: "Task Reminder",
-      message: "Fire safety inspection due today",
-      time: "10 min ago",
-      unread: true,
-    },
-    {
-      id: "2",
-      title: "Absence Request",
-      message: "John Smith requested time off",
-      time: "1 hour ago",
-      unread: true,
-    },
-    {
-      id: "3",
-      title: "Report Ready",
-      message: "Monthly attendance report is ready",
-      time: "2 hours ago",
-      unread: false,
-    },
-  ]);
+  const queryClient = useQueryClient();
 
-  const unreadCount = notifications.filter((n) => n.unread).length;
+  const { data: notificationsData } = useQuery({
+    queryKey: ["notifications"],
+    queryFn: async () => backend.notification.list(),
+    refetchInterval: 60000,
+  });
+
+  const notifications = notificationsData?.notifications || [];
+  const unreadCount = notificationsData?.unread_count || 0;
+
+  const markReadMutation = useMutation({
+    mutationFn: async (notificationId: number) => {
+      return await backend.notification.markRead({ notification_id: notificationId });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+  });
+
+  const formatTimeAgo = (date: Date) => {
+    const now = new Date();
+    const diffMs = now.getTime() - new Date(date).getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 60) return `${diffMins} min ago`;
+    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
+    return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
+  };
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -118,23 +119,36 @@ export default function TopBar() {
               <h3 className="font-semibold text-foreground">Notifications</h3>
               <p className="text-xs text-muted-foreground">{unreadCount} unread</p>
             </div>
-            {notifications.map((notification) => (
-              <DropdownMenuItem
-                key={notification.id}
-                className={`flex flex-col items-start gap-1 p-4 cursor-pointer ${
-                  notification.unread ? "bg-muted/50" : ""
-                }`}
-              >
-                <div className="flex items-start justify-between w-full">
-                  <span className="font-medium text-sm">{notification.title}</span>
-                  {notification.unread && (
-                    <span className="h-2 w-2 rounded-full bg-indigo-600" aria-label="Unread" />
-                  )}
-                </div>
-                <p className="text-xs text-muted-foreground">{notification.message}</p>
-                <span className="text-xs text-muted-foreground">{notification.time}</span>
-              </DropdownMenuItem>
-            ))}
+            {notifications.length > 0 ? (
+              notifications.map((notification) => (
+                <DropdownMenuItem
+                  key={notification.id}
+                  className={`flex flex-col items-start gap-1 p-4 cursor-pointer ${
+                    !notification.is_read ? "bg-muted/50" : ""
+                  }`}
+                  onClick={() => {
+                    if (!notification.is_read) {
+                      markReadMutation.mutate(notification.id);
+                    }
+                  }}
+                >
+                  <div className="flex items-start justify-between w-full">
+                    <span className="font-medium text-sm">{notification.title}</span>
+                    {!notification.is_read && (
+                      <span className="h-2 w-2 rounded-full bg-red-600" aria-label="Unread" />
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">{notification.message}</p>
+                  <span className="text-xs text-muted-foreground">
+                    Due: {new Date(notification.due_date).toLocaleDateString()}
+                  </span>
+                </DropdownMenuItem>
+              ))
+            ) : (
+              <div className="p-4 text-center text-muted-foreground text-sm">
+                No reminders
+              </div>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
 
