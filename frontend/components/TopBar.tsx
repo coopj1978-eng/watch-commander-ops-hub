@@ -1,8 +1,6 @@
-import { useState } from "react";
 import { useUser, UserButton } from "@clerk/clerk-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import backend from "~backend/client";
-import type { Notification } from "~backend/notification/types";
 import { Bell, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {

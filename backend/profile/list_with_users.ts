@@ -50,6 +50,12 @@ interface DBUserProfile {
   profile_certifications?: string[];
   profile_driver_lgv?: boolean;
   profile_driver_erd?: boolean;
+  profile_watch?: string;
+  profile_driver_pathway_status?: string;
+  profile_driver_pathway_lgv_passed_date?: Date;
+  profile_last_conversation_date?: Date;
+  profile_last_conversation_text?: string;
+  profile_custom_fields?: Record<string, string | number | boolean | null>;
   profile_prps?: boolean;
   profile_ba?: boolean;
   profile_notes?: string;
@@ -93,10 +99,27 @@ function transformUserProfile(row: DBUserProfile): PersonWithProfile {
       emergency_contact_phone: row.profile_emergency_contact_phone,
       skills: row.profile_skills || [],
       certifications: row.profile_certifications || [],
+      watch: row.profile_watch as any,
       driver: {
         lgv: row.profile_driver_lgv || false,
         erd: row.profile_driver_erd || false,
       },
+      driverPathway: row.profile_driver_pathway_status
+        ? {
+            status: row.profile_driver_pathway_status as any,
+            lgvPassedDate: row.profile_driver_pathway_lgv_passed_date
+              ? row.profile_driver_pathway_lgv_passed_date.toISOString().split("T")[0]
+              : undefined,
+          }
+        : undefined,
+      lastConversation:
+        row.profile_last_conversation_date && row.profile_last_conversation_text
+          ? {
+              date: row.profile_last_conversation_date.toISOString().split("T")[0],
+              text: row.profile_last_conversation_text,
+            }
+          : undefined,
+      customFields: row.profile_custom_fields,
       prps: row.profile_prps,
       ba: row.profile_ba,
       notes: row.profile_notes,
@@ -147,6 +170,12 @@ export const listWithUsers = api<ListPeopleRequest, ListPeopleResponse>(
         p.certifications as profile_certifications,
         p.driver_lgv as profile_driver_lgv,
         p.driver_erd as profile_driver_erd,
+        p.watch as profile_watch,
+        p.driver_pathway_status as profile_driver_pathway_status,
+        p.driver_pathway_lgv_passed_date as profile_driver_pathway_lgv_passed_date,
+        p.last_conversation_date as profile_last_conversation_date,
+        p.last_conversation_text as profile_last_conversation_text,
+        p.custom_fields as profile_custom_fields,
         p.prps as profile_prps,
         p.ba as profile_ba,
         p.notes as profile_notes,

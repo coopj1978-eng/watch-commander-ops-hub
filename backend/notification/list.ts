@@ -8,17 +8,16 @@ export const list = api(
   async (): Promise<ListNotificationsResponse> => {
     const auth = getAuthData()!;
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
     const notifications: Notification[] = [];
-    for await (const notif of db.query<Notification>`
+    const query = db.query<Notification>`
       SELECT * FROM notifications
       WHERE user_id = ${auth.userID}
-        AND due_date <= ${today}
+        AND due_date <= CURRENT_DATE
       ORDER BY due_date ASC, created_at DESC
       LIMIT 50
-    `) {
+    `;
+    
+    for await (const notif of query) {
       notifications.push(notif);
     }
 
@@ -26,7 +25,7 @@ export const list = api(
       SELECT COUNT(*) as count FROM notifications
       WHERE user_id = ${auth.userID}
         AND is_read = FALSE
-        AND due_date <= ${today}
+        AND due_date <= CURRENT_DATE
     `;
 
     return {

@@ -26,11 +26,13 @@ export const list = api(
     }
 
     const notes: ProfileNote[] = [];
-    for await (const note of db.query<ProfileNote>`
+    const query = db.query<ProfileNote>`
       SELECT * FROM profile_notes
       WHERE profile_id = ${profile_id}
       ORDER BY created_at DESC
-    `) {
+    `;
+    
+    for await (const note of query) {
       notes.push(note);
     }
 

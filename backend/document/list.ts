@@ -26,11 +26,13 @@ export const list = api(
     }
 
     const documents: ProfileDocument[] = [];
-    for await (const doc of db.query<ProfileDocument>`
+    const query = db.query<ProfileDocument>`
       SELECT * FROM profile_documents
       WHERE profile_id = ${profile_id}
       ORDER BY uploaded_at DESC
-    `) {
+    `;
+    
+    for await (const doc of query) {
       documents.push(doc);
     }
 

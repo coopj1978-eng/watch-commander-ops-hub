@@ -1,19 +1,20 @@
 import { api } from "encore.dev/api";
+import db from "../db";
 import type { ActivityLog, CreateActivityLogRequest } from "./types";
 
 export const createActivityLog = api<CreateActivityLogRequest, ActivityLog>(
-  { method: "POST", path: "/admin/activity-log", expose: true },
+  { method: "POST", path: "/admin/activity-log", expose: true, auth: true },
   async (req) => {
-    const newLog: ActivityLog = {
-      id: Math.floor(Math.random() * 10000),
-      actor_user_id: req.actor_user_id,
-      action: req.action,
-      entity_type: req.entity_type,
-      entity_id: req.entity_id,
-      timestamp: new Date(),
-      metadata: req.metadata,
-    };
+    const log = await db.queryRow<ActivityLog>`
+      INSERT INTO activity_log (user_id, action, entity_type, entity_id, details)
+      VALUES (${req.actor_user_id}, ${req.action}, ${req.entity_type}, ${req.entity_id}, ${JSON.stringify(req.metadata || {})})
+      RETURNING *
+    `;
 
-    return newLog;
+    if (!log) {
+      throw new Error("Failed to create activity log");
+    }
+
+    return log;
   }
 );

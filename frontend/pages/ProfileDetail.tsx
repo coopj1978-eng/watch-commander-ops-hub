@@ -1242,9 +1242,9 @@ export default function ProfileDetail() {
                             {new Date(log.timestamp).toLocaleString()}
                           </span>
                         </div>
-                        {log.metadata && (
+                        {log.details && (
                           <p className="text-sm text-muted-foreground mt-1">
-                            Changed: {Object.keys(log.metadata).join(", ")}
+                            Changed: {Object.keys(log.details).join(", ")}
                           </p>
                         )}
                       </div>

@@ -89,7 +89,7 @@ function ActivityLogTab() {
                       {new Date(log.timestamp).toLocaleString()}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline">{log.actor_user_id || "System"}</Badge>
+                      <Badge variant="outline">{log.user_id || "System"}</Badge>
                     </TableCell>
                     <TableCell className="font-medium">
                       {log.action.replace(/_/g, " ")}
@@ -98,7 +98,7 @@ function ActivityLogTab() {
                       <Badge>{log.entity_type}</Badge>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground max-w-xs truncate">
-                      {JSON.stringify(log.metadata)}
+                      {JSON.stringify(log.details)}
                     </TableCell>
                   </TableRow>
                 ))}

@@ -11,6 +11,7 @@ interface DBProfile {
   service_number?: string;
   station?: string;
   shift?: string;
+  watch?: string;
   rank?: string;
   hire_date?: Date;
   phone?: string;
@@ -20,11 +21,16 @@ interface DBProfile {
   certifications?: string[];
   driver_lgv: boolean;
   driver_erd: boolean;
+  driver_pathway_status?: string;
+  driver_pathway_lgv_passed_date?: Date;
   prps?: boolean;
   ba?: boolean;
   notes?: string;
   last_one_to_one_date?: Date;
   next_one_to_one_date?: Date;
+  last_conversation_date?: Date;
+  last_conversation_text?: string;
+  custom_fields?: Record<string, string | number | boolean | null>;
   rolling_sick_episodes: number;
   rolling_sick_days: number;
   trigger_stage: string;
@@ -33,13 +39,37 @@ interface DBProfile {
 }
 
 function transformProfile(dbProfile: DBProfile): FirefighterProfile {
-  const { driver_lgv, driver_erd, ...rest } = dbProfile;
+  const {
+    driver_lgv,
+    driver_erd,
+    driver_pathway_status,
+    driver_pathway_lgv_passed_date,
+    last_conversation_date,
+    last_conversation_text,
+    ...rest
+  } = dbProfile;
   return {
     ...rest,
+    watch: rest.watch as any,
     driver: {
       lgv: driver_lgv || false,
       erd: driver_erd || false,
     },
+    driverPathway: driver_pathway_status
+      ? {
+          status: driver_pathway_status as any,
+          lgvPassedDate: driver_pathway_lgv_passed_date
+            ? driver_pathway_lgv_passed_date.toISOString().split("T")[0]
+            : undefined,
+        }
+      : undefined,
+    lastConversation:
+      last_conversation_date && last_conversation_text
+        ? {
+            date: last_conversation_date.toISOString().split("T")[0],
+            text: last_conversation_text,
+          }
+        : undefined,
     trigger_stage: rest.trigger_stage as any,
   };
 }

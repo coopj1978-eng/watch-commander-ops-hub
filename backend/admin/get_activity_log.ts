@@ -33,7 +33,7 @@ export const getActivityLog = api<GetActivityLogRequest, GetActivityLogResponse>
     let paramIndex = 1;
 
     if (req.user_id) {
-      conditions.push(`actor_user_id = $${paramIndex++}`);
+      conditions.push(`user_id = $${paramIndex++}`);
       params.push(req.user_id);
     }
     if (req.entity_type) {
