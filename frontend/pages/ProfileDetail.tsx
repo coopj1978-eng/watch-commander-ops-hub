@@ -969,64 +969,77 @@ export default function ProfileDetail() {
                       </div>
                     </div>
                   </div>
-                  {newNote.reminder_enabled && (
-                    <div>
-                      <Label>Reminder Recipient</Label>
-                      {allUsersLoading ? (
-                        <div className="mt-1 p-2 border rounded-md">
-                          <p className="text-sm text-muted-foreground">Loading users...</p>
-                        </div>
-                      ) : allUsersError ? (
-                        <div className="mt-1 p-2 border rounded-md border-yellow-500/20 bg-yellow-500/10">
-                          <p className="text-sm text-yellow-600">Failed to load users. You can still create a personal reminder.</p>
-                        </div>
-                      ) : !allUsersData?.users || allUsersData.users.length === 0 ? (
-                        <div className="mt-1 p-2 border rounded-md border-yellow-500/20 bg-yellow-500/10">
-                          <p className="text-sm text-yellow-600">No users found. Creating personal reminder only.</p>
-                        </div>
-                      ) : (
-                        <Select
-                          value={newNote.reminder_recipient_user_id || ""}
-                          onValueChange={(value) => {
-                            setNewNote({ ...newNote, reminder_recipient_user_id: value });
-                            setUserSearchQuery("");
-                          }}
-                        >
-                          <SelectTrigger className="mt-1">
-                            <SelectValue placeholder="Only me (personal reminder)" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <div className="p-2 sticky top-0 bg-background border-b">
-                              <Input
-                                placeholder="Search users..."
-                                value={userSearchQuery}
-                                onChange={(e) => setUserSearchQuery(e.target.value)}
-                                className="h-8"
-                                onClick={(e) => e.stopPropagation()}
-                              />
+                  {newNote.reminder_enabled && (() => {
+                    try {
+                      return (
+                        <div>
+                          <Label>Reminder Recipient</Label>
+                          {allUsersLoading ? (
+                            <div className="mt-1 p-2 border rounded-md">
+                              <p className="text-sm text-muted-foreground">Loading users...</p>
                             </div>
-                            <SelectItem value="">Only me (personal reminder)</SelectItem>
-                            {allUsersData.users
-                              .filter(u => 
-                                !userSearchQuery || 
-                                u.name.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
-                                u.email.toLowerCase().includes(userSearchQuery.toLowerCase())
-                              )
-                              .map(u => (
-                                <SelectItem key={u.id} value={u.id}>
-                                  {u.name} ({u.email})
-                                </SelectItem>
-                              ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {newNote.reminder_recipient_user_id
-                          ? "Reminder will appear in both calendars"
-                          : "Reminder will appear in your calendar"}
-                      </p>
-                    </div>
-                  )}
+                          ) : allUsersError ? (
+                            <div className="mt-1 p-2 border rounded-md border-yellow-500/20 bg-yellow-500/10">
+                              <p className="text-sm text-yellow-600">Failed to load users. Creating personal reminder only.</p>
+                            </div>
+                          ) : !allUsersData?.users || allUsersData.users.length === 0 ? (
+                            <div className="mt-1 p-2 border rounded-md border-yellow-500/20 bg-yellow-500/10">
+                              <p className="text-sm text-yellow-600">No users found. Creating personal reminder only.</p>
+                            </div>
+                          ) : (
+                            <Select
+                              value={newNote.reminder_recipient_user_id || ""}
+                              onValueChange={(value) => {
+                                setNewNote({ ...newNote, reminder_recipient_user_id: value });
+                                setUserSearchQuery("");
+                              }}
+                            >
+                              <SelectTrigger className="mt-1">
+                                <SelectValue placeholder="Only me (personal reminder)" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <div className="p-2 sticky top-0 bg-background border-b">
+                                  <Input
+                                    placeholder="Search users..."
+                                    value={userSearchQuery}
+                                    onChange={(e) => setUserSearchQuery(e.target.value)}
+                                    className="h-8"
+                                    onClick={(e) => e.stopPropagation()}
+                                  />
+                                </div>
+                                <SelectItem value="">Only me (personal reminder)</SelectItem>
+                                {Array.isArray(allUsersData.users) && allUsersData.users
+                                  .filter(u => 
+                                    u && u.name && u.email && (
+                                      !userSearchQuery || 
+                                      u.name.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+                                      u.email.toLowerCase().includes(userSearchQuery.toLowerCase())
+                                    )
+                                  )
+                                  .map(u => (
+                                    <SelectItem key={u.id} value={u.id}>
+                                      {u.name} ({u.email})
+                                    </SelectItem>
+                                  ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {newNote.reminder_recipient_user_id
+                              ? "Reminder will appear in both calendars"
+                              : "Reminder will appear in your calendar"}
+                          </p>
+                        </div>
+                      );
+                    } catch (err) {
+                      console.error("Error rendering reminder recipient:", err);
+                      return (
+                        <div className="mt-1 p-2 border rounded-md border-red-500/20 bg-red-500/10">
+                          <p className="text-sm text-red-600">Error loading recipient options. Creating personal reminder only.</p>
+                        </div>
+                      );
+                    }
+                  })()}
                 </div>
                 <div>
                   <Label>Attachments (optional)</Label>
