@@ -216,6 +216,10 @@ export default function ProfileDetail() {
   });
 
   const handleSaveProfile = async () => {
+    console.log("=== SAVE PROFILE DEBUG ===");
+    console.log("editedProfile state:", JSON.stringify(editedProfile, null, 2));
+    console.log("editedUser state:", JSON.stringify(editedUser, null, 2));
+    
     const profileUpdates: UpdateProfileRequest = {};
     const userUpdates: any = {};
     
@@ -237,10 +241,9 @@ export default function ProfileDetail() {
     
     if (editedUser.role !== undefined) userUpdates.role = editedUser.role;
 
-    console.log("Profile update payload:", profileUpdates);
-    console.log("User update payload:", userUpdates);
+    console.log("Profile update payload:", JSON.stringify(profileUpdates, null, 2));
+    console.log("User update payload:", JSON.stringify(userUpdates, null, 2));
     console.log("Profile ID:", profile?.id);
-    console.log("Edited fields:", editedProfile, editedUser);
     
     if (Object.keys(profileUpdates).length === 0 && Object.keys(userUpdates).length === 0) {
       toast({
