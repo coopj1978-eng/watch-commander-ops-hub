@@ -988,9 +988,12 @@ export default function ProfileDetail() {
                             </div>
                           ) : (
                             <Select
-                              value={newNote.reminder_recipient_user_id || ""}
+                              value={newNote.reminder_recipient_user_id || "__personal__"}
                               onValueChange={(value) => {
-                                setNewNote({ ...newNote, reminder_recipient_user_id: value });
+                                setNewNote({ 
+                                  ...newNote, 
+                                  reminder_recipient_user_id: value === "__personal__" ? "" : value 
+                                });
                                 setUserSearchQuery("");
                               }}
                             >
@@ -1007,7 +1010,7 @@ export default function ProfileDetail() {
                                     onClick={(e) => e.stopPropagation()}
                                   />
                                 </div>
-                                <SelectItem value="">Only me (personal reminder)</SelectItem>
+                                <SelectItem value="__personal__">Only me (personal reminder)</SelectItem>
                                 {Array.isArray(allUsersData.users) && allUsersData.users
                                   .filter(u => 
                                     u && u.name && u.email && (
