@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useRef } from "react";
-import backend from "~backend/client";
+import { useBackend } from "@/lib/rbac";
 import type { FirefighterProfile, UpdateProfileRequest, DriverPathwayStatus } from "~backend/profile/types";
 import type { AbsenceType } from "~backend/absence/types";
 import {
@@ -75,6 +75,7 @@ export default function ProfileDetail() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user: currentUser } = useUser();
+  const backend = useBackend();
   const canEdit = useCanEditProfiles();
   const isWC = useIsWC();
   const userRole = useUserRole();
