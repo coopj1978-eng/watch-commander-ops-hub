@@ -188,7 +188,7 @@ export const createPerson = api<CreatePersonRequest, CreatePersonResponse>(
 
     const dbProfile = await db.queryRow<DBProfile>`
       INSERT INTO firefighter_profiles (
-        user_id, service_number, rank, phone,
+        user_id, service_number, rank, phone, watch,
         driver_lgv, driver_erd, prps, ba,
         rolling_sick_episodes, rolling_sick_days, trigger_stage,
         skills, certifications
@@ -198,6 +198,7 @@ export const createPerson = api<CreatePersonRequest, CreatePersonResponse>(
         ${req.service_number || null},
         ${req.rank || null},
         ${req.phone || null},
+        ${req.watch_unit || null},
         false,
         false,
         false,
