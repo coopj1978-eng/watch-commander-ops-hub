@@ -52,6 +52,10 @@ export const update = api(
       setClauses.push(`notes = $${paramIndex++}`);
       queryParams.push(updates.notes);
     }
+    if (updates.reminder_date !== undefined) {
+      setClauses.push(`reminder_date = $${paramIndex++}`);
+      queryParams.push(updates.reminder_date ? new Date(updates.reminder_date) : null);
+    }
 
     if (setClauses.length === 0) {
       throw APIError.invalidArgument("no updates provided");

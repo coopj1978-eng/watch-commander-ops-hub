@@ -25,7 +25,7 @@ export const create = api<CreateSkillRenewalRequest, SkillRenewal>(
 
     const dbSkill = await db.queryRow<DBSkillRenewal>`
       INSERT INTO skill_renewals (
-        profile_id, skill_name, acquired_date, renewal_date, expiry_date, notes
+        profile_id, skill_name, acquired_date, renewal_date, expiry_date, reminder_date, notes
       )
       VALUES (
         ${req.profile_id},
@@ -33,6 +33,7 @@ export const create = api<CreateSkillRenewalRequest, SkillRenewal>(
         ${req.acquired_date ? new Date(req.acquired_date) : null},
         ${req.renewal_date ? new Date(req.renewal_date) : null},
         ${req.expiry_date ? new Date(req.expiry_date) : null},
+        ${req.reminder_date ? new Date(req.reminder_date) : null},
         ${req.notes || null}
       )
       RETURNING *

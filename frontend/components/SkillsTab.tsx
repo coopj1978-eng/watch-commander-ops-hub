@@ -53,6 +53,7 @@ export default function SkillsTab({ profileId }: SkillsTabProps) {
   const [acquiredDate, setAcquiredDate] = useState("");
   const [renewalDate, setRenewalDate] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
+  const [reminderDate, setReminderDate] = useState("");
   const [notes, setNotes] = useState("");
 
   const { data: skillsData, isLoading } = useQuery({
@@ -70,7 +71,7 @@ export default function SkillsTab({ profileId }: SkillsTabProps) {
   const skills = skillsData?.skills || [];
 
   const createSkillMutation = useMutation({
-    mutationFn: async (data: { skill_name: string; acquired_date?: string; renewal_date?: string; expiry_date?: string; notes?: string }) => {
+    mutationFn: async (data: { skill_name: string; acquired_date?: string; renewal_date?: string; expiry_date?: string; reminder_date?: string; notes?: string }) => {
       return await backend.skill.create({
         profile_id: profileId,
         ...data,
@@ -92,7 +93,7 @@ export default function SkillsTab({ profileId }: SkillsTabProps) {
   });
 
   const updateSkillMutation = useMutation({
-    mutationFn: async (data: { id: number; skill_name?: string; acquired_date?: string; renewal_date?: string; expiry_date?: string; notes?: string }) => {
+    mutationFn: async (data: { id: number; skill_name?: string; acquired_date?: string; renewal_date?: string; expiry_date?: string; reminder_date?: string; notes?: string }) => {
       const { id, ...updates } = data;
       return await backend.skill.update({ id, ...updates });
     },
@@ -136,6 +137,7 @@ export default function SkillsTab({ profileId }: SkillsTabProps) {
     setAcquiredDate("");
     setRenewalDate("");
     setExpiryDate("");
+    setReminderDate("");
     setNotes("");
   };
 
@@ -147,6 +149,7 @@ export default function SkillsTab({ profileId }: SkillsTabProps) {
     setAcquiredDate("");
     setRenewalDate("");
     setExpiryDate("");
+    setReminderDate("");
     setNotes("");
   };
 
@@ -167,6 +170,7 @@ export default function SkillsTab({ profileId }: SkillsTabProps) {
       acquired_date: acquiredDate || undefined,
       renewal_date: renewalDate || undefined,
       expiry_date: expiryDate || undefined,
+      reminder_date: reminderDate || undefined,
       notes: notes || undefined,
     });
   };
@@ -182,6 +186,7 @@ export default function SkillsTab({ profileId }: SkillsTabProps) {
       acquired_date: acquiredDate || undefined,
       renewal_date: renewalDate || undefined,
       expiry_date: expiryDate || undefined,
+      reminder_date: reminderDate || undefined,
       notes: notes || undefined,
     });
   };
@@ -194,6 +199,7 @@ export default function SkillsTab({ profileId }: SkillsTabProps) {
     setAcquiredDate(skill.acquired_date ? new Date(skill.acquired_date).toISOString().split("T")[0] : "");
     setRenewalDate(skill.renewal_date ? new Date(skill.renewal_date).toISOString().split("T")[0] : "");
     setExpiryDate(skill.expiry_date ? new Date(skill.expiry_date).toISOString().split("T")[0] : "");
+    setReminderDate(skill.reminder_date ? new Date(skill.reminder_date).toISOString().split("T")[0] : "");
     setNotes(skill.notes || "");
     setShowEditDialog(true);
   };
@@ -254,6 +260,7 @@ export default function SkillsTab({ profileId }: SkillsTabProps) {
                 <TableHead>Acquired</TableHead>
                 <TableHead>Renewal</TableHead>
                 <TableHead>Expiry</TableHead>
+                <TableHead>Reminder</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Notes</TableHead>
                 {canEdit && <TableHead>Actions</TableHead>}
@@ -271,6 +278,9 @@ export default function SkillsTab({ profileId }: SkillsTabProps) {
                   </TableCell>
                   <TableCell>
                     {skill.expiry_date ? new Date(skill.expiry_date).toLocaleDateString() : "-"}
+                  </TableCell>
+                  <TableCell>
+                    {skill.reminder_date ? new Date(skill.reminder_date).toLocaleDateString() : "-"}
                   </TableCell>
                   <TableCell>
                     {getStatusBadge(skill.status, skill.days_until_expiry)}
@@ -343,7 +353,7 @@ export default function SkillsTab({ profileId }: SkillsTabProps) {
               </div>
             )}
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Acquired Date</Label>
                 <Input
@@ -368,6 +378,15 @@ export default function SkillsTab({ profileId }: SkillsTabProps) {
                   type="date"
                   value={expiryDate}
                   onChange={(e) => setExpiryDate(e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label>Reminder Date</Label>
+                <Input
+                  type="date"
+                  value={reminderDate}
+                  onChange={(e) => setReminderDate(e.target.value)}
                   className="mt-1"
                 />
               </div>
@@ -430,7 +449,7 @@ export default function SkillsTab({ profileId }: SkillsTabProps) {
               </div>
             )}
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Acquired Date</Label>
                 <Input
@@ -455,6 +474,15 @@ export default function SkillsTab({ profileId }: SkillsTabProps) {
                   type="date"
                   value={expiryDate}
                   onChange={(e) => setExpiryDate(e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label>Reminder Date</Label>
+                <Input
+                  type="date"
+                  value={reminderDate}
+                  onChange={(e) => setReminderDate(e.target.value)}
                   className="mt-1"
                 />
               </div>

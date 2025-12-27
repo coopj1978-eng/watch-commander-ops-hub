@@ -1,73 +1,55 @@
-import { api } from "encore.dev/api";
+import { api, Query } from "encore.dev/api";
+import db from "../db";
 import type { Dictionary, DictionaryType } from "./types";
 
 export interface ListDictionaryRequest {
-  type?: DictionaryType;
-  active?: boolean;
+  type?: Query<DictionaryType>;
+  active?: Query<boolean>;
 }
 
 export interface ListDictionaryResponse {
   items: Dictionary[];
 }
 
+interface DBDictionary {
+  id: number;
+  type: string;
+  value: string;
+  active: boolean;
+  created_by?: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
 export const list = api<ListDictionaryRequest, ListDictionaryResponse>(
   { method: "GET", path: "/dictionary", expose: true },
   async (req) => {
-    const items: Dictionary[] = [
-      {
-        id: 1,
-        type: "skill",
-        value: "First Aid",
-        active: true,
-        created_at: new Date("2024-01-15"),
-      },
-      {
-        id: 2,
-        type: "skill",
-        value: "Water Rescue",
-        active: true,
-        created_at: new Date("2024-01-15"),
-      },
-      {
-        id: 3,
-        type: "skill",
-        value: "Rope Rescue",
-        active: true,
-        created_at: new Date("2024-01-15"),
-      },
-      {
-        id: 4,
-        type: "cert",
-        value: "HAZMAT Level 1",
-        active: true,
-        created_at: new Date("2024-01-15"),
-      },
-      {
-        id: 5,
-        type: "cert",
-        value: "HAZMAT Level 2",
-        active: true,
-        created_at: new Date("2024-01-15"),
-      },
-      {
-        id: 6,
-        type: "cert",
-        value: "Incident Command",
-        active: true,
-        created_at: new Date("2024-01-15"),
-      },
-    ];
-
-    let filtered = items;
+    let query = `SELECT * FROM dictionaries WHERE 1=1`;
+    const params: any[] = [];
+    let paramIndex = 1;
 
     if (req.type) {
-      filtered = filtered.filter((item) => item.type === req.type);
+      query += ` AND type = $${paramIndex++}`;
+      params.push(req.type);
     }
 
     if (req.active !== undefined) {
-      filtered = filtered.filter((item) => item.active === req.active);
+      query += ` AND active = $${paramIndex++}`;
+      params.push(req.active);
     }
 
-    return { items: filtered };
+    query += ` ORDER BY type, value`;
+
+    const dbItems = await db.rawQueryAll<DBDictionary>(query, ...params);
+
+    const items: Dictionary[] = dbItems.map(item => ({
+      id: item.id,
+      type: item.type as DictionaryType,
+      value: item.value,
+      active: item.active,
+      created_at: item.created_at,
+    }));
+
+    return { items };
   }
 );
