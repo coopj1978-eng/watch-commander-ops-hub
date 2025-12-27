@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import backend from "~backend/client";
+import { useBackend } from "@/lib/rbac";
 import type { DictionaryType } from "~backend/dictionary/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -38,6 +38,7 @@ interface DictionaryManagerProps {
 }
 
 export function DictionaryManager({ type, title, description, icon, isOpen, onClose }: DictionaryManagerProps) {
+  const backend = useBackend();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const isWC = useIsWC();
