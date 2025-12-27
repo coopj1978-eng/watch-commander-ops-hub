@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { useBackend } from "@/lib/rbac";
 import type { FirefighterProfile, UpdateProfileRequest, DriverPathwayStatus } from "~backend/profile/types";
 import type { AbsenceType } from "~backend/absence/types";
+import SkillsTab from "@/components/SkillsTab";
 import {
   Card,
   CardContent,
@@ -215,6 +216,7 @@ export default function ProfileDetail() {
     if (editedProfile.prps !== undefined) updates.prps = editedProfile.prps;
     if (editedProfile.ba !== undefined) updates.ba = editedProfile.ba;
     if (editedProfile.notes !== undefined) updates.notes = editedProfile.notes;
+    if (editedProfile.watch !== undefined) updates.watch = editedProfile.watch;
 
     updateProfileMutation.mutate(updates);
   };
@@ -388,6 +390,7 @@ export default function ProfileDetail() {
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="skills">Skills</TabsTrigger>
           <TabsTrigger value="notes">Notes & 1:1s</TabsTrigger>
           <TabsTrigger value="absences">Absences</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
@@ -473,12 +476,20 @@ export default function ProfileDetail() {
                     "rank",
                     "Rank",
                     () => (
-                      <Input
+                      <Select
                         value={getDisplayValue("rank") || ""}
-                        onChange={(e) => setEditedProfile({ ...editedProfile, rank: e.target.value })}
-                        placeholder="Rank"
-                        className="mt-1"
-                      />
+                        onValueChange={(value) => setEditedProfile({ ...editedProfile, rank: value })}
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue placeholder="Select rank" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="SC">SC - Station Commander</SelectItem>
+                          <SelectItem value="WC">WC - Watch Commander</SelectItem>
+                          <SelectItem value="CC">CC - Crew Commander</SelectItem>
+                          <SelectItem value="FF">FF - Firefighter</SelectItem>
+                        </SelectContent>
+                      </Select>
                     ),
                     () => (
                       <p className="text-foreground font-medium mt-1">{profile?.rank || "-"}</p>
@@ -542,7 +553,25 @@ export default function ProfileDetail() {
                 </div>
                 <div>
                   <Label className="text-muted-foreground">Watch Unit</Label>
-                  <p className="text-foreground font-medium mt-1">{profile?.watch || user?.watch_unit || "-"}</p>
+                  {editMode && canEditField("watch") ? (
+                    <Select
+                      value={getDisplayValue("watch") || ""}
+                      onValueChange={(value) => setEditedProfile({ ...editedProfile, watch: value as any })}
+                    >
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Select watch" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Green">Green</SelectItem>
+                        <SelectItem value="Red">Red</SelectItem>
+                        <SelectItem value="White">White</SelectItem>
+                        <SelectItem value="Blue">Blue</SelectItem>
+                        <SelectItem value="Amber">Amber</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <p className="text-foreground font-medium mt-1">{profile?.watch || user?.watch_unit || "-"}</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -920,6 +949,10 @@ export default function ProfileDetail() {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="skills" className="space-y-6">
+          {profile && <SkillsTab profileId={profile.id} />}
         </TabsContent>
 
         <TabsContent value="absences" className="space-y-6">

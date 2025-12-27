@@ -15,6 +15,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 import { useIsWC } from "@/lib/rbac";
 import { useUser } from "@clerk/clerk-react";
@@ -23,12 +30,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 interface DictionaryManagerProps {
   type: DictionaryType;
-  title: string;
-  description: string;
-  icon: React.ReactNode;
+  title?: string;
+  description?: string;
+  icon?: React.ReactNode;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
-export function DictionaryManager({ type, title, description, icon }: DictionaryManagerProps) {
+export function DictionaryManager({ type, title, description, icon, isOpen, onClose }: DictionaryManagerProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const isWC = useIsWC();
@@ -183,68 +192,52 @@ export function DictionaryManager({ type, title, description, icon }: Dictionary
     }
   };
 
-  if (isLoading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            {icon}
-            {title}
-          </CardTitle>
-          <CardDescription>{description}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-20 w-full" />
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  const defaultTitle = type === "skill" ? "Skills Dictionary" : "Certifications Dictionary";
+  const defaultDescription = type === "skill" 
+    ? "Manage global skills that can be assigned to firefighters"
+    : "Manage certifications";
+  const defaultIcon = type === "skill" ? <BookOpen className="h-5 w-5" /> : <Award className="h-5 w-5" />;
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          {icon}
-          {title}
-        </CardTitle>
-        <CardDescription>{description}</CardDescription>
-        {!isWC && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Lock className="h-4 w-4" />
-            <span>Read-only (Watch Commander access required)</span>
+  const content = (
+    <>
+      {isWC && (
+        <div className="flex gap-2 mb-4">
+          <div className="flex-1">
+            <Input
+              placeholder={`Add new ${type === "skill" ? "skill" : "certification"}...`}
+              value={newValue}
+              onChange={(e) => setNewValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleCreate();
+                }
+              }}
+            />
           </div>
-        )}
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {isWC && (
-          <div className="flex gap-2">
-            <div className="flex-1">
-              <Input
-                placeholder={`Add new ${type === "skill" ? "skill" : "certification"}...`}
-                value={newValue}
-                onChange={(e) => setNewValue(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleCreate();
-                  }
-                }}
-              />
-            </div>
-            <Button
-              onClick={handleCreate}
-              disabled={!newValue.trim() || createMutation.isPending}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add
-            </Button>
-          </div>
-        )}
+          <Button
+            onClick={handleCreate}
+            disabled={!newValue.trim() || createMutation.isPending}
+            className="bg-red-600 hover:bg-red-700"
+          >
+            {createMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+          </Button>
+        </div>
+      )}
 
+      {!isWC && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+          <Lock className="h-4 w-4" />
+          <span>Read-only (Watch Commander access required)</span>
+        </div>
+      )}
+
+      {isLoading ? (
+        <div className="space-y-2">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-20 w-full" />
+        </div>
+      ) : (
         <div className="border rounded-lg">
           <Table>
             <TableHeader>
@@ -340,10 +333,44 @@ export function DictionaryManager({ type, title, description, icon }: Dictionary
             </TableBody>
           </Table>
         </div>
+      )}
+    </>
+  );
+  
+  if (isOpen !== undefined && onClose) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {icon || defaultIcon}
+              {title || defaultTitle}
+            </DialogTitle>
+            <DialogDescription>{description || defaultDescription}</DialogDescription>
+          </DialogHeader>
+          {content}
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          {icon || defaultIcon}
+          {title || defaultTitle}
+        </CardTitle>
+        <CardDescription>{description || defaultDescription}</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {content}
       </CardContent>
     </Card>
   );
 }
+
+export default DictionaryManager;
 
 export function DictionariesManager() {
   return (

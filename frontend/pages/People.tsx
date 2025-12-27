@@ -4,9 +4,10 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import backend from "~backend/client";
 import { useCanViewPeople, useCanCreatePerson, useIsWatchCommander } from "@/lib/rbac";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ShieldAlert, Search, UserPlus, Settings2, ChevronDown, ChevronUp } from "lucide-react";
+import { ShieldAlert, Search, UserPlus, Settings2, ChevronDown, ChevronUp, BookOpen } from "lucide-react";
 import AddPersonModal from "@/components/AddPersonModal";
 import ColumnsDrawer from "@/components/ColumnsDrawer";
+import DictionaryManager from "@/components/DictionaryManager";
 import {
   Card,
   CardContent,
@@ -94,6 +95,7 @@ export default function People() {
   );
   const [showAddModal, setShowAddModal] = useState(false);
   const [showColumnsDrawer, setShowColumnsDrawer] = useState(false);
+  const [showSkillsManager, setShowSkillsManager] = useState(false);
   const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>({
     name: true,
     watch: true,
@@ -276,6 +278,12 @@ export default function People() {
           </p>
         </div>
         <div className="flex gap-2">
+          {canCreate && (
+            <Button variant="outline" onClick={() => setShowSkillsManager(true)}>
+              <BookOpen className="h-4 w-4 mr-2" />
+              Manage Skills
+            </Button>
+          )}
           <Button variant="outline" onClick={() => setShowColumnsDrawer(true)}>
             <Settings2 className="h-4 w-4 mr-2" />
             Columns
@@ -581,6 +589,13 @@ export default function People() {
         setVisibleColumns={setVisibleColumns}
         canManageSchema={isWC}
       />
+      {showSkillsManager && (
+        <DictionaryManager
+          isOpen={showSkillsManager}
+          onClose={() => setShowSkillsManager(false)}
+          type="skill"
+        />
+      )}
     </div>
   );
 }

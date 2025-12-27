@@ -466,7 +466,7 @@ export namespace dictionary {
             }
 
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI(`/dictionary/${encodeURIComponent(params.id)}`, {method: "PUT", body: JSON.stringify(body)})
+            const resp = await this.baseClient.callTypedAPI(`/dictionary/${encodeURIComponent(params.id)}`, {method: "PATCH", body: JSON.stringify(body)})
             return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_dictionary_update_update>
         }
     }
@@ -1139,6 +1139,7 @@ export namespace skill {
                 "acquired_date": params["acquired_date"],
                 "expiry_date":   params["expiry_date"],
                 notes:           params.notes,
+                "reminder_date": params["reminder_date"],
                 "renewal_date":  params["renewal_date"],
                 "skill_name":    params["skill_name"],
             }
