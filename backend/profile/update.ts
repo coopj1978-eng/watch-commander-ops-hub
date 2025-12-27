@@ -111,6 +111,10 @@ export const update = api(
       setClauses.push(`rank = $${paramIndex++}`);
       queryParams.push(updates.rank);
     }
+    if (updates.watch !== undefined) {
+      setClauses.push(`watch = $${paramIndex++}`);
+      queryParams.push(updates.watch);
+    }
     if (updates.hire_date !== undefined) {
       setClauses.push(`hire_date = $${paramIndex++}`);
       queryParams.push(updates.hire_date);
