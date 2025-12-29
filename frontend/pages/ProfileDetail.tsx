@@ -5,6 +5,7 @@ import { useBackend } from "@/lib/rbac";
 import type { FirefighterProfile, UpdateProfileRequest, DriverPathwayStatus } from "~backend/profile/types";
 import type { AbsenceType } from "~backend/absence/types";
 import SkillsTab from "@/components/SkillsTab";
+import SkillsSummaryCard from "@/components/SkillsSummaryCard";
 import {
   Card,
   CardContent,
@@ -666,94 +667,7 @@ export default function ProfileDetail() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="h-5 w-5" />
-                  Qualifications
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label>PRPS</Label>
-                  {editMode && canEditField("prps") ? (
-                    <Checkbox
-                      checked={getDisplayValue("prps") || false}
-                      onCheckedChange={(checked) =>
-                        setEditedProfile({ ...editedProfile, prps: !!checked })
-                      }
-                    />
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <Badge variant={profile?.prps ? "default" : "outline"}>
-                        {profile?.prps ? "Qualified" : "Not qualified"}
-                      </Badge>
-                      {isFieldLocked("prps") && <Lock className="h-4 w-4 text-muted-foreground" />}
-                    </div>
-                  )}
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label>BA</Label>
-                  {editMode && canEditField("ba") ? (
-                    <Checkbox
-                      checked={getDisplayValue("ba") || false}
-                      onCheckedChange={(checked) =>
-                        setEditedProfile({ ...editedProfile, ba: !!checked })
-                      }
-                    />
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <Badge variant={profile?.ba ? "default" : "outline"}>
-                        {profile?.ba ? "Qualified" : "Not qualified"}
-                      </Badge>
-                      {isFieldLocked("ba") && <Lock className="h-4 w-4 text-muted-foreground" />}
-                    </div>
-                  )}
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label>LGV Driver</Label>
-                  {editMode && canEditField("driver") ? (
-                    <Checkbox
-                      checked={getDisplayValue("driver")?.lgv || false}
-                      onCheckedChange={(checked) =>
-                        setEditedProfile({
-                          ...editedProfile,
-                          driver: { lgv: !!checked, erd: getDisplayValue("driver")?.erd || false },
-                        })
-                      }
-                    />
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <Badge variant={profile?.driver?.lgv ? "default" : "outline"}>
-                        {profile?.driver?.lgv ? "Qualified" : "Not qualified"}
-                      </Badge>
-                      {isFieldLocked("driver") && <Lock className="h-4 w-4 text-muted-foreground" />}
-                    </div>
-                  )}
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label>ERD Driver</Label>
-                  {editMode && canEditField("driver") ? (
-                    <Checkbox
-                      checked={getDisplayValue("driver")?.erd || false}
-                      onCheckedChange={(checked) =>
-                        setEditedProfile({
-                          ...editedProfile,
-                          driver: { lgv: getDisplayValue("driver")?.lgv || false, erd: !!checked },
-                        })
-                      }
-                    />
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <Badge variant={profile?.driver?.erd ? "default" : "outline"}>
-                        {profile?.driver?.erd ? "Qualified" : "Not qualified"}
-                      </Badge>
-                      {isFieldLocked("driver") && <Lock className="h-4 w-4 text-muted-foreground" />}
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+            <SkillsSummaryCard profileId={profile?.id} />
 
             <Card>
               <CardHeader>
