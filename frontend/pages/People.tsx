@@ -1,8 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import backend from "~backend/client";
-import { useCanViewPeople, useCanCreatePerson, useIsWatchCommander } from "@/lib/rbac";
+import { useBackend, useCanViewPeople, useCanCreatePerson, useIsWatchCommander } from "@/lib/rbac";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ShieldAlert, Search, UserPlus, Settings2, ChevronDown, ChevronUp, BookOpen } from "lucide-react";
 import AddPersonModal from "@/components/AddPersonModal";
@@ -63,6 +62,7 @@ const DRIVER_PATHWAY_COLORS: Record<string, string> = {
 };
 
 export default function People() {
+  const backend = useBackend();
   const navigate = useNavigate();
   const canView = useCanViewPeople();
   const canCreate = useCanCreatePerson();
@@ -160,12 +160,14 @@ export default function People() {
 
   const people = peopleData?.people || [];
   const availableSkills = useMemo(() => {
-    const skills = new Set<string>();
-    people.forEach(p => {
-      p.profile?.skills?.forEach(s => skills.add(s));
-    });
-    return Array.from(skills).sort();
-  }, [people]);
+    if (skillsData && skillsData.length > 0) {
+      return skillsData
+        .filter(skill => skill.active)
+        .map(skill => skill.value)
+        .sort();
+    }
+    return [];
+  }, [skillsData]);
 
   const filteredAndSortedPeople = useMemo(() => {
     let filtered = people.filter((person) => {

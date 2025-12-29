@@ -66,6 +66,7 @@ interface DBUserProfile {
   profile_trigger_stage?: string;
   profile_created_at?: Date;
   profile_updated_at?: Date;
+  skill_renewals?: string[];
 }
 
 function transformUserProfile(row: DBUserProfile): PersonWithProfile {
@@ -97,7 +98,7 @@ function transformUserProfile(row: DBUserProfile): PersonWithProfile {
       phone: row.profile_phone,
       emergency_contact_name: row.profile_emergency_contact_name,
       emergency_contact_phone: row.profile_emergency_contact_phone,
-      skills: row.profile_skills || [],
+      skills: row.skill_renewals || [],
       certifications: row.profile_certifications || [],
       watch: row.profile_watch as any,
       driver: {
@@ -185,7 +186,13 @@ export const listWithUsers = api<ListPeopleRequest, ListPeopleResponse>(
         p.rolling_sick_days as profile_rolling_sick_days,
         p.trigger_stage as profile_trigger_stage,
         p.created_at as profile_created_at,
-        p.updated_at as profile_updated_at
+        p.updated_at as profile_updated_at,
+        COALESCE(
+          (SELECT array_agg(DISTINCT skill_name) 
+           FROM skill_renewals sr 
+           WHERE sr.profile_id = p.id), 
+          ARRAY[]::text[]
+        ) as skill_renewals
       FROM users u
       LEFT JOIN firefighter_profiles p ON u.id = p.user_id
     `;
