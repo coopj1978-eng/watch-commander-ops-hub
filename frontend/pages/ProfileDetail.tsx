@@ -162,11 +162,25 @@ export default function ProfileDetail() {
       setEditMode(false);
       setEditedProfile({});
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("Failed to update profile:", error);
+      console.error("Error details:", {
+        message: error?.message,
+        code: error?.code,
+        details: error?.details,
+        response: error?.response,
+      });
+      
+      let errorMessage = "An error occurred";
+      if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.details) {
+        errorMessage = JSON.stringify(error.details);
+      }
+      
       toast({
         title: "Failed to update profile",
-        description: error instanceof Error ? error.message : "An error occurred",
+        description: errorMessage,
         variant: "destructive",
       });
     },
@@ -216,6 +230,19 @@ export default function ProfileDetail() {
     if (editedProfile.ba !== undefined) updates.ba = editedProfile.ba;
     if (editedProfile.notes !== undefined) updates.notes = editedProfile.notes;
     if (editedProfile.watch !== undefined) updates.watch = editedProfile.watch;
+
+    console.log("Profile update payload:", updates);
+    console.log("Profile ID:", profile?.id);
+    console.log("Edited fields:", editedProfile);
+    
+    if (Object.keys(updates).length === 0) {
+      toast({
+        title: "No changes detected",
+        description: "Please make some changes before saving",
+        variant: "destructive",
+      });
+      return;
+    }
 
     updateProfileMutation.mutate(updates);
   };
