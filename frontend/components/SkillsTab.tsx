@@ -52,7 +52,6 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
   const [selectedSkill, setSelectedSkill] = useState("");
   const [customSkillName, setCustomSkillName] = useState("");
   const [acquiredDate, setAcquiredDate] = useState("");
-  const [renewalDate, setRenewalDate] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
   const [reminderDate, setReminderDate] = useState("");
   const [notes, setNotes] = useState("");
@@ -72,7 +71,7 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
   const skills = skillsData?.skills || [];
 
   const createSkillMutation = useMutation({
-    mutationFn: async (data: { skill_name: string; acquired_date?: string; renewal_date?: string; expiry_date?: string; reminder_date?: string; notes?: string }) => {
+    mutationFn: async (data: { skill_name: string; acquired_date?: string; expiry_date?: string; reminder_date?: string; notes?: string }) => {
       const result = await backend.skill.create({
         profile_id: profileId,
         ...data,
@@ -114,7 +113,7 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
   });
 
   const updateSkillMutation = useMutation({
-    mutationFn: async (data: { id: number; skill_name?: string; acquired_date?: string; renewal_date?: string; expiry_date?: string; reminder_date?: string; notes?: string }) => {
+    mutationFn: async (data: { id: number; skill_name?: string; acquired_date?: string; expiry_date?: string; reminder_date?: string; notes?: string }) => {
       const { id, ...updates } = data;
       return await backend.skill.update({ id, ...updates });
     },
@@ -156,7 +155,6 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
     setSelectedSkill("");
     setCustomSkillName("");
     setAcquiredDate("");
-    setRenewalDate("");
     setExpiryDate("");
     setReminderDate("");
     setNotes("");
@@ -168,7 +166,6 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
     setSelectedSkill("");
     setCustomSkillName("");
     setAcquiredDate("");
-    setRenewalDate("");
     setExpiryDate("");
     setReminderDate("");
     setNotes("");
@@ -189,7 +186,6 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
     createSkillMutation.mutate({
       skill_name: skillName,
       acquired_date: acquiredDate || undefined,
-      renewal_date: renewalDate || undefined,
       expiry_date: expiryDate || undefined,
       reminder_date: reminderDate || undefined,
       notes: notes || undefined,
@@ -205,7 +201,6 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
       id: editingSkill.id,
       skill_name: skillName || undefined,
       acquired_date: acquiredDate || undefined,
-      renewal_date: renewalDate || undefined,
       expiry_date: expiryDate || undefined,
       reminder_date: reminderDate || undefined,
       notes: notes || undefined,
@@ -218,7 +213,6 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
     setSelectedSkill(isAvailableSkill ? skill.skill_name : "custom");
     setCustomSkillName(isAvailableSkill ? "" : skill.skill_name);
     setAcquiredDate(skill.acquired_date ? new Date(skill.acquired_date).toISOString().split("T")[0] : "");
-    setRenewalDate(skill.renewal_date ? new Date(skill.renewal_date).toISOString().split("T")[0] : "");
     setExpiryDate(skill.expiry_date ? new Date(skill.expiry_date).toISOString().split("T")[0] : "");
     setReminderDate(skill.reminder_date ? new Date(skill.reminder_date).toISOString().split("T")[0] : "");
     setNotes(skill.notes || "");
@@ -279,7 +273,6 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
               <TableRow>
                 <TableHead>Skill</TableHead>
                 <TableHead>Acquired</TableHead>
-                <TableHead>Renewal</TableHead>
                 <TableHead>Expiry</TableHead>
                 <TableHead>Reminder</TableHead>
                 <TableHead>Status</TableHead>
@@ -293,9 +286,6 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
                   <TableCell className="font-medium">{skill.skill_name}</TableCell>
                   <TableCell>
                     {skill.acquired_date ? new Date(skill.acquired_date).toLocaleDateString() : "-"}
-                  </TableCell>
-                  <TableCell>
-                    {skill.renewal_date ? new Date(skill.renewal_date).toLocaleDateString() : "-"}
                   </TableCell>
                   <TableCell>
                     {skill.expiry_date ? new Date(skill.expiry_date).toLocaleDateString() : "-"}
@@ -381,15 +371,6 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
                   type="date"
                   value={acquiredDate}
                   onChange={(e) => setAcquiredDate(e.target.value)}
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <Label>Renewal Date</Label>
-                <Input
-                  type="date"
-                  value={renewalDate}
-                  onChange={(e) => setRenewalDate(e.target.value)}
                   className="mt-1"
                 />
               </div>
@@ -488,15 +469,6 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
                   type="date"
                   value={acquiredDate}
                   onChange={(e) => setAcquiredDate(e.target.value)}
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <Label>Renewal Date</Label>
-                <Input
-                  type="date"
-                  value={renewalDate}
-                  onChange={(e) => setRenewalDate(e.target.value)}
                   className="mt-1"
                 />
               </div>
