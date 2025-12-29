@@ -84,7 +84,6 @@ export default function ProfileDetail() {
   const [editMode, setEditMode] = useState(false);
   const [editedProfile, setEditedProfile] = useState<Partial<FirefighterProfile>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [newSkill, setNewSkill] = useState("");
 
   const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ["user", userId],
@@ -250,19 +249,7 @@ export default function ProfileDetail() {
     return editMode && !canEditField(fieldName);
   };
 
-  const handleSkillAdd = () => {
-    if (!newSkill.trim()) return;
-    const currentSkills = getDisplayValue("skills") || [];
-    if (!currentSkills.includes(newSkill.trim())) {
-      setEditedProfile({ ...editedProfile, skills: [...currentSkills, newSkill.trim()] });
-    }
-    setNewSkill("");
-  };
 
-  const handleSkillRemove = (skill: string) => {
-    const currentSkills = getDisplayValue("skills") || [];
-    setEditedProfile({ ...editedProfile, skills: currentSkills.filter(s => s !== skill) });
-  };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -743,57 +730,6 @@ export default function ProfileDetail() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Award className="h-5 w-5" />
-                  Skills
-                </CardTitle>
-                <CardDescription>Auto-added to dictionary</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {editMode && canEditField("skills") ? (
-                  <div className="space-y-3">
-                    <div className="flex gap-2">
-                      <Input
-                        value={newSkill}
-                        onChange={(e) => setNewSkill(e.target.value)}
-                        placeholder="Add skill..."
-                        onKeyPress={(e) => {
-                          if (e.key === "Enter") {
-                            e.preventDefault();
-                            handleSkillAdd();
-                          }
-                        }}
-                      />
-                      <Button onClick={handleSkillAdd} size="sm">
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {(getDisplayValue("skills") || []).map((skill, index) => (
-                        <Badge key={index} variant="outline" className="cursor-pointer" onClick={() => handleSkillRemove(skill)}>
-                          {skill} <X className="h-3 w-3 ml-1" />
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex flex-wrap gap-2">
-                    {profile?.skills && profile.skills.length > 0 ? (
-                      profile.skills.map((skill, index) => (
-                        <Badge key={index} variant="outline">
-                          {skill}
-                        </Badge>
-                      ))
-                    ) : (
-                      <p className="text-muted-foreground text-sm">No skills recorded</p>
-                    )}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
                 <CardTitle>Emergency Contact</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -952,7 +888,7 @@ export default function ProfileDetail() {
         </TabsContent>
 
         <TabsContent value="skills" className="space-y-6">
-          {profile && <SkillsTab profileId={profile.id} />}
+          {profile && <SkillsTab profileId={profile.id} userId={userId} />}
         </TabsContent>
 
         <TabsContent value="absences" className="space-y-6">

@@ -37,9 +37,10 @@ import { Plus, Edit, Trash2, AlertTriangle, CheckCircle2, XCircle } from "lucide
 
 interface SkillsTabProps {
   profileId: number;
+  userId?: string;
 }
 
-export default function SkillsTab({ profileId }: SkillsTabProps) {
+export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
   const backend = useBackend();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -72,10 +73,30 @@ export default function SkillsTab({ profileId }: SkillsTabProps) {
 
   const createSkillMutation = useMutation({
     mutationFn: async (data: { skill_name: string; acquired_date?: string; renewal_date?: string; expiry_date?: string; reminder_date?: string; notes?: string }) => {
-      return await backend.skill.create({
+      const result = await backend.skill.create({
         profile_id: profileId,
         ...data,
       });
+
+      if (data.reminder_date && userId) {
+        try {
+          await backend.calendar.create({
+            title: `Skill Renewal Reminder: ${data.skill_name}`,
+            description: `Reminder to renew ${data.skill_name} skill. Expires on ${data.expiry_date || 'N/A'}.`,
+            event_type: "training",
+            start_time: new Date(data.reminder_date),
+            end_time: new Date(data.reminder_date),
+            all_day: true,
+            user_id: userId,
+            is_watch_event: false,
+            created_by: userId,
+          });
+        } catch (error) {
+          console.error("Failed to create calendar reminder:", error);
+        }
+      }
+
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["skill-renewals", profileId] });
@@ -377,12 +398,23 @@ export default function SkillsTab({ profileId }: SkillsTabProps) {
                 <Input
                   type="date"
                   value={expiryDate}
-                  onChange={(e) => setExpiryDate(e.target.value)}
+                  onChange={(e) => {
+                    const newExpiryDate = e.target.value;
+                    setExpiryDate(newExpiryDate);
+                    if (newExpiryDate) {
+                      const expiry = new Date(newExpiryDate);
+                      const reminder = new Date(expiry);
+                      reminder.setDate(reminder.getDate() - 30);
+                      setReminderDate(reminder.toISOString().split('T')[0]);
+                    } else {
+                      setReminderDate('');
+                    }
+                  }}
                   className="mt-1"
                 />
               </div>
               <div>
-                <Label>Reminder Date</Label>
+                <Label>Reminder Date (auto: 30 days before expiry)</Label>
                 <Input
                   type="date"
                   value={reminderDate}
@@ -473,12 +505,23 @@ export default function SkillsTab({ profileId }: SkillsTabProps) {
                 <Input
                   type="date"
                   value={expiryDate}
-                  onChange={(e) => setExpiryDate(e.target.value)}
+                  onChange={(e) => {
+                    const newExpiryDate = e.target.value;
+                    setExpiryDate(newExpiryDate);
+                    if (newExpiryDate) {
+                      const expiry = new Date(newExpiryDate);
+                      const reminder = new Date(expiry);
+                      reminder.setDate(reminder.getDate() - 30);
+                      setReminderDate(reminder.toISOString().split('T')[0]);
+                    } else {
+                      setReminderDate('');
+                    }
+                  }}
                   className="mt-1"
                 />
               </div>
               <div>
-                <Label>Reminder Date</Label>
+                <Label>Reminder Date (auto: 30 days before expiry)</Label>
                 <Input
                   type="date"
                   value={reminderDate}
