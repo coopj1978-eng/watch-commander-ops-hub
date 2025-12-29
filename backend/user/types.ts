@@ -4,7 +4,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  role: UserRole;
+  role: string;
   watch_unit?: string;
   rank?: string;
   avatar_url?: string;
@@ -19,7 +19,7 @@ export interface CreateUserRequest {
   id: string;
   email: string;
   name: string;
-  role: UserRole;
+  role: string;
   watch_unit?: string;
   rank?: string;
   avatar_url?: string;
@@ -29,7 +29,7 @@ export interface CreateUserRequest {
 export interface UpdateUserRequest {
   email?: string;
   name?: string;
-  role?: UserRole;
+  role?: string;
   watch_unit?: string;
   rank?: string;
   avatar_url?: string;

@@ -84,6 +84,7 @@ export default function ProfileDetail() {
   const isViewingOwnProfile = currentUser?.id === userId;
   const [editMode, setEditMode] = useState(false);
   const [editedProfile, setEditedProfile] = useState<Partial<FirefighterProfile>>({});
+  const [editedUser, setEditedUser] = useState<{ role?: string }>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: user, isLoading: userLoading } = useQuery({
@@ -162,6 +163,7 @@ export default function ProfileDetail() {
       });
       setEditMode(false);
       setEditedProfile({});
+      setEditedUser({});
     },
     onError: (error: any) => {
       console.error("Failed to update profile:", error);
@@ -213,30 +215,34 @@ export default function ProfileDetail() {
     },
   });
 
-  const handleSaveProfile = () => {
-    const updates: UpdateProfileRequest = {};
+  const handleSaveProfile = async () => {
+    const profileUpdates: UpdateProfileRequest = {};
+    const userUpdates: any = {};
     
-    if (editedProfile.service_number !== undefined) updates.service_number = editedProfile.service_number;
-    if (editedProfile.station !== undefined) updates.station = editedProfile.station;
-    if (editedProfile.shift !== undefined) updates.shift = editedProfile.shift;
-    if (editedProfile.rank !== undefined) updates.rank = editedProfile.rank;
-    if (editedProfile.phone !== undefined) updates.phone = editedProfile.phone;
-    if (editedProfile.emergency_contact_name !== undefined) updates.emergency_contact_name = editedProfile.emergency_contact_name;
-    if (editedProfile.emergency_contact_phone !== undefined) updates.emergency_contact_phone = editedProfile.emergency_contact_phone;
-    if (editedProfile.skills !== undefined) updates.skills = editedProfile.skills;
-    if (editedProfile.certifications !== undefined) updates.certifications = editedProfile.certifications;
-    if (editedProfile.driver !== undefined) updates.driver = editedProfile.driver;
-    if (editedProfile.driverPathway !== undefined) updates.driverPathway = editedProfile.driverPathway;
-    if (editedProfile.prps !== undefined) updates.prps = editedProfile.prps;
-    if (editedProfile.ba !== undefined) updates.ba = editedProfile.ba;
-    if (editedProfile.notes !== undefined) updates.notes = editedProfile.notes;
-    if (editedProfile.watch !== undefined) updates.watch = editedProfile.watch;
+    if (editedProfile.service_number !== undefined) profileUpdates.service_number = editedProfile.service_number;
+    if (editedProfile.station !== undefined) profileUpdates.station = editedProfile.station;
+    if (editedProfile.shift !== undefined) profileUpdates.shift = editedProfile.shift;
+    if (editedProfile.rank !== undefined) profileUpdates.rank = editedProfile.rank;
+    if (editedProfile.phone !== undefined) profileUpdates.phone = editedProfile.phone;
+    if (editedProfile.emergency_contact_name !== undefined) profileUpdates.emergency_contact_name = editedProfile.emergency_contact_name;
+    if (editedProfile.emergency_contact_phone !== undefined) profileUpdates.emergency_contact_phone = editedProfile.emergency_contact_phone;
+    if (editedProfile.skills !== undefined) profileUpdates.skills = editedProfile.skills;
+    if (editedProfile.certifications !== undefined) profileUpdates.certifications = editedProfile.certifications;
+    if (editedProfile.driver !== undefined) profileUpdates.driver = editedProfile.driver;
+    if (editedProfile.driverPathway !== undefined) profileUpdates.driverPathway = editedProfile.driverPathway;
+    if (editedProfile.prps !== undefined) profileUpdates.prps = editedProfile.prps;
+    if (editedProfile.ba !== undefined) profileUpdates.ba = editedProfile.ba;
+    if (editedProfile.notes !== undefined) profileUpdates.notes = editedProfile.notes;
+    if (editedProfile.watch !== undefined) profileUpdates.watch = editedProfile.watch;
+    
+    if (editedUser.role !== undefined) userUpdates.role = editedUser.role;
 
-    console.log("Profile update payload:", updates);
+    console.log("Profile update payload:", profileUpdates);
+    console.log("User update payload:", userUpdates);
     console.log("Profile ID:", profile?.id);
-    console.log("Edited fields:", editedProfile);
+    console.log("Edited fields:", editedProfile, editedUser);
     
-    if (Object.keys(updates).length === 0) {
+    if (Object.keys(profileUpdates).length === 0 && Object.keys(userUpdates).length === 0) {
       toast({
         title: "No changes detected",
         description: "Please make some changes before saving",
@@ -245,12 +251,34 @@ export default function ProfileDetail() {
       return;
     }
 
-    updateProfileMutation.mutate(updates);
+    try {
+      if (Object.keys(userUpdates).length > 0 && userId) {
+        await backend.user.update({ id: userId, ...userUpdates });
+      }
+      if (Object.keys(profileUpdates).length > 0) {
+        updateProfileMutation.mutate(profileUpdates);
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["user", userId] });
+        queryClient.invalidateQueries({ queryKey: ["profile", userId] });
+        toast({ title: "Profile updated", description: "Changes saved successfully" });
+        setEditMode(false);
+        setEditedProfile({});
+        setEditedUser({});
+      }
+    } catch (error) {
+      console.error("Failed to update user:", error);
+      toast({
+        title: "Failed to update profile",
+        description: error instanceof Error ? error.message : "An error occurred",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleCancelEdit = () => {
     setEditMode(false);
     setEditedProfile({});
+    setEditedUser({});
   };
 
   const getDisplayValue = <K extends keyof FirefighterProfile>(key: K): FirefighterProfile[K] => {
@@ -452,9 +480,25 @@ export default function ProfileDetail() {
                 </div>
                 <div>
                   <Label className="text-muted-foreground">Role</Label>
-                  <div className="mt-1">
-                    <Badge>{user?.role}</Badge>
-                  </div>
+                  {renderFieldWithLock(
+                    "role",
+                    "Role",
+                    () => (
+                      <Input
+                        value={editedUser.role !== undefined ? editedUser.role : user?.role || ""}
+                        onChange={(e) =>
+                          setEditedUser({ ...editedUser, role: e.target.value })
+                        }
+                        placeholder="Role"
+                        className="mt-1"
+                      />
+                    ),
+                    () => (
+                      <div className="mt-1">
+                        <Badge>{user?.role}</Badge>
+                      </div>
+                    )
+                  )}
                 </div>
               </CardContent>
             </Card>
