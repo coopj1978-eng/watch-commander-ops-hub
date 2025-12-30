@@ -108,7 +108,7 @@ function transformUserProfile(row: DBUserProfile): PersonWithProfile {
       driverPathway: row.profile_driver_pathway_status
         ? {
             status: row.profile_driver_pathway_status as any,
-            lgvPassedDate: row.profile_driver_pathway_lgv_passed_date
+            lgvPassedDate: row.profile_driver_pathway_lgv_passed_date && row.profile_driver_pathway_lgv_passed_date instanceof Date
               ? row.profile_driver_pathway_lgv_passed_date.toISOString().split("T")[0]
               : undefined,
           }
@@ -116,7 +116,9 @@ function transformUserProfile(row: DBUserProfile): PersonWithProfile {
       lastConversation:
         row.profile_last_conversation_date && row.profile_last_conversation_text
           ? {
-              date: row.profile_last_conversation_date.toISOString().split("T")[0],
+              date: row.profile_last_conversation_date instanceof Date 
+                ? row.profile_last_conversation_date.toISOString().split("T")[0]
+                : String(row.profile_last_conversation_date).split("T")[0],
               text: row.profile_last_conversation_text,
             }
           : undefined,
