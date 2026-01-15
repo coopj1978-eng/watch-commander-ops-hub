@@ -24,9 +24,9 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard, ariaLabel: "Go to Dashboard" },
+  { name: "Dashboard", path: "/", icon: LayoutDashboard, ariaLabel: "Go to Dashboard" },
   { name: "People", path: "/people", icon: Users, ariaLabel: "Go to People" },
-  { name: "Calendar", path: "/watch-calendar", icon: Calendar, ariaLabel: "Go to Calendar" },
+  { name: "Calendar", path: "/calendar/watch", icon: Calendar, ariaLabel: "Go to Calendar" },
   { name: "Tasks", path: "/tasks", icon: CheckSquare, ariaLabel: "Go to Tasks" },
   { name: "Inspections", path: "/inspections", icon: ClipboardCheck, ariaLabel: "Go to Inspections" },
   { name: "Targets", path: "/targets", icon: Target, ariaLabel: "Go to Targets" },
@@ -52,7 +52,7 @@ export default function SidebarNav() {
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path || 
-              (item.path !== "/dashboard" && location.pathname.startsWith(item.path));
+              (item.path !== "/" && location.pathname.startsWith(item.path));
 
             return (
               <Tooltip key={item.path}>
