@@ -8,6 +8,7 @@ import {
   Target,
   FileText,
   Settings,
+  Truck,
 } from "lucide-react";
 import {
   Tooltip,
@@ -29,6 +30,7 @@ const navItems: NavItem[] = [
   { name: "Calendar", path: "/calendar/watch", icon: Calendar, ariaLabel: "Go to Calendar" },
   { name: "Tasks", path: "/tasks", icon: CheckSquare, ariaLabel: "Go to Tasks" },
   { name: "Inspections", path: "/inspections", icon: ClipboardCheck, ariaLabel: "Go to Inspections" },
+  { name: "J4 Checks", path: "/equipment", icon: Truck, ariaLabel: "Go to J4 Equipment Checks" },
   { name: "Targets", path: "/targets", icon: Target, ariaLabel: "Go to Targets" },
   { name: "Policies", path: "/policies", icon: FileText, ariaLabel: "Go to Policies & Q&A" },
   { name: "Settings", path: "/settings", icon: Settings, ariaLabel: "Go to Settings" },

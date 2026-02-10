@@ -39,3 +39,13 @@ export function useCanCreatePerson() {
 export function useIsWC() {
   return useIsWatchCommander();
 }
+
+export function useCanManageEquipment() {
+  const role = useUserRole();
+  return role === "WC" || role === "CC";
+}
+
+export function useCanPerformChecks() {
+  const role = useUserRole();
+  return role === "WC" || role === "CC" || role === "FF";
+}

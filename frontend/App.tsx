@@ -16,6 +16,7 @@ import PolicyQA from "./pages/PolicyQA";
 import Reports from "./pages/Reports";
 import AdminPanel from "./pages/AdminPanel";
 import Settings from "./pages/Settings";
+import EquipmentChecks from "./pages/EquipmentChecks";
 import StaffPortal from "./pages/StaffPortal";
 import CrewCommanderHome from "./pages/CrewCommanderHome";
 import SignIn from "./pages/SignIn";
@@ -183,6 +184,7 @@ function AppRoutes() {
         <Route path="/calendar/personal" element={<PersonalCalendar />} />
         <Route path="/tasks" element={<Tasks />} />
         <Route path="/inspections" element={<Inspections />} />
+        <Route path="/equipment" element={<EquipmentChecks />} />
         <Route path="/targets" element={<Targets />} />
         <Route path="/policies" element={<Policies />} />
         <Route path="/policies/qa" element={<PolicyQA />} />

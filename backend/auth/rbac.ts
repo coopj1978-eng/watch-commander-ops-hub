@@ -17,6 +17,9 @@ export enum Permission {
   MANAGE_ASSIGNED_CREWS = "manage_assigned_crews",
   EDIT_ASSIGNED_FIREFIGHTERS = "edit_assigned_firefighters",
   MANAGE_SYSTEM_SETTINGS = "manage_system_settings",
+  MANAGE_EQUIPMENT = "manage_equipment",
+  PERFORM_EQUIPMENT_CHECKS = "perform_equipment_checks",
+  VIEW_EQUIPMENT = "view_equipment",
 }
 
 const rolePermissions: Record<UserRole, Permission[]> = {
@@ -34,6 +37,9 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     Permission.EXPORT_REPORTS,
     Permission.VIEW_ACTIVITY_LOG,
     Permission.MANAGE_SYSTEM_SETTINGS,
+    Permission.MANAGE_EQUIPMENT,
+    Permission.PERFORM_EQUIPMENT_CHECKS,
+    Permission.VIEW_EQUIPMENT,
   ],
   CC: [
     Permission.MANAGE_ASSIGNED_CREWS,
@@ -45,16 +51,22 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     Permission.EDIT_OWN_PROFILE,
     Permission.VIEW_POLICIES,
     Permission.EXPORT_REPORTS,
+    Permission.MANAGE_EQUIPMENT,
+    Permission.PERFORM_EQUIPMENT_CHECKS,
+    Permission.VIEW_EQUIPMENT,
   ],
   FF: [
     Permission.VIEW_OWN_PROFILE,
     Permission.EDIT_OWN_PROFILE,
     Permission.VIEW_POLICIES,
+    Permission.PERFORM_EQUIPMENT_CHECKS,
+    Permission.VIEW_EQUIPMENT,
   ],
   RO: [
     Permission.VIEW_ALL_PROFILES,
     Permission.VIEW_POLICIES,
     Permission.EXPORT_REPORTS,
+    Permission.VIEW_EQUIPMENT,
   ],
 };
 
