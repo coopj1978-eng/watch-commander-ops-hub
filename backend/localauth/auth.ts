@@ -5,7 +5,18 @@ import jwt from "jsonwebtoken";
 import db from "../db";
 import type { User } from "../user/types";
 
-const jwtSecret = secret("JWTSecret");
+const jwtSecretRef = secret("JWTSecret");
+const LOCAL_DEV_SECRET = "local-dev-jwt-secret-watchcommander-2026";
+
+function getJwtSecret(): string {
+  try {
+    const val = jwtSecretRef();
+    if (val) return val;
+  } catch {
+    // Secret not configured — use local dev fallback
+  }
+  return LOCAL_DEV_SECRET;
+}
 
 interface SignUpRequest {
   email: string;
@@ -40,11 +51,9 @@ export const signUp = api<SignUpRequest, AuthResponse>(
         throw APIError.alreadyExists("User with this email already exists");
       }
 
-      console.log("SignUp: hashing password...");
       const passwordHash = await bcrypt.hash(req.password, 10);
       const userId = `user_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 
-      console.log("SignUp: creating user in database...");
       const newUser = await db.queryRow<User>`
         INSERT INTO users (id, email, name, password_hash, role, is_active)
         VALUES (
@@ -62,7 +71,6 @@ export const signUp = api<SignUpRequest, AuthResponse>(
         throw APIError.internal("Failed to create user");
       }
 
-      console.log("SignUp: creating firefighter profile...");
       try {
         await db.exec`
           INSERT INTO firefighter_profiles (
@@ -77,19 +85,16 @@ export const signUp = api<SignUpRequest, AuthResponse>(
         console.error("Failed to create firefighter profile (non-fatal):", profileErr);
       }
 
-      console.log("SignUp: creating JWT token...");
-      const secretValue = jwtSecret();
       const token = jwt.sign(
         {
           userId: newUser.id,
           email: newUser.email,
           role: newUser.role
         },
-        secretValue,
+        getJwtSecret(),
         { expiresIn: "7d" }
       );
 
-      console.log("SignUp: success for", req.email);
       return {
         user: {
           id: newUser.id,
@@ -123,26 +128,22 @@ export const signIn = api<SignInRequest, AuthResponse>(
         throw APIError.permissionDenied("Account is inactive. Please contact your administrator.");
       }
 
-      console.log("SignIn: comparing password...");
       const isValidPassword = await bcrypt.compare(req.password, user.password_hash);
 
       if (!isValidPassword) {
         throw APIError.unauthenticated("Invalid email or password");
       }
 
-      console.log("SignIn: creating JWT token...");
-      const secretValue = jwtSecret();
       const token = jwt.sign(
         {
           userId: user.id,
           email: user.email,
           role: user.role
         },
-        secretValue,
+        getJwtSecret(),
         { expiresIn: "7d" }
       );
 
-      console.log("SignIn: success for", req.email);
       return {
         user: {
           id: user.id,

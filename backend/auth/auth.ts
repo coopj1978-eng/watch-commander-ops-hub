@@ -7,7 +7,18 @@ import { adminEmail } from "./secrets";
 import db from "../db";
 import type { User } from "../user/types";
 
-const jwtSecret = secret("JWTSecret");
+const jwtSecretRef = secret("JWTSecret");
+const LOCAL_DEV_SECRET = "local-dev-jwt-secret-watchcommander-2026";
+
+function getJwtSecret(): string {
+  try {
+    const val = jwtSecretRef();
+    if (val) return val;
+  } catch {
+    // Secret not configured — use local dev fallback
+  }
+  return LOCAL_DEV_SECRET;
+}
 
 interface AuthParams {
   authorization?: Header<"Authorization">;
@@ -33,7 +44,7 @@ export const auth = authHandler<AuthParams, AuthData>(async (data) => {
   }
 
   try {
-    const decoded = jwt.verify(token, jwtSecret()) as {
+    const decoded = jwt.verify(token, getJwtSecret()) as {
       userId: string;
       email: string;
       role: string;
@@ -70,7 +81,7 @@ export const auth = authHandler<AuthParams, AuthData>(async (data) => {
         `;
       }
     }
-    
+
     const authData: AuthData = {
       userID: dbUser.id,
       imageUrl: dbUser.avatar_url || "",
