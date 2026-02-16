@@ -86,20 +86,6 @@ export default function SidebarNav() {
           })}
         </nav>
       </TooltipProvider>
-
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button
-            className="flex items-center justify-center w-14 h-14 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
-            aria-label="Settings"
-          >
-            <Settings className="h-6 w-6" aria-hidden="true" />
-          </button>
-        </TooltipTrigger>
-        <TooltipContent side="right" className="font-medium">
-          Settings
-        </TooltipContent>
-      </Tooltip>
     </aside>
   );
 }

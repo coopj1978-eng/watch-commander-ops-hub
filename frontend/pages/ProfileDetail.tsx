@@ -1472,7 +1472,7 @@ export default function ProfileDetail() {
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              When they sign up using this link, their Clerk account will be automatically linked to this profile.
+              When they sign up using this link, their account will be automatically linked to this profile.
             </p>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setShowInviteDialog(false)}>

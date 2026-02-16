@@ -1,15 +1,9 @@
-import { api, Query } from "encore.dev/api";
+import { api, Query, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import { setupToken } from "../auth/secrets";
-import { createClerkClient } from "@clerk/backend";
-import { secret } from "encore.dev/config";
 import db from "../db";
 import type { User } from "../user/types";
-import { APIError } from "encore.dev/api";
 import { logActivity } from "../logging/logger";
-
-const clerkSecretKey = secret("ClerkSecretKey");
-const clerkClient = createClerkClient({ secretKey: clerkSecretKey() });
 
 export interface BootstrapRequest {
   setupToken: Query<string>;
@@ -41,12 +35,6 @@ export const bootstrap = api<BootstrapRequest, BootstrapResponse>(
     await db.exec`
       UPDATE users SET role = 'WC' WHERE id = ${auth.userID}
     `;
-
-    const clerkUser = await clerkClient.users.getUser(auth.userID);
-    const metadata = clerkUser.publicMetadata || {};
-    await clerkClient.users.updateUserMetadata(auth.userID, {
-      publicMetadata: { ...metadata, role: "WC" },
-    });
 
     await logActivity({
       user_id: auth.userID,

@@ -1,5 +1,4 @@
 import { describe, test, expect, beforeEach } from "vitest";
-import { createClerkClient } from "@clerk/backend";
 import db from "./db";
 
 describe("Acceptance Tests - Watch Commander Ops Hub", () => {
