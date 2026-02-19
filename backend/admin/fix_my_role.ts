@@ -1,13 +1,14 @@
 import { api } from "encore.dev/api";
+import { getAuthData } from "~encore/auth";
 import db from "../db";
 
 export const fixMyRole = api<void, { success: boolean; message: string }>(
-  { expose: true, method: "POST", path: "/admin/fix-my-role" },
+  { expose: true, auth: true, method: "POST", path: "/admin/fix-my-role" },
   async () => {
-    const userId = "user_35TU012AT2UzloJxYMnuLeQvoSX";
+    const auth = getAuthData()!;
 
     await db.exec`
-      UPDATE users SET role = 'WC' WHERE id = ${userId}
+      UPDATE users SET role = 'WC' WHERE id = ${auth.userID}
     `;
 
     return {
