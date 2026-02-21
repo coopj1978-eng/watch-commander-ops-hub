@@ -381,8 +381,8 @@ export default function ProfileDetail() {
     }
 
     try {
-      if (Object.keys(userUpdates).length > 0 && userId) {
-        await backend.user.update({ id: userId, updates: userUpdates });
+      if (userUpdates.role && userId) {
+        await backend.admin.changeRole({ userId, newRole: userUpdates.role });
       }
       if (Object.keys(profileUpdates).length > 0) {
         updateProfileMutation.mutate(profileUpdates);
@@ -418,7 +418,7 @@ export default function ProfileDetail() {
     if (userRole === "WC") return true;
     
     if (userRole === "CC") {
-      const wcOnlyFields = ["service_number", "station", "shift", "rank"];
+      const wcOnlyFields = ["service_number", "station", "shift", "rank", "role"];
       return !wcOnlyFields.includes(fieldName);
     }
     
@@ -643,14 +643,22 @@ export default function ProfileDetail() {
                     "role",
                     "Role",
                     () => (
-                      <Input
+                      <Select
                         value={editedUser.role !== undefined ? editedUser.role : user?.role || ""}
-                        onChange={(e) =>
-                          setEditedUser({ ...editedUser, role: e.target.value })
+                        onValueChange={(value) =>
+                          setEditedUser({ ...editedUser, role: value })
                         }
-                        placeholder="Role"
-                        className="mt-1"
-                      />
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue placeholder="Select role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="WC">WC - Watch Commander</SelectItem>
+                          <SelectItem value="CC">CC - Crew Commander</SelectItem>
+                          <SelectItem value="FF">FF - Firefighter</SelectItem>
+                          <SelectItem value="RO">RO - Read Only</SelectItem>
+                        </SelectContent>
+                      </Select>
                     ),
                     () => (
                       <div className="mt-1">
