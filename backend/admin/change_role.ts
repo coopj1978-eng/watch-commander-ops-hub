@@ -14,7 +14,7 @@ export const changeRole = api(
   { method: "PUT", path: "/api/admin/users/:userId/role", expose: true, auth: true },
   async ({ userId, newRole }: ChangeRoleRequest): Promise<void> => {
     const auth = getAuthData()!;
-    requireRole(auth, "WC");
+    requireRole(auth, "WC", "AU");
 
     const userRow = await db.rawQueryRow<{ id: string; role: string; is_active: boolean }>(
       `SELECT id, role, is_active FROM users WHERE id = $1`,

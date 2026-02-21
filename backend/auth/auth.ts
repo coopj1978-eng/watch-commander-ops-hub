@@ -14,7 +14,7 @@ interface AuthParams {
   auth_token?: Cookie<"auth_token">;
 }
 
-export type UserRole = "WC" | "CC" | "FF" | "RO";
+export type UserRole = "WC" | "CC" | "FF" | "RO" | "AU";
 
 export interface AuthData {
   userID: string;

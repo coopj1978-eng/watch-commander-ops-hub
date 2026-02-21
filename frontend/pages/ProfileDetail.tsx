@@ -415,8 +415,8 @@ export default function ProfileDetail() {
   };
 
   const canEditField = (fieldName: string): boolean => {
-    if (userRole === "WC") return true;
-    
+    if (userRole === "WC" || userRole === "AU") return true;
+
     if (userRole === "CC") {
       const wcOnlyFields = ["service_number", "station", "shift", "rank", "role"];
       return !wcOnlyFields.includes(fieldName);
@@ -657,6 +657,7 @@ export default function ProfileDetail() {
                           <SelectItem value="CC">CC - Crew Commander</SelectItem>
                           <SelectItem value="FF">FF - Firefighter</SelectItem>
                           <SelectItem value="RO">RO - Read Only</SelectItem>
+                          <SelectItem value="AU">AU - Audit</SelectItem>
                         </SelectContent>
                       </Select>
                     ),

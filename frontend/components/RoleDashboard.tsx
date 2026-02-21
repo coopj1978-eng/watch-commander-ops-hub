@@ -42,7 +42,7 @@ function StatCard({
 export default function RoleDashboard() {
   const role = useUserRole();
 
-  if (role === "WC") {
+  if (role === "WC" || role === "AU") {
     return <WatchCommanderDashboard />;
   }
 

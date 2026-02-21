@@ -23,12 +23,17 @@ export function useIsCrewCommander() {
 
 export function useCanViewPeople() {
   const role = useUserRole();
-  return role === "WC" || role === "CC";
+  return role === "WC" || role === "CC" || role === "AU";
 }
 
 export function useCanEditProfiles() {
   const role = useUserRole();
-  return role === "WC" || role === "CC";
+  return role === "WC" || role === "CC" || role === "AU";
+}
+
+export function useIsAudit() {
+  const role = useUserRole();
+  return role === "AU";
 }
 
 export function useCanCreatePerson() {

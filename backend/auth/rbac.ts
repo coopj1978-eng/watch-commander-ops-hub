@@ -56,6 +56,15 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     Permission.VIEW_POLICIES,
     Permission.EXPORT_REPORTS,
   ],
+  AU: [
+    Permission.VIEW_ALL_PROFILES,
+    Permission.EDIT_ALL_PROFILES,
+    Permission.VIEW_OWN_PROFILE,
+    Permission.EDIT_OWN_PROFILE,
+    Permission.VIEW_POLICIES,
+    Permission.EXPORT_REPORTS,
+    Permission.VIEW_ACTIVITY_LOG,
+  ],
 };
 
 export function hasPermission(
@@ -116,7 +125,7 @@ export function canManageTask(
 }
 
 export function canViewPeople(auth: AuthData): boolean {
-  return ["WC", "CC", "RO"].includes(auth.role);
+  return ["WC", "CC", "RO", "AU"].includes(auth.role);
 }
 
 export function canCreatePerson(auth: AuthData): boolean {
@@ -132,7 +141,7 @@ export function canEditPerson(
     return hasPermission(auth, Permission.EDIT_OWN_PROFILE);
   }
 
-  if (auth.role === "WC") {
+  if (auth.role === "WC" || auth.role === "AU") {
     return true;
   }
 
@@ -187,7 +196,7 @@ export function canViewProfile(
 }
 
 export function canEditProfiles(auth: AuthData): boolean {
-  return auth.role === "WC" || auth.role === "CC";
+  return auth.role === "WC" || auth.role === "CC" || auth.role === "AU";
 }
 
 export function filterByRole<T extends { assigned_to_user_id?: string | null }>(

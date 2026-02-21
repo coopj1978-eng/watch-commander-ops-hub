@@ -168,7 +168,7 @@ function AppRoutes() {
         <Route
           path="/"
           element={
-            role === "WC" ? (
+            role === "WC" || role === "AU" ? (
               <Dashboard />
             ) : role === "CC" ? (
               <CrewCommanderHome />

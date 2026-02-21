@@ -103,6 +103,7 @@ export function InviteUserDialog({ open, onClose, onSuccess }: InviteUserDialogP
                   <SelectItem value="CC">Crew Commander (CC)</SelectItem>
                   <SelectItem value="FF">Firefighter (FF)</SelectItem>
                   <SelectItem value="RO">Read Only (RO)</SelectItem>
+                  <SelectItem value="AU">Audit (AU)</SelectItem>
                 </SelectContent>
               </Select>
             </div>

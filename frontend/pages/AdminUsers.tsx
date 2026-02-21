@@ -138,6 +138,7 @@ export function AdminUsers() {
                           <SelectItem value="CC">CC</SelectItem>
                           <SelectItem value="FF">FF</SelectItem>
                           <SelectItem value="RO">RO</SelectItem>
+                          <SelectItem value="AU">AU</SelectItem>
                         </SelectContent>
                       </Select>
                     ) : (
