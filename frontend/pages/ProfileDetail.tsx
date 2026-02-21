@@ -414,19 +414,32 @@ export default function ProfileDetail() {
     return (editedProfile[key] !== undefined ? editedProfile[key] : profile?.[key]) as FirefighterProfile[K];
   };
 
+  const isSameWatch = currentUser?.watch_unit && user?.watch_unit
+    ? currentUser.watch_unit === user.watch_unit
+    : true;
+
+  // WC can only edit profiles within their own watch; AU can edit all
+  const canEditThisProfile = canEdit && (
+    userRole === "AU" || userRole !== "WC" || isSameWatch || isViewingOwnProfile
+  );
+
   const canEditField = (fieldName: string): boolean => {
-    if (userRole === "WC" || userRole === "AU") return true;
+    // AU can edit all profiles without restriction
+    if (userRole === "AU") return true;
+
+    // WC can edit all fields, but only for people in their own watch
+    if (userRole === "WC") return isSameWatch || isViewingOwnProfile;
 
     if (userRole === "CC") {
       const wcOnlyFields = ["service_number", "station", "shift", "rank", "role"];
       return !wcOnlyFields.includes(fieldName);
     }
-    
+
     if (userRole === "FF" && isViewingOwnProfile) {
       const ffEditableFields = ["phone", "emergency_contact_name", "emergency_contact_phone", "skills"];
       return ffEditableFields.includes(fieldName);
     }
-    
+
     return false;
   };
 
@@ -539,7 +552,7 @@ export default function ProfileDetail() {
             )}
           </div>
         </div>
-        {(canEdit || (userRole === "FF" && isViewingOwnProfile)) && (
+        {(canEditThisProfile || (userRole === "FF" && isViewingOwnProfile)) && (
           <div className="flex gap-2">
             {!user?.is_active && isWC && user && (
               <Button 
@@ -984,7 +997,7 @@ export default function ProfileDetail() {
         </TabsContent>
 
         <TabsContent value="notes" className="space-y-6">
-          {canEdit && (
+          {canEditThisProfile && (
             <Card>
               <CardHeader>
                 <CardTitle>Add Note / 1:1 Entry</CardTitle>
@@ -1321,7 +1334,7 @@ export default function ProfileDetail() {
         </TabsContent>
 
         <TabsContent value="documents" className="space-y-6">
-          {canEdit && (
+          {canEditThisProfile && (
             <Card>
               <CardHeader>
                 <CardTitle>Upload Document</CardTitle>
@@ -1386,7 +1399,7 @@ export default function ProfileDetail() {
                             >
                               <Download className="h-4 w-4" />
                             </Button>
-                            {canEdit && (
+                            {canEditThisProfile && (
                               <Button
                                 size="sm"
                                 variant="outline"

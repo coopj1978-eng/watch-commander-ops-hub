@@ -135,13 +135,23 @@ export function canCreatePerson(auth: AuthData): boolean {
 export function canEditPerson(
   auth: AuthData,
   profileUserId: string,
-  field?: string
+  field?: string,
+  targetWatchUnit?: string
 ): boolean {
   if (auth.userID === profileUserId) {
     return hasPermission(auth, Permission.EDIT_OWN_PROFILE);
   }
 
-  if (auth.role === "WC" || auth.role === "AU") {
+  // AU can edit all profiles without watch restriction
+  if (auth.role === "AU") {
+    return true;
+  }
+
+  // WC can edit profiles within their own watch
+  if (auth.role === "WC") {
+    if (targetWatchUnit && auth.watchUnit && targetWatchUnit !== auth.watchUnit) {
+      return false;
+    }
     return true;
   }
 
