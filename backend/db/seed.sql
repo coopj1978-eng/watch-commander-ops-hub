@@ -39,6 +39,10 @@ INSERT INTO users (id, email, name, role, watch_unit, rank, avatar_url, created_
 ('user_ff11', 'ff11@firestation.local', 'FF Kevin O''Brien', 'FF', 'Blue Watch', 'Firefighter', NULL, NOW(), NOW()),
 ('user_ff12', 'ff12@firestation.local', 'FF Sophie Taylor', 'FF', 'Blue Watch', 'Firefighter', NULL, NOW(), NOW());
 
+-- 1 Auditor (with password hash for AuditPass2026!)
+INSERT INTO users (id, email, name, role, watch_unit, rank, avatar_url, password_hash, is_active, created_at, updated_at) VALUES
+('user_au1', 'auditor@firestation.local', 'Auditor Pat Reynolds', 'AU', NULL, 'Audit Officer', NULL, '$2b$10$3cRxL9a645iF08qjtONAhe0TirHC2UPE9OLLfkQKwnvEHrLrj66Uu', true, NOW(), NOW());
+
 -- Firefighter Profiles
 INSERT INTO firefighter_profiles (
   user_id, service_number, station, shift, rank, hire_date, phone,
@@ -60,6 +64,13 @@ INSERT INTO firefighter_profiles (
 ('user_ff10', 'FF-2019-010', 'Station A', 'Blue Watch', 'Firefighter', '2019-02-28', '555-0110', 'Tim Lee', '555-0210', ARRAY['BA', 'Swift Water', 'First Aid'], ARRAY['BA Wearer', 'First Aid Level 3'], false, false, false, true, 'Swift water rescue trained', '2025-10-22', '2025-12-22', NOW(), NOW()),
 ('user_ff11', 'FF-2021-011', 'Station A', 'Blue Watch', 'Firefighter', '2021-09-01', '555-0111', 'Mary O''Brien', '555-0211', ARRAY['BA'], ARRAY['BA Wearer'], false, false, false, true, 'Recently joined', '2025-11-08', '2026-01-08', NOW(), NOW()),
 ('user_ff12', 'FF-2018-012', 'Station A', 'Blue Watch', 'Firefighter', '2018-12-03', '555-0112', 'Dan Taylor', '555-0212', ARRAY['BA', 'Driver - LGV', 'Rope Rescue'], ARRAY['BA Wearer', 'LGV License', 'Technical Rescue'], true, false, false, true, NULL, '2025-10-28', '2025-12-28', NOW(), NOW());
+
+-- Auditor Profile
+INSERT INTO firefighter_profiles (
+  user_id, rolling_sick_episodes, rolling_sick_days,
+  trigger_stage, driver_lgv, driver_erd, created_at, updated_at
+) VALUES
+('user_au1', 0, 0, 'None', false, false, NOW(), NOW());
 
 -- 30 Tasks (mixed categories, priorities, statuses)
 INSERT INTO tasks (
