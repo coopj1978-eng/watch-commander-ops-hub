@@ -15,5 +15,7 @@ export default defineConfig({
   mode: "development",
   build: {
     minify: false,
+    outDir: path.resolve(__dirname, '../backend/frontend/dist'),
+    emptyOutDir: true,
   }
 })
