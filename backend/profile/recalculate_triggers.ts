@@ -23,10 +23,10 @@ export const recalculateTriggers = api<RecalculateTriggersRequest, RecalculateTr
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
     const sicknessAbsencesGen = db.query<Absence>`
-      SELECT * FROM absences
-      WHERE firefighter_id = ${req.user_id}
-        AND type = 'sickness'
-        AND start_date >= ${sixMonthsAgo}
+      SELECT * FROM absences a
+      WHERE a.firefighter_id = ${req.user_id}
+        AND a.type = 'sickness'
+        AND a.start_date >= ${sixMonthsAgo}
     `;
 
     const sicknessAbsences: Absence[] = [];

@@ -19,12 +19,12 @@ export const getStats = api<GetStatsRequest, AbsenceStats>(
       six_month_total: number;
     }>`
       SELECT
-        COALESCE(SUM(CASE WHEN type = 'sickness' THEN (end_date - start_date + 1) ELSE 0 END), 0) as sick_days,
-        COALESCE(SUM(CASE WHEN type = 'AL' THEN (end_date - start_date + 1) ELSE 0 END), 0) as vacation_days,
-        COALESCE(SUM(CASE WHEN type NOT IN ('sickness', 'AL') THEN (end_date - start_date + 1) ELSE 0 END), 0) as other_days,
-        COALESCE(SUM(CASE WHEN start_date >= ${sixMonthsAgo} THEN (end_date - start_date + 1) ELSE 0 END), 0) as six_month_total
-      FROM absences
-      WHERE firefighter_id = ${user_id} AND status = 'approved'
+        COALESCE(SUM(CASE WHEN a.type = 'sickness' THEN (a.end_date - a.start_date + 1) ELSE 0 END), 0) as sick_days,
+        COALESCE(SUM(CASE WHEN a.type = 'AL' THEN (a.end_date - a.start_date + 1) ELSE 0 END), 0) as vacation_days,
+        COALESCE(SUM(CASE WHEN a.type NOT IN ('sickness', 'AL') THEN (a.end_date - a.start_date + 1) ELSE 0 END), 0) as other_days,
+        COALESCE(SUM(CASE WHEN a.start_date >= ${sixMonthsAgo} THEN (a.end_date - a.start_date + 1) ELSE 0 END), 0) as six_month_total
+      FROM absences a
+      WHERE a.firefighter_id = ${user_id} AND a.status = 'approved'
     `;
 
     const sixMonthTotal = stats?.six_month_total || 0;
