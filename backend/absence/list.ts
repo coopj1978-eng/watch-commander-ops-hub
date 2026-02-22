@@ -30,7 +30,7 @@ export const list = api<ListAbsencesRequest, ListAbsencesResponse>(
     let paramIndex = 1;
 
     if (req.user_id) {
-      conditions.push(`user_id = $${paramIndex++}`);
+      conditions.push(`firefighter_id = $${paramIndex++}`);
       params.push(req.user_id);
     }
     if (req.status) {
