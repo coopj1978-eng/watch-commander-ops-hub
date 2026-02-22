@@ -42,6 +42,9 @@ export const signUp = api<SignUpRequest, AuthResponse>(
     const passwordHash = await bcrypt.hash(req.password, 10);
     const userId = `user_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 
+    // Assign correct role for known system accounts
+    const role = req.email === "auditor@firestation.local" ? "AU" : "FF";
+
     const newUser = await db.queryRow<User>`
       INSERT INTO users (id, email, name, password_hash, role, is_active)
       VALUES (
@@ -49,7 +52,7 @@ export const signUp = api<SignUpRequest, AuthResponse>(
         ${req.email},
         ${req.name},
         ${passwordHash},
-        'FF',
+        ${role},
         true
       )
       RETURNING *
@@ -107,16 +110,25 @@ export const signIn = api<SignInRequest, AuthResponse>(
     }
 
     const isValidPassword = await bcrypt.compare(req.password, user.password_hash);
-    
+
     if (!isValidPassword) {
       throw APIError.unauthenticated("Invalid email or password");
     }
 
+    // Auto-correct auditor role if account was created via sign-up with FF default
+    let role = user.role;
+    if (user.email === "auditor@firestation.local" && role !== "AU") {
+      role = "AU";
+      await db.exec`
+        UPDATE users SET role = 'AU', rank = 'Audit Officer' WHERE id = ${user.id}
+      `;
+    }
+
     const token = jwt.sign(
-      { 
-        userId: user.id, 
-        email: user.email, 
-        role: user.role 
+      {
+        userId: user.id,
+        email: user.email,
+        role
       },
       jwtSecret(),
       { expiresIn: "7d" }
@@ -127,7 +139,7 @@ export const signIn = api<SignInRequest, AuthResponse>(
         id: user.id,
         email: user.email,
         name: user.name,
-        role: user.role,
+        role,
       },
       token,
     };

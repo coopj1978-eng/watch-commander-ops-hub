@@ -14,6 +14,14 @@ export const get = api<GetUserRequest, User>(
     
     const userId = id === "me" ? auth.userID : id;
     
+    // Auto-correct auditor role if needed (handles sign-up accounts that default to FF)
+    if (id === "me") {
+      await db.exec`
+        UPDATE users SET role = 'AU', rank = 'Audit Officer'
+        WHERE id = ${userId} AND email = 'auditor@firestation.local' AND role != 'AU'
+      `;
+    }
+
     const user = await db.queryRow<User>`
       SELECT * FROM users WHERE id = ${userId}
     `;
