@@ -77,7 +77,15 @@ export const auth = authHandler<AuthParams, AuthData>(async (data) => {
         // AdminEmail secret not configured — skip admin promotion
       }
     }
-    
+
+    // Auto-correct auditor role (handles sign-up accounts that default to FF)
+    if (dbUser.email === "auditor@firestation.local" && role !== "AU") {
+      role = "AU";
+      await db.exec`
+        UPDATE users SET role = 'AU', rank = 'Audit Officer' WHERE id = ${dbUser.id}
+      `;
+    }
+
     const authData: AuthData = {
       userID: dbUser.id,
       imageUrl: dbUser.avatar_url || "",
