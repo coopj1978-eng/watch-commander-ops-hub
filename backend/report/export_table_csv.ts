@@ -75,7 +75,7 @@ export const exportTableCSV = api<ExportTableCSVRequest, ExportTableCSVResponse>
         break;
       case "absences":
         query = `SELECT
-          a.id, a.firefighter_id, u.name as user_name, a.type, a.start_date, a.end_date,
+          a.id, a.firefighter_id, u.name as user_name, a.absence_type, a.start_date, a.end_date,
           a.total_days, a.reason, a.status, a.approved_by, a.created_at
           FROM absences a
           LEFT JOIN users u ON a.firefighter_id = u.id

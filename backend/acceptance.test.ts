@@ -193,7 +193,7 @@ describe("Acceptance Tests - Watch Commander Ops Hub", () => {
       `;
 
       await db.exec`
-        INSERT INTO absences (firefighter_id, type, start_date, end_date, total_days, reason, status, created_by_user_id)
+        INSERT INTO absences (firefighter_id, absence_type, start_date, end_date, total_days, reason, status, created_by_user_id)
         VALUES 
           (${testUserId}, 'sickness', NOW() - INTERVAL '150 days', NOW() - INTERVAL '148 days', 3, 'Test 1', 'approved', ${testUserId}),
           (${testUserId}, 'sickness', NOW() - INTERVAL '120 days', NOW() - INTERVAL '118 days', 3, 'Test 2', 'approved', ${testUserId}),
@@ -208,7 +208,7 @@ describe("Acceptance Tests - Watch Commander Ops Hub", () => {
         SELECT total_days 
         FROM absences 
         WHERE firefighter_id = ${testUserId} 
-          AND type = 'sickness' 
+          AND absence_type = 'sickness' 
           AND start_date >= ${sixMonthsAgo}
       `;
 

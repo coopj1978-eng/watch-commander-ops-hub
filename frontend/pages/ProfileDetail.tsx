@@ -1306,7 +1306,7 @@ export default function ProfileDetail() {
                       return (
                         <TableRow key={absence.id}>
                           <TableCell>
-                            <Badge variant="outline">{absenceTypeLabels[absence.type]}</Badge>
+                            <Badge variant="outline">{absenceTypeLabels[absence.absence_type]}</Badge>
                           </TableCell>
                           <TableCell>{new Date(absence.start_date).toLocaleDateString()}</TableCell>
                           <TableCell>{new Date(absence.end_date).toLocaleDateString()}</TableCell>

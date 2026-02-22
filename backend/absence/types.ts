@@ -4,7 +4,7 @@ export type AbsenceStatus = "pending" | "approved" | "rejected";
 export interface Absence {
   id: number;
   firefighter_id: string;
-  type: AbsenceType;
+  absence_type: AbsenceType;
   start_date: Date;
   end_date: Date;
   total_days: number;
@@ -20,7 +20,7 @@ export interface Absence {
 
 export interface CreateAbsenceRequest {
   user_id: string;
-  type: AbsenceType;
+  absence_type: AbsenceType;
   start_date: Date;
   end_date: Date;
   reason: string;
@@ -31,7 +31,7 @@ export interface UpdateAbsenceRequest {
   start_date?: Date;
   end_date?: Date;
   reason?: string;
-  type?: AbsenceType;
+  absence_type?: AbsenceType;
   status?: AbsenceStatus;
   evidence_urls?: string[];
 }

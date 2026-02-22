@@ -25,7 +25,7 @@ export const recalculateTriggers = api<RecalculateTriggersRequest, RecalculateTr
     const sicknessAbsencesGen = db.query<Absence>`
       SELECT * FROM absences a
       WHERE a.firefighter_id = ${req.user_id}
-        AND a.type = 'sickness'
+        AND a.absence_type = 'sickness'
         AND a.start_date >= ${sixMonthsAgo}
     `;
 

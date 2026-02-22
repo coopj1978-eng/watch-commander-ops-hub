@@ -148,7 +148,7 @@ INSERT INTO targets (
 
 -- 3 Absences covering all trigger stages
 INSERT INTO absences (
-  firefighter_id, type, start_date, end_date, total_days, reason, status, approved_by, created_by_user_id, created_at, updated_at
+  firefighter_id, absence_type, start_date, end_date, total_days, reason, status, approved_by, created_by_user_id, created_at, updated_at
 ) VALUES
 ('user_ff3', 'AL', NOW() + INTERVAL '10 days', NOW() + INTERVAL '17 days', 8, 'Family vacation', 'approved', 'user_cc1', 'user_ff3', NOW(), NOW()),
 ('user_ff7', 'sickness', NOW() - INTERVAL '3 days', NOW() - INTERVAL '1 day', 3, 'Flu symptoms', 'pending', NULL, 'user_ff7', NOW(), NOW()),

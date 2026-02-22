@@ -42,7 +42,7 @@ export default function AbsenceRequest() {
       
       return await backend.absence.create({
         user_id: user.id,
-        type: formData.type,
+        absence_type: formData.type,
         start_date: new Date(formData.start_date),
         end_date: new Date(formData.end_date),
         reason: formData.reason,

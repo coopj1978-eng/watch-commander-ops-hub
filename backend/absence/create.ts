@@ -9,8 +9,8 @@ export const create = api<CreateAbsenceRequest, Absence>(
   async (req) => {
     const auth = getAuthData()!;
     const absence = await db.queryRow<Absence>`
-      INSERT INTO absences (firefighter_id, type, start_date, end_date, reason, evidence_urls)
-      VALUES (${req.user_id}, ${req.type}, ${req.start_date}, ${req.end_date}, ${req.reason}, ${req.evidence_urls})
+      INSERT INTO absences (firefighter_id, absence_type, start_date, end_date, reason, evidence_urls)
+      VALUES (${req.user_id}, ${req.absence_type}, ${req.start_date}, ${req.end_date}, ${req.reason}, ${req.evidence_urls})
       RETURNING *
     `;
 
@@ -23,7 +23,7 @@ export const create = api<CreateAbsenceRequest, Absence>(
       action: "create_absence",
       entity_type: "absence",
       entity_id: absence.id.toString(),
-      details: { start_date: req.start_date, end_date: req.end_date, type: req.type },
+      details: { start_date: req.start_date, end_date: req.end_date, absence_type: req.absence_type },
     });
 
     return absence;
