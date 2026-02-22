@@ -45,6 +45,10 @@ export default function AddPersonModal({ isOpen, onClose }: AddPersonModalProps)
   const [serviceNumber, setServiceNumber] = useState("");
   const [phone, setPhone] = useState("");
   const [niNumber, setNiNumber] = useState("");
+  const [station, setStation] = useState("");
+  const [shift, setShift] = useState("");
+  const [emergencyContactName, setEmergencyContactName] = useState("");
+  const [emergencyContactPhone, setEmergencyContactPhone] = useState("");
   const [skillInput, setSkillInput] = useState("");
   const [skills, setSkills] = useState<string[]>([]);
   const [driverPathwayStatus, setDriverPathwayStatus] = useState("");
@@ -76,7 +80,8 @@ export default function AddPersonModal({ isOpen, onClose }: AddPersonModalProps)
       });
     },
     onSuccess: async (data) => {
-      if (skills.length > 0 || driverPathwayStatus || niNumber) {
+      const hasAdditionalFields = skills.length > 0 || driverPathwayStatus || niNumber || station || shift || emergencyContactName || emergencyContactPhone;
+      if (hasAdditionalFields) {
         try {
           const updateData: any = {};
           if (skills.length > 0) updateData.skills = skills;
@@ -89,6 +94,10 @@ export default function AddPersonModal({ isOpen, onClose }: AddPersonModalProps)
           if (niNumber) {
             updateData.customFields = { niNumber };
           }
+          if (station) updateData.station = station;
+          if (shift) updateData.shift = shift;
+          if (emergencyContactName) updateData.emergency_contact_name = emergencyContactName;
+          if (emergencyContactPhone) updateData.emergency_contact_phone = emergencyContactPhone;
 
           if (data.profile?.id) {
             await client.profile.update({ id: data.profile.id, ...updateData });
@@ -123,6 +132,10 @@ export default function AddPersonModal({ isOpen, onClose }: AddPersonModalProps)
     setServiceNumber("");
     setPhone("");
     setNiNumber("");
+    setStation("");
+    setShift("");
+    setEmergencyContactName("");
+    setEmergencyContactPhone("");
     setSkills([]);
     setSkillInput("");
     setDriverPathwayStatus("");
@@ -273,6 +286,47 @@ export default function AddPersonModal({ isOpen, onClose }: AddPersonModalProps)
                 value={niNumber}
                 onChange={(e) => setNiNumber(e.target.value)}
                 placeholder="AB123456C"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="station">Station</Label>
+              <Input
+                id="station"
+                value={station}
+                onChange={(e) => setStation(e.target.value)}
+                placeholder="e.g. Station 1"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="shift">Shift</Label>
+              <Input
+                id="shift"
+                value={shift}
+                onChange={(e) => setShift(e.target.value)}
+                placeholder="e.g. Day / Night"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="emergencyContactName">Emergency Contact Name</Label>
+              <Input
+                id="emergencyContactName"
+                value={emergencyContactName}
+                onChange={(e) => setEmergencyContactName(e.target.value)}
+                placeholder="Jane Smith"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="emergencyContactPhone">Emergency Contact Phone</Label>
+              <Input
+                id="emergencyContactPhone"
+                type="tel"
+                value={emergencyContactPhone}
+                onChange={(e) => setEmergencyContactPhone(e.target.value)}
+                placeholder="+44 7700 900456"
               />
             </div>
 

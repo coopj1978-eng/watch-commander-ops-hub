@@ -74,7 +74,7 @@ export default function People() {
   const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "");
   const [debouncedSearch, setDebouncedSearch] = useState(searchTerm);
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">(
-    (searchParams.get("status") as any) || "active"
+    (searchParams.get("status") as any) || "all"
   );
   const [watchFilters, setWatchFilters] = useState<string[]>(
     searchParams.get("watch")?.split(",").filter(Boolean) || []
@@ -133,7 +133,7 @@ export default function People() {
   useEffect(() => {
     const params: Record<string, string> = {};
     if (debouncedSearch) params.search = debouncedSearch;
-    if (statusFilter !== "active") params.status = statusFilter;
+    if (statusFilter !== "all") params.status = statusFilter;
     if (watchFilters.length) params.watch = watchFilters.join(",");
     if (rankFilters.length) params.rank = rankFilters.join(",");
     if (skillFilters.length) params.skills = skillFilters.join(",");
@@ -238,14 +238,14 @@ export default function People() {
 
   const activeFiltersCount = 
     [watchFilters.length > 0, rankFilters.length > 0, skillFilters.length > 0, !!driverPathwayFilter].filter(Boolean).length +
-    (statusFilter !== "active" ? 1 : 0);
+    (statusFilter !== "all" ? 1 : 0);
 
   const clearFilters = () => {
     setWatchFilters([]);
     setRankFilters([]);
     setSkillFilters([]);
     setDriverPathwayFilter("");
-    setStatusFilter("active");
+    setStatusFilter("all");
   };
 
   const handleSort = (field: SortField) => {

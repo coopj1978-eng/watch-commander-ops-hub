@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import backend from "@/lib/backend";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, ClipboardCheck, Target, FileText, ArrowRight, Loader2 } from "lucide-react";
+import { Users, ClipboardCheck, Target, FileText, ArrowRight, Loader2, Search } from "lucide-react";
 
 function StatCard({
   label,
@@ -13,15 +13,20 @@ function StatCard({
   icon: Icon,
   iconColor,
   isLoading,
+  onClick,
 }: {
   label: string;
   value: string | number;
   icon: React.ElementType;
   iconColor: string;
   isLoading?: boolean;
+  onClick?: () => void;
 }) {
   return (
-    <Card>
+    <Card
+      className={onClick ? "cursor-pointer hover:bg-muted/50 transition-colors" : ""}
+      onClick={onClick}
+    >
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">
           {label}
@@ -58,14 +63,31 @@ export default function RoleDashboard() {
 }
 
 function WatchCommanderDashboard() {
-  const { data: usersData, isLoading: usersLoading } = useQuery({
-    queryKey: ["dashboard", "users"],
-    queryFn: () => backend.user.list({ limit: 1 }),
+  const navigate = useNavigate();
+
+  const { data: peopleData, isLoading: peopleLoading } = useQuery({
+    queryKey: ["dashboard", "people"],
+    queryFn: () => backend.profile.listWithUsers({ limit: 1, status: "active" }),
   });
 
-  const { data: tasksData, isLoading: tasksLoading } = useQuery({
-    queryKey: ["dashboard", "tasks"],
-    queryFn: () => backend.task.list({ limit: 1 }),
+  const { data: allPeopleData, isLoading: allPeopleLoading } = useQuery({
+    queryKey: ["dashboard", "allPeople"],
+    queryFn: () => backend.profile.listWithUsers({ limit: 1, status: "all" }),
+  });
+
+  const { data: openTasksData, isLoading: openTasksLoading } = useQuery({
+    queryKey: ["dashboard", "openTasks"],
+    queryFn: () => backend.task.list({ status: "NotStarted" as any, limit: 1 }),
+  });
+
+  const { data: inProgressTasksData } = useQuery({
+    queryKey: ["dashboard", "inProgressTasks"],
+    queryFn: () => backend.task.list({ status: "InProgress" as any, limit: 1 }),
+  });
+
+  const { data: inspectionsData, isLoading: inspectionsLoading } = useQuery({
+    queryKey: ["dashboard", "inspections"],
+    queryFn: () => backend.inspection.list({ status: "Planned" as any, limit: 1 }),
   });
 
   const { data: targetsData, isLoading: targetsLoading } = useQuery({
@@ -73,15 +95,12 @@ function WatchCommanderDashboard() {
     queryFn: () => backend.targets.list({ limit: 1000 }),
   });
 
-  const { data: policiesData, isLoading: policiesLoading } = useQuery({
-    queryKey: ["dashboard", "policies"],
-    queryFn: () => backend.policy.list({ limit: 1 }),
-  });
+  const openTasksTotal = (openTasksData?.total ?? 0) + (inProgressTasksData?.total ?? 0);
 
   const targetsProgress = (() => {
     if (!targetsData?.targets?.length) return "0%";
-    const totalTarget = targetsData.targets.reduce((sum, t) => sum + (t.target_count || 0), 0);
-    const totalActual = targetsData.targets.reduce((sum, t) => sum + (t.actual_count || 0), 0);
+    const totalTarget = targetsData.targets.reduce((sum: number, t: any) => sum + (t.target_count || 0), 0);
+    const totalActual = targetsData.targets.reduce((sum: number, t: any) => sum + (t.actual_count || 0), 0);
     if (totalTarget === 0) return "0%";
     return `${Math.round((totalActual / totalTarget) * 100)}%`;
   })();
@@ -95,18 +114,28 @@ function WatchCommanderDashboard() {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          label="Total Staff"
-          value={usersData?.total ?? 0}
+          label="Active Personnel"
+          value={`${peopleData?.total ?? 0} / ${allPeopleData?.total ?? 0}`}
           icon={Users}
           iconColor="text-indigo-500"
-          isLoading={usersLoading}
+          isLoading={peopleLoading || allPeopleLoading}
+          onClick={() => navigate("/people")}
         />
         <StatCard
-          label="Active Tasks"
-          value={tasksData?.total ?? 0}
+          label="Open Tasks"
+          value={openTasksTotal}
           icon={ClipboardCheck}
           iconColor="text-blue-500"
-          isLoading={tasksLoading}
+          isLoading={openTasksLoading}
+          onClick={() => navigate("/tasks")}
+        />
+        <StatCard
+          label="Inspections Due"
+          value={inspectionsData?.total ?? 0}
+          icon={Search}
+          iconColor="text-orange-500"
+          isLoading={inspectionsLoading}
+          onClick={() => navigate("/inspections")}
         />
         <StatCard
           label="Targets Progress"
@@ -114,13 +143,7 @@ function WatchCommanderDashboard() {
           icon={Target}
           iconColor="text-green-500"
           isLoading={targetsLoading}
-        />
-        <StatCard
-          label="Policy Documents"
-          value={policiesData?.total ?? 0}
-          icon={FileText}
-          iconColor="text-purple-500"
-          isLoading={policiesLoading}
+          onClick={() => navigate("/targets")}
         />
       </div>
     </div>
