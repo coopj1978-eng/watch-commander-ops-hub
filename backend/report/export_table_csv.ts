@@ -74,11 +74,11 @@ export const exportTableCSV = api<ExportTableCSVRequest, ExportTableCSVResponse>
         filename = "inspections.csv";
         break;
       case "absences":
-        query = `SELECT 
-          a.id, a.user_id, u.name as user_name, a.type, a.start_date, a.end_date,
-          a.days_count, a.reason, a.status, a.approved_by, a.created_at
+        query = `SELECT
+          a.id, a.firefighter_id, u.name as user_name, a.type, a.start_date, a.end_date,
+          a.total_days, a.reason, a.status, a.approved_by, a.created_at
           FROM absences a
-          LEFT JOIN users u ON a.user_id = u.id
+          LEFT JOIN users u ON a.firefighter_id = u.id
           ORDER BY a.start_date DESC`;
         filename = "absences.csv";
         break;
