@@ -213,45 +213,43 @@ export default function MyProfile() {
             <CardDescription>Your role and assignment</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {profile?.service_number && (
-              <div>
-                <Label className="text-muted-foreground">Service Number</Label>
-                <p className="text-foreground font-medium mt-1">{profile.service_number}</p>
+            <div>
+              <Label className="text-muted-foreground">Service Number</Label>
+              <p className="text-foreground font-medium mt-1">{profile?.service_number || "Not set"}</p>
+            </div>
+            <div>
+              <Label className="text-muted-foreground">Station</Label>
+              <div className="flex items-center gap-2 mt-1">
+                <MapPin className="h-4 w-4 text-muted-foreground" />
+                <p className="text-foreground">{profile?.station || "Not set"}</p>
               </div>
-            )}
-            {profile?.station && (
-              <div>
-                <Label className="text-muted-foreground">Station</Label>
-                <div className="flex items-center gap-2 mt-1">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <p className="text-foreground">{profile.station}</p>
-                </div>
-              </div>
-            )}
-            {profile?.shift && (
-              <div>
-                <Label className="text-muted-foreground">Shift</Label>
-                <p className="text-foreground mt-1">
-                  <Badge variant="outline">{profile.shift}</Badge>
-                </p>
-              </div>
-            )}
-            {profile?.rank && (
-              <div>
-                <Label className="text-muted-foreground">Rank</Label>
-                <p className="text-foreground mt-1">
+            </div>
+            <div>
+              <Label className="text-muted-foreground">Watch</Label>
+              <p className="text-foreground mt-1">
+                {profile?.shift || userData?.watch_unit ? (
+                  <Badge variant="outline">{profile?.shift || userData?.watch_unit}</Badge>
+                ) : (
+                  "Not set"
+                )}
+              </p>
+            </div>
+            <div>
+              <Label className="text-muted-foreground">Rank</Label>
+              <p className="text-foreground mt-1">
+                {profile?.rank ? (
                   <Badge>{profile.rank}</Badge>
-                </p>
-              </div>
-            )}
-            {userData?.role && (
-              <div>
-                <Label className="text-muted-foreground">System Role</Label>
-                <p className="text-foreground mt-1">
-                  <Badge variant="outline">{userData.role}</Badge>
-                </p>
-              </div>
-            )}
+                ) : (
+                  "Not set"
+                )}
+              </p>
+            </div>
+            <div>
+              <Label className="text-muted-foreground">System Role</Label>
+              <p className="text-foreground mt-1">
+                <Badge variant="outline">{userData?.role || "FF"}</Badge>
+              </p>
+            </div>
           </CardContent>
         </Card>
 

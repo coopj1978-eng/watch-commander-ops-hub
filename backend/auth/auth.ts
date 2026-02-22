@@ -62,12 +62,19 @@ export const auth = authHandler<AuthParams, AuthData>(async (data) => {
       await db.exec`
         UPDATE users SET role = 'WC' WHERE id = ${dbUser.id}
       `;
-    } else if (dbUser.email === adminEmail()) {
-      role = "WC";
-      if (dbUser.role !== "WC") {
-        await db.exec`
-          UPDATE users SET role = 'WC' WHERE id = ${dbUser.id}
-        `;
+    } else {
+      try {
+        const configuredAdminEmail = adminEmail();
+        if (configuredAdminEmail && dbUser.email === configuredAdminEmail) {
+          role = "WC";
+          if (dbUser.role !== "WC") {
+            await db.exec`
+              UPDATE users SET role = 'WC' WHERE id = ${dbUser.id}
+            `;
+          }
+        }
+      } catch {
+        // AdminEmail secret not configured — skip admin promotion
       }
     }
     

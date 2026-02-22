@@ -1,0 +1,1 @@
+-- Revert roles (no-op since we don't know original state)
