@@ -111,4 +111,13 @@ export const auth = authHandler<AuthParams, AuthData>(async (data) => {
   }
 });
 
-export const gw = new Gateway({ authHandler: auth });
+export const gw = new Gateway({
+  authHandler: auth,
+  cors: {
+    allowOriginsWithoutCredentials: ["*"],
+    allowOriginsWithCredentials: [
+      "http://localhost:5173",
+      "http://localhost:4000",
+    ],
+  },
+});
