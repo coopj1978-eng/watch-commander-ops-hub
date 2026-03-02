@@ -214,10 +214,10 @@ function MultistorySection({ canEdit }: { canEdit: boolean }) {
     mutationFn: () =>
       backend.inspection_plans.updateMultistory(editId!, {
         address: editState.address,
-        q1_watch: editState.q1 ?? undefined,
-        q2_watch: editState.q2 ?? undefined,
-        q3_watch: editState.q3 ?? undefined,
-        q4_watch: editState.q4 ?? undefined,
+        q1_watch: editState.q1,
+        q2_watch: editState.q2,
+        q3_watch: editState.q3,
+        q4_watch: editState.q4,
       }),
     onSuccess: () => {
       toast({ title: "Updated" });
@@ -587,7 +587,7 @@ function HydrantSection({ canEdit }: { canEdit: boolean }) {
       street: editFields.street,
       section: editFields.section,
       year: editFields.year,
-      watch: editFields.watch ?? undefined,
+      watch: editFields.watch,
     }),
     onSuccess: () => {
       toast({ title: "Updated" });
@@ -777,7 +777,7 @@ function OperationalSection({ canEdit }: { canEdit: boolean }) {
     mutationFn: () => backend.inspection_plans.updateOperational(editId!, {
       address: editFields.address,
       uprn: editFields.uprn,
-      watch: editFields.watch ?? undefined,
+      watch: editFields.watch,
     }),
     onSuccess: () => {
       toast({ title: "Updated" });

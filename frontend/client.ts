@@ -1337,7 +1337,7 @@ export namespace inspection_plans {
     street?: string
     section?: string
     year?: number
-    watch?: WatchName
+    watch?: WatchName | null
     position?: number
 }): Promise<HydrantRegister> {
             // Now make the actual call to the API
@@ -1347,10 +1347,10 @@ export namespace inspection_plans {
 
         public async updateMultistory(id: number, params: {
     address?: string
-    "q1_watch"?: WatchName
-    "q2_watch"?: WatchName
-    "q3_watch"?: WatchName
-    "q4_watch"?: WatchName
+    "q1_watch"?: WatchName | null
+    "q2_watch"?: WatchName | null
+    "q3_watch"?: WatchName | null
+    "q4_watch"?: WatchName | null
     position?: number
 }): Promise<MultistoryInspection> {
             // Now make the actual call to the API
@@ -1361,7 +1361,7 @@ export namespace inspection_plans {
         public async updateOperational(id: number, params: {
     address?: string
     uprn?: string
-    watch?: WatchName
+    watch?: WatchName | null
     position?: number
 }): Promise<OperationalInspection> {
             // Now make the actual call to the API

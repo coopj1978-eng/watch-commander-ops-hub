@@ -24,10 +24,10 @@ export interface CreateMultistoryRequest {
 
 export interface UpdateMultistoryRequest {
   address?: string;
-  q1_watch?: WatchName;
-  q2_watch?: WatchName;
-  q3_watch?: WatchName;
-  q4_watch?: WatchName;
+  q1_watch?: WatchName | null;
+  q2_watch?: WatchName | null;
+  q3_watch?: WatchName | null;
+  q4_watch?: WatchName | null;
   position?: number;
 }
 
@@ -85,7 +85,7 @@ export interface UpdateHydrantRequest {
   street?: string;
   section?: string;
   year?: number;
-  watch?: WatchName;
+  watch?: WatchName | null;
   position?: number;
 }
 
@@ -114,7 +114,7 @@ export interface CreateOperationalRequest {
 export interface UpdateOperationalRequest {
   address?: string;
   uprn?: string;
-  watch?: WatchName;
+  watch?: WatchName | null;
   position?: number;
 }
 
