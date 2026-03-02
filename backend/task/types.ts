@@ -1,4 +1,4 @@
-export type TaskStatus = "NotStarted" | "InProgress" | "Blocked" | "Done";
+export type TaskStatus = "NotStarted" | "InProgress" | "Blocked" | "Done" | string;
 export type TaskPriority = "Low" | "Med" | "High";
 export type TaskCategory = "Training" | "Inspection" | "HFSV" | "Admin" | "Other";
 
@@ -19,7 +19,33 @@ export interface Task {
   checklist?: ChecklistItem[];
   attachments?: string[];
   rrule?: string;
+  position?: number;
   completed_at?: Date;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface TaskColumn {
+  id: number;
+  name: string;
+  status_key: string;
+  color: string;
+  position: number;
+  created_at: Date;
+}
+
+export interface TaskTemplate {
+  id: number;
+  name: string;
+  description?: string;
+  title_template: string;
+  task_description?: string;
+  category: TaskCategory;
+  priority: TaskPriority;
+  checklist?: ChecklistItem[];
+  rrule: string;
+  is_active: boolean;
+  created_by: string;
   created_at: Date;
   updated_at: Date;
 }
@@ -36,6 +62,8 @@ export interface CreateTaskRequest {
   attachments?: string[];
   rrule?: string;
   tags?: string[];
+  position?: number;
+  status?: TaskStatus;
 }
 
 export interface UpdateTaskRequest {
@@ -50,4 +78,5 @@ export interface UpdateTaskRequest {
   attachments?: string[];
   rrule?: string;
   tags?: string[];
+  position?: number;
 }

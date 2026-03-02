@@ -64,6 +64,10 @@ export const update = api(
       setClauses.push(`rrule = $${paramIndex++}`);
       queryParams.push(updates.rrule);
     }
+    if (updates.position !== undefined) {
+      setClauses.push(`position = $${paramIndex++}`);
+      queryParams.push(updates.position);
+    }
 
     if (setClauses.length === 0) {
       throw APIError.invalidArgument("no updates provided");

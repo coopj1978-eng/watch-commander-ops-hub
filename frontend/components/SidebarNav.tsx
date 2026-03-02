@@ -27,7 +27,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { name: "Dashboard", path: "/", icon: LayoutDashboard, ariaLabel: "Go to Dashboard" },
   { name: "People", path: "/people", icon: Users, ariaLabel: "Go to People" },
-  { name: "Calendar", path: "/calendar/watch", icon: Calendar, ariaLabel: "Go to Calendar" },
+  { name: "Calendar", path: "/calendar", icon: Calendar, ariaLabel: "Go to Calendar" },
   { name: "Tasks", path: "/tasks", icon: CheckSquare, ariaLabel: "Go to Tasks" },
   { name: "Inspections", path: "/inspections", icon: ClipboardCheck, ariaLabel: "Go to Inspections" },
   { name: "J4 Checks", path: "/equipment", icon: Truck, ariaLabel: "Go to J4 Equipment Checks" },

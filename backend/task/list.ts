@@ -70,7 +70,14 @@ export const list = api<ListTasksRequest, ListTasksResponse>(
       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
     params.push(limit, offset);
 
-    const tasks = await db.rawQueryAll<Task>(query, ...params);
+    const rawTasks = await db.rawQueryAll<any>(query, ...params);
+    const tasks: Task[] = rawTasks.map((t) => ({
+      ...t,
+      checklist: typeof t.checklist === "string" ? JSON.parse(t.checklist) : t.checklist,
+      attachments: Array.isArray(t.attachments) ? t.attachments : (t.attachments ?? undefined),
+      tags: Array.isArray(t.tags) ? t.tags : (t.tags ?? undefined),
+    }));
+
     const countParams = params.slice(0, -2);
     const countResult = await db.rawQueryRow<{ count: number }>(
       countQuery,

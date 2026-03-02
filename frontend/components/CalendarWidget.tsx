@@ -1,21 +1,20 @@
-import { useState } from "react";
+import { useRef, useEffect } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ChevronLeft, ChevronRight, Download, Calendar as CalendarIcon } from "lucide-react";
 import type { CalendarEvent } from "~backend/calendar/types";
 import type { Task } from "~backend/task/types";
 import type { Inspection } from "~backend/inspection/types";
 
-type CalendarViewType = "day" | "week" | "month" | "3month" | "year" | "custom";
+export type CalendarViewType = "day" | "week" | "month" | "year";
 
-interface CalendarItem {
+export interface CalendarItem {
   id: number;
   title: string;
-  date: Date;
+  startTime: Date;
+  endTime: Date;
+  allDay: boolean;
   type: "event" | "task" | "inspection" | "training";
-  color: string;
+  calendarType: "station" | "watch" | "personal" | "other";
   data: CalendarEvent | Task | Inspection;
 }
 
@@ -27,10 +26,678 @@ interface CalendarWidgetProps {
   onDateChange: (date: Date) => void;
   view: CalendarViewType;
   onViewChange: (view: CalendarViewType) => void;
-  onDayClick?: (date: Date, items: CalendarItem[]) => void;
-  onExport?: () => void;
+  onSlotClick?: (date: Date) => void;
+  onEventClick?: (item: CalendarItem) => void;
 }
 
+// ─── Constants ───────────────────────────────────────────────────────────────
+const HOUR_HEIGHT = 64;
+const TOTAL_HEIGHT = HOUR_HEIGHT * 24;
+const TIME_COL_WIDTH = 56;
+
+// ─── Colour helpers ──────────────────────────────────────────────────────────
+function getItemColor(item: CalendarItem): string {
+  if (item.type === "task") return "#0ea5e9";
+  if (item.type === "inspection") return "#f97316";
+  if (item.type === "training") return "#22c55e";
+  if (item.calendarType === "station") return "#ef4444";
+  if (item.calendarType === "watch") return "#3b82f6";
+  if (item.calendarType === "personal") return "#8b5cf6";
+  return "#6b7280";
+}
+
+function hexToRgba(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+// ─── Date utilities ───────────────────────────────────────────────────────────
+function sameDay(a: Date, b: Date) {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
+
+function formatHour(hour: number): string {
+  if (hour === 0) return "12 AM";
+  if (hour === 12) return "12 PM";
+  if (hour < 12) return `${hour} AM`;
+  return `${hour - 12} PM`;
+}
+
+function formatTime(date: Date): string {
+  const h = date.getHours();
+  const m = date.getMinutes();
+  const period = h >= 12 ? "PM" : "AM";
+  const displayH = h === 0 ? 12 : h > 12 ? h - 12 : h;
+  const displayM = m.toString().padStart(2, "0");
+  return `${displayH}:${displayM} ${period}`;
+}
+
+// Monday-first week
+function getWeekDays(date: Date): Date[] {
+  const day = date.getDay();
+  const offset = day === 0 ? -6 : 1 - day;
+  const monday = new Date(date);
+  monday.setDate(date.getDate() + offset);
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    return d;
+  });
+}
+
+const WEEK_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const MONTH_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+function getDaysInMonthGrid(date: Date): (Date | null)[] {
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const cells: (Date | null)[] = [];
+  for (let i = 0; i < firstDay; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(year, month, d));
+  return cells;
+}
+
+function getYearMonths(year: number): Date[] {
+  return Array.from({ length: 12 }, (_, i) => new Date(year, i, 1));
+}
+
+// ─── Map data → CalendarItem ─────────────────────────────────────────────────
+function buildItems(
+  events: CalendarEvent[],
+  tasks: Task[],
+  inspections: Inspection[]
+): CalendarItem[] {
+  const items: CalendarItem[] = [];
+
+  events.forEach((e) => {
+    const start = new Date(e.start_time);
+    const end = new Date(e.end_time);
+    const calType = e.calendar_visibility ?? (e.is_watch_event ? "station" : "personal");
+    items.push({
+      id: e.id,
+      title: e.title,
+      startTime: start,
+      endTime: end,
+      allDay: e.all_day,
+      type: e.event_type === "training" ? "training" : "event",
+      calendarType: calType as CalendarItem["calendarType"],
+      data: e,
+    });
+  });
+
+  tasks.forEach((t) => {
+    if (t.due_at) {
+      const due = new Date(t.due_at);
+      const end = new Date(due.getTime() + 3600000);
+      items.push({
+        id: t.id,
+        title: t.title,
+        startTime: due,
+        endTime: end,
+        allDay: false,
+        type: "task",
+        calendarType: "other",
+        data: t,
+      });
+    }
+  });
+
+  inspections.forEach((ins) => {
+    const start = new Date(ins.scheduled_for);
+    const end = new Date(start.getTime() + 7200000);
+    items.push({
+      id: ins.id,
+      title: `${ins.type} – ${ins.address}`,
+      startTime: start,
+      endTime: end,
+      allDay: false,
+      type: "inspection",
+      calendarType: "other",
+      data: ins,
+    });
+  });
+
+  return items;
+}
+
+// ─── Shared primitives ────────────────────────────────────────────────────────
+
+function CurrentTimeLine() {
+  const now = new Date();
+  const top = now.getHours() * HOUR_HEIGHT + (now.getMinutes() / 60) * HOUR_HEIGHT;
+  return (
+    <div
+      className="absolute left-0 right-0 z-20 flex items-center pointer-events-none"
+      style={{ top }}
+    >
+      <div style={{ width: TIME_COL_WIDTH }} className="flex justify-end pr-1">
+        <div className="w-2 h-2 rounded-full bg-red-500" />
+      </div>
+      <div className="flex-1 border-t-2 border-red-500" />
+    </div>
+  );
+}
+
+function TimeLabels() {
+  return (
+    <>
+      {Array.from({ length: 24 }, (_, h) => (
+        <div
+          key={h}
+          className="absolute flex items-start justify-end pr-2"
+          style={{ top: h * HOUR_HEIGHT - 9, width: TIME_COL_WIDTH, height: HOUR_HEIGHT }}
+        >
+          {h > 0 && (
+            <span className="text-[11px] text-muted-foreground leading-none">
+              {formatHour(h)}
+            </span>
+          )}
+        </div>
+      ))}
+    </>
+  );
+}
+
+function HourLines({ leftOffset }: { leftOffset: number }) {
+  return (
+    <>
+      {Array.from({ length: 24 }, (_, h) => (
+        <div
+          key={h}
+          className="absolute right-0 border-t border-border/40"
+          style={{ top: h * HOUR_HEIGHT, left: leftOffset }}
+        />
+      ))}
+    </>
+  );
+}
+
+function EventBlock({
+  item,
+  style,
+  onClick,
+}: {
+  item: CalendarItem;
+  style: React.CSSProperties;
+  onClick: () => void;
+}) {
+  const color = getItemColor(item);
+  const heightNum = typeof style.height === "number" ? style.height : 30;
+  return (
+    <div
+      className="absolute rounded-md px-1.5 py-0.5 cursor-pointer overflow-hidden text-white select-none"
+      style={{
+        ...style,
+        backgroundColor: hexToRgba(color, 0.85),
+        borderLeft: `3px solid ${color}`,
+        fontSize: 11,
+        lineHeight: "1.3",
+      }}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
+    >
+      <div className="font-semibold truncate">{item.title}</div>
+      {heightNum > 28 && (
+        <div className="opacity-80 truncate">
+          {formatTime(item.startTime)} – {formatTime(item.endTime)}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Day View ─────────────────────────────────────────────────────────────────
+function DayView({
+  date,
+  items,
+  scrollRef,
+  onSlotClick,
+  onEventClick,
+}: {
+  date: Date;
+  items: CalendarItem[];
+  scrollRef: React.RefObject<HTMLDivElement | null>;
+  onSlotClick?: (date: Date) => void;
+  onEventClick?: (item: CalendarItem) => void;
+}) {
+  const dayItems = items.filter((it) => !it.allDay && sameDay(it.startTime, date));
+  const allDayItems = items.filter((it) => it.allDay && sameDay(it.startTime, date));
+
+  const handleSlotClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if ((e.target as HTMLElement).closest("[data-event]")) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const scrollTop = scrollRef.current?.scrollTop ?? 0;
+    const y = e.clientY - rect.top + scrollTop;
+    const rawMinutes = (y / HOUR_HEIGHT) * 60;
+    const roundedMinutes = Math.round(rawMinutes / 30) * 30;
+    const clickDate = new Date(date);
+    clickDate.setHours(Math.floor(roundedMinutes / 60), roundedMinutes % 60, 0, 0);
+    onSlotClick?.(clickDate);
+  };
+
+  return (
+    <div className="flex flex-col h-full overflow-hidden">
+      {allDayItems.length > 0 && (
+        <div className="flex border-b border-border bg-muted/30 shrink-0">
+          <div style={{ width: TIME_COL_WIDTH }} className="text-[11px] text-muted-foreground text-right pr-2 py-1 shrink-0">
+            all-day
+          </div>
+          <div className="flex-1 flex flex-wrap gap-1 p-1">
+            {allDayItems.map((it) => (
+              <div
+                key={it.id}
+                data-event
+                className="rounded px-2 py-0.5 text-white text-xs cursor-pointer"
+                style={{ backgroundColor: hexToRgba(getItemColor(it), 0.85) }}
+                onClick={() => onEventClick?.(it)}
+              >
+                {it.title}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div ref={scrollRef} className="flex-1 overflow-y-auto">
+        <div className="relative" style={{ height: TOTAL_HEIGHT }}>
+          <TimeLabels />
+          <HourLines leftOffset={TIME_COL_WIDTH} />
+          <CurrentTimeLine />
+          <div
+            className="absolute top-0 bottom-0 cursor-pointer"
+            style={{ left: TIME_COL_WIDTH, right: 0 }}
+            onClick={handleSlotClick}
+          >
+            {dayItems.map((item) => {
+              const top = item.startTime.getHours() * HOUR_HEIGHT + (item.startTime.getMinutes() / 60) * HOUR_HEIGHT;
+              const durationMs = item.endTime.getTime() - item.startTime.getTime();
+              const height = Math.max((durationMs / 3600000) * HOUR_HEIGHT, 20);
+              return (
+                <EventBlock
+                  key={`${item.type}-${item.id}`}
+                  item={item}
+                  style={{ top, height, left: 4, right: 4 }}
+                  onClick={() => onEventClick?.(item)}
+                />
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Week View ────────────────────────────────────────────────────────────────
+function WeekView({
+  weekDays,
+  items,
+  scrollRef,
+  onSlotClick,
+  onEventClick,
+  onDayClick,
+}: {
+  weekDays: Date[];
+  items: CalendarItem[];
+  scrollRef: React.RefObject<HTMLDivElement | null>;
+  onSlotClick?: (date: Date) => void;
+  onEventClick?: (item: CalendarItem) => void;
+  onDayClick?: (date: Date) => void;
+}) {
+  const today = new Date();
+  const allDayCols = weekDays.map((d) => items.filter((it) => it.allDay && sameDay(it.startTime, d)));
+  const hasAllDay = allDayCols.some((col) => col.length > 0);
+
+  const handleColClick = (day: Date, e: React.MouseEvent<HTMLDivElement>) => {
+    if ((e.target as HTMLElement).closest("[data-event]")) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const scrollTop = scrollRef.current?.scrollTop ?? 0;
+    const y = e.clientY - rect.top + scrollTop;
+    const rawMinutes = (y / HOUR_HEIGHT) * 60;
+    const roundedMinutes = Math.round(rawMinutes / 30) * 30;
+    const clickDate = new Date(day);
+    clickDate.setHours(Math.floor(roundedMinutes / 60), roundedMinutes % 60, 0, 0);
+    onSlotClick?.(clickDate);
+  };
+
+  return (
+    <div className="flex flex-col h-full overflow-hidden">
+      {/* Day headers */}
+      <div className="flex border-b border-border bg-card shrink-0" style={{ paddingLeft: TIME_COL_WIDTH }}>
+        {weekDays.map((day, i) => {
+          const isToday = sameDay(day, today);
+          return (
+            <div
+              key={i}
+              className="flex-1 text-center py-2 cursor-pointer hover:bg-muted/40 transition-colors"
+              onClick={() => onDayClick?.(day)}
+            >
+              <div className="text-[11px] text-muted-foreground uppercase tracking-wide">
+                {WEEK_LABELS[i]}
+              </div>
+              <div
+                className={`text-sm font-semibold mx-auto w-7 h-7 flex items-center justify-center rounded-full mt-0.5 ${
+                  isToday ? "bg-red-500 text-white" : "text-foreground"
+                }`}
+              >
+                {day.getDate()}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {hasAllDay && (
+        <div className="flex border-b border-border bg-muted/20 shrink-0">
+          <div style={{ width: TIME_COL_WIDTH }} className="text-[11px] text-muted-foreground text-right pr-2 py-1 shrink-0">
+            all-day
+          </div>
+          {allDayCols.map((col, i) => (
+            <div key={i} className="flex-1 flex flex-col gap-0.5 p-0.5">
+              {col.map((it) => (
+                <div
+                  key={it.id}
+                  data-event
+                  className="rounded px-1 py-0.5 text-white text-[11px] cursor-pointer truncate"
+                  style={{ backgroundColor: hexToRgba(getItemColor(it), 0.85) }}
+                  onClick={() => onEventClick?.(it)}
+                >
+                  {it.title}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div ref={scrollRef} className="flex-1 overflow-y-auto">
+        <div className="flex" style={{ height: TOTAL_HEIGHT }}>
+          <div className="relative shrink-0" style={{ width: TIME_COL_WIDTH, height: TOTAL_HEIGHT }}>
+            <TimeLabels />
+          </div>
+          <div className="flex flex-1 relative" style={{ height: TOTAL_HEIGHT }}>
+            <HourLines leftOffset={0} />
+            <CurrentTimeLine />
+            {weekDays.map((day, i) => {
+              const colItems = items.filter((it) => !it.allDay && sameDay(it.startTime, day));
+              return (
+                <div
+                  key={i}
+                  className="flex-1 relative border-l border-border/30 cursor-pointer"
+                  onClick={(e) => handleColClick(day, e)}
+                >
+                  {colItems.map((item) => {
+                    const top = item.startTime.getHours() * HOUR_HEIGHT + (item.startTime.getMinutes() / 60) * HOUR_HEIGHT;
+                    const durationMs = item.endTime.getTime() - item.startTime.getTime();
+                    const height = Math.max((durationMs / 3600000) * HOUR_HEIGHT, 20);
+                    return (
+                      <EventBlock
+                        key={`${item.type}-${item.id}`}
+                        item={item}
+                        style={{ top, height, left: 2, right: 2 }}
+                        onClick={() => onEventClick?.(item)}
+                      />
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Month View ───────────────────────────────────────────────────────────────
+function MonthView({
+  date,
+  items,
+  onSlotClick,
+  onEventClick,
+  onDayNavigate,
+}: {
+  date: Date;
+  items: CalendarItem[];
+  onSlotClick?: (date: Date) => void;
+  onEventClick?: (item: CalendarItem) => void;
+  onDayNavigate?: (date: Date) => void;
+}) {
+  const today = new Date();
+  const cells = getDaysInMonthGrid(date);
+
+  return (
+    <div className="flex flex-col h-full overflow-hidden">
+      <div className="grid grid-cols-7 border-b border-border bg-muted/20 shrink-0">
+        {MONTH_LABELS.map((d) => (
+          <div key={d} className="text-center py-1.5 text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">
+            {d}
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-7 flex-1 overflow-y-auto">
+        {cells.map((day, idx) => {
+          if (!day) {
+            return <div key={`empty-${idx}`} className="border-r border-b border-border/30 bg-muted/10" />;
+          }
+
+          const isToday = sameDay(day, today);
+          const isCurrentMonth = day.getMonth() === date.getMonth();
+          const dayItems = items.filter((it) => sameDay(it.startTime, day));
+          const visible = dayItems.slice(0, 3);
+          const overflow = dayItems.length - 3;
+
+          return (
+            <div
+              key={day.toISOString()}
+              className={`border-r border-b border-border/30 p-1 min-h-[100px] cursor-pointer transition-colors hover:bg-muted/30 ${
+                !isCurrentMonth ? "opacity-40" : ""
+              }`}
+              onClick={() => onSlotClick?.(day)}
+            >
+              <div className="flex justify-center mb-1">
+                <span
+                  className={`text-sm font-medium w-7 h-7 flex items-center justify-center rounded-full ${
+                    isToday ? "bg-red-500 text-white" : "text-foreground"
+                  }`}
+                >
+                  {day.getDate()}
+                </span>
+              </div>
+              <div className="space-y-0.5">
+                {visible.map((item) => {
+                  const color = getItemColor(item);
+                  return (
+                    <div
+                      key={`${item.type}-${item.id}`}
+                      data-event
+                      className="rounded px-1.5 py-0.5 text-white text-[11px] truncate cursor-pointer"
+                      style={{ backgroundColor: hexToRgba(color, 0.85) }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEventClick?.(item);
+                      }}
+                    >
+                      {!item.allDay && (
+                        <span className="opacity-80 mr-1">
+                          {item.startTime.getHours().toString().padStart(2, "0")}:
+                          {item.startTime.getMinutes().toString().padStart(2, "0")}
+                        </span>
+                      )}
+                      {item.title}
+                    </div>
+                  );
+                })}
+                {overflow > 0 && (
+                  <div
+                    className="text-[11px] text-muted-foreground pl-1 cursor-pointer hover:text-foreground"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDayNavigate?.(day);
+                    }}
+                  >
+                    +{overflow} more
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── Year View ────────────────────────────────────────────────────────────────
+const MONTH_NAMES = [
+  "January", "February", "March", "April",
+  "May", "June", "July", "August",
+  "September", "October", "November", "December",
+];
+
+function YearView({
+  year,
+  items,
+  onMonthClick,
+}: {
+  year: number;
+  items: CalendarItem[];
+  onMonthClick: (date: Date) => void;
+}) {
+  const today = new Date();
+  const months = getYearMonths(year);
+
+  return (
+    <div className="grid grid-cols-4 gap-4 p-4 overflow-y-auto h-full">
+      {months.map((monthDate, mi) => {
+        const cells = getDaysInMonthGrid(monthDate);
+        const monthItems = items.filter(
+          (it) => it.startTime.getFullYear() === year && it.startTime.getMonth() === mi
+        );
+        const itemDays = new Set(monthItems.map((it) => it.startTime.getDate()));
+
+        return (
+          <div
+            key={mi}
+            className="rounded-xl border border-border bg-card p-3 cursor-pointer hover:border-red-500 transition-colors"
+            onClick={() => onMonthClick(monthDate)}
+          >
+            <div className="text-sm font-semibold text-foreground mb-2">{MONTH_NAMES[mi]}</div>
+            <div className="grid grid-cols-7 gap-px text-center">
+              {MONTH_LABELS.map((d) => (
+                <div key={d} className="text-[9px] text-muted-foreground font-medium pb-0.5">
+                  {d.slice(0, 1)}
+                </div>
+              ))}
+              {cells.map((day, di) => {
+                if (!day) return <div key={`e-${di}`} />;
+                const isToday = sameDay(day, today);
+                const hasEvents = itemDays.has(day.getDate());
+                return (
+                  <div key={di} className="flex flex-col items-center">
+                    <span
+                      className={`text-[10px] w-5 h-5 flex items-center justify-center rounded-full ${
+                        isToday ? "bg-red-500 text-white font-bold" : "text-foreground"
+                      }`}
+                    >
+                      {day.getDate()}
+                    </span>
+                    {hasEvents && <div className="w-1 h-1 rounded-full bg-red-400 mt-px" />}
+                  </div>
+                );
+              })}
+            </div>
+            <div className="text-[11px] text-muted-foreground mt-2">
+              {monthItems.length} event{monthItems.length !== 1 ? "s" : ""}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── Header ───────────────────────────────────────────────────────────────────
+function CalendarHeader({
+  view,
+  currentDate,
+  onViewChange,
+  onPrev,
+  onNext,
+  onToday,
+}: {
+  view: CalendarViewType;
+  currentDate: Date;
+  onViewChange: (v: CalendarViewType) => void;
+  onPrev: () => void;
+  onNext: () => void;
+  onToday: () => void;
+}) {
+  const title = (() => {
+    if (view === "day") {
+      return currentDate.toLocaleDateString("en-GB", {
+        weekday: "long", day: "numeric", month: "long", year: "numeric",
+      });
+    }
+    if (view === "week") {
+      const days = getWeekDays(currentDate);
+      const start = days[0].toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+      const end = days[6].toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+      return `${start} – ${end}`;
+    }
+    if (view === "month") {
+      return currentDate.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+    }
+    return currentDate.getFullYear().toString();
+  })();
+
+  const views: CalendarViewType[] = ["day", "week", "month", "year"];
+
+  return (
+    <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card shrink-0">
+      <div className="flex items-center gap-2">
+        <Button variant="outline" size="sm" onClick={onToday} className="text-xs h-7 px-3">
+          Today
+        </Button>
+        <Button variant="ghost" size="icon" onClick={onPrev} className="h-7 w-7">
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="icon" onClick={onNext} className="h-7 w-7">
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+        <h2 className="text-base font-semibold text-foreground ml-1">{title}</h2>
+      </div>
+      <div className="flex items-center rounded-lg border border-border overflow-hidden">
+        {views.map((v) => (
+          <button
+            key={v}
+            onClick={() => onViewChange(v)}
+            className={`px-3 py-1 text-xs font-medium transition-colors capitalize ${
+              view === v
+                ? "bg-red-500 text-white"
+                : "bg-card text-muted-foreground hover:bg-muted"
+            }`}
+          >
+            {v}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Root ─────────────────────────────────────────────────────────────────────
 export default function CalendarWidget({
   events = [],
   tasks = [],
@@ -39,534 +706,83 @@ export default function CalendarWidget({
   onDateChange,
   view,
   onViewChange,
-  onDayClick,
-  onExport,
+  onSlotClick,
+  onEventClick,
 }: CalendarWidgetProps) {
-  const [customStartDate, setCustomStartDate] = useState("");
-  const [customEndDate, setCustomEndDate] = useState("");
-  const [showCustomDialog, setShowCustomDialog] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const items = buildItems(events, tasks, inspections);
 
-  const getItemColor = (type: string): string => {
-    const colors: Record<string, string> = {
-      task: "bg-blue-500",
-      inspection: "bg-orange-500",
-      training: "bg-green-500",
-      event: "bg-purple-500",
-    };
-    return colors[type] || "bg-red-500";
-  };
-
-  const getAllItems = (): CalendarItem[] => {
-    const items: CalendarItem[] = [];
-
-    events.forEach((event) => {
-      const type = event.event_type === "training" ? "training" : "event";
-      items.push({
-        id: event.id,
-        title: event.title,
-        date: new Date(event.start_time),
-        type,
-        color: getItemColor(type),
-        data: event,
-      });
-    });
-
-    tasks.forEach((task) => {
-      if (task.due_at) {
-        items.push({
-          id: task.id,
-          title: task.title,
-          date: new Date(task.due_at),
-          type: "task",
-          color: getItemColor("task"),
-          data: task,
-        });
-      }
-    });
-
-    inspections.forEach((inspection) => {
-      items.push({
-        id: inspection.id,
-        title: `${inspection.type} - ${inspection.address}`,
-        date: new Date(inspection.scheduled_for),
-        type: "inspection",
-        color: getItemColor("inspection"),
-        data: inspection,
-      });
-    });
-
-    return items;
-  };
-
-  const allItems = getAllItems();
-
-  const getDaysInMonth = (date: Date) => {
-    const year = date.getFullYear();
-    const month = date.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const daysInMonth = lastDay.getDate();
-    const startingDayOfWeek = firstDay.getDay();
-
-    const days: Date[] = [];
-    for (let i = 0; i < startingDayOfWeek; i++) {
-      days.push(new Date(year, month, -startingDayOfWeek + i + 1));
+  useEffect(() => {
+    if ((view === "day" || view === "week") && scrollRef.current) {
+      const now = new Date();
+      scrollRef.current.scrollTop = Math.max(now.getHours() * HOUR_HEIGHT - HOUR_HEIGHT * 2, 0);
     }
-    for (let i = 1; i <= daysInMonth; i++) {
-      days.push(new Date(year, month, i));
-    }
-    return days;
+  }, [view]);
+
+  const navigate = (dir: -1 | 1) => {
+    const d = new Date(currentDate);
+    if (view === "day") d.setDate(d.getDate() + dir);
+    else if (view === "week") d.setDate(d.getDate() + 7 * dir);
+    else if (view === "month") d.setMonth(d.getMonth() + dir);
+    else d.setFullYear(d.getFullYear() + dir);
+    onDateChange(d);
   };
 
-  const getWeekDays = (date: Date) => {
-    const startOfWeek = new Date(date);
-    startOfWeek.setDate(date.getDate() - date.getDay());
-    const days: Date[] = [];
-    for (let i = 0; i < 7; i++) {
-      days.push(new Date(startOfWeek.getFullYear(), startOfWeek.getMonth(), startOfWeek.getDate() + i));
-    }
-    return days;
-  };
-
-  const get3MonthDays = (date: Date) => {
-    const months: Date[][] = [];
-    for (let i = 0; i < 3; i++) {
-      const monthDate = new Date(date.getFullYear(), date.getMonth() + i, 1);
-      months.push(getDaysInMonth(monthDate));
-    }
-    return months;
-  };
-
-  const getYearMonths = (date: Date) => {
-    const months: Date[] = [];
-    for (let i = 0; i < 12; i++) {
-      months.push(new Date(date.getFullYear(), i, 1));
-    }
-    return months;
-  };
-
-  const getItemsForDay = (date: Date): CalendarItem[] => {
-    return allItems.filter((item) => {
-      const itemDate = item.date;
-      return (
-        itemDate.getDate() === date.getDate() &&
-        itemDate.getMonth() === date.getMonth() &&
-        itemDate.getFullYear() === date.getFullYear()
-      );
-    });
-  };
-
-  const getItemsForMonth = (month: number, year: number): CalendarItem[] => {
-    return allItems.filter((item) => {
-      return item.date.getMonth() === month && item.date.getFullYear() === year;
-    });
-  };
-
-  const previousPeriod = () => {
-    const newDate = new Date(currentDate);
-    if (view === "day") {
-      newDate.setDate(newDate.getDate() - 1);
-    } else if (view === "week") {
-      newDate.setDate(newDate.getDate() - 7);
-    } else if (view === "month") {
-      newDate.setMonth(newDate.getMonth() - 1);
-    } else if (view === "3month") {
-      newDate.setMonth(newDate.getMonth() - 3);
-    } else if (view === "year") {
-      newDate.setFullYear(newDate.getFullYear() - 1);
-    }
-    onDateChange(newDate);
-  };
-
-  const nextPeriod = () => {
-    const newDate = new Date(currentDate);
-    if (view === "day") {
-      newDate.setDate(newDate.getDate() + 1);
-    } else if (view === "week") {
-      newDate.setDate(newDate.getDate() + 7);
-    } else if (view === "month") {
-      newDate.setMonth(newDate.getMonth() + 1);
-    } else if (view === "3month") {
-      newDate.setMonth(newDate.getMonth() + 3);
-    } else if (view === "year") {
-      newDate.setFullYear(newDate.getFullYear() + 1);
-    }
-    onDateChange(newDate);
-  };
-
-  const getHeaderText = () => {
-    if (view === "day") {
-      return currentDate.toLocaleDateString("default", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
-    } else if (view === "week") {
-      const weekDays = getWeekDays(currentDate);
-      return `${weekDays[0].toLocaleDateString("default", { month: "short", day: "numeric" })} - ${weekDays[6].toLocaleDateString("default", { month: "short", day: "numeric", year: "numeric" })}`;
-    } else if (view === "month") {
-      return currentDate.toLocaleString("default", { month: "long", year: "numeric" });
-    } else if (view === "3month") {
-      return `${currentDate.toLocaleString("default", { month: "long" })} - ${new Date(currentDate.getFullYear(), currentDate.getMonth() + 2, 1).toLocaleString("default", { month: "long", year: "numeric" })}`;
-    } else if (view === "year") {
-      return currentDate.getFullYear().toString();
-    } else if (view === "custom") {
-      if (customStartDate && customEndDate) {
-        return `${new Date(customStartDate).toLocaleDateString("default", { month: "short", day: "numeric" })} - ${new Date(customEndDate).toLocaleDateString("default", { month: "short", day: "numeric", year: "numeric" })}`;
-      }
-      return "Custom Range";
-    }
-    return "";
-  };
-
-  const handleCustomRangeSubmit = () => {
-    if (customStartDate && customEndDate) {
-      onViewChange("custom");
-      setShowCustomDialog(false);
-    }
-  };
-
-  const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-  const handleDayClick = (date: Date) => {
-    const items = getItemsForDay(date);
-    if (onDayClick) {
-      onDayClick(date, items);
-    }
+  const handleDayNavigate = (date: Date) => {
+    onDateChange(date);
+    onViewChange("day");
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" onClick={previousPeriod}>
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <h2 className="text-xl font-semibold text-foreground min-w-[280px] text-center">
-            {getHeaderText()}
-          </h2>
-          <Button variant="outline" size="icon" onClick={nextPeriod}>
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant={view === "day" ? "default" : "outline"}
-            onClick={() => onViewChange("day")}
-            size="sm"
-          >
-            Day
-          </Button>
-          <Button
-            variant={view === "week" ? "default" : "outline"}
-            onClick={() => onViewChange("week")}
-            size="sm"
-          >
-            Week
-          </Button>
-          <Button
-            variant={view === "month" ? "default" : "outline"}
-            onClick={() => onViewChange("month")}
-            size="sm"
-          >
-            Month
-          </Button>
-          <Button
-            variant={view === "3month" ? "default" : "outline"}
-            onClick={() => onViewChange("3month")}
-            size="sm"
-          >
-            3-Month
-          </Button>
-          <Button
-            variant={view === "year" ? "default" : "outline"}
-            onClick={() => onViewChange("year")}
-            size="sm"
-          >
-            Year
-          </Button>
-          <Dialog open={showCustomDialog} onOpenChange={setShowCustomDialog}>
-            <DialogTrigger asChild>
-              <Button
-                variant={view === "custom" ? "default" : "outline"}
-                size="sm"
-              >
-                <CalendarIcon className="h-4 w-4 mr-2" />
-                Custom
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Select Custom Date Range</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="start-date">Start Date</Label>
-                  <Input
-                    id="start-date"
-                    type="date"
-                    value={customStartDate}
-                    onChange={(e) => setCustomStartDate(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="end-date">End Date</Label>
-                  <Input
-                    id="end-date"
-                    type="date"
-                    value={customEndDate}
-                    onChange={(e) => setCustomEndDate(e.target.value)}
-                  />
-                </div>
-                <Button
-                  className="w-full bg-red-600 hover:bg-red-700"
-                  onClick={handleCustomRangeSubmit}
-                  disabled={!customStartDate || !customEndDate}
-                >
-                  Apply Range
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-          {onExport && (
-            <Button variant="outline" size="sm" onClick={onExport}>
-              <Download className="h-4 w-4 mr-2" />
-              Export .ics
-            </Button>
-          )}
-        </div>
+    <div className="flex flex-col bg-background rounded-xl border border-border overflow-hidden h-full min-h-[500px]">
+      <CalendarHeader
+        view={view}
+        currentDate={currentDate}
+        onViewChange={onViewChange}
+        onPrev={() => navigate(-1)}
+        onNext={() => navigate(1)}
+        onToday={() => onDateChange(new Date())}
+      />
+      <div className="flex-1 overflow-hidden">
+        {view === "day" && (
+          <DayView
+            date={currentDate}
+            items={items}
+            scrollRef={scrollRef}
+            onSlotClick={onSlotClick}
+            onEventClick={onEventClick}
+          />
+        )}
+        {view === "week" && (
+          <WeekView
+            weekDays={getWeekDays(currentDate)}
+            items={items}
+            scrollRef={scrollRef}
+            onSlotClick={onSlotClick}
+            onEventClick={onEventClick}
+            onDayClick={handleDayNavigate}
+          />
+        )}
+        {view === "month" && (
+          <MonthView
+            date={currentDate}
+            items={items}
+            onSlotClick={onSlotClick}
+            onEventClick={onEventClick}
+            onDayNavigate={handleDayNavigate}
+          />
+        )}
+        {view === "year" && (
+          <YearView
+            year={currentDate.getFullYear()}
+            items={items}
+            onMonthClick={(d) => {
+              onDateChange(d);
+              onViewChange("month");
+            }}
+          />
+        )}
       </div>
-
-      {view === "day" && (
-        <div className="space-y-2">
-          <div className="text-sm text-muted-foreground mb-4">
-            {getItemsForDay(currentDate).length} items scheduled
-          </div>
-          <div className="space-y-2">
-            {getItemsForDay(currentDate).map((item) => (
-              <div
-                key={`${item.type}-${item.id}`}
-                className="p-3 rounded-lg border border-border hover:border-red-600 transition-colors"
-              >
-                <div className="flex items-start gap-3">
-                  <div className={`w-3 h-3 rounded-full ${item.color} mt-1`} />
-                  <div className="flex-1">
-                    <p className="font-medium text-foreground">{item.title}</p>
-                    <p className="text-sm text-muted-foreground capitalize">{item.type}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-            {getItemsForDay(currentDate).length === 0 && (
-              <p className="text-center text-muted-foreground py-8">No items scheduled</p>
-            )}
-          </div>
-        </div>
-      )}
-
-      {view === "week" && (
-        <div className="grid grid-cols-7 gap-px bg-border rounded-lg overflow-hidden">
-          {getWeekDays(currentDate).map((day, index) => {
-            const dayItems = getItemsForDay(day);
-            const isToday = day.toDateString() === new Date().toDateString();
-            return (
-              <div key={index} className="bg-card">
-                <div className={`p-2 text-center border-b border-border ${isToday ? "bg-red-600/10" : ""}`}>
-                  <div className="text-xs text-muted-foreground">{weekDays[day.getDay()]}</div>
-                  <div className={`text-sm font-medium ${isToday ? "text-red-500" : "text-foreground"}`}>
-                    {day.getDate()}
-                  </div>
-                </div>
-                <div className="p-2 min-h-[200px] space-y-1">
-                  {dayItems.map((item) => (
-                    <div
-                      key={`${item.type}-${item.id}`}
-                      className={`text-xs p-1 rounded ${item.color}/10 border border-current cursor-pointer hover:opacity-80`}
-                      style={{ color: item.color.replace("bg-", "") }}
-                      onClick={() => handleDayClick(day)}
-                    >
-                      <div className="truncate">{item.title}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {view === "month" && (
-        <div className="grid grid-cols-7 gap-px bg-border rounded-lg overflow-hidden">
-          {weekDays.map((day) => (
-            <div
-              key={day}
-              className="bg-card p-2 text-center text-sm font-medium text-muted-foreground"
-            >
-              {day}
-            </div>
-          ))}
-          {getDaysInMonth(currentDate).map((day, index) => {
-            const isCurrentMonth = day.getMonth() === currentDate.getMonth();
-            const dayItems = getItemsForDay(day);
-            const isToday = day.toDateString() === new Date().toDateString();
-            return (
-              <div
-                key={index}
-                className={`bg-card p-2 min-h-[100px] cursor-pointer hover:bg-muted/50 transition-colors ${
-                  !isCurrentMonth ? "opacity-50" : ""
-                } ${isToday ? "ring-2 ring-red-500" : ""}`}
-                onClick={() => handleDayClick(day)}
-              >
-                <div className={`text-sm font-medium mb-2 ${isToday ? "text-red-500" : "text-foreground"}`}>
-                  {day.getDate()}
-                </div>
-                <div className="flex flex-wrap gap-1">
-                  {dayItems.slice(0, 3).map((item) => (
-                    <div
-                      key={`${item.type}-${item.id}`}
-                      className={`w-2 h-2 rounded-full ${item.color}`}
-                      title={item.title}
-                    />
-                  ))}
-                  {dayItems.length > 3 && (
-                    <div className="text-xs text-muted-foreground">
-                      +{dayItems.length - 3}
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {view === "3month" && (
-        <div className="grid grid-cols-3 gap-4">
-          {get3MonthDays(currentDate).map((monthDays, monthIndex) => {
-            const monthDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + monthIndex, 1);
-            const monthItems = getItemsForMonth(monthDate.getMonth(), monthDate.getFullYear());
-            return (
-              <div key={monthIndex} className="space-y-2">
-                <h3 className="text-lg font-semibold text-foreground text-center">
-                  {monthDate.toLocaleString("default", { month: "long" })}
-                </h3>
-                <div className="grid grid-cols-7 gap-px bg-border rounded-lg overflow-hidden text-xs">
-                  {weekDays.map((day) => (
-                    <div
-                      key={day}
-                      className="bg-card p-1 text-center text-xs text-muted-foreground"
-                    >
-                      {day.slice(0, 1)}
-                    </div>
-                  ))}
-                  {monthDays.map((day, dayIndex) => {
-                    const isCurrentMonth = day.getMonth() === monthDate.getMonth();
-                    const dayItems = getItemsForDay(day);
-                    return (
-                      <div
-                        key={dayIndex}
-                        className={`bg-card p-1 min-h-[40px] cursor-pointer hover:bg-muted/50 ${
-                          !isCurrentMonth ? "opacity-30" : ""
-                        }`}
-                        onClick={() => handleDayClick(day)}
-                      >
-                        <div className="text-foreground text-center">{day.getDate()}</div>
-                        {dayItems.length > 0 && (
-                          <div className="flex justify-center mt-1">
-                            <div className="w-1 h-1 rounded-full bg-red-500" />
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-                <div className="text-xs text-muted-foreground text-center">
-                  {monthItems.length} items
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {view === "year" && (
-        <div className="grid grid-cols-4 gap-4">
-          {getYearMonths(currentDate).map((month, monthIndex) => {
-            const monthItems = getItemsForMonth(monthIndex, currentDate.getFullYear());
-            return (
-              <div
-                key={monthIndex}
-                className="p-4 rounded-lg border border-border hover:border-red-600 transition-colors cursor-pointer"
-                onClick={() => {
-                  const newDate = new Date(currentDate);
-                  newDate.setMonth(monthIndex);
-                  onDateChange(newDate);
-                  onViewChange("month");
-                }}
-              >
-                <h3 className="text-base font-semibold text-foreground mb-2">
-                  {month.toLocaleString("default", { month: "long" })}
-                </h3>
-                <div className="text-sm text-muted-foreground">
-                  {monthItems.length} items
-                </div>
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {monthItems.slice(0, 5).map((item, idx) => (
-                    <div
-                      key={idx}
-                      className={`w-2 h-2 rounded-full ${item.color}`}
-                      title={item.title}
-                    />
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {view === "custom" && customStartDate && customEndDate && (
-        <div className="space-y-4">
-          <div className="text-sm text-muted-foreground">
-            Showing {allItems.filter((item) => {
-              const itemDate = item.date;
-              return itemDate >= new Date(customStartDate) && itemDate <= new Date(customEndDate);
-            }).length} items in custom range
-          </div>
-          <div className="space-y-2">
-            {allItems
-              .filter((item) => {
-                const itemDate = item.date;
-                return itemDate >= new Date(customStartDate) && itemDate <= new Date(customEndDate);
-              })
-              .sort((a, b) => a.date.getTime() - b.date.getTime())
-              .map((item) => (
-                <div
-                  key={`${item.type}-${item.id}`}
-                  className="p-3 rounded-lg border border-border hover:border-red-600 transition-colors cursor-pointer"
-                  onClick={() => handleDayClick(item.date)}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className={`w-3 h-3 rounded-full ${item.color} mt-1`} />
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <p className="font-medium text-foreground">{item.title}</p>
-                          <p className="text-sm text-muted-foreground capitalize">{item.type}</p>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          {item.date.toLocaleDateString("default", { month: "short", day: "numeric", year: "numeric" })}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            {allItems.filter((item) => {
-              const itemDate = item.date;
-              return itemDate >= new Date(customStartDate) && itemDate <= new Date(customEndDate);
-            }).length === 0 && (
-              <p className="text-center text-muted-foreground py-8">No items in this date range</p>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

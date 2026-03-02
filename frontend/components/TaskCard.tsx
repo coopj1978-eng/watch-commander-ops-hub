@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar, AlertCircle, CheckCircle2, Clock, User, Repeat } from "lucide-react";
@@ -7,12 +7,39 @@ import type { Task, ChecklistItem } from "~backend/task/types";
 interface TaskCardProps {
   task: Task;
   onChecklistToggle?: (taskId: number, itemId: string, completed: boolean) => void;
+  onTitleEdit?: (taskId: number, newTitle: string) => void;
   onClick?: () => void;
   compact?: boolean;
 }
 
-export default function TaskCard({ task, onChecklistToggle, onClick, compact = false }: TaskCardProps) {
+export default function TaskCard({ task, onChecklistToggle, onTitleEdit, onClick, compact = false }: TaskCardProps) {
   const [expandedChecklist, setExpandedChecklist] = useState(false);
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [titleValue, setTitleValue] = useState(task.title);
+  const titleInputRef = useRef<HTMLInputElement>(null);
+
+  const handleTitleDoubleClick = (e: React.MouseEvent) => {
+    if (!onTitleEdit) return;
+    e.stopPropagation();
+    setTitleValue(task.title);
+    setEditingTitle(true);
+    setTimeout(() => titleInputRef.current?.select(), 10);
+  };
+
+  const handleTitleSave = (e: React.FocusEvent | React.KeyboardEvent) => {
+    const trimmed = titleValue.trim();
+    if (trimmed && trimmed !== task.title) {
+      onTitleEdit?.(task.id, trimmed);
+    } else {
+      setTitleValue(task.title);
+    }
+    setEditingTitle(false);
+  };
+
+  const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") { e.preventDefault(); handleTitleSave(e); }
+    if (e.key === "Escape") { setTitleValue(task.title); setEditingTitle(false); }
+  };
 
   const parseRRule = (rrule: string | undefined): string | null => {
     if (!rrule) return null;
@@ -146,13 +173,31 @@ export default function TaskCard({ task, onChecklistToggle, onClick, compact = f
         onClick={onClick}
       >
         <div className="flex items-start justify-between gap-2 mb-2">
-          <div className="flex items-start gap-2 flex-1 min-w-0">
+          <div className="flex items-start gap-2 flex-1 min-w-0" onClick={(e) => e.stopPropagation()}>
             {task.rrule && (
               <div title={rruleDisplay || "Recurring task"}>
                 <Repeat className="h-4 w-4 text-blue-500 flex-shrink-0 mt-0.5" />
               </div>
             )}
-            <h4 className="font-medium text-foreground text-sm truncate">{task.title}</h4>
+            {editingTitle ? (
+              <input
+                ref={titleInputRef}
+                className="flex-1 text-sm font-medium bg-transparent border-b border-red-500 outline-none text-foreground"
+                value={titleValue}
+                onChange={(e) => setTitleValue(e.target.value)}
+                onBlur={handleTitleSave}
+                onKeyDown={handleTitleKeyDown}
+                autoFocus
+              />
+            ) : (
+              <h4
+                className="font-medium text-foreground text-sm truncate"
+                onDoubleClick={handleTitleDoubleClick}
+                title={onTitleEdit ? "Double-click to edit" : task.title}
+              >
+                {task.title}
+              </h4>
+            )}
           </div>
           {getDueBadge()}
         </div>

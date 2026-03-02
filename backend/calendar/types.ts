@@ -1,10 +1,13 @@
 export type EventType = "watch" | "personal" | "training" | "meeting" | "inspection" | "maintenance" | "reminder";
 
+export type CalendarVisibility = "station" | "watch" | "personal";
+
 export interface CalendarEvent {
   id: number;
   title: string;
   description?: string;
   event_type: EventType;
+  calendar_visibility: CalendarVisibility;
   start_time: Date;
   end_time: Date;
   all_day: boolean;
@@ -22,6 +25,7 @@ export interface CreateEventRequest {
   title: string;
   description?: string;
   event_type: EventType;
+  calendar_visibility?: CalendarVisibility;
   start_time: Date;
   end_time: Date;
   all_day?: boolean;
@@ -37,6 +41,7 @@ export interface UpdateEventRequest {
   title?: string;
   description?: string;
   event_type?: EventType;
+  calendar_visibility?: CalendarVisibility;
   start_time?: Date;
   end_time?: Date;
   all_day?: boolean;

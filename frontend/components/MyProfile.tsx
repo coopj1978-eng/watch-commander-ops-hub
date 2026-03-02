@@ -49,7 +49,7 @@ export default function MyProfile() {
     queryKey: ["my-user", user?.id],
     queryFn: async () => {
       if (!user) return null;
-      return await backend.user.get({ id: user.id });
+      return await backend.user.get(user.id);
     },
     enabled: !!user,
   });

@@ -5,7 +5,8 @@ import { DictionariesManager } from "@/components/DictionaryManager";
 import { AbsenceThresholds } from "@/components/AbsenceThresholds";
 import { BrandingSettings } from "@/components/BrandingSettings";
 import { CSVExportUtility } from "@/components/CSVExportUtility";
-import { Settings as SettingsIcon, FileSpreadsheet, Palette, AlertTriangle, BookOpen, Database } from "lucide-react";
+import { InspectionPlans } from "@/components/InspectionPlans";
+import { Settings as SettingsIcon, FileSpreadsheet, Palette, AlertTriangle, BookOpen, Database, ClipboardList } from "lucide-react";
 
 export default function Settings() {
   return (
@@ -22,7 +23,7 @@ export default function Settings() {
         </div>
 
         <Tabs defaultValue="dictionaries" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="dictionaries" className="gap-2">
               <Database className="h-4 w-4" />
               <span className="hidden sm:inline">Dictionaries</span>
@@ -42,6 +43,10 @@ export default function Settings() {
             <TabsTrigger value="export" className="gap-2">
               <FileSpreadsheet className="h-4 w-4" />
               <span className="hidden sm:inline">Export</span>
+            </TabsTrigger>
+            <TabsTrigger value="inspection-plans" className="gap-2">
+              <ClipboardList className="h-4 w-4" />
+              <span className="hidden sm:inline">Inspection Plans</span>
             </TabsTrigger>
           </TabsList>
 
@@ -63,6 +68,10 @@ export default function Settings() {
 
           <TabsContent value="export" className="space-y-6">
             <CSVExportUtility />
+          </TabsContent>
+
+          <TabsContent value="inspection-plans" className="space-y-6">
+            <InspectionPlans />
           </TabsContent>
         </Tabs>
       </div>

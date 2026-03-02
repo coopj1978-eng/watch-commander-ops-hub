@@ -6,8 +6,7 @@ import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import People from "./pages/People";
 import ProfileDetail from "./pages/ProfileDetail";
-import WatchCalendar from "./pages/WatchCalendar";
-import PersonalCalendar from "./pages/PersonalCalendar";
+import UnifiedCalendar from "./pages/WatchCalendar";
 import Tasks from "./pages/Tasks";
 import Inspections from "./pages/Inspections";
 import Targets from "./pages/Targets";
@@ -86,7 +85,7 @@ function AppInner() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const result = await backendClient.user.get({ id: "me" });
+        const result = await backendClient.user.get("me");
         setAuthState({
           user: {
             id: result.id,
@@ -180,8 +179,9 @@ function AppRoutes() {
         />
         <Route path="/people" element={<People />} />
         <Route path="/people/:userId" element={<ProfileDetail />} />
-        <Route path="/calendar/watch" element={<WatchCalendar />} />
-        <Route path="/calendar/personal" element={<PersonalCalendar />} />
+        <Route path="/calendar" element={<UnifiedCalendar />} />
+        <Route path="/calendar/watch" element={<Navigate to="/calendar" replace />} />
+        <Route path="/calendar/personal" element={<Navigate to="/calendar" replace />} />
         <Route path="/tasks" element={<Tasks />} />
         <Route path="/inspections" element={<Inspections />} />
         <Route path="/equipment" element={<EquipmentChecks />} />

@@ -1,163 +1,381 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { X, MapPin, FileText, Calendar, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import type { CalendarEvent, EventType } from "~backend/calendar/types";
+import type { CalendarEvent, CalendarVisibility } from "~backend/calendar/types";
 
 interface EventFormProps {
   date: Date;
   initialData?: CalendarEvent;
-  onSubmit: (data: any) => void;
+  defaultCalendar?: CalendarVisibility;
+  onSubmit: (data: EventFormData) => void;
   onCancel: () => void;
+  onDelete?: () => void;
 }
 
+export interface EventFormData {
+  title: string;
+  description: string;
+  location: string;
+  calendar_visibility: CalendarVisibility;
+  event_type: string;
+  start_time: Date;
+  end_time: Date;
+  all_day: boolean;
+  is_watch_event: boolean;
+}
+
+// ─── Calendar options ─────────────────────────────────────────────────────────
+const CALENDAR_OPTIONS: { value: CalendarVisibility; label: string; sublabel: string; color: string }[] = [
+  {
+    value: "station",
+    label: "Springburn Station",
+    sublabel: "Visible to all Springburn staff",
+    color: "#ef4444",
+  },
+  {
+    value: "watch",
+    label: "Watch Calendar",
+    sublabel: "Visible to your watch only",
+    color: "#3b82f6",
+  },
+  {
+    value: "personal",
+    label: "Personal Calendar",
+    sublabel: "Only visible to you",
+    color: "#8b5cf6",
+  },
+];
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function toInputDate(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function toInputTime(d: Date): string {
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
+
+function parseDateTimeInputs(date: string, time: string): Date {
+  return new Date(`${date}T${time}:00`);
+}
+
+function formatDisplayDate(d: Date): string {
+  return d.toLocaleDateString("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function formatDisplayTime(d: Date): string {
+  return d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: true });
+}
+
+// ─── Row wrapper ──────────────────────────────────────────────────────────────
+function FormRow({ icon: Icon, children }: { icon?: React.ElementType; children: React.ReactNode }) {
+  return (
+    <div className="flex items-start gap-3 px-4 py-2.5 border-b border-border/40 last:border-0">
+      <div className="w-5 shrink-0 mt-0.5">
+        {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
+      </div>
+      <div className="flex-1 min-w-0">{children}</div>
+    </div>
+  );
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
 export default function EventForm({
   date,
   initialData,
+  defaultCalendar = "station",
   onSubmit,
   onCancel,
+  onDelete,
 }: EventFormProps) {
-  const [formData, setFormData] = useState({
-    title: initialData?.title || "",
-    description: initialData?.description || "",
-    event_type: (initialData?.event_type || "watch") as EventType,
-    start_time: initialData?.start_time
-      ? new Date(initialData.start_time).toISOString().slice(0, 16)
-      : new Date(date.setHours(9, 0)).toISOString().slice(0, 16),
-    end_time: initialData?.end_time
-      ? new Date(initialData.end_time).toISOString().slice(0, 16)
-      : new Date(date.setHours(10, 0)).toISOString().slice(0, 16),
-    all_day: initialData?.all_day || false,
-    location: initialData?.location || "",
-    is_watch_event: initialData?.is_watch_event ?? true,
-  });
+  const titleRef = useRef<HTMLInputElement>(null);
+  const isEditing = !!initialData;
+
+  // Default start = date passed in (rounded to 30-min boundary), end = +1 hour
+  const defaultStart = (() => {
+    const d = new Date(date);
+    const minutes = Math.round(d.getMinutes() / 30) * 30;
+    d.setMinutes(minutes, 0, 0);
+    return d;
+  })();
+  const defaultEnd = new Date(defaultStart.getTime() + 3600000);
+
+  const [title, setTitle] = useState(initialData?.title ?? "");
+  const [startDate, setStartDate] = useState(
+    toInputDate(initialData ? new Date(initialData.start_time) : defaultStart)
+  );
+  const [startTime, setStartTime] = useState(
+    toInputTime(initialData ? new Date(initialData.start_time) : defaultStart)
+  );
+  const [endDate, setEndDate] = useState(
+    toInputDate(initialData ? new Date(initialData.end_time) : defaultEnd)
+  );
+  const [endTime, setEndTime] = useState(
+    toInputTime(initialData ? new Date(initialData.end_time) : defaultEnd)
+  );
+  const [allDay, setAllDay] = useState(initialData?.all_day ?? false);
+  const [calendar, setCalendar] = useState<CalendarVisibility>(
+    initialData?.calendar_visibility ?? defaultCalendar
+  );
+  const [location, setLocation] = useState(initialData?.location ?? "");
+  const [notes, setNotes] = useState(initialData?.description ?? "");
+  const [showCalendarPicker, setShowCalendarPicker] = useState(false);
+
+  // Auto-focus title
+  useEffect(() => {
+    titleRef.current?.focus();
+  }, []);
+
+  // When start changes, ensure end is at least start + 30 min
+  const handleStartDateChange = (val: string) => {
+    setStartDate(val);
+    const newStart = parseDateTimeInputs(val, startTime);
+    const newEnd = parseDateTimeInputs(endDate, endTime);
+    if (newEnd <= newStart) {
+      const adjusted = new Date(newStart.getTime() + 3600000);
+      setEndDate(toInputDate(adjusted));
+      setEndTime(toInputTime(adjusted));
+    }
+  };
+
+  const handleStartTimeChange = (val: string) => {
+    setStartTime(val);
+    const newStart = parseDateTimeInputs(startDate, val);
+    const newEnd = parseDateTimeInputs(endDate, endTime);
+    if (newEnd <= newStart) {
+      const adjusted = new Date(newStart.getTime() + 3600000);
+      setEndDate(toInputDate(adjusted));
+      setEndTime(toInputTime(adjusted));
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!title.trim()) return;
+
+    const start = allDay
+      ? (() => { const d = new Date(startDate); d.setHours(0, 0, 0, 0); return d; })()
+      : parseDateTimeInputs(startDate, startTime);
+    const end = allDay
+      ? (() => { const d = new Date(endDate); d.setHours(23, 59, 59, 0); return d; })()
+      : parseDateTimeInputs(endDate, endTime);
+
     onSubmit({
-      ...formData,
-      start_time: new Date(formData.start_time),
-      end_time: new Date(formData.end_time),
+      title: title.trim(),
+      description: notes,
+      location,
+      calendar_visibility: calendar,
+      event_type: calendar === "watch" ? "watch" : calendar === "personal" ? "personal" : "meeting",
+      start_time: start,
+      end_time: end,
+      all_day: allDay,
+      is_watch_event: calendar === "station" || calendar === "watch",
     });
   };
 
-  const handleChange = (field: string, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+  const selectedCalendar = CALENDAR_OPTIONS.find((c) => c.value === calendar)!;
+
+  const startDisplayDate = formatDisplayDate(parseDateTimeInputs(startDate, startTime));
+  const endDisplayDate = formatDisplayDate(parseDateTimeInputs(endDate, endTime));
+  const startDisplayTime = formatDisplayTime(parseDateTimeInputs(startDate, startTime));
+  const endDisplayTime = formatDisplayTime(parseDateTimeInputs(endDate, endTime));
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="title">Title *</Label>
-        <Input
-          id="title"
-          value={formData.title}
-          onChange={(e) => handleChange("title", e.target.value)}
-          placeholder="Event title"
+    <form onSubmit={handleSubmit} className="flex flex-col bg-card rounded-2xl shadow-2xl overflow-hidden w-full max-w-md">
+      {/* Title bar */}
+      <div className="flex items-center justify-between px-4 pt-4 pb-2">
+        <input
+          ref={titleRef}
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="New Event"
+          className="flex-1 text-xl font-semibold bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground/50 mr-2"
           required
         />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="event_type">Event Type *</Label>
-        <Select
-          value={formData.event_type}
-          onValueChange={(value) => handleChange("event_type", value as EventType)}
+        <button
+          type="button"
+          onClick={onCancel}
+          className="rounded-full w-6 h-6 flex items-center justify-center bg-muted hover:bg-muted/80 transition-colors"
         >
-          <SelectTrigger id="event_type">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="watch">Watch</SelectItem>
-            <SelectItem value="personal">Personal</SelectItem>
-            <SelectItem value="training">Training</SelectItem>
-            <SelectItem value="meeting">Meeting</SelectItem>
-            <SelectItem value="inspection">Inspection</SelectItem>
-            <SelectItem value="maintenance">Maintenance</SelectItem>
-          </SelectContent>
-        </Select>
+          <X className="h-3.5 w-3.5 text-muted-foreground" />
+        </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="start_time">Start Time *</Label>
-          <Input
-            id="start_time"
-            type="datetime-local"
-            value={formData.start_time}
-            onChange={(e) => handleChange("start_time", e.target.value)}
-            required
-          />
-        </div>
+      {/* Divider */}
+      <div className="h-px bg-border/60 mx-4 mb-1" />
 
+      {/* Date / Time */}
+      <FormRow>
         <div className="space-y-2">
-          <Label htmlFor="end_time">End Time *</Label>
-          <Input
-            id="end_time"
-            type="datetime-local"
-            value={formData.end_time}
-            onChange={(e) => handleChange("end_time", e.target.value)}
-            required
-          />
-        </div>
-      </div>
+          {/* All-day toggle */}
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-foreground">All-day</span>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={allDay}
+              onClick={() => setAllDay((v) => !v)}
+              className={`relative w-10 h-5 rounded-full transition-colors ${
+                allDay ? "bg-red-500" : "bg-muted"
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${
+                  allDay ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="location">Location</Label>
-        <Input
-          id="location"
-          value={formData.location}
-          onChange={(e) => handleChange("location", e.target.value)}
-          placeholder="Event location"
+          {/* Starts */}
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-sm text-muted-foreground w-12">Starts</span>
+            <div className="flex-1 flex items-center gap-1 justify-end flex-wrap">
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => handleStartDateChange(e.target.value)}
+                className="text-sm bg-muted/40 rounded-md px-2 py-1 border-none outline-none text-foreground cursor-pointer hover:bg-muted transition-colors"
+              />
+              {!allDay && (
+                <input
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => handleStartTimeChange(e.target.value)}
+                  className="text-sm bg-muted/40 rounded-md px-2 py-1 border-none outline-none text-foreground cursor-pointer hover:bg-muted transition-colors"
+                />
+              )}
+            </div>
+          </div>
+
+          {/* Ends */}
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-sm text-muted-foreground w-12">Ends</span>
+            <div className="flex-1 flex items-center gap-1 justify-end flex-wrap">
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="text-sm bg-muted/40 rounded-md px-2 py-1 border-none outline-none text-foreground cursor-pointer hover:bg-muted transition-colors"
+              />
+              {!allDay && (
+                <input
+                  type="time"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                  className="text-sm bg-muted/40 rounded-md px-2 py-1 border-none outline-none text-foreground cursor-pointer hover:bg-muted transition-colors"
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      </FormRow>
+
+      {/* Calendar picker */}
+      <FormRow icon={Calendar}>
+        <div className="relative">
+          <button
+            type="button"
+            className="flex items-center gap-2 w-full text-left hover:bg-muted/30 rounded-lg transition-colors py-0.5"
+            onClick={() => setShowCalendarPicker((v) => !v)}
+          >
+            <div
+              className="w-3 h-3 rounded-full shrink-0"
+              style={{ backgroundColor: selectedCalendar.color }}
+            />
+            <div>
+              <div className="text-sm font-medium text-foreground">{selectedCalendar.label}</div>
+              <div className="text-xs text-muted-foreground">{selectedCalendar.sublabel}</div>
+            </div>
+            <span className="ml-auto text-muted-foreground text-xs">▾</span>
+          </button>
+
+          {showCalendarPicker && (
+            <div className="absolute left-0 top-full mt-1 w-72 bg-popover border border-border rounded-xl shadow-lg z-50 overflow-hidden">
+              {CALENDAR_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  className={`flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-muted/40 transition-colors ${
+                    calendar === opt.value ? "bg-muted/60" : ""
+                  }`}
+                  onClick={() => {
+                    setCalendar(opt.value);
+                    setShowCalendarPicker(false);
+                  }}
+                >
+                  <div
+                    className="w-4 h-4 rounded-full shrink-0"
+                    style={{ backgroundColor: opt.color }}
+                  />
+                  <div>
+                    <div className="text-sm font-medium text-foreground">{opt.label}</div>
+                    <div className="text-xs text-muted-foreground">{opt.sublabel}</div>
+                  </div>
+                  {calendar === opt.value && (
+                    <span className="ml-auto text-red-500 text-sm">✓</span>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </FormRow>
+
+      {/* Location */}
+      <FormRow icon={MapPin}>
+        <input
+          type="text"
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+          placeholder="Add location or video call"
+          className="w-full text-sm bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground/60"
         />
-      </div>
+      </FormRow>
 
-      <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
-        <Textarea
-          id="description"
-          value={formData.description}
-          onChange={(e) => handleChange("description", e.target.value)}
-          placeholder="Event description"
+      {/* Notes */}
+      <FormRow icon={FileText}>
+        <textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder="Add notes"
           rows={3}
+          className="w-full text-sm bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground/60 resize-none"
         />
-      </div>
+      </FormRow>
 
-      <div className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          id="all_day"
-          checked={formData.all_day}
-          onChange={(e) => handleChange("all_day", e.target.checked)}
-          className="rounded border-border"
-        />
-        <Label htmlFor="all_day" className="cursor-pointer">
-          All day event
-        </Label>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          id="is_watch_event"
-          checked={formData.is_watch_event}
-          onChange={(e) => handleChange("is_watch_event", e.target.checked)}
-          className="rounded border-border"
-        />
-        <Label htmlFor="is_watch_event" className="cursor-pointer">
-          Watch event (visible to all)
-        </Label>
-      </div>
-
-      <div className="flex gap-2 pt-4">
-        <Button type="submit" className="flex-1 bg-red-600 hover:bg-red-700">
-          {initialData ? "Update Event" : "Create Event"}
-        </Button>
-        <Button type="button" variant="outline" onClick={onCancel} className="flex-1">
-          Cancel
-        </Button>
+      {/* Actions */}
+      <div className="flex items-center justify-between px-4 py-3 bg-muted/20 border-t border-border/40 gap-2">
+        {isEditing && onDelete ? (
+          <button
+            type="button"
+            onClick={onDelete}
+            className="text-sm text-red-500 hover:text-red-600 transition-colors"
+          >
+            Delete Event
+          </button>
+        ) : (
+          <div />
+        )}
+        <div className="flex gap-2">
+          <Button type="button" variant="outline" size="sm" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            size="sm"
+            disabled={!title.trim()}
+            className="bg-red-500 hover:bg-red-600 text-white"
+          >
+            {isEditing ? "Save" : "Add Event"}
+          </Button>
+        </div>
       </div>
     </form>
   );

@@ -10,11 +10,12 @@ export const create = api<CreateEventRequest, CalendarEvent>(
     const auth = getAuthData()!;
     const event = await db.queryRow<CalendarEvent>`
       INSERT INTO calendar_events (
-        title, description, event_type, start_time, end_time, all_day,
+        title, description, event_type, calendar_visibility, start_time, end_time, all_day,
         user_id, is_watch_event, location, attendees, color, created_by
       )
       VALUES (
-        ${req.title}, ${req.description}, ${req.event_type}, ${req.start_time},
+        ${req.title}, ${req.description}, ${req.event_type},
+        ${req.calendar_visibility || 'station'}, ${req.start_time},
         ${req.end_time}, ${req.all_day || false}, ${req.user_id},
         ${req.is_watch_event || false}, ${req.location}, ${req.attendees},
         ${req.color}, ${req.created_by}

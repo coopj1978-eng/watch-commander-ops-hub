@@ -1,14 +1,15 @@
-import backendDefault from "~backend/client";
+import Client, { Local } from "~backend/client";
+import type { AuthDataGenerator } from "~backend/client";
 
-export const backendClient = backendDefault.with({
-  auth: () => {
-    const token = localStorage.getItem("auth_token");
-    if (token) {
-      return { authorization: `Bearer ${token}` };
-    }
-    return undefined;
-  },
-});
+const authGenerator: AuthDataGenerator = () => {
+  const token = localStorage.getItem("auth_token");
+  if (token) {
+    return { authorization: `Bearer ${token}` };
+  }
+  return undefined;
+};
+
+export const backendClient = new Client(Local, { auth: authGenerator });
 
 export default backendClient;
 

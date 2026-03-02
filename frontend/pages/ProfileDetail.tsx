@@ -102,7 +102,7 @@ export default function ProfileDetail() {
 
   const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ["user", userId],
-    queryFn: async () => backend.user.get({ id: userId! }),
+    queryFn: async () => backend.user.get(userId!),
     enabled: !!userId,
   });
 

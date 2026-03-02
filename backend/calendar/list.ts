@@ -7,6 +7,7 @@ import type { CalendarEvent } from "./types";
 interface ListEventsRequest {
   user_id?: Query<string>;
   is_watch_event?: Query<boolean>;
+  calendar_visibility?: Query<string>;
   start_date?: Query<string>;
   end_date?: Query<string>;
   limit?: Query<number>;
@@ -55,6 +56,11 @@ export const list = api<ListEventsRequest, ListEventsResponse>(
     if (req.is_watch_event !== undefined) {
       conditions.push(`ce.is_watch_event = $${paramIndex}`);
       params.push(req.is_watch_event);
+      paramIndex++;
+    }
+    if (req.calendar_visibility !== undefined) {
+      conditions.push(`ce.calendar_visibility = $${paramIndex}`);
+      params.push(req.calendar_visibility);
       paramIndex++;
     }
     if (req.start_date) {

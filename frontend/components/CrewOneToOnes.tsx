@@ -14,7 +14,7 @@ export function CrewOneToOnes() {
     queryKey: ["current-user", currentUser?.id],
     queryFn: async () => {
       if (!currentUser?.id) return null;
-      return await backend.user.get({ id: currentUser.id });
+      return await backend.user.get(currentUser.id);
     },
     enabled: !!currentUser?.id,
   });
