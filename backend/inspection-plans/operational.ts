@@ -62,9 +62,6 @@ export const updateOperational = api(
 export const deleteOperational = api(
   { auth: true, expose: true, method: "DELETE", path: "/inspection-plans/operational/:id" },
   async (req: { id: number }): Promise<void> => {
-    await db.rawQueryRow(
-      `DELETE FROM operational_inspections WHERE id = $1`,
-      req.id
-    );
+    await db.exec`DELETE FROM operational_inspections WHERE id = ${req.id}`;
   }
 );

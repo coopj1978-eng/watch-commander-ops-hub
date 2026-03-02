@@ -58,9 +58,6 @@ export const updateCareHome = api(
 export const deleteCareHome = api(
   { auth: true, expose: true, method: "DELETE", path: "/inspection-plans/care-homes/:id" },
   async (req: { id: number }): Promise<void> => {
-    await db.rawQueryRow(
-      `DELETE FROM care_home_validations WHERE id = $1`,
-      req.id
-    );
+    await db.exec`DELETE FROM care_home_validations WHERE id = ${req.id}`;
   }
 );

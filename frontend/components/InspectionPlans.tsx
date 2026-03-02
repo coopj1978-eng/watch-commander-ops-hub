@@ -243,10 +243,10 @@ function MultistorySection({ canEdit }: { canEdit: boolean }) {
     if (targetIndex < 0 || targetIndex >= items.length) return;
     setMovePending(true);
     try {
-      await Promise.all([
-        backend.inspection_plans.updateMultistory(items[index].id, { position: items[targetIndex].position }),
-        backend.inspection_plans.updateMultistory(items[targetIndex].id, { position: items[index].position }),
-      ]);
+      const posA = items[index].position;
+      const posB = items[targetIndex].position;
+      await backend.inspection_plans.updateMultistory(items[index].id, { position: posB });
+      await backend.inspection_plans.updateMultistory(items[targetIndex].id, { position: posA });
       qc.invalidateQueries({ queryKey: ["inspection-plans-multistory"] });
     } catch {
       toast({ title: "Error", description: "Failed to reorder", variant: "destructive" });
@@ -428,10 +428,10 @@ function CareHomeSection({ canEdit }: { canEdit: boolean }) {
     if (targetIndex < 0 || targetIndex >= items.length) return;
     setMovePending(true);
     try {
-      await Promise.all([
-        backend.inspection_plans.updateCareHome(items[index].id, { position: items[targetIndex].position }),
-        backend.inspection_plans.updateCareHome(items[targetIndex].id, { position: items[index].position }),
-      ]);
+      const posA = items[index].position;
+      const posB = items[targetIndex].position;
+      await backend.inspection_plans.updateCareHome(items[index].id, { position: posB });
+      await backend.inspection_plans.updateCareHome(items[targetIndex].id, { position: posA });
       qc.invalidateQueries({ queryKey: ["inspection-plans-care-homes"] });
     } catch {
       toast({ title: "Error", description: "Failed to reorder", variant: "destructive" });
@@ -613,10 +613,10 @@ function HydrantSection({ canEdit }: { canEdit: boolean }) {
     if (targetIndex < 0 || targetIndex >= items.length) return;
     setMovePending(true);
     try {
-      await Promise.all([
-        backend.inspection_plans.updateHydrant(items[index].id, { position: items[targetIndex].position }),
-        backend.inspection_plans.updateHydrant(items[targetIndex].id, { position: items[index].position }),
-      ]);
+      const posA = items[index].position;
+      const posB = items[targetIndex].position;
+      await backend.inspection_plans.updateHydrant(items[index].id, { position: posB });
+      await backend.inspection_plans.updateHydrant(items[targetIndex].id, { position: posA });
       qc.invalidateQueries({ queryKey: ["inspection-plans-hydrants"] });
     } catch {
       toast({ title: "Error", description: "Failed to reorder", variant: "destructive" });
@@ -803,10 +803,10 @@ function OperationalSection({ canEdit }: { canEdit: boolean }) {
     if (targetIndex < 0 || targetIndex >= items.length) return;
     setMovePending(true);
     try {
-      await Promise.all([
-        backend.inspection_plans.updateOperational(items[index].id, { position: items[targetIndex].position }),
-        backend.inspection_plans.updateOperational(items[targetIndex].id, { position: items[index].position }),
-      ]);
+      const posA = items[index].position;
+      const posB = items[targetIndex].position;
+      await backend.inspection_plans.updateOperational(items[index].id, { position: posB });
+      await backend.inspection_plans.updateOperational(items[targetIndex].id, { position: posA });
       qc.invalidateQueries({ queryKey: ["inspection-plans-operational"] });
     } catch {
       toast({ title: "Error", description: "Failed to reorder", variant: "destructive" });

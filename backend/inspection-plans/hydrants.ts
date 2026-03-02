@@ -66,9 +66,6 @@ export const updateHydrant = api(
 export const deleteHydrant = api(
   { auth: true, expose: true, method: "DELETE", path: "/inspection-plans/hydrants/:id" },
   async (req: { id: number }): Promise<void> => {
-    await db.rawQueryRow(
-      `DELETE FROM hydrant_registers WHERE id = $1`,
-      req.id
-    );
+    await db.exec`DELETE FROM hydrant_registers WHERE id = ${req.id}`;
   }
 );

@@ -66,9 +66,6 @@ export const updateMultistory = api(
 export const deleteMultistory = api(
   { auth: true, expose: true, method: "DELETE", path: "/inspection-plans/multistory/:id" },
   async (req: { id: number }): Promise<void> => {
-    await db.rawQueryRow(
-      `DELETE FROM multistory_inspections WHERE id = $1`,
-      req.id
-    );
+    await db.exec`DELETE FROM multistory_inspections WHERE id = ${req.id}`;
   }
 );
