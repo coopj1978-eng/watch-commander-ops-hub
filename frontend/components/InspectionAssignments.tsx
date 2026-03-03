@@ -59,12 +59,14 @@ function SectionCard({
   canComplete,
   onToggle,
   isToggling,
+  showQuarterCol,
 }: {
   config: typeof SECTION_CONFIG[number];
   items: inspection_plans.InspectionAssignment[];
   canComplete: boolean;
   onToggle: (id: number, current: "pending" | "complete") => void;
   isToggling: number | null;
+  showQuarterCol: boolean;
 }) {
   const [expanded, setExpanded] = useState(true);
   const Icon = config.icon;
@@ -121,7 +123,9 @@ function SectionCard({
                     {canComplete && <th className="pb-2 w-8" />}
                     <th className="pb-2 text-left font-medium">Location</th>
                     <th className="pb-2 text-center font-medium px-3">Watch</th>
-                    {config.isQuarterly && <th className="pb-2 text-center font-medium px-3">Quarter</th>}
+                    {config.isQuarterly && showQuarterCol && (
+                      <th className="pb-2 text-center font-medium px-3">Quarter</th>
+                    )}
                     <th className="pb-2 text-center font-medium px-3">Status</th>
                   </tr>
                 </thead>
@@ -149,7 +153,7 @@ function SectionCard({
                       <td className="py-2 px-3 text-center">
                         <WatchBadge watch={item.watch} />
                       </td>
-                      {config.isQuarterly && (
+                      {config.isQuarterly && showQuarterCol && (
                         <td className="py-2 px-3 text-center text-xs text-muted-foreground">
                           {item.quarter ? `Q${item.quarter}` : "—"}
                         </td>
@@ -177,11 +181,13 @@ function SectionCard({
   );
 }
 
-export default function InspectionAssignments() {
-  const currentYear = new Date().getFullYear();
-  const [year, setYear]           = useState(currentYear);
+interface Props {
+  year: number;
+  quarter: number | null; // null = all quarters (yearly view)
+}
+
+export default function InspectionAssignments({ year, quarter }: Props) {
   const [watchFilter, setWatchFilter] = useState<string>("all");
-  const [quarterFilter, setQuarterFilter] = useState<string>("all");
   const [togglingId, setTogglingId]   = useState<number | null>(null);
 
   const { toast } = useToast();
@@ -190,14 +196,19 @@ export default function InspectionAssignments() {
   const { user }  = useAuth();
   const canManage = isWC || user?.role === "CC";
 
-  const queryKey = ["inspection-assignments", year, watchFilter, quarterFilter];
+  // Quarter label for display (e.g. "Q1 2026" or "2026")
+  const periodLabel = quarter ? `Q${quarter} ${year}` : `${year}`;
+
+  // Fetch all assignments for the year & optional watch filter.
+  // Quarter filtering for multi-story is done client-side so annual sections
+  // (care homes, hydrants, OIs) always show regardless of the selected quarter.
+  const queryKey = ["inspection-assignments", year, watchFilter];
 
   const { data, isLoading } = useQuery({
     queryKey,
     queryFn: () => backend.inspection_plans.listAssignments({
       year,
-      watch:    watchFilter !== "all" ? watchFilter : undefined,
-      quarter:  quarterFilter !== "all" ? parseInt(quarterFilter) : undefined,
+      watch: watchFilter !== "all" ? watchFilter : undefined,
     }),
   });
 
@@ -230,17 +241,31 @@ export default function InspectionAssignments() {
     toggleMutation.mutate({ id, status: current });
   };
 
-  const items = data?.items ?? [];
+  const allItems = data?.items ?? [];
 
-  const getItemsForSection = (type: PlanType) =>
-    items.filter(i => i.plan_type === type);
+  // Multi-story: filter to the active quarter if one is selected.
+  // Annual sections: always show items with quarter = null.
+  const getItemsForSection = (type: PlanType) => {
+    if (type === "multistory") {
+      return allItems.filter(i =>
+        i.plan_type === "multistory" &&
+        (quarter === null || i.quarter === quarter)
+      );
+    }
+    return allItems.filter(i => i.plan_type === type);
+  };
 
-  const totalPending  = data?.totals.pending  ?? 0;
-  const totalComplete = data?.totals.complete ?? 0;
-  const totalAll      = totalPending + totalComplete;
+  // Overall totals are based on what's currently visible
+  const visibleItems = SECTION_CONFIG.flatMap(cfg => getItemsForSection(cfg.type));
+  const totalComplete = visibleItems.filter(i => i.status === "complete").length;
+  const totalAll      = visibleItems.length;
   const overallPct    = totalAll > 0 ? Math.round((totalComplete / totalAll) * 100) : 0;
 
-  const years = [currentYear + 1, currentYear, currentYear - 1];
+  // When viewing a specific quarter, hide the Quarter column from multi-story
+  // (they're all the same quarter so it's redundant).
+  const showQuarterCol = quarter === null;
+
+  const hasAnyAssignments = allItems.length > 0;
 
   return (
     <div className="space-y-4">
@@ -249,23 +274,16 @@ export default function InspectionAssignments() {
         <div>
           <h2 className="text-lg font-semibold">Inspection Workload</h2>
           <p className="text-sm text-muted-foreground">
-            Track assigned inspections by watch and quarter
+            {quarter
+              ? `Showing ${periodLabel} — multi-story assignments for the selected quarter, plus annual items`
+              : `Showing all inspections for ${year}`}
           </p>
         </div>
 
-        {/* Filters + Generate */}
+        {/* Watch filter + Generate */}
         <div className="flex flex-wrap items-center gap-2">
-          <Select value={String(year)} onValueChange={v => setYear(parseInt(v))}>
-            <SelectTrigger className="w-24">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {years.map(y => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
-            </SelectContent>
-          </Select>
-
           <Select value={watchFilter} onValueChange={setWatchFilter}>
-            <SelectTrigger className="w-28">
+            <SelectTrigger className="w-32">
               <SelectValue placeholder="All watches" />
             </SelectTrigger>
             <SelectContent>
@@ -273,20 +291,6 @@ export default function InspectionAssignments() {
               {ALL_WATCHES.map(w => (
                 <SelectItem key={w} value={w}>{w}</SelectItem>
               ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={quarterFilter} onValueChange={setQuarterFilter}>
-            <SelectTrigger className="w-24">
-              <SelectValue placeholder="All" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="1">Q1</SelectItem>
-              <SelectItem value="2">Q2</SelectItem>
-              <SelectItem value="3">Q3</SelectItem>
-              <SelectItem value="4">Q4</SelectItem>
-              <SelectItem value="0">Annual</SelectItem>
             </SelectContent>
           </Select>
 
@@ -310,13 +314,13 @@ export default function InspectionAssignments() {
       </div>
 
       {/* Overall summary */}
-      {totalAll > 0 && (
+      {hasAnyAssignments && totalAll > 0 && (
         <Card className="bg-muted/30">
           <CardContent className="pt-4 pb-4">
             <div className="flex items-center gap-4">
               <div className="flex-1">
                 <div className="flex justify-between text-sm mb-1.5">
-                  <span className="font-medium">Overall progress</span>
+                  <span className="font-medium">Overall progress — {periodLabel}</span>
                   <span className="text-muted-foreground">{totalComplete} / {totalAll} complete</span>
                 </div>
                 <Progress value={overallPct} className="h-2" />
@@ -335,7 +339,7 @@ export default function InspectionAssignments() {
       )}
 
       {/* No data yet */}
-      {!isLoading && totalAll === 0 && (
+      {!isLoading && !hasAnyAssignments && (
         <Card>
           <CardContent className="text-center py-10">
             <Building2 className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
@@ -350,10 +354,10 @@ export default function InspectionAssignments() {
       )}
 
       {/* Section cards */}
-      {!isLoading && totalAll > 0 && SECTION_CONFIG.map(config => {
+      {!isLoading && hasAnyAssignments && SECTION_CONFIG.map(config => {
         const sectionItems = getItemsForSection(config.type);
-        // Hide empty sections when filtering (except quarterly filter on non-quarterly sections)
-        if (sectionItems.length === 0 && (watchFilter !== "all" || quarterFilter !== "all")) return null;
+        // Hide sections with no items when a watch filter is active
+        if (sectionItems.length === 0 && watchFilter !== "all") return null;
         return (
           <SectionCard
             key={config.type}
@@ -362,6 +366,7 @@ export default function InspectionAssignments() {
             canComplete={canManage}
             onToggle={handleToggle}
             isToggling={togglingId}
+            showQuarterCol={showQuarterCol}
           />
         );
       })}

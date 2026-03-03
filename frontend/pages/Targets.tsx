@@ -112,6 +112,21 @@ export default function Targets() {
     return result;
   }, []);
 
+  // Derive year + quarter number from the selected period so InspectionAssignments
+  // can stay in sync with the Targets period selector.
+  const { inspYear, inspQuarter } = useMemo(() => {
+    const start = getPeriodDates.start;
+    const end   = getPeriodDates.end;
+    if (!start) return { inspYear: new Date().getFullYear(), inspQuarter: null as number | null };
+    const d          = new Date(start);
+    const y          = d.getFullYear();
+    const startMonth = d.getMonth();
+    const endMonth   = end ? new Date(end).getMonth() : 11;
+    // Full-year view → no specific quarter
+    if (startMonth === 0 && endMonth === 11) return { inspYear: y, inspQuarter: null as number | null };
+    return { inspYear: y, inspQuarter: (Math.floor(startMonth / 3) + 1) as number | null };
+  }, [getPeriodDates]);
+
   return (
     <div className="p-8 space-y-6">
       <div className="flex items-center justify-between">
@@ -242,7 +257,7 @@ export default function Targets() {
         showPeriodSelector={false}
       />
 
-      <InspectionAssignments />
+      <InspectionAssignments year={inspYear} quarter={inspQuarter} />
     </div>
   );
 }
