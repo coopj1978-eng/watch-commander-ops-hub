@@ -121,3 +121,49 @@ export interface UpdateOperationalRequest {
 export interface ListOperationalResponse {
   items: OperationalInspection[];
 }
+
+// ─── Inspection Assignments ────────────────────────────────────────────────
+
+export interface InspectionAssignment {
+  id: number;
+  plan_type: "multistory" | "care_home" | "hydrant" | "operational";
+  plan_id: number;
+  label: string;
+  watch: WatchName;
+  year: number;
+  quarter: number | null;
+  status: "pending" | "complete";
+  completed_at: Date | null;
+  completed_by: number | null;
+  notes: string | null;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface GenerateAssignmentsRequest {
+  year: number;
+  quarter?: number;
+}
+
+export interface GenerateAssignmentsResponse {
+  created: number;
+  skipped: number;
+}
+
+export interface ListAssignmentsRequest {
+  watch?: string;
+  year?: number;
+  quarter?: number;
+  plan_type?: string;
+  status?: string;
+}
+
+export interface ListAssignmentsResponse {
+  items: InspectionAssignment[];
+  totals: { pending: number; complete: number };
+}
+
+export interface UpdateAssignmentRequest {
+  status: "pending" | "complete";
+  notes?: string;
+}

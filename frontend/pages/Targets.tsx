@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import TargetsDashboard from "@/components/TargetsDashboard";
+import InspectionAssignments from "@/components/InspectionAssignments";
 import {
   Card,
   CardContent,
@@ -240,6 +241,8 @@ export default function Targets() {
         periodEnd={getPeriodDates.end}
         showPeriodSelector={false}
       />
+
+      <InspectionAssignments />
     </div>
   );
 }

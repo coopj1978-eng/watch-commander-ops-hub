@@ -1236,6 +1236,27 @@ export namespace inspection_plans {
 
     export type WatchName = "Red" | "White" | "Green" | "Blue" | "Amber"
 
+    export interface InspectionAssignment {
+        id: number
+        "plan_type": "multistory" | "care_home" | "hydrant" | "operational"
+        "plan_id": number
+        label: string
+        watch: WatchName
+        year: number
+        quarter: number | null
+        status: "pending" | "complete"
+        "completed_at": string | null
+        "completed_by": number | null
+        notes: string | null
+        "created_at": string
+        "updated_at": string
+    }
+
+    export interface ListAssignmentsResponse {
+        items: InspectionAssignment[]
+        totals: { pending: number; complete: number }
+    }
+
     export class ServiceClient {
         private baseClient: BaseClient
 
@@ -1257,6 +1278,9 @@ export namespace inspection_plans {
             this.updateHydrant = this.updateHydrant.bind(this)
             this.updateMultistory = this.updateMultistory.bind(this)
             this.updateOperational = this.updateOperational.bind(this)
+            this.generateAssignments = this.generateAssignments.bind(this)
+            this.listAssignments = this.listAssignments.bind(this)
+            this.updateAssignment = this.updateAssignment.bind(this)
         }
 
         public async createCareHome(params: CreateCareHomeRequest): Promise<CareHomeValidation> {
@@ -1367,6 +1391,40 @@ export namespace inspection_plans {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("PATCH", `/inspection-plans/operational/${encodeURIComponent(id)}`, JSON.stringify(params))
             return await resp.json() as OperationalInspection
+        }
+
+        public async generateAssignments(params: {
+    year: number
+    quarter?: number
+}): Promise<{ created: number; skipped: number }> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/inspection-plans/assignments/generate`, JSON.stringify(params))
+            return await resp.json() as { created: number; skipped: number }
+        }
+
+        public async listAssignments(params: {
+    watch?: string
+    year?: number
+    quarter?: number
+    "plan_type"?: string
+    status?: string
+}): Promise<ListAssignmentsResponse> {
+            const query = makeRecord<string, string | string[]>({
+                watch:      params.watch,
+                year:       params.year === undefined ? undefined : String(params.year),
+                quarter:    params.quarter === undefined ? undefined : String(params.quarter),
+                "plan_type": params.plan_type,
+                status:     params.status,
+            })
+            const resp = await this.baseClient.callTypedAPI("GET", `/inspection-plans/assignments`, undefined, { query })
+            return await resp.json() as ListAssignmentsResponse
+        }
+
+        public async updateAssignment(id: number, params: {
+    status: "pending" | "complete"
+    notes?: string
+}): Promise<InspectionAssignment> {
+            const resp = await this.baseClient.callTypedAPI("PATCH", `/inspection-plans/assignments/${encodeURIComponent(id)}`, JSON.stringify(params))
+            return await resp.json() as InspectionAssignment
         }
     }
 }
