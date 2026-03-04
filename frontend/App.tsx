@@ -37,6 +37,7 @@ interface AuthUser {
   email: string;
   name: string;
   role: string;
+  watch_unit?: string; // e.g. "Red" | "White" | "Green" | "Blue" | "Amber"
 }
 
 interface AuthContextType {
@@ -92,6 +93,7 @@ function AppInner() {
             email: result.email,
             name: result.name,
             role: result.role,
+            watch_unit: result.watch_unit ?? undefined,
           },
           isLoaded: true,
         });

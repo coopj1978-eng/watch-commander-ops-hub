@@ -187,28 +187,39 @@ interface Props {
 }
 
 export default function InspectionAssignments({ year, quarter }: Props) {
-  const [watchFilter, setWatchFilter] = useState<string>("all");
-  const [togglingId, setTogglingId]   = useState<number | null>(null);
-
   const { toast } = useToast();
   const qc        = useQueryClient();
   const isWC      = useIsWC();
   const { user }  = useAuth();
   const canManage = isWC || user?.role === "CC";
 
+  // The user's own watch from their profile (e.g. "Red", "Blue", etc.)
+  const userWatch = user?.watch_unit ?? null;
+
+  // Managers (WC/CC) can switch between watches to review any watch's workload.
+  // Everyone else is locked to their own watch.
+  const [watchFilter, setWatchFilter] = useState<string>(userWatch ?? "all");
+  const [togglingId, setTogglingId]   = useState<number | null>(null);
+
+  // Non-managers always see their own watch regardless of the dropdown state.
+  const effectiveWatch = canManage ? watchFilter : (userWatch ?? "all");
+
   // Quarter label for display (e.g. "Q1 2026" or "2026")
   const periodLabel = quarter ? `Q${quarter} ${year}` : `${year}`;
 
-  // Fetch all assignments for the year & optional watch filter.
+  // Watch label for display
+  const watchLabel = effectiveWatch === "all" ? "All Watches" : `${effectiveWatch} Watch`;
+
+  // Fetch all assignments for the year & effective watch.
   // Quarter filtering for multi-story is done client-side so annual sections
   // (care homes, hydrants, OIs) always show regardless of the selected quarter.
-  const queryKey = ["inspection-assignments", year, watchFilter];
+  const queryKey = ["inspection-assignments", year, effectiveWatch];
 
   const { data, isLoading } = useQuery({
     queryKey,
     queryFn: () => backend.inspection_plans.listAssignments({
       year,
-      watch: watchFilter !== "all" ? watchFilter : undefined,
+      watch: effectiveWatch !== "all" ? effectiveWatch : undefined,
     }),
   });
 
@@ -275,24 +286,26 @@ export default function InspectionAssignments({ year, quarter }: Props) {
           <h2 className="text-lg font-semibold">Inspection Workload</h2>
           <p className="text-sm text-muted-foreground">
             {quarter
-              ? `Showing ${periodLabel} — multi-story assignments for the selected quarter, plus annual items`
-              : `Showing all inspections for ${year}`}
+              ? `${watchLabel} — ${periodLabel} multi-story assignments plus annual items`
+              : `${watchLabel} — all inspections for ${year}`}
           </p>
         </div>
 
-        {/* Watch filter + Generate */}
+        {/* Watch filter (managers only) + Generate */}
         <div className="flex flex-wrap items-center gap-2">
-          <Select value={watchFilter} onValueChange={setWatchFilter}>
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="All watches" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All watches</SelectItem>
-              {ALL_WATCHES.map(w => (
-                <SelectItem key={w} value={w}>{w}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {canManage && (
+            <Select value={watchFilter} onValueChange={setWatchFilter}>
+              <SelectTrigger className="w-36">
+                <SelectValue placeholder="Select watch" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All watches</SelectItem>
+                {ALL_WATCHES.map(w => (
+                  <SelectItem key={w} value={w}>{w} Watch</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
 
           {canManage && (
             <Button
@@ -320,7 +333,7 @@ export default function InspectionAssignments({ year, quarter }: Props) {
             <div className="flex items-center gap-4">
               <div className="flex-1">
                 <div className="flex justify-between text-sm mb-1.5">
-                  <span className="font-medium">Overall progress — {periodLabel}</span>
+                  <span className="font-medium">Overall progress — {watchLabel}, {periodLabel}</span>
                   <span className="text-muted-foreground">{totalComplete} / {totalAll} complete</span>
                 </div>
                 <Progress value={overallPct} className="h-2" />
@@ -356,8 +369,8 @@ export default function InspectionAssignments({ year, quarter }: Props) {
       {/* Section cards */}
       {!isLoading && hasAnyAssignments && SECTION_CONFIG.map(config => {
         const sectionItems = getItemsForSection(config.type);
-        // Hide sections with no items when a watch filter is active
-        if (sectionItems.length === 0 && watchFilter !== "all") return null;
+        // Hide sections with no items when a specific watch is active
+        if (sectionItems.length === 0 && effectiveWatch !== "all") return null;
         return (
           <SectionCard
             key={config.type}
