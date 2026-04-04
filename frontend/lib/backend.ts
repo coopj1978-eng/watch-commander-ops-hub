@@ -1,4 +1,4 @@
-import Client, { Local } from "~backend/client";
+import Client, { Local, Environment } from "~backend/client";
 import type { AuthDataGenerator } from "~backend/client";
 
 const authGenerator: AuthDataGenerator = () => {
@@ -9,7 +9,9 @@ const authGenerator: AuthDataGenerator = () => {
   return undefined;
 };
 
-export const backendClient = new Client(Local, { auth: authGenerator });
+const baseURL = import.meta.env.VITE_API_URL || Local;
+
+export const backendClient = new Client(baseURL, { auth: authGenerator });
 
 export default backendClient;
 
