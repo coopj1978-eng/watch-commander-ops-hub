@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Table as TableIcon, Calendar as CalendarIcon } from "lucide-react";
+import { Plus, Table as TableIcon, Calendar as CalendarIcon, ClipboardCheck } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 type ViewMode = "table" | "calendar";
@@ -32,7 +32,7 @@ export default function Inspections() {
     },
   });
 
-  const inspections = inspectionsData?.inspections || [];
+  const inspections = (inspectionsData?.inspections || []) as unknown as Inspection[];
 
   const handleCreateNew = () => {
     setSelectedInspection(undefined);
@@ -110,15 +110,18 @@ export default function Inspections() {
   ];
 
   return (
-    <div className="p-8 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-4 md:p-8 space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Inspections</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
+            <ClipboardCheck className="h-7 w-7 text-purple-500 shrink-0" />
+            Inspection Register
+          </h1>
           <p className="text-muted-foreground mt-1">
-            {inspections.length} inspection{inspections.length === 1 ? "" : "s"}
+            Manage your premises register · Schedule on <span className="font-medium text-foreground">Calendar</span> · Track progress in <span className="font-medium text-foreground">Targets</span>
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <div className="flex border rounded-md">
             <Button
               variant={viewMode === "table" ? "secondary" : "ghost"}
@@ -137,7 +140,7 @@ export default function Inspections() {
               <CalendarIcon className="h-4 w-4" />
             </Button>
           </div>
-          <Button className="bg-red-600 hover:bg-red-700" onClick={handleCreateNew}>
+          <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleCreateNew}>
             <Plus className="h-4 w-4 mr-2" />
             New Inspection
           </Button>
@@ -178,7 +181,7 @@ export default function Inspections() {
                   <div
                     key={day}
                     className={`min-h-24 p-2 border rounded-md ${
-                      isToday ? "border-red-600 bg-red-50 dark:bg-red-950/20" : "bg-card"
+                      isToday ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-950/20" : "bg-card"
                     }`}
                   >
                     <div className="text-sm font-medium mb-1">{day}</div>
@@ -214,11 +217,13 @@ export default function Inspections() {
       )}
 
       {!isLoading && inspections.length === 0 && viewMode === "table" && (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">No inspections yet</p>
+        <Card className="border-dashed">
+          <CardContent className="py-16 text-center">
+            <ClipboardCheck className="h-10 w-10 mx-auto mb-3 text-muted-foreground/40" />
+            <p className="font-medium text-foreground">No inspections yet</p>
+            <p className="text-sm text-muted-foreground mt-1">Schedule your first fire safety inspection to get started.</p>
             <Button
-              className="mt-4 bg-red-600 hover:bg-red-700"
+              className="mt-5 bg-indigo-600 hover:bg-indigo-700"
               onClick={handleCreateNew}
             >
               <Plus className="h-4 w-4 mr-2" />

@@ -6,6 +6,7 @@ import type { FirefighterProfile } from "./types";
 interface ListProfilesRequest {
   station?: Query<string>;
   shift?: Query<string>;
+  watch?: Query<string>;
   limit?: Query<number>;
   offset?: Query<number>;
 }
@@ -73,14 +74,20 @@ function transformProfile(dbProfile: DBProfile): FirefighterProfile {
     profile.driverPathway = {
       status: driver_pathway_status as any,
       lgvPassedDate: driver_pathway_lgv_passed_date
-        ? driver_pathway_lgv_passed_date.toISOString().split("T")[0]
+        ? (driver_pathway_lgv_passed_date instanceof Date
+            ? driver_pathway_lgv_passed_date.toISOString()
+            : String(driver_pathway_lgv_passed_date)
+          ).split("T")[0]
         : undefined,
     };
   }
 
   if (last_conversation_date && last_conversation_text) {
     profile.lastConversation = {
-      date: last_conversation_date.toISOString().split("T")[0],
+      date: (last_conversation_date instanceof Date
+        ? last_conversation_date.toISOString()
+        : String(last_conversation_date)
+      ).split("T")[0],
       text: last_conversation_text,
     };
   }
@@ -94,19 +101,34 @@ export const list = api<ListProfilesRequest, ListProfilesResponse>(
     const limit = req.limit || 50;
     const offset = req.offset || 0;
 
-    let query = `SELECT * FROM firefighter_profiles`;
-    let countQuery = `SELECT COUNT(*) as count FROM firefighter_profiles`;
+    // Join users table so we can filter by watch_unit (profiles may not have watch set)
+    let query = `
+      SELECT fp.*
+      FROM firefighter_profiles fp
+      JOIN users u ON u.id = fp.user_id
+    `;
+    let countQuery = `
+      SELECT COUNT(*) as count
+      FROM firefighter_profiles fp
+      JOIN users u ON u.id = fp.user_id
+    `;
     const params: any[] = [];
     const conditions: string[] = [];
     let paramIndex = 1;
 
     if (req.station) {
-      conditions.push(`station = $${paramIndex++}`);
+      conditions.push(`fp.station = $${paramIndex++}`);
       params.push(req.station);
     }
     if (req.shift) {
-      conditions.push(`shift = $${paramIndex++}`);
+      conditions.push(`fp.shift = $${paramIndex++}`);
       params.push(req.shift);
+    }
+    if (req.watch) {
+      // Filter by users.watch_unit (authoritative) OR fp.watch (legacy)
+      conditions.push(`(u.watch_unit = $${paramIndex} OR fp.watch = $${paramIndex})`);
+      paramIndex++;
+      params.push(req.watch);
     }
 
     if (conditions.length > 0) {
@@ -123,12 +145,12 @@ export const list = api<ListProfilesRequest, ListProfilesResponse>(
     
     const countResult = await db.rawQueryRow<{ count: number }>(
       countQuery,
-      ...(req.station || req.shift ? params.slice(0, -2) : [])
+      ...(conditions.length > 0 ? params.slice(0, -2) : [])
     );
 
     return {
       profiles,
-      total: countResult?.count || 0,
+      total: Number(countResult?.count) || 0,
     };
   }
 );

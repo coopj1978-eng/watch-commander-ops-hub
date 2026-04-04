@@ -98,7 +98,8 @@ function transformUserProfile(row: DBUserProfile): PersonWithProfile {
       phone: row.profile_phone,
       emergency_contact_name: row.profile_emergency_contact_name,
       emergency_contact_phone: row.profile_emergency_contact_phone,
-      skills: row.skill_renewals || [],
+      // Merge raw profile skills (TEXT[]) with formal skill_renewals names — deduplicated
+      skills: [...new Set([...(row.profile_skills || []), ...(row.skill_renewals || [])])],
       certifications: row.profile_certifications || [],
       watch: row.profile_watch as any,
       driver: {
@@ -204,10 +205,13 @@ export const listWithUsers = api<ListPeopleRequest, ListPeopleResponse>(
     const conditions: string[] = [];
     let paramIndex = 1;
 
+    // "active" = still at the station (left_at IS NULL) — includes pending sign-ups
+    // "inactive" = has left / been offboarded (left_at IS NOT NULL)
+    // is_active is only an indicator of whether they've signed in — not a capability gate
     if (status === "active") {
-      conditions.push(`u.is_active = true`);
+      conditions.push(`u.left_at IS NULL`);
     } else if (status === "inactive") {
-      conditions.push(`u.is_active = false`);
+      conditions.push(`u.left_at IS NOT NULL`);
     }
 
     if (req.station) {
@@ -246,7 +250,7 @@ export const listWithUsers = api<ListPeopleRequest, ListPeopleResponse>(
 
     return {
       people,
-      total: countResult?.count || 0,
+      total: Number(countResult?.count) || 0,
     };
   }
 );

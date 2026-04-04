@@ -150,7 +150,7 @@ export default function ApplianceCard({
       <CardFooter className="gap-2 pt-3 border-t">
         <Button
           onClick={onStartCheck}
-          className="flex-1 bg-red-600 hover:bg-red-700"
+          className="flex-1 bg-indigo-600 hover:bg-indigo-700"
           size="sm"
         >
           <ClipboardCheck className="h-4 w-4 mr-2" />

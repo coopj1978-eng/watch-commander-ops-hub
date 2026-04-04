@@ -44,11 +44,11 @@ export default function MyTasks() {
     enabled: !!user,
   });
 
-  const tasks = tasksData?.tasks || [];
+  const tasks = (tasksData?.tasks || []) as unknown as Task[];
 
   const updateTaskMutation = useMutation({
     mutationFn: async ({ id, status }: { id: number; status: TaskStatus }) => {
-      return await backend.task.update({ id, status });
+      return await backend.task.update(id, { status });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["my-tasks", user?.id] });
@@ -105,7 +105,7 @@ export default function MyTasks() {
   };
 
   const TaskCard = ({ task }: { task: Task }) => (
-    <Card className={`${task.status === "Done" ? "opacity-60" : ""} hover:border-red-600 transition-colors`}>
+    <Card className={`${task.status === "Done" ? "opacity-60" : ""} hover:border-indigo-600 transition-colors`}>
       <CardHeader className="pb-3">
         <div className="flex items-start gap-3">
           <Checkbox

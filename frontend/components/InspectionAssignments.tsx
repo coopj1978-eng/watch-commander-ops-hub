@@ -26,7 +26,7 @@ const ALL_WATCHES: WatchName[] = ["Red", "White", "Green", "Blue", "Amber"];
 
 const WATCH_COLORS: Record<WatchName, string> = {
   Red:   "bg-red-500/10 text-red-600 border-red-400/30",
-  White: "bg-gray-100 text-gray-700 border-gray-300",
+  White: "bg-gray-100 text-gray-700 border-gray-300 dark:bg-gray-700/40 dark:text-gray-200 dark:border-gray-500",
   Green: "bg-green-500/10 text-green-600 border-green-400/30",
   Blue:  "bg-blue-500/10 text-blue-600 border-blue-400/30",
   Amber: "bg-amber-500/10 text-amber-600 border-amber-400/30",
@@ -353,11 +353,11 @@ export default function InspectionAssignments({ year, quarter }: Props) {
 
       {/* No data yet */}
       {!isLoading && !hasAnyAssignments && (
-        <Card>
-          <CardContent className="text-center py-10">
-            <Building2 className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
-            <p className="text-sm font-medium">No assignments for {year}</p>
-            <p className="text-xs text-muted-foreground mt-1">
+        <Card className="border-dashed">
+          <CardContent className="py-16 text-center">
+            <Building2 className="h-10 w-10 text-muted-foreground/40 mx-auto mb-3" />
+            <p className="font-medium text-foreground">No assignments for {year}</p>
+            <p className="text-sm text-muted-foreground mt-1">
               {canManage
                 ? `Click "Generate ${year}" to create assignments from the Inspection Plans.`
                 : "No inspection assignments have been generated for this period yet."}

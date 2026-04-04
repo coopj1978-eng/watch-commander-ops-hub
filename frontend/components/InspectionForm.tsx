@@ -78,7 +78,7 @@ export default function InspectionForm({ open, onOpenChange, inspection, mode }:
         type: formData.type,
         address: formData.address,
         priority: formData.priority,
-        scheduled_for: new Date(formData.scheduled_for),
+        scheduled_for: formData.scheduled_for,
         assigned_crew_ids: formData.assigned_crew_ids,
         status: formData.status,
         notes: formData.notes,
@@ -105,16 +105,15 @@ export default function InspectionForm({ open, onOpenChange, inspection, mode }:
   const updateMutation = useMutation({
     mutationFn: async () => {
       if (!inspection) throw new Error("No inspection to update");
-      return await backend.inspection.update({
-        id: inspection.id,
+      return await backend.inspection.update(inspection.id, {
         type: formData.type,
         address: formData.address,
         priority: formData.priority,
-        scheduled_for: new Date(formData.scheduled_for),
+        scheduled_for: formData.scheduled_for,
         assigned_crew_ids: formData.assigned_crew_ids,
         status: formData.status,
         notes: formData.notes,
-        completed_date: formData.completed_date ? new Date(formData.completed_date) : undefined,
+        completed_date: formData.completed_date || undefined,
       });
     },
     onSuccess: () => {
@@ -329,7 +328,7 @@ export default function InspectionForm({ open, onOpenChange, inspection, mode }:
           {!isReadOnly && (
             <div>
               <Label>Attachments</Label>
-              <div className="mt-2 border-2 border-dashed rounded-md p-6 text-center hover:border-red-500/50 transition-colors cursor-pointer">
+              <div className="mt-2 border-2 border-dashed rounded-md p-6 text-center hover:border-indigo-500/50 transition-colors cursor-pointer">
                 <Upload className="mx-auto h-8 w-8 text-muted-foreground" />
                 <p className="mt-2 text-sm font-medium text-foreground">
                   Upload inspection documents
@@ -374,7 +373,7 @@ export default function InspectionForm({ open, onOpenChange, inspection, mode }:
             <Button
               onClick={handleSubmit}
               disabled={isPending}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-indigo-600 hover:bg-indigo-700"
             >
               {isPending ? "Saving..." : mode === "create" ? "Create Inspection" : "Save Changes"}
             </Button>

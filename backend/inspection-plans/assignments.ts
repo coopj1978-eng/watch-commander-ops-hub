@@ -122,18 +122,25 @@ export const listAssignments = api(
     const values: unknown[] = [];
     let idx = 1;
 
+    // Defensive: Encore passes GET query params as strings — coerce to numbers
+    const year    = req.year    !== undefined ? Number(req.year)    : undefined;
+    const quarter = req.quarter !== undefined ? Number(req.quarter) : undefined;
+
     if (req.watch)     { conditions.push(`watch = $${idx++}`);     values.push(req.watch); }
-    if (req.year)      { conditions.push(`year = $${idx++}`);      values.push(req.year); }
+    if (year !== undefined && !isNaN(year) && year > 0) {
+      conditions.push(`year = $${idx++}`);
+      values.push(year);
+    }
     if (req.plan_type) { conditions.push(`plan_type = $${idx++}`); values.push(req.plan_type); }
     if (req.status)    { conditions.push(`status = $${idx++}`);    values.push(req.status); }
 
-    // quarter filter: null means "annual only", a number means that quarter
-    if (req.quarter !== undefined) {
-      if (req.quarter === 0) {
+    // quarter filter: 0 means "annual only" (quarter IS NULL), a number means that quarter
+    if (quarter !== undefined && !isNaN(quarter)) {
+      if (quarter === 0) {
         conditions.push(`quarter IS NULL`);
       } else {
         conditions.push(`quarter = $${idx++}`);
-        values.push(req.quarter);
+        values.push(quarter);
       }
     }
 
@@ -153,6 +160,8 @@ export const listAssignments = api(
 
 // PATCH /inspection-plans/assignments/:id
 // WC/CC only — marks an assignment complete or reverts it to pending.
+// Side-effect: if the assignment is multistory, recalculates the HighRise target
+// actual_count for the assignment's year so the Targets dashboard stays in sync.
 export const updateAssignment = api(
   { auth: true, expose: true, method: "PATCH", path: "/inspection-plans/assignments/:id" },
   async (req: { id: number } & UpdateAssignmentRequest): Promise<InspectionAssignment> => {
@@ -175,6 +184,38 @@ export const updateAssignment = api(
     );
 
     if (!row) throw new Error("Assignment not found");
+
+    // ── Auto-update HighRise target actual_count ─────────────────────────────
+    // When a multi-story assignment is toggled, count all completed multi-story
+    // assignments for the same calendar year and push that total into any
+    // HighRise target rows whose period overlaps with that year.
+    if (row.plan_type === "multistory") {
+      const countRow = await db.rawQueryRow<{ n: number }>(
+        `SELECT COUNT(*) AS n
+         FROM inspection_assignments
+         WHERE plan_type = 'multistory' AND year = $1 AND status = 'complete'`,
+        row.year
+      );
+      const completedCount = Number(countRow?.n ?? 0);
+
+      await db.rawQueryAll<{ id: number }>(
+        `UPDATE targets
+         SET actual_count = $1,
+             status = CASE
+               WHEN $1 >= target_count THEN 'completed'
+               WHEN $1::float / NULLIF(target_count, 0) >= 0.8 THEN 'active'
+               WHEN $1::float / NULLIF(target_count, 0) >= 0.5 THEN 'at_risk'
+               ELSE 'overdue'
+             END,
+             updated_at = NOW()
+         WHERE metric = 'HighRise'
+           AND EXTRACT(YEAR FROM period_start) = $2
+         RETURNING id`,
+        completedCount,
+        row.year
+      );
+    }
+
     return row;
   }
 );

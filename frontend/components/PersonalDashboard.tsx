@@ -40,7 +40,7 @@ export default function PersonalDashboard() {
     queryKey: ["my-absence-stats", user?.id],
     queryFn: async () => {
       if (!user) return null;
-      return await backend.absence.getStats({ user_id: user.id });
+      return await backend.absence.getStats(user.id);
     },
     enabled: !!user,
   });
@@ -49,7 +49,7 @@ export default function PersonalDashboard() {
     queryKey: ["my-profile", user?.id],
     queryFn: async () => {
       if (!user) return null;
-      return await backend.profile.getByUser({ user_id: user.id });
+      return await backend.profile.getByUser(user.id);
     },
     enabled: !!user,
   });
@@ -87,7 +87,7 @@ export default function PersonalDashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="border-t-2 border-t-indigo-500">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Tasks</CardTitle>
             <ListTodo className="h-4 w-4 text-muted-foreground" />
@@ -100,7 +100,7 @@ export default function PersonalDashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-t-2 border-t-green-500">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Completed</CardTitle>
             <CheckCircle2 className="h-4 w-4 text-green-500" />
@@ -114,7 +114,7 @@ export default function PersonalDashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className={`border-t-2 ${overdueTasks.length > 0 ? "border-t-red-500" : "border-t-green-500"}`}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Overdue</CardTitle>
             <AlertCircle className="h-4 w-4 text-red-500" />
@@ -129,7 +129,7 @@ export default function PersonalDashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-t-2 border-t-indigo-500">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Absence Days</CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -146,7 +146,7 @@ export default function PersonalDashboard() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Card>
+        <Card className="border-t-2 border-t-indigo-500">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5" />
@@ -179,7 +179,7 @@ export default function PersonalDashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className={`border-t-2 ${overdueTasks.length > 0 ? "border-t-red-500" : "border-t-green-500"}`}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Clock className="h-5 w-5" />

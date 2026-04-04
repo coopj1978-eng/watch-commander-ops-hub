@@ -43,7 +43,7 @@ export default function AddApplianceModal({
 
   const createMutation = useMutation({
     mutationFn: async () => {
-      return await backend.appliance.createAppliance(formData);
+      return await backend.appliance.createAppliance(formData as any);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["appliances"] });
@@ -156,7 +156,7 @@ export default function AddApplianceModal({
               !formData.name.trim() ||
               createMutation.isPending
             }
-            className="bg-red-600 hover:bg-red-700"
+            className="bg-indigo-600 hover:bg-indigo-700"
           >
             {createMutation.isPending ? "Adding..." : "Add Appliance"}
           </Button>

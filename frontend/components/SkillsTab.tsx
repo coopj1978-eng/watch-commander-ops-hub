@@ -67,8 +67,15 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
     queryFn: async () => backend.dictionary.list({ type: "skill" }),
   });
 
+  const { data: availableCertsData } = useQuery({
+    queryKey: ["dictionaries", "certs"],
+    queryFn: async () => backend.dictionary.list({ type: "cert" }),
+  });
+
   const availableSkills = availableSkillsData?.items || [];
-  const skills = skillsData?.skills || [];
+  const availableCerts = availableCertsData?.items || [];
+  const allDictionaryItems = [...availableSkills, ...availableCerts];
+  const skills = (skillsData?.skills || []) as unknown as SkillRenewal[];
 
   const createSkillMutation = useMutation({
     mutationFn: async (data: { skill_name: string; acquired_date?: string; expiry_date?: string; reminder_date?: string; notes?: string }) => {
@@ -83,8 +90,8 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
             title: `Skill Renewal Reminder: ${data.skill_name}`,
             description: `Reminder to renew ${data.skill_name} skill. Expires on ${data.expiry_date || 'N/A'}.`,
             event_type: "training",
-            start_time: new Date(data.reminder_date),
-            end_time: new Date(data.reminder_date),
+            start_time: data.reminder_date,
+            end_time: data.reminder_date,
             all_day: true,
             user_id: userId,
             is_watch_event: false,
@@ -115,7 +122,7 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
   const updateSkillMutation = useMutation({
     mutationFn: async (data: { id: number; skill_name?: string; acquired_date?: string; expiry_date?: string; reminder_date?: string; notes?: string }) => {
       const { id, ...updates } = data;
-      return await backend.skill.update({ id, ...updates });
+      return await backend.skill.update(id, { ...updates });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["skill-renewals", profileId] });
@@ -134,7 +141,7 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
 
   const deleteSkillMutation = useMutation({
     mutationFn: async (id: number) => {
-      return await backend.skill.deleteSkillRenewal({ id });
+      return await backend.skill.deleteSkillRenewal(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["skill-renewals", profileId] });
@@ -209,7 +216,7 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
 
   const openEditDialog = (skill: SkillRenewal) => {
     setEditingSkill(skill);
-    const isAvailableSkill = availableSkills.some(s => s.value === skill.skill_name);
+    const isAvailableSkill = allDictionaryItems.some(s => s.value === skill.skill_name);
     setSelectedSkill(isAvailableSkill ? skill.skill_name : "custom");
     setCustomSkillName(isAvailableSkill ? "" : skill.skill_name);
     setAcquiredDate(skill.acquired_date ? new Date(skill.acquired_date).toISOString().split("T")[0] : "");
@@ -249,11 +256,11 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Skills & Renewals</h3>
+        <h3 className="text-lg font-semibold">Skills & Certifications</h3>
         {canEdit && (
           <Button onClick={() => setShowAddDialog(true)}>
             <Plus className="h-4 w-4 mr-2" />
-            Add Skill
+            Add Skill / Cert
           </Button>
         )}
       </div>
@@ -268,6 +275,7 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
         </Card>
       ) : (
         <Card>
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -325,40 +333,66 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
               ))}
             </TableBody>
           </Table>
+          </div>
         </Card>
       )}
 
       <Dialog open={showAddDialog} onOpenChange={handleCloseAddDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Skill</DialogTitle>
-            <DialogDescription>Add a new skill with optional renewal tracking</DialogDescription>
+            <DialogTitle>Add Skill / Certification</DialogTitle>
+            <DialogDescription>Add a new skill or certification with optional renewal tracking</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label>Skill</Label>
+              <Label>Skill / Certification</Label>
               <Select value={selectedSkill} onValueChange={setSelectedSkill}>
                 <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Select skill" />
+                  <SelectValue placeholder="Select skill or certification" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableSkills.map((skill) => (
-                    <SelectItem key={skill.value} value={skill.value}>
-                      {skill.value}
-                    </SelectItem>
-                  ))}
-                  <SelectItem value="custom">Custom Skill</SelectItem>
+                  {availableSkills.length > 0 && (
+                    <>
+                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                        Skills
+                      </div>
+                      {availableSkills.map((skill) => (
+                        <SelectItem key={`skill-${skill.value}`} value={skill.value}>
+                          {skill.value}
+                        </SelectItem>
+                      ))}
+                    </>
+                  )}
+                  {availableCerts.length > 0 && (
+                    <>
+                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider border-t mt-1 pt-2">
+                        Certifications
+                      </div>
+                      {availableCerts.map((cert) => (
+                        <SelectItem key={`cert-${cert.value}`} value={cert.value}>
+                          {cert.value}
+                        </SelectItem>
+                      ))}
+                    </>
+                  )}
+                  {availableSkills.length === 0 && availableCerts.length === 0 && (
+                    <div className="px-2 py-2 text-sm text-muted-foreground">
+                      No dictionary entries yet. Add skills/certs in Settings → Dictionaries.
+                    </div>
+                  )}
+                  <div className="border-t mt-1" />
+                  <SelectItem value="custom">+ Custom Entry</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             {selectedSkill === "custom" && (
               <div>
-                <Label>Custom Skill Name</Label>
+                <Label>Custom Name</Label>
                 <Input
                   value={customSkillName}
                   onChange={(e) => setCustomSkillName(e.target.value)}
-                  placeholder="Enter skill name"
+                  placeholder="Enter skill or certification name"
                   className="mt-1"
                 />
               </div>
@@ -420,7 +454,7 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
               Cancel
             </Button>
             <Button onClick={handleAddSkill} disabled={createSkillMutation.isPending}>
-              {createSkillMutation.isPending ? "Adding..." : "Add Skill"}
+              {createSkillMutation.isPending ? "Adding..." : "Add"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -429,34 +463,54 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
       <Dialog open={showEditDialog} onOpenChange={handleCloseEditDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Skill</DialogTitle>
-            <DialogDescription>Update skill information and renewal dates</DialogDescription>
+            <DialogTitle>Edit Skill / Certification</DialogTitle>
+            <DialogDescription>Update skill or certification information and renewal dates</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label>Skill</Label>
+              <Label>Skill / Certification</Label>
               <Select value={selectedSkill} onValueChange={setSelectedSkill}>
                 <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Select skill" />
+                  <SelectValue placeholder="Select skill or certification" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableSkills.map((skill) => (
-                    <SelectItem key={skill.value} value={skill.value}>
-                      {skill.value}
-                    </SelectItem>
-                  ))}
-                  <SelectItem value="custom">Custom Skill</SelectItem>
+                  {availableSkills.length > 0 && (
+                    <>
+                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                        Skills
+                      </div>
+                      {availableSkills.map((skill) => (
+                        <SelectItem key={`skill-${skill.value}`} value={skill.value}>
+                          {skill.value}
+                        </SelectItem>
+                      ))}
+                    </>
+                  )}
+                  {availableCerts.length > 0 && (
+                    <>
+                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider border-t mt-1 pt-2">
+                        Certifications
+                      </div>
+                      {availableCerts.map((cert) => (
+                        <SelectItem key={`cert-${cert.value}`} value={cert.value}>
+                          {cert.value}
+                        </SelectItem>
+                      ))}
+                    </>
+                  )}
+                  <div className="border-t mt-1" />
+                  <SelectItem value="custom">+ Custom Entry</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             {selectedSkill === "custom" && (
               <div>
-                <Label>Custom Skill Name</Label>
+                <Label>Custom Name</Label>
                 <Input
                   value={customSkillName}
                   onChange={(e) => setCustomSkillName(e.target.value)}
-                  placeholder="Enter skill name"
+                  placeholder="Enter skill or certification name"
                   className="mt-1"
                 />
               </div>

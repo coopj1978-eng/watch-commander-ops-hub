@@ -3,6 +3,7 @@ import backend from "@/lib/backend";
 import type { User, UserRole } from "~backend/user/types";
 import { PageContainer } from "@/components/PageContainer";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -34,7 +35,7 @@ export function AdminUsers() {
   const loadUsers = async () => {
     try {
       const { users: userList } = await backend.admin.listUsers();
-      setUsers(userList);
+      setUsers(userList as unknown as User[]);
     } catch (error) {
       console.error("Failed to load users:", error);
       toast({
@@ -53,7 +54,7 @@ export function AdminUsers() {
 
   const handleRoleChange = async (userId: string, newRole: UserRole) => {
     try {
-      await backend.admin.changeRole({ userId, newRole });
+      await backend.admin.changeRole(userId, { newRole });
       toast({
         title: "Success",
         description: "User role updated successfully",
@@ -71,7 +72,7 @@ export function AdminUsers() {
 
   const handleReactivate = async (userId: string) => {
     try {
-      await backend.admin.reactivateUser({ userId });
+      await backend.admin.reactivateUser(userId);
       toast({
         title: "Success",
         description: "User reactivated successfully",
@@ -100,14 +101,19 @@ export function AdminUsers() {
         </p>
         <Button onClick={() => setShowInviteDialog(true)}>
           <UserPlus className="w-4 h-4 mr-2" />
-          Invite User
+          Add Staff Member
         </Button>
       </div>
 
       {loading ? (
-        <div className="text-center py-12 text-muted-foreground">Loading users...</div>
+        <div className="space-y-2">
+          {[...Array(8)].map((_, i) => (
+            <Skeleton key={i} className="h-12 w-full" />
+          ))}
+        </div>
       ) : (
         <div className="bg-card rounded-lg border">
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -179,6 +185,7 @@ export function AdminUsers() {
               ))}
             </TableBody>
           </Table>
+          </div>
         </div>
       )}
 

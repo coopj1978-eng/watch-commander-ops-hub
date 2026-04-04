@@ -57,7 +57,7 @@ export default function InspectionTable({ onViewDetails, onEditInspection, viewM
 
   const userMap = new Map(usersData?.map((u) => [u.id, u.name]) || []);
 
-  const inspections = inspectionsData?.inspections || [];
+  const inspections = (inspectionsData?.inspections || []) as unknown as Inspection[];
 
   const filteredInspections = inspections.filter((inspection) => {
     if (searchTerm) {
@@ -148,9 +148,9 @@ export default function InspectionTable({ onViewDetails, onEditInspection, viewM
             className="pl-10"
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[155px] sm:w-[180px]">
               <SelectValue placeholder="All types" />
             </SelectTrigger>
             <SelectContent>
@@ -162,7 +162,7 @@ export default function InspectionTable({ onViewDetails, onEditInspection, viewM
             </SelectContent>
           </Select>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[155px] sm:w-[180px]">
               <SelectValue placeholder="All statuses" />
             </SelectTrigger>
             <SelectContent>
@@ -181,7 +181,8 @@ export default function InspectionTable({ onViewDetails, onEditInspection, viewM
         </div>
       </div>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -255,6 +256,7 @@ export default function InspectionTable({ onViewDetails, onEditInspection, viewM
             )}
           </TableBody>
         </Table>
+        </div>
       </Card>
     </div>
   );

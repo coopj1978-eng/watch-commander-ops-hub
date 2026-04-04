@@ -22,7 +22,10 @@ export default function StaffPortal() {
     <div className="min-h-screen bg-background">
       <div className="p-4 md:p-8 space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Staff Portal</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
+            <User className="h-7 w-7 text-indigo-500 shrink-0" />
+            Staff Portal
+          </h1>
           <p className="text-muted-foreground mt-1">Your personal workspace</p>
         </div>
 

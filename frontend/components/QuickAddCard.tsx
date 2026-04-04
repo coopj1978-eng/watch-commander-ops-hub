@@ -65,7 +65,7 @@ export default function QuickAddCard({ columnStatusKey, onAdd, isLoading }: Quic
       <div className="flex items-center gap-2">
         <Button
           size="sm"
-          className="h-7 text-xs bg-red-600 hover:bg-red-700"
+          className="h-7 text-xs bg-indigo-600 hover:bg-indigo-700"
           onClick={handleSubmit}
           disabled={!title.trim() || isLoading}
         >

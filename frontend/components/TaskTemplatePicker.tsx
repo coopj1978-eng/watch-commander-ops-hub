@@ -144,8 +144,8 @@ export default function TaskTemplatePicker({
               return (
                 <Card
                   key={template.id}
-                  className={`cursor-pointer transition-all hover:border-red-600 ${
-                    isSelected ? "ring-2 ring-red-500 border-red-500" : ""
+                  className={`cursor-pointer transition-all hover:border-indigo-600 ${
+                    isSelected ? "ring-2 ring-indigo-500 border-indigo-500" : ""
                   }`}
                   onClick={() => handleSelect(template)}
                 >
@@ -217,7 +217,7 @@ export default function TaskTemplatePicker({
               Cancel
             </Button>
             <Button
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-indigo-600 hover:bg-indigo-700"
               disabled={!selectedTemplate}
               onClick={handleConfirm}
             >

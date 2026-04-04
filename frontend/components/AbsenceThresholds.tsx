@@ -229,7 +229,7 @@ export function AbsenceThresholds() {
               <Button
                 onClick={handleSaveAbsence}
                 disabled={!hasAbsenceChanges || updateAbsenceMutation.isPending}
-                className="bg-red-600 hover:bg-red-700"
+                className="bg-indigo-600 hover:bg-indigo-700"
               >
                 {updateAbsenceMutation.isPending && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -374,7 +374,7 @@ export function AbsenceThresholds() {
               <Button
                 onClick={handleSaveTriggers}
                 disabled={!hasTriggerChanges || updateTriggerMutation.isPending}
-                className="bg-red-600 hover:bg-red-700"
+                className="bg-indigo-600 hover:bg-indigo-700"
               >
                 {updateTriggerMutation.isPending && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

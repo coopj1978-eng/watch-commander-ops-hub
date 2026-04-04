@@ -38,3 +38,20 @@ export interface UpdateSkillRenewalRequest {
 export interface ListSkillRenewalsResponse {
   skills: SkillRenewal[];
 }
+
+export interface ExpiringSkillEntry {
+  id: number;
+  profile_id: number;
+  user_id: string;
+  user_name: string;
+  skill_name: string;
+  expiry_date?: Date;
+  status: "expired" | "warning";
+  days_until_expiry?: number;
+}
+
+export interface ListExpiringSkillsResponse {
+  skills: ExpiringSkillEntry[];
+  expired_count: number;
+  warning_count: number;
+}

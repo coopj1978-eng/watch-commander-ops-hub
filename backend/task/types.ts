@@ -13,14 +13,20 @@ export interface Task {
   description?: string;
   category: TaskCategory;
   assigned_to_user_id?: string;
+  watch_unit?: string;
   status: TaskStatus;
   priority: TaskPriority;
   due_at?: Date;
   checklist?: ChecklistItem[];
   attachments?: string[];
+  tags?: string[];
   rrule?: string;
   position?: number;
   completed_at?: Date;
+  cover_colour?: string;
+  source_type?: string;
+  source_id?: number;
+  calendar_event_id?: number;
   created_at: Date;
   updated_at: Date;
 }
@@ -56,6 +62,7 @@ export interface CreateTaskRequest {
   category: TaskCategory;
   assigned_to?: string;
   assigned_by: string;
+  watch_unit?: string;
   priority?: TaskPriority;
   due_date?: Date;
   checklist?: ChecklistItem[];
@@ -64,6 +71,9 @@ export interface CreateTaskRequest {
   tags?: string[];
   position?: number;
   status?: TaskStatus;
+  source_type?: string;
+  source_id?: number;
+  calendar_event_id?: number;
 }
 
 export interface UpdateTaskRequest {
@@ -71,6 +81,7 @@ export interface UpdateTaskRequest {
   description?: string;
   category?: TaskCategory;
   assigned_to?: string;
+  watch_unit?: string;
   status?: TaskStatus;
   priority?: TaskPriority;
   due_date?: Date;
@@ -78,5 +89,6 @@ export interface UpdateTaskRequest {
   attachments?: string[];
   rrule?: string;
   tags?: string[];
+  cover_colour?: string;
   position?: number;
 }

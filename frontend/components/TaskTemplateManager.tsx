@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -129,7 +130,7 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
     queryFn: async () => (await backend.task.listTemplates()).templates,
     enabled: isOpen,
   });
-  const templates = data ?? [];
+  const templates = (data ?? []) as unknown as TaskTemplate[];
 
   const createMutation = useMutation({
     mutationFn: async (f: TemplateFormState) =>
@@ -152,8 +153,7 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, f }: { id: number; f: TemplateFormState }) =>
-      backend.task.updateTemplate({
-        id,
+      backend.task.updateTemplate(id, {
         name: f.name,
         title_template: f.title_template,
         task_description: f.task_description || undefined,
@@ -171,7 +171,7 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (id: number) => backend.task.deleteTemplate({ id }),
+    mutationFn: async (id: number) => backend.task.deleteTemplate(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["task-templates"] });
       toast({ title: "Template deleted" });
@@ -253,7 +253,7 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
           </div>
           <div className="flex items-center gap-2">
             {mode === "list" && canManage && (
-              <Button size="sm" className="bg-red-600 hover:bg-red-700 h-8" onClick={() => { setForm(emptyForm()); setMode("create"); }}>
+              <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 h-8" onClick={() => { setForm(emptyForm()); setMode("create"); }}>
                 <Plus className="h-3.5 w-3.5 mr-1" />
                 New Template
               </Button>
@@ -269,7 +269,11 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
           {mode === "list" && (
             <div className="p-4 space-y-3">
               {isLoading ? (
-                <p className="text-sm text-muted-foreground text-center py-8">Loading templates…</p>
+                <div className="space-y-2">
+                  {[...Array(4)].map((_, i) => (
+                    <Skeleton key={i} className="h-14 w-full" />
+                  ))}
+                </div>
               ) : templates.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <Repeat className="h-10 w-10 mx-auto mb-3 opacity-30" />
@@ -280,7 +284,7 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
                 </div>
               ) : (
                 templates.map((t) => (
-                  <div key={t.id} className="flex items-start gap-3 p-3.5 rounded-lg border border-border hover:border-red-500/40 bg-background transition-colors group">
+                  <div key={t.id} className="flex items-start gap-3 p-3.5 rounded-lg border border-border hover:border-indigo-500/40 bg-background transition-colors group">
                     <div className="h-9 w-9 rounded-lg bg-red-500/10 flex items-center justify-center shrink-0">
                       <Repeat className="h-4.5 w-4.5 text-red-500" />
                     </div>
@@ -489,7 +493,7 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
         {(mode === "create" || mode === "edit") && (
           <div className="flex items-center justify-between px-6 py-4 border-t border-border shrink-0">
             <Button variant="ghost" onClick={() => setMode("list")}>Cancel</Button>
-            <Button className="bg-red-600 hover:bg-red-700" onClick={handleSave} disabled={isSaving}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleSave} disabled={isSaving}>
               {isSaving ? "Saving…" : mode === "create" ? "Create Template" : "Save Changes"}
             </Button>
           </div>

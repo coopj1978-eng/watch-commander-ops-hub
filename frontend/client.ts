@@ -33,21 +33,29 @@ const BROWSER = typeof globalThis === "object" && ("window" in globalThis);
  */
 export default class Client {
     public readonly absence: absence.ServiceClient
+    public readonly activity: activity.ServiceClient
     public readonly admin: admin.ServiceClient
     public readonly appliance: appliance.ServiceClient
     public readonly calendar: calendar.ServiceClient
     public readonly crew: crew.ServiceClient
+    public readonly crewing: crewing.ServiceClient
+    public readonly detachments: detachments.ServiceClient
     public readonly dictionary: dictionary.ServiceClient
     public readonly frontend: frontend.ServiceClient
+    public readonly h4h: h4h.ServiceClient
+    public readonly handover: handover.ServiceClient
     public readonly inspection: inspection.ServiceClient
     public readonly inspection_plans: inspection_plans.ServiceClient
     public readonly localauth: localauth.ServiceClient
     public readonly mock: mock.ServiceClient
     public readonly note: note.ServiceClient
+    public readonly notification: notification.ServiceClient
     public readonly policy: policy.ServiceClient
     public readonly profile: profile.ServiceClient
+    public readonly quarterly_report: quarterly_report.ServiceClient
     public readonly report: report.ServiceClient
     public readonly settings: settings.ServiceClient
+    public readonly shift_adjustments: shift_adjustments.ServiceClient
     public readonly skill: skill.ServiceClient
     public readonly targets: targets.ServiceClient
     public readonly task: task.ServiceClient
@@ -67,21 +75,29 @@ export default class Client {
         this.options = options ?? {}
         const base = new BaseClient(this.target, this.options)
         this.absence = new absence.ServiceClient(base)
+        this.activity = new activity.ServiceClient(base)
         this.admin = new admin.ServiceClient(base)
         this.appliance = new appliance.ServiceClient(base)
         this.calendar = new calendar.ServiceClient(base)
         this.crew = new crew.ServiceClient(base)
+        this.crewing = new crewing.ServiceClient(base)
+        this.detachments = new detachments.ServiceClient(base)
         this.dictionary = new dictionary.ServiceClient(base)
         this.frontend = new frontend.ServiceClient(base)
+        this.h4h = new h4h.ServiceClient(base)
+        this.handover = new handover.ServiceClient(base)
         this.inspection = new inspection.ServiceClient(base)
         this.inspection_plans = new inspection_plans.ServiceClient(base)
         this.localauth = new localauth.ServiceClient(base)
         this.mock = new mock.ServiceClient(base)
         this.note = new note.ServiceClient(base)
+        this.notification = new notification.ServiceClient(base)
         this.policy = new policy.ServiceClient(base)
         this.profile = new profile.ServiceClient(base)
+        this.quarterly_report = new quarterly_report.ServiceClient(base)
         this.report = new report.ServiceClient(base)
         this.settings = new settings.ServiceClient(base)
+        this.shift_adjustments = new shift_adjustments.ServiceClient(base)
         this.skill = new skill.ServiceClient(base)
         this.targets = new targets.ServiceClient(base)
         this.task = new task.ServiceClient(base)
@@ -130,13 +146,14 @@ export namespace absence {
         type: AbsenceType
         "start_date": string
         "end_date": string
-        "total_days": number
+        "total_days"?: number
         reason: string
+        docs?: string[]
         "evidence_urls"?: string[]
         status: AbsenceStatus
         "approved_by"?: string
         "approved_at"?: string
-        "created_by_user_id": string
+        "created_by_user_id"?: string
         "created_at": string
         "updated_at": string
     }
@@ -178,6 +195,30 @@ export namespace absence {
         total: number
     }
 
+    export interface TodaySickMember {
+        "user_id": string
+        name: string
+        "watch_unit": string | null
+    }
+
+    export interface TodaySickResponse {
+        "sick_staff": TodaySickMember[]
+    }
+
+    export interface SelfReportRequest {
+        "start_date": string
+        "end_date": string
+        reason?: string
+        "sick_line_document"?: string
+    }
+
+    export interface UpdateAbsenceDatesRequest {
+        id: number
+        "start_date"?: string
+        "end_date"?: string
+        "sick_line_document"?: string
+    }
+
     export class ServiceClient {
         private baseClient: BaseClient
 
@@ -187,6 +228,9 @@ export namespace absence {
             this.create = this.create.bind(this)
             this.getStats = this.getStats.bind(this)
             this.list = this.list.bind(this)
+            this.todaySick = this.todaySick.bind(this)
+            this.selfReport = this.selfReport.bind(this)
+            this.updateAbsence = this.updateAbsence.bind(this)
         }
 
         public async approve(id: number): Promise<Absence> {
@@ -221,6 +265,182 @@ export namespace absence {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/absences`, undefined, {query})
             return await resp.json() as ListAbsencesResponse
+        }
+
+        /**
+         * Returns all staff with an approved sickness absence that covers today's date.
+         * Used by the WC dashboard to cross-reference against the crewing board.
+         */
+        public async todaySick(): Promise<TodaySickResponse> {
+            const resp = await this.baseClient.callTypedAPI("GET", `/absences/today-sick`)
+            return await resp.json() as TodaySickResponse
+        }
+
+        public async selfReport(params: SelfReportRequest): Promise<Absence> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/absences/self-report`, JSON.stringify(params))
+            return await resp.json() as Absence
+        }
+
+        public async updateAbsence(params: UpdateAbsenceDatesRequest): Promise<Absence> {
+            const resp = await this.baseClient.callTypedAPI("PATCH", `/absences/${encodeURIComponent(params.id)}/update`, JSON.stringify(params))
+            return await resp.json() as Absence
+        }
+    }
+}
+
+export namespace activity {
+    export interface ActivityRecord {
+        id: number
+        type: ActivityType
+        watch: string
+        "financial_year": number
+        quarter: number
+        "item_number": number | null
+        title: string
+        address: string | null
+        "engagement_date": string | null
+        details: string | null
+        completed: boolean
+        "completed_at": string | null
+        "sort_order": number
+        "created_by": string
+        "created_at": string
+        "updated_at": string
+    }
+
+    export type ActivityType = "hfsv" | "hydrant" | "community"
+
+    export interface CreateActivityRequest {
+        type: ActivityType
+        watch: string
+        "financial_year": number
+        quarter: number
+        "item_number"?: number
+        title?: string
+        address?: string
+        "engagement_date"?: string
+        details?: string
+    }
+
+    export interface ListActivitiesRequest {
+        type?: ActivityType
+        watch?: string
+        "financial_year"?: number
+        quarter?: number
+    }
+
+    export interface ListActivitiesResponse {
+        items: ActivityRecord[]
+        "total_completed": number
+        total: number
+    }
+
+    export interface SeedHfsvRequest {
+        watch: string
+        "financial_year": number
+        quarter: number
+    }
+
+    export interface SeedHfsvResponse {
+        created: number
+        skipped: number
+    }
+
+    export class ServiceClient {
+        private baseClient: BaseClient
+
+        constructor(baseClient: BaseClient) {
+            this.baseClient = baseClient
+            this.create = this.create.bind(this)
+            this.list = this.list.bind(this)
+            this.remove = this.remove.bind(this)
+            this.seedHfsv = this.seedHfsv.bind(this)
+            this.toggle = this.toggle.bind(this)
+            this.update = this.update.bind(this)
+        }
+
+        /**
+         * POST /activities
+         * Creates a single activity record (hydrant inspection or community engagement).
+         * HFSV records should be bulk-seeded via POST /activities/seed-hfsv instead.
+         */
+        public async create(params: CreateActivityRequest): Promise<ActivityRecord> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/activities`, JSON.stringify(params))
+            return await resp.json() as ActivityRecord
+        }
+
+        /**
+         * GET /activities
+         * Returns activity records filtered by type / watch / financial_year / quarter.
+         */
+        public async list(params: ListActivitiesRequest): Promise<ListActivitiesResponse> {
+            // Convert our params into the objects we need for the request
+            const query = makeRecord<string, string | string[]>({
+                "financial_year": params["financial_year"] === undefined ? undefined : String(params["financial_year"]),
+                quarter:          params.quarter === undefined ? undefined : String(params.quarter),
+                type:             params.type === undefined ? undefined : String(params.type),
+                watch:            params.watch,
+            })
+
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/activities`, undefined, {query})
+            return await resp.json() as ListActivitiesResponse
+        }
+
+        /**
+         * DELETE /activities/:id
+         */
+        public async remove(id: number): Promise<{
+    /**
+     * DELETE /activities/:id
+     */
+    ok: boolean
+}> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("DELETE", `/activities/${encodeURIComponent(id)}`)
+            return await resp.json() as {
+    /**
+     * DELETE /activities/:id
+     */
+    ok: boolean
+}
+        }
+
+        /**
+         * POST /activities/seed-hfsv
+         * Creates 36 numbered HFSV placeholders for a given watch/financial_year/quarter.
+         * Safe to re-run: skips rows where item_number already exists for that slot.
+         */
+        public async seedHfsv(params: SeedHfsvRequest): Promise<SeedHfsvResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/activities/seed-hfsv`, JSON.stringify(params))
+            return await resp.json() as SeedHfsvResponse
+        }
+
+        /**
+         * PATCH /activities/:id/toggle
+         * Flips the completed flag on an activity record.
+         */
+        public async toggle(id: number): Promise<ActivityRecord> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("PATCH", `/activities/${encodeURIComponent(id)}/toggle`)
+            return await resp.json() as ActivityRecord
+        }
+
+        /**
+         * PATCH /activities/:id
+         * Updates editable fields (title, address, engagement_date, details).
+         */
+        public async update(id: number, params: {
+    title?: string
+    address?: string
+    "engagement_date"?: string
+    details?: string
+}): Promise<ActivityRecord> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("PATCH", `/activities/${encodeURIComponent(id)}`, JSON.stringify(params))
+            return await resp.json() as ActivityRecord
         }
     }
 }
@@ -289,12 +509,14 @@ export namespace admin {
 
     export interface GetInviteLinkRequest {
         email: string
+        frontend_url?: string
     }
 
     export interface GetInviteLinkResponse {
         "invite_link": string
         "user_name": string
         "user_email": string
+        "already_active": boolean
     }
 
     export interface InviteUserRequest {
@@ -779,6 +1001,9 @@ export namespace calendar {
         location?: string
         attendees?: string[]
         color?: string
+        watch?: string
+        "source_type"?: string
+        "source_id"?: number
         "created_by": string
         "created_at": string
         "updated_at": string
@@ -799,7 +1024,30 @@ export namespace calendar {
         location?: string
         attendees?: string[]
         color?: string
+        watch?: string
+        "source_type"?: string
+        "source_id"?: number
         "created_by": string
+    }
+
+    export interface CreateInspectionEventRequest {
+        "source_type": InspectionSourceType | null
+        "source_id": number | null
+        title: string
+        location?: string
+        "start_time": string
+        "end_time": string
+        "calendar_visibility": CalendarVisibility
+        watch: string
+        color?: string
+        "assigned_by": string
+        "assigned_to"?: string
+        "due_date": string
+    }
+
+    export interface CreateInspectionEventResponse {
+        "calendar_event_id": number
+        "task_id": number
     }
 
     export interface DeleteEventRequest {
@@ -818,6 +1066,8 @@ export namespace calendar {
         content: string
         filename: string
     }
+
+    export type InspectionSourceType = "hfsv" | "hydrant" | "multistory" | "operational" | "care_home"
 
     export interface ListEventsRequest {
         "user_id"?: string
@@ -858,6 +1108,7 @@ export namespace calendar {
         constructor(baseClient: BaseClient) {
             this.baseClient = baseClient
             this.create = this.create.bind(this)
+            this.createInspectionEvent = this.createInspectionEvent.bind(this)
             this.deleteEvent = this.deleteEvent.bind(this)
             this.exportICS = this.exportICS.bind(this)
             this.list = this.list.bind(this)
@@ -868,6 +1119,12 @@ export namespace calendar {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("POST", `/calendar/events`, JSON.stringify(params))
             return await resp.json() as CalendarEvent
+        }
+
+        public async createInspectionEvent(params: CreateInspectionEventRequest): Promise<CreateInspectionEventResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/calendar/inspection-event`, JSON.stringify(params))
+            return await resp.json() as CreateInspectionEventResponse
         }
 
         public async deleteEvent(id: number, params: DeleteEventRequest): Promise<void> {
@@ -965,6 +1222,270 @@ export namespace crew {
     }
 }
 
+export namespace crewing {
+    export interface AddCrewingRequest {
+        watch: string
+        "shift_date": string
+        "shift_type": ShiftType
+        appliance: Appliance
+        "user_id"?: string
+        "external_name"?: string
+        "crew_role": CrewRole
+        "is_change_of_shift"?: boolean
+        notes?: string
+    }
+
+    export type Appliance = "b10p1" | "b10p2" | "detached"
+
+    export interface CopyPreviousRequest {
+        watch: string
+        "shift_date": string
+        "shift_type": ShiftType
+    }
+
+    export type CrewRole = "oic" | "driver" | "ba" | "baeco" | "ff" | "detached"
+
+    export interface CrewingEntry {
+        id: number
+        watch: string
+        "shift_date": string
+        "shift_type": ShiftType
+        appliance: Appliance
+        "user_id"?: string
+        "user_name"?: string
+        "user_system_role"?: string
+        "user_rank"?: string
+        "external_name"?: string
+        "crew_role": CrewRole
+        "is_change_of_shift": boolean
+        notes?: string
+        "created_at": string
+    }
+
+    export interface ListCrewingRequest {
+        watch: string
+        "shift_date": string
+        "shift_type": ShiftType
+    }
+
+    export interface ListCrewingResponse {
+        entries: CrewingEntry[]
+    }
+
+    export interface RosterMember {
+        id: string
+        name: string
+        "system_role": string
+        rank?: string
+        "watch_unit"?: string
+        "profile_watch"?: string
+        ba: boolean
+        prps: boolean
+        "driver_lgv": boolean
+        "driver_erd": boolean
+    }
+
+    export interface RosterRequest {
+        watch: string
+    }
+
+    export interface RosterResponse {
+        members: RosterMember[]
+    }
+
+    export type ShiftType = "1st Day" | "2nd Day" | "1st Night" | "2nd Night"
+
+    export class ServiceClient {
+        private baseClient: BaseClient
+
+        constructor(baseClient: BaseClient) {
+            this.baseClient = baseClient
+            this.add = this.add.bind(this)
+            this.copyPrevious = this.copyPrevious.bind(this)
+            this.list = this.list.bind(this)
+            this.remove = this.remove.bind(this)
+            this.roster = this.roster.bind(this)
+        }
+
+        /**
+         * POST /crewing — add a crew member to an appliance for a shift
+         */
+        public async add(params: AddCrewingRequest): Promise<CrewingEntry> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/crewing`, JSON.stringify(params))
+            return await resp.json() as CrewingEntry
+        }
+
+        /**
+         * POST /crewing/copy-previous
+         * Copies crewing from the most recent previous shift of the same type for this watch.
+         * Change-of-shift (external) entries are NOT copied — they're specific to their shift.
+         * Any existing crewing for the target date is replaced.
+         */
+        public async copyPrevious(params: CopyPreviousRequest): Promise<ListCrewingResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/crewing/copy-previous`, JSON.stringify(params))
+            return await resp.json() as ListCrewingResponse
+        }
+
+        /**
+         * GET /crewing — returns all crewing entries for a specific watch/date/shift
+         */
+        public async list(params: ListCrewingRequest): Promise<ListCrewingResponse> {
+            // Convert our params into the objects we need for the request
+            const query = makeRecord<string, string | string[]>({
+                "shift_date": params["shift_date"],
+                "shift_type": String(params["shift_type"]),
+                watch:        params.watch,
+            })
+
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/crewing`, undefined, {query})
+            return await resp.json() as ListCrewingResponse
+        }
+
+        /**
+         * DELETE /crewing/:id — remove a crew member from a shift
+         */
+        public async remove(id: number): Promise<{
+    /**
+     * DELETE /crewing/:id — remove a crew member from a shift
+     */
+    ok: boolean
+}> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("DELETE", `/crewing/${encodeURIComponent(id)}`)
+            return await resp.json() as {
+    /**
+     * DELETE /crewing/:id — remove a crew member from a shift
+     */
+    ok: boolean
+}
+        }
+
+        /**
+         * GET /crewing/roster
+         * Returns all active WC/CC/FF members for a watch, checking BOTH
+         * users.watch_unit AND firefighter_profiles.watch so no one is missed
+         * regardless of which column was populated for their account.
+         */
+        public async roster(params: RosterRequest): Promise<RosterResponse> {
+            // Convert our params into the objects we need for the request
+            const query = makeRecord<string, string | string[]>({
+                watch: params.watch,
+            })
+
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/crewing/roster`, undefined, {query})
+            return await resp.json() as RosterResponse
+        }
+    }
+}
+
+export namespace detachments {
+    export interface CreateDetachmentRequest {
+        "firefighter_id": string
+        "firefighter_name": string
+        "home_watch": string
+        "to_station": string
+        "detachment_date": string
+        reason?: string
+        notes?: string
+    }
+
+    export interface Detachment {
+        id: number
+        "firefighter_id": string
+        "firefighter_name": string
+        "home_watch": string
+        "to_station": string
+        "detachment_date": string
+        reason?: string
+        notes?: string
+        "recorded_by_user_id": string
+        "created_at": string
+    }
+
+    export interface GetRotaRequest {
+        watch: string
+    }
+
+    export interface GetRotaResponse {
+        members: RotaMember[]
+    }
+
+    export interface ListDetachmentsRequest {
+        watch?: string
+        limit?: number
+        offset?: number
+    }
+
+    export interface ListDetachmentsResponse {
+        detachments: Detachment[]
+        total: number
+    }
+
+    export interface RotaMember {
+        "firefighter_id": string
+        "firefighter_name": string
+        "watch_unit": string
+        "last_detachment_date": string | null
+        "last_to_station": string | null
+        "last_reason": string | null
+        "total_detachments": number
+    }
+
+    export class ServiceClient {
+        private baseClient: BaseClient
+
+        constructor(baseClient: BaseClient) {
+            this.baseClient = baseClient
+            this.create = this.create.bind(this)
+            this.getRota = this.getRota.bind(this)
+            this.list = this.list.bind(this)
+        }
+
+        /**
+         * POST /detachments — record a firefighter detachment event
+         */
+        public async create(params: CreateDetachmentRequest): Promise<Detachment> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/detachments`, JSON.stringify(params))
+            return await resp.json() as Detachment
+        }
+
+        /**
+         * GET /detachments/rota — fairness rota: all watch members sorted by last detachment (oldest first = next in line)
+         */
+        public async getRota(params: GetRotaRequest): Promise<GetRotaResponse> {
+            // Convert our params into the objects we need for the request
+            const query = makeRecord<string, string | string[]>({
+                watch: params.watch,
+            })
+
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/detachments/rota`, undefined, {query})
+            return await resp.json() as GetRotaResponse
+        }
+
+        /**
+         * GET /detachments — list detachment history, optionally filtered by watch
+         */
+        public async list(params: ListDetachmentsRequest): Promise<ListDetachmentsResponse> {
+            // Convert our params into the objects we need for the request
+            const query = makeRecord<string, string | string[]>({
+                limit:  params.limit === undefined ? undefined : String(params.limit),
+                offset: params.offset === undefined ? undefined : String(params.offset),
+                watch:  params.watch,
+            })
+
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/detachments`, undefined, {query})
+            return await resp.json() as ListDetachmentsResponse
+        }
+    }
+}
+
 export namespace dictionary {
     export interface CreateDictionaryRequest {
         type: DictionaryType
@@ -1053,6 +1574,179 @@ export namespace frontend {
 
         public async assets(path: string[]): Promise<void> {
             await this.baseClient.callTypedAPI("HEAD", `/frontend/${path.map(encodeURIComponent).join("/")}`)
+        }
+    }
+}
+
+export namespace h4h {
+    export interface H4HEntry {
+        id: number
+        creditor_user_id: string
+        creditor_name: string
+        debtor_user_id: string
+        debtor_name: string
+        shift_date: string
+        shift_adjustment_id: number | null
+        payback_shift_adjustment_id: number | null
+        status: "pending" | "settled"
+        settled_at: string | null
+        settled_by_user_id: string | null
+        settled_via: "auto" | "manual" | null
+        notes: string | null
+        created_at: string
+    }
+
+    export interface ListH4HRequest {
+        user_id: string
+        status?: "pending" | "settled"
+    }
+
+    export interface ListH4HResponse {
+        owed_to_me: H4HEntry[]
+        i_owe: H4HEntry[]
+    }
+
+    export interface SettleH4HRequest {
+        id: number
+    }
+
+    export class ServiceClient {
+        private baseClient: BaseClient
+
+        constructor(baseClient: BaseClient) {
+            this.baseClient = baseClient
+            this.list = this.list.bind(this)
+            this.settle = this.settle.bind(this)
+        }
+
+        public async list(params: ListH4HRequest): Promise<ListH4HResponse> {
+            const query = makeRecord<string, string | string[]>({
+                user_id: params.user_id,
+                status: params.status === undefined ? undefined : String(params.status),
+            })
+            const resp = await this.baseClient.callTypedAPI("GET", `/h4h`, undefined, { query })
+            return await resp.json() as ListH4HResponse
+        }
+
+        public async settle(id: number): Promise<H4HEntry> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/h4h/${encodeURIComponent(id)}/settle`)
+            return await resp.json() as H4HEntry
+        }
+    }
+}
+
+export namespace handover {
+    export interface CreateHandoverRequest {
+        watch: string
+        "shift_type": ShiftType
+        "shift_date": string
+        incidents?: string
+        "outstanding_tasks"?: string
+        "equipment_notes"?: string
+        "staff_notes"?: string
+        "general_notes"?: string
+    }
+
+    export interface DeleteHandoverResponse {
+        success: boolean
+    }
+
+    export interface GetLatestResponse {
+        handover: Handover | null
+        found: boolean
+    }
+
+    export interface Handover {
+        id: number
+        watch: string
+        "shift_type": ShiftType
+        "shift_date": string
+        "written_by_user_id": string
+        "written_by_name"?: string
+        incidents?: string
+        "outstanding_tasks"?: string
+        "equipment_notes"?: string
+        "staff_notes"?: string
+        "general_notes": string
+        "created_at": string
+        "updated_at": string
+    }
+
+    export interface ListHandoversResponse {
+        handovers: Handover[]
+        total: number
+    }
+
+    export interface ListRequest {
+        watch?: string
+        limit?: number
+        offset?: number
+    }
+
+    export type ShiftType = "Day" | "Night"
+
+    export interface UpdateHandoverRequest {
+        incidents?: string
+        "outstanding_tasks"?: string
+        "equipment_notes"?: string
+        "staff_notes"?: string
+        "general_notes"?: string
+    }
+
+    export class ServiceClient {
+        private baseClient: BaseClient
+
+        constructor(baseClient: BaseClient) {
+            this.baseClient = baseClient
+            this.create = this.create.bind(this)
+            this.deleteHandover = this.deleteHandover.bind(this)
+            this.getLatest = this.getLatest.bind(this)
+            this.list = this.list.bind(this)
+            this.update = this.update.bind(this)
+        }
+
+        public async create(params: CreateHandoverRequest): Promise<Handover> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/handovers`, JSON.stringify(params))
+            return await resp.json() as Handover
+        }
+
+        public async deleteHandover(id: number): Promise<DeleteHandoverResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("DELETE", `/handovers/${encodeURIComponent(id)}`)
+            return await resp.json() as DeleteHandoverResponse
+        }
+
+        public async getLatest(params: {
+    watch?: string
+}): Promise<GetLatestResponse> {
+            // Convert our params into the objects we need for the request
+            const query = makeRecord<string, string | string[]>({
+                watch: params.watch,
+            })
+
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/handovers/latest`, undefined, {query})
+            return await resp.json() as GetLatestResponse
+        }
+
+        public async list(params: ListRequest): Promise<ListHandoversResponse> {
+            // Convert our params into the objects we need for the request
+            const query = makeRecord<string, string | string[]>({
+                limit:  params.limit === undefined ? undefined : String(params.limit),
+                offset: params.offset === undefined ? undefined : String(params.offset),
+                watch:  params.watch,
+            })
+
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/handovers`, undefined, {query})
+            return await resp.json() as ListHandoversResponse
+        }
+
+        public async update(id: number, params: UpdateHandoverRequest): Promise<Handover> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("PATCH", `/handovers/${encodeURIComponent(id)}`, JSON.stringify(params))
+            return await resp.json() as Handover
         }
     }
 }
@@ -1184,6 +1878,16 @@ export namespace inspection_plans {
         watch?: WatchName
     }
 
+    export interface GenerateAssignmentsRequest {
+        year: number
+        quarter?: number
+    }
+
+    export interface GenerateAssignmentsResponse {
+        created: number
+        skipped: number
+    }
+
     export interface HydrantRegister {
         id: number
         "area_code": string
@@ -1194,6 +1898,38 @@ export namespace inspection_plans {
         position: number
         "created_at": string
         "updated_at": string
+    }
+
+    export interface InspectionAssignment {
+        id: number
+        "plan_type": "multistory" | "care_home" | "hydrant" | "operational"
+        "plan_id": number
+        label: string
+        watch: WatchName
+        year: number
+        quarter: number | null
+        status: "pending" | "complete"
+        "completed_at": string | null
+        "completed_by": number | null
+        notes: string | null
+        "created_at": string
+        "updated_at": string
+    }
+
+    export interface ListAssignmentsRequest {
+        watch?: string
+        year?: number
+        quarter?: number
+        "plan_type"?: string
+        status?: string
+    }
+
+    export interface ListAssignmentsResponse {
+        items: InspectionAssignment[]
+        totals: {
+            pending: number
+            complete: number
+        }
     }
 
     export interface ListCareHomeResponse {
@@ -1236,27 +1972,6 @@ export namespace inspection_plans {
 
     export type WatchName = "Red" | "White" | "Green" | "Blue" | "Amber"
 
-    export interface InspectionAssignment {
-        id: number
-        "plan_type": "multistory" | "care_home" | "hydrant" | "operational"
-        "plan_id": number
-        label: string
-        watch: WatchName
-        year: number
-        quarter: number | null
-        status: "pending" | "complete"
-        "completed_at": string | null
-        "completed_by": number | null
-        notes: string | null
-        "created_at": string
-        "updated_at": string
-    }
-
-    export interface ListAssignmentsResponse {
-        items: InspectionAssignment[]
-        totals: { pending: number; complete: number }
-    }
-
     export class ServiceClient {
         private baseClient: BaseClient
 
@@ -1270,17 +1985,17 @@ export namespace inspection_plans {
             this.deleteHydrant = this.deleteHydrant.bind(this)
             this.deleteMultistory = this.deleteMultistory.bind(this)
             this.deleteOperational = this.deleteOperational.bind(this)
+            this.generateAssignments = this.generateAssignments.bind(this)
+            this.listAssignments = this.listAssignments.bind(this)
             this.listCareHomes = this.listCareHomes.bind(this)
             this.listHydrants = this.listHydrants.bind(this)
             this.listMultistory = this.listMultistory.bind(this)
             this.listOperational = this.listOperational.bind(this)
+            this.updateAssignment = this.updateAssignment.bind(this)
             this.updateCareHome = this.updateCareHome.bind(this)
             this.updateHydrant = this.updateHydrant.bind(this)
             this.updateMultistory = this.updateMultistory.bind(this)
             this.updateOperational = this.updateOperational.bind(this)
-            this.generateAssignments = this.generateAssignments.bind(this)
-            this.listAssignments = this.listAssignments.bind(this)
-            this.updateAssignment = this.updateAssignment.bind(this)
         }
 
         public async createCareHome(params: CreateCareHomeRequest): Promise<CareHomeValidation> {
@@ -1323,6 +2038,39 @@ export namespace inspection_plans {
             await this.baseClient.callTypedAPI("DELETE", `/inspection-plans/operational/${encodeURIComponent(id)}`)
         }
 
+        /**
+         * POST /inspection-plans/assignments/generate
+         * WC/CC only — reads the 4 plan tables and creates assignments for the given year.
+         * Passing quarter= limits multi-story to that quarter only; omitting it generates all quarters.
+         * Care homes always generate annual assignments (quarter = null) for ALL watches.
+         * Hydrants + OIs generate annual assignments for their own watch field.
+         * Uses ON CONFLICT DO NOTHING so it is safe to re-run.
+         */
+        public async generateAssignments(params: GenerateAssignmentsRequest): Promise<GenerateAssignmentsResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/inspection-plans/assignments/generate`, JSON.stringify(params))
+            return await resp.json() as GenerateAssignmentsResponse
+        }
+
+        /**
+         * GET /inspection-plans/assignments
+         * Returns assignments filtered by optional watch, year, quarter, plan_type, status.
+         */
+        public async listAssignments(params: ListAssignmentsRequest): Promise<ListAssignmentsResponse> {
+            // Convert our params into the objects we need for the request
+            const query = makeRecord<string, string | string[]>({
+                "plan_type": params["plan_type"],
+                quarter:     params.quarter === undefined ? undefined : String(params.quarter),
+                status:      params.status,
+                watch:       params.watch,
+                year:        params.year === undefined ? undefined : String(params.year),
+            })
+
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/inspection-plans/assignments`, undefined, {query})
+            return await resp.json() as ListAssignmentsResponse
+        }
+
         public async listCareHomes(): Promise<ListCareHomeResponse> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/inspection-plans/care-homes`)
@@ -1345,6 +2093,21 @@ export namespace inspection_plans {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/inspection-plans/operational`)
             return await resp.json() as ListOperationalResponse
+        }
+
+        /**
+         * PATCH /inspection-plans/assignments/:id
+         * WC/CC only — marks an assignment complete or reverts it to pending.
+         * Side-effect: if the assignment is multistory, recalculates the HighRise target
+         * actual_count for the assignment's year so the Targets dashboard stays in sync.
+         */
+        public async updateAssignment(id: number, params: {
+    status: "pending" | "complete"
+    notes?: string
+}): Promise<InspectionAssignment> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("PATCH", `/inspection-plans/assignments/${encodeURIComponent(id)}`, JSON.stringify(params))
+            return await resp.json() as InspectionAssignment
         }
 
         public async updateCareHome(id: number, params: {
@@ -1392,40 +2155,6 @@ export namespace inspection_plans {
             const resp = await this.baseClient.callTypedAPI("PATCH", `/inspection-plans/operational/${encodeURIComponent(id)}`, JSON.stringify(params))
             return await resp.json() as OperationalInspection
         }
-
-        public async generateAssignments(params: {
-    year: number
-    quarter?: number
-}): Promise<{ created: number; skipped: number }> {
-            const resp = await this.baseClient.callTypedAPI("POST", `/inspection-plans/assignments/generate`, JSON.stringify(params))
-            return await resp.json() as { created: number; skipped: number }
-        }
-
-        public async listAssignments(params: {
-    watch?: string
-    year?: number
-    quarter?: number
-    "plan_type"?: string
-    status?: string
-}): Promise<ListAssignmentsResponse> {
-            const query = makeRecord<string, string | string[]>({
-                watch:      params.watch,
-                year:       params.year === undefined ? undefined : String(params.year),
-                quarter:    params.quarter === undefined ? undefined : String(params.quarter),
-                "plan_type": params.plan_type,
-                status:     params.status,
-            })
-            const resp = await this.baseClient.callTypedAPI("GET", `/inspection-plans/assignments`, undefined, { query })
-            return await resp.json() as ListAssignmentsResponse
-        }
-
-        public async updateAssignment(id: number, params: {
-    status: "pending" | "complete"
-    notes?: string
-}): Promise<InspectionAssignment> {
-            const resp = await this.baseClient.callTypedAPI("PATCH", `/inspection-plans/assignments/${encodeURIComponent(id)}`, JSON.stringify(params))
-            return await resp.json() as InspectionAssignment
-        }
     }
 }
 
@@ -1456,6 +2185,25 @@ export namespace localauth {
         name: string
     }
 
+    export interface ChangePasswordRequest {
+        current_password: string
+        new_password: string
+    }
+
+    export interface ResetUserPasswordRequest {
+        userId: string
+        new_password: string
+    }
+
+    export interface ForgotPasswordRequest {
+        email: string
+    }
+
+    export interface ResetPasswordRequest {
+        token: string
+        new_password: string
+    }
+
     export class ServiceClient {
         private baseClient: BaseClient
 
@@ -1465,34 +2213,50 @@ export namespace localauth {
             this.signIn = this.signIn.bind(this)
             this.signOut = this.signOut.bind(this)
             this.signUp = this.signUp.bind(this)
+            this.changePassword = this.changePassword.bind(this)
+            this.resetUserPassword = this.resetUserPassword.bind(this)
+            this.forgotPassword = this.forgotPassword.bind(this)
+            this.resetPassword = this.resetPassword.bind(this)
         }
 
         public async createAdmin(): Promise<CreateAdminResponse> {
-            // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("POST", `/localauth/create-admin`)
             return await resp.json() as CreateAdminResponse
         }
 
         public async signIn(params: SignInRequest): Promise<AuthResponse> {
-            // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("POST", `/auth/signin`, JSON.stringify(params))
             return await resp.json() as AuthResponse
         }
 
-        public async signOut(): Promise<{
-    success: boolean
-}> {
-            // Now make the actual call to the API
+        public async signOut(): Promise<{ success: boolean }> {
             const resp = await this.baseClient.callTypedAPI("POST", `/auth/signout`)
-            return await resp.json() as {
-    success: boolean
-}
+            return await resp.json() as { success: boolean }
         }
 
         public async signUp(params: SignUpRequest): Promise<AuthResponse> {
-            // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("POST", `/auth/signup`, JSON.stringify(params))
             return await resp.json() as AuthResponse
+        }
+
+        public async changePassword(params: ChangePasswordRequest): Promise<{ success: boolean }> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/auth/change-password`, JSON.stringify(params))
+            return await resp.json() as { success: boolean }
+        }
+
+        public async resetUserPassword(params: ResetUserPasswordRequest): Promise<{ success: boolean }> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/auth/reset-user-password`, JSON.stringify(params))
+            return await resp.json() as { success: boolean }
+        }
+
+        public async forgotPassword(params: ForgotPasswordRequest): Promise<{ success: boolean }> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/auth/forgot-password`, JSON.stringify(params))
+            return await resp.json() as { success: boolean }
+        }
+
+        public async resetPassword(params: ResetPasswordRequest): Promise<{ success: boolean }> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/auth/reset-password`, JSON.stringify(params))
+            return await resp.json() as { success: boolean }
         }
     }
 }
@@ -2015,6 +2779,70 @@ export namespace note {
     }
 }
 
+export namespace notification {
+    export interface ListNotificationsResponse {
+        notifications: Notification[]
+        "unread_count": number
+    }
+
+    export interface Notification {
+        id: number
+        "user_id": string
+        type: NotificationType
+        title: string
+        message: string
+        "entity_type"?: string
+        "entity_id"?: string
+        read: boolean
+        "created_at": string
+    }
+
+    export type NotificationType = "sick_booking" | "cert_expiry" | "task_overdue" | "crewing_gap" | "general"
+
+    export class ServiceClient {
+        private baseClient: BaseClient
+
+        constructor(baseClient: BaseClient) {
+            this.baseClient = baseClient
+            this.list = this.list.bind(this)
+            this.markAllRead = this.markAllRead.bind(this)
+            this.markRead = this.markRead.bind(this)
+            this.refresh = this.refresh.bind(this)
+        }
+
+        public async refresh(): Promise<{ generated: number }> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/notifications/refresh`)
+            return await resp.json() as { generated: number }
+        }
+
+        public async list(): Promise<ListNotificationsResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/notifications`)
+            return await resp.json() as ListNotificationsResponse
+        }
+
+        public async markAllRead(): Promise<{
+    success: boolean
+}> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/notifications/read-all`)
+            return await resp.json() as {
+    success: boolean
+}
+        }
+
+        public async markRead(id: number): Promise<{
+    success: boolean
+}> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/notifications/${encodeURIComponent(id)}/read`)
+            return await resp.json() as {
+    success: boolean
+}
+        }
+    }
+}
+
 export namespace policy {
     export interface AskPolicyRequest {
         query: string
@@ -2295,6 +3123,7 @@ export namespace profile {
     export interface ListProfilesRequest {
         station?: string
         shift?: string
+        watch?: string
         limit?: number
         offset?: number
     }
@@ -2364,6 +3193,7 @@ export namespace profile {
                 offset:  params.offset === undefined ? undefined : String(params.offset),
                 shift:   params.shift,
                 station: params.station,
+                watch:   params.watch,
             })
 
             // Now make the actual call to the API
@@ -2422,6 +3252,195 @@ export namespace profile {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("PATCH", `/profiles/${encodeURIComponent(id)}`, JSON.stringify(params))
             return await resp.json() as FirefighterProfile
+        }
+    }
+}
+
+export namespace quarterly_report {
+    export interface AddCustomItemResponse {
+        item: QuarterlyReportCustomItem
+    }
+
+    export interface CreateReportRequest {
+        "station_name"?: string
+        watch: string
+        "watch_commander_name": string
+        quarter: number
+        "financial_year": number
+    }
+
+    export interface CreateReportResponse {
+        report: QuarterlyReport
+    }
+
+    export interface GetReportResponse {
+        report: QuarterlyReport
+    }
+
+    export interface ListReportsRequest {
+        watch?: string
+        "financial_year"?: number
+        quarter?: number
+    }
+
+    export interface ListReportsResponse {
+        reports: QuarterlyReportSummary[]
+    }
+
+    export interface QuarterlyReport {
+        id: number
+        "station_name": string
+        watch: string
+        "watch_commander_name": string
+        quarter: number
+        "financial_year": number
+        notes?: string
+        status: ReportStatus
+        "created_by": string
+        "created_at": string
+        "updated_at": string
+        items: QuarterlyReportItem[]
+        "custom_items": QuarterlyReportCustomItem[]
+    }
+
+    export interface QuarterlyReportCustomItem {
+        id: number
+        "report_id": number
+        description: string
+        "target_text"?: string
+        met: boolean
+        rationale?: string
+        "sort_order": number
+        "created_at": string
+        "updated_at": string
+    }
+
+    export interface QuarterlyReportItem {
+        id: number
+        "report_id": number
+        "kpi_code": string
+        description: string
+        "target_text": string
+        "row_color": string
+        category: string
+        "sort_order": number
+        met: boolean
+        "actual_value"?: string
+        rationale?: string
+        "created_at": string
+        "updated_at": string
+    }
+
+    export interface QuarterlyReportSummary {
+        id: number
+        "station_name": string
+        watch: string
+        "watch_commander_name": string
+        quarter: number
+        "financial_year": number
+        status: ReportStatus
+        "items_total": number
+        "items_met": number
+        "created_at": string
+        "updated_at": string
+    }
+
+    export type ReportStatus = "draft" | "submitted"
+
+    export interface UpdateCustomItemResponse {
+        item: QuarterlyReportCustomItem
+    }
+
+    export interface UpdateItemResponse {
+        item: QuarterlyReportItem
+    }
+
+    export interface UpdateReportResponse {
+        report: QuarterlyReport
+    }
+
+    export class ServiceClient {
+        private baseClient: BaseClient
+
+        constructor(baseClient: BaseClient) {
+            this.baseClient = baseClient
+            this.addCustomItem = this.addCustomItem.bind(this)
+            this.create = this.create.bind(this)
+            this.deleteCustomItem = this.deleteCustomItem.bind(this)
+            this.get = this.get.bind(this)
+            this.list = this.list.bind(this)
+            this.updateCustomItem = this.updateCustomItem.bind(this)
+            this.updateItem = this.updateItem.bind(this)
+            this.updateReport = this.updateReport.bind(this)
+        }
+
+        public async addCustomItem(id: number, params: {
+    description: string
+    "target_text"?: string
+}): Promise<AddCustomItemResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/quarterly-reports/${encodeURIComponent(id)}/custom-items`, JSON.stringify(params))
+            return await resp.json() as AddCustomItemResponse
+        }
+
+        public async create(params: CreateReportRequest): Promise<CreateReportResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/quarterly-reports`, JSON.stringify(params))
+            return await resp.json() as CreateReportResponse
+        }
+
+        public async deleteCustomItem(id: number, itemId: number): Promise<void> {
+            await this.baseClient.callTypedAPI("DELETE", `/quarterly-reports/${encodeURIComponent(id)}/custom-items/${encodeURIComponent(itemId)}`)
+        }
+
+        public async get(id: number): Promise<GetReportResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/quarterly-reports/${encodeURIComponent(id)}`)
+            return await resp.json() as GetReportResponse
+        }
+
+        public async list(params: ListReportsRequest): Promise<ListReportsResponse> {
+            // Convert our params into the objects we need for the request
+            const query = makeRecord<string, string | string[]>({
+                "financial_year": params["financial_year"] === undefined ? undefined : String(params["financial_year"]),
+                quarter:          params.quarter === undefined ? undefined : String(params.quarter),
+                watch:            params.watch,
+            })
+
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/quarterly-reports`, undefined, {query})
+            return await resp.json() as ListReportsResponse
+        }
+
+        public async updateCustomItem(id: number, itemId: number, params: {
+    description?: string
+    "target_text"?: string
+    met?: boolean
+    rationale?: string
+}): Promise<UpdateCustomItemResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("PUT", `/quarterly-reports/${encodeURIComponent(id)}/custom-items/${encodeURIComponent(itemId)}`, JSON.stringify(params))
+            return await resp.json() as UpdateCustomItemResponse
+        }
+
+        public async updateItem(id: number, itemId: number, params: {
+    met?: boolean
+    "actual_value"?: string
+    rationale?: string
+    "target_text"?: string
+}): Promise<UpdateItemResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("PUT", `/quarterly-reports/${encodeURIComponent(id)}/items/${encodeURIComponent(itemId)}`, JSON.stringify(params))
+            return await resp.json() as UpdateItemResponse
+        }
+
+        public async updateReport(id: number, params: {
+    notes?: string
+    status?: ReportStatus
+}): Promise<UpdateReportResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("PUT", `/quarterly-reports/${encodeURIComponent(id)}`, JSON.stringify(params))
+            return await resp.json() as UpdateReportResponse
         }
     }
 }
@@ -2589,6 +3608,23 @@ export namespace skill {
         notes?: string
     }
 
+    export interface ExpiringSkillEntry {
+        id: number
+        "profile_id": number
+        "user_id": string
+        "user_name": string
+        "skill_name": string
+        "expiry_date"?: string
+        status: "expired" | "warning"
+        "days_until_expiry"?: number
+    }
+
+    export interface ListExpiringSkillsResponse {
+        skills: ExpiringSkillEntry[]
+        "expired_count": number
+        "warning_count": number
+    }
+
     export interface ListSkillRenewalsRequest {
         "profile_id": number
     }
@@ -2623,6 +3659,7 @@ export namespace skill {
             this.create = this.create.bind(this)
             this.deleteSkillRenewal = this.deleteSkillRenewal.bind(this)
             this.list = this.list.bind(this)
+            this.listExpiring = this.listExpiring.bind(this)
             this.update = this.update.bind(this)
         }
 
@@ -2651,6 +3688,12 @@ export namespace skill {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/skills/renewals`, undefined, {query})
             return await resp.json() as ListSkillRenewalsResponse
+        }
+
+        public async listExpiring(): Promise<ListExpiringSkillsResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/skills/renewals/expiring`)
+            return await resp.json() as ListExpiringSkillsResponse
         }
 
         public async update(id: number, params: {
@@ -2776,6 +3819,7 @@ export namespace task {
         category: TaskCategory
         "assigned_to"?: string
         "assigned_by": string
+        "watch_unit"?: string
         priority?: TaskPriority
         "due_date"?: string
         checklist?: ChecklistItem[]
@@ -2803,6 +3847,7 @@ export namespace task {
 
     export interface ListTasksRequest {
         "assigned_to"?: string
+        "watch_unit"?: string
         "assigned_by"?: string
         status?: TaskStatus
         priority?: TaskPriority
@@ -2832,6 +3877,7 @@ export namespace task {
         description?: string
         category: TaskCategory
         "assigned_to_user_id"?: string
+        "watch_unit"?: string
         status: TaskStatus
         priority: TaskPriority
         "due_at"?: string
@@ -2840,6 +3886,10 @@ export namespace task {
         rrule?: string
         position?: number
         "completed_at"?: string
+        "cover_colour"?: string
+        "source_type"?: string
+        "source_id"?: number
+        "calendar_event_id"?: number
         "created_at": string
         "updated_at": string
     }
@@ -2947,6 +3997,7 @@ export namespace task {
             const query = makeRecord<string, string | string[]>({
                 "assigned_by": params["assigned_by"],
                 "assigned_to": params["assigned_to"],
+                "watch_unit":  params["watch_unit"],
                 limit:         params.limit === undefined ? undefined : String(params.limit),
                 offset:        params.offset === undefined ? undefined : String(params.offset),
                 priority:      params.priority === undefined ? undefined : String(params.priority),
@@ -2979,6 +4030,7 @@ export namespace task {
     description?: string
     category?: TaskCategory
     "assigned_to"?: string
+    "watch_unit"?: string
     status?: TaskStatus
     priority?: TaskPriority
     "due_date"?: string
@@ -2987,6 +4039,7 @@ export namespace task {
     rrule?: string
     tags?: string[]
     position?: number
+    "cover_colour"?: string
 }): Promise<Task> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("PATCH", `/tasks/${encodeURIComponent(id)}`, JSON.stringify(params))
@@ -3131,6 +4184,83 @@ export namespace user {
 }
 
 
+
+export namespace shift_adjustments {
+    export type ShiftAdjustmentType = "flexi" | "training" | "h4h" | "flexi_payback" | "orange_day"
+
+    export interface ShiftAdjustment {
+        id: number
+        "user_id": string
+        "user_name"?: string
+        type: ShiftAdjustmentType
+        "start_date": string
+        "end_date": string
+        "covering_user_id"?: string
+        "covering_name"?: string
+        "covering_watch"?: string
+        "shift_day_night"?: "Day" | "Night"
+        "watch_unit": string
+        notes?: string
+        "created_by_user_id": string
+        "created_at": string
+        "updated_at": string
+    }
+
+    export interface CreateShiftAdjustmentRequest {
+        type: ShiftAdjustmentType
+        "start_date": string
+        "end_date": string
+        "covering_user_id"?: string
+        "covering_name"?: string
+        "covering_watch"?: string
+        "shift_day_night"?: "Day" | "Night"
+        notes?: string
+        "for_user_id"?: string
+    }
+
+    export interface ListShiftAdjustmentsRequest {
+        "user_id"?: string
+        "watch_unit"?: string
+        "covering_watch"?: string
+        "start_date"?: string
+        "end_date"?: string
+    }
+
+    export interface ListShiftAdjustmentsResponse {
+        adjustments: ShiftAdjustment[]
+    }
+
+    export class ServiceClient {
+        private baseClient: BaseClient
+
+        constructor(baseClient: BaseClient) {
+            this.baseClient = baseClient
+        }
+
+        public async create(params: CreateShiftAdjustmentRequest): Promise<ShiftAdjustment> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/shift-adjustments`, JSON.stringify(params))
+            return await resp.json() as ShiftAdjustment
+        }
+
+        public async list(params: ListShiftAdjustmentsRequest): Promise<ListShiftAdjustmentsResponse> {
+            const query = makeRecord<string, string | string[]>({
+                user_id:        params.user_id,
+                watch_unit:     params.watch_unit,
+                covering_watch: params.covering_watch,
+                start_date:     params.start_date,
+                end_date:       params.end_date,
+            })
+            const encoded = encodeQuery(query)
+            const qs = encoded ? `?${encoded}` : ""
+            const resp = await this.baseClient.callTypedAPI("GET", `/shift-adjustments${qs}`)
+            return await resp.json() as ListShiftAdjustmentsResponse
+        }
+
+        public async deleteAdjustment(id: number): Promise<void> {
+            await this.baseClient.callTypedAPI("DELETE", `/shift-adjustments/${encodeURIComponent(id)}`)
+        }
+    }
+}
 
 function encodeQuery(parts: Record<string, string | string[]>): string {
     const pairs: string[] = []

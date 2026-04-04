@@ -77,7 +77,7 @@ export function CrewUpcomingInspections() {
     }
   };
 
-  const isOverdue = (date: Date) => {
+  const isOverdue = (date: Date | string) => {
     return new Date(date) < new Date();
   };
 

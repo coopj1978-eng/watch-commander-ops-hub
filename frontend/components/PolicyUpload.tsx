@@ -71,7 +71,7 @@ export default function PolicyUpload({ open, onOpenChange }: PolicyUploadProps) 
       });
 
       try {
-        await backend.policy.processEmbedding({ policy_id: policyDoc.id });
+        await backend.policy.processEmbedding(policyDoc.id);
       } catch (embeddingError) {
         console.warn("Embedding job queued with warning:", embeddingError);
       }
@@ -270,7 +270,7 @@ export default function PolicyUpload({ open, onOpenChange }: PolicyUploadProps) 
           <Button
             onClick={handleSubmit}
             disabled={isUploading || !selectedFile || !title}
-            className="bg-red-600 hover:bg-red-700"
+            className="bg-indigo-600 hover:bg-indigo-700"
           >
             {isUploading ? (
               <>

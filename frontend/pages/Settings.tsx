@@ -1,20 +1,19 @@
 import PageContainer from "@/components/PageContainer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SkillsCertsManager } from "@/components/SkillsCertsManager";
 import { DictionariesManager } from "@/components/DictionaryManager";
 import { AbsenceThresholds } from "@/components/AbsenceThresholds";
 import { BrandingSettings } from "@/components/BrandingSettings";
 import { CSVExportUtility } from "@/components/CSVExportUtility";
 import { InspectionPlans } from "@/components/InspectionPlans";
-import { Settings as SettingsIcon, FileSpreadsheet, Palette, AlertTriangle, BookOpen, Database, ClipboardList } from "lucide-react";
+import { Settings as SettingsIcon, FileSpreadsheet, Palette, AlertTriangle, Database, ClipboardList } from "lucide-react";
 
 export default function Settings() {
   return (
     <PageContainer>
       <div className="p-6 space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
-            <SettingsIcon className="h-8 w-8" />
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-2">
+            <SettingsIcon className="h-7 w-7 text-slate-500 shrink-0" />
             Settings & Utilities
           </h1>
           <p className="text-muted-foreground mt-1">
@@ -23,13 +22,9 @@ export default function Settings() {
         </div>
 
         <Tabs defaultValue="dictionaries" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="dictionaries" className="gap-2">
               <Database className="h-4 w-4" />
-              <span className="hidden sm:inline">Dictionaries</span>
-            </TabsTrigger>
-            <TabsTrigger value="skills" className="gap-2">
-              <BookOpen className="h-4 w-4" />
               <span className="hidden sm:inline">Skills & Certs</span>
             </TabsTrigger>
             <TabsTrigger value="absence" className="gap-2">
@@ -52,10 +47,6 @@ export default function Settings() {
 
           <TabsContent value="dictionaries" className="space-y-6">
             <DictionariesManager />
-          </TabsContent>
-
-          <TabsContent value="skills" className="space-y-6">
-            <SkillsCertsManager />
           </TabsContent>
 
           <TabsContent value="absence" className="space-y-6">

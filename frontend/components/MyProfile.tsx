@@ -40,7 +40,7 @@ export default function MyProfile() {
     queryKey: ["my-profile", user?.id],
     queryFn: async () => {
       if (!user) return null;
-      return await backend.profile.getByUser({ user_id: user.id });
+      return await backend.profile.getByUser(user.id);
     },
     enabled: !!user,
   });
@@ -57,8 +57,7 @@ export default function MyProfile() {
   const updateProfileMutation = useMutation({
     mutationFn: async () => {
       if (!profile) throw new Error("No profile found");
-      return await backend.profile.update({
-        id: profile.id,
+      return await backend.profile.update(profile.id, {
         phone: phone || undefined,
       });
     },
@@ -186,7 +185,7 @@ export default function MyProfile() {
                 <Button
                   onClick={handleSave}
                   disabled={updateProfileMutation.isPending}
-                  className="bg-red-600 hover:bg-red-700"
+                  className="bg-indigo-600 hover:bg-indigo-700"
                 >
                   <Save className="h-4 w-4 mr-2" />
                   Save

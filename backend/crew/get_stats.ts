@@ -9,18 +9,21 @@ export const getStats = api<void, CrewStats>(
     const auth = getAuthData();
     if (!auth) throw new Error("Unauthorized");
 
-    const crewMembers = await db.rawQueryAll<{ id: string; watch_unit: string }>(
-      `SELECT u.id, u.watch_unit
+    // All watch members (any role) for task counting
+    const watchMembers = await db.rawQueryAll<{ id: string; watch_unit: string; role: string }>(
+      `SELECT u.id, u.watch_unit, u.role
        FROM users u
        WHERE u.watch_unit = (SELECT watch_unit FROM users WHERE id = $1)
-         AND u.role = 'FF'`,
+         AND u.is_active = true`,
       auth.userID
     );
 
-    const total_firefighters = crewMembers.length;
-    const crewMemberIds = crewMembers.map((r) => r.id);
+    // Firefighters only for staffing count and one-to-ones
+    const total_firefighters = watchMembers.filter((m) => m.role === "FF").length;
+    const watchMemberIds = watchMembers.map((r) => r.id);
+    const crewMemberIds = watchMembers.filter((m) => m.role === "FF").map((r) => r.id);
 
-    if (crewMemberIds.length === 0) {
+    if (watchMemberIds.length === 0) {
       return {
         total_firefighters: 0,
         total_tasks: 0,
@@ -32,11 +35,12 @@ export const getStats = api<void, CrewStats>(
       };
     }
 
+    // Count tasks for everyone on the watch (FF, CC, WC)
     const tasks = await db.rawQueryAll<{ status: string; due_at: Date | null }>(
       `SELECT status, due_at
        FROM tasks
        WHERE assigned_to_user_id = ANY($1)`,
-      crewMemberIds
+      watchMemberIds
     );
 
     const total_tasks = tasks.length;
@@ -53,7 +57,7 @@ export const getStats = api<void, CrewStats>(
          AND status != 'Complete'
          AND scheduled_for >= NOW()
          AND scheduled_for <= NOW() + INTERVAL '14 days'`,
-      crewMemberIds
+      watchMemberIds
     );
 
     const oneToOnes = await db.rawQueryAll<{ next_one_to_one_date: Date }>(

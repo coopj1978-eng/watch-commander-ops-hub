@@ -246,6 +246,7 @@ export default function TaskList({ tasks, isLoading, onTaskClick }: TaskListProp
       )}
 
       <div className="border rounded-lg">
+        <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -346,6 +347,7 @@ export default function TaskList({ tasks, isLoading, onTaskClick }: TaskListProp
             )}
           </TableBody>
         </Table>
+        </div>
       </div>
     </div>
   );

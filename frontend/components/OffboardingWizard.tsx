@@ -61,7 +61,7 @@ export function OffboardingWizard({ user, open, onClose, onComplete }: Offboardi
   const loadActiveUsers = async () => {
     try {
       const { users } = await backend.admin.listUsers();
-      setActiveUsers(users.filter((u) => u.is_active && u.id !== user.id));
+      setActiveUsers(users.filter((u) => u.is_active && u.id !== user.id) as unknown as User[]);
     } catch (error) {
       console.error("Failed to load users:", error);
     }
@@ -69,7 +69,7 @@ export function OffboardingWizard({ user, open, onClose, onComplete }: Offboardi
 
   const loadPreview = async () => {
     try {
-      const previewData = await backend.admin.getReassignmentPreview({ userId: user.id });
+      const previewData = await backend.admin.getReassignmentPreview(user.id);
       setPreview(previewData);
     } catch (error) {
       console.error("Failed to load preview:", error);
@@ -111,9 +111,8 @@ export function OffboardingWizard({ user, open, onClose, onComplete }: Offboardi
         });
       }
 
-      await backend.admin.deactivateUser({
-        userId: user.id,
-        deactivationDate: new Date(deactivationDate),
+      await backend.admin.deactivateUser(user.id, {
+        deactivationDate: deactivationDate,
         reason: reason || undefined,
       });
 

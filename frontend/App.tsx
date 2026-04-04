@@ -8,18 +8,23 @@ import People from "./pages/People";
 import ProfileDetail from "./pages/ProfileDetail";
 import UnifiedCalendar from "./pages/WatchCalendar";
 import Tasks from "./pages/Tasks";
-import Inspections from "./pages/Inspections";
 import Targets from "./pages/Targets";
 import Policies from "./pages/Policies";
 import PolicyQA from "./pages/PolicyQA";
 import Reports from "./pages/Reports";
+import QuarterlyReport from "./pages/QuarterlyReport";
+import QuarterlyReportPrint from "./pages/QuarterlyReportPrint";
 import AdminPanel from "./pages/AdminPanel";
 import Settings from "./pages/Settings";
 import EquipmentChecks from "./pages/EquipmentChecks";
 import StaffPortal from "./pages/StaffPortal";
 import CrewCommanderHome from "./pages/CrewCommanderHome";
+import HandoverPage from "./pages/Handover";
+import DetachmentsPage from "./pages/Detachments";
+import Resources from "./pages/Resources";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
+import ResetPassword from "./pages/ResetPassword";
 import { applyTheme, getStoredTheme } from "./lib/theme";
 import { backendClient } from "./lib/backend";
 
@@ -155,6 +160,7 @@ function AppRoutes() {
       <Routes>
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="*" element={<Navigate to="/sign-in" replace />} />
       </Routes>
     );
@@ -166,6 +172,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/sign-in" element={<Navigate to="/" replace />} />
       <Route path="/sign-up" element={<Navigate to="/" replace />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route element={<Layout />}>
         <Route
           path="/"
@@ -181,19 +188,25 @@ function AppRoutes() {
         />
         <Route path="/people" element={<People />} />
         <Route path="/people/:userId" element={<ProfileDetail />} />
+        <Route path="/profile" element={<ProfileDetail />} />
         <Route path="/calendar" element={<UnifiedCalendar />} />
         <Route path="/calendar/watch" element={<Navigate to="/calendar" replace />} />
         <Route path="/calendar/personal" element={<Navigate to="/calendar" replace />} />
         <Route path="/tasks" element={<Tasks />} />
-        <Route path="/inspections" element={<Inspections />} />
         <Route path="/equipment" element={<EquipmentChecks />} />
         <Route path="/targets" element={<Targets />} />
         <Route path="/policies" element={<Policies />} />
         <Route path="/policies/qa" element={<PolicyQA />} />
+        <Route path="/resources" element={<Resources />} />
+        <Route path="/handover" element={<HandoverPage />} />
+        <Route path="/detachments" element={<DetachmentsPage />} />
         <Route path="/reports" element={<Reports />} />
+        <Route path="/reports/quarterly/:id" element={<QuarterlyReport />} />
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/settings" element={<Settings />} />
       </Route>
+      {/* Print view — outside Layout so it renders clean with no sidebar */}
+      <Route path="/reports/quarterly/:id/print" element={<QuarterlyReportPrint />} />
     </Routes>
   );
 }

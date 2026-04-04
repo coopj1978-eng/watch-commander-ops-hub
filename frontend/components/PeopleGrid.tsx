@@ -276,7 +276,7 @@ export default function PeopleGrid({ data, isLoading }: PeopleGridProps) {
             filteredData.map(({ user, profile }) => (
               <Card
                 key={user.id}
-                className="cursor-pointer hover:border-red-600 transition-colors"
+                className="cursor-pointer hover:border-indigo-600 transition-colors"
                 onClick={() => navigate(`/people/${user.id}`)}
               >
                 <CardHeader>
@@ -331,7 +331,7 @@ export default function PeopleGrid({ data, isLoading }: PeopleGridProps) {
                 filteredData.map(({ user, profile }) => (
                   <div
                     key={user.id}
-                    className="flex items-center justify-between p-4 rounded-lg border border-border hover:border-red-600 transition-colors cursor-pointer"
+                    className="flex items-center justify-between p-4 rounded-lg border border-border hover:border-indigo-600 transition-colors cursor-pointer"
                     onClick={() => navigate(`/people/${user.id}`)}
                   >
                     <div className="flex-1 min-w-0">

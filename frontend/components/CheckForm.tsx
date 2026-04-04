@@ -377,7 +377,7 @@ export default function CheckForm({
             <Button
               onClick={() => submitMutation.mutate()}
               disabled={submitMutation.isPending || checkItems.length === 0}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-indigo-600 hover:bg-indigo-700"
             >
               {submitMutation.isPending ? "Submitting..." : "Complete J4 Check"}
             </Button>

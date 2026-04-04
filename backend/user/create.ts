@@ -1,4 +1,4 @@
-import { api } from "encore.dev/api";
+import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { logActivity } from "../logging/logger";
@@ -8,6 +8,11 @@ export const create = api<CreateUserRequest, User>(
   { auth: true, expose: true, method: "POST", path: "/users" },
   async (req) => {
     const auth = getAuthData()!;
+
+    // Only Watch Commanders can create user accounts
+    if (auth.role !== "WC") {
+      throw APIError.permissionDenied("Only Watch Commanders can create user accounts");
+    }
     
     const existingUser = await db.queryRow<User>`
       SELECT * FROM users WHERE email = ${req.email}

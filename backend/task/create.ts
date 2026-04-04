@@ -8,11 +8,36 @@ export const create = api<CreateTaskRequest, Task>(
   { auth: true, expose: true, method: "POST", path: "/tasks" },
   async (req) => {
     const auth = getAuthData()!;
-    const task = await db.queryRow<Task>`
-      INSERT INTO tasks (title, description, assigned_to_user_id, assigned_by, priority, due_at, category, checklist, attachments, rrule, tags)
-      VALUES (${req.title}, ${req.description}, ${req.assigned_to}, ${req.assigned_by}, ${req.priority || "Med"}, ${req.due_date}, ${req.category}, ${JSON.stringify(req.checklist || [])}, ${req.attachments}, ${req.rrule}, ${req.tags})
-      RETURNING *
-    `;
+
+    // Derive watch_unit: use explicit value, or fall back to creator's watch
+    let watchUnit = req.watch_unit ?? null;
+    if (!watchUnit) {
+      const creator = await db.rawQueryRow<{ watch_unit: string }>(
+        `SELECT watch_unit FROM users WHERE id = $1`, auth.userID
+      );
+      watchUnit = creator?.watch_unit ?? null;
+    }
+
+    const task = await db.rawQueryRow<Task>(
+      `INSERT INTO tasks (title, description, assigned_to_user_id, assigned_by, priority, due_at, category, checklist, attachments, rrule, tags, watch_unit, source_type, source_id, calendar_event_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+       RETURNING *`,
+      req.title,
+      req.description ?? null,
+      req.assigned_to ?? null,
+      req.assigned_by,
+      req.priority ?? "Med",
+      req.due_date ?? null,
+      req.category,
+      JSON.stringify(req.checklist ?? []),
+      req.attachments ?? null,
+      req.rrule ?? null,
+      req.tags ?? null,
+      watchUnit,
+      req.source_type ?? null,
+      req.source_id ?? null,
+      req.calendar_event_id ?? null,
+    );
 
     if (!task) {
       throw new Error("Failed to create task");

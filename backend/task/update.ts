@@ -34,6 +34,8 @@ export const update = api(
       queryParams.push(updates.status);
       if (updates.status === "Done") {
         setClauses.push(`completed_at = NOW()`);
+      } else {
+        setClauses.push(`completed_at = NULL`);
       }
     }
     if (updates.priority !== undefined) {
@@ -68,6 +70,14 @@ export const update = api(
       setClauses.push(`position = $${paramIndex++}`);
       queryParams.push(updates.position);
     }
+    if (updates.cover_colour !== undefined) {
+      setClauses.push(`cover_colour = $${paramIndex++}`);
+      queryParams.push(updates.cover_colour || null);
+    }
+    if (updates.watch_unit !== undefined) {
+      setClauses.push(`watch_unit = $${paramIndex++}`);
+      queryParams.push(updates.watch_unit || null);
+    }
 
     if (setClauses.length === 0) {
       throw APIError.invalidArgument("no updates provided");
@@ -87,6 +97,54 @@ export const update = api(
 
     if (!task) {
       throw APIError.notFound("task not found");
+    }
+
+    // Cascade inspection completion when task moves to/from Done
+    if (updates.status !== undefined && task) {
+      const sourceInfo = await db.rawQueryRow<{ source_type: string | null; source_id: number | null }>(
+        `SELECT source_type, source_id FROM tasks WHERE id = $1`,
+        id
+      );
+
+      if (sourceInfo?.source_type && sourceInfo?.source_id) {
+        const isDone = updates.status === "Done";
+
+        if (sourceInfo.source_type === "hfsv") {
+          await db.rawQueryRow(
+            `UPDATE activity_records SET completed = $1, completed_at = $2, updated_at = NOW() WHERE id = $3`,
+            isDone,
+            isDone ? new Date() : null,
+            sourceInfo.source_id
+          );
+        } else {
+          const newStatus = isDone ? "complete" : "pending";
+          await db.rawQueryRow(
+            `UPDATE inspection_assignments SET status = $1, completed_at = $2, updated_at = NOW() WHERE id = $3`,
+            newStatus,
+            isDone ? new Date() : null,
+            sourceInfo.source_id
+          );
+
+          if (sourceInfo.source_type === "multistory") {
+            const assignment = await db.rawQueryRow<{ year: number }>(
+              `SELECT year FROM inspection_assignments WHERE id = $1`,
+              sourceInfo.source_id
+            );
+            if (assignment) {
+              const countRow = await db.rawQueryRow<{ n: string }>(
+                `SELECT COUNT(*) AS n FROM inspection_assignments WHERE plan_type = 'multistory' AND year = $1 AND status = 'complete'`,
+                assignment.year
+              );
+              const completedCount = Number(countRow?.n ?? 0);
+              await db.rawQueryAll(
+                `UPDATE targets SET actual_count = $1, status = CASE WHEN $1 >= target_count THEN 'completed' WHEN $1::float / NULLIF(target_count,0) >= 0.8 THEN 'active' WHEN $1::float / NULLIF(target_count,0) >= 0.5 THEN 'at_risk' ELSE 'overdue' END, updated_at = NOW() WHERE metric = 'HighRise' AND EXTRACT(YEAR FROM period_start) = $2`,
+                completedCount,
+                assignment.year
+              );
+            }
+          }
+        }
+      }
     }
 
     await logActivity({

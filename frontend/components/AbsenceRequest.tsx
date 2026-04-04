@@ -43,8 +43,8 @@ export default function AbsenceRequest() {
       return await backend.absence.create({
         user_id: user.id,
         type: formData.type,
-        start_date: new Date(formData.start_date),
-        end_date: new Date(formData.end_date),
+        start_date: formData.start_date,
+        end_date: formData.end_date,
         reason: formData.reason,
       });
     },
@@ -232,7 +232,7 @@ export default function AbsenceRequest() {
               <Button
                 type="submit"
                 disabled={createAbsenceMutation.isPending}
-                className="bg-red-600 hover:bg-red-700"
+                className="bg-indigo-600 hover:bg-indigo-700"
               >
                 <Send className="h-4 w-4 mr-2" />
                 {createAbsenceMutation.isPending ? "Submitting..." : "Submit Request"}

@@ -1,0 +1,11 @@
+{
+  "name": "watch-commander-seed-scripts",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "seed-watches": "bun run seed-watches.ts"
+  },
+  "dependencies": {
+    "postgres": "^3.4.5"
+  }
+}

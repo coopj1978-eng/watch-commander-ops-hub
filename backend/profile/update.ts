@@ -67,14 +67,20 @@ function transformProfile(dbProfile: DBProfile): FirefighterProfile {
     profile.driverPathway = {
       status: driver_pathway_status as any,
       lgvPassedDate: driver_pathway_lgv_passed_date
-        ? driver_pathway_lgv_passed_date.toISOString().split("T")[0]
+        ? (driver_pathway_lgv_passed_date instanceof Date
+            ? driver_pathway_lgv_passed_date.toISOString()
+            : String(driver_pathway_lgv_passed_date)
+          ).split("T")[0]
         : undefined,
     };
   }
 
   if (last_conversation_date && last_conversation_text) {
     profile.lastConversation = {
-      date: last_conversation_date.toISOString().split("T")[0],
+      date: (last_conversation_date instanceof Date
+        ? last_conversation_date.toISOString()
+        : String(last_conversation_date)
+      ).split("T")[0],
       text: last_conversation_text,
     };
   }
@@ -115,6 +121,8 @@ export const update = api(
       setClauses.push(`watch = $${paramIndex++}`);
       queryParams.push(updates.watch);
     }
+    // Note: shift is a legacy free-text field — no longer updated via the UI.
+    // Watch assignment is handled exclusively by the `watch` field above.
     if (updates.hire_date !== undefined) {
       setClauses.push(`hire_date = $${paramIndex++}`);
       queryParams.push(updates.hire_date);
@@ -200,6 +208,29 @@ export const update = api(
 
     if (!dbProfile) {
       throw APIError.notFound("profile not found");
+    }
+
+    // Keep users.watch_unit in sync — it is the operational source of truth
+    // used by crewing, crew stats, absence routing, and all dashboard widgets.
+    if (updates.watch !== undefined) {
+      await db.exec`
+        UPDATE users SET watch_unit = ${updates.watch} WHERE id = ${dbProfile.user_id}
+      `;
+    }
+
+    // Keep users.rank and users.role in sync with firefighter_profiles.rank.
+    // rank is the canonical display field (full name); role is the RBAC field derived from it.
+    if (updates.rank !== undefined) {
+      const rankToRole: Record<string, string> = {
+        "Watch Commander": "WC",
+        "Crew Commander": "CC",
+        "Leading Firefighter": "FF",
+        "Firefighter": "FF",
+      };
+      const derivedRole = rankToRole[updates.rank] ?? "FF";
+      await db.exec`
+        UPDATE users SET rank = ${updates.rank}, role = ${derivedRole} WHERE id = ${dbProfile.user_id}
+      `;
     }
 
     const profile = transformProfile(dbProfile);

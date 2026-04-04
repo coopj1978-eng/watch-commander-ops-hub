@@ -198,7 +198,7 @@ export default function ColumnsDrawer({
                   <Button
                     onClick={addCustomColumn}
                     disabled={!newColumnName.trim()}
-                    className="w-full bg-red-600 hover:bg-red-700"
+                    className="w-full bg-indigo-600 hover:bg-indigo-700"
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Add Column

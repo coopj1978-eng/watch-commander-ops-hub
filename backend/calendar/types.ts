@@ -16,6 +16,9 @@ export interface CalendarEvent {
   location?: string;
   attendees?: string[];
   color?: string;
+  watch?: string;
+  source_type?: string;
+  source_id?: number;
   created_by: string;
   created_at: Date;
   updated_at: Date;
@@ -34,6 +37,9 @@ export interface CreateEventRequest {
   location?: string;
   attendees?: string[];
   color?: string;
+  watch?: string;
+  source_type?: string;
+  source_id?: number;
   created_by: string;
 }
 

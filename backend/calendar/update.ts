@@ -2,6 +2,7 @@ import { api, APIError } from "encore.dev/api";
 import db from "../db";
 import { logActivity } from "../logging/logger";
 import type { UpdateEventRequest, CalendarEvent } from "./types";
+import { getWatchOnShift, getWatchOnShiftForDate } from "../lib/shiftRota";
 
 interface UpdateEventParams {
   id: number;
@@ -71,6 +72,28 @@ export const update = api<UpdateEventParams, CalendarEvent>(
 
     if (!event) {
       throw APIError.notFound("calendar event not found");
+    }
+
+    // If the time changed, re-assign the linked station_event task to the correct watch
+    if (updates.start_time !== undefined) {
+      const linkedTask = await db.rawQueryRow<{ id: number; all_day: boolean }>(
+        `SELECT t.id, ce.all_day FROM tasks t
+         JOIN calendar_events ce ON ce.id = t.calendar_event_id
+         WHERE t.calendar_event_id = $1 AND t.source_type = 'station_event' AND t.status != 'Done'`,
+        id
+      );
+      if (linkedTask) {
+        const newStart = new Date(updates.start_time);
+        const newWatch = linkedTask.all_day
+          ? getWatchOnShiftForDate(newStart)
+          : getWatchOnShift(newStart);
+        if (newWatch) {
+          await db.rawQueryRow(
+            `UPDATE tasks SET due_at = $1, watch_unit = $2, updated_at = NOW() WHERE id = $3`,
+            newStart, newWatch, linkedTask.id
+          );
+        }
+      }
     }
 
     await logActivity({

@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Frontend",
+      "runtimeExecutable": "/bin/bash",
+      "runtimeArgs": ["-c", "cd frontend && /Users/johncooper/.bun/bin/bunx vite --host 127.0.0.1"],
+      "port": 5173,
+      "autoPort": true
+    }
+  ]
+}

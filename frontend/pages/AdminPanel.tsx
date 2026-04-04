@@ -20,14 +20,18 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AdminUsers } from "./AdminUsers";
+import { ShieldCheck } from "lucide-react";
 
 export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState("activity");
   
   return (
-    <div className="p-8 space-y-6">
+    <div className="p-4 md:p-8 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Admin Panel</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
+          <ShieldCheck className="h-7 w-7 text-indigo-500 shrink-0" />
+          Admin Panel
+        </h1>
         <p className="text-muted-foreground mt-1">System administration and audit logs</p>
       </div>
 
@@ -72,6 +76,7 @@ function ActivityLogTab() {
               ))}
             </div>
           ) : (
+            <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -111,6 +116,7 @@ function ActivityLogTab() {
                 )}
               </TableBody>
             </Table>
+            </div>
           )}
         </CardContent>
       </Card>

@@ -8,16 +8,15 @@ import db from "../db";
 import type { User } from "../user/types";
 
 const jwtSecretRef = secret("JWTSecret");
-const LOCAL_DEV_SECRET = "local-dev-jwt-secret-watchcommander-2026";
 
 function getJwtSecret(): string {
   try {
     const val = jwtSecretRef();
     if (val) return val;
   } catch {
-    // Secret not configured — use local dev fallback
+    // Secret not configured
   }
-  return LOCAL_DEV_SECRET;
+  throw new Error("JWTSecret is not configured. Run: encore secret set --type local JWTSecret");
 }
 
 interface AuthParams {

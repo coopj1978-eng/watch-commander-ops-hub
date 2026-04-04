@@ -154,7 +154,7 @@ export default function DayModal({
               variant="outline"
               size="sm"
               onClick={handleCreate}
-              className="bg-red-600 hover:bg-red-700 text-white border-red-600"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white border-indigo-600"
             >
               <Plus className="h-4 w-4 mr-2" />
               Add Event
@@ -178,7 +178,7 @@ export default function DayModal({
               {items.map((item) => (
                 <div
                   key={`${item.type}-${item.id}`}
-                  className="p-4 rounded-lg border border-border hover:border-red-600 transition-colors"
+                  className="p-4 rounded-lg border border-border hover:border-indigo-600 transition-colors"
                 >
                   <div className="flex items-start gap-3">
                     <div className={`w-3 h-3 rounded-full ${item.color} mt-1.5`} />

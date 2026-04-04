@@ -39,7 +39,7 @@ const WATCHES: WatchName[] = ["Red", "White", "Green", "Blue", "Amber"];
 
 const watchBadgeClass: Record<WatchName, string> = {
   Red: "bg-red-500/10 text-red-600 border-red-400/30",
-  White: "bg-gray-100 text-gray-700 border-gray-300",
+  White: "bg-gray-100 text-gray-700 border-gray-300 dark:bg-gray-700/40 dark:text-gray-200 dark:border-gray-500",
   Green: "bg-green-500/10 text-green-600 border-green-400/30",
   Blue: "bg-blue-500/10 text-blue-600 border-blue-400/30",
   Amber: "bg-amber-500/10 text-amber-600 border-amber-400/30",

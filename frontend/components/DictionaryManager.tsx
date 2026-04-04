@@ -95,7 +95,7 @@ export function DictionaryManager({ type, title, description, icon, isOpen, onCl
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, value }: { id: number; value: string }) => {
-      return await backend.dictionary.update({ id, value });
+      return await backend.dictionary.update(id, { value });
     },
     onSuccess: async (data) => {
       if (user?.id) {
@@ -133,7 +133,7 @@ export function DictionaryManager({ type, title, description, icon, isOpen, onCl
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      return await backend.dictionary.deleteDictionary({ id });
+      return await backend.dictionary.deleteDictionary(id);
     },
     onSuccess: async (_, id) => {
       if (user?.id) {
@@ -219,7 +219,7 @@ export function DictionaryManager({ type, title, description, icon, isOpen, onCl
           <Button
             onClick={handleCreate}
             disabled={!newValue.trim() || createMutation.isPending}
-            className="bg-red-600 hover:bg-red-700"
+            className="bg-indigo-600 hover:bg-indigo-700"
           >
             {createMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
           </Button>
@@ -240,6 +240,7 @@ export function DictionaryManager({ type, title, description, icon, isOpen, onCl
         </div>
       ) : (
         <div className="border rounded-lg">
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -333,6 +334,7 @@ export function DictionaryManager({ type, title, description, icon, isOpen, onCl
               )}
             </TableBody>
           </Table>
+          </div>
         </div>
       )}
     </>

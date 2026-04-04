@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useRef } from "react";
 import { useBackend } from "@/lib/rbac";
+import { backendClient } from "@/lib/backend";
 import type { FirefighterProfile, UpdateProfileRequest, DriverPathwayStatus } from "~backend/profile/types";
 import type { AbsenceType } from "~backend/absence/types";
 import SkillsTab from "@/components/SkillsTab";
@@ -76,17 +77,22 @@ import {
   CheckCircle2,
   Send,
   Copy,
+  KeyRound,
+  RefreshCw,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import { useCanEditProfiles, useIsWC, useUserRole } from "@/lib/rbac";
 import { useAuth } from "@/App";
+import H4HLedgerSection from "@/components/H4HLedgerSection";
 
 export default function ProfileDetail() {
-  const { userId } = useParams<{ userId: string }>();
+  const { userId: paramUserId } = useParams<{ userId: string }>();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user: currentUser } = useAuth();
+  // If no URL param, fall back to the logged-in user's own profile
+  const userId = paramUserId ?? currentUser?.id;
   const backend = useBackend();
   const canEdit = useCanEditProfiles();
   const isWC = useIsWC();
@@ -94,11 +100,13 @@ export default function ProfileDetail() {
   const isViewingOwnProfile = currentUser?.id === userId;
   const [editMode, setEditMode] = useState(false);
   const [editedProfile, setEditedProfile] = useState<Partial<FirefighterProfile>>({});
-  const [editedUser, setEditedUser] = useState<{ role?: string }>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [userSearchQuery, setUserSearchQuery] = useState("");
   const [showInviteDialog, setShowInviteDialog] = useState(false);
   const [inviteLink, setInviteLink] = useState("");
+  const [showResetDialog, setShowResetDialog] = useState(false);
+  const [resetPassword, setResetPassword] = useState("");
+  const [resetting, setResetting] = useState(false);
 
   const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ["user", userId],
@@ -108,7 +116,7 @@ export default function ProfileDetail() {
 
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ["profile", userId],
-    queryFn: async () => backend.profile.getByUser({ user_id: userId! }),
+    queryFn: async () => backend.profile.getByUser(userId!),
     enabled: !!userId,
   });
 
@@ -167,7 +175,7 @@ export default function ProfileDetail() {
   const updateProfileMutation = useMutation({
     mutationFn: async (data: UpdateProfileRequest) => {
       if (!profile) throw new Error("No profile found");
-      return await backend.profile.update({ id: profile.id, ...data });
+      return await backend.profile.update(profile.id, data as any);
     },
     onSuccess: async () => {
       if (currentUser?.id) {
@@ -191,7 +199,6 @@ export default function ProfileDetail() {
       });
       setEditMode(false);
       setEditedProfile({});
-      setEditedUser({});
     },
     onError: (error: any) => {
       console.error("Failed to update profile:", error);
@@ -252,8 +259,7 @@ export default function ProfileDetail() {
       if (uploadingFiles.length > 0) {
         for (const file of uploadingFiles) {
           try {
-            const { upload_url, file_key } = await backend.note.getUploadUrl({
-              note_id: note.id,
+            const { upload_url, file_key } = await backend.note.getUploadUrl(note.id, {
               filename: file.name,
               content_type: file.type,
             });
@@ -266,8 +272,7 @@ export default function ProfileDetail() {
               },
             });
 
-            await backend.note.saveAttachment({
-              note_id: note.id,
+            await backend.note.saveAttachment(note.id, {
               file_key,
               filename: file.name,
               file_type: file.type,
@@ -342,36 +347,22 @@ export default function ProfileDetail() {
   });
 
   const handleSaveProfile = async () => {
-    console.log("=== SAVE PROFILE DEBUG ===");
-    console.log("editedProfile state:", JSON.stringify(editedProfile, null, 2));
-    console.log("editedUser state:", JSON.stringify(editedUser, null, 2));
-    
     const profileUpdates: UpdateProfileRequest = {};
-    const userUpdates: any = {};
-    
+
     if (editedProfile.service_number !== undefined) profileUpdates.service_number = editedProfile.service_number;
     if (editedProfile.station !== undefined) profileUpdates.station = editedProfile.station;
-    if (editedProfile.shift !== undefined) profileUpdates.shift = editedProfile.shift;
     if (editedProfile.rank !== undefined) profileUpdates.rank = editedProfile.rank;
     if (editedProfile.phone !== undefined) profileUpdates.phone = editedProfile.phone;
     if (editedProfile.emergency_contact_name !== undefined) profileUpdates.emergency_contact_name = editedProfile.emergency_contact_name;
     if (editedProfile.emergency_contact_phone !== undefined) profileUpdates.emergency_contact_phone = editedProfile.emergency_contact_phone;
-    if (editedProfile.skills !== undefined) profileUpdates.skills = editedProfile.skills;
-    if (editedProfile.certifications !== undefined) profileUpdates.certifications = editedProfile.certifications;
     if (editedProfile.driver !== undefined) profileUpdates.driver = editedProfile.driver;
     if (editedProfile.driverPathway !== undefined) profileUpdates.driverPathway = editedProfile.driverPathway;
     if (editedProfile.prps !== undefined) profileUpdates.prps = editedProfile.prps;
     if (editedProfile.ba !== undefined) profileUpdates.ba = editedProfile.ba;
     if (editedProfile.notes !== undefined) profileUpdates.notes = editedProfile.notes;
     if (editedProfile.watch !== undefined) profileUpdates.watch = editedProfile.watch;
-    
-    if (editedUser.role !== undefined) userUpdates.role = editedUser.role;
 
-    console.log("Profile update payload:", JSON.stringify(profileUpdates, null, 2));
-    console.log("User update payload:", JSON.stringify(userUpdates, null, 2));
-    console.log("Profile ID:", profile?.id);
-    
-    if (Object.keys(profileUpdates).length === 0 && Object.keys(userUpdates).length === 0) {
+    if (Object.keys(profileUpdates).length === 0) {
       toast({
         title: "No changes detected",
         description: "Please make some changes before saving",
@@ -380,34 +371,12 @@ export default function ProfileDetail() {
       return;
     }
 
-    try {
-      if (Object.keys(userUpdates).length > 0 && userId) {
-        await backend.user.update({ id: userId, updates: userUpdates });
-      }
-      if (Object.keys(profileUpdates).length > 0) {
-        updateProfileMutation.mutate(profileUpdates);
-      } else {
-        queryClient.invalidateQueries({ queryKey: ["user", userId] });
-        queryClient.invalidateQueries({ queryKey: ["profile", userId] });
-        toast({ title: "Profile updated", description: "Changes saved successfully" });
-        setEditMode(false);
-        setEditedProfile({});
-        setEditedUser({});
-      }
-    } catch (error) {
-      console.error("Failed to update user:", error);
-      toast({
-        title: "Failed to update profile",
-        description: error instanceof Error ? error.message : "An error occurred",
-        variant: "destructive",
-      });
-    }
+    updateProfileMutation.mutate(profileUpdates);
   };
 
   const handleCancelEdit = () => {
     setEditMode(false);
     setEditedProfile({});
-    setEditedUser({});
   };
 
   const getDisplayValue = <K extends keyof FirefighterProfile>(key: K): FirefighterProfile[K] => {
@@ -418,12 +387,12 @@ export default function ProfileDetail() {
     if (userRole === "WC") return true;
     
     if (userRole === "CC") {
-      const wcOnlyFields = ["service_number", "station", "shift", "rank"];
+      const wcOnlyFields = ["service_number", "station", "watch", "rank"];
       return !wcOnlyFields.includes(fieldName);
     }
     
     if (userRole === "FF" && isViewingOwnProfile) {
-      const ffEditableFields = ["phone", "emergency_contact_name", "emergency_contact_phone", "skills"];
+      const ffEditableFields = ["phone", "emergency_contact_name", "emergency_contact_phone"];
       return ffEditableFields.includes(fieldName);
     }
     
@@ -483,7 +452,7 @@ export default function ProfileDetail() {
 
   if (userLoading || profileLoading) {
     return (
-      <div className="p-8 space-y-6">
+      <div className="p-4 md:p-8 space-y-6">
         <Skeleton className="h-12 w-64" />
         <div className="grid gap-6 md:grid-cols-2">
           <Skeleton className="h-64 w-full" />
@@ -518,14 +487,14 @@ export default function ProfileDetail() {
   ];
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="p-4 md:p-8 space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="h-16 w-16 rounded-full bg-red-600 flex items-center justify-center text-white text-2xl font-bold">
             {user?.name.charAt(0)}
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-2">
               {user?.name}
               {!user?.is_active && (
                 <Badge variant="outline" className="text-xs bg-yellow-500/10 text-yellow-600 border-yellow-500/20">
@@ -546,7 +515,17 @@ export default function ProfileDetail() {
                 variant="outline"
                 onClick={async () => {
                   try {
-                    const result = await backend.admin.getInviteLink({ email: user.email });
+                    const result = await backend.admin.getInviteLink({
+                      email: user.email,
+                      frontend_url: window.location.origin,
+                    });
+                    if (result.already_active) {
+                      toast({
+                        title: "Already registered",
+                        description: `${result.user_name} has already set up their account and can sign in normally.`,
+                      });
+                      return;
+                    }
                     setInviteLink(result.invite_link);
                     setShowInviteDialog(true);
                   } catch (error: any) {
@@ -564,6 +543,24 @@ export default function ProfileDetail() {
                 Send Invite Link
               </Button>
             )}
+            {/* Reset password — WC only, for any other user */}
+            {isWC && user && !isViewingOwnProfile && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  const words = ["Fire","Watch","Shift","Crew","Engine","Pump"];
+                  const w = words[Math.floor(Math.random() * words.length)];
+                  const n = Math.floor(Math.random() * 900) + 100;
+                  const s = ["!","@","#","$"][Math.floor(Math.random() * 4)];
+                  setResetPassword(`${w}${n}${s}`);
+                  setShowResetDialog(true);
+                }}
+                className="border-orange-400 text-orange-600 hover:bg-orange-50"
+              >
+                <KeyRound className="h-4 w-4 mr-2" />
+                Reset Password
+              </Button>
+            )}
             {editMode ? (
               <>
                 <Button variant="outline" onClick={handleCancelEdit}>
@@ -571,7 +568,7 @@ export default function ProfileDetail() {
                   Cancel
                 </Button>
                 <Button
-                  className="bg-red-600 hover:bg-red-700"
+                  className="bg-indigo-600 hover:bg-indigo-700"
                   onClick={handleSaveProfile}
                   disabled={updateProfileMutation.isPending}
                 >
@@ -580,7 +577,7 @@ export default function ProfileDetail() {
                 </Button>
               </>
             ) : (
-              <Button className="bg-red-600 hover:bg-red-700" onClick={() => setEditMode(true)}>
+              <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => setEditMode(true)}>
                 <Edit className="h-4 w-4 mr-2" />
                 Edit Profile
               </Button>
@@ -595,6 +592,7 @@ export default function ProfileDetail() {
           <TabsTrigger value="skills">Skills</TabsTrigger>
           <TabsTrigger value="notes">Notes & 1:1s</TabsTrigger>
           <TabsTrigger value="absences">Absences</TabsTrigger>
+          <TabsTrigger value="h4h">H4H Balance</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
           <TabsTrigger value="activity">Activity Log</TabsTrigger>
         </TabsList>
@@ -639,25 +637,12 @@ export default function ProfileDetail() {
                 </div>
                 <div>
                   <Label className="text-muted-foreground">Role</Label>
-                  {renderFieldWithLock(
-                    "role",
-                    "Role",
-                    () => (
-                      <Input
-                        value={editedUser.role !== undefined ? editedUser.role : user?.role || ""}
-                        onChange={(e) =>
-                          setEditedUser({ ...editedUser, role: e.target.value })
-                        }
-                        placeholder="Role"
-                        className="mt-1"
-                      />
-                    ),
-                    () => (
-                      <div className="mt-1">
-                        <Badge>{user?.role}</Badge>
-                      </div>
-                    )
-                  )}
+                  <div className="mt-1 flex items-center gap-2">
+                    <Badge>{user?.role}</Badge>
+                    {editMode && (
+                      <span className="text-xs text-muted-foreground">Auto-set from Rank</span>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -702,10 +687,10 @@ export default function ProfileDetail() {
                           <SelectValue placeholder="Select rank" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="SC">SC - Station Commander</SelectItem>
-                          <SelectItem value="WC">WC - Watch Commander</SelectItem>
-                          <SelectItem value="CC">CC - Crew Commander</SelectItem>
-                          <SelectItem value="FF">FF - Firefighter</SelectItem>
+                          <SelectItem value="Watch Commander">Watch Commander</SelectItem>
+                          <SelectItem value="Crew Commander">Crew Commander</SelectItem>
+                          <SelectItem value="Leading Firefighter">Leading Firefighter</SelectItem>
+                          <SelectItem value="Firefighter">Firefighter</SelectItem>
                         </SelectContent>
                       </Select>
                     ),
@@ -748,24 +733,6 @@ export default function ProfileDetail() {
                     ),
                     () => (
                       <p className="text-foreground font-medium mt-1">{profile?.station || "-"}</p>
-                    )
-                  )}
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">Shift</Label>
-                  {renderFieldWithLock(
-                    "shift",
-                    "Shift",
-                    () => (
-                      <Input
-                        value={getDisplayValue("shift") || ""}
-                        onChange={(e) => setEditedProfile({ ...editedProfile, shift: e.target.value })}
-                        placeholder="Shift"
-                        className="mt-1"
-                      />
-                    ),
-                    () => (
-                      <p className="text-foreground font-medium mt-1">{profile?.shift || "-"}</p>
                     )
                   )}
                 </div>
@@ -1024,9 +991,7 @@ export default function ProfileDetail() {
                         <div>
                           <Label>Reminder Recipient</Label>
                           {allUsersLoading ? (
-                            <div className="mt-1 p-2 border rounded-md">
-                              <p className="text-sm text-muted-foreground">Loading users...</p>
-                            </div>
+                            <Skeleton className="h-9 w-full mt-1" />
                           ) : allUsersError ? (
                             <div className="mt-1 p-2 border rounded-md border-yellow-500/20 bg-yellow-500/10">
                               <p className="text-sm text-yellow-600">Failed to load users. Creating personal reminder only.</p>
@@ -1124,7 +1089,7 @@ export default function ProfileDetail() {
                 <Button
                   onClick={() => createNoteMutation.mutate()}
                   disabled={!newNote.note_text || createNoteMutation.isPending}
-                  className="bg-red-600 hover:bg-red-700"
+                  className="bg-indigo-600 hover:bg-indigo-700"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Note
@@ -1257,6 +1222,7 @@ export default function ProfileDetail() {
               </div>
             </CardHeader>
             <CardContent>
+              <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -1307,6 +1273,18 @@ export default function ProfileDetail() {
                   )}
                 </TableBody>
               </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="h4h" className="space-y-6">
+          <Card>
+            <CardContent className="pt-6">
+              <H4HLedgerSection
+                userId={userId!}
+                canSettle={isViewingOwnProfile || isWC}
+              />
             </CardContent>
           </Card>
         </TabsContent>
@@ -1329,7 +1307,7 @@ export default function ProfileDetail() {
                   <Button
                     onClick={() => fileInputRef.current?.click()}
                     disabled={uploadDocumentMutation.isPending}
-                    className="bg-red-600 hover:bg-red-700"
+                    className="bg-indigo-600 hover:bg-indigo-700"
                   >
                     <Upload className="h-4 w-4 mr-2" />
                     Upload
@@ -1348,6 +1326,7 @@ export default function ProfileDetail() {
               <CardDescription>All uploaded files</CardDescription>
             </CardHeader>
             <CardContent>
+              <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -1400,6 +1379,7 @@ export default function ProfileDetail() {
                   )}
                 </TableBody>
               </Table>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -1448,35 +1428,99 @@ export default function ProfileDetail() {
           <DialogHeader>
             <DialogTitle>Invite {user?.name}</DialogTitle>
             <DialogDescription>
-              Share this link with {user?.name} to invite them to sign up and claim their profile.
+              Send this link to {user?.name}. When they open it, their email will be pre-filled and they just need to set a password.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <Input
-                readOnly
-                value={inviteLink}
-                className="flex-1"
-              />
+              <Input readOnly value={inviteLink} className="flex-1 text-xs font-mono" />
               <Button
                 size="sm"
                 onClick={() => {
                   navigator.clipboard.writeText(inviteLink);
-                  toast({
-                    title: "Copied!",
-                    description: "Invite link copied to clipboard",
-                  });
+                  toast({ title: "Copied!", description: "Invite link copied to clipboard" });
                 }}
               >
                 <Copy className="h-4 w-4" />
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              When they sign up using this link, their Clerk account will be automatically linked to this profile.
+              Share via WhatsApp, email or Teams. They'll be signed straight in once they set their password.
             </p>
+            <div className="flex justify-end">
+              <Button variant="outline" onClick={() => setShowInviteDialog(false)}>Close</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Reset Password Dialog ───────────────────────────────────────── */}
+      <Dialog open={showResetDialog} onOpenChange={setShowResetDialog}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Reset Password — {user?.name}</DialogTitle>
+            <DialogDescription>
+              A new temporary password has been generated. Share it with {user?.name} and ask them to change it after signing in.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            {/* Temp password display */}
+            <div className="rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 flex items-center justify-between gap-3">
+              <span className="font-mono text-lg font-semibold text-orange-800 tracking-wide">{resetPassword}</span>
+              <div className="flex gap-1.5">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8 text-orange-600 hover:text-orange-800 hover:bg-orange-100"
+                  title="Generate new password"
+                  onClick={() => {
+                    const words = ["Fire","Watch","Shift","Crew","Engine","Pump"];
+                    const w = words[Math.floor(Math.random() * words.length)];
+                    const n = Math.floor(Math.random() * 900) + 100;
+                    const s = ["!","@","#","$"][Math.floor(Math.random() * 4)];
+                    setResetPassword(`${w}${n}${s}`);
+                  }}
+                >
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8 text-orange-600 hover:text-orange-800 hover:bg-orange-100"
+                  title="Copy to clipboard"
+                  onClick={() => {
+                    navigator.clipboard.writeText(resetPassword);
+                    toast({ title: "Copied!", description: "Temporary password copied" });
+                  }}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowInviteDialog(false)}>
-                Close
+              <Button variant="outline" onClick={() => setShowResetDialog(false)}>Cancel</Button>
+              <Button
+                className="bg-orange-500 hover:bg-orange-600 text-white"
+                disabled={resetting}
+                onClick={async () => {
+                  if (!user) return;
+                  setResetting(true);
+                  try {
+                    await backendClient.localauth.resetUserPassword({
+                      userId: user.id,
+                      new_password: resetPassword,
+                    });
+                    toast({ title: "Password reset", description: `New password set for ${user.name}. Share it with them now.` });
+                    setShowResetDialog(false);
+                  } catch (err: any) {
+                    toast({ title: "Error", description: err?.message || "Failed to reset password", variant: "destructive" });
+                  } finally {
+                    setResetting(false);
+                  }
+                }}
+              >
+                {resetting ? "Resetting…" : "Set this password"}
               </Button>
             </div>
           </div>

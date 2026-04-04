@@ -57,7 +57,7 @@ export function CrewOneToOnes() {
     enabled: !!crewMembers && crewMembers.length > 0,
   });
 
-  const getStatusBadge = (date: Date) => {
+  const getStatusBadge = (date: Date | string) => {
     const daysUntil = differenceInDays(new Date(date), new Date());
     
     if (daysUntil < 0) {

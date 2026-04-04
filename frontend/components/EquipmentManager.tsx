@@ -106,7 +106,7 @@ export default function EquipmentManager({
       return await backend.appliance.createEquipment({
         appliance_id: applianceId,
         name: newItem.name,
-        category: newItem.category,
+        category: newItem.category as any,
         serial_number: newItem.serial_number || undefined,
         quantity: newItem.quantity,
       });
@@ -124,10 +124,9 @@ export default function EquipmentManager({
 
   const updateMutation = useMutation({
     mutationFn: async (item: EditingItem) => {
-      return await backend.appliance.updateEquipment({
-        id: item.id,
+      return await backend.appliance.updateEquipment(item.id, {
         name: item.name,
-        category: item.category,
+        category: item.category as any,
         serial_number: item.serial_number || undefined,
         quantity: item.quantity,
       });
@@ -144,7 +143,7 @@ export default function EquipmentManager({
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      return await backend.appliance.deleteEquipment({ id });
+      return await backend.appliance.deleteEquipment(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["equipment", applianceId] });
@@ -268,7 +267,7 @@ export default function EquipmentManager({
                     !newItem.name.trim() || createMutation.isPending
                   }
                   size="sm"
-                  className="bg-red-600 hover:bg-red-700"
+                  className="bg-indigo-600 hover:bg-indigo-700"
                 >
                   {createMutation.isPending ? "Adding..." : "Add Item"}
                 </Button>
@@ -287,6 +286,7 @@ export default function EquipmentManager({
             </p>
           ) : (
             <div className="rounded-md border">
+              <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -436,6 +436,7 @@ export default function EquipmentManager({
                   )}
                 </TableBody>
               </Table>
+              </div>
             </div>
           )}
         </div>

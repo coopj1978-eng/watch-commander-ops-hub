@@ -33,6 +33,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import backend from "@/lib/backend";
 
 interface CheckHistoryProps {
@@ -63,7 +64,7 @@ export default function CheckHistory({ appliances }: CheckHistoryProps) {
     queryKey: ["check-detail", selectedCheckId],
     queryFn: async () => {
       if (!selectedCheckId) return null;
-      const result = await backend.appliance.getCheck({ id: selectedCheckId });
+      const result = await backend.appliance.getCheck(selectedCheckId);
       return result;
     },
     enabled: !!selectedCheckId,
@@ -117,16 +118,20 @@ export default function CheckHistory({ appliances }: CheckHistoryProps) {
 
       {/* Table */}
       {isLoading ? (
-        <p className="text-muted-foreground text-center py-8">
-          Loading check history...
-        </p>
+        <div className="space-y-2">
+          {[...Array(5)].map((_, i) => (
+            <Skeleton key={i} className="h-12 w-full" />
+          ))}
+        </div>
       ) : checks.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
-          <Clock className="h-12 w-12 mx-auto mb-4 opacity-50" />
-          <p className="text-lg">No checks recorded yet.</p>
+        <div className="rounded-lg border border-dashed py-16 text-center">
+          <Clock className="h-10 w-10 mx-auto mb-3 text-muted-foreground/40" />
+          <p className="font-medium text-foreground">No checks recorded yet</p>
+          <p className="text-sm text-muted-foreground mt-1">Start a check from the Appliances tab to begin tracking equipment status.</p>
         </div>
       ) : (
         <div className="rounded-md border">
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -182,6 +187,7 @@ export default function CheckHistory({ appliances }: CheckHistoryProps) {
               ))}
             </TableBody>
           </Table>
+          </div>
         </div>
       )}
 

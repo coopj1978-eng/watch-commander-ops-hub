@@ -89,9 +89,12 @@ export default function PolicyQAPage() {
   };
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="p-4 md:p-8 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Policy Q&A</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
+          <MessageSquare className="h-7 w-7 text-violet-500 shrink-0" />
+          Policy Q&A
+        </h1>
         <p className="text-muted-foreground mt-1">
           Ask questions about policy documents using AI-powered search
         </p>
@@ -123,7 +126,7 @@ export default function PolicyQAPage() {
                   {history.slice(0, 5).map((item) => (
                     <div
                       key={item.id}
-                      className="p-3 rounded-lg border border-border hover:border-red-600 transition-colors"
+                      className="p-3 rounded-lg border border-border hover:border-indigo-600 transition-colors"
                     >
                       <p className="text-sm text-foreground font-medium line-clamp-2">
                         {item.question}
@@ -194,6 +197,7 @@ export default function PolicyQAPage() {
           {isLoading ? (
             <Skeleton className="h-64 w-full" />
           ) : filteredHistory.length > 0 ? (
+            <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -246,13 +250,19 @@ export default function PolicyQAPage() {
                 ))}
               </TableBody>
             </Table>
+            </div>
           ) : (
-            <div className="py-12 text-center">
-              <MessageSquare className="mx-auto h-12 w-12 text-muted-foreground" />
-              <p className="text-muted-foreground mt-4">
+            <div className="rounded-lg border border-dashed py-16 text-center">
+              <MessageSquare className="mx-auto h-10 w-10 mb-3 text-muted-foreground/40" />
+              <p className="font-medium text-foreground">
                 {activeFiltersCount > 0 || searchTerm
                   ? "No queries match the search criteria"
                   : "No queries yet"}
+              </p>
+              <p className="text-sm text-muted-foreground mt-1">
+                {activeFiltersCount > 0 || searchTerm
+                  ? "Try adjusting the filters or search term."
+                  : "Ask a question about your policy documents to get started."}
               </p>
             </div>
           )}

@@ -29,7 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
-import { Upload, Download, FileText, Search, Filter, Grid3x3, Table as TableIcon } from "lucide-react";
+import { Upload, Download, FileText, Search, Filter, Grid3x3, Table as TableIcon, BookOpen } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 type ViewMode = "grid" | "table";
@@ -51,7 +51,7 @@ export default function Policies() {
     },
   });
 
-  const policies = policiesData?.policies || [];
+  const policies = (policiesData?.policies || []) as unknown as PolicyDoc[];
 
   const categories = Array.from(
     new Set(policies.map((p) => p.category).filter(Boolean) as string[])
@@ -66,7 +66,7 @@ export default function Policies() {
 
   const downloadMutation = useMutation({
     mutationFn: async (id: number) => {
-      const result = await backend.policy.getDownloadUrl({ id });
+      const result = await backend.policy.getDownloadUrl(id);
       window.open(result.download_url, "_blank");
     },
     onError: (error) => {
@@ -89,16 +89,19 @@ export default function Policies() {
   const activeFiltersCount = [categoryFilter !== "all" ? categoryFilter : ""].filter(Boolean).length;
 
   return (
-    <div className="p-8 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-4 md:p-8 space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Policy Documents</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
+            <BookOpen className="h-7 w-7 text-orange-500 shrink-0" />
+            Policy Documents
+          </h1>
           <p className="text-muted-foreground mt-1">
             {filteredPolicies.length} document{filteredPolicies.length === 1 ? "" : "s"}
             {activeFiltersCount > 0 && ` (${activeFiltersCount} filter active)`}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <div className="flex border rounded-md">
             <Button
               variant={viewMode === "grid" ? "secondary" : "ghost"}
@@ -118,7 +121,7 @@ export default function Policies() {
             </Button>
           </div>
           <Button
-            className="bg-red-600 hover:bg-red-700"
+            className="bg-indigo-600 hover:bg-indigo-700"
             onClick={() => setUploadDialogOpen(true)}
           >
             <Upload className="h-4 w-4 mr-2" />
@@ -169,7 +172,7 @@ export default function Policies() {
       ) : viewMode === "grid" ? (
         <div className="grid gap-4">
           {filteredPolicies.map((policy) => (
-            <Card key={policy.id} className="hover:border-red-600 transition-colors">
+            <Card key={policy.id} className="hover:border-indigo-600 transition-colors">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-3 flex-1">
@@ -227,6 +230,7 @@ export default function Policies() {
         </div>
       ) : (
         <Card>
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -273,21 +277,27 @@ export default function Policies() {
               ))}
             </TableBody>
           </Table>
+          </div>
         </Card>
       )}
 
       {!isLoading && filteredPolicies.length === 0 && (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
-            <p className="text-muted-foreground mt-4">
+        <Card className="border-dashed">
+          <CardContent className="py-16 text-center">
+            <FileText className="mx-auto h-10 w-10 mb-3 text-muted-foreground/40" />
+            <p className="font-medium text-foreground">
               {activeFiltersCount > 0 || searchTerm
                 ? "No policies match the search criteria"
                 : "No policy documents uploaded yet"}
             </p>
+            <p className="text-sm text-muted-foreground mt-1">
+              {activeFiltersCount > 0 || searchTerm
+                ? "Try adjusting the filters or search term."
+                : "Upload PDF policy documents to make them searchable."}
+            </p>
             {!searchTerm && activeFiltersCount === 0 && (
               <Button
-                className="mt-4 bg-red-600 hover:bg-red-700"
+                className="mt-5 bg-indigo-600 hover:bg-indigo-700"
                 onClick={() => setUploadDialogOpen(true)}
               >
                 <Upload className="h-4 w-4 mr-2" />

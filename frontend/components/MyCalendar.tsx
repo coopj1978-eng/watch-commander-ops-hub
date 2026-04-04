@@ -38,7 +38,7 @@ export default function MyCalendar() {
     enabled: !!user,
   });
 
-  const tasks = tasksData?.tasks || [];
+  const tasks = (tasksData?.tasks || []) as unknown as Task[];
   const events = eventsData?.events || [];
 
   const calendarItems = useMemo(() => {
@@ -202,7 +202,7 @@ export default function MyCalendar() {
                   {upcomingItems.map((item) => (
                     <div
                       key={item.id}
-                      className="p-3 rounded-lg border border-border hover:border-red-600 transition-colors"
+                      className="p-3 rounded-lg border border-border hover:border-indigo-600 transition-colors"
                     >
                       <div className="flex items-start justify-between gap-2 mb-2">
                         <p className="text-sm font-medium text-foreground flex-1">

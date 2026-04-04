@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Dialog,
   DialogContent,
@@ -14,8 +14,6 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { useBackend } from "@/lib/rbac";
-import { Badge } from "@/components/ui/badge";
-import { X } from "lucide-react";
 
 interface AddPersonModalProps {
   isOpen: boolean;
@@ -45,24 +43,12 @@ export default function AddPersonModal({ isOpen, onClose }: AddPersonModalProps)
   const [serviceNumber, setServiceNumber] = useState("");
   const [phone, setPhone] = useState("");
   const [niNumber, setNiNumber] = useState("");
-  const [skillInput, setSkillInput] = useState("");
-  const [skills, setSkills] = useState<string[]>([]);
   const [driverPathwayStatus, setDriverPathwayStatus] = useState("");
   const [lgvPassedDate, setLgvPassedDate] = useState("");
-  
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const client = useBackend();
-
-  const { data: skillsData } = useQuery({
-    queryKey: ["dictionaries", "skills"],
-    queryFn: async () => {
-      const result = await client.dictionary.list({ type: "skill" });
-      return result.items;
-    },
-  });
-
-  const availableSkills = skillsData?.map(s => s.value) || [];
 
   const createPersonMutation = useMutation({
     mutationFn: async () => {
@@ -76,10 +62,9 @@ export default function AddPersonModal({ isOpen, onClose }: AddPersonModalProps)
       });
     },
     onSuccess: async (data) => {
-      if (skills.length > 0 || driverPathwayStatus || niNumber) {
+      if (driverPathwayStatus || niNumber) {
         try {
           const updateData: any = {};
-          if (skills.length > 0) updateData.skills = skills;
           if (driverPathwayStatus) {
             updateData.driverPathway = {
               status: driverPathwayStatus,
@@ -91,7 +76,7 @@ export default function AddPersonModal({ isOpen, onClose }: AddPersonModalProps)
           }
 
           if (data.profile?.id) {
-            await client.profile.update({ id: data.profile.id, ...updateData });
+            await client.profile.update(data.profile.id, updateData);
           }
         } catch (error) {
           console.error("Failed to update profile with additional fields:", error);
@@ -123,8 +108,6 @@ export default function AddPersonModal({ isOpen, onClose }: AddPersonModalProps)
     setServiceNumber("");
     setPhone("");
     setNiNumber("");
-    setSkills([]);
-    setSkillInput("");
     setDriverPathwayStatus("");
     setLgvPassedDate("");
     onClose();
@@ -143,25 +126,6 @@ export default function AddPersonModal({ isOpen, onClose }: AddPersonModalProps)
     }
 
     createPersonMutation.mutate();
-  };
-
-  const addSkill = (skill: string) => {
-    const trimmed = skill.trim();
-    if (trimmed && !skills.includes(trimmed)) {
-      setSkills([...skills, trimmed]);
-      setSkillInput("");
-    }
-  };
-
-  const removeSkill = (skill: string) => {
-    setSkills(skills.filter(s => s !== skill));
-  };
-
-  const handleSkillKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      addSkill(skillInput);
-    }
   };
 
   return (
@@ -303,55 +267,11 @@ export default function AddPersonModal({ isOpen, onClose }: AddPersonModalProps)
               </div>
             )}
 
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="skills">Skills</Label>
-              <div className="space-y-2">
-                <div className="flex gap-2">
-                  <Input
-                    id="skills"
-                    value={skillInput}
-                    onChange={(e) => setSkillInput(e.target.value)}
-                    onKeyDown={handleSkillKeyDown}
-                    placeholder="Type a skill and press Enter"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => addSkill(skillInput)}
-                  >
-                    Add
-                  </Button>
-                </div>
-                {availableSkills.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
-                    {availableSkills.slice(0, 10).map(skill => (
-                      <Badge
-                        key={skill}
-                        variant="outline"
-                        className="cursor-pointer hover:bg-muted"
-                        onClick={() => addSkill(skill)}
-                      >
-                        {skill}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-                {skills.length > 0 && (
-                  <div className="flex flex-wrap gap-2 p-2 border rounded-md">
-                    {skills.map((skill, idx) => (
-                      <Badge key={idx} className="flex items-center gap-1">
-                        {skill}
-                        <X
-                          className="h-3 w-3 cursor-pointer"
-                          onClick={() => removeSkill(skill)}
-                        />
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
           </div>
+
+          <p className="text-xs text-muted-foreground">
+            Skills & certifications can be added with full renewal tracking from the person's profile after creation.
+          </p>
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={handleClose}>
@@ -359,7 +279,7 @@ export default function AddPersonModal({ isOpen, onClose }: AddPersonModalProps)
             </Button>
             <Button
               type="submit"
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-indigo-600 hover:bg-indigo-700"
               disabled={createPersonMutation.isPending}
             >
               {createPersonMutation.isPending ? "Adding..." : "Add Person"}

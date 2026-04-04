@@ -128,3 +128,28 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* ── Print styles ─────────────────────────────────────────────────────────── */
+
+@media print {
+  @page {
+    margin: 1.5cm;
+    size: A4;
+  }
+
+  /* Force white background — no gradients on paper */
+  body, main {
+    background: white !important;
+  }
+
+  /* Show all handover card bodies (even collapsed ones) */
+  .handover-card-body {
+    display: block !important;
+  }
+
+  /* Hide interactive elements that make no sense on paper */
+  .handover-card-actions,
+  .handover-create-form {
+    display: none !important;
+  }
+}

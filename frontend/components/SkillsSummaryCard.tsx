@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Award, AlertTriangle, CheckCircle2, XCircle, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface SkillsSummaryCardProps {
   profileId?: number;
@@ -42,7 +43,11 @@ export default function SkillsSummaryCard({ profileId }: SkillsSummaryCardProps)
       </CardHeader>
       <CardContent className="space-y-4">
         {isLoading ? (
-          <p className="text-sm text-muted-foreground">Loading skills...</p>
+          <div className="space-y-2">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-6 w-3/4" />
+          </div>
         ) : skills.length === 0 ? (
           <p className="text-sm text-muted-foreground">No skills recorded. Go to Skills tab to add.</p>
         ) : (

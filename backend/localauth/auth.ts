@@ -6,16 +6,15 @@ import db from "../db";
 import type { User } from "../user/types";
 
 const jwtSecretRef = secret("JWTSecret");
-const LOCAL_DEV_SECRET = "local-dev-jwt-secret-watchcommander-2026";
 
 function getJwtSecret(): string {
   try {
     const val = jwtSecretRef();
     if (val) return val;
   } catch {
-    // Secret not configured — use local dev fallback
+    // Secret not configured
   }
-  return LOCAL_DEV_SECRET;
+  throw new Error("JWTSecret is not configured. Run: encore secret set --type local JWTSecret");
 }
 
 interface SignUpRequest {
@@ -44,15 +43,50 @@ export const signUp = api<SignUpRequest, AuthResponse>(
   async (req) => {
     try {
       const existingUser = await db.queryRow<User>`
-        SELECT * FROM users WHERE email = ${req.email}
+        SELECT * FROM users WHERE LOWER(email) = LOWER(${req.email})
       `;
 
-      if (existingUser) {
-        throw APIError.alreadyExists("User with this email already exists");
+      // ── Invited user activating their pre-created account ─────────────────
+      // WC created their profile via "Create Person" — no password set yet.
+      // Allow them to set a password and activate the account.
+      if (existingUser && !existingUser.password_hash) {
+        const passwordHash = await bcrypt.hash(req.password, 10);
+        const activated = await db.queryRow<User>`
+          UPDATE users
+          SET password_hash = ${passwordHash},
+              is_active = true,
+              name = COALESCE(NULLIF(${req.name.trim()}, ''), name),
+              updated_at = NOW()
+          WHERE id = ${existingUser.id}
+          RETURNING *
+        `;
+        if (!activated) throw APIError.internal("Failed to activate account");
+
+        const token = jwt.sign(
+          { userId: activated.id, email: activated.email, role: activated.role },
+          getJwtSecret(),
+          { expiresIn: "7d" }
+        );
+        return {
+          user: { id: activated.id, email: activated.email, name: activated.name, role: activated.role },
+          token,
+        };
       }
 
+      // ── Already fully registered ───────────────────────────────────────────
+      if (existingUser) {
+        throw APIError.alreadyExists("An account with this email already exists. Please sign in instead.");
+      }
+
+      // ── Brand new self-registration ────────────────────────────────────────
       const passwordHash = await bcrypt.hash(req.password, 10);
       const userId = `user_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+
+      // Check if any WC exists — first-ever user becomes WC + active.
+      const existingWC = await db.queryRow<{ id: string }>`
+        SELECT id FROM users WHERE role = 'WC' AND is_active = true LIMIT 1
+      `;
+      const isFirstUser = !existingWC;
 
       const newUser = await db.queryRow<User>`
         INSERT INTO users (id, email, name, password_hash, role, is_active)
@@ -61,15 +95,13 @@ export const signUp = api<SignUpRequest, AuthResponse>(
           ${req.email},
           ${req.name},
           ${passwordHash},
-          'FF',
-          true
+          ${isFirstUser ? 'WC' : 'FF'},
+          ${isFirstUser}
         )
         RETURNING *
       `;
 
-      if (!newUser) {
-        throw APIError.internal("Failed to create user");
-      }
+      if (!newUser) throw APIError.internal("Failed to create user");
 
       try {
         await db.exec`
@@ -77,31 +109,20 @@ export const signUp = api<SignUpRequest, AuthResponse>(
             user_id, rolling_sick_episodes, rolling_sick_days,
             trigger_stage, driver_lgv, driver_erd
           )
-          VALUES (
-            ${userId}, 0, 0, 'None', false, false
-          )
+          VALUES (${userId}, 0, 0, 'None', false, false)
         `;
       } catch (profileErr) {
         console.error("Failed to create firefighter profile (non-fatal):", profileErr);
       }
 
       const token = jwt.sign(
-        {
-          userId: newUser.id,
-          email: newUser.email,
-          role: newUser.role
-        },
+        { userId: newUser.id, email: newUser.email, role: newUser.role },
         getJwtSecret(),
         { expiresIn: "7d" }
       );
 
       return {
-        user: {
-          id: newUser.id,
-          email: newUser.email,
-          name: newUser.name,
-          role: newUser.role,
-        },
+        user: { id: newUser.id, email: newUser.email, name: newUser.name, role: newUser.role },
         token,
       };
     } catch (err) {

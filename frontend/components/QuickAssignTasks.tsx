@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/App";
+import { getNextShiftDate } from "@/lib/shiftRota";
 import backend from "@/lib/backend";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,14 +21,14 @@ export function QuickAssignTasks() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState(() => ({
     title: "",
     description: "",
     category: "Training",
     priority: "Med",
     stagger_days: 1,
-    start_date: new Date().toISOString().split("T")[0],
-  });
+    start_date: getNextShiftDate(currentUser?.watch_unit),
+  }));
 
   const [selectedFFs, setSelectedFFs] = useState<Set<string>>(new Set());
 
@@ -52,7 +53,7 @@ export function QuickAssignTasks() {
         category: formData.category,
         priority: formData.priority,
         stagger_days: formData.stagger_days,
-        start_date: new Date(formData.start_date),
+        start_date: formData.start_date,
       });
       return result.tasks;
     },
@@ -69,7 +70,7 @@ export function QuickAssignTasks() {
         category: "Training",
         priority: "Med",
         stagger_days: 1,
-        start_date: new Date().toISOString().split("T")[0],
+        start_date: getNextShiftDate(currentUser?.watch_unit),
       });
       setSelectedFFs(new Set());
     },
@@ -266,7 +267,7 @@ export function QuickAssignTasks() {
                   category: "Training",
                   priority: "Med",
                   stagger_days: 1,
-                  start_date: new Date().toISOString().split("T")[0],
+                  start_date: getNextShiftDate(currentUser?.watch_unit),
                 });
                 setSelectedFFs(new Set());
               }}

@@ -26,6 +26,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import { useIsCrewCommander } from "@/lib/rbac";
 import backend from "@/lib/backend";
@@ -54,7 +55,7 @@ export default function DefectsList() {
       id: number;
       status: string;
     }) => {
-      return await backend.appliance.updateDefect({ id, status });
+      return await backend.appliance.updateDefect(id, { status: status as any });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["defects"] });
@@ -115,20 +116,26 @@ export default function DefectsList() {
 
       {/* Table */}
       {isLoading ? (
-        <p className="text-muted-foreground text-center py-8">
-          Loading defects...
-        </p>
+        <div className="space-y-2">
+          {[...Array(5)].map((_, i) => (
+            <Skeleton key={i} className="h-12 w-full" />
+          ))}
+        </div>
       ) : defects.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
-          <CheckCircle2 className="h-12 w-12 mx-auto mb-4 opacity-50 text-green-600" />
-          <p className="text-lg">
+        <div className="rounded-lg border border-dashed py-16 text-center">
+          <CheckCircle2 className="h-10 w-10 mx-auto mb-3 text-green-500/60" />
+          <p className="font-medium text-foreground">
+            {filterStatus === "Open" ? "No open defects" : "No defects found"}
+          </p>
+          <p className="text-sm text-muted-foreground mt-1">
             {filterStatus === "Open"
-              ? "No open defects. All equipment is operational."
-              : "No defects matching this filter."}
+              ? "All equipment is operational."
+              : "No defects match the current filter."}
           </p>
         </div>
       ) : (
         <div className="rounded-md border">
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -244,6 +251,7 @@ export default function DefectsList() {
               })}
             </TableBody>
           </Table>
+          </div>
         </div>
       )}
     </div>

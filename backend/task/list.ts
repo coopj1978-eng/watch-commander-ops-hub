@@ -3,15 +3,15 @@ import { Query } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
 import type { Task, TaskStatus, TaskPriority } from "./types";
-import { filterByRole } from "../auth/rbac";
 
 interface ListTasksRequest {
   assigned_to?: Query<string>;
+  watch_unit?:  Query<string>;
   assigned_by?: Query<string>;
-  status?: Query<TaskStatus>;
-  priority?: Query<TaskPriority>;
-  limit?: Query<number>;
-  offset?: Query<number>;
+  status?:      Query<TaskStatus>;
+  priority?:    Query<TaskPriority>;
+  limit?:       Query<number>;
+  offset?:      Query<number>;
 }
 
 interface ListTasksResponse {
@@ -23,24 +23,36 @@ export const list = api<ListTasksRequest, ListTasksResponse>(
   { auth: true, expose: true, method: "GET", path: "/tasks" },
   async (req) => {
     const auth = getAuthData()!;
-    const limit = req.limit || 50;
-    const offset = req.offset || 0;
+    const limit  = req.limit  ?? 200;
+    const offset = req.offset ?? 0;
 
-    let query = `SELECT * FROM tasks`;
-    let countQuery = `SELECT COUNT(*) as count FROM tasks`;
     const params: any[] = [];
     const conditions: string[] = [];
-    let paramIndex = 1;
-
-    if (auth.role === "FF") {
-      conditions.push(`assigned_to_user_id = $${paramIndex++}`);
-      params.push(auth.userID);
-    }
+    let   paramIndex = 1;
 
     if (req.assigned_to) {
+      // Explicit person filter (used by personal calendar view)
       conditions.push(`assigned_to_user_id = $${paramIndex++}`);
       params.push(req.assigned_to);
+    } else if (req.watch_unit) {
+      // Explicit watch filter
+      conditions.push(`watch_unit = $${paramIndex++}`);
+      params.push(req.watch_unit);
+    } else {
+      // Default: show all tasks for the requesting user's watch
+      const userRow = await db.rawQueryRow<{ watch_unit: string }>(
+        `SELECT watch_unit FROM users WHERE id = $1`, auth.userID
+      );
+      if (userRow?.watch_unit) {
+        conditions.push(`watch_unit = $${paramIndex++}`);
+        params.push(userRow.watch_unit);
+      } else if (auth.role === "FF") {
+        // FF with no watch — fall back to their own tasks
+        conditions.push(`assigned_to_user_id = $${paramIndex++}`);
+        params.push(auth.userID);
+      }
     }
+
     if (req.assigned_by) {
       conditions.push(`assigned_by = $${paramIndex++}`);
       params.push(req.assigned_by);
@@ -54,39 +66,33 @@ export const list = api<ListTasksRequest, ListTasksResponse>(
       params.push(req.priority);
     }
 
-    if (conditions.length > 0) {
-      const whereClause = ` WHERE ${conditions.join(" AND ")}`;
-      query += whereClause;
-      countQuery += whereClause;
-    }
+    const whereClause = conditions.length > 0 ? ` WHERE ${conditions.join(" AND ")}` : "";
 
-    query += ` ORDER BY 
-      CASE priority 
-        WHEN 'High' THEN 1 
-        WHEN 'Med' THEN 2 
-        WHEN 'Low' THEN 3 
-      END,
-      due_at ASC NULLS LAST
+    const query = `SELECT * FROM tasks${whereClause}
+      ORDER BY
+        CASE priority WHEN 'High' THEN 1 WHEN 'Med' THEN 2 WHEN 'Low' THEN 3 END,
+        position ASC,
+        due_at ASC NULLS LAST
       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
     params.push(limit, offset);
 
     const rawTasks = await db.rawQueryAll<any>(query, ...params);
     const tasks: Task[] = rawTasks.map((t) => ({
       ...t,
-      checklist: typeof t.checklist === "string" ? JSON.parse(t.checklist) : t.checklist,
+      checklist:   typeof t.checklist === "string" ? JSON.parse(t.checklist) : t.checklist,
       attachments: Array.isArray(t.attachments) ? t.attachments : (t.attachments ?? undefined),
-      tags: Array.isArray(t.tags) ? t.tags : (t.tags ?? undefined),
+      tags:        Array.isArray(t.tags) ? t.tags : (t.tags ?? undefined),
     }));
 
     const countParams = params.slice(0, -2);
-    const countResult = await db.rawQueryRow<{ count: number }>(
-      countQuery,
+    const countResult = await db.rawQueryRow<{ count: string }>(
+      `SELECT COUNT(*) as count FROM tasks${whereClause}`,
       ...countParams
     );
 
     return {
       tasks,
-      total: countResult?.count || 0,
+      total: Number(countResult?.count ?? 0),
     };
   }
 );

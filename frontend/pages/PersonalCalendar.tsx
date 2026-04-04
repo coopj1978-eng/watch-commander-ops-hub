@@ -8,6 +8,7 @@ import { useToast } from "@/components/ui/use-toast";
 import type { CalendarEvent } from "~backend/calendar/types";
 import type { Task } from "~backend/task/types";
 import type { Inspection } from "~backend/inspection/types";
+import { CalendarDays } from "lucide-react";
 
 interface CalendarItem {
   id: number;
@@ -128,7 +129,7 @@ export default function PersonalCalendar() {
 
   const updateEventMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: any }) => {
-      return backend.calendar.update({ id, ...data });
+      return backend.calendar.update(id, { ...data });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["personal-events"] });
@@ -148,9 +149,9 @@ export default function PersonalCalendar() {
     },
   });
 
-  const handleDayClick = (date: Date, items: CalendarItem[]) => {
+  const handleDayClick = (date: Date) => {
     setSelectedDate(date);
-    setSelectedItems(items);
+    setSelectedItems([]);
     setModalOpen(true);
   };
 
@@ -196,24 +197,32 @@ export default function PersonalCalendar() {
   };
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="p-4 md:p-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Personal Calendar</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
+            <CalendarDays className="h-7 w-7 text-blue-500 shrink-0" />
+            Personal Calendar
+          </h1>
           <p className="text-muted-foreground mt-1">Your personal schedule</p>
         </div>
+        <button
+          onClick={handleExport}
+          className="text-sm text-muted-foreground hover:text-foreground underline-offset-2 hover:underline transition-colors"
+        >
+          Export ICS
+        </button>
       </div>
 
       <CalendarWidget
-        events={events || []}
-        tasks={tasks || []}
-        inspections={inspections || []}
+        events={(events || []) as any}
+        tasks={(tasks || []) as any}
+        inspections={(inspections || []) as any}
         currentDate={currentDate}
         onDateChange={setCurrentDate}
-        view={view}
-        onViewChange={setView}
-        onDayClick={handleDayClick}
-        onExport={handleExport}
+        view={view as any}
+        onViewChange={setView as any}
+        onSlotClick={handleDayClick}
       />
 
       {selectedDate && (

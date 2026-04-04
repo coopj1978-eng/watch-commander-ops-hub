@@ -133,7 +133,7 @@ export default function PolicyQA({ onQueryComplete }: PolicyQAProps) {
             <Button
               onClick={handleSubmit}
               disabled={askMutation.isPending || !question.trim()}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-indigo-600 hover:bg-indigo-700"
             >
               {askMutation.isPending ? (
                 <>

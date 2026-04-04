@@ -7,13 +7,15 @@ export interface Absence {
   type: AbsenceType;
   start_date: Date;
   end_date: Date;
-  total_days: number;
+  total_days?: number;
   reason: string;
+  docs?: string[];
   evidence_urls?: string[];
+  sick_line_document?: string; // base64 image or URL of uploaded sick line
   status: AbsenceStatus;
   approved_by?: string;
   approved_at?: Date;
-  created_by_user_id: string;
+  created_by_user_id?: string;
   created_at: Date;
   updated_at: Date;
 }

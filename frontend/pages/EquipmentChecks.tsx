@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Tabs,
   TabsContent,
@@ -66,18 +68,28 @@ export default function EquipmentChecks() {
 
   if (isLoading) {
     return (
-      <div className="p-8 flex items-center justify-center">
-        <p className="text-muted-foreground">Loading appliances...</p>
+      <div className="p-4 md:p-8 space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="space-y-2">
+            <Skeleton className="h-9 w-64" />
+            <Skeleton className="h-5 w-48" />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {[...Array(3)].map((_, i) => (
+            <Skeleton key={i} className="h-52 w-full rounded-xl" />
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="p-4 md:p-8 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-3">
+          <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-3">
             <Truck className="h-8 w-8 text-red-600" />
             J4 Equipment Checks
           </h1>
@@ -85,7 +97,7 @@ export default function EquipmentChecks() {
             B10 Springburn — Appliance & Equipment Management
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           {overdueDefects.length > 0 && (
             <Badge variant="destructive" className="text-sm px-3 py-1">
               <AlertTriangle className="h-4 w-4 mr-1" />
@@ -126,11 +138,17 @@ export default function EquipmentChecks() {
         {/* Appliances Tab */}
         <TabsContent value="appliances" className="mt-6">
           {appliances.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <Truck className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p className="text-lg">No appliances configured yet.</p>
-              {isWC && <p>Click "Add Appliance" to get started.</p>}
-            </div>
+            <Card className="border-dashed">
+              <CardContent className="py-16 text-center">
+                <Truck className="h-10 w-10 mx-auto mb-3 text-muted-foreground/40" />
+                <p className="font-medium text-foreground">No appliances configured yet</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {isWC
+                    ? "Click \"Add Appliance\" to register your first appliance."
+                    : "No appliances have been registered yet."}
+                </p>
+              </CardContent>
+            </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               {appliances.map((appliance) => (

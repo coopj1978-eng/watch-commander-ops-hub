@@ -1,4 +1,4 @@
-import { api } from "encore.dev/api";
+import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { requirePermission, Permission } from "../auth/rbac";
@@ -28,7 +28,9 @@ export const create = api<CreateDictionaryRequest, Dictionary>(
       `;
 
       if (existing) {
-        throw new Error(`${req.type === 'skill' ? 'Skill' : 'Certification'} "${req.value}" already exists`);
+        throw APIError.alreadyExists(
+          `${req.type === 'skill' ? 'Skill' : 'Certification'} "${req.value}" already exists`
+        );
       }
 
       const dbItem = await db.queryRow<DBDictionary>`

@@ -19,7 +19,7 @@ export const listBasic = api<void, ListBasicUsersResponse>(
     const query = `
       SELECT id, name, email 
       FROM users 
-      WHERE is_active = true
+      WHERE left_at IS NULL
       ORDER BY name ASC
     `;
     
