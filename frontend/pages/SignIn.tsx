@@ -23,7 +23,19 @@ export default function SignIn() {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await backendClient.localauth.signIn({ email, password });
+      const apiBase = window.location.hostname !== "localhost"
+        ? "https://staging-watch-commander-ops-hub-8spi.encr.app"
+        : "http://localhost:4000";
+      const res = await fetch(`${apiBase}/auth/signin`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || "Invalid email or password");
+      }
+      const response = await res.json();
       localStorage.setItem("auth_token", response.token);
       window.location.href = "/";
     } catch (error: any) {
