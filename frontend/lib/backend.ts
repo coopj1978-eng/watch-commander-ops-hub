@@ -9,7 +9,9 @@ const authGenerator: AuthDataGenerator = () => {
   return undefined;
 };
 
-const baseURL = import.meta.env.VITE_API_URL || Local;
+const baseURL = typeof window !== "undefined" && window.location.hostname !== "localhost"
+  ? "https://staging-watch-commander-ops-hub-8spi.encr.app"
+  : Local;
 
 export const backendClient = new Client(baseURL, { auth: authGenerator });
 
