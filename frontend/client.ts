@@ -4473,7 +4473,7 @@ export type AuthDataGenerator = () =>
 // A fetcher is the prototype for the inbuilt Fetch function
 export type Fetcher = typeof fetch;
 
-const boundFetch = fetch.bind(this);
+const boundFetch = (input: RequestInfo | URL, init?: RequestInit) => globalThis.fetch(input, init);
 
 class BaseClient {
     readonly baseURL: string
