@@ -106,17 +106,4 @@ export const auth = authHandler<AuthParams, AuthData>(async (data) => {
   }
 });
 
-export const gw = new Gateway({
-  authHandler: auth,
-  cors: {
-    allowOriginsWithoutCredentials: ["*"],
-    allowOriginsWithCredentials: [
-      "https://frontend-seven-bice-88.vercel.app",
-      "https://watch-commander-ops-hub-frontend.vercel.app",
-      "http://localhost:5173",
-      "http://localhost:4000",
-    ],
-    allowHeaders: ["Authorization", "Content-Type"],
-    exposeHeaders: ["Authorization"],
-  },
-});
+export const gw = new Gateway({ authHandler: auth });
