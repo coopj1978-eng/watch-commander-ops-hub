@@ -180,7 +180,8 @@ export default function UnifiedCalendar() {
         start_time: data.start_time instanceof Date ? data.start_time.toISOString() : data.start_time,
         end_time: data.end_time instanceof Date ? data.end_time.toISOString() : data.end_time,
         all_day: data.all_day,
-        user_id: userId,
+        // Only set user_id for personal events — station/watch events are shared
+        user_id: data.calendar_visibility === "personal" ? userId : undefined,
         is_watch_event: data.is_watch_event,
         location: data.location,
         created_by: userId,

@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Shield, ArrowLeft, CheckCircle } from "lucide-react";
+import { Shield, ArrowLeft, CheckCircle, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 type View = "signin" | "forgot" | "forgot-sent";
@@ -16,6 +16,7 @@ export default function SignIn() {
   const [password, setPassword] = useState("");
   const [forgotEmail, setForgotEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -49,14 +50,18 @@ export default function SignIn() {
     }
   };
 
+  const [emailActuallySent, setEmailActuallySent] = useState(false);
+
   const handleForgot = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await backendClient.localauth.forgotPassword({ email: forgotEmail });
+      const result = await backendClient.localauth.forgotPassword({ email: forgotEmail });
+      setEmailActuallySent(result.email_sent);
       setView("forgot-sent");
     } catch (error: any) {
       // Still show "sent" — don't reveal if email exists
+      setEmailActuallySent(false);
       setView("forgot-sent");
     } finally {
       setLoading(false);
@@ -110,15 +115,26 @@ export default function SignIn() {
                     Forgot password?
                   </button>
                 </div>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  disabled={loading}
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    disabled={loading}
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
               <Button
                 type="submit"
@@ -167,16 +183,31 @@ export default function SignIn() {
           {view === "forgot-sent" && (
             <div className="space-y-5 py-2 text-center">
               <div className="flex justify-center">
-                <div className="h-14 w-14 rounded-full bg-green-100 flex items-center justify-center">
-                  <CheckCircle className="h-8 w-8 text-green-600" />
+                <div className={`h-14 w-14 rounded-full flex items-center justify-center ${emailActuallySent ? "bg-green-100" : "bg-amber-100"}`}>
+                  {emailActuallySent ? (
+                    <CheckCircle className="h-8 w-8 text-green-600" />
+                  ) : (
+                    <Shield className="h-8 w-8 text-amber-600" />
+                  )}
                 </div>
               </div>
               <div className="space-y-1.5">
-                <p className="text-sm text-foreground font-medium">Reset link sent!</p>
-                <p className="text-sm text-muted-foreground">
-                  If <strong>{forgotEmail}</strong> is registered, you'll receive an email with a link to reset your password. Check your inbox and spam folder.
-                </p>
-                <p className="text-xs text-muted-foreground">The link expires in 1 hour.</p>
+                {emailActuallySent ? (
+                  <>
+                    <p className="text-sm text-foreground font-medium">Reset link sent!</p>
+                    <p className="text-sm text-muted-foreground">
+                      If <strong>{forgotEmail}</strong> is registered, you'll receive an email with a link to reset your password. Check your inbox and spam folder.
+                    </p>
+                    <p className="text-xs text-muted-foreground">The link expires in 1 hour.</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm text-foreground font-medium">Contact your Watch Commander</p>
+                    <p className="text-sm text-muted-foreground">
+                      Email notifications are not yet configured. Please ask your Watch Commander to reset your password from the Admin panel.
+                    </p>
+                  </>
+                )}
               </div>
               <button
                 onClick={() => setView("signin")}

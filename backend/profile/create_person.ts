@@ -14,7 +14,16 @@ interface CreatePersonRequest {
   watch_unit?: string;
   phone?: string;
   address?: string;
+  station?: string;
 }
+
+// Map full rank names to user roles
+const RANK_TO_ROLE: Record<string, string> = {
+  "Watch Commander": "WC",
+  "Crew Commander": "CC",
+  "Leading Firefighter": "FF",
+  "Firefighter": "FF",
+};
 
 interface CreatePersonResponse {
   user: User;
@@ -165,13 +174,15 @@ export const createPerson = api<CreatePersonRequest, CreatePersonResponse>(
     } else {
       userId = `user_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 
+      const userRole = req.rank ? (RANK_TO_ROLE[req.rank] || "FF") : "FF";
+
       const newUser = await db.queryRow<DBUser>`
         INSERT INTO users (id, email, name, role, watch_unit, rank, is_active)
         VALUES (
           ${userId},
           ${req.email},
           ${req.name},
-          'FF',
+          ${userRole},
           ${req.watch_unit || null},
           ${req.rank || null},
           false
@@ -188,7 +199,7 @@ export const createPerson = api<CreatePersonRequest, CreatePersonResponse>(
 
     const dbProfile = await db.queryRow<DBProfile>`
       INSERT INTO firefighter_profiles (
-        user_id, service_number, rank, phone, watch,
+        user_id, service_number, rank, phone, watch, station,
         driver_lgv, driver_erd, prps, ba,
         rolling_sick_episodes, rolling_sick_days, trigger_stage,
         skills, certifications
@@ -199,6 +210,7 @@ export const createPerson = api<CreatePersonRequest, CreatePersonResponse>(
         ${req.rank || null},
         ${req.phone || null},
         ${req.watch_unit || null},
+        ${req.station || null},
         false,
         false,
         false,

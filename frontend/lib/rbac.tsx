@@ -49,3 +49,13 @@ export function useCanPerformChecks() {
   const role = useUserRole();
   return role === "WC" || role === "CC" || role === "FF";
 }
+
+export function useIsAdmin() {
+  const { user } = useAuth();
+  return user?.is_admin === true;
+}
+
+export function useCanAccessAdmin() {
+  const { user } = useAuth();
+  return user?.is_admin === true || user?.role === "WC";
+}

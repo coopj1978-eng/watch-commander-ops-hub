@@ -59,10 +59,10 @@ export const createInspectionEvent = api<CreateInspectionEventRequest, CreateIns
     );
     if (!calEvent) throw new Error("Failed to create calendar event");
 
-    // 2. Create linked task
+    // 2. Create linked task (scoped to the watch so it appears on the task board)
     const task = await db.rawQueryRow<{ id: number }>(
-      `INSERT INTO tasks (title, category, assigned_to_user_id, assigned_by, status, priority, due_at, source_type, source_id, calendar_event_id)
-       VALUES ($1, $2, $3, $4, 'NotStarted', 'Med', $5, $6, $7, $8)
+      `INSERT INTO tasks (title, category, assigned_to_user_id, assigned_by, status, priority, due_at, source_type, source_id, calendar_event_id, watch_unit)
+       VALUES ($1, $2, $3, $4, 'NotStarted', 'Med', $5, $6, $7, $8, $9)
        RETURNING id`,
       req.title,
       taskCategory,
@@ -71,7 +71,8 @@ export const createInspectionEvent = api<CreateInspectionEventRequest, CreateIns
       req.due_date,
       req.source_type ?? null,
       req.source_id ?? null,
-      calEvent.id
+      calEvent.id,
+      req.watch
     );
     if (!task) throw new Error("Failed to create task");
 

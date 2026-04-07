@@ -15,6 +15,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
   UserCircle,
+  ShieldCheck,
 } from "lucide-react";
 import {
   Tooltip,
@@ -23,39 +24,49 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { useFeatureFlags, type FeatureFlags } from "@/lib/feature-flags";
+import { useAuth } from "@/App";
 
 interface NavItem {
   name: string;
   path: string;
   icon: React.ElementType;
   ariaLabel: string;
+  /** Feature flag key — if set, item is hidden when the flag is off (unless WC/admin) */
+  featureKey?: keyof FeatureFlags;
+  /** If true, only shown to admin/WC users */
+  adminOnly?: boolean;
 }
 
 // Items are grouped — a divider renders between each group
 const navGroups: NavItem[][] = [
   // ── Command ─────────────────────────────────────────────────────────────
   [
-    { name: "Dashboard", path: "/", icon: LayoutDashboard, ariaLabel: "Go to Dashboard" },
+    { name: "Dashboard", path: "/", icon: LayoutDashboard, ariaLabel: "Go to Dashboard", featureKey: "dashboard" },
   ],
   // ── People & Planning ────────────────────────────────────────────────────
   [
-    { name: "People",       path: "/people",       icon: Users,       ariaLabel: "Go to People" },
-    { name: "Calendar",     path: "/calendar",     icon: Calendar,    ariaLabel: "Go to Calendar" },
-    { name: "Tasks",        path: "/tasks",        icon: CheckSquare, ariaLabel: "Go to Tasks" },
-    { name: "Targets",      path: "/targets",      icon: Target,      ariaLabel: "Go to Targets" },
-    { name: "Detachments",  path: "/detachments",  icon: Navigation,  ariaLabel: "Go to Detachment Rota" },
+    { name: "People",       path: "/people",       icon: Users,       ariaLabel: "Go to People",            featureKey: "people" },
+    { name: "Calendar",     path: "/calendar",     icon: Calendar,    ariaLabel: "Go to Calendar",          featureKey: "calendar" },
+    { name: "Tasks",        path: "/tasks",        icon: CheckSquare, ariaLabel: "Go to Tasks",             featureKey: "tasks" },
+    { name: "Targets",      path: "/targets",      icon: Target,      ariaLabel: "Go to Targets",           featureKey: "targets" },
+    { name: "Detachments",  path: "/detachments",  icon: Navigation,  ariaLabel: "Go to Detachment Rota",   featureKey: "detachments" },
   ],
   // ── Operations ───────────────────────────────────────────────────────────
   [
-    { name: "J4 Checks",   path: "/equipment",   icon: Truck,          ariaLabel: "Go to J4 Equipment Checks" },
-    { name: "Shift",       path: "/handover",    icon: ClipboardList,  ariaLabel: "Go to Shift Management" },
+    { name: "J4 Checks",   path: "/equipment",   icon: Truck,          ariaLabel: "Go to J4 Equipment Checks", featureKey: "equipment" },
+    { name: "Shift",       path: "/handover",    icon: ClipboardList,  ariaLabel: "Go to Shift Management",    featureKey: "handover" },
   ],
   // ── Reference & Account ──────────────────────────────────────────────────
   [
-    { name: "My Profile", path: "/profile",  icon: UserCircle, ariaLabel: "Go to My Profile" },
-    { name: "Policies",   path: "/policies",  icon: FileText, ariaLabel: "Go to Policies & Q&A" },
-    { name: "Resources",  path: "/resources", icon: BookOpen,  ariaLabel: "Go to Resources & Guides" },
-    { name: "Settings",   path: "/settings",  icon: Settings,  ariaLabel: "Go to Settings" },
+    { name: "My Profile", path: "/profile",   icon: UserCircle, ariaLabel: "Go to My Profile" },
+    { name: "Policies",   path: "/policies",  icon: FileText,   ariaLabel: "Go to Policies & Q&A",  featureKey: "policies" },
+    { name: "Resources",  path: "/resources", icon: BookOpen,   ariaLabel: "Go to Resources & Guides", featureKey: "resources" },
+    { name: "Settings",   path: "/settings",  icon: Settings,   ariaLabel: "Go to Settings" },
+  ],
+  // ── Admin ────────────────────────────────────────────────────────────────
+  [
+    { name: "Admin",  path: "/admin",  icon: ShieldCheck, ariaLabel: "Go to Admin Panel", adminOnly: true },
   ],
 ];
 
@@ -74,6 +85,23 @@ export default function SidebarNav({
   onToggleExpand,
 }: SidebarNavProps) {
   const location = useLocation();
+  const { flags } = useFeatureFlags();
+  const { user } = useAuth();
+
+  const isWCOrAdmin = user?.role === "WC" || user?.is_admin === true;
+
+  // Filter nav groups based on feature flags and admin access
+  const filteredGroups = navGroups
+    .map((group) =>
+      group.filter((item) => {
+        // Admin-only items: only visible to WC/admin
+        if (item.adminOnly && !isWCOrAdmin) return false;
+        // Feature-flagged items: WC/admin always see them, others check the flag
+        if (item.featureKey && !isWCOrAdmin && !flags[item.featureKey]) return false;
+        return true;
+      })
+    )
+    .filter((group) => group.length > 0);
 
   return (
     <aside
@@ -122,7 +150,7 @@ export default function SidebarNav({
           "flex-1 flex flex-col w-full overflow-y-auto scrollbar-none",
           expanded ? "gap-0.5 px-2" : "gap-1 px-3",
         )}>
-          {navGroups.map((group, gi) => (
+          {filteredGroups.map((group, gi) => (
             <Fragment key={gi}>
               {gi > 0 && (
                 <div className={cn(

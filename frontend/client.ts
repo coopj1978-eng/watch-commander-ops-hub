@@ -150,6 +150,7 @@ export namespace absence {
         reason: string
         docs?: string[]
         "evidence_urls"?: string[]
+        "sick_line_document"?: string
         status: AbsenceStatus
         "approved_by"?: string
         "approved_at"?: string
@@ -195,6 +196,13 @@ export namespace absence {
         total: number
     }
 
+    export interface SelfReportRequest {
+        "start_date": string
+        "end_date": string
+        reason?: string
+        "sick_line_document"?: string
+    }
+
     export interface TodaySickMember {
         "user_id": string
         name: string
@@ -205,15 +213,7 @@ export namespace absence {
         "sick_staff": TodaySickMember[]
     }
 
-    export interface SelfReportRequest {
-        "start_date": string
-        "end_date": string
-        reason?: string
-        "sick_line_document"?: string
-    }
-
     export interface UpdateAbsenceDatesRequest {
-        id: number
         "start_date"?: string
         "end_date"?: string
         "sick_line_document"?: string
@@ -228,8 +228,8 @@ export namespace absence {
             this.create = this.create.bind(this)
             this.getStats = this.getStats.bind(this)
             this.list = this.list.bind(this)
-            this.todaySick = this.todaySick.bind(this)
             this.selfReport = this.selfReport.bind(this)
+            this.todaySick = this.todaySick.bind(this)
             this.updateAbsence = this.updateAbsence.bind(this)
         }
 
@@ -267,22 +267,28 @@ export namespace absence {
             return await resp.json() as ListAbsencesResponse
         }
 
+        public async selfReport(params: SelfReportRequest): Promise<Absence> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/absences/self-report`, JSON.stringify(params))
+            return await resp.json() as Absence
+        }
+
         /**
          * Returns all staff with an approved sickness absence that covers today's date.
          * Used by the WC dashboard to cross-reference against the crewing board.
          */
         public async todaySick(): Promise<TodaySickResponse> {
+            // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/absences/today-sick`)
             return await resp.json() as TodaySickResponse
         }
 
-        public async selfReport(params: SelfReportRequest): Promise<Absence> {
-            const resp = await this.baseClient.callTypedAPI("POST", `/absences/self-report`, JSON.stringify(params))
-            return await resp.json() as Absence
-        }
-
-        public async updateAbsence(params: UpdateAbsenceDatesRequest): Promise<Absence> {
-            const resp = await this.baseClient.callTypedAPI("PATCH", `/absences/${encodeURIComponent(params.id)}/update`, JSON.stringify(params))
+        /**
+         * FF can update dates/sick line on their own absence. WC can update anything.
+         */
+        public async updateAbsence(id: number, params: UpdateAbsenceDatesRequest): Promise<Absence> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("PATCH", `/absences/${encodeURIComponent(id)}/update`, JSON.stringify(params))
             return await resp.json() as Absence
         }
     }
@@ -482,6 +488,21 @@ export namespace admin {
         hasWC: boolean
     }
 
+    export interface CreateAccountRequest {
+        name: string
+        email: string
+        password: string
+        role: user.UserRole
+        "watch_unit"?: string
+        rank?: string
+    }
+
+    export interface CreateAccountResponse {
+        success: boolean
+        userId: string
+        email: string
+    }
+
     export interface CreateActivityLogRequest {
         "actor_user_id": string
         action: string
@@ -509,7 +530,7 @@ export namespace admin {
 
     export interface GetInviteLinkRequest {
         email: string
-        frontend_url?: string
+        "frontend_url"?: string
     }
 
     export interface GetInviteLinkResponse {
@@ -551,6 +572,7 @@ export namespace admin {
             this.bootstrap = this.bootstrap.bind(this)
             this.changeRole = this.changeRole.bind(this)
             this.checkWC = this.checkWC.bind(this)
+            this.createAccount = this.createAccount.bind(this)
             this.createActivityLog = this.createActivityLog.bind(this)
             this.deactivateUser = this.deactivateUser.bind(this)
             this.fixMyRole = this.fixMyRole.bind(this)
@@ -582,6 +604,12 @@ export namespace admin {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/admin/check-wc`)
             return await resp.json() as CheckWCResponse
+        }
+
+        public async createAccount(params: CreateAccountRequest): Promise<CreateAccountResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/admin/create-account`, JSON.stringify(params))
+            return await resp.json() as CreateAccountResponse
         }
 
         public async createActivityLog(params: CreateActivityLogRequest): Promise<ActivityLog> {
@@ -1581,33 +1609,29 @@ export namespace frontend {
 export namespace h4h {
     export interface H4HEntry {
         id: number
-        creditor_user_id: string
-        creditor_name: string
-        debtor_user_id: string
-        debtor_name: string
-        shift_date: string
-        shift_adjustment_id: number | null
-        payback_shift_adjustment_id: number | null
+        "creditor_user_id": string
+        "creditor_name": string
+        "debtor_user_id": string
+        "debtor_name": string
+        "shift_date": string
+        "shift_adjustment_id": number | null
+        "payback_shift_adjustment_id": number | null
         status: "pending" | "settled"
-        settled_at: string | null
-        settled_by_user_id: string | null
-        settled_via: "auto" | "manual" | null
+        "settled_at": string | null
+        "settled_by_user_id": string | null
+        "settled_via": "auto" | "manual" | null
         notes: string | null
-        created_at: string
+        "created_at": string
     }
 
     export interface ListH4HRequest {
-        user_id: string
+        "user_id": string
         status?: "pending" | "settled"
     }
 
     export interface ListH4HResponse {
-        owed_to_me: H4HEntry[]
-        i_owe: H4HEntry[]
-    }
-
-    export interface SettleH4HRequest {
-        id: number
+        "owed_to_me": H4HEntry[]
+        "i_owe": H4HEntry[]
     }
 
     export class ServiceClient {
@@ -1620,15 +1644,19 @@ export namespace h4h {
         }
 
         public async list(params: ListH4HRequest): Promise<ListH4HResponse> {
+            // Convert our params into the objects we need for the request
             const query = makeRecord<string, string | string[]>({
-                user_id: params.user_id,
-                status: params.status === undefined ? undefined : String(params.status),
+                status:    params.status === undefined ? undefined : String(params.status),
+                "user_id": params["user_id"],
             })
-            const resp = await this.baseClient.callTypedAPI("GET", `/h4h`, undefined, { query })
+
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/h4h`, undefined, {query})
             return await resp.json() as ListH4HResponse
         }
 
         public async settle(id: number): Promise<H4HEntry> {
+            // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("POST", `/h4h/${encodeURIComponent(id)}/settle`)
             return await resp.json() as H4HEntry
         }
@@ -2169,9 +2197,45 @@ export namespace localauth {
         token: string
     }
 
+    export interface ChangePasswordRequest {
+        "current_password": string
+        "new_password": string
+    }
+
+    export interface ChangePasswordResponse {
+        success: boolean
+    }
+
     export interface CreateAdminResponse {
         success: boolean
         message: string
+    }
+
+    export interface ForgotPasswordRequest {
+        email: string
+    }
+
+    export interface ForgotPasswordResponse {
+        success: boolean
+        "email_sent": boolean
+    }
+
+    export interface ResetPasswordRequest {
+        token: string
+        "new_password": string
+    }
+
+    export interface ResetPasswordResponse {
+        success: boolean
+    }
+
+    export interface ResetUserPasswordRequest {
+        userId: string
+        "new_password": string
+    }
+
+    export interface ResetUserPasswordResponse {
+        success: boolean
     }
 
     export interface SignInRequest {
@@ -2185,78 +2249,71 @@ export namespace localauth {
         name: string
     }
 
-    export interface ChangePasswordRequest {
-        current_password: string
-        new_password: string
-    }
-
-    export interface ResetUserPasswordRequest {
-        userId: string
-        new_password: string
-    }
-
-    export interface ForgotPasswordRequest {
-        email: string
-    }
-
-    export interface ResetPasswordRequest {
-        token: string
-        new_password: string
-    }
-
     export class ServiceClient {
         private baseClient: BaseClient
 
         constructor(baseClient: BaseClient) {
             this.baseClient = baseClient
+            this.changePassword = this.changePassword.bind(this)
             this.createAdmin = this.createAdmin.bind(this)
+            this.forgotPassword = this.forgotPassword.bind(this)
+            this.resetPassword = this.resetPassword.bind(this)
+            this.resetUserPassword = this.resetUserPassword.bind(this)
             this.signIn = this.signIn.bind(this)
             this.signOut = this.signOut.bind(this)
             this.signUp = this.signUp.bind(this)
-            this.changePassword = this.changePassword.bind(this)
-            this.resetUserPassword = this.resetUserPassword.bind(this)
-            this.forgotPassword = this.forgotPassword.bind(this)
-            this.resetPassword = this.resetPassword.bind(this)
+        }
+
+        public async changePassword(params: ChangePasswordRequest): Promise<ChangePasswordResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/auth/change-password`, JSON.stringify(params))
+            return await resp.json() as ChangePasswordResponse
         }
 
         public async createAdmin(): Promise<CreateAdminResponse> {
+            // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("POST", `/localauth/create-admin`)
             return await resp.json() as CreateAdminResponse
         }
 
+        public async forgotPassword(params: ForgotPasswordRequest): Promise<ForgotPasswordResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/auth/forgot-password`, JSON.stringify(params))
+            return await resp.json() as ForgotPasswordResponse
+        }
+
+        public async resetPassword(params: ResetPasswordRequest): Promise<ResetPasswordResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/auth/reset-password`, JSON.stringify(params))
+            return await resp.json() as ResetPasswordResponse
+        }
+
+        public async resetUserPassword(params: ResetUserPasswordRequest): Promise<ResetUserPasswordResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/auth/reset-user-password`, JSON.stringify(params))
+            return await resp.json() as ResetUserPasswordResponse
+        }
+
         public async signIn(params: SignInRequest): Promise<AuthResponse> {
+            // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("POST", `/auth/signin`, JSON.stringify(params))
             return await resp.json() as AuthResponse
         }
 
-        public async signOut(): Promise<{ success: boolean }> {
+        public async signOut(): Promise<{
+    success: boolean
+}> {
+            // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("POST", `/auth/signout`)
-            return await resp.json() as { success: boolean }
+            return await resp.json() as {
+    success: boolean
+}
         }
 
         public async signUp(params: SignUpRequest): Promise<AuthResponse> {
+            // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("POST", `/auth/signup`, JSON.stringify(params))
             return await resp.json() as AuthResponse
-        }
-
-        public async changePassword(params: ChangePasswordRequest): Promise<{ success: boolean }> {
-            const resp = await this.baseClient.callTypedAPI("POST", `/auth/change-password`, JSON.stringify(params))
-            return await resp.json() as { success: boolean }
-        }
-
-        public async resetUserPassword(params: ResetUserPasswordRequest): Promise<{ success: boolean }> {
-            const resp = await this.baseClient.callTypedAPI("POST", `/auth/reset-user-password`, JSON.stringify(params))
-            return await resp.json() as { success: boolean }
-        }
-
-        public async forgotPassword(params: ForgotPasswordRequest): Promise<{ success: boolean }> {
-            const resp = await this.baseClient.callTypedAPI("POST", `/auth/forgot-password`, JSON.stringify(params))
-            return await resp.json() as { success: boolean }
-        }
-
-        public async resetPassword(params: ResetPasswordRequest): Promise<{ success: boolean }> {
-            const resp = await this.baseClient.callTypedAPI("POST", `/auth/reset-password`, JSON.stringify(params))
-            return await resp.json() as { success: boolean }
         }
     }
 }
@@ -2793,11 +2850,16 @@ export namespace notification {
         message: string
         "entity_type"?: string
         "entity_id"?: string
+        link?: string
         read: boolean
         "created_at": string
     }
 
     export type NotificationType = "sick_booking" | "cert_expiry" | "task_overdue" | "crewing_gap" | "general"
+
+    export interface RefreshResponse {
+        generated: number
+    }
 
     export class ServiceClient {
         private baseClient: BaseClient
@@ -2808,11 +2870,6 @@ export namespace notification {
             this.markAllRead = this.markAllRead.bind(this)
             this.markRead = this.markRead.bind(this)
             this.refresh = this.refresh.bind(this)
-        }
-
-        public async refresh(): Promise<{ generated: number }> {
-            const resp = await this.baseClient.callTypedAPI("POST", `/notifications/refresh`)
-            return await resp.json() as { generated: number }
         }
 
         public async list(): Promise<ListNotificationsResponse> {
@@ -2839,6 +2896,18 @@ export namespace notification {
             return await resp.json() as {
     success: boolean
 }
+        }
+
+        /**
+         * Refreshes notifications for the current user.
+         * Generates cert_expiry, task_overdue, and crewing_gap notifications.
+         * Deduplicates: will not create a duplicate notification for the same entity
+         * if one already exists that is unread.
+         */
+        public async refresh(): Promise<RefreshResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/notifications/refresh`)
+            return await resp.json() as RefreshResponse
         }
     }
 }
@@ -3509,6 +3578,21 @@ export namespace report {
 }
 
 export namespace settings {
+    export interface FeatureFlags {
+        dashboard: boolean
+        people: boolean
+        calendar: boolean
+        tasks: boolean
+        targets: boolean
+        detachments: boolean
+        equipment: boolean
+        handover: boolean
+        policies: boolean
+        resources: boolean
+        reports: boolean
+        inspections: boolean
+    }
+
     export interface SystemSettings {
         id: number
         "skills_dictionary": string[]
@@ -3524,6 +3608,7 @@ export namespace settings {
         "branding_logo_url"?: string
         "branding_primary_color"?: string
         "branding_secondary_color"?: string
+        "feature_flags": FeatureFlags
         "created_at": string
         "updated_at": string
     }
@@ -3537,6 +3622,10 @@ export namespace settings {
         "branding_logo_url"?: string
         "branding_primary_color"?: string
         "branding_secondary_color"?: string
+    }
+
+    export interface UpdateFeatureFlagsRequest {
+        "feature_flags": FeatureFlags
     }
 
     export interface UpdateSkillsCertsRequest {
@@ -3561,6 +3650,7 @@ export namespace settings {
             this.get = this.get.bind(this)
             this.updateAbsenceThresholds = this.updateAbsenceThresholds.bind(this)
             this.updateBranding = this.updateBranding.bind(this)
+            this.updateFeatureFlags = this.updateFeatureFlags.bind(this)
             this.updateSkillsCerts = this.updateSkillsCerts.bind(this)
             this.updateTriggerThresholds = this.updateTriggerThresholds.bind(this)
         }
@@ -3583,6 +3673,12 @@ export namespace settings {
             return await resp.json() as SystemSettings
         }
 
+        public async updateFeatureFlags(params: UpdateFeatureFlagsRequest): Promise<SystemSettings> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("PUT", `/settings/feature-flags`, JSON.stringify(params))
+            return await resp.json() as SystemSettings
+        }
+
         public async updateSkillsCerts(params: UpdateSkillsCertsRequest): Promise<SystemSettings> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("PATCH", `/settings/skills-certs`, JSON.stringify(params))
@@ -3593,6 +3689,45 @@ export namespace settings {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("PUT", `/settings/trigger-thresholds`, JSON.stringify(params))
             return await resp.json() as SystemSettings
+        }
+    }
+}
+
+export namespace shift_adjustments {
+
+    export class ServiceClient {
+        private baseClient: BaseClient
+
+        constructor(baseClient: BaseClient) {
+            this.baseClient = baseClient
+            this.create = this.create.bind(this)
+            this.deleteAdjustment = this.deleteAdjustment.bind(this)
+            this.list = this.list.bind(this)
+        }
+
+        public async create(params: shift_adjustments.CreateShiftAdjustmentRequest): Promise<shift_adjustments.ShiftAdjustment> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/shift-adjustments`, JSON.stringify(params))
+            return await resp.json() as shift_adjustments.ShiftAdjustment
+        }
+
+        public async deleteAdjustment(id: number): Promise<void> {
+            await this.baseClient.callTypedAPI("DELETE", `/shift-adjustments/${encodeURIComponent(id)}`)
+        }
+
+        public async list(params: shift_adjustments.ListShiftAdjustmentsRequest): Promise<shift_adjustments.ListShiftAdjustmentsResponse> {
+            // Convert our params into the objects we need for the request
+            const query = makeRecord<string, string | string[]>({
+                "covering_watch": params["covering_watch"],
+                "end_date":       params["end_date"],
+                "start_date":     params["start_date"],
+                "user_id":        params["user_id"],
+                "watch_unit":     params["watch_unit"],
+            })
+
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/shift-adjustments`, undefined, {query})
+            return await resp.json() as shift_adjustments.ListShiftAdjustmentsResponse
         }
     }
 }
@@ -3828,6 +3963,9 @@ export namespace task {
         tags?: string[]
         position?: number
         status?: TaskStatus
+        "source_type"?: string
+        "source_id"?: number
+        "calendar_event_id"?: number
     }
 
     export interface CreateTemplateRequest {
@@ -3883,6 +4021,7 @@ export namespace task {
         "due_at"?: string
         checklist?: ChecklistItem[]
         attachments?: string[]
+        tags?: string[]
         rrule?: string
         position?: number
         "completed_at"?: string
@@ -3997,11 +4136,11 @@ export namespace task {
             const query = makeRecord<string, string | string[]>({
                 "assigned_by": params["assigned_by"],
                 "assigned_to": params["assigned_to"],
-                "watch_unit":  params["watch_unit"],
                 limit:         params.limit === undefined ? undefined : String(params.limit),
                 offset:        params.offset === undefined ? undefined : String(params.offset),
                 priority:      params.priority === undefined ? undefined : String(params.priority),
                 status:        params.status === undefined ? undefined : String(params.status),
+                "watch_unit":  params["watch_unit"],
             })
 
             // Now make the actual call to the API
@@ -4038,8 +4177,8 @@ export namespace task {
     attachments?: string[]
     rrule?: string
     tags?: string[]
-    position?: number
     "cover_colour"?: string
+    position?: number
 }): Promise<Task> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("PATCH", `/tasks/${encodeURIComponent(id)}`, JSON.stringify(params))
@@ -4117,6 +4256,7 @@ export namespace user {
         "avatar_url"?: string
         "last_login_at"?: string
         "is_active": boolean
+        "is_admin": boolean
         "left_at"?: string
         "password_hash"?: string
         "password_reset_token"?: string
@@ -4183,29 +4323,7 @@ export namespace user {
     }
 }
 
-
-
 export namespace shift_adjustments {
-    export type ShiftAdjustmentType = "flexi" | "training" | "h4h" | "flexi_payback" | "orange_day"
-
-    export interface ShiftAdjustment {
-        id: number
-        "user_id": string
-        "user_name"?: string
-        type: ShiftAdjustmentType
-        "start_date": string
-        "end_date": string
-        "covering_user_id"?: string
-        "covering_name"?: string
-        "covering_watch"?: string
-        "shift_day_night"?: "Day" | "Night"
-        "watch_unit": string
-        notes?: string
-        "created_by_user_id": string
-        "created_at": string
-        "updated_at": string
-    }
-
     export interface CreateShiftAdjustmentRequest {
         type: ShiftAdjustmentType
         "start_date": string
@@ -4230,37 +4348,28 @@ export namespace shift_adjustments {
         adjustments: ShiftAdjustment[]
     }
 
-    export class ServiceClient {
-        private baseClient: BaseClient
-
-        constructor(baseClient: BaseClient) {
-            this.baseClient = baseClient
-        }
-
-        public async create(params: CreateShiftAdjustmentRequest): Promise<ShiftAdjustment> {
-            const resp = await this.baseClient.callTypedAPI("POST", `/shift-adjustments`, JSON.stringify(params))
-            return await resp.json() as ShiftAdjustment
-        }
-
-        public async list(params: ListShiftAdjustmentsRequest): Promise<ListShiftAdjustmentsResponse> {
-            const query = makeRecord<string, string | string[]>({
-                user_id:        params.user_id,
-                watch_unit:     params.watch_unit,
-                covering_watch: params.covering_watch,
-                start_date:     params.start_date,
-                end_date:       params.end_date,
-            })
-            const encoded = encodeQuery(query)
-            const qs = encoded ? `?${encoded}` : ""
-            const resp = await this.baseClient.callTypedAPI("GET", `/shift-adjustments${qs}`)
-            return await resp.json() as ListShiftAdjustmentsResponse
-        }
-
-        public async deleteAdjustment(id: number): Promise<void> {
-            await this.baseClient.callTypedAPI("DELETE", `/shift-adjustments/${encodeURIComponent(id)}`)
-        }
+    export interface ShiftAdjustment {
+        id: number
+        "user_id": string
+        "user_name"?: string
+        type: ShiftAdjustmentType
+        "start_date": string
+        "end_date": string
+        "covering_user_id"?: string
+        "covering_name"?: string
+        "covering_watch"?: string
+        "shift_day_night"?: "Day" | "Night"
+        "watch_unit": string
+        notes?: string
+        "created_by_user_id": string
+        "created_at": string
+        "updated_at": string
     }
+
+    export type ShiftAdjustmentType = "flexi" | "training" | "h4h" | "flexi_payback" | "orange_day"
 }
+
+
 
 function encodeQuery(parts: Record<string, string | string[]>): string {
     const pairs: string[] = []

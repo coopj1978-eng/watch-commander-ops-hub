@@ -40,13 +40,14 @@ export const create = api<CreateEventRequest, CalendarEvent>(
 
     if (!event) throw new Error("Failed to create calendar event");
 
-    // ── Auto-create a watch task for station-wide events ──────────────────────
-    // Conditions: station visibility, not from a shift adjustment, has a time
-    const isStationEvent = (req.calendar_visibility ?? "station") === "station";
+    // ── Auto-create a watch task for station/watch events ──────────────────────
+    // Conditions: station or watch visibility, not from a shift adjustment, not personal
+    const visibility = req.calendar_visibility ?? "station";
+    const isSharedEvent = visibility === "station" || visibility === "watch";
     const isShiftAdjustment = req.source_type && SHIFT_ADJUSTMENT_SOURCES.has(req.source_type);
-    const hasNoPersonalUser = !req.user_id; // personal/watch events belong to a person
+    const isPersonalEvent = visibility === "personal";
 
-    if (isStationEvent && !isShiftAdjustment && hasNoPersonalUser) {
+    if (isSharedEvent && !isShiftAdjustment && !isPersonalEvent) {
       const startTime = new Date(req.start_time);
 
       // Determine which watch is on duty

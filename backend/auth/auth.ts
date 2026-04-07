@@ -31,6 +31,7 @@ export interface AuthData {
   imageUrl: string;
   email: string | null;
   role: UserRole;
+  isAdmin: boolean;
   watchUnit?: string;
   rank?: string;
   assignedCrews?: string[];
@@ -86,6 +87,7 @@ export const auth = authHandler<AuthParams, AuthData>(async (data) => {
       imageUrl: dbUser.avatar_url || "",
       email: dbUser.email,
       role,
+      isAdmin: dbUser.is_admin ?? false,
       watchUnit: dbUser.watch_unit || "",
       rank: dbUser.rank || "",
     };

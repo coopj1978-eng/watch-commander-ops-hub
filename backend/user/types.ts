@@ -10,6 +10,7 @@ export interface User {
   avatar_url?: string;
   last_login_at?: Date;
   is_active: boolean;
+  is_admin: boolean;
   left_at?: Date;
   password_hash?: string;
   password_reset_token?: string;

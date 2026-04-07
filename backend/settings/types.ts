@@ -1,3 +1,18 @@
+export interface FeatureFlags {
+  dashboard: boolean;
+  people: boolean;
+  calendar: boolean;
+  tasks: boolean;
+  targets: boolean;
+  detachments: boolean;
+  equipment: boolean;
+  handover: boolean;
+  policies: boolean;
+  resources: boolean;
+  reports: boolean;
+  inspections: boolean;
+}
+
 export interface SystemSettings {
   id: number;
   skills_dictionary: string[];
@@ -13,8 +28,13 @@ export interface SystemSettings {
   branding_logo_url?: string;
   branding_primary_color?: string;
   branding_secondary_color?: string;
+  feature_flags: FeatureFlags;
   created_at: Date;
   updated_at: Date;
+}
+
+export interface UpdateFeatureFlagsRequest {
+  feature_flags: FeatureFlags;
 }
 
 export interface UpdateSkillsCertsRequest {

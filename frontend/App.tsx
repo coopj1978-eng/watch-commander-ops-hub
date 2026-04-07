@@ -27,6 +27,7 @@ import SignUp from "./pages/SignUp";
 import ResetPassword from "./pages/ResetPassword";
 import { applyTheme, getStoredTheme } from "./lib/theme";
 import { backendClient } from "./lib/backend";
+import { FeatureFlagProvider } from "./lib/feature-flags";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -42,6 +43,7 @@ interface AuthUser {
   email: string;
   name: string;
   role: string;
+  is_admin: boolean;
   watch_unit?: string; // e.g. "Red" | "White" | "Green" | "Blue" | "Amber"
 }
 
@@ -98,6 +100,7 @@ function AppInner() {
             email: result.email,
             name: result.name,
             role: result.role,
+            is_admin: result.is_admin ?? false,
             watch_unit: result.watch_unit ?? undefined,
           },
           isLoaded: true,
@@ -145,7 +148,9 @@ function AppInner() {
         signOut,
       }}
     >
-      <AppRoutes />
+      <FeatureFlagProvider>
+        <AppRoutes />
+      </FeatureFlagProvider>
     </AuthContext.Provider>
   );
 }
@@ -202,7 +207,9 @@ function AppRoutes() {
         <Route path="/detachments" element={<DetachmentsPage />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/reports/quarterly/:id" element={<QuarterlyReport />} />
-        <Route path="/admin" element={<AdminPanel />} />
+        <Route path="/admin" element={
+          (role === "WC" || user?.is_admin) ? <AdminPanel /> : <Navigate to="/" replace />
+        } />
         <Route path="/settings" element={<Settings />} />
       </Route>
       {/* Print view — outside Layout so it renders clean with no sidebar */}

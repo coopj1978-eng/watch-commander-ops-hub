@@ -53,6 +53,13 @@ export const update = api<UpdateEventParams, CalendarEvent>(
       setClauses.push(`color = $${paramIndex++}`);
       params.push(updates.color);
     }
+    if (updates.calendar_visibility !== undefined) {
+      setClauses.push(`calendar_visibility = $${paramIndex++}`);
+      params.push(updates.calendar_visibility);
+      // Also update is_watch_event to match
+      setClauses.push(`is_watch_event = $${paramIndex++}`);
+      params.push(updates.calendar_visibility === "station" || updates.calendar_visibility === "watch");
+    }
 
     if (setClauses.length === 0) {
       throw APIError.invalidArgument("no updates provided");

@@ -20,15 +20,26 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { UserPlus, UserX, UserCheck } from "lucide-react";
+import { UserPlus, UserX, UserCheck, Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { OffboardingWizard } from "@/components/OffboardingWizard";
 import { InviteUserDialog } from "@/components/InviteUserDialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export function AdminUsers() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [offboardingUser, setOffboardingUser] = useState<User | null>(null);
+  const [deleteUser, setDeleteUser] = useState<User | null>(null);
   const [showInviteDialog, setShowInviteDialog] = useState(false);
   const { toast } = useToast();
 
@@ -66,6 +77,25 @@ export function AdminUsers() {
         variant: "destructive",
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to update role",
+      });
+    }
+  };
+
+  const handleDelete = async (userId: string) => {
+    try {
+      await backend.user.deleteUser(userId);
+      toast({
+        title: "Success",
+        description: "User permanently deleted",
+      });
+      setDeleteUser(null);
+      await loadUsers();
+    } catch (error) {
+      console.error("Failed to delete user:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to delete user",
       });
     }
   };
@@ -179,6 +209,14 @@ export function AdminUsers() {
                           Reactivate
                         </Button>
                       )}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => setDeleteUser(user)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -206,6 +244,28 @@ export function AdminUsers() {
         onClose={() => setShowInviteDialog(false)}
         onSuccess={loadUsers}
       />
+
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={!!deleteUser} onOpenChange={(open) => !open && setDeleteUser(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Permanently Delete User</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to permanently delete <strong>{deleteUser?.name}</strong> ({deleteUser?.email})?
+              This action cannot be undone. All associated data including profiles, activity logs, and records will be removed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteUser && handleDelete(deleteUser.id)}
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+            >
+              Delete Permanently
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </PageContainer>
   );
 }

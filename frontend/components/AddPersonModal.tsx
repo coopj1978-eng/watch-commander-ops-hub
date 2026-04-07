@@ -23,7 +23,12 @@ interface AddPersonModalProps {
 import { WatchDot } from "./WatchBadge";
 
 const WATCH_OPTIONS = ["Green", "Red", "White", "Blue", "Amber"];
-const RANK_OPTIONS = ["SC", "WC", "CC", "FF"];
+const RANK_OPTIONS = [
+  { value: "Watch Commander", label: "Watch Commander" },
+  { value: "Crew Commander", label: "Crew Commander" },
+  { value: "Leading Firefighter", label: "Leading Firefighter" },
+  { value: "Firefighter", label: "Firefighter" },
+];
 
 const DRIVER_PATHWAY_OPTIONS = [
   { value: "medical_due", label: "Medical Due" },
@@ -40,6 +45,7 @@ export default function AddPersonModal({ isOpen, onClose }: AddPersonModalProps)
   const [email, setEmail] = useState("");
   const [watch, setWatch] = useState("");
   const [rank, setRank] = useState("");
+  const [station, setStation] = useState("B10 Springburn");
   const [serviceNumber, setServiceNumber] = useState("");
   const [phone, setPhone] = useState("");
   const [niNumber, setNiNumber] = useState("");
@@ -59,6 +65,7 @@ export default function AddPersonModal({ isOpen, onClose }: AddPersonModalProps)
         rank: (rank && rank !== "_none") ? rank : undefined,
         watch_unit: (watch && watch !== "_none") ? watch : undefined,
         phone: phone || undefined,
+        station: station || undefined,
       });
     },
     onSuccess: async (data) => {
@@ -105,6 +112,7 @@ export default function AddPersonModal({ isOpen, onClose }: AddPersonModalProps)
     setEmail("");
     setWatch("");
     setRank("");
+    setStation("B10 Springburn");
     setServiceNumber("");
     setPhone("");
     setNiNumber("");
@@ -200,7 +208,7 @@ export default function AddPersonModal({ isOpen, onClose }: AddPersonModalProps)
                 <SelectContent>
                   <SelectItem value="_none">Select rank</SelectItem>
                   {RANK_OPTIONS.map(r => (
-                    <SelectItem key={r} value={r}>{r}</SelectItem>
+                    <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -227,6 +235,16 @@ export default function AddPersonModal({ isOpen, onClose }: AddPersonModalProps)
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+44 7700 900123"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="station">Station</Label>
+              <Input
+                id="station"
+                value={station}
+                onChange={(e) => setStation(e.target.value)}
+                placeholder="B10 Springburn"
               />
             </div>
 

@@ -13,6 +13,7 @@ interface ForgotPasswordRequest {
 
 interface ForgotPasswordResponse {
   success: boolean;
+  email_sent: boolean;
   // Always returns success even if email not found — prevents email enumeration
 }
 
@@ -26,7 +27,7 @@ export const forgotPassword = api<ForgotPasswordRequest, ForgotPasswordResponse>
     `;
 
     // Always return success — don't reveal whether email exists
-    if (!user) return { success: true };
+    if (!user) return { success: true, email_sent: false };
 
     // Generate a secure random token (32 bytes = 64 hex chars)
     const token = crypto.randomBytes(32).toString("hex");
@@ -58,10 +59,10 @@ export const forgotPassword = api<ForgotPasswordRequest, ForgotPasswordResponse>
       // Not configured
     }
 
-    if (!resendKey) {
-      // Dev mode: log the link instead of sending email
+    if (!resendKey || resendKey === "re_placeholder") {
+      // Dev mode / not configured: log the link instead of sending email
       console.log(`\n[DEV] Password reset link for ${user.email}:\n${resetLink}\n`);
-      return { success: true };
+      return { success: true, email_sent: false };
     }
 
     const resend = new Resend(resendKey);
@@ -96,6 +97,6 @@ export const forgotPassword = api<ForgotPasswordRequest, ForgotPasswordResponse>
       console.log("[Resend] Password reset email sent, id:", data?.id);
     }
 
-    return { success: true };
+    return { success: true, email_sent: !error };
   }
 );
