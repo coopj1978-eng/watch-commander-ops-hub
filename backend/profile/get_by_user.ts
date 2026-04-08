@@ -65,14 +65,18 @@ function transformProfile(dbProfile: DBProfile): FirefighterProfile {
     profile.driverPathway = {
       status: driver_pathway_status as any,
       lgvPassedDate: driver_pathway_lgv_passed_date
-        ? driver_pathway_lgv_passed_date.toISOString().split("T")[0]
+        ? (driver_pathway_lgv_passed_date instanceof Date
+            ? driver_pathway_lgv_passed_date.toISOString().split("T")[0]
+            : String(driver_pathway_lgv_passed_date).split("T")[0])
         : undefined,
     };
   }
 
   if (last_conversation_date && last_conversation_text) {
     profile.lastConversation = {
-      date: last_conversation_date.toISOString().split("T")[0],
+      date: last_conversation_date instanceof Date
+        ? last_conversation_date.toISOString().split("T")[0]
+        : String(last_conversation_date).split("T")[0],
       text: last_conversation_text,
     };
   }
