@@ -4437,6 +4437,7 @@ export namespace toil {
     export interface EarnToilRequest {
         hours: number
         reason: string
+        "job_number"?: string
         "incident_date": string
         "for_user_id"?: string
     }
@@ -4479,6 +4480,7 @@ export namespace toil {
         "approved_by_name"?: string
         "approved_at"?: string
         reason?: string
+        "job_number"?: string
         "shift_adjustment_id"?: number
         "incident_date"?: string
         "financial_year": number

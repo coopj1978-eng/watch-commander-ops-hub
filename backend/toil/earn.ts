@@ -48,8 +48,8 @@ export const earn = api<EarnToilRequest, ToilEntry>(
     const autoApprove = isManager;
 
     const entry = await db.rawQueryRow<ToilEntry>(
-      `INSERT INTO toil_ledger (user_id, type, hours, status, approved_by_user_id, approved_at, reason, incident_date, financial_year, watch_unit, created_by)
-       VALUES ($1, 'earned', $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      `INSERT INTO toil_ledger (user_id, type, hours, status, approved_by_user_id, approved_at, reason, job_number, incident_date, financial_year, watch_unit, created_by)
+       VALUES ($1, 'earned', $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
        RETURNING *`,
       targetUserId,
       req.hours,
@@ -57,6 +57,7 @@ export const earn = api<EarnToilRequest, ToilEntry>(
       autoApprove ? auth.userID : null,
       autoApprove ? new Date() : null,
       req.reason.trim(),
+      req.job_number?.trim() || null,
       req.incident_date,
       fy,
       userInfo.watch_unit,

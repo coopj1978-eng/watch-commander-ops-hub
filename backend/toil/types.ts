@@ -11,6 +11,7 @@ export interface ToilEntry {
   approved_by_name?: string;
   approved_at?: Date;
   reason?: string;
+  job_number?: string;
   shift_adjustment_id?: number;
   incident_date?: Date;
   financial_year: number;
@@ -33,6 +34,7 @@ export interface ToilBalance {
 export interface EarnToilRequest {
   hours: number;
   reason: string;
+  job_number?: string;        // incident/job reference number
   incident_date: string;
   for_user_id?: string;      // WC/CC can log for another user
 }

@@ -33,7 +33,7 @@ const SHIFT_CELL_BG_LIGHT: Record<string, string> = {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-const DAY_LABELS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+const DAY_LABELS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
 
 function sameDay(a: Date, b: Date) {
   return (
@@ -50,10 +50,10 @@ function toDateKey(d: Date) {
 function getDaysInMonthGrid(date: Date): (Date | null)[] {
   const year = date.getFullYear();
   const month = date.getMonth();
-  const firstDay = new Date(year, month, 1).getDay();
+  const firstDayOfWeek = (new Date(year, month, 1).getDay() + 6) % 7;
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const cells: (Date | null)[] = [];
-  for (let i = 0; i < firstDay; i++) cells.push(null);
+  for (let i = 0; i < firstDayOfWeek; i++) cells.push(null);
   for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(year, month, d));
   return cells;
 }

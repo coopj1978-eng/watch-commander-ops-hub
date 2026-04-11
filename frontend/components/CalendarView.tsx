@@ -24,7 +24,7 @@ export default function CalendarView({
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
-    const startingDayOfWeek = firstDay.getDay();
+    const startingDayOfWeek = (firstDay.getDay() + 6) % 7;
 
     const days: Date[] = [];
     for (let i = 0; i < startingDayOfWeek; i++) {
@@ -49,7 +49,7 @@ export default function CalendarView({
   };
 
   const days = getDaysInMonth(currentDate);
-  const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   const getEventsForDay = (date: Date) => {
     return events.filter((event) => {

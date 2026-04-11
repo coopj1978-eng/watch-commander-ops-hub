@@ -37,6 +37,7 @@ export default function ToilWidget() {
   const [earnOpen, setEarnOpen] = useState(false);
   const [earnHours, setEarnHours] = useState("1");
   const [earnReason, setEarnReason] = useState("");
+  const [earnJobNumber, setEarnJobNumber] = useState("");
   const [earnDate, setEarnDate] = useState(new Date().toISOString().split("T")[0]);
   const [earnForAnother, setEarnForAnother] = useState(false);
   const [earnForWatch, setEarnForWatch] = useState("");
@@ -87,6 +88,7 @@ export default function ToilWidget() {
     mutationFn: () => backend.toil.earn({
       hours: Number(earnHours),
       reason: earnReason.trim(),
+      job_number: earnJobNumber.trim() || undefined,
       incident_date: `${earnDate}T00:00:00.000Z`,
       for_user_id: earnForAnother && earnForUserId ? earnForUserId : undefined,
     }),
@@ -99,6 +101,7 @@ export default function ToilWidget() {
       setEarnOpen(false);
       setEarnHours("1");
       setEarnReason("");
+      setEarnJobNumber("");
       setEarnForAnother(false);
       setEarnForWatch("");
       setEarnForUserId("");
@@ -298,6 +301,16 @@ export default function ToilWidget() {
                 type="date"
                 value={earnDate}
                 onChange={e => setEarnDate(e.target.value)}
+                className="h-8 text-sm"
+              />
+            </div>
+
+            <div>
+              <Label className="text-xs text-muted-foreground mb-1 block">Job Number</Label>
+              <Input
+                placeholder="e.g. INC-2026-04821"
+                value={earnJobNumber}
+                onChange={e => setEarnJobNumber(e.target.value)}
                 className="h-8 text-sm"
               />
             </div>

@@ -99,7 +99,7 @@ export default function Inspections() {
   const currentMonth = today.getMonth();
   const currentYear = today.getFullYear();
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-  const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+  const firstDayOfMonth = (new Date(currentYear, currentMonth, 1).getDay() + 6) % 7;
 
   const calendarDays = Array.from({ length: daysInMonth }, (_, i) => i + 1);
   const emptyDays = Array.from({ length: firstDayOfMonth }, (_, i) => i);
@@ -164,7 +164,7 @@ export default function Inspections() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-7 gap-2">
-              {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+              {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
                 <div key={day} className="text-center font-semibold text-sm text-muted-foreground p-2">
                   {day}
                 </div>
