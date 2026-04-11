@@ -3703,6 +3703,7 @@ export namespace shift_adjustments {
             this.create = this.create.bind(this)
             this.deleteAdjustment = this.deleteAdjustment.bind(this)
             this.list = this.list.bind(this)
+            this.update = this.update.bind(this)
         }
 
         public async create(params: shift_adjustments.CreateShiftAdjustmentRequest): Promise<shift_adjustments.ShiftAdjustment> {
@@ -3713,6 +3714,11 @@ export namespace shift_adjustments {
 
         public async deleteAdjustment(id: number): Promise<void> {
             await this.baseClient.callTypedAPI("DELETE", `/shift-adjustments/${encodeURIComponent(id)}`)
+        }
+
+        public async update(id: number, params: shift_adjustments.UpdateShiftAdjustmentRequest): Promise<shift_adjustments.ShiftAdjustment> {
+            const resp = await this.baseClient.callTypedAPI("PATCH", `/shift-adjustments/${encodeURIComponent(id)}`, JSON.stringify(params))
+            return await resp.json() as shift_adjustments.ShiftAdjustment
         }
 
         public async list(params: shift_adjustments.ListShiftAdjustmentsRequest): Promise<shift_adjustments.ListShiftAdjustmentsResponse> {
@@ -4364,6 +4370,16 @@ export namespace shift_adjustments {
         "created_by_user_id": string
         "created_at": string
         "updated_at": string
+    }
+
+    export interface UpdateShiftAdjustmentRequest {
+        "start_date"?: string
+        "end_date"?: string
+        "covering_user_id"?: string
+        "covering_name"?: string
+        "covering_watch"?: string
+        "shift_day_night"?: "Day" | "Night"
+        notes?: string
     }
 
     export type ShiftAdjustmentType = "flexi" | "training" | "h4h" | "flexi_payback" | "orange_day"

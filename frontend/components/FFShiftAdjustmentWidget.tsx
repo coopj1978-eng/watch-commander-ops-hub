@@ -4,7 +4,7 @@ import { useAuth } from "@/App";
 import backend from "@/lib/backend";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, ArrowLeftRight, GraduationCap, Plus, X, RefreshCw, Sun } from "lucide-react";
+import { CalendarDays, ArrowLeftRight, GraduationCap, Plus, X, Pencil, RefreshCw, Sun } from "lucide-react";
 import ShiftAdjustmentModal from "@/components/ShiftAdjustmentModal";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
@@ -46,6 +46,9 @@ export default function FFShiftAdjustmentWidget() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shift-adjustments-mine"] });
       queryClient.invalidateQueries({ queryKey: ["shift-adjustments"] });
+      queryClient.invalidateQueries({ queryKey: ["cal-station"] });
+      queryClient.invalidateQueries({ queryKey: ["cal-watch"] });
+      queryClient.invalidateQueries({ queryKey: ["cal-personal"] });
       toast({ title: "Shift adjustment removed" });
     },
     onError: () => toast({ title: "Failed to remove", variant: "destructive" }),
@@ -101,9 +104,17 @@ export default function FFShiftAdjustmentWidget() {
                       )}
                     </div>
                     <button
+                      onClick={() => setModalOpen(true)}
+                      className="shrink-0 text-muted-foreground hover:text-indigo-500"
+                      title="Edit"
+                    >
+                      <Pencil className="h-3 w-3" />
+                    </button>
+                    <button
                       onClick={() => deleteMutation.mutate(a.id)}
                       disabled={deleteMutation.isPending}
                       className="shrink-0 text-muted-foreground hover:text-red-500"
+                      title="Delete"
                     >
                       <X className="h-3.5 w-3.5" />
                     </button>

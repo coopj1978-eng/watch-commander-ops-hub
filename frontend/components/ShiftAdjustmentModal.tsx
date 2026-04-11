@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  CalendarDays, Users, GraduationCap, ArrowLeftRight, Loader2, X, RefreshCw, Sun,
+  CalendarDays, Users, GraduationCap, ArrowLeftRight, Loader2, X, RefreshCw, Sun, Pencil,
 } from "lucide-react";
 import type { shift_adjustments } from "@/client";
 
@@ -96,6 +96,9 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
   const [endDate, setEndDate] = useState(today);
   const [notes, setNotes] = useState("");
 
+  // Edit mode
+  const [editingId, setEditingId] = useState<number | null>(null);
+
   // H4H fields
   const [coverMode, setCoverMode] = useState<"roster" | "freetext">("roster");
   const [coverWatch, setCoverWatch] = useState("");
@@ -121,6 +124,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
       setEndDate(d);
       setType(null);
       setNotes("");
+      setEditingId(null);
       setCoverMode("roster");
       setCoverWatch("");
       setCoverUserId("");
@@ -202,10 +206,73 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shift-adjustments"] });
       queryClient.invalidateQueries({ queryKey: ["shift-adjustments-mine"] });
+      queryClient.invalidateQueries({ queryKey: ["cal-station"] });
+      queryClient.invalidateQueries({ queryKey: ["cal-watch"] });
+      queryClient.invalidateQueries({ queryKey: ["cal-personal"] });
       toast({ title: "Shift adjustment removed" });
     },
     onError: () => toast({ title: "Failed to remove", variant: "destructive" }),
   });
+
+  const updateMutation = useMutation({
+    mutationFn: () => {
+      const covering_user_id = coverMode === "roster" && coverUserId ? coverUserId : undefined;
+      const covering_name =
+        coverMode === "roster" && coverUserId
+          ? coverRoster.find(m => m.id === coverUserId)?.name
+          : coverMode === "freetext" && coverName.trim()
+          ? coverName.trim()
+          : undefined;
+
+      return backend.shift_adjustments.update(editingId!, {
+        start_date: `${startDate}T00:00:00.000Z`,
+        end_date: `${endDate}T00:00:00.000Z`,
+        ...(type === "h4h" ? { covering_user_id, covering_name } : {}),
+        ...(type === "flexi_payback" ? { covering_watch: inboundWatch || undefined, shift_day_night: inboundShift } : {}),
+        ...(type === "orange_day" ? { shift_day_night: orangeShift } : {}),
+        notes: notes.trim() || undefined,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["shift-adjustments"] });
+      queryClient.invalidateQueries({ queryKey: ["shift-adjustments-mine"] });
+      queryClient.invalidateQueries({ queryKey: ["cal-station"] });
+      queryClient.invalidateQueries({ queryKey: ["cal-watch"] });
+      queryClient.invalidateQueries({ queryKey: ["cal-personal"] });
+      toast({ title: "Shift adjustment updated" });
+      setEditingId(null);
+      setType(null);
+    },
+    onError: (err: any) =>
+      toast({ title: "Failed to update", description: err?.message ?? String(err), variant: "destructive" }),
+  });
+
+  const startEditing = (a: any) => {
+    setEditingId(a.id);
+    setType(a.type);
+    setStartDate(String(a.start_date).split("T")[0]);
+    setEndDate(String(a.end_date).split("T")[0]);
+    setNotes(a.notes ?? "");
+    if (a.type === "h4h") {
+      if (a.covering_user_id) {
+        setCoverMode("roster");
+        setCoverUserId(a.covering_user_id);
+        // We need the watch to load roster — infer from existing data
+        setCoverWatch(""); // User may need to re-select
+        setCoverName(a.covering_name ?? "");
+      } else {
+        setCoverMode("freetext");
+        setCoverName(a.covering_name ?? "");
+      }
+    }
+    if (a.type === "flexi_payback") {
+      setInboundWatch(a.covering_watch ?? "");
+      setInboundShift(a.shift_day_night ?? "Day");
+    }
+    if (a.type === "orange_day") {
+      setOrangeShift(a.shift_day_night ?? "Day");
+    }
+  };
 
   const canSubmit = (() => {
     if (!type) return false;
@@ -235,7 +302,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
         <DialogHeader className="px-5 pt-5 pb-3 border-b border-border">
           <DialogTitle className="flex items-center gap-2 text-base">
             <CalendarDays className="h-4 w-4 text-indigo-500" />
-            Log Shift Adjustment
+            {editingId ? "Edit Shift Adjustment" : "Log Shift Adjustment"}
           </DialogTitle>
           {userWatch && (
             <p className="text-xs text-muted-foreground mt-0.5">{userWatch} Watch · {user?.name}</p>
@@ -244,7 +311,13 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
 
         <div className="px-5 py-4 space-y-5 max-h-[75vh] overflow-y-auto">
 
-          {/* ── Type selector ── */}
+          {/* ── Type selector (hidden in edit mode) ── */}
+          {editingId && type ? (
+            <div className={`flex items-center gap-2 rounded-xl border-2 px-3 py-2 ${TYPE_CONFIG[type].border} ${TYPE_CONFIG[type].bg}`}>
+              {(() => { const Icon = TYPE_CONFIG[type].icon; return <Icon className={`h-5 w-5 ${TYPE_CONFIG[type].color}`} />; })()}
+              <span className={`text-sm font-semibold ${TYPE_CONFIG[type].color}`}>Editing: {TYPE_CONFIG[type].label}</span>
+            </div>
+          ) : (
           <div>
             <Label className="text-xs text-muted-foreground mb-2 block">Off your watch</Label>
             <div className="grid grid-cols-3 gap-2">
@@ -300,6 +373,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
               <p className="text-xs text-muted-foreground mt-2 px-1">{TYPE_CONFIG[type].description}</p>
             )}
           </div>
+          )}
 
           {type && (
             <>
@@ -452,8 +526,8 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
                 </div>
               )}
 
-              {/* ── Log for another user (WC/CC only) ── */}
-              {isManager && (
+              {/* ── Log for another user (WC/CC only, create mode only) ── */}
+              {isManager && !editingId && (
                 <div className="space-y-3">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -511,16 +585,27 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
                 />
               </div>
 
-              <Button
-                className="w-full"
-                disabled={!canSubmit || createMutation.isPending}
-                onClick={() => createMutation.mutate()}
-              >
-                {createMutation.isPending
-                  ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Logging…</>
-                  : `Log ${TYPE_CONFIG[type].label}`
-                }
-              </Button>
+              <div className="flex gap-2">
+                {editingId && (
+                  <Button
+                    variant="outline"
+                    className="flex-shrink-0"
+                    onClick={() => { setEditingId(null); setType(null); }}
+                  >
+                    Cancel
+                  </Button>
+                )}
+                <Button
+                  className="w-full"
+                  disabled={!canSubmit || createMutation.isPending || updateMutation.isPending}
+                  onClick={() => editingId ? updateMutation.mutate() : createMutation.mutate()}
+                >
+                  {(createMutation.isPending || updateMutation.isPending)
+                    ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> {editingId ? "Saving…" : "Logging…"}</>
+                    : editingId ? `Save Changes` : `Log ${TYPE_CONFIG[type].label}`
+                  }
+                </Button>
+              </div>
             </>
           )}
 
@@ -550,9 +635,17 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
                       ) : null}
                     </div>
                     <button
+                      onClick={() => startEditing(a)}
+                      className="shrink-0 h-6 w-6 rounded flex items-center justify-center text-muted-foreground hover:text-indigo-500"
+                      title="Edit"
+                    >
+                      <Pencil className="h-3 w-3" />
+                    </button>
+                    <button
                       onClick={() => deleteMutation.mutate(a.id)}
                       disabled={deleteMutation.isPending}
                       className="shrink-0 h-6 w-6 rounded flex items-center justify-center text-muted-foreground hover:text-red-500"
+                      title="Delete"
                     >
                       <X className="h-3.5 w-3.5" />
                     </button>
