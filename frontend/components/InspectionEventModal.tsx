@@ -146,7 +146,7 @@ export default function InspectionEventModal({ open, onClose, defaultDate, editi
     queryKey: ["hfsv-pending", watch, fy, fq],
     queryFn: async () => {
       const r = await backend.activity.list({ type: "hfsv", watch, financial_year: fy, quarter: fq });
-      return r.items.filter((i) => !i.completed).sort((a, b) => (a.item_number ?? 999) - (b.item_number ?? 999));
+      return r.items.filter((i) => !i.completed && !i.scheduled).sort((a, b) => (a.item_number ?? 999) - (b.item_number ?? 999));
     },
     enabled: open && template?.type === "hfsv" && !isEditing && !!watch,
   });
@@ -300,7 +300,11 @@ export default function InspectionEventModal({ open, onClose, defaultDate, editi
     },
     onSuccess: () => {
       toast({ title: "Inspection event deleted" });
-      queryClient.invalidateQueries({ queryKey: ["calendar-events"] });
+      queryClient.invalidateQueries({ queryKey: ["cal-station"] });
+      queryClient.invalidateQueries({ queryKey: ["cal-watch"] });
+      queryClient.invalidateQueries({ queryKey: ["cal-personal"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["hfsv-pending"] });
       onClose();
     },
     onError: (err: any) => toast({ title: "Failed to delete", description: err?.message ?? String(err), variant: "destructive" }),

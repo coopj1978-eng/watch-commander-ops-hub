@@ -76,11 +76,11 @@ export const createInspectionEvent = api<CreateInspectionEventRequest, CreateIns
     );
     if (!task) throw new Error("Failed to create task");
 
-    // 3. For HFSV: persist address back to the slot record
-    if (req.source_type === "hfsv" && req.source_id && req.location) {
+    // 3. For HFSV: mark slot as scheduled + persist address
+    if (req.source_type === "hfsv" && req.source_id) {
       await db.rawQueryRow(
-        `UPDATE activity_records SET address = $1, title = COALESCE(NULLIF(title,''), $1), updated_at = NOW() WHERE id = $2`,
-        req.location,
+        `UPDATE activity_records SET scheduled = true, address = COALESCE(NULLIF($1,''), address), title = COALESCE(NULLIF(title,''), NULLIF($1,'')), updated_at = NOW() WHERE id = $2`,
+        req.location ?? null,
         req.source_id
       );
     }

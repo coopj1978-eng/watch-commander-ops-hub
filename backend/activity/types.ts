@@ -15,6 +15,7 @@ export interface ActivityRecord {
   details: string | null;
   completed: boolean;
   completed_at: Date | null;
+  scheduled: boolean;
   sort_order: number;
   created_by: string;
   created_at: Date;
