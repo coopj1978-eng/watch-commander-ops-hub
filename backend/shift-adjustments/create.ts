@@ -12,6 +12,7 @@ export interface CreateShiftAdjustmentRequest {
   covering_name?: string;
   covering_watch?: string;        // for flexi_payback / orange_day
   shift_day_night?: "Day" | "Night"; // for flexi_payback / orange_day
+  toil_hours?: number;            // for toil: how many hours being used (min 4)
   notes?: string;
   for_user_id?: string;           // WC/CC can log on behalf of another user
 }
@@ -45,6 +46,31 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
       throw APIError.invalidArgument("Head for Head requires a covering person.");
     }
 
+    if (req.type === "toil") {
+      if (!req.toil_hours || req.toil_hours < 4) {
+        throw APIError.invalidArgument("TOIL requires a minimum of 4 hours.");
+      }
+      if (!req.covering_user_id && !req.covering_name) {
+        throw APIError.invalidArgument("TOIL requires a covering person.");
+      }
+      // Check TOIL balance
+      const balanceRow = await db.rawQueryRow<{ balance: string }>(
+        `SELECT COALESCE(SUM(CASE WHEN type = 'earned' AND status = 'approved' THEN hours ELSE 0 END) -
+                SUM(CASE WHEN type = 'spent' THEN hours ELSE 0 END), 0) as balance
+         FROM toil_ledger WHERE user_id = $1 AND financial_year = $2`,
+        targetUserId,
+        new Date(req.start_date).getMonth() >= 3
+          ? new Date(req.start_date).getFullYear()
+          : new Date(req.start_date).getFullYear() - 1
+      );
+      const available = Number(balanceRow?.balance ?? 0);
+      if (available < req.toil_hours) {
+        throw APIError.failedPrecondition(
+          `Insufficient TOIL balance. Available: ${available}hrs, requested: ${req.toil_hours}hrs.`
+        );
+      }
+    }
+
     if (new Date(req.end_date) < new Date(req.start_date)) {
       throw APIError.invalidArgument("End date must be on or after start date.");
     }
@@ -54,6 +80,7 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
         user_id, type, start_date, end_date,
         covering_user_id, covering_name,
         covering_watch, shift_day_night,
+        toil_hours,
         watch_unit, notes, created_by_user_id
       ) VALUES (
         ${targetUserId},
@@ -64,6 +91,7 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
         ${req.covering_name || null},
         ${req.covering_watch || null},
         ${req.shift_day_night || null},
+        ${req.toil_hours || null},
         ${userInfo.watch_unit},
         ${req.notes || null},
         ${auth.userID}
@@ -149,7 +177,8 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
         // Outbound: person is away from their own watch
         const typeLabel =
           req.type === "flexi"    ? "Flexi Day"    :
-          req.type === "training" ? "Training"     : "Head for Head";
+          req.type === "training" ? "Training"     :
+          req.type === "toil"    ? `TOIL (${req.toil_hours}hrs)` : "Head for Head";
 
         const eventType = req.type === "training" ? "training" : "personal";
 
@@ -161,6 +190,8 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
           ) VALUES (
             ${req.type === "h4h"
                 ? `H4H – Off (covered by ${req.covering_name || "cover"})`
+                : req.type === "toil"
+                ? `TOIL – Off ${req.toil_hours}hrs (covered by ${req.covering_name || "cover"})`
                 : typeLabel},
             ${eventType},
             'personal',
@@ -182,6 +213,8 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
           ) VALUES (
             ${req.type === "h4h"
                 ? `${userInfo.name} – H4H (covered by ${req.covering_name || "cover"})`
+                : req.type === "toil"
+                ? `${userInfo.name} – TOIL ${req.toil_hours}hrs (covered by ${req.covering_name || "cover"})`
                 : `${userInfo.name} – ${typeLabel}`},
             ${eventType},
             'watch',
@@ -195,14 +228,16 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
           )
         `;
 
-        // 3. H4H: personal event for the covering person (if in system)
-        if (req.type === "h4h" && req.covering_user_id) {
+        // 3. H4H / TOIL: personal event for the covering person (if in system)
+        if ((req.type === "h4h" || req.type === "toil") && req.covering_user_id) {
           await db.exec`
             INSERT INTO calendar_events (
               title, event_type, calendar_visibility, start_time, end_time,
               all_day, user_id, is_watch_event, watch, created_by
             ) VALUES (
-              ${`H4H – Covering for ${userInfo.name} (${userInfo.watch_unit} Watch)`},
+              ${req.type === "toil"
+                ? `TOIL – Covering for ${userInfo.name} (${userInfo.watch_unit} Watch) — ${req.toil_hours}hrs`
+                : `H4H – Covering for ${userInfo.name} (${userInfo.watch_unit} Watch)`},
               'personal',
               'personal',
               ${startMidnight},
@@ -273,6 +308,30 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
       }
     }
 
+    // ── TOIL Ledger — deduct hours ──────────────────────────────────────────────
+    if (req.type === "toil" && req.toil_hours) {
+      try {
+        const fy = new Date(req.start_date).getMonth() >= 3
+          ? new Date(req.start_date).getFullYear()
+          : new Date(req.start_date).getFullYear() - 1;
+
+        await db.rawQuery(
+          `INSERT INTO toil_ledger (user_id, type, hours, status, reason, shift_adjustment_id, incident_date, financial_year, watch_unit, created_by)
+           VALUES ($1, 'spent', $2, 'approved', $3, $4, $5, $6, $7, $8)`,
+          targetUserId,
+          req.toil_hours,
+          `TOIL shift – covered by ${req.covering_name || "cover"}`,
+          adjustment.id,
+          req.start_date,
+          fy,
+          userInfo.watch_unit,
+          auth.userID
+        );
+      } catch (err) {
+        console.error("Failed to deduct TOIL hours:", err);
+      }
+    }
+
     // Notify WCs — own watch for outbound/orange, covered watch for flexi_payback
     try {
       const isFlexiPayback = req.type === "flexi_payback";
@@ -288,6 +347,7 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
         req.type === "flexi"         ? "Flexi Day"     :
         req.type === "training"      ? "Training"      :
         req.type === "h4h"           ? "Head for Head" :
+        req.type === "toil"          ? "TOIL"          :
         req.type === "flexi_payback" ? "Flexi Payback" : "Orange Day";
 
       const startStr = new Date(req.start_date).toLocaleDateString("en-GB");
@@ -297,6 +357,8 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
       let message = `${userInfo.name} has logged a ${typeLabel} for ${dateRange}.`;
       if (req.type === "h4h") {
         message += ` Covered by: ${req.covering_name || "an unknown cover"}.`;
+      } else if (req.type === "toil") {
+        message += ` ${req.toil_hours}hrs TOIL used. Covered by: ${req.covering_name || "an unknown cover"}.`;
       } else if (isFlexiPayback) {
         message += ` They will cover ${notifyWatch} Watch (${req.shift_day_night ?? "Day"} Shift).`;
       } else if (req.type === "orange_day") {

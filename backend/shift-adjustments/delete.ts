@@ -34,6 +34,14 @@ export const deleteAdjustment = api<DeleteShiftAdjustmentRequest, void>(
       throw APIError.permissionDenied("You can only delete your own shift adjustments.");
     }
 
+    // ── Clean up TOIL ledger — refund spent hours ──────────────────────────────
+    if (existing.type === "toil") {
+      await db.exec`
+        DELETE FROM toil_ledger
+        WHERE shift_adjustment_id = ${req.id} AND type = 'spent'
+      `;
+    }
+
     // ── Clean up H4H ledger ──────────────────────────────────────────────────
     if (existing.type === "h4h") {
       // Delete any pending ledger entry linked to this adjustment
@@ -77,8 +85,8 @@ export const deleteAdjustment = api<DeleteShiftAdjustmentRequest, void>(
         AND (user_id = ${existing.user_id} OR created_by = ${existing.user_id})
     `;
 
-    // For H4H: also delete the covering person's calendar event
-    if (existing.type === "h4h" && existing.covering_user_id) {
+    // For H4H / TOIL: also delete the covering person's calendar event
+    if ((existing.type === "h4h" || existing.type === "toil") && existing.covering_user_id) {
       await db.exec`
         DELETE FROM calendar_events
         WHERE all_day = true

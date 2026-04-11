@@ -57,6 +57,7 @@ export default class Client {
     public readonly settings: settings.ServiceClient
     public readonly shift_adjustments: shift_adjustments.ServiceClient
     public readonly skill: skill.ServiceClient
+    public readonly toil: toil.ServiceClient
     public readonly targets: targets.ServiceClient
     public readonly task: task.ServiceClient
     public readonly user: user.ServiceClient
@@ -99,6 +100,7 @@ export default class Client {
         this.settings = new settings.ServiceClient(base)
         this.shift_adjustments = new shift_adjustments.ServiceClient(base)
         this.skill = new skill.ServiceClient(base)
+        this.toil = new toil.ServiceClient(base)
         this.targets = new targets.ServiceClient(base)
         this.task = new task.ServiceClient(base)
         this.user = new user.ServiceClient(base)
@@ -4338,6 +4340,7 @@ export namespace shift_adjustments {
         "covering_name"?: string
         "covering_watch"?: string
         "shift_day_night"?: "Day" | "Night"
+        "toil_hours"?: number
         notes?: string
         "for_user_id"?: string
     }
@@ -4365,6 +4368,7 @@ export namespace shift_adjustments {
         "covering_name"?: string
         "covering_watch"?: string
         "shift_day_night"?: "Day" | "Night"
+        "toil_hours"?: number
         "watch_unit": string
         notes?: string
         "created_by_user_id": string
@@ -4382,9 +4386,118 @@ export namespace shift_adjustments {
         notes?: string
     }
 
-    export type ShiftAdjustmentType = "flexi" | "training" | "h4h" | "flexi_payback" | "orange_day"
+    export type ShiftAdjustmentType = "flexi" | "training" | "h4h" | "flexi_payback" | "orange_day" | "toil"
 }
 
+export namespace toil {
+    export class ServiceClient {
+        private baseClient: BaseClient
+
+        constructor(baseClient: BaseClient) {
+            this.baseClient = baseClient
+            this.earn = this.earn.bind(this)
+            this.list = this.list.bind(this)
+            this.balance = this.balance.bind(this)
+            this.approve = this.approve.bind(this)
+        }
+
+        public async earn(params: EarnToilRequest): Promise<ToilEntry> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/toil/earn`, JSON.stringify(params))
+            return await resp.json() as ToilEntry
+        }
+
+        public async list(params: ListToilRequest): Promise<ListToilResponse> {
+            const query = makeRecord<string, string | string[]>({
+                "user_id": params.user_id,
+                "watch_unit": params.watch_unit,
+                "financial_year": params.financial_year?.toString(),
+                "status": params.status,
+                "type": params.type,
+            })
+            const resp = await this.baseClient.callTypedAPI("GET", `/toil`, undefined, { query })
+            return await resp.json() as ListToilResponse
+        }
+
+        public async balance(params: ToilBalanceRequest): Promise<ToilBalanceResponse> {
+            const query = makeRecord<string, string | string[]>({
+                "user_id": params.user_id,
+                "watch_unit": params.watch_unit,
+                "financial_year": params.financial_year?.toString(),
+            })
+            const resp = await this.baseClient.callTypedAPI("GET", `/toil/balance`, undefined, { query })
+            return await resp.json() as ToilBalanceResponse
+        }
+
+        public async approve(id: number, params: ApproveToilRequest): Promise<ToilEntry> {
+            const resp = await this.baseClient.callTypedAPI("PATCH", `/toil/${encodeURIComponent(id)}/approve`, JSON.stringify(params))
+            return await resp.json() as ToilEntry
+        }
+    }
+
+    export interface EarnToilRequest {
+        hours: number
+        reason: string
+        "incident_date": string
+        "for_user_id"?: string
+    }
+
+    export interface ListToilRequest {
+        "user_id"?: string
+        "watch_unit"?: string
+        "financial_year"?: number
+        status?: string
+        type?: string
+    }
+
+    export interface ListToilResponse {
+        entries: ToilEntry[]
+    }
+
+    export interface ToilBalanceRequest {
+        "user_id"?: string
+        "watch_unit"?: string
+        "financial_year"?: number
+    }
+
+    export interface ToilBalanceResponse {
+        balances: ToilBalance[]
+    }
+
+    export interface ApproveToilRequest {
+        id: number
+        action: "approved" | "rejected"
+    }
+
+    export interface ToilEntry {
+        id: number
+        "user_id": string
+        "user_name"?: string
+        type: "earned" | "spent"
+        hours: number
+        status: "pending" | "approved" | "rejected"
+        "approved_by_user_id"?: string
+        "approved_by_name"?: string
+        "approved_at"?: string
+        reason?: string
+        "shift_adjustment_id"?: number
+        "incident_date"?: string
+        "financial_year": number
+        "watch_unit": string
+        "created_by": string
+        "created_at": string
+        "updated_at": string
+    }
+
+    export interface ToilBalance {
+        "user_id": string
+        "user_name": string
+        "financial_year": number
+        "total_earned": number
+        "total_spent": number
+        "pending_earned": number
+        balance: number
+    }
+}
 
 
 function encodeQuery(parts: Record<string, string | string[]>): string {

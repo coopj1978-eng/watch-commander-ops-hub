@@ -4,7 +4,7 @@ import { useAuth } from "@/App";
 import backend from "@/lib/backend";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, ArrowLeftRight, GraduationCap, Plus, X, Pencil, RefreshCw, Sun } from "lucide-react";
+import { CalendarDays, ArrowLeftRight, GraduationCap, Plus, X, Pencil, RefreshCw, Sun, Clock } from "lucide-react";
 import ShiftAdjustmentModal from "@/components/ShiftAdjustmentModal";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
@@ -15,6 +15,7 @@ const TYPE_STYLE = {
   h4h:           { label: "Head for Head", icon: ArrowLeftRight, color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-50 dark:bg-purple-950/40",  border: "border-purple-300 dark:border-purple-700" },
   flexi_payback: { label: "Flexi Payback", icon: RefreshCw,      color: "text-teal-600 dark:text-teal-400",   bg: "bg-teal-50 dark:bg-teal-950/40",    border: "border-teal-300 dark:border-teal-700"   },
   orange_day:    { label: "Orange Day",    icon: Sun,            color: "text-orange-600 dark:text-orange-400", bg: "bg-orange-50 dark:bg-orange-950/40",  border: "border-orange-300 dark:border-orange-700" },
+  toil:          { label: "TOIL",          icon: Clock,          color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-950/40", border: "border-emerald-300 dark:border-emerald-700" },
 } as const;
 
 const fmt = (d: string) =>

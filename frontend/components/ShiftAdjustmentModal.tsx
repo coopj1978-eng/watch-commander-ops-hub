@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  CalendarDays, Users, GraduationCap, ArrowLeftRight, Loader2, X, RefreshCw, Sun, Pencil,
+  CalendarDays, Users, GraduationCap, ArrowLeftRight, Loader2, X, RefreshCw, Sun, Pencil, Clock,
 } from "lucide-react";
 import type { shift_adjustments } from "@/client";
 
@@ -70,6 +70,14 @@ const TYPE_CONFIG: Record<AdjType, {
     border: "border-orange-300 dark:border-orange-700",
     description: "You are working an additional day or night shift (Orange Day).",
   },
+  toil: {
+    label: "TOIL",
+    icon: Clock,
+    color: "text-emerald-600 dark:text-emerald-400",
+    bg: "bg-emerald-50 dark:bg-emerald-950/40",
+    border: "border-emerald-300 dark:border-emerald-700",
+    description: "Use your banked TOIL hours for a shift off. Someone covers for you and receives payment (min 4hrs).",
+  },
 };
 
 const WATCHES = ["Red", "White", "Green", "Blue", "Amber"] as const;
@@ -112,6 +120,9 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
   // Orange Day shift selector
   const [orangeShift, setOrangeShift] = useState<"Day" | "Night">("Day");
 
+  // TOIL hours
+  const [toilHours, setToilHours] = useState(4);
+
   // Log for another user (WC/CC only)
   const [forAnother, setForAnother] = useState(false);
   const [forWatch, setForWatch] = useState("");
@@ -132,6 +143,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
       setInboundWatch("");
       setInboundShift("Day");
       setOrangeShift("Day");
+      setToilHours(4);
       setForAnother(false);
       setForWatch("");
       setForUserId("");
@@ -175,6 +187,8 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
       const isFlexiPayback = type === "flexi_payback";
       const isOrangeDay = type === "orange_day";
 
+      const isToil = type === "toil";
+
       return backend.shift_adjustments.create({
         type: type!,
         start_date: `${startDate}T00:00:00.000Z`,
@@ -183,6 +197,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
         covering_name:    isFlexiPayback || isOrangeDay ? undefined : covering_name,
         covering_watch:   isFlexiPayback ? inboundWatch || undefined : undefined,
         shift_day_night:  isFlexiPayback ? inboundShift : isOrangeDay ? orangeShift : undefined,
+        toil_hours:       isToil ? toilHours : undefined,
         notes: notes.trim() || undefined,
         for_user_id: forAnother && forUserId ? forUserId : undefined,
       });
@@ -272,13 +287,25 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
     if (a.type === "orange_day") {
       setOrangeShift(a.shift_day_night ?? "Day");
     }
+    if (a.type === "toil") {
+      setToilHours(a.toil_hours ?? 4);
+      if (a.covering_user_id) {
+        setCoverMode("roster");
+        setCoverUserId(a.covering_user_id);
+        setCoverWatch("");
+        setCoverName(a.covering_name ?? "");
+      } else {
+        setCoverMode("freetext");
+        setCoverName(a.covering_name ?? "");
+      }
+    }
   };
 
   const canSubmit = (() => {
     if (!type) return false;
     if (!startDate || !endDate) return false;
     if (forAnother && !forUserId) return false;
-    if (type === "h4h") {
+    if (type === "h4h" || type === "toil") {
       if (coverMode === "roster") return !!coverWatch && !!coverUserId;
       return coverName.trim().length > 0;
     }
@@ -320,8 +347,8 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
           ) : (
           <div>
             <Label className="text-xs text-muted-foreground mb-2 block">Off your watch</Label>
-            <div className="grid grid-cols-3 gap-2">
-              {(["flexi", "training", "h4h"] as AdjType[]).map((key) => {
+            <div className="grid grid-cols-2 gap-2">
+              {(["flexi", "training", "h4h", "toil"] as AdjType[]).map((key) => {
                 const cfg = TYPE_CONFIG[key];
                 const Icon = cfg.icon;
                 const selected = type === key;
@@ -400,8 +427,8 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
                 </div>
               </div>
 
-              {/* ── H4H: covering person ── */}
-              {type === "h4h" && (
+              {/* ── H4H / TOIL: covering person ── */}
+              {(type === "h4h" || type === "toil") && (
                 <div className="space-y-3 rounded-xl border border-purple-200 dark:border-purple-800 bg-purple-50/40 dark:bg-purple-950/30 p-3">
                   <div className="flex items-center gap-1.5">
                     <Users className="h-4 w-4 text-purple-500" />
@@ -526,6 +553,29 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
                 </div>
               )}
 
+              {/* ── TOIL: hours selector ── */}
+              {type === "toil" && (
+                <div className="space-y-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/30 p-3">
+                  <div className="flex items-center gap-1.5">
+                    <Clock className="h-4 w-4 text-emerald-500" />
+                    <Label className="text-sm font-medium text-emerald-700 dark:text-emerald-300">How many TOIL hours?</Label>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="range"
+                      min={4}
+                      max={12}
+                      step={0.5}
+                      value={toilHours}
+                      onChange={e => setToilHours(Number(e.target.value))}
+                      className="flex-1 accent-emerald-500"
+                    />
+                    <span className="text-lg font-bold text-emerald-700 dark:text-emerald-300 w-16 text-right">{toilHours}hrs</span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">Minimum 4hrs. These hours will be deducted from your TOIL balance.</p>
+                </div>
+              )}
+
               {/* ── Log for another user (WC/CC only, create mode only) ── */}
               {isManager && !editingId && (
                 <div className="space-y-3">
@@ -628,7 +678,9 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
                     <div className="flex-1 min-w-0">
                       <p className={`text-xs font-semibold ${cfg.color}`}>{cfg.label}</p>
                       <p className="text-xs text-muted-foreground truncate">{dateStr}</p>
-                      {(a as any).covering_watch ? (
+                      {(a as any).toil_hours ? (
+                        <p className="text-xs text-muted-foreground truncate">{(a as any).toil_hours}hrs · Cover: {a.covering_name}</p>
+                      ) : (a as any).covering_watch ? (
                         <p className="text-xs text-muted-foreground truncate">{(a as any).covering_watch} Watch · {(a as any).shift_day_night ?? "Day"} Shift</p>
                       ) : a.covering_name ? (
                         <p className="text-xs text-muted-foreground truncate">Cover: {a.covering_name}</p>

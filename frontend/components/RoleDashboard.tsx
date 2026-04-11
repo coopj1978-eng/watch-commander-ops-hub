@@ -45,6 +45,7 @@ import PersonalDashboard from "@/components/PersonalDashboard";
 import { FFCertificationsWidget } from "@/components/FFCertificationsWidget";
 import FFSickReportWidget from "@/components/FFSickReportWidget";
 import FFShiftAdjustmentWidget from "@/components/FFShiftAdjustmentWidget";
+import ToilWidget from "@/components/ToilWidget";
 import FFH4HBalanceWidget from "@/components/FFH4HBalanceWidget";
 
 // WC H4H widget — reuses the same balance widget since it's user-aware
@@ -67,7 +68,7 @@ type SectionKey = "operational" | "shift" | "certs" | "targets";
 
 const SECTION_DEFAULTS: Record<SectionKey, string[]> = {
   operational: ["staffing", "sickness", "tasks", "inspections"],
-  shift:       ["shift", "calendar", "weather", "contacts", "handover", "h4h"],
+  shift:       ["shift", "calendar", "weather", "contacts", "handover", "h4h", "toil"],
   certs:       ["skills"],
   targets:     ["hfsv", "community", "multistory"],
 };
@@ -87,6 +88,7 @@ const WIDGET_COMPONENTS: Record<string, React.ComponentType> = {
   hfsv:        WCHFSVWidget,
   community:   WCCommunityWidget,
   h4h:         WCH4HWidget,
+  toil:        ToilWidget,
   calendar:    WCPersonalCalendarWidget,
 };
 
@@ -371,6 +373,7 @@ function FirefighterDashboard() {
         <FFCertificationsWidget />
         <FFSickReportWidget />
         <FFShiftAdjustmentWidget />
+        <ToilWidget />
         <FFH4HBalanceWidget />
       </div>
     </div>
