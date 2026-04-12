@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useRef } from "react";
 import { useBackend } from "@/lib/rbac";
 import { backendClient } from "@/lib/backend";
+import { STATION_OPTIONS } from "@/lib/constants";
 import type { FirefighterProfile, UpdateProfileRequest, DriverPathwayStatus } from "~backend/profile/types";
 import type { AbsenceType } from "~backend/absence/types";
 import SkillsTab from "@/components/SkillsTab";
@@ -360,7 +361,7 @@ export default function ProfileDetail() {
     if (editedProfile.prps !== undefined) profileUpdates.prps = editedProfile.prps;
     if (editedProfile.ba !== undefined) profileUpdates.ba = editedProfile.ba;
     if (editedProfile.notes !== undefined) profileUpdates.notes = editedProfile.notes;
-    if (editedProfile.watch !== undefined) profileUpdates.watch = editedProfile.watch;
+    if (editedProfile.watch !== undefined) profileUpdates.watch = ((editedProfile.watch as string) === "_none" ? "" : editedProfile.watch) as any;
 
     if (Object.keys(profileUpdates).length === 0) {
       toast({
@@ -719,17 +720,24 @@ export default function ProfileDetail() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label className="text-muted-foreground">Station</Label>
+                  <Label className="text-muted-foreground">Station or Area</Label>
                   {renderFieldWithLock(
                     "station",
-                    "Station",
+                    "Station or Area",
                     () => (
-                      <Input
+                      <Select
                         value={getDisplayValue("station") || ""}
-                        onChange={(e) => setEditedProfile({ ...editedProfile, station: e.target.value })}
-                        placeholder="Station"
-                        className="mt-1"
-                      />
+                        onValueChange={(value) => setEditedProfile({ ...editedProfile, station: value })}
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue placeholder="Select station or area" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {STATION_OPTIONS.map(s => (
+                            <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     ),
                     () => (
                       <p className="text-foreground font-medium mt-1">{profile?.station || "-"}</p>
@@ -747,6 +755,12 @@ export default function ProfileDetail() {
                         <SelectValue placeholder="Select watch" />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="_none">
+                          <div className="flex items-center gap-2">
+                            <span className="h-2 w-2 rounded-full bg-gray-300" />
+                            No Watch
+                          </div>
+                        </SelectItem>
                         <SelectItem value="Green">
                           <div className="flex items-center gap-2">
                             <WatchDot watch="Green" />

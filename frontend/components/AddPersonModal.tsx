@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { useBackend } from "@/lib/rbac";
+import { STATION_OPTIONS } from "@/lib/constants";
 
 interface AddPersonModalProps {
   isOpen: boolean;
@@ -124,10 +125,10 @@ export default function AddPersonModal({ isOpen, onClose }: AddPersonModalProps)
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!name.trim() || !email.trim() || !watch || watch === "_none" || !rank || rank === "_none" || !serviceNumber.trim()) {
+    if (!name.trim() || !email.trim() || !rank || rank === "_none" || !serviceNumber.trim()) {
       toast({
         title: "Missing required fields",
-        description: "Name, Watch, Email, Rank, and Staff Number are required.",
+        description: "Name, Email, Rank, and Staff Number are required.",
         variant: "destructive",
       });
       return;
@@ -176,9 +177,7 @@ export default function AddPersonModal({ isOpen, onClose }: AddPersonModalProps)
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="watch">
-                Watch <span className="text-red-500">*</span>
-              </Label>
+              <Label htmlFor="watch">Watch</Label>
               <Select value={watch} onValueChange={setWatch}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select watch" />
@@ -239,13 +238,17 @@ export default function AddPersonModal({ isOpen, onClose }: AddPersonModalProps)
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="station">Station</Label>
-              <Input
-                id="station"
-                value={station}
-                onChange={(e) => setStation(e.target.value)}
-                placeholder="B10 Springburn"
-              />
+              <Label htmlFor="station">Station or Area</Label>
+              <Select value={station} onValueChange={setStation}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select station or area" />
+                </SelectTrigger>
+                <SelectContent>
+                  {STATION_OPTIONS.map(s => (
+                    <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">

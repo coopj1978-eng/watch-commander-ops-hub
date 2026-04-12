@@ -2,6 +2,8 @@ import { useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useBackend, useCanViewPeople, useCanCreatePerson, useIsWatchCommander, useIsCrewCommander } from "@/lib/rbac";
+import { useAuth } from "@/App";
+import { STATION_OPTIONS } from "@/lib/constants";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ShieldAlert, Search, UserPlus, Settings2, ChevronDown, ChevronUp, BookOpen, Stethoscope, Users } from "lucide-react";
 import {
@@ -104,6 +106,7 @@ export default function People() {
   const [driverPathwayFilter, setDriverPathwayFilter] = useState(
     searchParams.get("driverPathway") || ""
   );
+  const [stationFilter, setStationFilter] = useState<string>(searchParams.get("station") || "");
   const [sortField, setSortField] = useState<SortField>(
     (searchParams.get("sortBy") as SortField) || "watch"
   );
@@ -126,6 +129,8 @@ export default function People() {
     absence: true,
     lastConversation: true,
   });
+
+  const { user: authUser } = useAuth();
 
   const [logSickOpen, setLogSickOpen] = useState(false);
   const [logSickPerson, setLogSickPerson] = useState<{ id: string; name: string } | null>(null);
@@ -159,11 +164,12 @@ export default function People() {
     if (rankFilters.length) params.rank = rankFilters.join(",");
     if (skillFilters.length) params.skills = skillFilters.join(",");
     if (driverPathwayFilter) params.driverPathway = driverPathwayFilter;
+    if (stationFilter) params.station = stationFilter;
     if (sortField !== "watch") params.sortBy = sortField;
     if (sortDirection !== "asc") params.sortDir = sortDirection;
-    
+
     setSearchParams(params);
-  }, [debouncedSearch, statusFilter, watchFilters, rankFilters, skillFilters, driverPathwayFilter, sortField, sortDirection, setSearchParams]);
+  }, [debouncedSearch, statusFilter, watchFilters, rankFilters, skillFilters, driverPathwayFilter, stationFilter, sortField, sortDirection, setSearchParams]);
 
   const { data: peopleData, isLoading } = useQuery({
     queryKey: ["people", statusFilter],
@@ -220,6 +226,17 @@ export default function People() {
   });
 
   const people = peopleData?.people || [];
+
+  // Default station filter to user's station
+  useEffect(() => {
+    if (peopleData && authUser && !stationFilter && !searchParams.get("station")) {
+      const myProfile = peopleData.people?.find((p: any) => p.user.id === authUser.id);
+      if (myProfile?.profile?.station) {
+        setStationFilter(myProfile.profile.station);
+      }
+    }
+  }, [peopleData, authUser]);
+
   const availableSkills = useMemo(() => {
     if (skillsData?.items && skillsData.items.length > 0) {
       return skillsData.items
@@ -249,6 +266,8 @@ export default function People() {
       
       const effectiveWatch = user.watch_unit || profile?.watch || "";
       if (watchFilters.length && !watchFilters.includes(effectiveWatch)) return false;
+      const effectiveStation = profile?.station || "";
+      if (stationFilter && stationFilter.trim() && effectiveStation !== stationFilter) return false;
       if (rankFilters.length && !rankFilters.includes(profile?.rank || "")) return false;
       if (skillFilters.length && !skillFilters.some(sf => profile?.skills?.includes(sf))) return false;
       if (driverPathwayFilter && profile?.driverPathway?.status !== driverPathwayFilter) return false;
@@ -295,10 +314,10 @@ export default function People() {
     });
 
     return filtered;
-  }, [people, debouncedSearch, watchFilters, rankFilters, skillFilters, driverPathwayFilter, sortField, sortDirection]);
+  }, [people, debouncedSearch, watchFilters, rankFilters, skillFilters, driverPathwayFilter, stationFilter, sortField, sortDirection]);
 
-  const activeFiltersCount = 
-    [watchFilters.length > 0, rankFilters.length > 0, skillFilters.length > 0, !!driverPathwayFilter].filter(Boolean).length +
+  const activeFiltersCount =
+    [watchFilters.length > 0, rankFilters.length > 0, skillFilters.length > 0, !!driverPathwayFilter, !!(stationFilter && stationFilter.trim())].filter(Boolean).length +
     (statusFilter !== "active" ? 1 : 0);
 
   const clearFilters = () => {
@@ -306,6 +325,7 @@ export default function People() {
     setRankFilters([]);
     setSkillFilters([]);
     setDriverPathwayFilter("");
+    setStationFilter("");
     setStatusFilter("active");
   };
 
@@ -386,7 +406,22 @@ export default function People() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">Station</label>
+              <Select value={stationFilter} onValueChange={setStationFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Stations" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value=" ">All Stations</SelectItem>
+                  {STATION_OPTIONS.map(s => (
+                    <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <div>
               <label className="text-sm font-medium mb-2 block">Status</label>
               <Select value={statusFilter} onValueChange={(v: any) => setStatusFilter(v)}>

@@ -1,0 +1,18 @@
+export const STATION_OPTIONS = [
+  { value: "B01 Cowcaddens", label: "B01 Cowcaddens" },
+  { value: "B02 Calton", label: "B02 Calton" },
+  { value: "B03 Polmadie", label: "B03 Polmadie" },
+  { value: "B04 Castlemilk", label: "B04 Castlemilk" },
+  { value: "B05 Pollok", label: "B05 Pollok" },
+  { value: "B06 Govan", label: "B06 Govan" },
+  { value: "B07 Yorkhill", label: "B07 Yorkhill" },
+  { value: "B08 Knightswood", label: "B08 Knightswood" },
+  { value: "B09 Maryhill", label: "B09 Maryhill" },
+  { value: "B10 Springburn", label: "B10 Springburn" },
+  { value: "B11 Easterhouse", label: "B11 Easterhouse" },
+  { value: "E01 Kirkintilloch", label: "E01 Kirkintilloch" },
+  { value: "E02 Bishopbriggs", label: "E02 Bishopbriggs" },
+  { value: "E03 Milngavie", label: "E03 Milngavie" },
+  { value: "COG Training", label: "COG Training" },
+  { value: "NTC", label: "NTC" },
+];
