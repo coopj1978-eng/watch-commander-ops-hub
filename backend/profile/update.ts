@@ -118,8 +118,9 @@ export const update = api(
       queryParams.push(updates.rank);
     }
     if (updates.watch !== undefined) {
+      const watchValue = updates.watch || null; // "" or null → null in DB
       setClauses.push(`watch = $${paramIndex++}`);
-      queryParams.push(updates.watch || null);
+      queryParams.push(watchValue);
     }
     // Note: shift is a legacy free-text field — no longer updated via the UI.
     // Watch assignment is handled exclusively by the `watch` field above.
@@ -213,8 +214,9 @@ export const update = api(
     // Keep users.watch_unit in sync — it is the operational source of truth
     // used by crewing, crew stats, absence routing, and all dashboard widgets.
     if (updates.watch !== undefined) {
+      const watchValue = updates.watch || null;
       await db.exec`
-        UPDATE users SET watch_unit = ${updates.watch || null} WHERE id = ${dbProfile.user_id}
+        UPDATE users SET watch_unit = ${watchValue} WHERE id = ${dbProfile.user_id}
       `;
     }
 

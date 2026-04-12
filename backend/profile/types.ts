@@ -1,6 +1,6 @@
 export type TriggerStage = "None" | "Stage1" | "Stage2" | "Stage3";
 
-export type WatchUnit = "Green" | "Red" | "White" | "Blue" | "Amber";
+export type WatchUnit = "Green" | "Red" | "White" | "Blue" | "Amber" | "";
 
 export type DriverPathwayStatus = 
   | "medical_due" 
@@ -87,7 +87,7 @@ export interface UpdateProfileRequest {
   service_number?: string;
   station?: string;
   shift?: string;
-  watch?: WatchUnit | null;
+  watch?: WatchUnit;
   rank?: string;
   hire_date?: Date;
   phone?: string;
