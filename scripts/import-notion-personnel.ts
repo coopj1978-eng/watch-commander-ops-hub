@@ -3,9 +3,10 @@
  *
  * Usage:
  *   1. Log into the app in your browser
- *   2. Open browser console (F12 → Console)
- *   3. Copy the JWT token from localStorage: localStorage.getItem("wc_token")
- *   4. Run: TOKEN=<your-token> npx tsx scripts/import-notion-personnel.ts
+ *   2. Open browser dev tools (F12 → Console tab)
+ *   3. Type:  localStorage.getItem('auth_token')
+ *   4. Copy the token string that appears
+ *   5. Run:  TOKEN=<your-token> npx tsx scripts/import-notion-personnel.ts
  *
  * Or run against local dev:
  *   TOKEN=<your-token> API_URL=http://localhost:4000 npx tsx scripts/import-notion-personnel.ts
@@ -18,13 +19,35 @@ const TOKEN = process.env.TOKEN;
 const DRY_RUN = process.env.DRY_RUN === "1";
 
 if (!TOKEN) {
-  console.error("ERROR: Set TOKEN env var. Get it from browser console: localStorage.getItem('wc_token')");
+  console.error("ERROR: Set TOKEN env var.");
+  console.error("");
+  console.error("To get your token:");
+  console.error("  1. Log into Watch Commander in your browser");
+  console.error("  2. Press F12 to open dev tools");
+  console.error("  3. Go to Console tab");
+  console.error("  4. Type:  localStorage.getItem('auth_token')");
+  console.error("  5. Copy the string (without quotes)");
+  console.error("");
+  console.error("Then run:  TOKEN=<paste-here> npx tsx scripts/import-notion-personnel.ts");
   process.exit(1);
 }
 
-// All 25 personnel from Notion Personnel database
+// All 45 personnel from Notion Personnel database
 const personnel = [
-  // === AMBER WATCH ===
+  // ============================================================
+  // AMBER WATCH (7)
+  // ============================================================
+  {
+    name: "WC Martin Glancy",
+    email: "",
+    phone: "07999574601",
+    staff_number: "4003000",
+    rank: "Watch Commander",
+    watch: "Amber",
+    skills: ["Banks Person", "Mass Decon", "TTR", "PRPS Trained"],
+    drivers_pathway: [],
+    competent: undefined,
+  },
   {
     name: "CC Ross Archiebald",
     email: "ross.hastie@firescotland.gov.uk",
@@ -34,6 +57,28 @@ const personnel = [
     watch: "Amber",
     skills: ["Banks Person", "TTR"],
     drivers_pathway: [],
+    competent: "Yes",
+  },
+  {
+    name: "CC Ross Bain",
+    email: "",
+    phone: "07854946863",
+    staff_number: "4003386",
+    rank: "Crew Commander",
+    watch: "Amber",
+    skills: ["Banks Person", "TTR", "LGV", "Mass Decon", "PRPS Trained", "Hooklift"],
+    drivers_pathway: [],
+    competent: undefined,
+  },
+  {
+    name: "CC Bryan Thomson",
+    email: "",
+    phone: "07926641724",
+    staff_number: "4009913",
+    rank: "Crew Commander",
+    watch: "Amber",
+    skills: ["Banks Person", "LGV", "Mass Decon", "TTR", "PRPS Trained"],
+    drivers_pathway: ["Driver"],
     competent: "Yes",
   },
   {
@@ -58,8 +103,21 @@ const personnel = [
     drivers_pathway: ["Blue Lights Completed"],
     competent: undefined,
   },
+  {
+    name: "FF Daniel Hazlett",
+    email: "",
+    phone: "07496851403",
+    staff_number: "4010617",
+    rank: "Fire Fighter",
+    watch: "Amber",
+    skills: ["Banks Person", "Mass Decon Instructor"],
+    drivers_pathway: [],
+    competent: undefined,
+  },
 
-  // === WHITE WATCH ===
+  // ============================================================
+  // WHITE WATCH (9)
+  // ============================================================
   {
     name: "CC Kevin Gallagher",
     email: "Kevin.Gallagher@firescotland.gov.uk",
@@ -83,6 +141,17 @@ const personnel = [
     competent: undefined,
   },
   {
+    name: "CC John Cooper",
+    email: "",
+    phone: "07511391555",
+    staff_number: "4003182",
+    rank: "Crew Commander",
+    watch: "White",
+    skills: ["Banks Person", "LGV", "Mass Decon", "TTR", "Mass Decon Instructor", "PPRPS Instructor", "Hooklift", "PRPS Trained"],
+    drivers_pathway: [],
+    competent: "Yes",
+  },
+  {
     name: "FF Harriet Jakeman",
     email: "",
     phone: "07540345546",
@@ -101,6 +170,17 @@ const personnel = [
     rank: "Fire Fighter",
     watch: "White",
     skills: ["Banks Person", "Mass Decon", "LGV"],
+    drivers_pathway: [],
+    competent: undefined,
+  },
+  {
+    name: "FF Douglas Stewart",
+    email: "Douglas.Stewart2@firescotland.gov.uk",
+    phone: "07568753797",
+    staff_number: "4010294",
+    rank: "Fire Fighter",
+    watch: "White",
+    skills: ["Banks Person", "LGV", "Mass Decon", "PRPS Trained", "Hooklift"],
     drivers_pathway: [],
     competent: undefined,
   },
@@ -137,19 +217,32 @@ const personnel = [
     drivers_pathway: [],
     competent: undefined,
   },
+
+  // ============================================================
+  // BLUE WATCH (7)
+  // ============================================================
   {
-    name: "FF Douglas Stewart",
-    email: "Douglas.Stewart2@firescotland.gov.uk",
-    phone: "07568753797",
-    staff_number: "4010294",
-    rank: "Fire Fighter",
-    watch: "White",
-    skills: ["Banks Person", "LGV", "Mass Decon", "PRPS Trained", "Hooklift"],
+    name: "WC Brian McPhee",
+    email: "",
+    phone: "07961838212",
+    staff_number: "4002357",
+    rank: "Watch Commander",
+    watch: "Blue",
+    skills: ["TTR", "Mass Decon", "Banks Person", "PRPS Trained"],
+    drivers_pathway: ["None"],
+    competent: "Yes",
+  },
+  {
+    name: "CC Colin McParland",
+    email: "",
+    phone: "07539275692",
+    staff_number: "4009034",
+    rank: "Crew Commander",
+    watch: "Blue",
+    skills: ["Banks Person", "Mass Decon", "TTR", "PRPS Trained", "Comp", "Comp CC"],
     drivers_pathway: [],
     competent: undefined,
   },
-
-  // === BLUE WATCH ===
   {
     name: "FF Iain Lowson",
     email: "",
@@ -159,28 +252,6 @@ const personnel = [
     watch: "Blue",
     skills: ["LGV", "Mass Decon", "Banks Person", "PRPS Trained", "Hooklift"],
     drivers_pathway: [],
-    competent: "Yes",
-  },
-  {
-    name: "FF Iain Wilson",
-    email: "Iain.wilson@firescotland.gov.uk",
-    phone: "07846769324",
-    staff_number: "4011820",
-    rank: "FF in Progress",
-    watch: "Blue",
-    skills: ["Mass Decon", "PRPS Trained", "Banks Person"],
-    drivers_pathway: [],
-    competent: "No",
-  },
-  {
-    name: "FF Chris Wilson",
-    email: "",
-    phone: "07846769324",
-    staff_number: "4010503",
-    rank: "Fire Fighter",
-    watch: "Blue",
-    skills: ["Banks Person", "Mass Decon", "PRPS Trained"],
-    drivers_pathway: ["Medical Requested"],
     competent: "Yes",
   },
   {
@@ -195,6 +266,28 @@ const personnel = [
     competent: "Yes",
   },
   {
+    name: "FF Chris Wilson",
+    email: "",
+    phone: "07846769324",
+    staff_number: "4010503",
+    rank: "Fire Fighter",
+    watch: "Blue",
+    skills: ["Banks Person", "Mass Decon", "PRPS Trained"],
+    drivers_pathway: ["Medical Requested"],
+    competent: "Yes",
+  },
+  {
+    name: "FF Iain Wilson",
+    email: "Iain.wilson@firescotland.gov.uk",
+    phone: "07846769324",
+    staff_number: "4011820",
+    rank: "FF in Progress",
+    watch: "Blue",
+    skills: ["Mass Decon", "PRPS Trained", "Banks Person"],
+    drivers_pathway: [],
+    competent: "No",
+  },
+  {
     name: "FF Ewan Sime",
     email: "Ewan.Sime@Firescotland.gov.uk",
     phone: "07845701094",
@@ -206,7 +299,20 @@ const personnel = [
     competent: "No",
   },
 
-  // === RED WATCH ===
+  // ============================================================
+  // RED WATCH (6)
+  // ============================================================
+  {
+    name: "WC David Willaims",
+    email: "",
+    phone: "07876193578",
+    staff_number: "4003335",
+    rank: "Watch Commander",
+    watch: "Red",
+    skills: ["Banks Person", "Comp"],
+    drivers_pathway: [],
+    competent: undefined,
+  },
   {
     name: "FF Craig Smith",
     email: "",
@@ -251,8 +357,43 @@ const personnel = [
     drivers_pathway: [],
     competent: "Yes",
   },
+  {
+    name: "FF Jamie McEwan",
+    email: "",
+    phone: "07488294477",
+    staff_number: "4002573",
+    rank: "Fire Fighter",
+    watch: "Red",
+    skills: ["Banks Person", "Mass Decon", "Comp", "PRPS Trained"],
+    drivers_pathway: [],
+    competent: undefined,
+  },
+  {
+    name: "FF Ethan Brown",
+    email: "",
+    phone: "",
+    staff_number: "4013176",
+    rank: "FF in Progress",
+    watch: "Red",
+    skills: ["Mass Decon"],
+    drivers_pathway: [],
+    competent: undefined,
+  },
 
-  // === GREEN WATCH ===
+  // ============================================================
+  // GREEN WATCH (6)
+  // ============================================================
+  {
+    name: "CC Donna James",
+    email: "donna.james@firescotland.gov.uk",
+    phone: "07969262259",
+    staff_number: "4003259",
+    rank: "Watch Commander",
+    watch: "Green",
+    skills: ["Banks Person", "Mass Decon", "TTR", "PRPS Trained"],
+    drivers_pathway: ["None"],
+    competent: "Yes",
+  },
   {
     name: "FF John Dickson",
     email: "",
@@ -275,8 +416,98 @@ const personnel = [
     drivers_pathway: ["None"],
     competent: "Yes",
   },
+  {
+    name: "FF Robert Hall",
+    email: "",
+    phone: "",
+    staff_number: "",
+    rank: "Fire Fighter",
+    watch: "Green",
+    skills: ["LGV", "Hooklift", "Banks Person", "Comp"],
+    drivers_pathway: [],
+    competent: undefined,
+  },
+  {
+    name: "FF Connell Kelly",
+    email: "",
+    phone: "07837490725",
+    staff_number: "4011378",
+    rank: "Fire Fighter",
+    watch: "Green",
+    skills: ["Banks Person", "Mass Decon", "PRPS Trained", "Comp"],
+    drivers_pathway: [],
+    competent: undefined,
+  },
+  {
+    name: "FF Chris Campbell",
+    email: "",
+    phone: "07718330538",
+    staff_number: "4009617",
+    rank: "Fire Fighter",
+    watch: "Green",
+    skills: ["Banks Person", "Mass Decon", "PRPS Trained", "Comp"],
+    drivers_pathway: [],
+    competent: undefined,
+  },
 
-  // === NO WATCH ASSIGNED ===
+  // ============================================================
+  // UNASSIGNED WATCH (10)
+  // ============================================================
+  {
+    name: "WC Iain Hannah",
+    email: "",
+    phone: "07764488081",
+    staff_number: "4001941",
+    rank: "Watch Commander",
+    watch: "",
+    skills: ["Banks Person", "Mass Decon", "TTR", "PRPS Trained"],
+    drivers_pathway: [],
+    competent: undefined,
+  },
+  {
+    name: "WM John Mclaughlin",
+    email: "",
+    phone: "07730006442",
+    staff_number: "4002340",
+    rank: "Watch Commander",
+    watch: "",
+    skills: ["Banks Person", "Mass Decon", "TTR", "Mass Decon Instructor", "PRPS Trained"],
+    drivers_pathway: [],
+    competent: undefined,
+  },
+  {
+    name: "WC Gary Canning",
+    email: "",
+    phone: "07912974276",
+    staff_number: "4002844",
+    rank: "Watch Commander",
+    watch: "",
+    skills: ["Banks Person", "Mass Decon", "TTR", "Mass Decon Instructor", "PPRPS Instructor", "PRPS Trained"],
+    drivers_pathway: [],
+    competent: undefined,
+  },
+  {
+    name: "Kevin McCaig",
+    email: "",
+    phone: "07527000270",
+    staff_number: "4003271",
+    rank: "Watch Commander",
+    watch: "",
+    skills: ["Banks Person", "LGV", "Mass Decon", "TTR", "Mass Decon Instructor", "PPRPS Instructor", "PRPS Trained"],
+    drivers_pathway: [],
+    competent: undefined,
+  },
+  {
+    name: "CC Paul Duncan",
+    email: "Paul.duncan@firescotland.gov.uk",
+    phone: "07986845270",
+    staff_number: "4003033",
+    rank: "Watch Commander",
+    watch: "",
+    skills: ["LGV", "Mass Decon", "Hooklift", "PRPS Trained", "Mass Decon Instructor", "Banks Person"],
+    drivers_pathway: [],
+    competent: "Yes",
+  },
   {
     name: "CC Barry Wood",
     email: "",
@@ -300,27 +531,58 @@ const personnel = [
     competent: undefined,
   },
   {
-    name: "WC Iain Hannah",
+    name: "FF Paul Blackwood",
     email: "",
-    phone: "07764488081",
-    staff_number: "4001941",
-    rank: "Watch Commander",
+    phone: "07415419901",
+    staff_number: "4009402",
+    rank: "Crew Commander",
     watch: "",
-    skills: ["Banks Person", "Mass Decon", "TTR", "PRPS Trained"],
+    skills: ["LGV", "Mass Decon", "Banks Person", "TTR", "PRPS Trained", "Hooklift"],
+    drivers_pathway: [],
+    competent: undefined,
+  },
+  {
+    name: "FF David Binning",
+    email: "",
+    phone: "07465978045",
+    staff_number: "4010691",
+    rank: "Fire Fighter",
+    watch: "",
+    skills: ["Mass Decon", "PRPS Trained"],
+    drivers_pathway: ["None"],
+    competent: "Yes",
+  },
+  {
+    name: "FF Jamie McEwan",
+    email: "",
+    phone: "07488294477",
+    staff_number: "4002573",
+    rank: "Fire Fighter",
+    watch: "Red",
+    skills: ["Banks Person", "Mass Decon", "Comp", "PRPS Trained"],
     drivers_pathway: [],
     competent: undefined,
   },
 ];
 
+// Deduplicate by staff_number (in case any duplicates)
+const seen = new Set<string>();
+const dedupedPersonnel = personnel.filter(p => {
+  const key = p.staff_number || p.name;
+  if (seen.has(key)) return false;
+  seen.add(key);
+  return true;
+});
+
 async function main() {
   console.log(`\n🔥 Watch Commander Ops Hub — Notion Personnel Import`);
   console.log(`   API: ${API_URL}`);
-  console.log(`   Personnel: ${personnel.length} records`);
+  console.log(`   Personnel: ${dedupedPersonnel.length} records`);
   console.log(`   Mode: ${DRY_RUN ? "DRY RUN (no changes)" : "LIVE IMPORT"}\n`);
 
   // Summary by watch
   const watches: Record<string, number> = {};
-  for (const p of personnel) {
+  for (const p of dedupedPersonnel) {
     const w = p.watch || "Unassigned";
     watches[w] = (watches[w] || 0) + 1;
   }
@@ -335,7 +597,7 @@ async function main() {
         Authorization: `Bearer ${TOKEN}`,
       },
       body: JSON.stringify({
-        personnel,
+        personnel: dedupedPersonnel,
         dry_run: DRY_RUN,
         station: "Pollok",
       }),
