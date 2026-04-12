@@ -119,7 +119,7 @@ export const update = api(
     }
     if (updates.watch !== undefined) {
       setClauses.push(`watch = $${paramIndex++}`);
-      queryParams.push(updates.watch);
+      queryParams.push(updates.watch || null);
     }
     // Note: shift is a legacy free-text field — no longer updated via the UI.
     // Watch assignment is handled exclusively by the `watch` field above.
@@ -214,7 +214,7 @@ export const update = api(
     // used by crewing, crew stats, absence routing, and all dashboard widgets.
     if (updates.watch !== undefined) {
       await db.exec`
-        UPDATE users SET watch_unit = ${updates.watch} WHERE id = ${dbProfile.user_id}
+        UPDATE users SET watch_unit = ${updates.watch || null} WHERE id = ${dbProfile.user_id}
       `;
     }
 

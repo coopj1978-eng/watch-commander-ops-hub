@@ -361,7 +361,7 @@ export default function ProfileDetail() {
     if (editedProfile.prps !== undefined) profileUpdates.prps = editedProfile.prps;
     if (editedProfile.ba !== undefined) profileUpdates.ba = editedProfile.ba;
     if (editedProfile.notes !== undefined) profileUpdates.notes = editedProfile.notes;
-    if (editedProfile.watch !== undefined) profileUpdates.watch = ((editedProfile.watch as string) === "_none" ? "" : editedProfile.watch) as any;
+    if (editedProfile.watch !== undefined) profileUpdates.watch = ((editedProfile.watch as string) === "_none" ? null : editedProfile.watch) as any;
 
     if (Object.keys(profileUpdates).length === 0) {
       toast({

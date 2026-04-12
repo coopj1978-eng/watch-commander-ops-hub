@@ -87,7 +87,7 @@ export interface UpdateProfileRequest {
   service_number?: string;
   station?: string;
   shift?: string;
-  watch?: WatchUnit;
+  watch?: WatchUnit | null;
   rank?: string;
   hire_date?: Date;
   phone?: string;
