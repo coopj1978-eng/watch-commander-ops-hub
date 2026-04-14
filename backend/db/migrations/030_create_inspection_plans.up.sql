@@ -1,6 +1,6 @@
 -- Multi-story inspections: quarterly, one watch per quarter
 -- watch values: 'Red' | 'White' | 'Green' | 'Blue' | 'Amber'
-CREATE TABLE multistory_inspections (
+CREATE TABLE IF NOT EXISTS multistory_inspections (
   id SERIAL PRIMARY KEY,
   address TEXT NOT NULL,
   q1_watch TEXT,
@@ -12,7 +12,7 @@ CREATE TABLE multistory_inspections (
 );
 
 -- Care home validations: yearly, all watches attend (address register only)
-CREATE TABLE care_home_validations (
+CREATE TABLE IF NOT EXISTS care_home_validations (
   id SERIAL PRIMARY KEY,
   address TEXT NOT NULL,
   created_at TIMESTAMPTZ DEFAULT now(),
@@ -20,7 +20,7 @@ CREATE TABLE care_home_validations (
 );
 
 -- Hydrant register: tabular format by area, street, section, year, watch
-CREATE TABLE hydrant_registers (
+CREATE TABLE IF NOT EXISTS hydrant_registers (
   id SERIAL PRIMARY KEY,
   area_code TEXT NOT NULL,
   street TEXT NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE hydrant_registers (
 );
 
 -- Operational inspections: yearly, single watch assigned, with UPRN reference
-CREATE TABLE operational_inspections (
+CREATE TABLE IF NOT EXISTS operational_inspections (
   id SERIAL PRIMARY KEY,
   address TEXT NOT NULL,
   uprn TEXT NOT NULL,

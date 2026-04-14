@@ -1,4 +1,4 @@
-CREATE TABLE handovers (
+CREATE TABLE IF NOT EXISTS handovers (
   id BIGSERIAL PRIMARY KEY,
   watch TEXT NOT NULL,
   shift_type TEXT NOT NULL DEFAULT 'Day' CHECK (shift_type IN ('Day', 'Night')),
@@ -13,6 +13,6 @@ CREATE TABLE handovers (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_handovers_watch ON handovers(watch);
-CREATE INDEX idx_handovers_shift_date ON handovers(shift_date DESC);
-CREATE INDEX idx_handovers_written_by ON handovers(written_by_user_id);
+CREATE INDEX IF NOT EXISTS idx_handovers_watch ON handovers(watch);
+CREATE INDEX IF NOT EXISTS idx_handovers_shift_date ON handovers(shift_date DESC);
+CREATE INDEX IF NOT EXISTS idx_handovers_written_by ON handovers(written_by_user_id);

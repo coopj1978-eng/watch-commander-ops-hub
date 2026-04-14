@@ -1,4 +1,4 @@
-CREATE TABLE activity_log (
+CREATE TABLE IF NOT EXISTS activity_log (
   id BIGSERIAL PRIMARY KEY,
   user_id TEXT REFERENCES users(id),
   action TEXT NOT NULL,
@@ -10,6 +10,6 @@ CREATE TABLE activity_log (
   timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_activity_log_user_id ON activity_log(user_id);
-CREATE INDEX idx_activity_log_entity_type ON activity_log(entity_type);
-CREATE INDEX idx_activity_log_timestamp ON activity_log(timestamp);
+CREATE INDEX IF NOT EXISTS idx_activity_log_user_id ON activity_log(user_id);
+CREATE INDEX IF NOT EXISTS idx_activity_log_entity_type ON activity_log(entity_type);
+CREATE INDEX IF NOT EXISTS idx_activity_log_timestamp ON activity_log(timestamp);

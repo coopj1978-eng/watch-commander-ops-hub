@@ -1,8 +1,8 @@
 -- Add display-order position to all inspection plan tables
-ALTER TABLE multistory_inspections ADD COLUMN position INT NOT NULL DEFAULT 0;
-ALTER TABLE care_home_validations  ADD COLUMN position INT NOT NULL DEFAULT 0;
-ALTER TABLE hydrant_registers      ADD COLUMN position INT NOT NULL DEFAULT 0;
-ALTER TABLE operational_inspections ADD COLUMN position INT NOT NULL DEFAULT 0;
+ALTER TABLE multistory_inspections ADD COLUMN IF NOT EXISTS position INT NOT NULL DEFAULT 0;
+ALTER TABLE care_home_validations  ADD COLUMN IF NOT EXISTS position INT NOT NULL DEFAULT 0;
+ALTER TABLE hydrant_registers      ADD COLUMN IF NOT EXISTS position INT NOT NULL DEFAULT 0;
+ALTER TABLE operational_inspections ADD COLUMN IF NOT EXISTS position INT NOT NULL DEFAULT 0;
 
 -- Initialise positions from existing insertion order
 UPDATE multistory_inspections SET position = sub.pos

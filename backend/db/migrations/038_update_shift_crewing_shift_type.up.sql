@@ -16,4 +16,4 @@ ALTER TABLE shift_crewing
 
 -- Also update the lookup index to remain useful
 DROP INDEX IF EXISTS idx_shift_crewing_lookup;
-CREATE INDEX idx_shift_crewing_lookup ON shift_crewing (watch, shift_date, shift_type);
+CREATE INDEX IF NOT EXISTS idx_shift_crewing_lookup ON shift_crewing (watch, shift_date, shift_type);

@@ -1,4 +1,4 @@
-CREATE TABLE shift_crewing (
+CREATE TABLE IF NOT EXISTS shift_crewing (
   id           BIGSERIAL PRIMARY KEY,
   watch        TEXT        NOT NULL,
   shift_date   DATE        NOT NULL,
@@ -20,4 +20,4 @@ CREATE TABLE shift_crewing (
   CONSTRAINT has_person CHECK (user_id IS NOT NULL OR external_name IS NOT NULL)
 );
 
-CREATE INDEX idx_shift_crewing_lookup ON shift_crewing (watch, shift_date, shift_type);
+CREATE INDEX IF NOT EXISTS idx_shift_crewing_lookup ON shift_crewing (watch, shift_date, shift_type);

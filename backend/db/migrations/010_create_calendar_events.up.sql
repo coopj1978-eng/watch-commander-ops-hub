@@ -1,4 +1,4 @@
-CREATE TABLE calendar_events (
+CREATE TABLE IF NOT EXISTS calendar_events (
   id BIGSERIAL PRIMARY KEY,
   title TEXT NOT NULL,
   description TEXT,
@@ -16,8 +16,8 @@ CREATE TABLE calendar_events (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_calendar_events_user_id ON calendar_events(user_id);
-CREATE INDEX idx_calendar_events_start_time ON calendar_events(start_time);
-CREATE INDEX idx_calendar_events_end_time ON calendar_events(end_time);
-CREATE INDEX idx_calendar_events_type ON calendar_events(event_type);
-CREATE INDEX idx_calendar_events_is_watch ON calendar_events(is_watch_event);
+CREATE INDEX IF NOT EXISTS idx_calendar_events_user_id ON calendar_events(user_id);
+CREATE INDEX IF NOT EXISTS idx_calendar_events_start_time ON calendar_events(start_time);
+CREATE INDEX IF NOT EXISTS idx_calendar_events_end_time ON calendar_events(end_time);
+CREATE INDEX IF NOT EXISTS idx_calendar_events_type ON calendar_events(event_type);
+CREATE INDEX IF NOT EXISTS idx_calendar_events_is_watch ON calendar_events(is_watch_event);

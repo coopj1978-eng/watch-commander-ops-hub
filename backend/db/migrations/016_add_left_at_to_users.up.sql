@@ -1,4 +1,4 @@
 ALTER TABLE users
-ADD COLUMN left_at TIMESTAMPTZ;
+ADD COLUMN IF NOT EXISTS left_at TIMESTAMPTZ;
 
-CREATE INDEX idx_users_left_at ON users(left_at);
+CREATE INDEX IF NOT EXISTS idx_users_left_at ON users(left_at);

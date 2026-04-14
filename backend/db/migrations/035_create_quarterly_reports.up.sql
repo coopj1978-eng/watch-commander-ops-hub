@@ -1,4 +1,4 @@
-CREATE TABLE quarterly_reports (
+CREATE TABLE IF NOT EXISTS quarterly_reports (
   id BIGSERIAL PRIMARY KEY,
   station_name TEXT NOT NULL DEFAULT '',
   watch TEXT NOT NULL,
@@ -13,11 +13,11 @@ CREATE TABLE quarterly_reports (
   UNIQUE (watch, quarter, financial_year)
 );
 
-CREATE INDEX idx_quarterly_reports_watch ON quarterly_reports(watch);
-CREATE INDEX idx_quarterly_reports_period ON quarterly_reports(financial_year, quarter);
-CREATE INDEX idx_quarterly_reports_created_by ON quarterly_reports(created_by);
+CREATE INDEX IF NOT EXISTS idx_quarterly_reports_watch ON quarterly_reports(watch);
+CREATE INDEX IF NOT EXISTS idx_quarterly_reports_period ON quarterly_reports(financial_year, quarter);
+CREATE INDEX IF NOT EXISTS idx_quarterly_reports_created_by ON quarterly_reports(created_by);
 
-CREATE TABLE quarterly_report_items (
+CREATE TABLE IF NOT EXISTS quarterly_report_items (
   id BIGSERIAL PRIMARY KEY,
   report_id BIGINT NOT NULL REFERENCES quarterly_reports(id) ON DELETE CASCADE,
   kpi_code TEXT NOT NULL,
@@ -33,9 +33,9 @@ CREATE TABLE quarterly_report_items (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_qr_items_report_id ON quarterly_report_items(report_id);
+CREATE INDEX IF NOT EXISTS idx_qr_items_report_id ON quarterly_report_items(report_id);
 
-CREATE TABLE quarterly_report_custom_items (
+CREATE TABLE IF NOT EXISTS quarterly_report_custom_items (
   id BIGSERIAL PRIMARY KEY,
   report_id BIGINT NOT NULL REFERENCES quarterly_reports(id) ON DELETE CASCADE,
   description TEXT NOT NULL DEFAULT '',
@@ -47,4 +47,4 @@ CREATE TABLE quarterly_report_custom_items (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_qr_custom_items_report_id ON quarterly_report_custom_items(report_id);
+CREATE INDEX IF NOT EXISTS idx_qr_custom_items_report_id ON quarterly_report_custom_items(report_id);

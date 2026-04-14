@@ -1,4 +1,4 @@
-CREATE TABLE policy_docs (
+CREATE TABLE IF NOT EXISTS policy_docs (
   id BIGSERIAL PRIMARY KEY,
   title TEXT NOT NULL,
   category TEXT,
@@ -18,7 +18,7 @@ CREATE TABLE policy_docs (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_policy_docs_category ON policy_docs(category);
-CREATE INDEX idx_policy_docs_uploaded_by ON policy_docs(uploaded_by);
-CREATE INDEX idx_policy_docs_uploaded_at ON policy_docs(uploaded_at);
-CREATE INDEX idx_policy_docs_vector_id ON policy_docs(vector_id);
+CREATE INDEX IF NOT EXISTS idx_policy_docs_category ON policy_docs(category);
+CREATE INDEX IF NOT EXISTS idx_policy_docs_uploaded_by ON policy_docs(uploaded_by);
+CREATE INDEX IF NOT EXISTS idx_policy_docs_uploaded_at ON policy_docs(uploaded_at);
+CREATE INDEX IF NOT EXISTS idx_policy_docs_vector_id ON policy_docs(vector_id);

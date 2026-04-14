@@ -1,5 +1,5 @@
 -- Custom columns for the task board
-CREATE TABLE task_columns (
+CREATE TABLE IF NOT EXISTS task_columns (
   id SERIAL PRIMARY KEY,
   name TEXT NOT NULL,
   status_key TEXT NOT NULL UNIQUE,
@@ -13,16 +13,17 @@ INSERT INTO task_columns (name, status_key, color, position) VALUES
   ('Not Started', 'NotStarted', '#6b7280', 0),
   ('In Progress', 'InProgress', '#3b82f6', 1),
   ('Blocked',     'Blocked',    '#ef4444', 2),
-  ('Done',        'Done',       '#22c55e', 3);
+  ('Done',        'Done',       '#22c55e', 3)
+ON CONFLICT (status_key) DO NOTHING;
 
 -- Within-column card ordering (float allows midpoint insertion without reindexing)
-ALTER TABLE tasks ADD COLUMN position FLOAT NOT NULL DEFAULT 0;
+ALTER TABLE tasks ADD COLUMN IF NOT EXISTS position FLOAT NOT NULL DEFAULT 0;
 
 -- Remove the hardcoded status constraint so custom column status_keys are valid
-ALTER TABLE tasks DROP CONSTRAINT tasks_status_check;
+ALTER TABLE tasks DROP CONSTRAINT IF EXISTS tasks_status_check;
 
 -- Work template definitions (recurring, scheduled cards)
-CREATE TABLE task_templates (
+CREATE TABLE IF NOT EXISTS task_templates (
   id SERIAL PRIMARY KEY,
   name TEXT NOT NULL,
   description TEXT,
@@ -39,7 +40,7 @@ CREATE TABLE task_templates (
 );
 
 -- Tracks which tasks were auto-generated from templates (prevents duplicates)
-CREATE TABLE task_template_instances (
+CREATE TABLE IF NOT EXISTS task_template_instances (
   id SERIAL PRIMARY KEY,
   template_id INT NOT NULL REFERENCES task_templates(id) ON DELETE CASCADE,
   task_id INT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
@@ -48,5 +49,5 @@ CREATE TABLE task_template_instances (
   UNIQUE(template_id, generated_for_date)
 );
 
-CREATE INDEX idx_task_templates_active ON task_templates(is_active) WHERE is_active = true;
-CREATE INDEX idx_task_columns_position ON task_columns(position);
+CREATE INDEX IF NOT EXISTS idx_task_templates_active ON task_templates(is_active) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_task_columns_position ON task_columns(position);

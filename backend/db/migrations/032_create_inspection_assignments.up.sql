@@ -1,4 +1,4 @@
-CREATE TABLE inspection_assignments (
+CREATE TABLE IF NOT EXISTS inspection_assignments (
   id           BIGSERIAL PRIMARY KEY,
   plan_type    TEXT NOT NULL CHECK (plan_type IN ('multistory', 'care_home', 'hydrant', 'operational')),
   plan_id      INTEGER NOT NULL,
@@ -15,9 +15,9 @@ CREATE TABLE inspection_assignments (
 );
 
 -- Idempotent re-generation: same plan + watch + year + quarter = same row
-CREATE UNIQUE INDEX uq_inspection_assignment
+CREATE UNIQUE INDEX IF NOT EXISTS uq_inspection_assignment
   ON inspection_assignments(plan_type, plan_id, watch, year, COALESCE(quarter, 0));
 
-CREATE INDEX idx_ia_watch_year ON inspection_assignments(watch, year);
-CREATE INDEX idx_ia_status     ON inspection_assignments(status);
-CREATE INDEX idx_ia_plan_type  ON inspection_assignments(plan_type);
+CREATE INDEX IF NOT EXISTS idx_ia_watch_year ON inspection_assignments(watch, year);
+CREATE INDEX IF NOT EXISTS idx_ia_status     ON inspection_assignments(status);
+CREATE INDEX IF NOT EXISTS idx_ia_plan_type  ON inspection_assignments(plan_type);

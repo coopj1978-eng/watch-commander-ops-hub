@@ -1,4 +1,4 @@
-CREATE TABLE system_settings (
+CREATE TABLE IF NOT EXISTS system_settings (
   id SERIAL PRIMARY KEY,
   skills_dictionary TEXT[] DEFAULT '{}',
   certifications_dictionary TEXT[] DEFAULT '{}',
@@ -16,9 +16,10 @@ INSERT INTO system_settings (
   certifications_dictionary,
   absence_threshold_days,
   absence_threshold_period_months
-) VALUES (
+)
+SELECT
   ARRAY['BA', 'Driver - LGV', 'Driver - ERD', 'PRPS', 'First Aid', 'Hazmat', 'Rope Rescue', 'Swift Water']::TEXT[],
   ARRAY['BA Wearer', 'BA Team Leader', 'LGV License', 'ERD License', 'PRPS Certified', 'First Aid Level 3', 'Hazmat Operations', 'Technical Rescue']::TEXT[],
   10,
   6
-);
+WHERE NOT EXISTS (SELECT 1 FROM system_settings);

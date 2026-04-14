@@ -1,4 +1,4 @@
-CREATE TABLE inspections (
+CREATE TABLE IF NOT EXISTS inspections (
   id BIGSERIAL PRIMARY KEY,
   type TEXT NOT NULL CHECK (type IN ('HighRise', 'LocalProperty', 'Hydrant', 'Other')),
   address TEXT NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE inspections (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_inspections_type ON inspections(type);
-CREATE INDEX idx_inspections_status ON inspections(status);
-CREATE INDEX idx_inspections_scheduled_for ON inspections(scheduled_for);
-CREATE INDEX idx_inspections_priority ON inspections(priority);
+CREATE INDEX IF NOT EXISTS idx_inspections_type ON inspections(type);
+CREATE INDEX IF NOT EXISTS idx_inspections_status ON inspections(status);
+CREATE INDEX IF NOT EXISTS idx_inspections_scheduled_for ON inspections(scheduled_for);
+CREATE INDEX IF NOT EXISTS idx_inspections_priority ON inspections(priority);

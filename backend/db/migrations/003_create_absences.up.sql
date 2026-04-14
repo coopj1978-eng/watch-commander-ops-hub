@@ -1,4 +1,4 @@
-CREATE TABLE absences (
+CREATE TABLE IF NOT EXISTS absences (
   id BIGSERIAL PRIMARY KEY,
   firefighter_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   type TEXT NOT NULL CHECK (type IN ('sickness', 'AL', 'TOIL', 'parental', 'other')),
@@ -13,7 +13,7 @@ CREATE TABLE absences (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_absences_firefighter_id ON absences(firefighter_id);
-CREATE INDEX idx_absences_type ON absences(type);
-CREATE INDEX idx_absences_status ON absences(status);
-CREATE INDEX idx_absences_start_date ON absences(start_date);
+CREATE INDEX IF NOT EXISTS idx_absences_firefighter_id ON absences(firefighter_id);
+CREATE INDEX IF NOT EXISTS idx_absences_type ON absences(type);
+CREATE INDEX IF NOT EXISTS idx_absences_status ON absences(status);
+CREATE INDEX IF NOT EXISTS idx_absences_start_date ON absences(start_date);

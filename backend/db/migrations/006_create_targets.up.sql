@@ -1,4 +1,4 @@
-CREATE TABLE targets (
+CREATE TABLE IF NOT EXISTS targets (
   id BIGSERIAL PRIMARY KEY,
   period_start DATE NOT NULL,
   period_end DATE NOT NULL,
@@ -11,7 +11,7 @@ CREATE TABLE targets (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_targets_metric ON targets(metric);
-CREATE INDEX idx_targets_status ON targets(status);
-CREATE INDEX idx_targets_period_start ON targets(period_start);
-CREATE INDEX idx_targets_period_end ON targets(period_end);
+CREATE INDEX IF NOT EXISTS idx_targets_metric ON targets(metric);
+CREATE INDEX IF NOT EXISTS idx_targets_status ON targets(status);
+CREATE INDEX IF NOT EXISTS idx_targets_period_start ON targets(period_start);
+CREATE INDEX IF NOT EXISTS idx_targets_period_end ON targets(period_end);

@@ -4,7 +4,7 @@
 -- financial_year is the April-start year (e.g. 2025 = 2025/26).
 -- quarter follows SFRS financial quarters: Q1=Apr-Jun, Q2=Jul-Sep, Q3=Oct-Dec, Q4=Jan-Mar.
 
-CREATE TABLE activity_records (
+CREATE TABLE IF NOT EXISTS activity_records (
   id             BIGSERIAL PRIMARY KEY,
   type           TEXT        NOT NULL CHECK (type IN ('hfsv', 'hydrant', 'community')),
   watch          TEXT        NOT NULL,
@@ -32,5 +32,5 @@ CREATE TABLE activity_records (
   updated_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_activity_records_type_watch ON activity_records(type, watch);
-CREATE INDEX idx_activity_records_year_quarter ON activity_records(financial_year, quarter);
+CREATE INDEX IF NOT EXISTS idx_activity_records_type_watch ON activity_records(type, watch);
+CREATE INDEX IF NOT EXISTS idx_activity_records_year_quarter ON activity_records(financial_year, quarter);

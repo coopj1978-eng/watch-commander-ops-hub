@@ -1,10 +1,10 @@
 ALTER TABLE system_settings
-ADD COLUMN trigger_stage1_episodes INTEGER DEFAULT 2,
-ADD COLUMN trigger_stage1_days INTEGER DEFAULT 5,
-ADD COLUMN trigger_stage2_episodes INTEGER DEFAULT 3,
-ADD COLUMN trigger_stage2_days INTEGER DEFAULT 10,
-ADD COLUMN trigger_stage3_episodes INTEGER DEFAULT 4,
-ADD COLUMN trigger_stage3_days INTEGER DEFAULT 15;
+ADD COLUMN IF NOT EXISTS trigger_stage1_episodes INTEGER DEFAULT 2,
+ADD COLUMN IF NOT EXISTS trigger_stage1_days INTEGER DEFAULT 5,
+ADD COLUMN IF NOT EXISTS trigger_stage2_episodes INTEGER DEFAULT 3,
+ADD COLUMN IF NOT EXISTS trigger_stage2_days INTEGER DEFAULT 10,
+ADD COLUMN IF NOT EXISTS trigger_stage3_episodes INTEGER DEFAULT 4,
+ADD COLUMN IF NOT EXISTS trigger_stage3_days INTEGER DEFAULT 15;
 
 UPDATE system_settings
 SET 

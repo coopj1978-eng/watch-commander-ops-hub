@@ -1,3 +1,3 @@
-ALTER TABLE tasks ADD COLUMN rrule TEXT;
+ALTER TABLE tasks ADD COLUMN IF NOT EXISTS rrule TEXT;
 
-CREATE INDEX idx_tasks_rrule ON tasks(rrule) WHERE rrule IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_tasks_rrule ON tasks(rrule) WHERE rrule IS NOT NULL;
