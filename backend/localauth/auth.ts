@@ -4,6 +4,13 @@ import * as bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import db from "../db";
 import type { User } from "../user/types";
+import {
+  rateLimit,
+  resetRateLimit,
+  getRequestIp,
+  SIGNIN_LIMIT,
+  SIGNUP_LIMIT,
+} from "./rate_limit";
 
 const jwtSecretRef = secret("JWTSecret");
 
@@ -41,6 +48,9 @@ interface AuthResponse {
 export const signUp = api<SignUpRequest, AuthResponse>(
   { expose: true, method: "POST", path: "/auth/signup" },
   async (req) => {
+    // Rate limit by IP — prevents scripted mass-signup.
+    rateLimit(`signup:ip:${getRequestIp()}`, SIGNUP_LIMIT);
+
     try {
       const existingUser = await db.queryRow<User>`
         SELECT * FROM users WHERE LOWER(email) = LOWER(${req.email})
@@ -136,6 +146,14 @@ export const signUp = api<SignUpRequest, AuthResponse>(
 export const signIn = api<SignInRequest, AuthResponse>(
   { expose: true, method: "POST", path: "/auth/signin" },
   async (req) => {
+    // Rate limit by email AND by IP — either lock trips a block.
+    // Email scope stops brute-force against one account from anywhere.
+    // IP scope stops password-spraying across many accounts from one attacker.
+    const emailKey = `signin:email:${req.email.trim().toLowerCase()}`;
+    const ipKey = `signin:ip:${getRequestIp()}`;
+    rateLimit(emailKey, SIGNIN_LIMIT);
+    rateLimit(ipKey, SIGNIN_LIMIT);
+
     try {
       const user = await db.queryRow<User>`
         SELECT * FROM users WHERE email = ${req.email}
@@ -154,6 +172,11 @@ export const signIn = api<SignInRequest, AuthResponse>(
       if (!isValidPassword) {
         throw APIError.unauthenticated("Invalid email or password");
       }
+
+      // Successful login — clear rate-limit counters so a returning user isn't
+      // penalised for typos earlier in the session.
+      resetRateLimit(emailKey);
+      resetRateLimit(ipKey);
 
       const token = jwt.sign(
         {

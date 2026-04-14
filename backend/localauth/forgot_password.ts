@@ -3,6 +3,7 @@ import { secret } from "encore.dev/config";
 import { Resend } from "resend";
 import crypto from "crypto";
 import db from "../db";
+import { rateLimit, getRequestIp, FORGOT_PASSWORD_LIMIT } from "./rate_limit";
 
 const resendApiKeyRef = secret("ResendApiKey");
 const frontendUrlRef = secret("FrontendUrl");
@@ -21,6 +22,11 @@ export const forgotPassword = api<ForgotPasswordRequest, ForgotPasswordResponse>
   { expose: true, method: "POST", path: "/auth/forgot-password" },
   async (req) => {
     const email = req.email.trim().toLowerCase();
+
+    // Rate limit by email AND IP — stops both targeted harassment of one user
+    // and mass-enumeration from a single attacker.
+    rateLimit(`forgot:email:${email}`, FORGOT_PASSWORD_LIMIT);
+    rateLimit(`forgot:ip:${getRequestIp()}`, FORGOT_PASSWORD_LIMIT);
 
     const user = await db.queryRow<{ id: string; name: string; email: string }>`
       SELECT id, name, email FROM users WHERE LOWER(email) = ${email} AND left_at IS NULL
