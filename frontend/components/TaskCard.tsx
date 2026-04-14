@@ -66,7 +66,10 @@ export default function TaskCard({ task, onChecklistToggle, onTitleEdit, onClick
   const getDueBadge = () => {
     if (!task.due_at) return null;
     const dueDate = new Date(task.due_at);
-    const diffDays = Math.ceil((dueDate.getTime() - Date.now()) / 86400000);
+    const now = new Date();
+    const dueDay = new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate());
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const diffDays = Math.round((dueDay.getTime() - today.getTime()) / 86400000);
     if (task.status === "Done") return (
       <Badge className="bg-green-500/10 text-green-600 border-green-500/20 text-xs">
         <CheckCircle2 className="h-3 w-3 mr-1" />Completed

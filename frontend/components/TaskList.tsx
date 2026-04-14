@@ -51,8 +51,9 @@ export default function TaskList({ tasks, isLoading, onTaskClick }: TaskListProp
     if (dueFilter !== "all" && task.due_at) {
       const dueDate = new Date(task.due_at);
       const now = new Date();
-      const diffMs = dueDate.getTime() - now.getTime();
-      const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+      const dueDay = new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate());
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const diffDays = Math.round((dueDay.getTime() - today.getTime()) / 86400000);
 
       if (dueFilter === "overdue" && diffDays >= 0) return false;
       if (dueFilter === "today" && diffDays !== 0) return false;
@@ -68,8 +69,9 @@ export default function TaskList({ tasks, isLoading, onTaskClick }: TaskListProp
 
     const dueDate = new Date(task.due_at);
     const now = new Date();
-    const diffMs = dueDate.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    const dueDay = new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate());
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const diffDays = Math.round((dueDay.getTime() - today.getTime()) / 86400000);
 
     if (task.status === "Done") {
       return (
