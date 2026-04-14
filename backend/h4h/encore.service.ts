@@ -1,2 +1,3 @@
 import { Service } from "encore.dev/service";
-export default new Service("h4h");
+import { sentryMiddleware } from "../observability/sentry";
+export default new Service("h4h", { middlewares: [sentryMiddleware] });

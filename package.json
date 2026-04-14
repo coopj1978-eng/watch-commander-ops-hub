@@ -6,5 +6,8 @@
   "workspaces": [
     "backend",
     "frontend"
-  ]
+  ],
+  "dependencies": {
+    "@sentry/node": "^10.48.0"
+  }
 }

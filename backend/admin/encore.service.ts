@@ -1,3 +1,4 @@
 import { Service } from "encore.dev/service";
+import { sentryMiddleware } from "../observability/sentry";
 
-export default new Service("admin");
+export default new Service("admin", { middlewares: [sentryMiddleware] });

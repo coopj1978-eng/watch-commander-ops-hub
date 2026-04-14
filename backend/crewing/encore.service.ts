@@ -1,2 +1,3 @@
 import { Service } from "encore.dev/service";
-export default new Service("crewing");
+import { sentryMiddleware } from "../observability/sentry";
+export default new Service("crewing", { middlewares: [sentryMiddleware] });

@@ -1,2 +1,3 @@
 import { Service } from "encore.dev/service";
-export default new Service("shift_adjustments");
+import { sentryMiddleware } from "../observability/sentry";
+export default new Service("shift_adjustments", { middlewares: [sentryMiddleware] });
