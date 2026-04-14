@@ -75,29 +75,35 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
       throw APIError.invalidArgument("End date must be on or after start date.");
     }
 
-    const adjustment = await db.queryRow<ShiftAdjustment>`
-      INSERT INTO shift_adjustments (
-        user_id, type, start_date, end_date,
-        covering_user_id, covering_name,
-        covering_watch, shift_day_night,
-        toil_hours,
-        watch_unit, notes, created_by_user_id
-      ) VALUES (
-        ${targetUserId},
-        ${req.type},
-        ${req.start_date},
-        ${req.end_date},
-        ${req.covering_user_id || null},
-        ${req.covering_name || null},
-        ${req.covering_watch || null},
-        ${req.shift_day_night || null},
-        ${req.toil_hours || null},
-        ${userInfo.watch_unit},
-        ${req.notes || null},
-        ${auth.userID}
-      )
-      RETURNING *
-    `;
+    let adjustment: ShiftAdjustment | null = null;
+    try {
+      adjustment = await db.queryRow<ShiftAdjustment>`
+        INSERT INTO shift_adjustments (
+          user_id, type, start_date, end_date,
+          covering_user_id, covering_name,
+          covering_watch, shift_day_night,
+          toil_hours,
+          watch_unit, notes, created_by_user_id
+        ) VALUES (
+          ${targetUserId},
+          ${req.type},
+          ${new Date(req.start_date as unknown as string)},
+          ${new Date(req.end_date as unknown as string)},
+          ${req.covering_user_id || null},
+          ${req.covering_name || null},
+          ${req.covering_watch || null},
+          ${req.shift_day_night || null},
+          ${req.toil_hours || null},
+          ${userInfo.watch_unit},
+          ${req.notes || null},
+          ${auth.userID}
+        )
+        RETURNING *
+      `;
+    } catch (err: any) {
+      console.error("shift_adjustments INSERT failed:", err);
+      throw APIError.internal(`Failed to save shift adjustment: ${err?.message ?? String(err)}`);
+    }
 
     if (!adjustment) throw APIError.internal("Failed to create shift adjustment.");
 
