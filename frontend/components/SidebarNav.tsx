@@ -126,12 +126,14 @@ export default function SidebarNav({
           "transition-all duration-300",
           expanded ? "w-9 h-9 rounded-xl" : "w-12 h-12 rounded-2xl",
         )}>
-          <span className={cn(
-            "text-white font-bold transition-all duration-300",
-            expanded ? "text-sm" : "text-xl",
-          )}>
-            WC
-          </span>
+          <img
+            src="/logo.svg"
+            alt="Watch Commander Ops Hub"
+            className={cn(
+              "transition-all duration-300",
+              expanded ? "w-7 h-7" : "w-9 h-9",
+            )}
+          />
         </div>
         {expanded && (
           <div
