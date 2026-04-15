@@ -150,3 +150,16 @@ export const RESET_PASSWORD_LIMIT: RateLimitConfig = {
   blockMs: 60 * 60 * 1000,
   label: "password reset",
 };
+
+/**
+ * Change-password: 5 attempts per user per 15 min, then 15-min cooldown.
+ * Defends against a stolen session being used to brute-force the *current*
+ * password (e.g. to satisfy a "know current password" prompt for elevation).
+ * Same shape as SIGNIN_LIMIT — same risk profile.
+ */
+export const CHANGE_PASSWORD_LIMIT: RateLimitConfig = {
+  windowMs: 15 * 60 * 1000,
+  maxAttempts: 5,
+  blockMs: 15 * 60 * 1000,
+  label: "password change",
+};
