@@ -129,63 +129,79 @@ export const refresh = api<void, RefreshResponse>(
       });
     }
 
-    // ── 3. Crewing gaps today (WC only) ──────────────────────────────────────────
-    // For each appliance running today, check that the critical crew roles
-    // (OIC + driver) are filled. A missing OIC or driver is an operational
-    // blocker the WC needs to see.
+    // ── 3. Crewing gaps — current + next shift (WC only) ───────────────────────
+    // For each appliance that has at least one entry on a shift, check that the
+    // critical crew roles (OIC + driver) are filled. Checks both the current
+    // active shift AND the next upcoming shift so the WC has time to arrange cover.
     if (userRow?.role === "WC" && userRow.watch_unit) {
       const today = new Date().toISOString().split("T")[0];
       const hour = new Date().getHours();
-      // Same time-of-day shift logic used in WCAlertBanner / WCShiftWidget
-      const shiftType =
+
+      // Current shift from time-of-day (same logic as WCAlertBanner / TopBar)
+      const currentShift =
         hour < 9  ? "1st Day" :
         hour < 19 ? "2nd Day" :
         hour < 21 ? "1st Night" : "2nd Night";
 
-      // Count filled critical roles (oic, driver) per appliance for today's shift.
-      // Only consider appliances that have AT LEAST ONE entry — an appliance
-      // with zero entries is "not running today" rather than "has gaps".
-      const filledRows = await db.rawQuery<{ appliance: string; crew_role: string; n: number }>(
-        `SELECT appliance, crew_role, COUNT(*)::int AS n
-         FROM shift_crewing
-         WHERE LOWER(watch) = LOWER($1)
-           AND shift_date = $2::date
-           AND shift_type = $3
-           AND crew_role IN ('oic', 'driver')
-         GROUP BY appliance, crew_role`,
-        userRow.watch_unit, today, shiftType
-      );
+      // Next shift in the sequence. 2nd Night → 1st Day rolls to next calendar day.
+      const SHIFT_ORDER = ["1st Day", "2nd Day", "1st Night", "2nd Night"] as const;
+      const currentIdx = SHIFT_ORDER.indexOf(currentShift as typeof SHIFT_ORDER[number]);
+      const nextIdx = (currentIdx + 1) % SHIFT_ORDER.length;
+      const nextShift = SHIFT_ORDER[nextIdx];
+      const nextDate = nextIdx === 0
+        ? new Date(new Date(today).getTime() + 86400000).toISOString().split("T")[0]
+        : today;
 
-      // Also get the set of appliances that have ANY entry today (= "running").
-      const runningRows = await db.rawQuery<{ appliance: string }>(
-        `SELECT DISTINCT appliance
-         FROM shift_crewing
-         WHERE LOWER(watch) = LOWER($1)
-           AND shift_date = $2::date
-           AND shift_type = $3
-           AND appliance != 'detached'`,
-        userRow.watch_unit, today, shiftType
-      );
+      // Check both shifts
+      const shiftsToCheck = [
+        { date: today,    shiftType: currentShift, label: "today's" },
+        { date: nextDate, shiftType: nextShift,    label: "upcoming" },
+      ];
 
-      const filled: Record<string, Set<string>> = {};
-      for await (const row of filledRows) {
-        filled[row.appliance] ??= new Set();
-        if (row.n > 0) filled[row.appliance].add(row.crew_role);
-      }
+      for (const { date, shiftType, label } of shiftsToCheck) {
+        // Count filled critical roles (oic, driver) per appliance
+        const filledRows = await db.rawQuery<{ appliance: string; crew_role: string; n: number }>(
+          `SELECT appliance, crew_role, COUNT(*)::int AS n
+           FROM shift_crewing
+           WHERE LOWER(watch) = LOWER($1)
+             AND shift_date = $2::date
+             AND shift_type = $3
+             AND crew_role IN ('oic', 'driver')
+           GROUP BY appliance, crew_role`,
+          userRow.watch_unit, date, shiftType
+        );
 
-      for await (const { appliance } of runningRows) {
-        const has = filled[appliance] ?? new Set();
-        const missing = (["oic", "driver"] as const).filter((r) => !has.has(r));
-        for (const role of missing) {
-          const prettyRole = role === "oic" ? "OIC" : "Driver";
-          await maybeInsert({
-            type: "crewing_gap",
-            title: `${prettyRole} gap on ${appliance.toUpperCase()}`,
-            message: `No ${prettyRole} assigned to ${appliance.toUpperCase()} for today's ${shiftType}.`,
-            entity_type: "shift_crewing",
-            entity_id: `${today}|${shiftType}|${appliance}|${role}`,
-            link: `/handover`,
-          });
+        // Appliances that have ANY entry (= "running" that shift)
+        const runningRows = await db.rawQuery<{ appliance: string }>(
+          `SELECT DISTINCT appliance
+           FROM shift_crewing
+           WHERE LOWER(watch) = LOWER($1)
+             AND shift_date = $2::date
+             AND shift_type = $3
+             AND appliance != 'detached'`,
+          userRow.watch_unit, date, shiftType
+        );
+
+        const filled: Record<string, Set<string>> = {};
+        for await (const row of filledRows) {
+          filled[row.appliance] ??= new Set();
+          if (row.n > 0) filled[row.appliance].add(row.crew_role);
+        }
+
+        for await (const { appliance } of runningRows) {
+          const has = filled[appliance] ?? new Set();
+          const missing = (["oic", "driver"] as const).filter((r) => !has.has(r));
+          for (const role of missing) {
+            const prettyRole = role === "oic" ? "OIC" : "Driver";
+            await maybeInsert({
+              type: "crewing_gap",
+              title: `${prettyRole} gap on ${appliance.toUpperCase()}`,
+              message: `No ${prettyRole} assigned to ${appliance.toUpperCase()} for ${label} ${shiftType}.`,
+              entity_type: "shift_crewing",
+              entity_id: `${date}|${shiftType}|${appliance}|${role}`,
+              link: `/handover`,
+            });
+          }
         }
       }
     }
