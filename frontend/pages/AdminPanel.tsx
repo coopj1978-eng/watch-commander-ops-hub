@@ -251,21 +251,130 @@ function FeatureManagementTab() {
 }
 
 function ActivityLogTab() {
-  const { data, isLoading } = useQuery({
-    queryKey: ["activity-log"],
+  const PAGE_SIZE = 50;
+  const [actionFilter, setActionFilter] = useState("");
+  const [entityFilter, setEntityFilter] = useState("");
+  const [userFilter, setUserFilter] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [page, setPage] = useState(0);
+
+  // Reset to first page whenever filters change so we don't end up on an empty page.
+  const resetPage = () => setPage(0);
+
+  const { data, isLoading, isFetching } = useQuery({
+    queryKey: ["activity-log", actionFilter, entityFilter, userFilter, startDate, endDate, page],
     queryFn: async () => {
-      const result = await backend.admin.getActivityLog({ limit: 50 });
-      return result.logs;
+      const result = await backend.admin.getActivityLog({
+        limit: PAGE_SIZE,
+        offset: page * PAGE_SIZE,
+        action: actionFilter || undefined,
+        entity_type: entityFilter || undefined,
+        user_id: userFilter || undefined,
+        // Date range is inclusive of start, exclusive of end (end is bumped to next day).
+        start_date: startDate ? new Date(startDate).toISOString() : undefined,
+        end_date: endDate
+          ? new Date(new Date(endDate).getTime() + 24 * 60 * 60 * 1000).toISOString()
+          : undefined,
+      });
+      return result;
     },
+    placeholderData: (prev) => prev,
   });
+
+  const total = data?.total ?? 0;
+  const logs = data?.logs ?? [];
+  const showingFrom = total === 0 ? 0 : page * PAGE_SIZE + 1;
+  const showingTo = Math.min((page + 1) * PAGE_SIZE, total);
+  const canGoNext = (page + 1) * PAGE_SIZE < total;
+  const hasFilters = actionFilter || entityFilter || userFilter || startDate || endDate;
+
+  const clearFilters = () => {
+    setActionFilter("");
+    setEntityFilter("");
+    setUserFilter("");
+    setStartDate("");
+    setEndDate("");
+    setPage(0);
+  };
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Activity Log</CardTitle>
-        <CardDescription>Recent system activity and audit trail</CardDescription>
+        <CardDescription>
+          {total === 0 && !hasFilters
+            ? "Recent system activity and audit trail"
+            : `${total.toLocaleString()} ${total === 1 ? "event" : "events"}${
+                hasFilters ? (total === 1 ? " matches your filters" : " match your filters") : ""
+              }`}
+        </CardDescription>
       </CardHeader>
       <CardContent>
+        {/* Filter row */}
+        <div className="grid gap-3 md:grid-cols-5 mb-4">
+          <div>
+            <Label htmlFor="filter-action" className="text-xs">Action</Label>
+            <input
+              id="filter-action"
+              type="text"
+              placeholder="e.g. crewing"
+              value={actionFilter}
+              onChange={(e) => { setActionFilter(e.target.value); resetPage(); }}
+              className="w-full mt-1 px-3 py-2 text-sm border rounded-md bg-background"
+            />
+          </div>
+          <div>
+            <Label htmlFor="filter-entity" className="text-xs">Entity Type</Label>
+            <input
+              id="filter-entity"
+              type="text"
+              placeholder="e.g. shift_crewing"
+              value={entityFilter}
+              onChange={(e) => { setEntityFilter(e.target.value); resetPage(); }}
+              className="w-full mt-1 px-3 py-2 text-sm border rounded-md bg-background"
+            />
+          </div>
+          <div>
+            <Label htmlFor="filter-user" className="text-xs">User ID</Label>
+            <input
+              id="filter-user"
+              type="text"
+              placeholder="user_..."
+              value={userFilter}
+              onChange={(e) => { setUserFilter(e.target.value); resetPage(); }}
+              className="w-full mt-1 px-3 py-2 text-sm border rounded-md bg-background"
+            />
+          </div>
+          <div>
+            <Label htmlFor="filter-start" className="text-xs">From</Label>
+            <input
+              id="filter-start"
+              type="date"
+              value={startDate}
+              onChange={(e) => { setStartDate(e.target.value); resetPage(); }}
+              className="w-full mt-1 px-3 py-2 text-sm border rounded-md bg-background"
+            />
+          </div>
+          <div>
+            <Label htmlFor="filter-end" className="text-xs">To</Label>
+            <input
+              id="filter-end"
+              type="date"
+              value={endDate}
+              onChange={(e) => { setEndDate(e.target.value); resetPage(); }}
+              className="w-full mt-1 px-3 py-2 text-sm border rounded-md bg-background"
+            />
+          </div>
+        </div>
+        {hasFilters && (
+          <div className="mb-3">
+            <Button variant="ghost" size="sm" onClick={clearFilters} className="text-xs">
+              Clear filters
+            </Button>
+          </div>
+        )}
+
         {isLoading ? (
           <div className="space-y-2">
             {[...Array(10)].map((_, i) => (
@@ -285,13 +394,19 @@ function ActivityLogTab() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data?.map((log) => (
-                  <TableRow key={log.id}>
-                    <TableCell className="text-muted-foreground">
+                {logs.map((log) => (
+                  <TableRow key={log.id} className={isFetching ? "opacity-60" : ""}>
+                    <TableCell className="text-muted-foreground whitespace-nowrap">
                       {new Date(log.timestamp).toLocaleString()}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline">{log.user_id || "System"}</Badge>
+                      {log.user_name ? (
+                        <span title={log.user_id}>{log.user_name}</span>
+                      ) : (
+                        <Badge variant="outline" className="text-xs">
+                          {log.user_id || "System"}
+                        </Badge>
+                      )}
                     </TableCell>
                     <TableCell className="font-medium">
                       {log.action.replace(/_/g, " ")}
@@ -300,14 +415,16 @@ function ActivityLogTab() {
                       <Badge>{log.entity_type}</Badge>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground max-w-xs truncate">
-                      {JSON.stringify(log.details)}
+                      {formatDetails(log.details)}
                     </TableCell>
                   </TableRow>
                 ))}
-                {data?.length === 0 && (
+                {logs.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={5} className="text-center py-8">
-                      <p className="text-muted-foreground">No activity logs yet</p>
+                      <p className="text-muted-foreground">
+                        {hasFilters ? "No events match these filters" : "No activity logs yet"}
+                      </p>
                     </TableCell>
                   </TableRow>
                 )}
@@ -315,7 +432,53 @@ function ActivityLogTab() {
             </Table>
           </div>
         )}
+
+        {/* Pagination footer */}
+        {total > 0 && (
+          <div className="flex items-center justify-between mt-4 text-sm text-muted-foreground">
+            <span>
+              Showing {showingFrom.toLocaleString()}–{showingTo.toLocaleString()} of{" "}
+              {total.toLocaleString()}
+            </span>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page === 0 || isFetching}
+                onClick={() => setPage((p) => Math.max(0, p - 1))}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={!canGoNext || isFetching}
+                onClick={() => setPage((p) => p + 1)}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
+}
+
+/**
+ * Render a `details` payload as a compact, readable string. Handles the current
+ * logger quirk where details may arrive as a JSON-encoded string rather than
+ * an object (see logger.ts double-encoding bug). Falls back to JSON.stringify
+ * for anything we can't parse.
+ */
+function formatDetails(details: unknown): string {
+  if (details === null || details === undefined || details === "") return "—";
+  let parsed: unknown = details;
+  if (typeof parsed === "string") {
+    try { parsed = JSON.parse(parsed); } catch { return parsed as string; }
+  }
+  if (typeof parsed !== "object" || parsed === null) return String(parsed);
+  const entries = Object.entries(parsed as Record<string, unknown>);
+  if (entries.length === 0) return "—";
+  return entries.map(([k, v]) => `${k}: ${typeof v === "object" ? JSON.stringify(v) : v}`).join(", ");
 }

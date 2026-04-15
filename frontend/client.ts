@@ -57,9 +57,9 @@ export default class Client {
     public readonly settings: settings.ServiceClient
     public readonly shift_adjustments: shift_adjustments.ServiceClient
     public readonly skill: skill.ServiceClient
-    public readonly toil: toil.ServiceClient
     public readonly targets: targets.ServiceClient
     public readonly task: task.ServiceClient
+    public readonly toil: toil.ServiceClient
     public readonly user: user.ServiceClient
     private readonly options: ClientOptions
     private readonly target: string
@@ -100,9 +100,9 @@ export default class Client {
         this.settings = new settings.ServiceClient(base)
         this.shift_adjustments = new shift_adjustments.ServiceClient(base)
         this.skill = new skill.ServiceClient(base)
-        this.toil = new toil.ServiceClient(base)
         this.targets = new targets.ServiceClient(base)
         this.task = new task.ServiceClient(base)
+        this.toil = new toil.ServiceClient(base)
         this.user = new user.ServiceClient(base)
     }
 
@@ -310,6 +310,7 @@ export namespace activity {
         details: string | null
         completed: boolean
         "completed_at": string | null
+        scheduled: boolean
         "sort_order": number
         "created_by": string
         "created_at": string
@@ -466,6 +467,19 @@ export namespace admin {
         timestamp: string
     }
 
+    export interface ActivityLogRow {
+        "user_name": string | null
+        id: number
+        "user_id": string
+        action: string
+        "entity_type": string
+        "entity_id"?: string
+        details?: any
+        "ip_address"?: string
+        "user_agent"?: string
+        timestamp: string
+    }
+
     export interface AssetReassignment {
         tasks: boolean
         inspections: boolean
@@ -521,12 +535,27 @@ export namespace admin {
     export interface GetActivityLogRequest {
         "user_id"?: string
         "entity_type"?: string
+        /**
+         * Substring match on action (case-insensitive). e.g. "crewing" matches add_crewing.
+         */
+        action?: string
+
+        /**
+         * ISO date string. Includes events on or after this date (UTC).
+         */
+        "start_date"?: string
+
+        /**
+         * ISO date string. Includes events strictly before this date (exclusive upper bound).
+         */
+        "end_date"?: string
+
         limit?: number
         offset?: number
     }
 
     export interface GetActivityLogResponse {
-        logs: ActivityLog[]
+        logs: ActivityLogRow[]
         total: number
     }
 
@@ -540,6 +569,12 @@ export namespace admin {
         "user_name": string
         "user_email": string
         "already_active": boolean
+    }
+
+    export interface HealthResponse {
+        ok: boolean
+        db: "ok"
+        time: string
     }
 
     export interface InviteUserRequest {
@@ -581,6 +616,7 @@ export namespace admin {
             this.getActivityLog = this.getActivityLog.bind(this)
             this.getInviteLink = this.getInviteLink.bind(this)
             this.getReassignmentPreview = this.getReassignmentPreview.bind(this)
+            this.healthz = this.healthz.bind(this)
             this.inviteUser = this.inviteUser.bind(this)
             this.listUsers = this.listUsers.bind(this)
             this.reactivateUser = this.reactivateUser.bind(this)
@@ -639,9 +675,12 @@ export namespace admin {
         public async getActivityLog(params: GetActivityLogRequest): Promise<GetActivityLogResponse> {
             // Convert our params into the objects we need for the request
             const query = makeRecord<string, string | string[]>({
+                action:        params.action,
+                "end_date":    params["end_date"],
                 "entity_type": params["entity_type"],
                 limit:         params.limit === undefined ? undefined : String(params.limit),
                 offset:        params.offset === undefined ? undefined : String(params.offset),
+                "start_date":  params["start_date"],
                 "user_id":     params["user_id"],
             })
 
@@ -660,6 +699,17 @@ export namespace admin {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/api/admin/reassign/${encodeURIComponent(userId)}/preview`)
             return await resp.json() as ReassignmentPreview
+        }
+
+        /**
+         * Path is /uptime-check rather than /healthz because /healthz is reserved by
+         * Encore Cloud's platform-level load balancer for its own health probes —
+         * user-defined endpoints at that path return 404 externally.
+         */
+        public async healthz(): Promise<HealthResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/uptime-check`)
+            return await resp.json() as HealthResponse
         }
 
         public async inviteUser(params: InviteUserRequest): Promise<InviteUserResponse> {
@@ -3095,6 +3145,7 @@ export namespace profile {
         "watch_unit"?: string
         phone?: string
         address?: string
+        station?: string
     }
 
     export interface CreatePersonResponse {
@@ -3171,6 +3222,24 @@ export namespace profile {
         "updated_at": string
     }
 
+    export interface ImportRequest {
+        personnel: NotionPerson[]
+        "dry_run"?: boolean
+        station?: string
+    }
+
+    export interface ImportResult {
+        total: number
+        created: number
+        skipped: number
+        errors: string[]
+        details: {
+            name: string
+            status: string
+            "user_id"?: string
+        }[]
+    }
+
     export interface LastConversation {
         date: string
         text: string
@@ -3204,6 +3273,18 @@ export namespace profile {
         total: number
     }
 
+    export interface NotionPerson {
+        name: string
+        email?: string
+        phone?: string
+        "staff_number"?: string
+        rank?: string
+        watch?: string
+        skills?: string[]
+        "drivers_pathway"?: string[]
+        competent?: string
+    }
+
     export interface PersonWithProfile {
         user: user.User
         profile: FirefighterProfile | null
@@ -3223,7 +3304,7 @@ export namespace profile {
 
     export type TriggerStage = "None" | "Stage1" | "Stage2" | "Stage3"
 
-    export type WatchUnit = "Green" | "Red" | "White" | "Blue" | "Amber"
+    export type WatchUnit = "Green" | "Red" | "White" | "Blue" | "Amber" | ""
 
     export class ServiceClient {
         private baseClient: BaseClient
@@ -3233,6 +3314,7 @@ export namespace profile {
             this.create = this.create.bind(this)
             this.createPerson = this.createPerson.bind(this)
             this.getByUser = this.getByUser.bind(this)
+            this.importNotionPersonnel = this.importNotionPersonnel.bind(this)
             this.list = this.list.bind(this)
             this.listWithUsers = this.listWithUsers.bind(this)
             this.recalculateTriggers = this.recalculateTriggers.bind(this)
@@ -3255,6 +3337,12 @@ export namespace profile {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/profiles/user/${encodeURIComponent(user_id)}`)
             return await resp.json() as FirefighterProfile
+        }
+
+        public async importNotionPersonnel(params: ImportRequest): Promise<ImportResult> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/import/notion-personnel`, JSON.stringify(params))
+            return await resp.json() as ImportResult
         }
 
         public async list(params: ListProfilesRequest): Promise<ListProfilesResponse> {
@@ -3718,11 +3806,6 @@ export namespace shift_adjustments {
             await this.baseClient.callTypedAPI("DELETE", `/shift-adjustments/${encodeURIComponent(id)}`)
         }
 
-        public async update(id: number, params: shift_adjustments.UpdateShiftAdjustmentRequest): Promise<shift_adjustments.ShiftAdjustment> {
-            const resp = await this.baseClient.callTypedAPI("PATCH", `/shift-adjustments/${encodeURIComponent(id)}`, JSON.stringify(params))
-            return await resp.json() as shift_adjustments.ShiftAdjustment
-        }
-
         public async list(params: shift_adjustments.ListShiftAdjustmentsRequest): Promise<shift_adjustments.ListShiftAdjustmentsResponse> {
             // Convert our params into the objects we need for the request
             const query = makeRecord<string, string | string[]>({
@@ -3736,6 +3819,12 @@ export namespace shift_adjustments {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/shift-adjustments`, undefined, {query})
             return await resp.json() as shift_adjustments.ListShiftAdjustmentsResponse
+        }
+
+        public async update(id: number, params: shift_adjustments.UpdateShiftAdjustmentRequest): Promise<shift_adjustments.ShiftAdjustment> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("PATCH", `/shift-adjustments/${encodeURIComponent(id)}`, JSON.stringify(params))
+            return await resp.json() as shift_adjustments.ShiftAdjustment
         }
     }
 }
@@ -4207,6 +4296,137 @@ export namespace task {
     }
 }
 
+export namespace toil {
+    export interface ApproveToilRequest {
+        action: "approved" | "rejected"
+    }
+
+    export interface EarnToilRequest {
+        hours: number
+        reason: string
+        "job_number"?: string
+        "incident_date": string
+        "for_user_id"?: string
+    }
+
+    export interface ListToilRequest {
+        "user_id"?: string
+        "watch_unit"?: string
+        "financial_year"?: number
+        status?: string
+        type?: string
+    }
+
+    export interface ListToilResponse {
+        entries: ToilEntry[]
+    }
+
+    export interface ToilBalance {
+        "user_id": string
+        "user_name": string
+        "financial_year": number
+        "total_earned": number
+        "total_spent": number
+        "pending_earned": number
+        balance: number
+    }
+
+    export interface ToilBalanceRequest {
+        "user_id"?: string
+        "watch_unit"?: string
+        "financial_year"?: number
+    }
+
+    export interface ToilBalanceResponse {
+        balances: ToilBalance[]
+    }
+
+    export interface ToilEntry {
+        id: number
+        "user_id": string
+        "user_name"?: string
+        type: "earned" | "spent"
+        hours: number
+        status: "pending" | "approved" | "rejected"
+        "approved_by_user_id"?: string
+        "approved_by_name"?: string
+        "approved_at"?: string
+        reason?: string
+        "job_number"?: string
+        "shift_adjustment_id"?: number
+        "incident_date"?: string
+        "financial_year": number
+        "watch_unit": string
+        "created_by": string
+        "created_at": string
+        "updated_at": string
+    }
+
+    export class ServiceClient {
+        private baseClient: BaseClient
+
+        constructor(baseClient: BaseClient) {
+            this.baseClient = baseClient
+            this.approve = this.approve.bind(this)
+            this.balance = this.balance.bind(this)
+            this.earn = this.earn.bind(this)
+            this.list = this.list.bind(this)
+        }
+
+        /**
+         * PATCH /toil/:id/approve — WC/CC approves or rejects a pending TOIL entry
+         */
+        public async approve(id: number, params: ApproveToilRequest): Promise<ToilEntry> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("PATCH", `/toil/${encodeURIComponent(id)}/approve`, JSON.stringify(params))
+            return await resp.json() as ToilEntry
+        }
+
+        /**
+         * GET /toil/balance — Get TOIL balances for user(s)
+         */
+        public async balance(params: ToilBalanceRequest): Promise<ToilBalanceResponse> {
+            // Convert our params into the objects we need for the request
+            const query = makeRecord<string, string | string[]>({
+                "financial_year": params["financial_year"] === undefined ? undefined : String(params["financial_year"]),
+                "user_id":        params["user_id"],
+                "watch_unit":     params["watch_unit"],
+            })
+
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/toil/balance`, undefined, {query})
+            return await resp.json() as ToilBalanceResponse
+        }
+
+        /**
+         * POST /toil/earn — Log TOIL hours earned (pending WC/CC approval)
+         */
+        public async earn(params: EarnToilRequest): Promise<ToilEntry> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/toil/earn`, JSON.stringify(params))
+            return await resp.json() as ToilEntry
+        }
+
+        /**
+         * GET /toil — List TOIL entries with optional filters
+         */
+        public async list(params: ListToilRequest): Promise<ListToilResponse> {
+            // Convert our params into the objects we need for the request
+            const query = makeRecord<string, string | string[]>({
+                "financial_year": params["financial_year"] === undefined ? undefined : String(params["financial_year"]),
+                status:           params.status,
+                type:             params.type,
+                "user_id":        params["user_id"],
+                "watch_unit":     params["watch_unit"],
+            })
+
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/toil`, undefined, {query})
+            return await resp.json() as ListToilResponse
+        }
+    }
+}
+
 export namespace user {
     export interface CreateUserRequest {
         id: string
@@ -4376,6 +4596,8 @@ export namespace shift_adjustments {
         "updated_at": string
     }
 
+    export type ShiftAdjustmentType = "flexi" | "training" | "h4h" | "flexi_payback" | "orange_day" | "toil"
+
     export interface UpdateShiftAdjustmentRequest {
         "start_date"?: string
         "end_date"?: string
@@ -4385,121 +4607,8 @@ export namespace shift_adjustments {
         "shift_day_night"?: "Day" | "Night"
         notes?: string
     }
-
-    export type ShiftAdjustmentType = "flexi" | "training" | "h4h" | "flexi_payback" | "orange_day" | "toil"
 }
 
-export namespace toil {
-    export class ServiceClient {
-        private baseClient: BaseClient
-
-        constructor(baseClient: BaseClient) {
-            this.baseClient = baseClient
-            this.earn = this.earn.bind(this)
-            this.list = this.list.bind(this)
-            this.balance = this.balance.bind(this)
-            this.approve = this.approve.bind(this)
-        }
-
-        public async earn(params: EarnToilRequest): Promise<ToilEntry> {
-            const resp = await this.baseClient.callTypedAPI("POST", `/toil/earn`, JSON.stringify(params))
-            return await resp.json() as ToilEntry
-        }
-
-        public async list(params: ListToilRequest): Promise<ListToilResponse> {
-            const query = makeRecord<string, string | string[]>({
-                "user_id": params.user_id,
-                "watch_unit": params.watch_unit,
-                "financial_year": params.financial_year?.toString(),
-                "status": params.status,
-                "type": params.type,
-            })
-            const resp = await this.baseClient.callTypedAPI("GET", `/toil`, undefined, { query })
-            return await resp.json() as ListToilResponse
-        }
-
-        public async balance(params: ToilBalanceRequest): Promise<ToilBalanceResponse> {
-            const query = makeRecord<string, string | string[]>({
-                "user_id": params.user_id,
-                "watch_unit": params.watch_unit,
-                "financial_year": params.financial_year?.toString(),
-            })
-            const resp = await this.baseClient.callTypedAPI("GET", `/toil/balance`, undefined, { query })
-            return await resp.json() as ToilBalanceResponse
-        }
-
-        public async approve(id: number, params: ApproveToilRequest): Promise<ToilEntry> {
-            const resp = await this.baseClient.callTypedAPI("PATCH", `/toil/${encodeURIComponent(id)}/approve`, JSON.stringify(params))
-            return await resp.json() as ToilEntry
-        }
-    }
-
-    export interface EarnToilRequest {
-        hours: number
-        reason: string
-        "job_number"?: string
-        "incident_date": string
-        "for_user_id"?: string
-    }
-
-    export interface ListToilRequest {
-        "user_id"?: string
-        "watch_unit"?: string
-        "financial_year"?: number
-        status?: string
-        type?: string
-    }
-
-    export interface ListToilResponse {
-        entries: ToilEntry[]
-    }
-
-    export interface ToilBalanceRequest {
-        "user_id"?: string
-        "watch_unit"?: string
-        "financial_year"?: number
-    }
-
-    export interface ToilBalanceResponse {
-        balances: ToilBalance[]
-    }
-
-    export interface ApproveToilRequest {
-        id: number
-        action: "approved" | "rejected"
-    }
-
-    export interface ToilEntry {
-        id: number
-        "user_id": string
-        "user_name"?: string
-        type: "earned" | "spent"
-        hours: number
-        status: "pending" | "approved" | "rejected"
-        "approved_by_user_id"?: string
-        "approved_by_name"?: string
-        "approved_at"?: string
-        reason?: string
-        "job_number"?: string
-        "shift_adjustment_id"?: number
-        "incident_date"?: string
-        "financial_year": number
-        "watch_unit": string
-        "created_by": string
-        "created_at": string
-        "updated_at": string
-    }
-
-    export interface ToilBalance {
-        "user_id": string
-        "user_name": string
-        "financial_year": number
-        "total_earned": number
-        "total_spent": number
-        "pending_earned": number
-        balance: number
-    }
-}
 
 
 function encodeQuery(parts: Record<string, string | string[]>): string {
@@ -4713,7 +4822,7 @@ export type AuthDataGenerator = () =>
 // A fetcher is the prototype for the inbuilt Fetch function
 export type Fetcher = typeof fetch;
 
-const boundFetch = (input: RequestInfo | URL, init?: RequestInit) => globalThis.fetch(input, init);
+const boundFetch = fetch.bind(this);
 
 class BaseClient {
     readonly baseURL: string
