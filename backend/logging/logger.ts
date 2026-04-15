@@ -12,9 +12,12 @@ interface LogActivityParams {
 
 export async function logActivity(params: LogActivityParams): Promise<void> {
   try {
+    // Pass the raw object — Encore's driver serialises JS objects to jsonb
+    // directly. Calling JSON.stringify first produced a jsonb *string* value
+    // (the stringified payload got re-quoted), which broke -> / ->> / @> queries.
     await db.exec`
       INSERT INTO activity_log (user_id, action, entity_type, entity_id, details)
-      VALUES (${params.user_id}, ${params.action}, ${params.entity_type}, ${params.entity_id}, ${JSON.stringify(params.details || {})})
+      VALUES (${params.user_id}, ${params.action}, ${params.entity_type}, ${params.entity_id}, ${params.details || {}})
     `;
   } catch (err) {
     console.error("Failed to log activity:", err);
