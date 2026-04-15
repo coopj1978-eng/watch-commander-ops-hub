@@ -1,0 +1,60 @@
+version: 2
+updates:
+  # Frontend workspace
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - frontend
+    groups:
+      # Bundle patch/minor updates into a single PR per week to reduce noise.
+      # Majors (e.g. vite 6→8, bcrypt 5→6) stay as individual PRs so each
+      # breaking change is reviewed in isolation.
+      frontend-minor-and-patch:
+        update-types:
+          - minor
+          - patch
+
+  # Backend workspace
+  - package-ecosystem: npm
+    directory: /backend
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - backend
+    groups:
+      backend-minor-and-patch:
+        update-types:
+          - minor
+          - patch
+
+  # Root workspace (Sentry node SDK)
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+    labels:
+      - dependencies
+    groups:
+      root-minor-and-patch:
+        update-types:
+          - minor
+          - patch
+
+  # GitHub Actions (in case we add CI later)
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    labels:
+      - dependencies
+      - ci
