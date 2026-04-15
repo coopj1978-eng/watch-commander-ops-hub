@@ -25,7 +25,7 @@ export default function SignIn() {
     setLoading(true);
     try {
       const apiBase = window.location.hostname !== "localhost"
-        ? "https://staging-watch-commander-ops-hub-8spi.encr.app"
+        ? ""
         : "http://localhost:4000";
       const res = await fetch(`${apiBase}/auth/signin`, {
         method: "POST",

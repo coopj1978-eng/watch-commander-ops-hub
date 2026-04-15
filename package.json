@@ -7,6 +7,10 @@
     "backend",
     "frontend"
   ],
+  "scripts": {
+    "build": "cd frontend && bun run build && rm -rf ../backend/frontend/dist && cp -r dist ../backend/frontend/dist",
+    "deploy": "bun run build && git add backend/frontend/dist && git commit -m 'Rebuild frontend dist' && git push"
+  },
   "dependencies": {
     "@sentry/node": "^10.48.0"
   }

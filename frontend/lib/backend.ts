@@ -9,8 +9,10 @@ const authGenerator: AuthDataGenerator = () => {
   return undefined;
 };
 
+// When served from Encore (same origin) use "" so API calls are relative.
+// In local dev (Vite on :5173) use Local (http://localhost:4000).
 const baseURL = typeof window !== "undefined" && window.location.hostname !== "localhost"
-  ? "https://staging-watch-commander-ops-hub-8spi.encr.app"
+  ? ""
   : Local;
 
 export const backendClient = new Client(baseURL, { auth: authGenerator });
