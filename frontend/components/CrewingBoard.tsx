@@ -339,13 +339,15 @@ function DraggableTile({
   assignedEntry,
   isAbsent,
   adjustment,
+  isPending,
 }: {
   member: RosterMember;
   assignedEntry?: CrewingEntry;
   isAbsent: boolean;
   adjustment?: ShiftAdjType;
+  isPending?: boolean;
 }) {
-  const disabled = !!assignedEntry || isAbsent || !!adjustment;
+  const disabled = !!assignedEntry || isAbsent || !!adjustment || !!isPending;
 
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `tile-${member.id}`,
@@ -974,6 +976,7 @@ function DetachedCard({
 function RosterPanel({
   roster,
   assignedByUserId,
+  pendingAssignIds,
   absentIds,
   adjustmentByUserId,
   h4hCovers,
@@ -987,6 +990,7 @@ function RosterPanel({
 }: {
   roster: RosterMember[];
   assignedByUserId: Map<string, CrewingEntry>;
+  pendingAssignIds: Set<string>;
   absentIds: Set<string>;
   adjustmentByUserId: Map<string, ShiftAdjType>;
   h4hCovers: { name: string; userId?: string }[];
@@ -999,9 +1003,9 @@ function RosterPanel({
   onExternalClick: () => void;
 }) {
   const unassigned = roster.filter(m =>
-    !assignedByUserId.has(m.id) && !absentIds.has(m.id) && !adjustmentByUserId.has(m.id)
+    !assignedByUserId.has(m.id) && !pendingAssignIds.has(m.id) && !absentIds.has(m.id) && !adjustmentByUserId.has(m.id)
   );
-  const assigned   = roster.filter(m => assignedByUserId.has(m.id));
+  const assigned   = roster.filter(m => assignedByUserId.has(m.id) || pendingAssignIds.has(m.id));
   const absent     = roster.filter(m => absentIds.has(m.id));
   const adjusted   = roster.filter(m => adjustmentByUserId.has(m.id));
 
@@ -1055,7 +1059,7 @@ function RosterPanel({
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {assigned.map(m => (
-                    <DraggableTile key={m.id} member={m} assignedEntry={assignedByUserId.get(m.id)} isAbsent={false} />
+                    <DraggableTile key={m.id} member={m} assignedEntry={assignedByUserId.get(m.id)} isAbsent={false} isPending={pendingAssignIds.has(m.id)} />
                   ))}
                 </div>
               </div>
@@ -1514,6 +1518,9 @@ export default function CrewingBoard() {
   const [showDetached,   setShowDetached]   = useState(false);
   const [showExtDialog,  setShowExtDialog]  = useState(false);
 
+  // User IDs currently mid-mutation (optimistic disable to prevent double-assign)
+  const [pendingAssignIds, setPendingAssignIds] = useState<Set<string>>(new Set());
+
   // Detachment modal — opened when a tile is dropped onto the detached zone
   const [pendingDetach,  setPendingDetach]  = useState<{ member?: RosterMember; entry?: CrewingEntry } | null>(null);
 
@@ -1575,13 +1582,39 @@ export default function CrewingBoard() {
   // ── Mutations ─────────────────────────────────────────────────────────────
   const addMut = useMutation({
     mutationFn: (req: crewing.AddCrewingRequest) => backend.crewing.add(req),
+    onMutate: (req) => {
+      // Optimistically disable the tile so it can't be dragged again
+      if (req.user_id) {
+        setPendingAssignIds(prev => new Set(prev).add(req.user_id!));
+      }
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: crewingKey });
       setActiveSlotId(null);
       setShowDetached(false);
       setShowExtDialog(false);
     },
-    onError: () => toast({ title: "Error", description: "Failed to add crew member.", variant: "destructive" }),
+    onError: (_err, req) => {
+      // Remove from pending so tile becomes draggable again
+      if (req.user_id) {
+        setPendingAssignIds(prev => {
+          const next = new Set(prev);
+          next.delete(req.user_id!);
+          return next;
+        });
+      }
+      toast({ title: "Error", description: "Failed to add crew member.", variant: "destructive" });
+    },
+    onSettled: (_data, _err, req) => {
+      // Always clear pending after query refetch completes
+      if (req.user_id) {
+        setPendingAssignIds(prev => {
+          const next = new Set(prev);
+          next.delete(req.user_id!);
+          return next;
+        });
+      }
+    },
   });
 
   const removeMut = useMutation({
@@ -1670,7 +1703,12 @@ export default function CrewingBoard() {
     return map;
   }, [entries]);
 
-  const allAssignedIds = useMemo(() => new Set(assignedByUserId.keys()), [assignedByUserId]);
+  const allAssignedIds = useMemo(() => {
+    const ids = new Set(assignedByUserId.keys());
+    // Include IDs of tiles currently mid-mutation (optimistic disable)
+    pendingAssignIds.forEach(id => ids.add(id));
+    return ids;
+  }, [assignedByUserId, pendingAssignIds]);
 
   // Build a quick lookup: slotId → entry (for drop validation)
   const slotEntryMap = useMemo(() => {
@@ -1789,6 +1827,9 @@ export default function CrewingBoard() {
     // Case 1: dragging a roster tile → add to slot
     const member = active.data.current?.member as RosterMember | undefined;
     if (member) {
+      // Prevent double-assign if the mutation is still in flight
+      if (allAssignedIds.has(member.id)) return;
+
       if ((meta.role === "ba" || meta.role === "baeco") && !member.ba) {
         toast({
           title: "BA qualification warning",
@@ -1988,6 +2029,7 @@ export default function CrewingBoard() {
               <RosterPanel
                 roster={roster}
                 assignedByUserId={assignedByUserId}
+                pendingAssignIds={pendingAssignIds}
                 absentIds={absentIds}
                 adjustmentByUserId={adjustmentByUserId}
                 h4hCovers={h4hCovers}

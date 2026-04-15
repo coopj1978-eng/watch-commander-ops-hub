@@ -15,6 +15,20 @@ export const add = api<AddCrewingRequest, CrewingEntry>(
       throw APIError.invalidArgument("Either user_id or external_name is required");
     }
 
+    // Prevent same person appearing on two slots in the same shift.
+    if (req.user_id) {
+      const existing = await db.rawQueryRow<{ id: number; appliance: string; crew_role: string }>(
+        `SELECT id, appliance, crew_role FROM shift_crewing
+         WHERE user_id = $1 AND watch = $2 AND shift_date = $3::date AND shift_type = $4`,
+        req.user_id, req.watch, req.shift_date, req.shift_type
+      );
+      if (existing) {
+        throw APIError.alreadyExists(
+          `${req.user_id} is already assigned to ${existing.appliance.toUpperCase()} as ${existing.crew_role}`
+        );
+      }
+    }
+
     const inserted = await db.rawQueryRow<{ id: number }>(
       `INSERT INTO shift_crewing
          (watch, shift_date, shift_type, appliance, user_id, external_name,
