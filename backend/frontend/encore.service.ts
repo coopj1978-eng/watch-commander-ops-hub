@@ -6,7 +6,7 @@ import { sentryMiddleware } from "../observability/sentry";
 export default new Service("frontend", { middlewares: [sentryMiddleware] });
 
 export const assets = api.static({
-  path: "/frontend/*path",
+  path: "/*path",
   expose: true,
   dir: "./dist",
   notFound: "./dist/index.html",
