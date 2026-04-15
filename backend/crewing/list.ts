@@ -24,7 +24,7 @@ export const list = api<ListCrewingRequest, ListCrewingResponse>(
          sc.created_at::text
        FROM shift_crewing sc
        LEFT JOIN users u ON sc.user_id = u.id
-       WHERE sc.watch = $1
+       WHERE LOWER(sc.watch) = LOWER($1)
          AND sc.shift_date = $2::date
          AND sc.shift_type = $3
        ORDER BY

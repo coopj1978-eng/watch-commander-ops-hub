@@ -9,11 +9,12 @@ export const getStats = api<void, CrewStats>(
     const auth = getAuthData();
     if (!auth) throw new Error("Unauthorized");
 
-    // All watch members (any role) for task counting
+    // All watch members (any role) for task counting.
+    // Case-insensitive to tolerate inconsistent casing across the users table.
     const watchMembers = await db.rawQueryAll<{ id: string; watch_unit: string; role: string }>(
       `SELECT u.id, u.watch_unit, u.role
        FROM users u
-       WHERE u.watch_unit = (SELECT watch_unit FROM users WHERE id = $1)
+       WHERE LOWER(u.watch_unit) = LOWER((SELECT watch_unit FROM users WHERE id = $1))
          AND u.is_active = true`,
       auth.userID
     );

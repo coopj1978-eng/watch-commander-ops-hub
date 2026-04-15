@@ -34,6 +34,7 @@ interface DBUserProfile {
   user_avatar_url?: string;
   user_last_login_at?: Date;
   user_is_active: boolean;
+  user_is_admin: boolean;
   user_left_at?: Date;
   user_created_at: Date;
   user_updated_at: Date;
@@ -80,6 +81,7 @@ function transformUserProfile(row: DBUserProfile): PersonWithProfile {
     avatar_url: row.user_avatar_url,
     last_login_at: row.user_last_login_at,
     is_active: row.user_is_active,
+    is_admin: row.user_is_admin ?? false,
     left_at: row.user_left_at,
     created_at: row.user_created_at,
     updated_at: row.user_updated_at,
@@ -158,6 +160,7 @@ export const listWithUsers = api<ListPeopleRequest, ListPeopleResponse>(
         u.avatar_url as user_avatar_url,
         u.last_login_at as user_last_login_at,
         u.is_active as user_is_active,
+        COALESCE(u.is_admin, false) as user_is_admin,
         u.left_at as user_left_at,
         u.created_at as user_created_at,
         u.updated_at as user_updated_at,
@@ -227,7 +230,8 @@ export const listWithUsers = api<ListPeopleRequest, ListPeopleResponse>(
       params.push(req.rank);
     }
     if (req.watch_unit) {
-      conditions.push(`u.watch_unit = $${paramIndex++}`);
+      // Case-insensitive to match profile/list.ts behaviour.
+      conditions.push(`LOWER(u.watch_unit) = LOWER($${paramIndex++})`);
       params.push(req.watch_unit);
     }
 

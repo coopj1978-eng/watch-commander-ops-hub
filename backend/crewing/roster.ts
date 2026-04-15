@@ -25,7 +25,7 @@ export const roster = api<RosterRequest, RosterResponse>(
        LEFT JOIN firefighter_profiles p ON p.user_id = u.id
        WHERE u.left_at IS NULL
          AND u.role IN ('WC', 'CC', 'FF')
-         AND (u.watch_unit = $1 OR p.watch = $1)
+         AND (LOWER(u.watch_unit) = LOWER($1) OR LOWER(p.watch) = LOWER($1))
        ORDER BY
          CASE u.role
            WHEN 'WC' THEN 1

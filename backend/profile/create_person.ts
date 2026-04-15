@@ -40,6 +40,7 @@ interface DBUser {
   avatar_url?: string;
   last_login_at?: Date;
   is_active: boolean;
+  is_admin?: boolean;
   left_at?: Date;
   created_at: Date;
   updated_at: Date;
@@ -89,6 +90,7 @@ function transformUser(dbUser: DBUser): User {
     avatar_url: dbUser.avatar_url,
     last_login_at: dbUser.last_login_at,
     is_active: dbUser.is_active,
+    is_admin: dbUser.is_admin ?? false,
     left_at: dbUser.left_at,
     created_at: dbUser.created_at,
     updated_at: dbUser.updated_at,

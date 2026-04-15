@@ -15,7 +15,7 @@ export const list = api<ListToilRequest, ListToilResponse>(
       values.push(req.user_id);
     }
     if (req.watch_unit) {
-      conditions.push(`t.watch_unit = $${idx++}`);
+      conditions.push(`LOWER(t.watch_unit) = LOWER($${idx++})`);
       values.push(req.watch_unit);
     }
     if (req.financial_year) {

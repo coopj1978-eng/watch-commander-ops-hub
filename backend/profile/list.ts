@@ -125,8 +125,10 @@ export const list = api<ListProfilesRequest, ListProfilesResponse>(
       params.push(req.shift);
     }
     if (req.watch) {
-      // Filter by users.watch_unit (authoritative) OR fp.watch (legacy)
-      conditions.push(`(u.watch_unit = $${paramIndex} OR fp.watch = $${paramIndex})`);
+      // Filter by users.watch_unit (authoritative) OR fp.watch (legacy).
+      // Case-insensitive so "white" and "White" both match — watch names are
+      // stored inconsistently across the two columns.
+      conditions.push(`(LOWER(u.watch_unit) = LOWER($${paramIndex}) OR LOWER(fp.watch) = LOWER($${paramIndex}))`);
       paramIndex++;
       params.push(req.watch);
     }

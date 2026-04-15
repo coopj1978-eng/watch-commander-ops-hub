@@ -65,7 +65,7 @@ export const list = api<ListRequest, ListHandoversResponse>(
         `SELECT h.*, u.name AS author_name, COUNT(*) OVER() AS total
          FROM handovers h
          LEFT JOIN users u ON u.id = h.written_by_user_id
-         WHERE h.watch = $1
+         WHERE LOWER(h.watch) = LOWER($1)
          ORDER BY h.shift_date DESC, h.created_at DESC
          LIMIT $2 OFFSET $3`,
         req.watch,
@@ -110,7 +110,7 @@ export const getLatest = api<{ watch?: Query<string> }, GetLatestResponse>(
         `SELECT h.*, u.name AS author_name
          FROM handovers h
          LEFT JOIN users u ON u.id = h.written_by_user_id
-         WHERE h.watch = $1
+         WHERE LOWER(h.watch) = LOWER($1)
          ORDER BY h.shift_date DESC, h.created_at DESC
          LIMIT 1`,
         req.watch

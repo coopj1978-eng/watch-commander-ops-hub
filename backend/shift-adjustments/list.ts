@@ -32,11 +32,11 @@ export const list = api<ListShiftAdjustmentsRequest, ListShiftAdjustmentsRespons
       params.push(req.user_id);
     }
     if (req.watch_unit) {
-      query += ` AND sa.watch_unit = $${idx++}`;
+      query += ` AND LOWER(sa.watch_unit) = LOWER($${idx++})`;
       params.push(req.watch_unit);
     }
     if (req.covering_watch) {
-      query += ` AND sa.covering_watch = $${idx++}`;
+      query += ` AND LOWER(sa.covering_watch) = LOWER($${idx++})`;
       params.push(req.covering_watch);
     }
     if (req.start_date) {

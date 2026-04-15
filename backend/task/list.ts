@@ -35,8 +35,8 @@ export const list = api<ListTasksRequest, ListTasksResponse>(
       conditions.push(`assigned_to_user_id = $${paramIndex++}`);
       params.push(req.assigned_to);
     } else if (req.watch_unit) {
-      // Explicit watch filter
-      conditions.push(`watch_unit = $${paramIndex++}`);
+      // Explicit watch filter (case-insensitive — tolerate inconsistent casing)
+      conditions.push(`LOWER(watch_unit) = LOWER($${paramIndex++})`);
       params.push(req.watch_unit);
     } else {
       // Default: show all tasks for the requesting user's watch
@@ -44,7 +44,7 @@ export const list = api<ListTasksRequest, ListTasksResponse>(
         `SELECT watch_unit FROM users WHERE id = $1`, auth.userID
       );
       if (userRow?.watch_unit) {
-        conditions.push(`watch_unit = $${paramIndex++}`);
+        conditions.push(`LOWER(watch_unit) = LOWER($${paramIndex++})`);
         params.push(userRow.watch_unit);
       } else if (auth.role === "FF") {
         // FF with no watch — fall back to their own tasks

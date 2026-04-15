@@ -96,7 +96,7 @@ export const getRota = api<GetRotaRequest, GetRotaResponse>(
          ORDER BY detachment_date DESC
          LIMIT 1
        ) d ON true
-       WHERE u.watch_unit = $1
+       WHERE LOWER(u.watch_unit) = LOWER($1)
          AND u.role IN ('WC', 'CC', 'FF')
        ORDER BY d.last_detachment_date ASC NULLS FIRST, u.name ASC`,
       req.watch,
