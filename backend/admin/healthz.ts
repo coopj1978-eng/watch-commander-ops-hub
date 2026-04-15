@@ -16,8 +16,11 @@ interface HealthResponse {
   time: string;
 }
 
+// Path is /uptime-check rather than /healthz because /healthz is reserved by
+// Encore Cloud's platform-level load balancer for its own health probes —
+// user-defined endpoints at that path return 404 externally.
 export const healthz = api<void, HealthResponse>(
-  { expose: true, method: "GET", path: "/healthz" },
+  { expose: true, method: "GET", path: "/uptime-check" },
   async () => {
     try {
       await db.queryRow`SELECT 1 AS ok`;
