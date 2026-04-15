@@ -1,6 +1,7 @@
 import { api } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
+import { logActivity } from "../logging/logger";
 import type { CopyPreviousRequest, ListCrewingResponse, CrewingEntry } from "./types";
 
 // POST /crewing/copy-previous
@@ -73,6 +74,20 @@ export const copyPrevious = api<CopyPreviousRequest, ListCrewingResponse>(
          END, sc.created_at`,
       req.watch, req.shift_date, req.shift_type
     );
+
+    await logActivity({
+      user_id: auth.userID,
+      action: "copy_previous_crewing",
+      entity_type: "shift_crewing",
+      entity_id: null,
+      details: {
+        watch: req.watch,
+        shift_type: req.shift_type,
+        source_date: latestRow.shift_date,
+        target_date: req.shift_date,
+        copied_count: prevEntries.length,
+      },
+    });
 
     return { entries };
   }

@@ -1,6 +1,7 @@
-import { api } from "encore.dev/api";
+import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
+import { logActivity } from "../logging/logger";
 import type { AddCrewingRequest, CrewingEntry } from "./types";
 
 // POST /crewing — add a crew member to an appliance for a shift
@@ -10,7 +11,8 @@ export const add = api<AddCrewingRequest, CrewingEntry>(
     const auth = getAuthData()!;
 
     if (!req.user_id && !req.external_name) {
-      throw new Error("Either user_id or external_name is required");
+      // invalidArgument → 400 to client, dropped by Sentry beforeSend (user error, not a bug)
+      throw APIError.invalidArgument("Either user_id or external_name is required");
     }
 
     const inserted = await db.rawQueryRow<{ id: number }>(
@@ -42,6 +44,23 @@ export const add = api<AddCrewingRequest, CrewingEntry>(
        WHERE sc.id = $1`,
       inserted!.id
     );
+
+    await logActivity({
+      user_id: auth.userID,
+      action: "add_crewing",
+      entity_type: "shift_crewing",
+      entity_id: inserted!.id.toString(),
+      details: {
+        watch: req.watch,
+        shift_date: req.shift_date,
+        shift_type: req.shift_type,
+        appliance: req.appliance,
+        crew_role: req.crew_role,
+        user_id: req.user_id ?? null,
+        external_name: req.external_name ?? null,
+        is_change_of_shift: req.is_change_of_shift ?? false,
+      },
+    });
 
     return entry!;
   }
