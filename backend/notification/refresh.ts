@@ -130,30 +130,14 @@ export const refresh = api<void, RefreshResponse>(
     }
 
     // ── 3. Crewing gaps today (WC only) ──────────────────────────────────────────
-    if (userRow?.role === "WC") {
-      const today = new Date().toISOString().split("T")[0];
-      const crewingGaps = await db.rawQueryRow<{ gap_count: number }>(
-        `SELECT COUNT(*) as gap_count
-         FROM crewing_slots cs
-         JOIN crewing_entries ce ON cs.crewing_entry_id = ce.id
-         WHERE ce.date = $1
-           AND ce.watch_unit = $2
-           AND cs.is_required = true
-           AND cs.assigned_user_id IS NULL`,
-        today, userRow.watch_unit
-      );
-
-      if (crewingGaps && crewingGaps.gap_count > 0) {
-        await maybeInsert({
-          type: "crewing_gap",
-          title: `${crewingGaps.gap_count} crewing slot${crewingGaps.gap_count !== 1 ? "s" : ""} unfilled`,
-          message: `Today's crewing board has ${crewingGaps.gap_count} required slot${crewingGaps.gap_count !== 1 ? "s" : ""} that ${crewingGaps.gap_count !== 1 ? "are" : "is"} not yet filled.`,
-          entity_type: "crewing",
-          entity_id: today,
-          link: `/handover`,
-        });
-      }
-    }
+    // TODO: Implement crewing gap detection once the shift_crewing schema is finalized.
+    // Currently the schema uses shift_crewing with appliance+crew_role slots, not a
+    // separate crewing_slots table. This notification can be re-enabled once we define
+    // what constitutes a "gap" (e.g. missing critical crew roles per appliance).
+    // if (userRow?.role === "WC") {
+    //   const today = new Date().toISOString().split("T")[0];
+    //   ...
+    // }
 
     return { generated };
   }
