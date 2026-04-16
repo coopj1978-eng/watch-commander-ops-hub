@@ -27091,6 +27091,7 @@ class Client {
     this.targets = new targets.ServiceClient(base);
     this.task = new task.ServiceClient(base);
     this.toil = new toil.ServiceClient(base);
+    this.training = new training.ServiceClient(base);
     this.user = new user.ServiceClient(base);
   }
   /**
@@ -27637,7 +27638,7 @@ var frontend;
       this.assets = this.assets.bind(this);
     }
     async assets(path) {
-      await this.baseClient.callTypedAPI("HEAD", `/frontend/${path.map(encodeURIComponent).join("/")}`);
+      await this.baseClient.callTypedAPI("HEAD", `/${path.map(encodeURIComponent).join("/")}`);
     }
   }
   frontend2.ServiceClient = ServiceClient;
@@ -28594,6 +28595,53 @@ var toil;
   }
   toil2.ServiceClient = ServiceClient;
 })(toil || (toil = {}));
+var training;
+((training2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.addAttendance = this.addAttendance.bind(this);
+      this.create = this.create.bind(this);
+      this.get = this.get.bind(this);
+      this.list = this.list.bind(this);
+      this.removeAttendance = this.removeAttendance.bind(this);
+      this.update = this.update.bind(this);
+    }
+    async addAttendance(id, params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/training/${encodeURIComponent(id)}/attendance`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async create(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/training`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async get(id) {
+      const resp = await this.baseClient.callTypedAPI("GET", `/training/${encodeURIComponent(id)}`);
+      return await resp.json();
+    }
+    async list(params) {
+      const query = makeRecord({
+        "end_date": params["end_date"],
+        limit: params.limit === void 0 ? void 0 : String(params.limit),
+        offset: params.offset === void 0 ? void 0 : String(params.offset),
+        "start_date": params["start_date"],
+        status: params.status,
+        watch: params.watch
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/training`, void 0, { query });
+      return await resp.json();
+    }
+    async removeAttendance(id, userId) {
+      const resp = await this.baseClient.callTypedAPI("DELETE", `/training/${encodeURIComponent(id)}/attendance/${encodeURIComponent(userId)}`);
+      return await resp.json();
+    }
+    async update(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PUT", `/training/${encodeURIComponent(id)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+  }
+  training2.ServiceClient = ServiceClient;
+})(training || (training = {}));
 var user;
 ((user2) => {
   class ServiceClient {
@@ -29040,7 +29088,8 @@ const navGroups = [
   // ── Operations ───────────────────────────────────────────────────────────
   [
     { name: "J4 Checks", path: "/equipment", icon: Truck, ariaLabel: "Go to J4 Equipment Checks", featureKey: "equipment" },
-    { name: "Shift", path: "/handover", icon: ClipboardList, ariaLabel: "Go to Shift Management", featureKey: "handover" }
+    { name: "Shift", path: "/handover", icon: ClipboardList, ariaLabel: "Go to Shift Management", featureKey: "handover" },
+    { name: "Training", path: "/training", icon: GraduationCap, ariaLabel: "Go to Training" }
   ],
   // ── Reference & Account ──────────────────────────────────────────────────
   [
@@ -43124,7 +43173,7 @@ const TYPE_CONFIG = {
     description: "Use your banked TOIL hours for a shift off. Someone covers for you and receives payment (min 4hrs)."
   }
 };
-const WATCHES$8 = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$9 = ["Red", "White", "Green", "Blue", "Amber"];
 function ShiftAdjustmentModal({ open, onClose, defaultDate }) {
   const { user: user2 } = useAuth();
   const userRole = useUserRole();
@@ -43309,7 +43358,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate }) {
     return true;
   })();
   const userWatch = (user2 == null ? void 0 : user2.watch_unit) ?? "";
-  const otherWatches = WATCHES$8.filter((w) => w !== userWatch);
+  const otherWatches = WATCHES$9.filter((w) => w !== userWatch);
   const fmt2 = (d) => (/* @__PURE__ */ new Date(d + "T12:00:00")).toLocaleDateString("en-GB", {
     day: "numeric",
     month: "short",
@@ -43570,7 +43619,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate }) {
               setForUserId("");
             }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select their watch…" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$8.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$9.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
                 w,
                 " Watch"
               ] }, w)) })
@@ -43796,7 +43845,7 @@ function FFShiftAdjustmentWidget() {
     )
   ] });
 }
-const WATCHES$7 = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$8 = ["Red", "White", "Green", "Blue", "Amber"];
 function currentFinancialYear$1() {
   const now = /* @__PURE__ */ new Date();
   return now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
@@ -44096,7 +44145,7 @@ function ToilWidget() {
               setEarnForUserId("");
             }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select watch…" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$7.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$8.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
                 w,
                 " Watch"
               ] }, w)) })
@@ -51543,7 +51592,7 @@ function SectionLabel({ icon: Icon2, children }) {
     children
   ] });
 }
-const WATCHES$6 = ["Amber", "Green", "Blue", "Red", "White"];
+const WATCHES$7 = ["Amber", "Green", "Blue", "Red", "White"];
 function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = false, isNewTask = false, onCompleted }) {
   const { user: user2 } = useAuth();
   const userRole = useUserRole();
@@ -52156,7 +52205,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
               /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs rounded-xl", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Assign watch…" }) }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "__none__", children: "— None —" }),
-                WATCHES$6.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+                WATCHES$7.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
                   w,
                   " Watch"
                 ] }, w))
@@ -54742,7 +54791,7 @@ function quarterLabel$2(q, fy) {
   const periods = ["Apr–Jun", "Jul–Sep", "Oct–Dec", "Jan–Mar"];
   return `Q${q} ${periods[q - 1]} ${fy}/${String(fy + 1).slice(2)}`;
 }
-const WATCHES$5 = ["Blue", "Red", "Green", "Amber", "White"];
+const WATCHES$6 = ["Blue", "Red", "Green", "Amber", "White"];
 const EXPORT_TABLES = [
   { value: "users", label: "Users" },
   { value: "firefighter_profiles", label: "Firefighter Profiles" },
@@ -54795,7 +54844,7 @@ function NewReportDialog({
         /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Watch" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watch, onValueChange: setWatch, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$5.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$6.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
             w,
             " Watch"
           ] }, w)) })
@@ -56089,7 +56138,7 @@ function OffboardingWizard({ user: user2, open, onClose, onComplete }) {
     ] })
   ] }) });
 }
-const WATCHES$4 = ["Red", "White", "Blue", "Green", "Amber"];
+const WATCHES$5 = ["Red", "White", "Blue", "Green", "Amber"];
 const RANKS = ["Firefighter", "Leading Firefighter", "Crew Commander", "Watch Commander"];
 function generatePassword() {
   const words = ["Fire", "Station", "Watch", "Shift", "Engine", "Crew", "Pump", "Ladder"];
@@ -56212,7 +56261,7 @@ function InviteUserDialog({ open, onClose, onSuccess }) {
             /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Watch" }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watchUnit, onValueChange: setWatchUnit, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "mt-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select…" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$4.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$5.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
             ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "col-span-2", children: [
@@ -57706,7 +57755,7 @@ function CSVExportUtility() {
     ] })
   ] });
 }
-const WATCHES$3 = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$4 = ["Red", "White", "Green", "Blue", "Amber"];
 const watchBadgeClass = {
   Red: "bg-red-500/10 text-red-600 border-red-400/30",
   White: "bg-gray-100 text-gray-700 border-gray-300 dark:bg-gray-700/40 dark:text-gray-200 dark:border-gray-500",
@@ -57732,7 +57781,7 @@ function WatchSelect({
         /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs w-[110px]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "__none__", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "None" }) }),
-          WATCHES$3.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: w }) }, w))
+          WATCHES$4.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: w }) }, w))
         ] })
       ]
     }
@@ -61191,8 +61240,8 @@ function CrewCommanderHome() {
     /* @__PURE__ */ jsxRuntimeExports.jsx(QuickAssignTasks, {})
   ] }) });
 }
-const WATCHES$2 = ["Red", "White", "Green", "Blue", "Amber"];
-const SHIFT_TYPES = [
+const WATCHES$3 = ["Red", "White", "Green", "Blue", "Amber"];
+const SHIFT_TYPES$1 = [
   { value: "1st Day", label: "1st Day", day: true },
   { value: "2nd Day", label: "2nd Day", day: true },
   { value: "1st Night", label: "1st Night", day: false },
@@ -61964,7 +62013,7 @@ function ExternalDialog({
   const [selectedWatch, setSelectedWatch] = reactExports.useState("");
   const [userId, setUserId] = reactExports.useState("");
   const [name, setName] = reactExports.useState("");
-  const otherWatches = WATCHES$2.filter((w) => w !== currentWatch);
+  const otherWatches = WATCHES$3.filter((w) => w !== currentWatch);
   const { data: otherRosterData, isLoading: rosterLoading } = useQuery({
     queryKey: ["crewing-roster", selectedWatch],
     queryFn: () => backendClient.crewing.roster({ watch: selectedWatch }),
@@ -62516,7 +62565,7 @@ function CrewingBoard() {
             setActiveSlotId(null);
           }, disabled: !canEdit, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "w-32", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$2.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$3.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
               w,
               " Watch"
             ] }, w)) })
@@ -62536,7 +62585,7 @@ function CrewingBoard() {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-medium text-muted-foreground uppercase tracking-wide", children: "Shift" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-px rounded-md border overflow-hidden text-sm bg-border", children: SHIFT_TYPES.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-px rounded-md border overflow-hidden text-sm bg-border", children: SHIFT_TYPES$1.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
               onClick: () => {
@@ -62692,7 +62741,7 @@ function CrewingBoard() {
     )
   ] });
 }
-const WATCHES$1 = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$2 = ["Red", "White", "Green", "Blue", "Amber"];
 const emptyForm = {
   watch: "",
   shift_type: "Day",
@@ -62703,7 +62752,7 @@ const emptyForm = {
   staff_notes: "",
   general_notes: ""
 };
-const PAGE_SIZE$1 = 20;
+const PAGE_SIZE$2 = 20;
 const DET_PAGE_SIZE = 30;
 function daysAgoLabel(dateStr) {
   if (!dateStr) return "Never";
@@ -62875,7 +62924,7 @@ function Handover() {
   const [editForm, setEditForm] = reactExports.useState({ incidents: "", outstanding_tasks: "", equipment_notes: "", staff_notes: "", general_notes: "" });
   const [form, setForm] = reactExports.useState(emptyForm);
   const [watchFilter, setWatchFilter] = reactExports.useState("");
-  const [limit, setLimit] = reactExports.useState(PAGE_SIZE$1);
+  const [limit, setLimit] = reactExports.useState(PAGE_SIZE$2);
   const { data, isLoading, isFetching } = useQuery({
     queryKey: ["handovers", watchFilter, limit],
     queryFn: async () => backendClient.handover.list({
@@ -63055,7 +63104,7 @@ function Handover() {
     })(),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1 border-b border-border pb-0 print:hidden", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
-        TabButton,
+        TabButton$1,
         {
           active: activeTab === "crewing",
           onClick: () => setActiveTab("crewing"),
@@ -63064,7 +63113,7 @@ function Handover() {
         }
       ),
       /* @__PURE__ */ jsxRuntimeExports.jsx(
-        TabButton,
+        TabButton$1,
         {
           active: activeTab === "handover",
           onClick: () => setActiveTab("handover"),
@@ -63073,7 +63122,7 @@ function Handover() {
         }
       ),
       /* @__PURE__ */ jsxRuntimeExports.jsx(
-        TabButton,
+        TabButton$1,
         {
           active: activeTab === "detachments",
           onClick: () => setActiveTab("detachments"),
@@ -63087,12 +63136,12 @@ function Handover() {
     activeTab === "handover" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
       !showForm && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold text-muted-foreground uppercase tracking-wide mr-1", children: "Filter:" }),
-        ["", ...WATCHES$1].map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        ["", ...WATCHES$2].map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
           {
             onClick: () => {
               setWatchFilter(w);
-              setLimit(PAGE_SIZE$1);
+              setLimit(PAGE_SIZE$2);
             },
             className: `px-3 py-1 rounded-full text-xs font-medium transition-colors border ${watchFilter === w ? "bg-indigo-600 text-white border-indigo-600" : "bg-muted/50 text-muted-foreground border-border hover:bg-muted hover:text-foreground"}`,
             children: w ? `${w} Watch` : "All Watches"
@@ -63121,7 +63170,7 @@ function Handover() {
                   onValueChange: (v) => setForm((f) => ({ ...f, watch: v })),
                   children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select watch" }) }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$1.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$2.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
                       w,
                       " Watch"
                     ] }, w)) })
@@ -63439,7 +63488,7 @@ function Handover() {
             variant: "outline",
             size: "sm",
             disabled: isFetching,
-            onClick: () => setLimit((l) => l + PAGE_SIZE$1),
+            onClick: () => setLimit((l) => l + PAGE_SIZE$2),
             children: isFetching ? "Loading…" : `Load more (${total - handovers.length} remaining)`
           }
         ) })
@@ -63447,7 +63496,7 @@ function Handover() {
     ] })
   ] });
 }
-function TabButton({
+function TabButton$1({
   active,
   onClick,
   icon,
@@ -63493,8 +63542,8 @@ function Section({ label, value, colour }) {
     /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-foreground whitespace-pre-wrap", children: value })
   ] });
 }
-const WATCHES = ["Red", "White", "Green", "Blue", "Amber"];
-const PAGE_SIZE = 30;
+const WATCHES$1 = ["Red", "White", "Green", "Blue", "Amber"];
+const PAGE_SIZE$1 = 30;
 function daysAgo(dateStr) {
   if (!dateStr) return "Never";
   const days = differenceInDays(/* @__PURE__ */ new Date(), parseISO(dateStr));
@@ -63573,13 +63622,13 @@ function DetachmentHistory({ watch }) {
     queryKey: ["detachments-history", watch, page],
     queryFn: () => backendClient.detachments.list({
       watch: watch || void 0,
-      limit: PAGE_SIZE,
-      offset: page * PAGE_SIZE
+      limit: PAGE_SIZE$1,
+      offset: page * PAGE_SIZE$1
     })
   });
   const records = (data == null ? void 0 : data.detachments) ?? [];
   const total = (data == null ? void 0 : data.total) ?? 0;
-  const hasMore = (page + 1) * PAGE_SIZE < total;
+  const hasMore = (page + 1) * PAGE_SIZE$1 < total;
   if (isLoading && page === 0) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: [...Array(6)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-16 w-full rounded-lg" }, i)) });
   }
@@ -63636,7 +63685,7 @@ function DetachmentHistory({ watch }) {
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "h-3.5 w-3.5" }),
           "Load more (",
-          total - (page + 1) * PAGE_SIZE,
+          total - (page + 1) * PAGE_SIZE$1,
           " remaining)"
         ]
       }
@@ -63658,7 +63707,7 @@ function DetachmentsPage() {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watch, onValueChange: setWatch, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "w-36", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$1.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
           w,
           " Watch"
         ] }, w)) })
@@ -63693,6 +63742,701 @@ function DetachmentsPage() {
       /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { children: tab === "rota" ? /* @__PURE__ */ jsxRuntimeExports.jsx(FairnessRota, { watch }) : /* @__PURE__ */ jsxRuntimeExports.jsx(DetachmentHistory, { watch }) })
     ] })
   ] });
+}
+const WATCHES = ["Red", "White", "Green", "Blue", "Amber"];
+const TRAINING_TYPE_LABELS = {
+  ba_drill: "BA Drill",
+  rtc: "RTC / Extrication",
+  ladder: "Ladder Drill",
+  water: "Water / Rescue",
+  hazmat: "HAZMAT",
+  first_aid: "First Aid",
+  driver: "Driver Training",
+  debrief: "Debrief",
+  physical: "Physical Training",
+  station_drill: "Station Drill",
+  lecture: "Lecture / Theory",
+  assessment: "Assessment",
+  other: "Other"
+};
+const COMPETENCIES = [
+  "BA",
+  "PRPS",
+  "Driver LGV",
+  "Driver ERD",
+  "First Aid",
+  "Water",
+  "HAZMAT",
+  "RTC"
+];
+const SHIFT_TYPES = [
+  { value: "1st Day", label: "1st Day" },
+  { value: "2nd Day", label: "2nd Day" },
+  { value: "1st Night", label: "1st Night" },
+  { value: "2nd Night", label: "2nd Night" }
+];
+const PAGE_SIZE = 20;
+const emptyScheduleForm = {
+  training_date: (/* @__PURE__ */ new Date()).toISOString().split("T")[0],
+  training_type: "",
+  topic: "",
+  shift_type: ""
+};
+const emptyLogForm = {
+  duration_hours: "",
+  notes: "",
+  selectedUserIds: [],
+  competencies: []
+};
+function Training() {
+  var _a2, _b2, _c2, _d2, _e2;
+  const { user: user2 } = useAuth();
+  const role = useUserRole();
+  const queryClient2 = useQueryClient();
+  const { toast: toast2 } = useToast();
+  const canEdit = role === "WC" || role === "CC";
+  const [activeTab, setActiveTab] = reactExports.useState("upcoming");
+  const [watchFilter, setWatchFilter] = reactExports.useState(
+    (user2 == null ? void 0 : user2.watch_unit) || ""
+  );
+  const [scheduleOpen, setScheduleOpen] = reactExports.useState(false);
+  const [scheduleForm, setScheduleForm] = reactExports.useState(emptyScheduleForm);
+  const [logOpen, setLogOpen] = reactExports.useState(false);
+  const [logRecordId, setLogRecordId] = reactExports.useState(null);
+  const [logForm, setLogForm] = reactExports.useState(emptyLogForm);
+  const [expandedId, setExpandedId] = reactExports.useState(null);
+  const [upcomingLimit, setUpcomingLimit] = reactExports.useState(PAGE_SIZE);
+  const [historyLimit, setHistoryLimit] = reactExports.useState(PAGE_SIZE);
+  const upcomingQuery = useQuery({
+    queryKey: ["training", "planned", watchFilter, upcomingLimit],
+    queryFn: () => backendClient.training.list({
+      watch: watchFilter || void 0,
+      status: "planned",
+      limit: upcomingLimit,
+      offset: 0
+    })
+  });
+  const historyQuery = useQuery({
+    queryKey: ["training", "history", watchFilter, historyLimit],
+    queryFn: () => backendClient.training.list({
+      watch: watchFilter || void 0,
+      limit: historyLimit,
+      offset: 0
+    }),
+    // We want all non-planned for history — but API only filters one status.
+    // We'll fetch all and filter client-side for completed+cancelled.
+    select: (data) => ({
+      records: data.records.filter((r2) => r2.status !== "planned"),
+      total: data.total
+    })
+  });
+  const rosterQuery = useQuery({
+    queryKey: ["crewing-roster", watchFilter || (user2 == null ? void 0 : user2.watch_unit)],
+    queryFn: () => backendClient.crewing.roster({ watch: watchFilter || (user2 == null ? void 0 : user2.watch_unit) || "" }),
+    enabled: logOpen && !!(watchFilter || (user2 == null ? void 0 : user2.watch_unit))
+  });
+  const createMutation = useMutation({
+    mutationFn: (form) => backendClient.training.create({
+      watch: watchFilter || (user2 == null ? void 0 : user2.watch_unit) || "",
+      training_date: form.training_date,
+      training_type: form.training_type,
+      topic: form.topic,
+      shift_type: form.shift_type || void 0
+    }),
+    onSuccess: () => {
+      queryClient2.invalidateQueries({ queryKey: ["training"] });
+      setScheduleOpen(false);
+      setScheduleForm(emptyScheduleForm);
+      toast2({ title: "Training scheduled", description: "The session has been added to the planner." });
+    },
+    onError: () => {
+      toast2({ title: "Error", description: "Failed to schedule training.", variant: "destructive" });
+    }
+  });
+  const updateMutation = useMutation({
+    mutationFn: ({ id, ...params }) => backendClient.training.update(id, params),
+    onSuccess: () => {
+      queryClient2.invalidateQueries({ queryKey: ["training"] });
+    }
+  });
+  const attendanceMutation = useMutation({
+    mutationFn: ({ id, ...params }) => backendClient.training.addAttendance(id, params)
+  });
+  const handleLogSubmit = async () => {
+    if (!logRecordId) return;
+    try {
+      await updateMutation.mutateAsync({
+        id: logRecordId,
+        status: "completed",
+        duration_hours: logForm.duration_hours ? parseFloat(logForm.duration_hours) : void 0,
+        notes: logForm.notes || void 0
+      });
+      if (logForm.selectedUserIds.length > 0) {
+        await attendanceMutation.mutateAsync({
+          id: logRecordId,
+          user_ids: logForm.selectedUserIds,
+          competencies_covered: logForm.competencies.length > 0 ? logForm.competencies : void 0,
+          notes: logForm.notes || void 0
+        });
+      }
+      queryClient2.invalidateQueries({ queryKey: ["training"] });
+      setLogOpen(false);
+      setLogRecordId(null);
+      setLogForm(emptyLogForm);
+      toast2({ title: "Training logged", description: "Session marked as completed with attendance recorded." });
+    } catch {
+      toast2({ title: "Error", description: "Failed to log training.", variant: "destructive" });
+    }
+  };
+  const handleCancel = async (id) => {
+    try {
+      await updateMutation.mutateAsync({ id, status: "cancelled" });
+      toast2({ title: "Training cancelled" });
+    } catch {
+      toast2({ title: "Error", description: "Failed to cancel training.", variant: "destructive" });
+    }
+  };
+  const openLogDialog = (recordId) => {
+    setLogRecordId(recordId);
+    setLogForm(emptyLogForm);
+    setLogOpen(true);
+  };
+  const upcoming = ((_a2 = upcomingQuery.data) == null ? void 0 : _a2.records) ?? [];
+  const upcomingTotal = ((_b2 = upcomingQuery.data) == null ? void 0 : _b2.total) ?? 0;
+  const history = ((_c2 = historyQuery.data) == null ? void 0 : _c2.records) ?? [];
+  const historyTotal = ((_d2 = historyQuery.data) == null ? void 0 : _d2.total) ?? 0;
+  const roster = ((_e2 = rosterQuery.data) == null ? void 0 : _e2.members) ?? [];
+  const isSubmitting = createMutation.isPending || updateMutation.isPending || attendanceMutation.isPending;
+  const dateStr = (/* @__PURE__ */ new Date()).toLocaleDateString("en-GB", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    year: "numeric"
+  });
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 md:p-8 space-y-6 max-w-5xl mx-auto", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-center justify-between gap-3", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(GraduationCap, { className: "h-8 w-8 text-teal-500" }),
+          "Training"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground mt-1", children: "Schedule drills, log sessions, and track attendance" })
+      ] }),
+      canEdit && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        Button,
+        {
+          className: "self-start sm:self-auto bg-indigo-600 hover:bg-indigo-700",
+          onClick: () => {
+            setScheduleForm(emptyScheduleForm);
+            setScheduleOpen(true);
+          },
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4 mr-2" }),
+            "Schedule Training"
+          ]
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2.5 rounded-xl bg-muted/50 border border-border/60 text-sm -mt-2", children: [
+      (user2 == null ? void 0 : user2.watch_unit) && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 text-xs font-semibold", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { className: "h-3.5 w-3.5" }),
+        user2.watch_unit,
+        " Watch"
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "h-4 w-px bg-border hidden sm:block" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1.5 text-xs text-muted-foreground", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Calendar, { className: "h-3.5 w-3.5 shrink-0" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium text-foreground", children: dateStr })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1 border-b border-border pb-0", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        TabButton,
+        {
+          active: activeTab === "upcoming",
+          onClick: () => setActiveTab("upcoming"),
+          icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Calendar, { className: "h-4 w-4" }),
+          label: "Upcoming"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        TabButton,
+        {
+          active: activeTab === "history",
+          onClick: () => setActiveTab("history"),
+          icon: /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-4 w-4" }),
+          label: "History"
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-semibold text-muted-foreground uppercase tracking-wide mr-1", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { className: "h-3 w-3 inline mr-1" }),
+        "Filter:"
+      ] }),
+      ["", ...WATCHES].map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          onClick: () => {
+            setWatchFilter(w);
+            setUpcomingLimit(PAGE_SIZE);
+            setHistoryLimit(PAGE_SIZE);
+          },
+          className: `px-3 py-1 rounded-full text-xs font-medium transition-colors border ${watchFilter === w ? "bg-indigo-600 text-white border-indigo-600" : "bg-muted/50 text-muted-foreground border-border hover:bg-muted hover:text-foreground"}`,
+          children: w ? `${w} Watch` : "All Watches"
+        },
+        w || "all"
+      ))
+    ] }),
+    activeTab === "upcoming" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      UpcomingPanel,
+      {
+        records: upcoming,
+        total: upcomingTotal,
+        isLoading: upcomingQuery.isLoading,
+        isFetching: upcomingQuery.isFetching,
+        canEdit,
+        onLog: openLogDialog,
+        onCancel: handleCancel,
+        hasMore: upcoming.length < upcomingTotal,
+        onLoadMore: () => setUpcomingLimit((l) => l + PAGE_SIZE)
+      }
+    ),
+    activeTab === "history" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      HistoryPanel,
+      {
+        records: history,
+        total: historyTotal,
+        isLoading: historyQuery.isLoading,
+        isFetching: historyQuery.isFetching,
+        expandedId,
+        onToggleExpand: (id) => setExpandedId(expandedId === id ? null : id),
+        hasMore: history.length < historyTotal,
+        onLoadMore: () => setHistoryLimit((l) => l + PAGE_SIZE)
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: scheduleOpen, onOpenChange: setScheduleOpen, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-lg", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { className: "flex items-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(GraduationCap, { className: "h-5 w-5 text-teal-500" }),
+        "Schedule Training"
+      ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 pt-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid gap-4 sm:grid-cols-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Training Date *" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Input,
+              {
+                type: "date",
+                value: scheduleForm.training_date,
+                onChange: (e) => setScheduleForm((f) => ({ ...f, training_date: e.target.value }))
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Shift (optional)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              Select,
+              {
+                value: scheduleForm.shift_type,
+                onValueChange: (v) => setScheduleForm((f) => ({ ...f, shift_type: v })),
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Any shift" }) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: SHIFT_TYPES.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: s.value, children: s.label }, s.value)) })
+                ]
+              }
+            )
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Training Type *" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            Select,
+            {
+              value: scheduleForm.training_type,
+              onValueChange: (v) => setScheduleForm((f) => ({ ...f, training_type: v })),
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select type" }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: Object.entries(TRAINING_TYPE_LABELS).map(([key2, label]) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: key2, children: label }, key2)) })
+              ]
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Topic *" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            Input,
+            {
+              placeholder: "e.g. Pump to open water",
+              value: scheduleForm.topic,
+              onChange: (e) => setScheduleForm((f) => ({ ...f, topic: e.target.value }))
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end gap-3 pt-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", onClick: () => setScheduleOpen(false), children: "Cancel" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            Button,
+            {
+              className: "bg-indigo-600 hover:bg-indigo-700",
+              disabled: !scheduleForm.training_date || !scheduleForm.training_type || !scheduleForm.topic || createMutation.isPending,
+              onClick: () => createMutation.mutate(scheduleForm),
+              children: createMutation.isPending ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "h-4 w-4 mr-2 animate-spin" }),
+                "Saving..."
+              ] }) : "Schedule"
+            }
+          )
+        ] })
+      ] })
+    ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: logOpen, onOpenChange: (open) => {
+      if (!open) {
+        setLogOpen(false);
+        setLogRecordId(null);
+      }
+    }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-xl max-h-[85vh] overflow-y-auto", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { className: "flex items-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-5 w-5 text-green-500" }),
+        "Log Training"
+      ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5 pt-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid gap-4 sm:grid-cols-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Duration (hours)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            Input,
+            {
+              type: "number",
+              step: "0.5",
+              min: "0",
+              placeholder: "e.g. 2",
+              value: logForm.duration_hours,
+              onChange: (e) => setLogForm((f) => ({ ...f, duration_hours: e.target.value }))
+            }
+          )
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Notes / Debrief" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            Textarea,
+            {
+              rows: 3,
+              placeholder: "Summary of the session, key observations...",
+              value: logForm.notes,
+              onChange: (e) => setLogForm((f) => ({ ...f, notes: e.target.value }))
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs font-semibold uppercase tracking-wide text-muted-foreground", children: "Competencies Covered" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-2", children: COMPETENCIES.map((comp) => {
+            const checked = logForm.competencies.includes(comp);
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                onClick: () => setLogForm((f) => ({
+                  ...f,
+                  competencies: checked ? f.competencies.filter((c) => c !== comp) : [...f.competencies, comp]
+                })),
+                className: `px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${checked ? "bg-teal-100 text-teal-700 border-teal-300 dark:bg-teal-900/40 dark:text-teal-300 dark:border-teal-700" : "bg-muted/50 text-muted-foreground border-border hover:bg-muted"}`,
+                children: [
+                  checked && /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-3 w-3 inline mr-1" }),
+                  comp
+                ]
+              },
+              comp
+            );
+          }) })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Label, { className: "text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { className: "h-3.5 w-3.5" }),
+            "Attendees",
+            logForm.selectedUserIds.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "secondary", className: "text-[10px] py-0 px-1.5", children: [
+              logForm.selectedUserIds.length,
+              " selected"
+            ] })
+          ] }),
+          rosterQuery.isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: [...Array(4)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-10 w-full rounded-lg" }, i)) }) : roster.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground py-3", children: "No roster members found for this watch." }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1 max-h-48 overflow-y-auto rounded-lg border border-border/60 p-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                onClick: () => {
+                  const allIds = roster.map((m) => m.id);
+                  const allSelected = allIds.every((id) => logForm.selectedUserIds.includes(id));
+                  setLogForm((f) => ({
+                    ...f,
+                    selectedUserIds: allSelected ? [] : allIds
+                  }));
+                },
+                className: "w-full flex items-center gap-2 px-3 py-2 rounded-md text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition-colors",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    Checkbox,
+                    {
+                      checked: roster.length > 0 && roster.every((m) => logForm.selectedUserIds.includes(m.id)),
+                      className: "pointer-events-none"
+                    }
+                  ),
+                  "Select all (",
+                  roster.length,
+                  ")"
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-px bg-border/50 my-1" }),
+            roster.map((member) => {
+              var _a3;
+              const checked = logForm.selectedUserIds.includes(member.id);
+              return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => setLogForm((f) => ({
+                    ...f,
+                    selectedUserIds: checked ? f.selectedUserIds.filter((id) => id !== member.id) : [...f.selectedUserIds, member.id]
+                  })),
+                  className: `w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors ${checked ? "bg-teal-50 dark:bg-teal-950/20" : "hover:bg-muted/50"}`,
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Checkbox, { checked, className: "pointer-events-none" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-7 w-7 rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 flex items-center justify-center text-white text-[10px] font-bold shrink-0", children: ((_a3 = member.name) == null ? void 0 : _a3.split(" ").map((n) => n[0]).slice(0, 2).join("")) ?? "?" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 text-left min-w-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium truncate block", children: member.name }) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-[10px] py-0 shrink-0", children: member.system_role ?? member.role })
+                  ]
+                },
+                member.id
+              );
+            })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end gap-3 pt-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", onClick: () => {
+            setLogOpen(false);
+            setLogRecordId(null);
+          }, children: "Cancel" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            Button,
+            {
+              className: "bg-green-600 hover:bg-green-700",
+              disabled: isSubmitting,
+              onClick: handleLogSubmit,
+              children: isSubmitting ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "h-4 w-4 mr-2 animate-spin" }),
+                "Saving..."
+              ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-4 w-4 mr-2" }),
+                "Complete Training"
+              ] })
+            }
+          )
+        ] })
+      ] })
+    ] }) })
+  ] });
+}
+function UpcomingPanel({
+  records,
+  total,
+  isLoading,
+  isFetching,
+  canEdit,
+  onLog,
+  onCancel,
+  hasMore,
+  onLoadMore
+}) {
+  if (isLoading) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3", children: [...Array(3)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { className: "py-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-16 w-full" }) }) }, i)) });
+  }
+  if (records.length === 0) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { className: "border-dashed", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "py-16 text-center", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Calendar, { className: "h-10 w-10 mx-auto mb-3 text-muted-foreground/40" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium text-foreground", children: "No upcoming training" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground mt-1", children: canEdit ? "Schedule a training session using the button above." : "No training sessions have been planned yet." })
+    ] }) });
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground", children: [
+      total,
+      " planned session",
+      total !== 1 ? "s" : ""
+    ] }),
+    records.map((r2) => /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { className: "border-t-2 border-t-teal-500 transition-all hover:shadow-md", children: /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { className: "py-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-center justify-between gap-3", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5 min-w-0", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-wrap", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold text-foreground", children: format(parseISO(r2.training_date), "EEE dd MMM yyyy") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TypeBadge, { type: r2.training_type }),
+          r2.shift_type && /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "secondary", className: "text-xs", children: r2.shift_type }),
+          r2.watch && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-xs", children: [
+            r2.watch,
+            " Watch"
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: r2.topic })
+      ] }),
+      canEdit && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 shrink-0", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          Button,
+          {
+            size: "sm",
+            className: "bg-green-600 hover:bg-green-700 gap-1.5",
+            onClick: () => onLog(r2.id),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-3.5 w-3.5" }),
+              "Log Training"
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Button,
+          {
+            size: "sm",
+            variant: "ghost",
+            className: "text-muted-foreground hover:text-red-500",
+            onClick: () => onCancel(r2.id),
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" })
+          }
+        )
+      ] })
+    ] }) }) }, r2.id)),
+    hasMore && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pt-2 text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", size: "sm", disabled: isFetching, onClick: onLoadMore, children: isFetching ? "Loading..." : `Load more (${total - records.length} remaining)` }) })
+  ] });
+}
+function HistoryPanel({
+  records,
+  total,
+  isLoading,
+  isFetching,
+  expandedId,
+  onToggleExpand,
+  hasMore,
+  onLoadMore
+}) {
+  if (isLoading) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3", children: [...Array(3)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { className: "py-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-16 w-full" }) }) }, i)) });
+  }
+  if (records.length === 0) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { className: "border-dashed", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "py-16 text-center", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-10 w-10 mx-auto mb-3 text-muted-foreground/40" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium text-foreground", children: "No training history" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground mt-1", children: "Completed sessions will appear here." })
+    ] }) });
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground", children: [
+      records.length,
+      " record",
+      records.length !== 1 ? "s" : ""
+    ] }),
+    records.map((r2) => {
+      const isExpanded = expandedId === r2.id;
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(
+        HistoryCard,
+        {
+          record: r2,
+          isExpanded,
+          onToggle: () => onToggleExpand(r2.id)
+        },
+        r2.id
+      );
+    }),
+    hasMore && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pt-2 text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", size: "sm", disabled: isFetching, onClick: onLoadMore, children: isFetching ? "Loading..." : `Load more` }) })
+  ] });
+}
+function HistoryCard({ record: r2, isExpanded, onToggle }) {
+  var _a2;
+  const detailQuery = useQuery({
+    queryKey: ["training-detail", r2.id],
+    queryFn: () => backendClient.training.get(r2.id),
+    enabled: isExpanded
+  });
+  const attendees = ((_a2 = detailQuery.data) == null ? void 0 : _a2.attendees) ?? [];
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { className: `border-t-2 transition-all ${r2.status === "cancelled" ? "border-t-red-400 opacity-70" : "border-t-teal-500"}`, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      CardHeader,
+      {
+        className: "pb-3 cursor-pointer select-none",
+        onClick: onToggle,
+        children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start justify-between gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1 min-w-0", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-wrap", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold text-foreground", children: format(parseISO(r2.training_date), "dd MMM yyyy") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(TypeBadge, { type: r2.training_type }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(StatusBadge, { status: r2.status }),
+              r2.watch && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-xs", children: [
+                r2.watch,
+                " Watch"
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: r2.topic }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-3 text-xs text-muted-foreground", children: r2.duration_hours && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: "h-3 w-3" }),
+              r2.duration_hours,
+              "h"
+            ] }) })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "shrink-0", children: isExpanded ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { className: "h-4 w-4 text-muted-foreground" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "h-4 w-4 text-muted-foreground" }) })
+        ] })
+      }
+    ),
+    isExpanded && /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { className: "pt-0 border-t", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 pt-3", children: [
+      r2.notes && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pl-3 border-l-2 border-teal-300 dark:border-teal-800", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs font-semibold uppercase tracking-wide mb-1 text-teal-600 dark:text-teal-400", children: "Notes" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-foreground whitespace-pre-wrap", children: r2.notes })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pl-3 border-l-2 border-border", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs font-semibold uppercase tracking-wide mb-2 text-muted-foreground flex items-center gap-1.5", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { className: "h-3.5 w-3.5" }),
+          "Attendees"
+        ] }),
+        detailQuery.isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: [...Array(3)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-8 w-48" }, i)) }) : attendees.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "No attendance recorded" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: attendees.map((a) => {
+          var _a3, _b2;
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-6 w-6 rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 flex items-center justify-center text-white text-[9px] font-bold shrink-0", children: ((_a3 = a.user_name) == null ? void 0 : _a3.split(" ").map((n) => n[0]).slice(0, 2).join("")) ?? "?" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium", children: a.user_name }),
+            ((_b2 = a.competencies_covered) == null ? void 0 : _b2.length) > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-1 flex-wrap", children: a.competencies_covered.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-[10px] py-0 px-1.5 text-teal-600 border-teal-300", children: c }, c)) })
+          ] }, a.user_id);
+        }) })
+      ] })
+    ] }) })
+  ] });
+}
+function TabButton({ active, onClick, icon, label }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "button",
+    {
+      onClick,
+      className: `
+        flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors
+        ${active ? "border-indigo-500 text-indigo-600 dark:text-indigo-400" : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"}
+      `,
+      children: [
+        icon,
+        label
+      ]
+    }
+  );
+}
+function TypeBadge({ type }) {
+  const label = TRAINING_TYPE_LABELS[type] ?? type;
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: "text-xs bg-teal-100 text-teal-700 border-teal-300 hover:bg-teal-100 dark:bg-teal-900/40 dark:text-teal-300 dark:border-teal-700", children: label });
+}
+function StatusBadge({ status }) {
+  if (status === "completed") {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { className: "text-xs bg-green-100 text-green-700 border-green-300 hover:bg-green-100 dark:bg-green-900/40 dark:text-green-300", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-3 w-3 mr-1" }),
+      "Completed"
+    ] });
+  }
+  if (status === "cancelled") {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { className: "text-xs bg-red-100 text-red-700 border-red-300 hover:bg-red-100 dark:bg-red-900/40 dark:text-red-300", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3 w-3 mr-1" }),
+      "Cancelled"
+    ] });
+  }
+  return null;
 }
 const NOTION_URL = "https://invincible-treatment-d06.notion.site/Processes-Files-a2ab8be387bc44c9859a7ac41d227606";
 const QUICK_LINKS = [
@@ -64337,6 +65081,7 @@ function AppRoutes() {
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/resources", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Resources, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/handover", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Handover, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/detachments", element: /* @__PURE__ */ jsxRuntimeExports.jsx(DetachmentsPage, {}) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/training", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Training, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/reports", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Reports, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/reports/quarterly/:id", element: /* @__PURE__ */ jsxRuntimeExports.jsx(QuarterlyReportPage, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/admin", element: role === "WC" || (user2 == null ? void 0 : user2.is_admin) ? /* @__PURE__ */ jsxRuntimeExports.jsx(AdminPanel, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(Navigate, { to: "/", replace: true }) }),

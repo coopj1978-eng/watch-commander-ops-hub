@@ -21,6 +21,7 @@ import StaffPortal from "./pages/StaffPortal";
 import CrewCommanderHome from "./pages/CrewCommanderHome";
 import HandoverPage from "./pages/Handover";
 import DetachmentsPage from "./pages/Detachments";
+import TrainingPage from "./pages/Training";
 import Resources from "./pages/Resources";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
@@ -205,6 +206,7 @@ function AppRoutes() {
         <Route path="/resources" element={<Resources />} />
         <Route path="/handover" element={<HandoverPage />} />
         <Route path="/detachments" element={<DetachmentsPage />} />
+        <Route path="/training" element={<TrainingPage />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/reports/quarterly/:id" element={<QuarterlyReport />} />
         <Route path="/admin" element={

@@ -16,6 +16,7 @@ import {
   ChevronsRight,
   UserCircle,
   ShieldCheck,
+  GraduationCap,
 } from "lucide-react";
 import {
   Tooltip,
@@ -56,6 +57,7 @@ const navGroups: NavItem[][] = [
   [
     { name: "J4 Checks",   path: "/equipment",   icon: Truck,          ariaLabel: "Go to J4 Equipment Checks", featureKey: "equipment" },
     { name: "Shift",       path: "/handover",    icon: ClipboardList,  ariaLabel: "Go to Shift Management",    featureKey: "handover" },
+    { name: "Training",   path: "/training",   icon: GraduationCap,  ariaLabel: "Go to Training" },
   ],
   // ── Reference & Account ──────────────────────────────────────────────────
   [

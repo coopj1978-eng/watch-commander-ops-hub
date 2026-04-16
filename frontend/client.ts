@@ -60,6 +60,7 @@ export default class Client {
     public readonly targets: targets.ServiceClient
     public readonly task: task.ServiceClient
     public readonly toil: toil.ServiceClient
+    public readonly training: training.ServiceClient
     public readonly user: user.ServiceClient
     private readonly options: ClientOptions
     private readonly target: string
@@ -103,6 +104,7 @@ export default class Client {
         this.targets = new targets.ServiceClient(base)
         this.task = new task.ServiceClient(base)
         this.toil = new toil.ServiceClient(base)
+        this.training = new training.ServiceClient(base)
         this.user = new user.ServiceClient(base)
     }
 
@@ -1653,7 +1655,7 @@ export namespace frontend {
         }
 
         public async assets(path: string[]): Promise<void> {
-            await this.baseClient.callTypedAPI("HEAD", `/frontend/${path.map(encodeURIComponent).join("/")}`)
+            await this.baseClient.callTypedAPI("HEAD", `/${path.map(encodeURIComponent).join("/")}`)
         }
     }
 }
@@ -4423,6 +4425,134 @@ export namespace toil {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/toil`, undefined, {query})
             return await resp.json() as ListToilResponse
+        }
+    }
+}
+
+export namespace training {
+    export interface AddAttendanceRequest {
+        "user_ids": string[]
+        "competencies_covered"?: string[]
+        notes?: string
+    }
+
+    export interface Attendee {
+        "user_id": string
+        "user_name": string
+        "competencies_covered": string[]
+        notes?: string
+    }
+
+    export interface CreateTrainingRequest {
+        watch: string
+        "training_date": string
+        "shift_type"?: string
+        "training_type": string
+        topic: string
+    }
+
+    export interface ListRequest {
+        watch?: string
+        status?: string
+        "start_date"?: string
+        "end_date"?: string
+        limit?: number
+        offset?: number
+    }
+
+    export interface ListTrainingResponse {
+        records: TrainingRecord[]
+        total: number
+    }
+
+    export interface SuccessResponse {
+        success: boolean
+    }
+
+    export interface TrainingRecord {
+        id: number
+        watch: string
+        "training_date": string
+        "shift_type"?: string
+        "training_type": string
+        topic: string
+        "duration_hours"?: number
+        notes?: string
+        status: string
+        "created_by": string
+        "completed_at"?: string
+        "created_at": string
+        "updated_at": string
+        attendees?: Attendee[]
+    }
+
+    export interface UpdateTrainingRequest {
+        topic?: string
+        "training_type"?: string
+        "training_date"?: string
+        "shift_type"?: string
+        "duration_hours"?: number
+        notes?: string
+        status?: string
+    }
+
+    export class ServiceClient {
+        private baseClient: BaseClient
+
+        constructor(baseClient: BaseClient) {
+            this.baseClient = baseClient
+            this.addAttendance = this.addAttendance.bind(this)
+            this.create = this.create.bind(this)
+            this.get = this.get.bind(this)
+            this.list = this.list.bind(this)
+            this.removeAttendance = this.removeAttendance.bind(this)
+            this.update = this.update.bind(this)
+        }
+
+        public async addAttendance(id: number, params: AddAttendanceRequest): Promise<SuccessResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/training/${encodeURIComponent(id)}/attendance`, JSON.stringify(params))
+            return await resp.json() as SuccessResponse
+        }
+
+        public async create(params: CreateTrainingRequest): Promise<TrainingRecord> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/training`, JSON.stringify(params))
+            return await resp.json() as TrainingRecord
+        }
+
+        public async get(id: number): Promise<TrainingRecord> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/training/${encodeURIComponent(id)}`)
+            return await resp.json() as TrainingRecord
+        }
+
+        public async list(params: ListRequest): Promise<ListTrainingResponse> {
+            // Convert our params into the objects we need for the request
+            const query = makeRecord<string, string | string[]>({
+                "end_date":   params["end_date"],
+                limit:        params.limit === undefined ? undefined : String(params.limit),
+                offset:       params.offset === undefined ? undefined : String(params.offset),
+                "start_date": params["start_date"],
+                status:       params.status,
+                watch:        params.watch,
+            })
+
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/training`, undefined, {query})
+            return await resp.json() as ListTrainingResponse
+        }
+
+        public async removeAttendance(id: number, userId: string): Promise<SuccessResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("DELETE", `/training/${encodeURIComponent(id)}/attendance/${encodeURIComponent(userId)}`)
+            return await resp.json() as SuccessResponse
+        }
+
+        public async update(id: number, params: UpdateTrainingRequest): Promise<TrainingRecord> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("PUT", `/training/${encodeURIComponent(id)}`, JSON.stringify(params))
+            return await resp.json() as TrainingRecord
         }
     }
 }
