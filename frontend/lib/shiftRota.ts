@@ -106,6 +106,20 @@ function computeShiftForDate(date: Date, refMonday: Date): ShiftDay {
  * Returns the shift for every day in [from, to] for the given watch.
  * Rest days are excluded so the calendar view stays clean.
  */
+/**
+ * Compute the shift for one specific date for the given watch.
+ * Returns null if the watch has no rota config, otherwise always returns a
+ * ShiftDay (including Rest days — callers decide whether to display them).
+ */
+export function getShiftForDate(watch: string, date: Date): ShiftDay | null {
+  const refIso = REFERENCE_MONDAYS[watch];
+  if (!refIso) return null;
+  const refMonday = toDateOnly(refIso);
+  // Normalise date to local midnight so time-of-day never shifts the day boundary
+  const localMidnight = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  return computeShiftForDate(localMidnight, refMonday);
+}
+
 export function getShiftsForDateRange(
   watch: string,
   from: Date,

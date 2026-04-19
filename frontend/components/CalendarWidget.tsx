@@ -5,6 +5,7 @@ import type { CalendarEvent } from "~backend/calendar/types";
 import type { Task } from "~backend/task/types";
 import type { Inspection } from "~backend/inspection/types";
 import type { ShiftDay } from "@/lib/shiftRota";
+import { getShiftForDate } from "@/lib/shiftRota";
 
 export type CalendarViewType = "day" | "week" | "month" | "year";
 
@@ -24,6 +25,10 @@ interface CalendarWidgetProps {
   tasks?: Task[];
   inspections?: Inspection[];
   shiftSchedule?: ShiftDay[];
+  /** When provided, shifts are computed per-day directly from the rota engine
+   *  (more robust than filtering a pre-built schedule array that can go out of
+   *  sync with the displayed range). */
+  userWatch?: string;
   currentDate: Date;
   onDateChange: (date: Date) => void;
   view: CalendarViewType;
@@ -73,7 +78,15 @@ function getShiftCellBg(shifts: ShiftDay[], isDark = false): string | undefined 
   return map[shifts[0].shiftType];
 }
 
-function getShiftsForDay(shiftSchedule: ShiftDay[], date: Date): ShiftDay[] {
+function getShiftsForDay(shiftSchedule: ShiftDay[], date: Date, userWatch?: string): ShiftDay[] {
+  // If we know the user's watch, compute the shift directly for this date.
+  // This is more robust than filtering a pre-built array — the array can get
+  // out of sync with the displayed week/month if its date range drifts.
+  if (userWatch) {
+    const shift = getShiftForDate(userWatch, date);
+    if (shift && shift.shiftType !== "Rest") return [shift];
+    return [];
+  }
   const dateStr = [
     date.getFullYear(),
     String(date.getMonth() + 1).padStart(2, "0"),
@@ -358,6 +371,7 @@ function DayView({
   date,
   items,
   shiftSchedule = [],
+  userWatch,
   scrollRef,
   onSlotClick,
   onEventClick,
@@ -365,13 +379,14 @@ function DayView({
   date: Date;
   items: CalendarItem[];
   shiftSchedule?: ShiftDay[];
+  userWatch?: string;
   scrollRef: React.RefObject<HTMLDivElement | null>;
   onSlotClick?: (date: Date) => void;
   onEventClick?: (item: CalendarItem) => void;
 }) {
   const dayItems = items.filter((it) => !it.allDay && sameDay(it.startTime, date));
   const allDayItems = items.filter((it) => it.allDay && spansDay(it, date));
-  const dayShifts = getShiftsForDay(shiftSchedule, date);
+  const dayShifts = getShiftsForDay(shiftSchedule, date, userWatch);
 
   const handleSlotClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if ((e.target as HTMLElement).closest("[data-event]")) return;
@@ -446,6 +461,7 @@ function WeekView({
   weekDays,
   items,
   shiftSchedule = [],
+  userWatch,
   scrollRef,
   onSlotClick,
   onEventClick,
@@ -454,6 +470,7 @@ function WeekView({
   weekDays: Date[];
   items: CalendarItem[];
   shiftSchedule?: ShiftDay[];
+  userWatch?: string;
   scrollRef: React.RefObject<HTMLDivElement | null>;
   onSlotClick?: (date: Date) => void;
   onEventClick?: (item: CalendarItem) => void;
@@ -461,7 +478,7 @@ function WeekView({
 }) {
   const today = new Date();
   const allDayCols = weekDays.map((d) => items.filter((it) => it.allDay && spansDay(it, d)));
-  const shiftCols  = weekDays.map((d) => getShiftsForDay(shiftSchedule, d));
+  const shiftCols  = weekDays.map((d) => getShiftsForDay(shiftSchedule, d, userWatch));
   const hasAllDay  = allDayCols.some((col) => col.length > 0) || shiftCols.some((col) => col.length > 0);
 
   const handleColClick = (day: Date, e: React.MouseEvent<HTMLDivElement>) => {
@@ -573,6 +590,7 @@ function MonthView({
   date,
   items,
   shiftSchedule = [],
+  userWatch,
   onSlotClick,
   onEventClick,
   onDayNavigate,
@@ -580,6 +598,7 @@ function MonthView({
   date: Date;
   items: CalendarItem[];
   shiftSchedule?: ShiftDay[];
+  userWatch?: string;
   onSlotClick?: (date: Date) => void;
   onEventClick?: (item: CalendarItem) => void;
   onDayNavigate?: (date: Date) => void;
@@ -606,7 +625,7 @@ function MonthView({
 
           const isToday = sameDay(day, today);
           const isCurrentMonth = day.getMonth() === date.getMonth();
-          const dayShifts = getShiftsForDay(shiftSchedule, day);
+          const dayShifts = getShiftsForDay(shiftSchedule, day, userWatch);
           const dayItems = items.filter((it) => spansDay(it, day));
           const visibleItems = dayItems.slice(0, Math.max(0, 3 - dayShifts.length));
           const overflow = dayItems.length - visibleItems.length;
@@ -754,12 +773,14 @@ function MobileMonthView({
   date,
   items,
   shiftSchedule = [],
+  userWatch,
   selectedDay,
   onDaySelect,
 }: {
   date: Date;
   items: CalendarItem[];
   shiftSchedule?: ShiftDay[];
+  userWatch?: string;
   selectedDay: Date;
   onDaySelect: (d: Date) => void;
 }) {
@@ -787,7 +808,7 @@ function MobileMonthView({
           const isSelected   = sameDay(day, selectedDay);
           const inMonth      = day.getMonth() === date.getMonth();
           const dayItems     = items.filter((it) => spansDay(it, day));
-          const dayShifts    = getShiftsForDay(shiftSchedule, day);
+          const dayShifts    = getShiftsForDay(shiftSchedule, day, userWatch);
           const shiftBg      = getShiftCellBg(dayShifts, isDark);
 
           // Dots for non-shift events only (shift colour already shown via background)
@@ -847,15 +868,17 @@ function MobileAgendaPanel({
   date,
   items,
   shiftSchedule = [],
+  userWatch,
   onNewEvent,
 }: {
   date: Date;
   items: CalendarItem[];
   shiftSchedule?: ShiftDay[];
+  userWatch?: string;
   onNewEvent?: (date: Date) => void;
 }) {
   const dayLabel = `${DAY_NAMES[date.getDay()]}, ${date.getDate()} ${MONTH_NAMES_FULL[date.getMonth()]}`;
-  const dayShifts = getShiftsForDay(shiftSchedule, date);
+  const dayShifts = getShiftsForDay(shiftSchedule, date, userWatch);
   const dayItems  = items
     .filter((it) => spansDay(it, date))
     .sort((a, b) => {
@@ -1018,6 +1041,7 @@ export default function CalendarWidget({
   tasks = [],
   inspections = [],
   shiftSchedule = [],
+  userWatch,
   currentDate,
   onDateChange,
   view,
@@ -1083,6 +1107,7 @@ export default function CalendarWidget({
             date={currentDate}
             items={items}
             shiftSchedule={shiftSchedule}
+            userWatch={userWatch}
             selectedDay={selectedDay}
             onDaySelect={(d) => {
               setSelectedDay(d);
@@ -1100,6 +1125,7 @@ export default function CalendarWidget({
             date={selectedDay}
             items={items}
             shiftSchedule={shiftSchedule}
+            userWatch={userWatch}
             onNewEvent={onSlotClick}
           />
         </div>
@@ -1121,6 +1147,7 @@ export default function CalendarWidget({
               date={currentDate}
               items={items}
               shiftSchedule={shiftSchedule}
+              userWatch={userWatch}
               scrollRef={scrollRef}
               onSlotClick={onSlotClick}
               onEventClick={onEventClick}
@@ -1131,6 +1158,7 @@ export default function CalendarWidget({
               weekDays={getWeekDays(currentDate)}
               items={items}
               shiftSchedule={shiftSchedule}
+              userWatch={userWatch}
               scrollRef={scrollRef}
               onSlotClick={onSlotClick}
               onEventClick={onEventClick}
@@ -1142,6 +1170,7 @@ export default function CalendarWidget({
               date={currentDate}
               items={items}
               shiftSchedule={shiftSchedule}
+              userWatch={userWatch}
               onSlotClick={onSlotClick}
               onEventClick={onEventClick}
               onDayNavigate={handleDayNavigate}

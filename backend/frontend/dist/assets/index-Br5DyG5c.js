@@ -39149,6 +39149,13 @@ function computeShiftForDate(date, refMonday) {
   if (inRepeat === 3) return { date: dateStr, shiftType: "2nd Night", isWorking: true, isLeave: false, startTime: "18:00", endTime: "08:00" };
   return { date: dateStr, shiftType: "Rest", isWorking: false, isLeave: false };
 }
+function getShiftForDate(watch, date) {
+  const refIso = REFERENCE_MONDAYS[watch];
+  if (!refIso) return null;
+  const refMonday = toDateOnly(refIso);
+  const localMidnight = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  return computeShiftForDate(localMidnight, refMonday);
+}
 function getShiftsForDateRange(watch, from, to) {
   const refIso = REFERENCE_MONDAYS[watch];
   if (!refIso) return [];
@@ -48556,7 +48563,12 @@ function getShiftCellBg(shifts, isDark = false) {
   const map = isDark ? SHIFT_CELL_BG_DARK : SHIFT_CELL_BG_LIGHT;
   return map[shifts[0].shiftType];
 }
-function getShiftsForDay(shiftSchedule, date) {
+function getShiftsForDay(shiftSchedule, date, userWatch) {
+  if (userWatch) {
+    const shift2 = getShiftForDate(userWatch, date);
+    if (shift2 && shift2.shiftType !== "Rest") return [shift2];
+    return [];
+  }
   const dateStr = [
     date.getFullYear(),
     String(date.getMonth() + 1).padStart(2, "0"),
@@ -48785,13 +48797,14 @@ function DayView({
   date,
   items,
   shiftSchedule = [],
+  userWatch,
   scrollRef,
   onSlotClick,
   onEventClick
 }) {
   const dayItems = items.filter((it) => !it.allDay && sameDay(it.startTime, date));
   const allDayItems = items.filter((it) => it.allDay && spansDay(it, date));
-  const dayShifts = getShiftsForDay(shiftSchedule, date);
+  const dayShifts = getShiftsForDay(shiftSchedule, date, userWatch);
   const handleSlotClick = (e) => {
     var _a2;
     if (e.target.closest("[data-event]")) return;
@@ -48855,6 +48868,7 @@ function WeekView({
   weekDays,
   items,
   shiftSchedule = [],
+  userWatch,
   scrollRef,
   onSlotClick,
   onEventClick,
@@ -48862,7 +48876,7 @@ function WeekView({
 }) {
   const today = /* @__PURE__ */ new Date();
   const allDayCols = weekDays.map((d) => items.filter((it) => it.allDay && spansDay(it, d)));
-  const shiftCols = weekDays.map((d) => getShiftsForDay(shiftSchedule, d));
+  const shiftCols = weekDays.map((d) => getShiftsForDay(shiftSchedule, d, userWatch));
   const hasAllDay = allDayCols.some((col) => col.length > 0) || shiftCols.some((col) => col.length > 0);
   const handleColClick = (day, e) => {
     var _a2;
@@ -48953,6 +48967,7 @@ function MonthView({
   date,
   items,
   shiftSchedule = [],
+  userWatch,
   onSlotClick,
   onEventClick,
   onDayNavigate
@@ -48968,7 +48983,7 @@ function MonthView({
       }
       const isToday = sameDay(day, today);
       const isCurrentMonth = day.getMonth() === date.getMonth();
-      const dayShifts = getShiftsForDay(shiftSchedule, day);
+      const dayShifts = getShiftsForDay(shiftSchedule, day, userWatch);
       const dayItems = items.filter((it) => spansDay(it, day));
       const visibleItems = dayItems.slice(0, Math.max(0, 3 - dayShifts.length));
       const overflow = dayItems.length - visibleItems.length;
@@ -49103,6 +49118,7 @@ function MobileMonthView({
   date,
   items,
   shiftSchedule = [],
+  userWatch,
   selectedDay,
   onDaySelect
 }) {
@@ -49117,7 +49133,7 @@ function MobileMonthView({
       const isSelected = sameDay(day, selectedDay);
       const inMonth = day.getMonth() === date.getMonth();
       const dayItems = items.filter((it) => spansDay(it, day));
-      const dayShifts = getShiftsForDay(shiftSchedule, day);
+      const dayShifts = getShiftsForDay(shiftSchedule, day, userWatch);
       const shiftBg = getShiftCellBg(dayShifts, isDark);
       const eventDotColors = [];
       dayItems.forEach((it) => {
@@ -49181,10 +49197,11 @@ function MobileAgendaPanel({
   date,
   items,
   shiftSchedule = [],
+  userWatch,
   onNewEvent
 }) {
   const dayLabel2 = `${DAY_NAMES[date.getDay()]}, ${date.getDate()} ${MONTH_NAMES_FULL[date.getMonth()]}`;
-  const dayShifts = getShiftsForDay(shiftSchedule, date);
+  const dayShifts = getShiftsForDay(shiftSchedule, date, userWatch);
   const dayItems = items.filter((it) => spansDay(it, date)).sort((a, b) => {
     if (a.allDay && !b.allDay) return -1;
     if (!a.allDay && b.allDay) return 1;
@@ -49302,6 +49319,7 @@ function CalendarWidget({
   tasks = [],
   inspections = [],
   shiftSchedule = [],
+  userWatch,
   currentDate,
   onDateChange,
   view,
@@ -49358,6 +49376,7 @@ function CalendarWidget({
           date: currentDate,
           items,
           shiftSchedule,
+          userWatch,
           selectedDay,
           onDaySelect: (d) => {
             setSelectedDay(d);
@@ -49373,6 +49392,7 @@ function CalendarWidget({
           date: selectedDay,
           items,
           shiftSchedule,
+          userWatch,
           onNewEvent: onSlotClick
         }
       ) })
@@ -49396,6 +49416,7 @@ function CalendarWidget({
             date: currentDate,
             items,
             shiftSchedule,
+            userWatch,
             scrollRef,
             onSlotClick,
             onEventClick
@@ -49407,6 +49428,7 @@ function CalendarWidget({
             weekDays: getWeekDays(currentDate),
             items,
             shiftSchedule,
+            userWatch,
             scrollRef,
             onSlotClick,
             onEventClick,
@@ -49419,6 +49441,7 @@ function CalendarWidget({
             date: currentDate,
             items,
             shiftSchedule,
+            userWatch,
             onSlotClick,
             onEventClick,
             onDayNavigate: handleDayNavigate
@@ -50576,6 +50599,7 @@ function UnifiedCalendar() {
           tasks: visibleCalendars.has("tasks") ? tasks : [],
           inspections: visibleCalendars.has("inspections") ? inspections : [],
           shiftSchedule,
+          userWatch: visibleCalendars.has("shifts") ? userWatch : void 0,
           currentDate,
           onDateChange: setCurrentDate,
           view,

@@ -82,6 +82,31 @@ export const create = api<CreateTrainingRequest, TrainingRecord>(
       throw APIError.internal("failed to create training record");
     }
 
+    // Mirror the planned training as an all-day watch calendar event so it shows
+    // up on the calendar alongside inspections and other scheduled work.
+    // We pick a default 08:00–18:00 window for Day shifts, 18:00–08:00 for Night.
+    const isNight = req.shift_type?.toLowerCase().includes("night") ?? false;
+    const startDate = new Date(`${req.training_date}T${isNight ? "18:00" : "08:00"}:00`);
+    const endDate   = new Date(startDate);
+    if (isNight) endDate.setHours(endDate.getHours() + 14); // 18:00 → 08:00 next day
+    else         endDate.setHours(endDate.getHours() + 10); // 08:00 → 18:00
+
+    const title = `${req.training_type}: ${req.topic}`;
+    await db.rawExec(
+      `INSERT INTO calendar_events (
+        title, event_type, calendar_visibility, start_time, end_time, all_day,
+        is_watch_event, color, created_by, watch, source_type, source_id
+      ) VALUES ($1, 'training', 'watch', $2, $3, true, true, $4, $5, $6, $7, $8)`,
+      title,
+      startDate,
+      endDate,
+      "#14b8a6", // teal-500 to match Training page accent
+      auth.userID,
+      req.watch,
+      "training",
+      row.id
+    );
+
     return transformRecord(row);
   }
 );

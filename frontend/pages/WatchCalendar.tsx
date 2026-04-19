@@ -445,6 +445,7 @@ export default function UnifiedCalendar() {
           tasks={(visibleCalendars.has("tasks") ? tasks : []) as any}
           inspections={(visibleCalendars.has("inspections") ? inspections : []) as any}
           shiftSchedule={shiftSchedule}
+          userWatch={visibleCalendars.has("shifts") ? userWatch : undefined}
           currentDate={currentDate}
           onDateChange={setCurrentDate}
           view={view}
