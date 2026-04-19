@@ -48912,23 +48912,41 @@ function WeekView({
         i
       );
     }) }),
-    hasAllDay && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex border-b border-border bg-muted/20 shrink-0", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: TIME_COL_WIDTH }, className: "text-[11px] text-muted-foreground text-right pr-2 py-1 shrink-0", children: "all-day" }),
-      allDayCols.map((col, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col gap-0.5 p-0.5", children: [
-        shiftCols[i].map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftBanner, { shift: s }, `shift-${s.date}-${s.shiftType}`)),
-        col.map((it) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "div",
-          {
-            "data-event": true,
-            className: "rounded px-1 py-0.5 text-white text-[11px] cursor-pointer truncate",
-            style: { backgroundColor: hexToRgba(getItemColor(it), 0.85) },
-            onClick: () => onEventClick == null ? void 0 : onEventClick(it),
-            children: it.title
-          },
-          it.id
-        ))
-      ] }, i))
-    ] }),
+    hasAllDay && // NOTE: uses the same paddingLeft-based layout as the header row above
+    // so the 7 day columns line up pixel-perfectly. A fixed-width first
+    // child instead of paddingLeft was causing events and shift banners to
+    // render one column to the left of their header date.
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        className: "relative flex border-b border-border bg-muted/20 shrink-0",
+        style: { paddingLeft: TIME_COL_WIDTH },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "span",
+            {
+              className: "absolute left-0 top-0 text-[11px] text-muted-foreground text-right pr-2 py-1",
+              style: { width: TIME_COL_WIDTH },
+              children: "all-day"
+            }
+          ),
+          allDayCols.map((col, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col gap-0.5 p-0.5 min-w-0", children: [
+            shiftCols[i].map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftBanner, { shift: s }, `shift-${s.date}-${s.shiftType}`)),
+            col.map((it) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "div",
+              {
+                "data-event": true,
+                className: "rounded px-1 py-0.5 text-white text-[11px] cursor-pointer truncate",
+                style: { backgroundColor: hexToRgba(getItemColor(it), 0.85) },
+                onClick: () => onEventClick == null ? void 0 : onEventClick(it),
+                children: it.title
+              },
+              it.id
+            ))
+          ] }, i))
+        ]
+      }
+    ),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { ref: scrollRef, className: "flex-1 overflow-y-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex", style: { height: TOTAL_HEIGHT }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "relative shrink-0", style: { width: TIME_COL_WIDTH, height: TOTAL_HEIGHT }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(TimeLabels, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-1 relative", style: { height: TOTAL_HEIGHT }, children: [

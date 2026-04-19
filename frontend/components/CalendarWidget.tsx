@@ -521,12 +521,22 @@ function WeekView({
       </div>
 
       {hasAllDay && (
-        <div className="flex border-b border-border bg-muted/20 shrink-0">
-          <div style={{ width: TIME_COL_WIDTH }} className="text-[11px] text-muted-foreground text-right pr-2 py-1 shrink-0">
+        // NOTE: uses the same paddingLeft-based layout as the header row above
+        // so the 7 day columns line up pixel-perfectly. A fixed-width first
+        // child instead of paddingLeft was causing events and shift banners to
+        // render one column to the left of their header date.
+        <div
+          className="relative flex border-b border-border bg-muted/20 shrink-0"
+          style={{ paddingLeft: TIME_COL_WIDTH }}
+        >
+          <span
+            className="absolute left-0 top-0 text-[11px] text-muted-foreground text-right pr-2 py-1"
+            style={{ width: TIME_COL_WIDTH }}
+          >
             all-day
-          </div>
+          </span>
           {allDayCols.map((col, i) => (
-            <div key={i} className="flex-1 flex flex-col gap-0.5 p-0.5">
+            <div key={i} className="flex-1 flex flex-col gap-0.5 p-0.5 min-w-0">
               {shiftCols[i].map((s) => (
                 <ShiftBanner key={`shift-${s.date}-${s.shiftType}`} shift={s} />
               ))}
