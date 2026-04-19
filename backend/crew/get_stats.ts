@@ -10,12 +10,26 @@ export const getStats = api<void, CrewStats>(
     if (!auth) throw new Error("Unauthorized");
 
     // All watch members (any role) for task counting.
-    // Case-insensitive to tolerate inconsistent casing across the users table.
+    // - Case-insensitive to tolerate inconsistent casing across rows.
+    // - Resolves the caller's own watch via COALESCE(users.watch_unit,
+    //   firefighter_profiles.watch) so a caller whose users.watch_unit is NULL
+    //   (legacy accounts) still gets the right watch.
+    // - Matches other members on EITHER column for the same reason — ensures
+    //   every watch member is counted even if one of the two columns drifted.
     const watchMembers = await db.rawQueryAll<{ id: string; watch_unit: string; role: string }>(
-      `SELECT u.id, u.watch_unit, u.role
+      `WITH caller AS (
+         SELECT LOWER(COALESCE(u.watch_unit, fp.watch)) AS watch
+         FROM users u
+         LEFT JOIN firefighter_profiles fp ON fp.user_id = u.id
+         WHERE u.id = $1
+       )
+       SELECT u.id, u.watch_unit, u.role
        FROM users u
-       WHERE LOWER(u.watch_unit) = LOWER((SELECT watch_unit FROM users WHERE id = $1))
-         AND u.is_active = true`,
+       LEFT JOIN firefighter_profiles fp ON fp.user_id = u.id
+       WHERE (LOWER(u.watch_unit) = (SELECT watch FROM caller)
+           OR LOWER(fp.watch)     = (SELECT watch FROM caller))
+         AND u.is_active = true
+         AND (SELECT watch FROM caller) IS NOT NULL`,
       auth.userID
     );
 
