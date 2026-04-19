@@ -62,6 +62,9 @@ export interface RosterMember {
   prps: boolean;
   driver_lgv: boolean;
   driver_erd: boolean;
+  oic: boolean;
+  mass_decon: boolean;
+  hooklift_operator: boolean;
 }
 
 export interface RosterRequest {

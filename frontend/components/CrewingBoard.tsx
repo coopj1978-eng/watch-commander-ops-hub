@@ -516,13 +516,13 @@ function DraggableFilledSlot({
   slot,
   canEdit,
   onRemove,
-  hasBAWarning,
+  qualWarning,
 }: {
   entry: CrewingEntry;
   slot: ApplianceSlot;
   canEdit: boolean;
   onRemove: (id: number) => void;
-  hasBAWarning?: boolean;
+  qualWarning?: string | null;
 }) {
   const name = entry.user_name ?? entry.external_name ?? "Unknown";
 
@@ -559,8 +559,8 @@ function DraggableFilledSlot({
       <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0 ${ROLE_BADGE[entry.crew_role]}`}>
         {slot.label}
       </span>
-      {hasBAWarning && (
-        <span title="Not BA qualified" className="shrink-0">
+      {qualWarning && (
+        <span title={qualWarning} className="shrink-0">
           <AlertTriangle className="h-3 w-3 text-amber-500" />
         </span>
       )}
@@ -674,7 +674,7 @@ function SlotRow({
   onAssign,
   onRemove,
   isLast,
-  hasBAWarning,
+  qualWarning,
 }: {
   slotId: string;
   slot: ApplianceSlot;
@@ -690,7 +690,7 @@ function SlotRow({
   onAssign: (userId: string | undefined, externalName: string | undefined) => void;
   onRemove: (id: number) => void;
   isLast: boolean;
-  hasBAWarning?: boolean;
+  qualWarning?: string | null;
 }) {
   const borderB = !isLast ? "border-b border-border/40" : "";
 
@@ -710,7 +710,7 @@ function SlotRow({
           slot={slot}
           canEdit={canEdit}
           onRemove={onRemove}
-          hasBAWarning={hasBAWarning}
+          qualWarning={qualWarning}
         />
       </div>
     );
@@ -780,13 +780,31 @@ function ApplianceSlotsCard({
 }) {
   const slots       = APPLIANCE_SLOTS[appliance];
   const slotEntries = matchSlots(entries, slots);
-  const baWarnings  = slots.map((slot, idx) => {
-    if (slot.role !== "ba" && slot.role !== "baeco") return false;
+
+  // Per-slot qualification warnings — returns a warning string (tooltip) or null.
+  // Driver slot needs driver_lgv; OIC slot needs oic; BA slots need ba.
+  const qualWarnings = slots.map((slot, idx) => {
     const entry = slotEntries[idx];
-    if (!entry || !entry.user_id) return false;
+    if (!entry || !entry.user_id) return null;
     const member = roster.find(m => m.id === entry.user_id);
-    return !!(member && !member.ba);
+    if (!member) return null;
+    if (slot.role === "driver" && !member.driver_lgv) return "Not driver qualified (LGV)";
+    if (slot.role === "oic"    && !member.oic)        return "Not OIC qualified";
+    if ((slot.role === "ba" || slot.role === "baeco") && !member.ba) return "Not BA qualified";
+    return null;
   });
+
+  // Appliance-level specialism cover — at least one crewed member should hold
+  // each specialism. If nobody on the appliance has it, surface an amber note.
+  const crewedMembers = slotEntries
+    .map(e => e?.user_id ? roster.find(m => m.id === e.user_id) : null)
+    .filter(Boolean) as RosterMember[];
+  const hasAnyCrewed         = crewedMembers.length > 0;
+  const hasMassDeconCover    = crewedMembers.some(m => m.mass_decon);
+  const hasHookliftCover     = crewedMembers.some(m => m.hooklift_operator);
+  const specialismWarnings: string[] = [];
+  if (hasAnyCrewed && !hasMassDeconCover) specialismWarnings.push("No Mass Decon operator");
+  if (hasAnyCrewed && !hasHookliftCover)  specialismWarnings.push("No Hooklift operator");
 
   const assignedInAppliance = new Set(entries.filter(e => e.user_id).map(e => e.user_id!));
 
@@ -829,6 +847,12 @@ function ApplianceSlotsCard({
             Missing: {missingLabels.join(", ")}
           </p>
         )}
+        {specialismWarnings.length > 0 && (
+          <p className="text-[10px] text-amber-600 dark:text-amber-400 flex items-center gap-1 mt-1">
+            <AlertTriangle className="h-3 w-3 shrink-0" />
+            {specialismWarnings.join(" · ")}
+          </p>
+        )}
       </CardHeader>
 
       <CardContent className="p-0 pb-2">
@@ -851,7 +875,7 @@ function ApplianceSlotsCard({
               onAssign={(uid, ext) => onSlotAssign(slotId, uid, ext, slot.role)}
               onRemove={onRemove}
               isLast={idx === slots.length - 1}
-              hasBAWarning={baWarnings[idx]}
+              qualWarning={qualWarnings[idx]}
             />
           );
         })}
@@ -1118,6 +1142,9 @@ function RosterPanel({
                         prps:        false,
                         driver_lgv:  false,
                         driver_erd:  false,
+                        oic:               false,
+                        mass_decon:        false,
+                        hooklift_operator: false,
                       };
                       return (
                         <div key={cover.userId} className="flex flex-col items-center">
@@ -1171,6 +1198,9 @@ function RosterPanel({
                       prps:        false,
                       driver_lgv:  false,
                       driver_erd:  false,
+                      oic:               false,
+                      mass_decon:        false,
+                      hooklift_operator: false,
                     };
                     const isOrange = cover.type === "orange_day";
                     const label    = isOrange ? "Orange Day" : "Flexi PB";
@@ -1834,6 +1864,16 @@ export default function CrewingBoard() {
         toast({
           title: "BA qualification warning",
           description: `${member.name} is not BA qualified for this slot. Review before turnout.`,
+        });
+      } else if (meta.role === "driver" && !member.driver_lgv) {
+        toast({
+          title: "Driver qualification warning",
+          description: `${member.name} is not LGV qualified for the driver slot. Review before turnout.`,
+        });
+      } else if (meta.role === "oic" && !member.oic) {
+        toast({
+          title: "OIC qualification warning",
+          description: `${member.name} is not OIC qualified for this slot. Review before turnout.`,
         });
       }
       addMut.mutate({

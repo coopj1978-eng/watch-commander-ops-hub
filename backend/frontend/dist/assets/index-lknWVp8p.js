@@ -61482,7 +61482,7 @@ function DraggableFilledSlot({
   slot,
   canEdit,
   onRemove,
-  hasBAWarning
+  qualWarning
 }) {
   const name = entry.user_name ?? entry.external_name ?? "Unknown";
   const { attributes, listeners: listeners2, setNodeRef, transform, isDragging } = useDraggable({
@@ -61511,7 +61511,7 @@ function DraggableFilledSlot({
           entry.is_change_of_shift && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[9px] font-semibold text-amber-600 dark:text-amber-400", children: "External / CoS" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0 ${ROLE_BADGE[entry.crew_role]}`, children: slot.label }),
-        hasBAWarning && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { title: "Not BA qualified", className: "shrink-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "h-3 w-3 text-amber-500" }) }),
+        qualWarning && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { title: qualWarning, className: "shrink-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "h-3 w-3 text-amber-500" }) }),
         canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
           {
@@ -61609,7 +61609,7 @@ function SlotRow({
   onAssign,
   onRemove,
   isLast,
-  hasBAWarning
+  qualWarning
 }) {
   const borderB = !isLast ? "border-b border-border/40" : "";
   const labelCls = `
@@ -61627,7 +61627,7 @@ function SlotRow({
           slot,
           canEdit,
           onRemove,
-          hasBAWarning
+          qualWarning
         }
       )
     ] });
@@ -61676,13 +61676,23 @@ function ApplianceSlotsCard({
 }) {
   const slots = APPLIANCE_SLOTS[appliance2];
   const slotEntries = matchSlots(entries, slots);
-  const baWarnings = slots.map((slot, idx) => {
-    if (slot.role !== "ba" && slot.role !== "baeco") return false;
+  const qualWarnings = slots.map((slot, idx) => {
     const entry = slotEntries[idx];
-    if (!entry || !entry.user_id) return false;
+    if (!entry || !entry.user_id) return null;
     const member = roster.find((m) => m.id === entry.user_id);
-    return !!(member && !member.ba);
+    if (!member) return null;
+    if (slot.role === "driver" && !member.driver_lgv) return "Not driver qualified (LGV)";
+    if (slot.role === "oic" && !member.oic) return "Not OIC qualified";
+    if ((slot.role === "ba" || slot.role === "baeco") && !member.ba) return "Not BA qualified";
+    return null;
   });
+  const crewedMembers = slotEntries.map((e) => (e == null ? void 0 : e.user_id) ? roster.find((m) => m.id === e.user_id) : null).filter(Boolean);
+  const hasAnyCrewed = crewedMembers.length > 0;
+  const hasMassDeconCover = crewedMembers.some((m) => m.mass_decon);
+  const hasHookliftCover = crewedMembers.some((m) => m.hooklift_operator);
+  const specialismWarnings = [];
+  if (hasAnyCrewed && !hasMassDeconCover) specialismWarnings.push("No Mass Decon operator");
+  if (hasAnyCrewed && !hasHookliftCover) specialismWarnings.push("No Hooklift operator");
   const assignedInAppliance = new Set(entries.filter((e) => e.user_id).map((e) => e.user_id));
   const reqCount = slots.filter((s) => s.required).length;
   const reqFilled = slotEntries.filter((e, i) => e && slots[i].required).length;
@@ -61714,6 +61724,10 @@ function ApplianceSlotsCard({
         /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "h-3 w-3 shrink-0" }),
         "Missing: ",
         missingLabels.join(", ")
+      ] }),
+      specialismWarnings.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-[10px] text-amber-600 dark:text-amber-400 flex items-center gap-1 mt-1", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "h-3 w-3 shrink-0" }),
+        specialismWarnings.join(" · ")
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { className: "p-0 pb-2", children: slots.map((slot, idx) => {
@@ -61735,7 +61749,7 @@ function ApplianceSlotsCard({
           onAssign: (uid, ext) => onSlotAssign(slotId, uid, ext, slot.role),
           onRemove,
           isLast: idx === slots.length - 1,
-          hasBAWarning: baWarnings[idx]
+          qualWarning: qualWarnings[idx]
         },
         slotId
       );
@@ -61904,7 +61918,10 @@ function RosterPanel({
                 ba: false,
                 prps: false,
                 driver_lgv: false,
-                driver_erd: false
+                driver_erd: false,
+                oic: false,
+                mass_decon: false,
+                hooklift_operator: false
               };
               return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -61950,7 +61967,10 @@ function RosterPanel({
               ba: false,
               prps: false,
               driver_lgv: false,
-              driver_erd: false
+              driver_erd: false,
+              oic: false,
+              mass_decon: false,
+              hooklift_operator: false
             };
             const isOrange = cover.type === "orange_day";
             const label = isOrange ? "Orange Day" : "Flexi PB";
@@ -62493,6 +62513,16 @@ function CrewingBoard() {
         toast2({
           title: "BA qualification warning",
           description: `${member.name} is not BA qualified for this slot. Review before turnout.`
+        });
+      } else if (meta.role === "driver" && !member.driver_lgv) {
+        toast2({
+          title: "Driver qualification warning",
+          description: `${member.name} is not LGV qualified for the driver slot. Review before turnout.`
+        });
+      } else if (meta.role === "oic" && !member.oic) {
+        toast2({
+          title: "OIC qualification warning",
+          description: `${member.name} is not OIC qualified for this slot. Review before turnout.`
         });
       }
       addMut.mutate({

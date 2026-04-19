@@ -17,10 +17,13 @@ export const roster = api<RosterRequest, RosterResponse>(
          u.rank,
          u.watch_unit,
          p.watch       AS profile_watch,
-         COALESCE(p.ba,          false) AS ba,
-         COALESCE(p.prps,        false) AS prps,
-         COALESCE(p.driver_lgv,  false) AS driver_lgv,
-         COALESCE(p.driver_erd,  false) AS driver_erd
+         COALESCE(p.ba,                false) AS ba,
+         COALESCE(p.prps,              false) AS prps,
+         COALESCE(p.driver_lgv,        false) AS driver_lgv,
+         COALESCE(p.driver_erd,        false) AS driver_erd,
+         COALESCE(p.oic,               false) AS oic,
+         COALESCE(p.mass_decon,        false) AS mass_decon,
+         COALESCE(p.hooklift_operator, false) AS hooklift_operator
        FROM users u
        LEFT JOIN firefighter_profiles p ON p.user_id = u.id
        WHERE u.left_at IS NULL
