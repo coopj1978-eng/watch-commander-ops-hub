@@ -13,7 +13,8 @@ import type { CalendarVisibility } from "~backend/calendar/types";
 import type { Task } from "~backend/task/types";
 import type { Inspection } from "~backend/inspection/types";
 import { getShiftsForDateRange, hasRotaConfig } from "@/lib/shiftRota";
-import { ClipboardPlus, CalendarDays } from "lucide-react";
+import { ClipboardPlus, CalendarDays, GraduationCap } from "lucide-react";
+import ScheduleTrainingDialog from "@/components/ScheduleTrainingDialog";
 
 // ─── Calendar sidebar config ──────────────────────────────────────────────────
 const CALENDARS: { key: CalendarVisibility; label: string; sublabel: string; color: string }[] = [
@@ -75,6 +76,9 @@ export default function UnifiedCalendar() {
   // Shift adjustment modal
   const [shiftAdjModalOpen, setShiftAdjModalOpen] = useState(false);
   const [shiftAdjDate, setShiftAdjDate] = useState<Date | undefined>(undefined);
+
+  // Schedule Training modal — opens from the calendar toolbar
+  const [trainingModalOpen, setTrainingModalOpen] = useState(false);
 
   // ─── Date range for queries ─────────────────────────────────────────────────
   const getDateRange = () => {
@@ -439,6 +443,15 @@ export default function UnifiedCalendar() {
             <ClipboardPlus className="h-4 w-4" />
             New Inspection
           </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setTrainingModalOpen(true)}
+            className="flex items-center gap-1.5 border-teal-200 text-teal-700 hover:bg-teal-50"
+          >
+            <GraduationCap className="h-4 w-4" />
+            Schedule Training
+          </Button>
         </div>
         <CalendarWidget
           events={allEvents as any}
@@ -483,6 +496,13 @@ export default function UnifiedCalendar() {
         open={shiftAdjModalOpen}
         onClose={() => setShiftAdjModalOpen(false)}
         defaultDate={shiftAdjDate}
+      />
+
+      {/* ── Schedule Training modal ──────────────────────────────────────────── */}
+      <ScheduleTrainingDialog
+        open={trainingModalOpen}
+        onOpenChange={setTrainingModalOpen}
+        watch={userWatch}
       />
     </div>
   );

@@ -20,8 +20,11 @@ interface DBTrainingRecord {
 }
 
 interface DBAttendee {
-  user_id: string;
-  user_name: string;
+  user_id?: string | null;
+  user_name?: string | null;
+  external_name?: string | null;
+  external_rank?: string | null;
+  external_station?: string | null;
   competencies_covered: string[];
   notes?: string;
 }
@@ -45,19 +48,31 @@ export const get = api<GetTrainingRequest, TrainingRecord>(
         ? row.training_date.split("T")[0]
         : row.training_date.toISOString().split("T")[0];
 
-    // Fetch attendees with user names
+    // Fetch attendees — both internal (joined on users) and external (free-text).
     const attendeeRows = await db.rawQueryAll<DBAttendee>(
-      `SELECT ta.user_id, u.name AS user_name, ta.competencies_covered, ta.notes
+      `SELECT
+         ta.user_id,
+         u.name                AS user_name,
+         ta.external_name,
+         ta.external_rank,
+         ta.external_station,
+         ta.competencies_covered,
+         ta.notes
        FROM training_attendance ta
        LEFT JOIN users u ON u.id = ta.user_id
        WHERE ta.training_id = $1
-       ORDER BY u.name ASC`,
+       ORDER BY
+         (ta.user_id IS NULL) ASC,                  -- internal first
+         COALESCE(u.name, ta.external_name) ASC`,
       req.id
     );
 
     const attendees: Attendee[] = attendeeRows.map((a) => ({
-      user_id: a.user_id,
-      user_name: a.user_name ?? a.user_id,
+      user_id: a.user_id ?? undefined,
+      user_name: a.user_name ?? a.external_name ?? "Unknown",
+      external_rank: a.external_rank ?? undefined,
+      external_station: a.external_station ?? undefined,
+      is_external: !a.user_id,
       competencies_covered: a.competencies_covered ?? [],
       notes: a.notes ?? undefined,
     }));

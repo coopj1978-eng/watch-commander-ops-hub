@@ -18,10 +18,23 @@ export type TrainingType =
 export type TrainingStatus = "planned" | "completed" | "cancelled";
 
 export interface Attendee {
-  user_id: string;
+  /** For internal attendees this is the system user id. Null when the attendee
+   *  is external (from another station/watch with no account here). */
+  user_id?: string;
   user_name: string;
+  /** Populated when the attendee is external — optional metadata shown in the UI. */
+  external_rank?: string;
+  external_station?: string;
+  is_external: boolean;
   competencies_covered: string[];
   notes?: string;
+}
+
+export interface ExternalAttendeeInput {
+  name: string;
+  rank?: string;
+  /** Watch or station they came from, e.g. "Red Watch, Springburn". */
+  station?: string;
 }
 
 export interface TrainingRecord {
@@ -80,7 +93,10 @@ export interface GetTrainingRequest {
 
 export interface AddAttendanceRequest {
   id: number;
+  /** System user ids of internal attendees. Empty when only external attendees are being added. */
   user_ids: string[];
+  /** External attendees from other stations/watches without an account in this system. */
+  externals?: ExternalAttendeeInput[];
   competencies_covered?: string[];
   notes?: string;
 }

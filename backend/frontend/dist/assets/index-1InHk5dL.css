@@ -281,6 +281,7 @@
     --font-weight-semibold: 600;
     --font-weight-bold: 700;
     --tracking-tight: -.025em;
+    --tracking-normal: 0em;
     --tracking-wide: .025em;
     --tracking-wider: .05em;
     --tracking-widest: .1em;
@@ -1784,6 +1785,10 @@
 
   .grid-cols-\[0_1fr\] {
     grid-template-columns: 0 1fr;
+  }
+
+  .grid-cols-\[1fr_auto\] {
+    grid-template-columns: 1fr auto;
   }
 
   .grid-rows-\[auto_auto\] {
@@ -3392,6 +3397,10 @@
     }
   }
 
+  .bg-teal-600 {
+    background-color: var(--color-teal-600);
+  }
+
   .bg-transparent {
     background-color: #0000;
   }
@@ -4059,6 +4068,11 @@
   .font-semibold {
     --tw-font-weight: var(--font-weight-semibold);
     font-weight: var(--font-weight-semibold);
+  }
+
+  .tracking-normal {
+    --tw-tracking: var(--tracking-normal);
+    letter-spacing: var(--tracking-normal);
   }
 
   .tracking-tight {
@@ -5472,8 +5486,16 @@
       }
     }
 
+    .hover\:bg-teal-50:hover {
+      background-color: var(--color-teal-50);
+    }
+
     .hover\:bg-teal-100:hover {
       background-color: var(--color-teal-100);
+    }
+
+    .hover\:bg-teal-700:hover {
+      background-color: var(--color-teal-700);
     }
 
     .hover\:bg-white:hover {
@@ -5598,6 +5620,10 @@
 
     .hover\:text-red-700:hover {
       color: var(--color-red-700);
+    }
+
+    .hover\:text-teal-700:hover {
+      color: var(--color-teal-700);
     }
 
     .hover\:text-white:hover {
@@ -6240,6 +6266,10 @@
 
     .sm\:grid-cols-2 {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .sm\:grid-cols-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
     .sm\:flex-col {

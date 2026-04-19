@@ -12,8 +12,10 @@ export const addAttendance = api<AddAttendanceRequest, SuccessResponse>(
   async (req) => {
     getAuthData()!;
 
-    if (!req.user_ids || req.user_ids.length === 0) {
-      throw APIError.invalidArgument("user_ids is required and must not be empty");
+    const hasInternal = !!(req.user_ids && req.user_ids.length > 0);
+    const hasExternal = !!(req.externals && req.externals.length > 0);
+    if (!hasInternal && !hasExternal) {
+      throw APIError.invalidArgument("at least one internal or external attendee is required");
     }
 
     // Verify training record exists
@@ -26,20 +28,51 @@ export const addAttendance = api<AddAttendanceRequest, SuccessResponse>(
       throw APIError.notFound("training record not found");
     }
 
-    // Upsert each attendee
-    for (const userId of req.user_ids) {
-      await db.rawExec(
-        `INSERT INTO training_attendance (training_id, user_id, competencies_covered, notes)
-         VALUES ($1, $2, $3, $4)
-         ON CONFLICT (training_id, user_id)
-         DO UPDATE SET
-           competencies_covered = COALESCE($3, training_attendance.competencies_covered),
-           notes = COALESCE($4, training_attendance.notes)`,
-        req.id,
-        userId,
-        req.competencies_covered ?? [],
-        req.notes ?? null
-      );
+    // Upsert each internal attendee (uses UNIQUE(training_id, user_id) for idempotency)
+    if (req.user_ids) {
+      for (const userId of req.user_ids) {
+        await db.rawExec(
+          `INSERT INTO training_attendance (training_id, user_id, competencies_covered, notes)
+           VALUES ($1, $2, $3, $4)
+           ON CONFLICT (training_id, user_id)
+           DO UPDATE SET
+             competencies_covered = COALESCE($3, training_attendance.competencies_covered),
+             notes = COALESCE($4, training_attendance.notes)`,
+          req.id,
+          userId,
+          req.competencies_covered ?? [],
+          req.notes ?? null
+        );
+      }
+    }
+
+    // Insert external attendees. These have user_id = NULL and free-text name/rank/station.
+    // The UNIQUE constraint treats multiple NULL user_ids as distinct, which is what we want
+    // (different people can be added under the same training); however we still dedupe
+    // by case-insensitive name within this call to guard against accidental double-clicks.
+    if (req.externals) {
+      const seen = new Set<string>();
+      for (const ext of req.externals) {
+        const name = ext.name?.trim();
+        if (!name) continue;
+        const key = name.toLowerCase();
+        if (seen.has(key)) continue;
+        seen.add(key);
+
+        await db.rawExec(
+          `INSERT INTO training_attendance (
+             training_id, user_id, external_name, external_rank, external_station,
+             competencies_covered, notes
+           )
+           VALUES ($1, NULL, $2, $3, $4, $5, $6)`,
+          req.id,
+          name,
+          ext.rank?.trim() || null,
+          ext.station?.trim() || null,
+          req.competencies_covered ?? [],
+          req.notes ?? null
+        );
+      }
     }
 
     return { success: true };

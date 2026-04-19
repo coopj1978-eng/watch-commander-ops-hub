@@ -50219,6 +50219,150 @@ function InspectionEventModal({ open, onClose, defaultDate, editingEvent }) {
     ] })
   ] }) });
 }
+const TRAINING_TYPE_LABELS$1 = {
+  ba_drill: "BA Drill",
+  rtc: "RTC / Extrication",
+  ladder: "Ladder Drill",
+  water: "Water / Rescue",
+  hazmat: "HAZMAT",
+  first_aid: "First Aid",
+  driver: "Driver Training",
+  debrief: "Debrief",
+  physical: "Physical Training",
+  station_drill: "Station Drill",
+  lecture: "Lecture / Theory",
+  assessment: "Assessment",
+  other: "Other"
+};
+const SHIFT_TYPES$1 = [
+  { value: "1st Day", label: "1st Day" },
+  { value: "2nd Day", label: "2nd Day" },
+  { value: "1st Night", label: "1st Night" },
+  { value: "2nd Night", label: "2nd Night" }
+];
+function emptyForm$2(defaultDate) {
+  return {
+    training_date: defaultDate ?? (/* @__PURE__ */ new Date()).toISOString().split("T")[0],
+    training_type: "",
+    topic: "",
+    shift_type: ""
+  };
+}
+function ScheduleTrainingDialog({
+  open,
+  onOpenChange,
+  watch,
+  defaultDate,
+  onScheduled
+}) {
+  const { toast: toast2 } = useToast();
+  const queryClient2 = useQueryClient();
+  const [form, setForm] = reactExports.useState(emptyForm$2(defaultDate));
+  reactExports.useEffect(() => {
+    if (open) setForm(emptyForm$2(defaultDate));
+  }, [open, defaultDate]);
+  const createMutation = useMutation({
+    mutationFn: (data) => backendClient.training.create({
+      watch,
+      training_date: data.training_date,
+      training_type: data.training_type,
+      topic: data.topic,
+      shift_type: data.shift_type || void 0
+    }),
+    onSuccess: () => {
+      toast2({ title: "Training scheduled", description: "Added to the watch calendar." });
+      queryClient2.invalidateQueries({ queryKey: ["training"] });
+      queryClient2.invalidateQueries({ queryKey: ["cal-watch"] });
+      queryClient2.invalidateQueries({ queryKey: ["cal-station"] });
+      onOpenChange(false);
+      onScheduled == null ? void 0 : onScheduled();
+    },
+    onError: (e) => {
+      toast2({
+        title: "Could not schedule",
+        description: (e == null ? void 0 : e.message) ?? "Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
+  const valid = !!watch && !!form.training_date && !!form.training_type && !!form.topic;
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-lg", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { className: "flex items-center gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(GraduationCap, { className: "h-5 w-5 text-teal-500" }),
+      "Schedule Training"
+    ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 pt-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid gap-4 sm:grid-cols-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Training Date *" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            Input,
+            {
+              type: "date",
+              value: form.training_date,
+              onChange: (e) => setForm((f) => ({ ...f, training_date: e.target.value }))
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Shift (optional)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            Select,
+            {
+              value: form.shift_type,
+              onValueChange: (v) => setForm((f) => ({ ...f, shift_type: v })),
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Any shift" }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: SHIFT_TYPES$1.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: s.value, children: s.label }, s.value)) })
+              ]
+            }
+          )
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Training Type *" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          Select,
+          {
+            value: form.training_type,
+            onValueChange: (v) => setForm((f) => ({ ...f, training_type: v })),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select type" }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: Object.entries(TRAINING_TYPE_LABELS$1).map(([key2, label]) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: key2, children: label }, key2)) })
+            ]
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Topic *" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Input,
+          {
+            placeholder: "e.g. Pump to open water",
+            value: form.topic,
+            onChange: (e) => setForm((f) => ({ ...f, topic: e.target.value }))
+          }
+        )
+      ] }),
+      !watch && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-amber-600", children: "You need a watch assigned before you can schedule training." }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end gap-3 pt-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", onClick: () => onOpenChange(false), children: "Cancel" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Button,
+          {
+            className: "bg-teal-600 hover:bg-teal-700",
+            disabled: !valid || createMutation.isPending,
+            onClick: () => createMutation.mutate(form),
+            children: createMutation.isPending ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "h-4 w-4 mr-2 animate-spin" }),
+              "Saving..."
+            ] }) : "Schedule"
+          }
+        )
+      ] })
+    ] })
+  ] }) });
+}
 const CALENDARS = [
   {
     key: "station",
@@ -50263,6 +50407,7 @@ function UnifiedCalendar() {
   const [editingInspectionEvent, setEditingInspectionEvent] = reactExports.useState(null);
   const [shiftAdjModalOpen, setShiftAdjModalOpen] = reactExports.useState(false);
   const [shiftAdjDate, setShiftAdjDate] = reactExports.useState(void 0);
+  const [trainingModalOpen, setTrainingModalOpen] = reactExports.useState(false);
   const getDateRange = () => {
     const start2 = new Date(currentDate);
     const end2 = new Date(currentDate);
@@ -50590,6 +50735,19 @@ function UnifiedCalendar() {
               "New Inspection"
             ]
           }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          Button,
+          {
+            variant: "outline",
+            size: "sm",
+            onClick: () => setTrainingModalOpen(true),
+            className: "flex items-center gap-1.5 border-teal-200 text-teal-700 hover:bg-teal-50",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(GraduationCap, { className: "h-4 w-4" }),
+              "Schedule Training"
+            ]
+          }
         )
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -50649,6 +50807,14 @@ function UnifiedCalendar() {
         open: shiftAdjModalOpen,
         onClose: () => setShiftAdjModalOpen(false),
         defaultDate: shiftAdjDate
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ScheduleTrainingDialog,
+      {
+        open: trainingModalOpen,
+        onOpenChange: setTrainingModalOpen,
+        watch: userWatch
       }
     )
   ] });
@@ -61347,7 +61513,7 @@ function CrewCommanderHome() {
   ] }) });
 }
 const WATCHES$3 = ["Red", "White", "Green", "Blue", "Amber"];
-const SHIFT_TYPES$1 = [
+const SHIFT_TYPES = [
   { value: "1st Day", label: "1st Day", day: true },
   { value: "2nd Day", label: "2nd Day", day: true },
   { value: "1st Night", label: "1st Night", day: false },
@@ -62721,7 +62887,7 @@ function CrewingBoard() {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-medium text-muted-foreground uppercase tracking-wide", children: "Shift" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-px rounded-md border overflow-hidden text-sm bg-border", children: SHIFT_TYPES$1.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-px rounded-md border overflow-hidden text-sm bg-border", children: SHIFT_TYPES.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
               onClick: () => {
@@ -63905,23 +64071,15 @@ const COMPETENCIES = [
   "HAZMAT",
   "RTC"
 ];
-const SHIFT_TYPES = [
-  { value: "1st Day", label: "1st Day" },
-  { value: "2nd Day", label: "2nd Day" },
-  { value: "1st Night", label: "1st Night" },
-  { value: "2nd Night", label: "2nd Night" }
-];
 const PAGE_SIZE = 20;
-const emptyScheduleForm = {
-  training_date: (/* @__PURE__ */ new Date()).toISOString().split("T")[0],
-  training_type: "",
-  topic: "",
-  shift_type: ""
-};
+({
+  training_date: (/* @__PURE__ */ new Date()).toISOString().split("T")[0]
+});
 const emptyLogForm = {
   duration_hours: "",
   notes: "",
   selectedUserIds: [],
+  externalAttendees: [],
   competencies: []
 };
 function Training() {
@@ -63936,7 +64094,6 @@ function Training() {
     (user2 == null ? void 0 : user2.watch_unit) || ""
   );
   const [scheduleOpen, setScheduleOpen] = reactExports.useState(false);
-  const [scheduleForm, setScheduleForm] = reactExports.useState(emptyScheduleForm);
   const [logOpen, setLogOpen] = reactExports.useState(false);
   const [logRecordId, setLogRecordId] = reactExports.useState(null);
   const [logForm, setLogForm] = reactExports.useState(emptyLogForm);
@@ -63971,24 +64128,6 @@ function Training() {
     queryFn: () => backendClient.crewing.roster({ watch: watchFilter || (user2 == null ? void 0 : user2.watch_unit) || "" }),
     enabled: logOpen && !!(watchFilter || (user2 == null ? void 0 : user2.watch_unit))
   });
-  const createMutation = useMutation({
-    mutationFn: (form) => backendClient.training.create({
-      watch: watchFilter || (user2 == null ? void 0 : user2.watch_unit) || "",
-      training_date: form.training_date,
-      training_type: form.training_type,
-      topic: form.topic,
-      shift_type: form.shift_type || void 0
-    }),
-    onSuccess: () => {
-      queryClient2.invalidateQueries({ queryKey: ["training"] });
-      setScheduleOpen(false);
-      setScheduleForm(emptyScheduleForm);
-      toast2({ title: "Training scheduled", description: "The session has been added to the planner." });
-    },
-    onError: () => {
-      toast2({ title: "Error", description: "Failed to schedule training.", variant: "destructive" });
-    }
-  });
   const updateMutation = useMutation({
     mutationFn: ({ id, ...params }) => backendClient.training.update(id, params),
     onSuccess: () => {
@@ -64007,10 +64146,16 @@ function Training() {
         duration_hours: logForm.duration_hours ? parseFloat(logForm.duration_hours) : void 0,
         notes: logForm.notes || void 0
       });
-      if (logForm.selectedUserIds.length > 0) {
+      const validExternals = logForm.externalAttendees.filter((e) => e.name.trim().length > 0).map((e) => ({
+        name: e.name.trim(),
+        rank: e.rank.trim() || void 0,
+        station: e.station.trim() || void 0
+      }));
+      if (logForm.selectedUserIds.length > 0 || validExternals.length > 0) {
         await attendanceMutation.mutateAsync({
           id: logRecordId,
           user_ids: logForm.selectedUserIds,
+          externals: validExternals.length > 0 ? validExternals : void 0,
           competencies_covered: logForm.competencies.length > 0 ? logForm.competencies : void 0,
           notes: logForm.notes || void 0
         });
@@ -64042,7 +64187,7 @@ function Training() {
   const history = ((_c2 = historyQuery.data) == null ? void 0 : _c2.records) ?? [];
   const historyTotal = ((_d2 = historyQuery.data) == null ? void 0 : _d2.total) ?? 0;
   const roster = ((_e2 = rosterQuery.data) == null ? void 0 : _e2.members) ?? [];
-  const isSubmitting = createMutation.isPending || updateMutation.isPending || attendanceMutation.isPending;
+  const isSubmitting = updateMutation.isPending || attendanceMutation.isPending;
   const dateStr = (/* @__PURE__ */ new Date()).toLocaleDateString("en-GB", {
     weekday: "short",
     day: "numeric",
@@ -64062,10 +64207,7 @@ function Training() {
         Button,
         {
           className: "self-start sm:self-auto bg-indigo-600 hover:bg-indigo-700",
-          onClick: () => {
-            setScheduleForm(emptyScheduleForm);
-            setScheduleOpen(true);
-          },
+          onClick: () => setScheduleOpen(true),
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4 mr-2" }),
             "Schedule Training"
@@ -64151,81 +64293,14 @@ function Training() {
         onLoadMore: () => setHistoryLimit((l) => l + PAGE_SIZE)
       }
     ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: scheduleOpen, onOpenChange: setScheduleOpen, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-lg", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { className: "flex items-center gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(GraduationCap, { className: "h-5 w-5 text-teal-500" }),
-        "Schedule Training"
-      ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 pt-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid gap-4 sm:grid-cols-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Training Date *" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Input,
-              {
-                type: "date",
-                value: scheduleForm.training_date,
-                onChange: (e) => setScheduleForm((f) => ({ ...f, training_date: e.target.value }))
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Shift (optional)" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              Select,
-              {
-                value: scheduleForm.shift_type,
-                onValueChange: (v) => setScheduleForm((f) => ({ ...f, shift_type: v })),
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Any shift" }) }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: SHIFT_TYPES.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: s.value, children: s.label }, s.value)) })
-                ]
-              }
-            )
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Training Type *" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            Select,
-            {
-              value: scheduleForm.training_type,
-              onValueChange: (v) => setScheduleForm((f) => ({ ...f, training_type: v })),
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select type" }) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: Object.entries(TRAINING_TYPE_LABELS).map(([key2, label]) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: key2, children: label }, key2)) })
-              ]
-            }
-          )
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Topic *" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Input,
-            {
-              placeholder: "e.g. Pump to open water",
-              value: scheduleForm.topic,
-              onChange: (e) => setScheduleForm((f) => ({ ...f, topic: e.target.value }))
-            }
-          )
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end gap-3 pt-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", onClick: () => setScheduleOpen(false), children: "Cancel" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Button,
-            {
-              className: "bg-indigo-600 hover:bg-indigo-700",
-              disabled: !scheduleForm.training_date || !scheduleForm.training_type || !scheduleForm.topic || createMutation.isPending,
-              onClick: () => createMutation.mutate(scheduleForm),
-              children: createMutation.isPending ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "h-4 w-4 mr-2 animate-spin" }),
-                "Saving..."
-              ] }) : "Schedule"
-            }
-          )
-        ] })
-      ] })
-    ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ScheduleTrainingDialog,
+      {
+        open: scheduleOpen,
+        onOpenChange: setScheduleOpen,
+        watch: watchFilter || (user2 == null ? void 0 : user2.watch_unit) || ""
+      }
+    ),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: logOpen, onOpenChange: (open) => {
       if (!open) {
         setLogOpen(false);
@@ -64346,6 +64421,99 @@ function Training() {
               );
             })
           ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Label, { className: "text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center justify-between gap-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { className: "h-3.5 w-3.5" }),
+              "External Attendees",
+              logForm.externalAttendees.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "secondary", className: "text-[10px] py-0 px-1.5", children: logForm.externalAttendees.length })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                onClick: () => setLogForm((f) => ({
+                  ...f,
+                  externalAttendees: [
+                    ...f.externalAttendees,
+                    { id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, name: "", rank: "", station: "" }
+                  ]
+                })),
+                className: "text-xs font-semibold text-teal-600 hover:text-teal-700 dark:text-teal-400 flex items-center gap-1 normal-case tracking-normal",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-3 w-3" }),
+                  "Add person"
+                ]
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px] text-muted-foreground", children: "Use this for firefighters visiting from other watches or stations." }),
+          logForm.externalAttendees.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2 rounded-lg border border-border/60 p-2", children: logForm.externalAttendees.map((ext) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-[1fr_auto] gap-2 items-start", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid gap-1.5 sm:grid-cols-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Input,
+                {
+                  placeholder: "Name *",
+                  value: ext.name,
+                  onChange: (e) => {
+                    const val = e.target.value;
+                    setLogForm((f) => ({
+                      ...f,
+                      externalAttendees: f.externalAttendees.map(
+                        (x) => x.id === ext.id ? { ...x, name: val } : x
+                      )
+                    }));
+                  }
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Input,
+                {
+                  placeholder: "Rank",
+                  value: ext.rank,
+                  onChange: (e) => {
+                    const val = e.target.value;
+                    setLogForm((f) => ({
+                      ...f,
+                      externalAttendees: f.externalAttendees.map(
+                        (x) => x.id === ext.id ? { ...x, rank: val } : x
+                      )
+                    }));
+                  }
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Input,
+                {
+                  placeholder: "Watch / Station",
+                  value: ext.station,
+                  onChange: (e) => {
+                    const val = e.target.value;
+                    setLogForm((f) => ({
+                      ...f,
+                      externalAttendees: f.externalAttendees.map(
+                        (x) => x.id === ext.id ? { ...x, station: val } : x
+                      )
+                    }));
+                  }
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                type: "button",
+                onClick: () => setLogForm((f) => ({
+                  ...f,
+                  externalAttendees: f.externalAttendees.filter((x) => x.id !== ext.id)
+                })),
+                className: "h-9 w-9 rounded-md flex items-center justify-center text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20",
+                title: "Remove",
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4" })
+              }
+            )
+          ] }, ext.id)) })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end gap-3 pt-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", onClick: () => {
@@ -64527,13 +64695,20 @@ function HistoryCard({ record: r2, isExpanded, onToggle }) {
           /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { className: "h-3.5 w-3.5" }),
           "Attendees"
         ] }),
-        detailQuery.isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: [...Array(3)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-8 w-48" }, i)) }) : attendees.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "No attendance recorded" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: attendees.map((a) => {
+        detailQuery.isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: [...Array(3)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-8 w-48" }, i)) }) : attendees.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "No attendance recorded" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: attendees.map((a, idx) => {
           var _a3, _b2;
-          return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-6 w-6 rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 flex items-center justify-center text-white text-[9px] font-bold shrink-0", children: ((_a3 = a.user_name) == null ? void 0 : _a3.split(" ").map((n) => n[0]).slice(0, 2).join("")) ?? "?" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium", children: a.user_name }),
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-wrap", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `h-6 w-6 rounded-full flex items-center justify-center text-white text-[9px] font-bold shrink-0 ${a.is_external ? "bg-gradient-to-br from-amber-400 to-orange-500" : "bg-gradient-to-br from-indigo-400 to-purple-600"}`, children: ((_a3 = a.user_name) == null ? void 0 : _a3.split(" ").map((n) => n[0]).slice(0, 2).join("")) ?? "?" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-sm font-medium", children: [
+              a.external_rank ? `${a.external_rank} ` : "",
+              a.user_name
+            ] }),
+            a.is_external && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-[10px] py-0 px-1.5 text-amber-700 border-amber-300 bg-amber-50 dark:bg-amber-950/30", children: [
+              "External",
+              a.external_station ? ` · ${a.external_station}` : ""
+            ] }),
             ((_b2 = a.competencies_covered) == null ? void 0 : _b2.length) > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-1 flex-wrap", children: a.competencies_covered.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-[10px] py-0 px-1.5 text-teal-600 border-teal-300", children: c }, c)) })
-          ] }, a.user_id);
+          ] }, a.user_id ?? `ext-${idx}`);
         }) })
       ] })
     ] }) })

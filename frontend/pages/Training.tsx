@@ -19,6 +19,7 @@ import {
   Filter, ChevronDown, ChevronUp, X, Loader2, Shield,
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
+import ScheduleTrainingDialog from "@/components/ScheduleTrainingDialog";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -75,10 +76,18 @@ const emptyScheduleForm: ScheduleForm = {
 
 // ── Log Training form state ──────────────────────────────────────────────────
 
+interface ExternalAttendeeDraft {
+  id: string;       // client-only uuid-ish key for react list rendering
+  name: string;
+  rank: string;
+  station: string;
+}
+
 interface LogForm {
   duration_hours: string;
   notes: string;
   selectedUserIds: string[];
+  externalAttendees: ExternalAttendeeDraft[];
   competencies: string[];
 }
 
@@ -86,6 +95,7 @@ const emptyLogForm: LogForm = {
   duration_hours: "",
   notes: "",
   selectedUserIds: [],
+  externalAttendees: [],
   competencies: [],
 };
 
@@ -103,7 +113,6 @@ export default function Training() {
     (user?.watch_unit as WatchName) || ""
   );
   const [scheduleOpen, setScheduleOpen] = useState(false);
-  const [scheduleForm, setScheduleForm] = useState<ScheduleForm>(emptyScheduleForm);
   const [logOpen, setLogOpen] = useState(false);
   const [logRecordId, setLogRecordId] = useState<number | null>(null);
   const [logForm, setLogForm] = useState<LogForm>(emptyLogForm);
@@ -148,26 +157,7 @@ export default function Training() {
   });
 
   // ── Mutations ────────────────────────────────────────────────────────────
-
-  const createMutation = useMutation({
-    mutationFn: (form: ScheduleForm) =>
-      backend.training.create({
-        watch: watchFilter || user?.watch_unit || "",
-        training_date: form.training_date,
-        training_type: form.training_type,
-        topic: form.topic,
-        shift_type: form.shift_type || undefined,
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["training"] });
-      setScheduleOpen(false);
-      setScheduleForm(emptyScheduleForm);
-      toast({ title: "Training scheduled", description: "The session has been added to the planner." });
-    },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to schedule training.", variant: "destructive" });
-    },
-  });
+  // createMutation is handled inside ScheduleTrainingDialog.
 
   const updateMutation = useMutation({
     mutationFn: ({ id, ...params }: { id: number; status?: string; duration_hours?: number; notes?: string }) =>
@@ -178,8 +168,13 @@ export default function Training() {
   });
 
   const attendanceMutation = useMutation({
-    mutationFn: ({ id, ...params }: { id: number; user_ids: string[]; competencies_covered?: string[]; notes?: string }) =>
-      backend.training.addAttendance(id, params),
+    mutationFn: ({ id, ...params }: {
+      id: number;
+      user_ids: string[];
+      externals?: { name: string; rank?: string; station?: string }[];
+      competencies_covered?: string[];
+      notes?: string;
+    }) => backend.training.addAttendance(id, params),
   });
 
   const handleLogSubmit = async () => {
@@ -192,10 +187,19 @@ export default function Training() {
         notes: logForm.notes || undefined,
       });
 
-      if (logForm.selectedUserIds.length > 0) {
+      const validExternals = logForm.externalAttendees
+        .filter((e) => e.name.trim().length > 0)
+        .map((e) => ({
+          name: e.name.trim(),
+          rank: e.rank.trim() || undefined,
+          station: e.station.trim() || undefined,
+        }));
+
+      if (logForm.selectedUserIds.length > 0 || validExternals.length > 0) {
         await attendanceMutation.mutateAsync({
           id: logRecordId,
           user_ids: logForm.selectedUserIds,
+          externals: validExternals.length > 0 ? validExternals : undefined,
           competencies_covered: logForm.competencies.length > 0 ? logForm.competencies : undefined,
           notes: logForm.notes || undefined,
         });
@@ -234,7 +238,7 @@ export default function Training() {
   const historyTotal = historyQuery.data?.total ?? 0;
   const roster = rosterQuery.data?.members ?? [];
 
-  const isSubmitting = createMutation.isPending || updateMutation.isPending || attendanceMutation.isPending;
+  const isSubmitting = updateMutation.isPending || attendanceMutation.isPending;
 
   // ── Context strip values ─────────────────────────────────────────────────
 
@@ -259,10 +263,7 @@ export default function Training() {
         {canEdit && (
           <Button
             className="self-start sm:self-auto bg-indigo-600 hover:bg-indigo-700"
-            onClick={() => {
-              setScheduleForm(emptyScheduleForm);
-              setScheduleOpen(true);
-            }}
+            onClick={() => setScheduleOpen(true)}
           >
             <Plus className="h-4 w-4 mr-2" />
             Schedule Training
@@ -355,81 +356,11 @@ export default function Training() {
       )}
 
       {/* ── Schedule Training dialog ────────────────────────────────────── */}
-      <Dialog open={scheduleOpen} onOpenChange={setScheduleOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <GraduationCap className="h-5 w-5 text-teal-500" />
-              Schedule Training
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 pt-2">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <Label>Training Date *</Label>
-                <Input
-                  type="date"
-                  value={scheduleForm.training_date}
-                  onChange={(e) => setScheduleForm((f) => ({ ...f, training_date: e.target.value }))}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Shift (optional)</Label>
-                <Select
-                  value={scheduleForm.shift_type}
-                  onValueChange={(v) => setScheduleForm((f) => ({ ...f, shift_type: v }))}
-                >
-                  <SelectTrigger><SelectValue placeholder="Any shift" /></SelectTrigger>
-                  <SelectContent>
-                    {SHIFT_TYPES.map((s) => (
-                      <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label>Training Type *</Label>
-              <Select
-                value={scheduleForm.training_type}
-                onValueChange={(v) => setScheduleForm((f) => ({ ...f, training_type: v }))}
-              >
-                <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
-                <SelectContent>
-                  {Object.entries(TRAINING_TYPE_LABELS).map(([key, label]) => (
-                    <SelectItem key={key} value={key}>{label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label>Topic *</Label>
-              <Input
-                placeholder="e.g. Pump to open water"
-                value={scheduleForm.topic}
-                onChange={(e) => setScheduleForm((f) => ({ ...f, topic: e.target.value }))}
-              />
-            </div>
-
-            <div className="flex justify-end gap-3 pt-2">
-              <Button variant="outline" onClick={() => setScheduleOpen(false)}>Cancel</Button>
-              <Button
-                className="bg-indigo-600 hover:bg-indigo-700"
-                disabled={!scheduleForm.training_date || !scheduleForm.training_type || !scheduleForm.topic || createMutation.isPending}
-                onClick={() => createMutation.mutate(scheduleForm)}
-              >
-                {createMutation.isPending ? (
-                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Saving...</>
-                ) : (
-                  "Schedule"
-                )}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <ScheduleTrainingDialog
+        open={scheduleOpen}
+        onOpenChange={setScheduleOpen}
+        watch={watchFilter || user?.watch_unit || ""}
+      />
 
       {/* ── Log Training dialog ─────────────────────────────────────────── */}
       <Dialog open={logOpen} onOpenChange={(open) => { if (!open) { setLogOpen(false); setLogRecordId(null); } }}>
@@ -572,6 +503,103 @@ export default function Training() {
                       </button>
                     );
                   })}
+                </div>
+              )}
+            </div>
+
+            {/* External Attendees — firefighters from other watches/stations */}
+            <div className="space-y-2">
+              <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center justify-between gap-2">
+                <span className="flex items-center gap-2">
+                  <Users className="h-3.5 w-3.5" />
+                  External Attendees
+                  {logForm.externalAttendees.length > 0 && (
+                    <Badge variant="secondary" className="text-[10px] py-0 px-1.5">
+                      {logForm.externalAttendees.length}
+                    </Badge>
+                  )}
+                </span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setLogForm((f) => ({
+                      ...f,
+                      externalAttendees: [
+                        ...f.externalAttendees,
+                        { id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, name: "", rank: "", station: "" },
+                      ],
+                    }))
+                  }
+                  className="text-xs font-semibold text-teal-600 hover:text-teal-700 dark:text-teal-400 flex items-center gap-1 normal-case tracking-normal"
+                >
+                  <Plus className="h-3 w-3" />
+                  Add person
+                </button>
+              </Label>
+              <p className="text-[11px] text-muted-foreground">
+                Use this for firefighters visiting from other watches or stations.
+              </p>
+
+              {logForm.externalAttendees.length > 0 && (
+                <div className="space-y-2 rounded-lg border border-border/60 p-2">
+                  {logForm.externalAttendees.map((ext) => (
+                    <div key={ext.id} className="grid grid-cols-[1fr_auto] gap-2 items-start">
+                      <div className="grid gap-1.5 sm:grid-cols-3">
+                        <Input
+                          placeholder="Name *"
+                          value={ext.name}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setLogForm((f) => ({
+                              ...f,
+                              externalAttendees: f.externalAttendees.map((x) =>
+                                x.id === ext.id ? { ...x, name: val } : x
+                              ),
+                            }));
+                          }}
+                        />
+                        <Input
+                          placeholder="Rank"
+                          value={ext.rank}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setLogForm((f) => ({
+                              ...f,
+                              externalAttendees: f.externalAttendees.map((x) =>
+                                x.id === ext.id ? { ...x, rank: val } : x
+                              ),
+                            }));
+                          }}
+                        />
+                        <Input
+                          placeholder="Watch / Station"
+                          value={ext.station}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setLogForm((f) => ({
+                              ...f,
+                              externalAttendees: f.externalAttendees.map((x) =>
+                                x.id === ext.id ? { ...x, station: val } : x
+                              ),
+                            }));
+                          }}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setLogForm((f) => ({
+                            ...f,
+                            externalAttendees: f.externalAttendees.filter((x) => x.id !== ext.id),
+                          }))
+                        }
+                        className="h-9 w-9 rounded-md flex items-center justify-center text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
+                        title="Remove"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -828,12 +856,23 @@ function HistoryCard({ record: r, isExpanded, onToggle }: {
                 <p className="text-sm text-muted-foreground">No attendance recorded</p>
               ) : (
                 <div className="space-y-1.5">
-                  {attendees.map((a: any) => (
-                    <div key={a.user_id} className="flex items-center gap-2">
-                      <div className="h-6 w-6 rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 flex items-center justify-center text-white text-[9px] font-bold shrink-0">
+                  {attendees.map((a: any, idx: number) => (
+                    <div key={a.user_id ?? `ext-${idx}`} className="flex items-center gap-2 flex-wrap">
+                      <div className={`h-6 w-6 rounded-full flex items-center justify-center text-white text-[9px] font-bold shrink-0 ${
+                        a.is_external
+                          ? "bg-gradient-to-br from-amber-400 to-orange-500"
+                          : "bg-gradient-to-br from-indigo-400 to-purple-600"
+                      }`}>
                         {a.user_name?.split(" ").map((n: string) => n[0]).slice(0, 2).join("") ?? "?"}
                       </div>
-                      <span className="text-sm font-medium">{a.user_name}</span>
+                      <span className="text-sm font-medium">
+                        {a.external_rank ? `${a.external_rank} ` : ""}{a.user_name}
+                      </span>
+                      {a.is_external && (
+                        <Badge variant="outline" className="text-[10px] py-0 px-1.5 text-amber-700 border-amber-300 bg-amber-50 dark:bg-amber-950/30">
+                          External{a.external_station ? ` · ${a.external_station}` : ""}
+                        </Badge>
+                      )}
                       {a.competencies_covered?.length > 0 && (
                         <div className="flex gap-1 flex-wrap">
                           {a.competencies_covered.map((c: string) => (
