@@ -44,6 +44,9 @@ export interface FirefighterProfile {
   driverPathway?: DriverPathway;
   prps?: boolean;
   ba?: boolean;
+  oic?: boolean;
+  mass_decon?: boolean;
+  hooklift_operator?: boolean;
   notes?: string;
   last_one_to_one_date?: Date;
   next_one_to_one_date?: Date;
@@ -73,6 +76,9 @@ export interface CreateProfileRequest {
   driverPathway?: DriverPathway;
   prps?: boolean;
   ba?: boolean;
+  oic?: boolean;
+  mass_decon?: boolean;
+  hooklift_operator?: boolean;
   notes?: string;
   last_one_to_one_date?: Date;
   next_one_to_one_date?: Date;
@@ -99,6 +105,9 @@ export interface UpdateProfileRequest {
   driverPathway?: DriverPathway;
   prps?: boolean;
   ba?: boolean;
+  oic?: boolean;
+  mass_decon?: boolean;
+  hooklift_operator?: boolean;
   notes?: string;
   last_one_to_one_date?: Date;
   next_one_to_one_date?: Date;

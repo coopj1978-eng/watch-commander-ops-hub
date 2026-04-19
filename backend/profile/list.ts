@@ -36,6 +36,9 @@ interface DBProfile {
   driver_pathway_lgv_passed_date?: Date;
   prps?: boolean;
   ba?: boolean;
+  oic?: boolean;
+  mass_decon?: boolean;
+  hooklift_operator?: boolean;
   notes?: string;
   last_one_to_one_date?: Date;
   next_one_to_one_date?: Date;

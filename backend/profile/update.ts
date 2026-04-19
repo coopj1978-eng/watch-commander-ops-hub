@@ -29,6 +29,9 @@ interface DBProfile {
   driver_pathway_lgv_passed_date?: Date;
   prps?: boolean;
   ba?: boolean;
+  oic?: boolean;
+  mass_decon?: boolean;
+  hooklift_operator?: boolean;
   notes?: string;
   last_one_to_one_date?: Date;
   next_one_to_one_date?: Date;
@@ -161,6 +164,18 @@ export const update = api(
     if (updates.ba !== undefined) {
       setClauses.push(`ba = $${paramIndex++}`);
       queryParams.push(updates.ba);
+    }
+    if (updates.oic !== undefined) {
+      setClauses.push(`oic = $${paramIndex++}`);
+      queryParams.push(updates.oic);
+    }
+    if (updates.mass_decon !== undefined) {
+      setClauses.push(`mass_decon = $${paramIndex++}`);
+      queryParams.push(updates.mass_decon);
+    }
+    if (updates.hooklift_operator !== undefined) {
+      setClauses.push(`hooklift_operator = $${paramIndex++}`);
+      queryParams.push(updates.hooklift_operator);
     }
     if (updates.notes !== undefined) {
       setClauses.push(`notes = $${paramIndex++}`);

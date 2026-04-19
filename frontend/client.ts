@@ -3175,6 +3175,9 @@ export namespace profile {
         driverPathway?: DriverPathway
         prps?: boolean
         ba?: boolean
+        oic?: boolean
+        "mass_decon"?: boolean
+        "hooklift_operator"?: boolean
         notes?: string
         "last_one_to_one_date"?: string
         "next_one_to_one_date"?: string
@@ -3215,6 +3218,9 @@ export namespace profile {
         driverPathway?: DriverPathway
         prps?: boolean
         ba?: boolean
+        oic?: boolean
+        "mass_decon"?: boolean
+        "hooklift_operator"?: boolean
         notes?: string
         "last_one_to_one_date"?: string
         "next_one_to_one_date"?: string
@@ -3404,6 +3410,9 @@ export namespace profile {
     driverPathway?: DriverPathway
     prps?: boolean
     ba?: boolean
+    oic?: boolean
+    "mass_decon"?: boolean
+    "hooklift_operator"?: boolean
     notes?: string
     "last_one_to_one_date"?: string
     "next_one_to_one_date"?: string

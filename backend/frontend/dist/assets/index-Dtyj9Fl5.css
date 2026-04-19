@@ -5360,6 +5360,16 @@
       }
     }
 
+    .hover\:bg-muted\/70:hover {
+      background-color: var(--muted);
+    }
+
+    @supports (color: color-mix(in lab, red, red)) {
+      .hover\:bg-muted\/70:hover {
+        background-color: color-mix(in oklab, var(--muted) 70%, transparent);
+      }
+    }
+
     .hover\:bg-muted\/80:hover {
       background-color: var(--muted);
     }

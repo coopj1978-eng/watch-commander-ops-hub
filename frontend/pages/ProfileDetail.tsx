@@ -360,6 +360,9 @@ export default function ProfileDetail() {
     if (editedProfile.driverPathway !== undefined) profileUpdates.driverPathway = editedProfile.driverPathway;
     if (editedProfile.prps !== undefined) profileUpdates.prps = editedProfile.prps;
     if (editedProfile.ba !== undefined) profileUpdates.ba = editedProfile.ba;
+    if (editedProfile.oic !== undefined) profileUpdates.oic = editedProfile.oic;
+    if (editedProfile.mass_decon !== undefined) profileUpdates.mass_decon = editedProfile.mass_decon;
+    if (editedProfile.hooklift_operator !== undefined) profileUpdates.hooklift_operator = editedProfile.hooklift_operator;
     if (editedProfile.notes !== undefined) profileUpdates.notes = editedProfile.notes;
     if (editedProfile.watch !== undefined) profileUpdates.watch = ((editedProfile.watch as string) === "_none" ? "" : editedProfile.watch) as any;
 
@@ -878,6 +881,93 @@ export default function ProfileDetail() {
                       </p>
                     )}
                   </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Award className="h-5 w-5" />
+                  Operational Qualifications
+                </CardTitle>
+                <CardDescription>
+                  Drives the amber warnings on the crewing board. Tick what this person holds.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {(() => {
+                  const quals = [
+                    { key: "oic" as const,               label: "OIC",               desc: "Officer in Charge" },
+                    { key: "ba" as const,                label: "BA",                desc: "Breathing Apparatus" },
+                    { key: "prps" as const,              label: "PRPS",              desc: "Personal Respiratory Protection" },
+                    { key: "mass_decon" as const,        label: "Mass Decon",        desc: "Mass decontamination operator" },
+                    { key: "hooklift_operator" as const, label: "Hooklift",          desc: "Hooklift / prime mover operator" },
+                  ];
+                  const canEdit = editMode && canEditField("qualifications");
+
+                  // Driver LGV lives under driver.lgv — show alongside as an unmissable pill too.
+                  const driverVal = !!getDisplayValue("driver")?.lgv;
+
+                  return (
+                    <div className="flex flex-wrap gap-2">
+                      {/* Driver LGV */}
+                      <button
+                        type="button"
+                        disabled={!canEdit}
+                        onClick={() =>
+                          setEditedProfile({
+                            ...editedProfile,
+                            driver: {
+                              lgv: !driverVal,
+                              erd: getDisplayValue("driver")?.erd ?? false,
+                            },
+                          })
+                        }
+                        title="LGV Driver qualification"
+                        className={`
+                          inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors
+                          ${driverVal
+                            ? "bg-indigo-500 text-white"
+                            : "bg-muted text-muted-foreground hover:bg-muted/70"
+                          }
+                          ${canEdit ? "cursor-pointer" : "cursor-default"}
+                        `}
+                      >
+                        {driverVal && <CheckCircle2 className="h-3 w-3" />}
+                        Driver (LGV)
+                      </button>
+
+                      {quals.map(q => {
+                        const val = !!getDisplayValue(q.key);
+                        return (
+                          <button
+                            key={q.key}
+                            type="button"
+                            disabled={!canEdit}
+                            onClick={() => setEditedProfile({ ...editedProfile, [q.key]: !val })}
+                            title={q.desc}
+                            className={`
+                              inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors
+                              ${val
+                                ? "bg-indigo-500 text-white"
+                                : "bg-muted text-muted-foreground hover:bg-muted/70"
+                              }
+                              ${canEdit ? "cursor-pointer" : "cursor-default"}
+                            `}
+                          >
+                            {val && <CheckCircle2 className="h-3 w-3" />}
+                            {q.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+                {!editMode && (
+                  <p className="text-[11px] text-muted-foreground mt-3">
+                    Click <span className="font-semibold">Edit</span> to update qualifications.
+                  </p>
                 )}
               </CardContent>
             </Card>

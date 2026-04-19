@@ -47501,6 +47501,9 @@ function ProfileDetail() {
     if (editedProfile.driverPathway !== void 0) profileUpdates.driverPathway = editedProfile.driverPathway;
     if (editedProfile.prps !== void 0) profileUpdates.prps = editedProfile.prps;
     if (editedProfile.ba !== void 0) profileUpdates.ba = editedProfile.ba;
+    if (editedProfile.oic !== void 0) profileUpdates.oic = editedProfile.oic;
+    if (editedProfile.mass_decon !== void 0) profileUpdates.mass_decon = editedProfile.mass_decon;
+    if (editedProfile.hooklift_operator !== void 0) profileUpdates.hooklift_operator = editedProfile.hooklift_operator;
     if (editedProfile.notes !== void 0) profileUpdates.notes = editedProfile.notes;
     if (editedProfile.watch !== void 0) profileUpdates.watch = editedProfile.watch === "_none" ? "" : editedProfile.watch;
     if (Object.keys(profileUpdates).length === 0) {
@@ -47909,6 +47912,85 @@ function ProfileDetail() {
                   className: "mt-1"
                 }
               ) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-foreground font-medium mt-1", children: ((_h2 = profile2 == null ? void 0 : profile2.driverPathway) == null ? void 0 : _h2.lgvPassedDate) || "-" })
+            ] })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(CardHeader, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(CardTitle, { className: "flex items-center gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Award, { className: "h-5 w-5" }),
+              "Operational Qualifications"
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { children: "Drives the amber warnings on the crewing board. Tick what this person holds." })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { children: [
+            (() => {
+              var _a3;
+              const quals = [
+                { key: "oic", label: "OIC", desc: "Officer in Charge" },
+                { key: "ba", label: "BA", desc: "Breathing Apparatus" },
+                { key: "prps", label: "PRPS", desc: "Personal Respiratory Protection" },
+                { key: "mass_decon", label: "Mass Decon", desc: "Mass decontamination operator" },
+                { key: "hooklift_operator", label: "Hooklift", desc: "Hooklift / prime mover operator" }
+              ];
+              const canEdit2 = editMode && canEditField("qualifications");
+              const driverVal = !!((_a3 = getDisplayValue("driver")) == null ? void 0 : _a3.lgv);
+              return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "button",
+                  {
+                    type: "button",
+                    disabled: !canEdit2,
+                    onClick: () => {
+                      var _a4;
+                      return setEditedProfile({
+                        ...editedProfile,
+                        driver: {
+                          lgv: !driverVal,
+                          erd: ((_a4 = getDisplayValue("driver")) == null ? void 0 : _a4.erd) ?? false
+                        }
+                      });
+                    },
+                    title: "LGV Driver qualification",
+                    className: `
+                          inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors
+                          ${driverVal ? "bg-indigo-500 text-white" : "bg-muted text-muted-foreground hover:bg-muted/70"}
+                          ${canEdit2 ? "cursor-pointer" : "cursor-default"}
+                        `,
+                    children: [
+                      driverVal && /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-3 w-3" }),
+                      "Driver (LGV)"
+                    ]
+                  }
+                ),
+                quals.map((q) => {
+                  const val = !!getDisplayValue(q.key);
+                  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "button",
+                    {
+                      type: "button",
+                      disabled: !canEdit2,
+                      onClick: () => setEditedProfile({ ...editedProfile, [q.key]: !val }),
+                      title: q.desc,
+                      className: `
+                              inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors
+                              ${val ? "bg-indigo-500 text-white" : "bg-muted text-muted-foreground hover:bg-muted/70"}
+                              ${canEdit2 ? "cursor-pointer" : "cursor-default"}
+                            `,
+                      children: [
+                        val && /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-3 w-3" }),
+                        q.label
+                      ]
+                    },
+                    q.key
+                  );
+                })
+              ] });
+            })(),
+            !editMode && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-[11px] text-muted-foreground mt-3", children: [
+              "Click ",
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold", children: "Edit" }),
+              " to update qualifications."
             ] })
           ] })
         ] }),

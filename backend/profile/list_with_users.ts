@@ -59,6 +59,9 @@ interface DBUserProfile {
   profile_custom_fields?: Record<string, string | number | boolean | null>;
   profile_prps?: boolean;
   profile_ba?: boolean;
+  profile_oic?: boolean;
+  profile_mass_decon?: boolean;
+  profile_hooklift_operator?: boolean;
   profile_notes?: string;
   profile_last_one_to_one_date?: Date;
   profile_next_one_to_one_date?: Date;
@@ -128,6 +131,9 @@ function transformUserProfile(row: DBUserProfile): PersonWithProfile {
       customFields: row.profile_custom_fields,
       prps: row.profile_prps,
       ba: row.profile_ba,
+      oic: row.profile_oic,
+      mass_decon: row.profile_mass_decon,
+      hooklift_operator: row.profile_hooklift_operator,
       notes: row.profile_notes,
       last_one_to_one_date: row.profile_last_one_to_one_date,
       next_one_to_one_date: row.profile_next_one_to_one_date,
@@ -185,6 +191,9 @@ export const listWithUsers = api<ListPeopleRequest, ListPeopleResponse>(
         p.custom_fields as profile_custom_fields,
         p.prps as profile_prps,
         p.ba as profile_ba,
+        p.oic as profile_oic,
+        p.mass_decon as profile_mass_decon,
+        p.hooklift_operator as profile_hooklift_operator,
         p.notes as profile_notes,
         p.last_one_to_one_date as profile_last_one_to_one_date,
         p.next_one_to_one_date as profile_next_one_to_one_date,
