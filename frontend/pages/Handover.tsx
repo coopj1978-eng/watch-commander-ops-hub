@@ -337,12 +337,15 @@ export default function Handover() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: typeof editForm }) =>
+      // Pass empty strings through (not `|| undefined`) so the WC can actually
+      // clear a field that is no longer relevant — the backend COALESCE treats
+      // "" as a real value and writes it, while undefined keeps the old text.
       backend.handover.update(id, {
-        incidents:         data.incidents         || undefined,
-        outstanding_tasks: data.outstanding_tasks || undefined,
-        equipment_notes:   data.equipment_notes   || undefined,
-        staff_notes:       data.staff_notes       || undefined,
-        general_notes:     data.general_notes     || undefined,
+        incidents:         data.incidents,
+        outstanding_tasks: data.outstanding_tasks,
+        equipment_notes:   data.equipment_notes,
+        staff_notes:       data.staff_notes,
+        general_notes:     data.general_notes,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["handovers"] });

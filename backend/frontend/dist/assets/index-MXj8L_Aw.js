@@ -63314,13 +63314,18 @@ function Handover() {
     }
   });
   const updateMutation = useMutation({
-    mutationFn: async ({ id, data: data2 }) => backendClient.handover.update(id, {
-      incidents: data2.incidents || void 0,
-      outstanding_tasks: data2.outstanding_tasks || void 0,
-      equipment_notes: data2.equipment_notes || void 0,
-      staff_notes: data2.staff_notes || void 0,
-      general_notes: data2.general_notes || void 0
-    }),
+    mutationFn: async ({ id, data: data2 }) => (
+      // Pass empty strings through (not `|| undefined`) so the WC can actually
+      // clear a field that is no longer relevant — the backend COALESCE treats
+      // "" as a real value and writes it, while undefined keeps the old text.
+      backendClient.handover.update(id, {
+        incidents: data2.incidents,
+        outstanding_tasks: data2.outstanding_tasks,
+        equipment_notes: data2.equipment_notes,
+        staff_notes: data2.staff_notes,
+        general_notes: data2.general_notes
+      })
+    ),
     onSuccess: () => {
       queryClient2.invalidateQueries({ queryKey: ["handovers"] });
       queryClient2.invalidateQueries({ queryKey: ["wc-latest-handover"] });
