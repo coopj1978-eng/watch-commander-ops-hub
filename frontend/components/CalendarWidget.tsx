@@ -880,12 +880,14 @@ function MobileAgendaPanel({
   shiftSchedule = [],
   userWatch,
   onNewEvent,
+  onEventClick,
 }: {
   date: Date;
   items: CalendarItem[];
   shiftSchedule?: ShiftDay[];
   userWatch?: string;
   onNewEvent?: (date: Date) => void;
+  onEventClick?: (item: CalendarItem) => void;
 }) {
   const dayLabel = `${DAY_NAMES[date.getDay()]}, ${date.getDate()} ${MONTH_NAMES_FULL[date.getMonth()]}`;
   const dayShifts = getShiftsForDay(shiftSchedule, date, userWatch);
@@ -945,8 +947,17 @@ function MobileAgendaPanel({
         ) : (
           dayItems.map((item) => {
             const color = getItemColor(item);
+            const clickable = !!onEventClick;
             return (
-              <div key={`${item.type}-${item.id}`} className="flex items-start gap-3 px-4 py-3">
+              <button
+                key={`${item.type}-${item.id}`}
+                type="button"
+                onClick={() => onEventClick?.(item)}
+                disabled={!clickable}
+                className={`w-full flex items-start gap-3 px-4 py-3 text-left transition-colors ${
+                  clickable ? "active:bg-muted hover:bg-muted/40 cursor-pointer" : "cursor-default"
+                }`}
+              >
                 {/* Time column */}
                 <div className="w-14 shrink-0 text-right">
                   {item.allDay ? (
@@ -969,7 +980,7 @@ function MobileAgendaPanel({
                     </p>
                   )}
                 </div>
-              </div>
+              </button>
             );
           })
         )}
@@ -1142,6 +1153,7 @@ export default function CalendarWidget({
           shiftSchedule={shiftSchedule}
           userWatch={userWatch}
           onNewEvent={onSlotClick}
+          onEventClick={onEventClick}
         />
       </div>
 
