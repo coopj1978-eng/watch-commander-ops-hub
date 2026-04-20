@@ -426,7 +426,10 @@ export default function UnifiedCalendar() {
   );
 
   return (
-    <div className="flex overflow-hidden" style={{ height: "calc(100vh - 160px)" }}>
+    // Desktop: fixed height + overflow-hidden so the calendar fits neatly
+    // between TopBar and bottom of viewport. Mobile: natural height so the
+    // page scrolls — otherwise a day with 3+ events clips the later rows.
+    <div className="flex md:overflow-hidden md:h-[calc(100vh-160px)]">
       {/* ── Desktop sidebar — permanent ────────────────────────────────────── */}
       <aside className="hidden md:flex w-52 shrink-0 border-r border-border bg-card flex-col py-4 px-3 gap-6 h-full overflow-y-auto">
         {filterContent}
@@ -465,7 +468,9 @@ export default function UnifiedCalendar() {
       </div>
 
       {/* ── Main calendar area ──────────────────────────────────────────────── */}
-      <div className="flex-1 flex flex-col overflow-hidden p-2 md:p-4">
+      {/* Desktop keeps overflow-hidden so the fixed-height calendar owns its
+          own scroll; mobile lets the content flow and the page scrolls. */}
+      <div className="flex-1 flex flex-col md:overflow-hidden p-2 md:p-4">
         {/* Toolbar — on mobile the button labels are hidden so three icon-only
             buttons fit comfortably on a 375px screen. On sm+ the full label
             shows again.  Each button is at least 40x40 to meet tap-target

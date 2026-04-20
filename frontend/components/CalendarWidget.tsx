@@ -934,8 +934,10 @@ function MobileAgendaPanel({
         </div>
       )}
 
-      {/* Events list */}
-      <div className="divide-y divide-border/30 max-h-64 overflow-y-auto">
+      {/* Events list — natural height so every event is visible; the whole
+          mobile page scrolls rather than this panel scrolling internally.
+          pb-8 leaves breathing room above the bottom nav bar. */}
+      <div className="divide-y divide-border/30 pb-8">
         {isEmpty ? (
           <div className="px-4 py-6 text-center text-sm text-muted-foreground">
             No events
@@ -1088,10 +1090,14 @@ export default function CalendarWidget({
   const mobileTitle = currentDate.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
 
   return (
-    <div className="flex flex-col bg-background rounded-xl border border-border overflow-hidden h-full min-h-[500px]">
+    // Mobile: natural height so month grid + day agenda flow down the page
+    // and the browser scrolls the whole view; Desktop: still h-full with
+    // overflow-hidden so month grid + time grid behave like a fixed-height
+    // calendar inside the page layout.
+    <div className="flex flex-col bg-background rounded-xl border border-border md:overflow-hidden md:h-full md:min-h-[500px]">
 
       {/* ── MOBILE layout (hidden on md+) ── */}
-      <div className="md:hidden flex flex-col h-full">
+      <div className="md:hidden flex flex-col">
         {/* Mobile header: month nav only */}
         <div className="flex items-center justify-between px-4 py-2.5 border-b border-border shrink-0">
           <button
@@ -1129,16 +1135,14 @@ export default function CalendarWidget({
           />
         </div>
 
-        {/* Mobile agenda panel — fills remaining space */}
-        <div className="flex-1 overflow-hidden">
-          <MobileAgendaPanel
-            date={selectedDay}
-            items={items}
-            shiftSchedule={shiftSchedule}
-            userWatch={userWatch}
-            onNewEvent={onSlotClick}
-          />
-        </div>
+        {/* Mobile agenda panel — natural height; whole page scrolls. */}
+        <MobileAgendaPanel
+          date={selectedDay}
+          items={items}
+          shiftSchedule={shiftSchedule}
+          userWatch={userWatch}
+          onNewEvent={onSlotClick}
+        />
       </div>
 
       {/* ── DESKTOP layout (hidden below md) ── */}
