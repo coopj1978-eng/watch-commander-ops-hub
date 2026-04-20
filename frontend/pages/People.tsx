@@ -366,19 +366,19 @@ export default function People() {
         </div>
         <div className="flex flex-wrap gap-2">
           {canCreate && (
-            <Button variant="outline" onClick={() => setShowSkillsManager(true)}>
-              <BookOpen className="h-4 w-4 mr-2" />
-              Manage Skills
+            <Button variant="outline" onClick={() => setShowSkillsManager(true)} aria-label="Manage Skills">
+              <BookOpen className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Manage Skills</span>
             </Button>
           )}
-          <Button variant="outline" onClick={() => setShowColumnsDrawer(true)}>
-            <Settings2 className="h-4 w-4 mr-2" />
-            Columns
+          <Button variant="outline" onClick={() => setShowColumnsDrawer(true)} aria-label="Columns">
+            <Settings2 className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Columns</span>
           </Button>
           {canCreate && (
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => setShowAddModal(true)}>
-              <UserPlus className="h-4 w-4 mr-2" />
-              Add Person
+            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => setShowAddModal(true)} aria-label="Add Person">
+              <UserPlus className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Add Person</span>
             </Button>
           )}
         </div>

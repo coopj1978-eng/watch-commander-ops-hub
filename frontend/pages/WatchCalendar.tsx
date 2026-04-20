@@ -422,35 +422,41 @@ export default function UnifiedCalendar() {
       </aside>
 
       {/* ── Main calendar area ──────────────────────────────────────────────── */}
-      <div className="flex-1 flex flex-col overflow-hidden p-4">
-        {/* Toolbar */}
-        <div className="flex items-center justify-end gap-2 mb-2 shrink-0">
+      <div className="flex-1 flex flex-col overflow-hidden p-2 md:p-4">
+        {/* Toolbar — on mobile the button labels are hidden so three icon-only
+            buttons fit comfortably on a 375px screen. On sm+ the full label
+            shows again.  Each button is at least 40x40 to meet tap-target
+            minimums. */}
+        <div className="flex items-center justify-end gap-1.5 md:gap-2 mb-2 shrink-0">
           <Button
             variant="outline"
             size="sm"
             onClick={() => { setShiftAdjDate(undefined); setShiftAdjModalOpen(true); }}
-            className="flex items-center gap-1.5 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+            className="h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+            aria-label="Log Shift"
           >
             <CalendarDays className="h-4 w-4" />
-            Log Shift
+            <span className="hidden sm:inline">Log Shift</span>
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={() => setInspectionModalOpen(true)}
-            className="flex items-center gap-1.5 border-orange-200 text-orange-700 hover:bg-orange-50"
+            className="h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5 border-orange-200 text-orange-700 hover:bg-orange-50"
+            aria-label="New Inspection"
           >
             <ClipboardPlus className="h-4 w-4" />
-            New Inspection
+            <span className="hidden sm:inline">New Inspection</span>
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={() => setTrainingModalOpen(true)}
-            className="flex items-center gap-1.5 border-teal-200 text-teal-700 hover:bg-teal-50"
+            className="h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5 border-teal-200 text-teal-700 hover:bg-teal-50"
+            aria-label="Schedule Training"
           >
             <GraduationCap className="h-4 w-4" />
-            Schedule Training
+            <span className="hidden sm:inline">Schedule Training</span>
           </Button>
         </div>
         <CalendarWidget

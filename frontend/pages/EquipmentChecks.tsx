@@ -105,9 +105,9 @@ export default function EquipmentChecks() {
             </Badge>
           )}
           {isWC && (
-            <Button onClick={() => setAddApplianceOpen(true)} variant="outline">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Appliance
+            <Button onClick={() => setAddApplianceOpen(true)} variant="outline" aria-label="Add Appliance">
+              <Plus className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Add Appliance</span>
             </Button>
           )}
         </div>

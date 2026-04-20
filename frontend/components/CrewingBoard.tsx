@@ -697,7 +697,7 @@ function SlotRow({
   const labelCls = `
     text-xs font-semibold shrink-0 pt-2
     ${slot.required ? "text-foreground/70" : "text-muted-foreground/50"}
-    w-[108px]
+    w-[80px] sm:w-[108px]
   `;
 
   // ── Filled slot ──────────────────────────────────────────────────────────

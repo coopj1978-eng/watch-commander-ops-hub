@@ -223,13 +223,13 @@ export default function Tasks() {
             )}
           </div>
 
-          <Button variant="outline" className={`ml-1 ${btnOutlineClass}`} onClick={() => setShowTemplateManager(true)}>
-            <Repeat className="h-4 w-4 mr-2" />
-            Templates
+          <Button variant="outline" className={`ml-1 ${btnOutlineClass}`} onClick={() => setShowTemplateManager(true)} aria-label="Templates">
+            <Repeat className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Templates</span>
           </Button>
-          <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleNewTask}>
-            <Plus className="h-4 w-4 mr-2" />
-            New Task
+          <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleNewTask} aria-label="New Task">
+            <Plus className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">New Task</span>
           </Button>
         </div>
       </div>

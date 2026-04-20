@@ -46021,17 +46021,17 @@ function People() {
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-2", children: [
-        canCreate && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline", onClick: () => setShowSkillsManager(true), children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(BookOpen, { className: "h-4 w-4 mr-2" }),
-          "Manage Skills"
+        canCreate && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline", onClick: () => setShowSkillsManager(true), "aria-label": "Manage Skills", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(BookOpen, { className: "h-4 w-4 sm:mr-2" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Manage Skills" })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline", onClick: () => setShowColumnsDrawer(true), children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Settings2, { className: "h-4 w-4 mr-2" }),
-          "Columns"
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline", onClick: () => setShowColumnsDrawer(true), "aria-label": "Columns", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Settings2, { className: "h-4 w-4 sm:mr-2" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Columns" })
         ] }),
-        canCreate && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { className: "bg-indigo-600 hover:bg-indigo-700", onClick: () => setShowAddModal(true), children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(UserPlus, { className: "h-4 w-4 mr-2" }),
-          "Add Person"
+        canCreate && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { className: "bg-indigo-600 hover:bg-indigo-700", onClick: () => setShowAddModal(true), "aria-label": "Add Person", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(UserPlus, { className: "h-4 w-4 sm:mr-2" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Add Person" })
         ] })
       ] })
     ] }),
@@ -50723,8 +50723,8 @@ function UnifiedCalendar() {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[10px] text-muted-foreground px-1 leading-relaxed", children: "Click a calendar to show/hide its events" }) })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col overflow-hidden p-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-end gap-2 mb-2 shrink-0", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col overflow-hidden p-2 md:p-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-end gap-1.5 md:gap-2 mb-2 shrink-0", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           Button,
           {
@@ -50734,10 +50734,11 @@ function UnifiedCalendar() {
               setShiftAdjDate(void 0);
               setShiftAdjModalOpen(true);
             },
-            className: "flex items-center gap-1.5 border-indigo-200 text-indigo-700 hover:bg-indigo-50",
+            className: "h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5 border-indigo-200 text-indigo-700 hover:bg-indigo-50",
+            "aria-label": "Log Shift",
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarDays, { className: "h-4 w-4" }),
-              "Log Shift"
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Log Shift" })
             ]
           }
         ),
@@ -50747,10 +50748,11 @@ function UnifiedCalendar() {
             variant: "outline",
             size: "sm",
             onClick: () => setInspectionModalOpen(true),
-            className: "flex items-center gap-1.5 border-orange-200 text-orange-700 hover:bg-orange-50",
+            className: "h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5 border-orange-200 text-orange-700 hover:bg-orange-50",
+            "aria-label": "New Inspection",
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(ClipboardPlus, { className: "h-4 w-4" }),
-              "New Inspection"
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "New Inspection" })
             ]
           }
         ),
@@ -50760,10 +50762,11 @@ function UnifiedCalendar() {
             variant: "outline",
             size: "sm",
             onClick: () => setTrainingModalOpen(true),
-            className: "flex items-center gap-1.5 border-teal-200 text-teal-700 hover:bg-teal-50",
+            className: "h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5 border-teal-200 text-teal-700 hover:bg-teal-50",
+            "aria-label": "Schedule Training",
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(GraduationCap, { className: "h-4 w-4" }),
-              "Schedule Training"
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Schedule Training" })
             ]
           }
         )
@@ -53094,13 +53097,13 @@ function Tasks() {
                 /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: `text-xs mt-3 text-center ${isDark ? "text-white/40" : "text-muted-foreground"}`, children: "Click to apply" })
               ] })
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline", className: `ml-1 ${btnOutlineClass}`, onClick: () => setShowTemplateManager(true), children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat, { className: "h-4 w-4 mr-2" }),
-              "Templates"
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline", className: `ml-1 ${btnOutlineClass}`, onClick: () => setShowTemplateManager(true), "aria-label": "Templates", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat, { className: "h-4 w-4 sm:mr-2" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Templates" })
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { className: "bg-indigo-600 hover:bg-indigo-700", onClick: handleNewTask, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4 mr-2" }),
-              "New Task"
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { className: "bg-indigo-600 hover:bg-indigo-700", onClick: handleNewTask, "aria-label": "New Task", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4 sm:mr-2" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "New Task" })
             ] })
           ] })
         ] }),
@@ -58961,7 +58964,7 @@ function CheckForm({
       /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: "Check each item and mark its status. Defective or missing items will be automatically logged as defects." })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6 py-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 sm:grid-cols-2 gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "watch", children: "Watch / Shift *" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -59936,9 +59939,9 @@ function EquipmentChecks() {
           overdueDefects.length !== 1 ? "s" : "",
           " (30+ days)"
         ] }),
-        isWC && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { onClick: () => setAddApplianceOpen(true), variant: "outline", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4 mr-2" }),
-          "Add Appliance"
+        isWC && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { onClick: () => setAddApplianceOpen(true), variant: "outline", "aria-label": "Add Appliance", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4 sm:mr-2" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Add Appliance" })
         ] })
       ] })
     ] }),
@@ -61905,7 +61908,7 @@ function SlotRow({
   const labelCls = `
     text-xs font-semibold shrink-0 pt-2
     ${slot.required ? "text-foreground/70" : "text-muted-foreground/50"}
-    w-[108px]
+    w-[80px] sm:w-[108px]
   `;
   if (entry) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `flex items-start gap-2 px-3 py-2 ${borderB} group`, children: [
