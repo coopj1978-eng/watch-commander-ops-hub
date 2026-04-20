@@ -1,5 +1,5 @@
 import { api } from "encore.dev/api";
-import db from "../db";
+import db, { type SQLPrimitive } from "../db";
 import type {
   CareHomeValidation,
   CreateCareHomeRequest,
@@ -36,7 +36,7 @@ export const updateCareHome = api(
   async (req: { id: number } & UpdateCareHomeRequest): Promise<CareHomeValidation> => {
     const { id, ...fields } = req;
     const setClauses: string[] = [];
-    const values: unknown[] = [];
+    const values: SQLPrimitive[] = [];
     let idx = 1;
 
     if (fields.address !== undefined) { setClauses.push(`address = $${idx++}`); values.push(fields.address); }

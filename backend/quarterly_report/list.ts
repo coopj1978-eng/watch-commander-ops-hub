@@ -1,5 +1,5 @@
 import { api } from "encore.dev/api";
-import db from "../db";
+import db, { type SQLPrimitive } from "../db";
 import type { ListReportsRequest, ListReportsResponse, QuarterlyReportSummary } from "./types";
 
 interface DBSummary {
@@ -25,7 +25,7 @@ export const list = api<ListReportsRequest, ListReportsResponse>(
   async (req) => {
     // Build filters dynamically
     const conditions: string[] = [];
-    const params: unknown[] = [];
+    const params: SQLPrimitive[] = [];
     let pIdx = 1;
 
     if (req.watch) {

@@ -1,5 +1,5 @@
 import { api } from "encore.dev/api";
-import db from "../db";
+import db, { type SQLPrimitive } from "../db";
 import type { ToilBalanceRequest, ToilBalanceResponse, ToilBalance } from "./types";
 
 /** Financial year (April-start). */
@@ -15,7 +15,7 @@ export const balance = api<ToilBalanceRequest, ToilBalanceResponse>(
     const fy = req.financial_year ?? currentFinancialYear();
 
     const conditions: string[] = [`t.financial_year = $1`];
-    const values: unknown[] = [fy];
+    const values: SQLPrimitive[] = [fy];
     let idx = 2;
 
     if (req.user_id) {

@@ -1,5 +1,5 @@
 import { api } from "encore.dev/api";
-import db from "../db";
+import db, { type SQLPrimitive } from "../db";
 import type { ListToilRequest, ListToilResponse, ToilEntry } from "./types";
 
 // GET /toil — List TOIL entries with optional filters
@@ -7,7 +7,7 @@ export const list = api<ListToilRequest, ListToilResponse>(
   { auth: true, expose: true, method: "GET", path: "/toil" },
   async (req) => {
     const conditions: string[] = [];
-    const values: unknown[] = [];
+    const values: SQLPrimitive[] = [];
     let idx = 1;
 
     if (req.user_id) {

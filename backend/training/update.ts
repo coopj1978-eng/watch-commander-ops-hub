@@ -1,6 +1,6 @@
 import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
-import db from "../db";
+import db, { type SQLPrimitive } from "../db";
 import type { UpdateTrainingRequest, TrainingRecord } from "./types";
 
 interface DBTrainingRecord {
@@ -62,7 +62,7 @@ export const update = api<UpdateTrainingRequest, TrainingRecord>(
 
     // Build dynamic SET clause - only update provided fields
     const setClauses: string[] = [];
-    const params: unknown[] = [];
+    const params: SQLPrimitive[] = [];
     let paramIdx = 1;
 
     if (req.topic !== undefined) {

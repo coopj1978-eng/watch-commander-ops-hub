@@ -1,5 +1,5 @@
 import { api, APIError } from "encore.dev/api";
-import db from "../db";
+import db, { type SQLPrimitive } from "../db";
 import type { ActivityRecord, UpdateActivityRequest } from "./types";
 
 // PATCH /activities/:id
@@ -10,7 +10,7 @@ export const update = api<{ id: number } & UpdateActivityRequest, ActivityRecord
     const { id, ...fields } = req;
 
     const setClauses: string[] = [];
-    const values: unknown[] = [];
+    const values: SQLPrimitive[] = [];
     let idx = 1;
 
     if (fields.title !== undefined)           { setClauses.push(`title = $${idx++}`);           values.push(fields.title); }

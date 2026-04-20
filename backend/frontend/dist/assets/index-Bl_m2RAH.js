@@ -49234,7 +49234,8 @@ function MobileAgendaPanel({
   items,
   shiftSchedule = [],
   userWatch,
-  onNewEvent
+  onNewEvent,
+  onEventClick
 }) {
   const dayLabel2 = `${DAY_NAMES[date.getDay()]}, ${date.getDate()} ${MONTH_NAMES_FULL[date.getMonth()]}`;
   const dayShifts = getShiftsForDay(shiftSchedule, date, userWatch);
@@ -49282,24 +49283,35 @@ function MobileAgendaPanel({
         `${s.date}-${s.shiftType}`
       );
     }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "divide-y divide-border/30 max-h-64 overflow-y-auto", children: isEmpty ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-4 py-6 text-center text-sm text-muted-foreground", children: "No events" }) : dayItems.map((item) => {
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "divide-y divide-border/30 pb-8", children: isEmpty ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-4 py-6 text-center text-sm text-muted-foreground", children: "No events" }) : dayItems.map((item) => {
       const color = getItemColor(item);
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-3 px-4 py-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-14 shrink-0 text-right", children: item.allDay ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px] text-muted-foreground", children: "all day" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-medium text-muted-foreground", children: [
-          item.startTime.getHours().toString().padStart(2, "0"),
-          ":",
-          item.startTime.getMinutes().toString().padStart(2, "0")
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-1 self-stretch rounded-full shrink-0", style: { backgroundColor: color } }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm font-medium text-foreground leading-tight truncate", children: item.title }),
-          !item.allDay && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground mt-0.5", children: [
-            formatTime(item.startTime),
-            " – ",
-            formatTime(item.endTime)
-          ] })
-        ] })
-      ] }, `${item.type}-${item.id}`);
+      const clickable = !!onEventClick;
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "button",
+        {
+          type: "button",
+          onClick: () => onEventClick == null ? void 0 : onEventClick(item),
+          disabled: !clickable,
+          className: `w-full flex items-start gap-3 px-4 py-3 text-left transition-colors ${clickable ? "active:bg-muted hover:bg-muted/40 cursor-pointer" : "cursor-default"}`,
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-14 shrink-0 text-right", children: item.allDay ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px] text-muted-foreground", children: "all day" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-medium text-muted-foreground", children: [
+              item.startTime.getHours().toString().padStart(2, "0"),
+              ":",
+              item.startTime.getMinutes().toString().padStart(2, "0")
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-1 self-stretch rounded-full shrink-0", style: { backgroundColor: color } }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm font-medium text-foreground leading-tight truncate", children: item.title }),
+              !item.allDay && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground mt-0.5", children: [
+                formatTime(item.startTime),
+                " – ",
+                formatTime(item.endTime)
+              ] })
+            ] })
+          ]
+        },
+        `${item.type}-${item.id}`
+      );
     }) })
   ] });
 }
@@ -49385,118 +49397,125 @@ function CalendarWidget({
     onViewChange("day");
   };
   const mobileTitle = currentDate.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col bg-background rounded-xl border border-border overflow-hidden h-full min-h-[500px]", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "md:hidden flex flex-col h-full", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-4 py-2.5 border-b border-border shrink-0", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
+  return (
+    // Mobile: natural height so month grid + day agenda flow down the page
+    // and the browser scrolls the whole view; Desktop: still h-full with
+    // overflow-hidden so month grid + time grid behave like a fixed-height
+    // calendar inside the page layout.
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col bg-background rounded-xl border border-border md:overflow-hidden md:h-full md:min-h-[500px]", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "md:hidden flex flex-col", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-4 py-2.5 border-b border-border shrink-0", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              onClick: () => navigate(-1),
+              className: "p-1.5 rounded-lg hover:bg-muted transition-colors",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronLeft, { className: "h-5 w-5 text-muted-foreground" })
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-base font-semibold text-foreground", children: mobileTitle }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              onClick: () => navigate(1),
+              className: "p-1.5 rounded-lg hover:bg-muted transition-colors",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-5 w-5 text-muted-foreground" })
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-3 pt-2 pb-1 shrink-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          MobileMonthView,
           {
-            onClick: () => navigate(-1),
-            className: "p-1.5 rounded-lg hover:bg-muted transition-colors",
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronLeft, { className: "h-5 w-5 text-muted-foreground" })
+            date: currentDate,
+            items,
+            shiftSchedule,
+            userWatch,
+            selectedDay,
+            onDaySelect: (d) => {
+              setSelectedDay(d);
+              if (d.getMonth() !== currentDate.getMonth() || d.getFullYear() !== currentDate.getFullYear()) {
+                onDateChange(d);
+              }
+            }
           }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-base font-semibold text-foreground", children: mobileTitle }) }),
+        ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
+          MobileAgendaPanel,
           {
-            onClick: () => navigate(1),
-            className: "p-1.5 rounded-lg hover:bg-muted transition-colors",
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-5 w-5 text-muted-foreground" })
+            date: selectedDay,
+            items,
+            shiftSchedule,
+            userWatch,
+            onNewEvent: onSlotClick,
+            onEventClick
           }
         )
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-3 pt-2 pb-1 shrink-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        MobileMonthView,
-        {
-          date: currentDate,
-          items,
-          shiftSchedule,
-          userWatch,
-          selectedDay,
-          onDaySelect: (d) => {
-            setSelectedDay(d);
-            if (d.getMonth() !== currentDate.getMonth() || d.getFullYear() !== currentDate.getFullYear()) {
-              onDateChange(d);
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden md:flex md:flex-col md:h-full md:overflow-hidden", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          CalendarHeader,
+          {
+            view,
+            currentDate,
+            onViewChange,
+            onPrev: () => navigate(-1),
+            onNext: () => navigate(1),
+            onToday: () => onDateChange(/* @__PURE__ */ new Date())
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 overflow-hidden", children: [
+          view === "day" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+            DayView,
+            {
+              date: currentDate,
+              items,
+              shiftSchedule,
+              userWatch,
+              scrollRef,
+              onSlotClick,
+              onEventClick
             }
-          }
-        }
-      ) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        MobileAgendaPanel,
-        {
-          date: selectedDay,
-          items,
-          shiftSchedule,
-          userWatch,
-          onNewEvent: onSlotClick
-        }
-      ) })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden md:flex md:flex-col md:h-full md:overflow-hidden", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        CalendarHeader,
-        {
-          view,
-          currentDate,
-          onViewChange,
-          onPrev: () => navigate(-1),
-          onNext: () => navigate(1),
-          onToday: () => onDateChange(/* @__PURE__ */ new Date())
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 overflow-hidden", children: [
-        view === "day" && /* @__PURE__ */ jsxRuntimeExports.jsx(
-          DayView,
-          {
-            date: currentDate,
-            items,
-            shiftSchedule,
-            userWatch,
-            scrollRef,
-            onSlotClick,
-            onEventClick
-          }
-        ),
-        view === "week" && /* @__PURE__ */ jsxRuntimeExports.jsx(
-          WeekView,
-          {
-            weekDays: getWeekDays(currentDate),
-            items,
-            shiftSchedule,
-            userWatch,
-            scrollRef,
-            onSlotClick,
-            onEventClick,
-            onDayClick: handleDayNavigate
-          }
-        ),
-        view === "month" && /* @__PURE__ */ jsxRuntimeExports.jsx(
-          MonthView,
-          {
-            date: currentDate,
-            items,
-            shiftSchedule,
-            userWatch,
-            onSlotClick,
-            onEventClick,
-            onDayNavigate: handleDayNavigate
-          }
-        ),
-        view === "year" && /* @__PURE__ */ jsxRuntimeExports.jsx(
-          YearView,
-          {
-            year: currentDate.getFullYear(),
-            items,
-            onMonthClick: (d) => {
-              onDateChange(d);
-              onViewChange("month");
+          ),
+          view === "week" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+            WeekView,
+            {
+              weekDays: getWeekDays(currentDate),
+              items,
+              shiftSchedule,
+              userWatch,
+              scrollRef,
+              onSlotClick,
+              onEventClick,
+              onDayClick: handleDayNavigate
             }
-          }
-        )
+          ),
+          view === "month" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+            MonthView,
+            {
+              date: currentDate,
+              items,
+              shiftSchedule,
+              userWatch,
+              onSlotClick,
+              onEventClick,
+              onDayNavigate: handleDayNavigate
+            }
+          ),
+          view === "year" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+            YearView,
+            {
+              year: currentDate.getFullYear(),
+              items,
+              onMonthClick: (d) => {
+                onDateChange(d);
+                onViewChange("month");
+              }
+            }
+          )
+        ] })
       ] })
     ] })
-  ] });
+  );
 }
 const CALENDAR_OPTIONS = [
   {
@@ -50741,173 +50760,178 @@ function UnifiedCalendar() {
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[10px] text-muted-foreground px-1 leading-relaxed", children: "Click a calendar to show/hide its events" }) })
   ] });
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex overflow-hidden", style: { height: "calc(100vh - 160px)" }, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("aside", { className: "hidden md:flex w-52 shrink-0 border-r border-border bg-card flex-col py-4 px-3 gap-6 h-full overflow-y-auto", children: filterContent }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "div",
-      {
-        className: `md:hidden fixed inset-0 z-40 transition-opacity ${filtersOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`,
-        children: [
+  return (
+    // Desktop: fixed height + overflow-hidden so the calendar fits neatly
+    // between TopBar and bottom of viewport. Mobile: natural height so the
+    // page scrolls — otherwise a day with 3+ events clips the later rows.
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex md:overflow-hidden md:h-[calc(100vh-160px)]", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("aside", { className: "hidden md:flex w-52 shrink-0 border-r border-border bg-card flex-col py-4 px-3 gap-6 h-full overflow-y-auto", children: filterContent }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "div",
+        {
+          className: `md:hidden fixed inset-0 z-40 transition-opacity ${filtersOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`,
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "div",
+              {
+                className: "absolute inset-0 bg-black/40",
+                onClick: () => setFiltersOpen(false)
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "aside",
+              {
+                className: `absolute left-0 top-0 bottom-0 w-72 max-w-[85vw] bg-card border-r border-border flex flex-col py-4 px-3 gap-6 overflow-y-auto transition-transform shadow-xl ${filtersOpen ? "translate-x-0" : "-translate-x-full"}`,
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between pb-2 border-b border-border/50", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-sm font-semibold", children: "Calendars" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        type: "button",
+                        className: "h-8 w-8 rounded-lg hover:bg-muted flex items-center justify-center",
+                        onClick: () => setFiltersOpen(false),
+                        "aria-label": "Close filters",
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4" })
+                      }
+                    )
+                  ] }),
+                  filterContent
+                ]
+              }
+            )
+          ]
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col md:overflow-hidden p-2 md:p-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5 md:gap-2 mb-2 shrink-0", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "div",
+            Button,
             {
-              className: "absolute inset-0 bg-black/40",
-              onClick: () => setFiltersOpen(false)
+              variant: "outline",
+              size: "sm",
+              onClick: () => setFiltersOpen(true),
+              className: "md:hidden h-10 w-10 px-0 flex items-center justify-center",
+              "aria-label": "Filters",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { className: "h-4 w-4" })
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 md:hidden" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            Button,
+            {
+              variant: "outline",
+              size: "sm",
+              onClick: () => {
+                setShiftAdjDate(void 0);
+                setShiftAdjModalOpen(true);
+              },
+              className: "h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5 border-indigo-200 text-indigo-700 hover:bg-indigo-50 md:ml-auto",
+              "aria-label": "Log Shift",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarDays, { className: "h-4 w-4" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Log Shift" })
+              ]
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "aside",
+            Button,
             {
-              className: `absolute left-0 top-0 bottom-0 w-72 max-w-[85vw] bg-card border-r border-border flex flex-col py-4 px-3 gap-6 overflow-y-auto transition-transform shadow-xl ${filtersOpen ? "translate-x-0" : "-translate-x-full"}`,
+              variant: "outline",
+              size: "sm",
+              onClick: () => setInspectionModalOpen(true),
+              className: "h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5 border-orange-200 text-orange-700 hover:bg-orange-50",
+              "aria-label": "New Inspection",
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between pb-2 border-b border-border/50", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-sm font-semibold", children: "Calendars" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "button",
-                    {
-                      type: "button",
-                      className: "h-8 w-8 rounded-lg hover:bg-muted flex items-center justify-center",
-                      onClick: () => setFiltersOpen(false),
-                      "aria-label": "Close filters",
-                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4" })
-                    }
-                  )
-                ] }),
-                filterContent
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ClipboardPlus, { className: "h-4 w-4" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "New Inspection" })
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            Button,
+            {
+              variant: "outline",
+              size: "sm",
+              onClick: () => setTrainingModalOpen(true),
+              className: "h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5 border-teal-200 text-teal-700 hover:bg-teal-50",
+              "aria-label": "Schedule Training",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(GraduationCap, { className: "h-4 w-4" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Schedule Training" })
               ]
             }
           )
-        ]
-      }
-    ),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col overflow-hidden p-2 md:p-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5 md:gap-2 mb-2 shrink-0", children: [
+        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Button,
+          CalendarWidget,
           {
-            variant: "outline",
-            size: "sm",
-            onClick: () => setFiltersOpen(true),
-            className: "md:hidden h-10 w-10 px-0 flex items-center justify-center",
-            "aria-label": "Filters",
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { className: "h-4 w-4" })
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 md:hidden" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Button,
-          {
-            variant: "outline",
-            size: "sm",
-            onClick: () => {
-              setShiftAdjDate(void 0);
-              setShiftAdjModalOpen(true);
-            },
-            className: "h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5 border-indigo-200 text-indigo-700 hover:bg-indigo-50 md:ml-auto",
-            "aria-label": "Log Shift",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarDays, { className: "h-4 w-4" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Log Shift" })
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Button,
-          {
-            variant: "outline",
-            size: "sm",
-            onClick: () => setInspectionModalOpen(true),
-            className: "h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5 border-orange-200 text-orange-700 hover:bg-orange-50",
-            "aria-label": "New Inspection",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(ClipboardPlus, { className: "h-4 w-4" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "New Inspection" })
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Button,
-          {
-            variant: "outline",
-            size: "sm",
-            onClick: () => setTrainingModalOpen(true),
-            className: "h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5 border-teal-200 text-teal-700 hover:bg-teal-50",
-            "aria-label": "Schedule Training",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(GraduationCap, { className: "h-4 w-4" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Schedule Training" })
-            ]
+            events: allEvents,
+            tasks: visibleCalendars.has("tasks") ? tasks : [],
+            inspections: visibleCalendars.has("inspections") ? inspections : [],
+            shiftSchedule,
+            userWatch: visibleCalendars.has("shifts") ? userWatch : void 0,
+            currentDate,
+            onDateChange: setCurrentDate,
+            view,
+            onViewChange: setView,
+            onSlotClick: handleSlotClick,
+            onEventClick: handleEventClick
           }
         )
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        CalendarWidget,
-        {
-          events: allEvents,
-          tasks: visibleCalendars.has("tasks") ? tasks : [],
-          inspections: visibleCalendars.has("inspections") ? inspections : [],
-          shiftSchedule,
-          userWatch: visibleCalendars.has("shifts") ? userWatch : void 0,
-          currentDate,
-          onDateChange: setCurrentDate,
-          view,
-          onViewChange: setView,
-          onSlotClick: handleSlotClick,
-          onEventClick: handleEventClick
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: formOpen, onOpenChange: (open) => {
+        if (!open) {
+          setFormOpen(false);
+          setEditingEvent(null);
         }
-      )
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: formOpen, onOpenChange: (open) => {
-      if (!open) {
-        setFormOpen(false);
-        setEditingEvent(null);
-      }
-    }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "p-0 bg-transparent border-none shadow-none max-w-md w-full", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { className: "sr-only", children: editingEvent ? "Edit Event" : "New Event" }),
+      }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "p-0 bg-transparent border-none shadow-none max-w-md w-full", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { className: "sr-only", children: editingEvent ? "Edit Event" : "New Event" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          EventForm,
+          {
+            date: formDate,
+            initialData: editingEvent == null ? void 0 : editingEvent.data,
+            defaultCalendar,
+            onSubmit: handleFormSubmit,
+            onCancel: () => {
+              setFormOpen(false);
+              setEditingEvent(null);
+            },
+            onDelete: editingEvent ? handleDelete : void 0
+          }
+        )
+      ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(
-        EventForm,
+        InspectionEventModal,
         {
-          date: formDate,
-          initialData: editingEvent == null ? void 0 : editingEvent.data,
-          defaultCalendar,
-          onSubmit: handleFormSubmit,
-          onCancel: () => {
-            setFormOpen(false);
-            setEditingEvent(null);
+          open: inspectionModalOpen,
+          onClose: () => {
+            setInspectionModalOpen(false);
+            setEditingInspectionEvent(null);
           },
-          onDelete: editingEvent ? handleDelete : void 0
+          defaultDate: formDate,
+          editingEvent: editingInspectionEvent
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        ShiftAdjustmentModal,
+        {
+          open: shiftAdjModalOpen,
+          onClose: () => setShiftAdjModalOpen(false),
+          defaultDate: shiftAdjDate
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        ScheduleTrainingDialog,
+        {
+          open: trainingModalOpen,
+          onOpenChange: setTrainingModalOpen,
+          watch: userWatch
         }
       )
-    ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      InspectionEventModal,
-      {
-        open: inspectionModalOpen,
-        onClose: () => {
-          setInspectionModalOpen(false);
-          setEditingInspectionEvent(null);
-        },
-        defaultDate: formDate,
-        editingEvent: editingInspectionEvent
-      }
-    ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      ShiftAdjustmentModal,
-      {
-        open: shiftAdjModalOpen,
-        onClose: () => setShiftAdjModalOpen(false),
-        defaultDate: shiftAdjDate
-      }
-    ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      ScheduleTrainingDialog,
-      {
-        open: trainingModalOpen,
-        onOpenChange: setTrainingModalOpen,
-        watch: userWatch
-      }
-    )
-  ] });
+    ] })
+  );
 }
 const TASK_LABELS = [
   { id: "urgent", name: "Urgent", colour: "#ef4444" },

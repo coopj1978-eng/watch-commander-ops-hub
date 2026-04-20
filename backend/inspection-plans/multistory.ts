@@ -1,5 +1,5 @@
 import { api } from "encore.dev/api";
-import db from "../db";
+import db, { type SQLPrimitive } from "../db";
 import type {
   MultistoryInspection,
   CreateMultistoryRequest,
@@ -40,7 +40,7 @@ export const updateMultistory = api(
   async (req: { id: number } & UpdateMultistoryRequest): Promise<MultistoryInspection> => {
     const { id, ...fields } = req;
     const setClauses: string[] = [];
-    const values: unknown[] = [];
+    const values: SQLPrimitive[] = [];
     let idx = 1;
 
     if (fields.address !== undefined) { setClauses.push(`address = $${idx++}`); values.push(fields.address); }

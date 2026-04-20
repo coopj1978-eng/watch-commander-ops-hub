@@ -1,5 +1,5 @@
 import { api } from "encore.dev/api";
-import db from "../db";
+import db, { type SQLPrimitive } from "../db";
 import type {
   ListDetachmentsRequest,
   ListDetachmentsResponse,
@@ -13,7 +13,7 @@ export const list = api<ListDetachmentsRequest, ListDetachmentsResponse>(
   { auth: true, expose: true, method: "GET", path: "/detachments" },
   async (req) => {
     const conditions: string[] = [];
-    const params: unknown[] = [];
+    const params: SQLPrimitive[] = [];
     let p = 1;
 
     if (req.watch) {

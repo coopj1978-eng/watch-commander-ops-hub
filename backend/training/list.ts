@@ -1,6 +1,6 @@
 import { api, Query } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
-import db from "../db";
+import db, { type SQLPrimitive } from "../db";
 import type { ListTrainingResponse, TrainingRecord } from "./types";
 
 interface DBTrainingRecord {
@@ -65,7 +65,7 @@ export const list = api<ListRequest, ListTrainingResponse>(
     const offset = req.offset ?? 0;
 
     const conditions: string[] = [];
-    const params: unknown[] = [];
+    const params: SQLPrimitive[] = [];
     let paramIdx = 1;
 
     if (req.watch) {

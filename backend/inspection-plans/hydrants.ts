@@ -1,5 +1,5 @@
 import { api } from "encore.dev/api";
-import db from "../db";
+import db, { type SQLPrimitive } from "../db";
 import type {
   HydrantRegister,
   CreateHydrantRequest,
@@ -40,7 +40,7 @@ export const updateHydrant = api(
   async (req: { id: number } & UpdateHydrantRequest): Promise<HydrantRegister> => {
     const { id, ...fields } = req;
     const setClauses: string[] = [];
-    const values: unknown[] = [];
+    const values: SQLPrimitive[] = [];
     let idx = 1;
 
     if (fields.area_code !== undefined) { setClauses.push(`area_code = $${idx++}`); values.push(fields.area_code); }

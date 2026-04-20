@@ -1,6 +1,6 @@
 import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
-import db from "../db";
+import db, { type SQLPrimitive } from "../db";
 import { logActivity } from "../logging/logger";
 import type { ShiftAdjustment } from "./types";
 
@@ -35,7 +35,7 @@ export const update = api<UpdateShiftAdjustmentRequest, ShiftAdjustment>(
 
     // Build dynamic SET clause
     const setClauses: string[] = [];
-    const params: unknown[] = [];
+    const params: SQLPrimitive[] = [];
     let idx = 1;
 
     if (req.start_date !== undefined) {

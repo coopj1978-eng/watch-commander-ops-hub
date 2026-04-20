@@ -1,6 +1,6 @@
 import { api } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
-import db from "../db";
+import db, { type SQLPrimitive } from "../db";
 import { requirePermission } from "../auth/rbac";
 import { Permission } from "../auth/rbac";
 import type {
@@ -119,7 +119,7 @@ export const listAssignments = api(
   { auth: true, expose: true, method: "GET", path: "/inspection-plans/assignments" },
   async (req: ListAssignmentsRequest): Promise<ListAssignmentsResponse> => {
     const conditions: string[] = [];
-    const values: unknown[] = [];
+    const values: SQLPrimitive[] = [];
     let idx = 1;
 
     // Defensive: Encore passes GET query params as strings — coerce to numbers

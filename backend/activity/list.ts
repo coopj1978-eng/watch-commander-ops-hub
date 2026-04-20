@@ -1,5 +1,5 @@
 import { api } from "encore.dev/api";
-import db from "../db";
+import db, { type SQLPrimitive } from "../db";
 import type {
   ActivityRecord,
   ListActivitiesRequest,
@@ -12,7 +12,7 @@ export const list = api<ListActivitiesRequest, ListActivitiesResponse>(
   { auth: true, expose: true, method: "GET", path: "/activities" },
   async (req) => {
     const conditions: string[] = [];
-    const values: unknown[] = [];
+    const values: SQLPrimitive[] = [];
     let idx = 1;
 
     if (req.type)           { conditions.push(`type = $${idx++}`);           values.push(req.type); }
