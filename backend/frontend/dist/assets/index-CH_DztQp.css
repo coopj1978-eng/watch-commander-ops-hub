@@ -1515,6 +1515,10 @@
     max-width: 4rem;
   }
 
+  .max-w-\[85vw\] {
+    max-width: 85vw;
+  }
+
   .max-w-\[100px\] {
     max-width: 100px;
   }
@@ -6383,6 +6387,10 @@
 
     .md\:ml-56 {
       margin-left: calc(var(--spacing) * 56);
+    }
+
+    .md\:ml-auto {
+      margin-left: auto;
     }
 
     .md\:flex {

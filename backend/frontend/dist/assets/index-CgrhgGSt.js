@@ -50444,6 +50444,7 @@ function UnifiedCalendar() {
   const [shiftAdjModalOpen, setShiftAdjModalOpen] = reactExports.useState(false);
   const [shiftAdjDate, setShiftAdjDate] = reactExports.useState(void 0);
   const [trainingModalOpen, setTrainingModalOpen] = reactExports.useState(false);
+  const [filtersOpen, setFiltersOpen] = reactExports.useState(false);
   const getDateRange = () => {
     const start2 = new Date(currentDate);
     const end2 = new Date(currentDate);
@@ -50644,105 +50645,155 @@ function UnifiedCalendar() {
     ...visibleCalendars.has("watch") ? watchEvents : [],
     ...visibleCalendars.has("personal") ? personalEvents : []
   ];
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex overflow-hidden", style: { height: "calc(100vh - 160px)" }, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { className: "hidden md:flex w-52 shrink-0 border-r border-border bg-card flex-col py-4 px-3 gap-6 h-full overflow-y-auto", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-2 px-1", children: "My Calendars" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1", children: CALENDARS.map(({ key: key2, label, sublabel, color }) => {
-          const active = visibleCalendars.has(key2);
-          return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "button",
-            {
-              type: "button",
-              className: "flex items-center gap-2.5 w-full px-2 py-1.5 rounded-lg hover:bg-muted/50 transition-colors text-left",
-              onClick: () => toggleCalendar(key2),
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "span",
-                  {
-                    className: "w-3 h-3 rounded-full shrink-0 border-2 transition-colors",
-                    style: {
-                      backgroundColor: active ? color : "transparent",
-                      borderColor: color
-                    }
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `text-xs font-medium truncate ${active ? "text-foreground" : "text-muted-foreground"}`, children: label }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[10px] text-muted-foreground truncate", children: sublabel })
-                ] })
-              ]
-            },
-            key2
-          );
-        }) })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-2 px-1", children: "Other" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1", children: OTHER_CALENDARS.map(({ key: key2, label, color }) => {
-          const active = visibleCalendars.has(key2);
-          return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "button",
-            {
-              type: "button",
-              className: "flex items-center gap-2.5 w-full px-2 py-1.5 rounded-lg hover:bg-muted/50 transition-colors text-left",
-              onClick: () => toggleCalendar(key2),
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "span",
-                  {
-                    className: "w-3 h-3 rounded-full shrink-0 border-2 transition-colors",
-                    style: {
-                      backgroundColor: active ? color : "transparent",
-                      borderColor: color
-                    }
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `text-xs font-medium ${active ? "text-foreground" : "text-muted-foreground"}`, children: label })
-              ]
-            },
-            key2
-          );
-        }) })
-      ] }),
-      rotaAvailable && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-2 px-1", children: "Shift Rota" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  const filterContent = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-2 px-1", children: "My Calendars" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1", children: CALENDARS.map(({ key: key2, label, sublabel, color }) => {
+        const active = visibleCalendars.has(key2);
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
             type: "button",
             className: "flex items-center gap-2.5 w-full px-2 py-1.5 rounded-lg hover:bg-muted/50 transition-colors text-left",
-            onClick: () => toggleCalendar("shifts"),
+            onClick: () => toggleCalendar(key2),
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "span",
                 {
                   className: "w-3 h-3 rounded-full shrink-0 border-2 transition-colors",
                   style: {
-                    backgroundColor: visibleCalendars.has("shifts") ? "#ca8a04" : "transparent",
-                    borderColor: "#ca8a04"
+                    backgroundColor: active ? color : "transparent",
+                    borderColor: color
                   }
                 }
               ),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `text-xs font-medium truncate ${visibleCalendars.has("shifts") ? "text-foreground" : "text-muted-foreground"}`, children: [
-                  userWatch,
-                  " Watch Shifts"
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1.5 mt-0.5", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[9px] px-1 rounded text-white font-medium", style: { backgroundColor: "#ca8a04" }, children: "☀️ Day" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[9px] px-1 rounded text-white font-medium", style: { backgroundColor: "#4338ca" }, children: "🌙 Night" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[9px] px-1 rounded text-white font-medium", style: { backgroundColor: "#16a34a" }, children: "🌿 Leave" })
-                ] })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `text-xs font-medium truncate ${active ? "text-foreground" : "text-muted-foreground"}`, children: label }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[10px] text-muted-foreground truncate", children: sublabel })
               ] })
             ]
-          }
-        ) })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[10px] text-muted-foreground px-1 leading-relaxed", children: "Click a calendar to show/hide its events" }) })
+          },
+          key2
+        );
+      }) })
     ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-2 px-1", children: "Other" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1", children: OTHER_CALENDARS.map(({ key: key2, label, color }) => {
+        const active = visibleCalendars.has(key2);
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            className: "flex items-center gap-2.5 w-full px-2 py-1.5 rounded-lg hover:bg-muted/50 transition-colors text-left",
+            onClick: () => toggleCalendar(key2),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "span",
+                {
+                  className: "w-3 h-3 rounded-full shrink-0 border-2 transition-colors",
+                  style: {
+                    backgroundColor: active ? color : "transparent",
+                    borderColor: color
+                  }
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `text-xs font-medium ${active ? "text-foreground" : "text-muted-foreground"}`, children: label })
+            ]
+          },
+          key2
+        );
+      }) })
+    ] }),
+    rotaAvailable && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-2 px-1", children: "Shift Rota" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "button",
+        {
+          type: "button",
+          className: "flex items-center gap-2.5 w-full px-2 py-1.5 rounded-lg hover:bg-muted/50 transition-colors text-left",
+          onClick: () => toggleCalendar("shifts"),
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "span",
+              {
+                className: "w-3 h-3 rounded-full shrink-0 border-2 transition-colors",
+                style: {
+                  backgroundColor: visibleCalendars.has("shifts") ? "#ca8a04" : "transparent",
+                  borderColor: "#ca8a04"
+                }
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `text-xs font-medium truncate ${visibleCalendars.has("shifts") ? "text-foreground" : "text-muted-foreground"}`, children: [
+                userWatch,
+                " Watch Shifts"
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1.5 mt-0.5", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[9px] px-1 rounded text-white font-medium", style: { backgroundColor: "#ca8a04" }, children: "☀️ Day" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[9px] px-1 rounded text-white font-medium", style: { backgroundColor: "#4338ca" }, children: "🌙 Night" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[9px] px-1 rounded text-white font-medium", style: { backgroundColor: "#16a34a" }, children: "🌿 Leave" })
+              ] })
+            ] })
+          ]
+        }
+      ) })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[10px] text-muted-foreground px-1 leading-relaxed", children: "Click a calendar to show/hide its events" }) })
+  ] });
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex overflow-hidden", style: { height: "calc(100vh - 160px)" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("aside", { className: "hidden md:flex w-52 shrink-0 border-r border-border bg-card flex-col py-4 px-3 gap-6 h-full overflow-y-auto", children: filterContent }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        className: `md:hidden fixed inset-0 z-40 transition-opacity ${filtersOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`,
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              className: "absolute inset-0 bg-black/40",
+              onClick: () => setFiltersOpen(false)
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "aside",
+            {
+              className: `absolute left-0 top-0 bottom-0 w-72 max-w-[85vw] bg-card border-r border-border flex flex-col py-4 px-3 gap-6 overflow-y-auto transition-transform shadow-xl ${filtersOpen ? "translate-x-0" : "-translate-x-full"}`,
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between pb-2 border-b border-border/50", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-sm font-semibold", children: "Calendars" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      type: "button",
+                      className: "h-8 w-8 rounded-lg hover:bg-muted flex items-center justify-center",
+                      onClick: () => setFiltersOpen(false),
+                      "aria-label": "Close filters",
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4" })
+                    }
+                  )
+                ] }),
+                filterContent
+              ]
+            }
+          )
+        ]
+      }
+    ),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col overflow-hidden p-2 md:p-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-end gap-1.5 md:gap-2 mb-2 shrink-0", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5 md:gap-2 mb-2 shrink-0", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Button,
+          {
+            variant: "outline",
+            size: "sm",
+            onClick: () => setFiltersOpen(true),
+            className: "md:hidden h-10 w-10 px-0 flex items-center justify-center",
+            "aria-label": "Filters",
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { className: "h-4 w-4" })
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 md:hidden" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           Button,
           {
@@ -50752,7 +50803,7 @@ function UnifiedCalendar() {
               setShiftAdjDate(void 0);
               setShiftAdjModalOpen(true);
             },
-            className: "h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5 border-indigo-200 text-indigo-700 hover:bg-indigo-50",
+            className: "h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5 border-indigo-200 text-indigo-700 hover:bg-indigo-50 md:ml-auto",
             "aria-label": "Log Shift",
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarDays, { className: "h-4 w-4" }),

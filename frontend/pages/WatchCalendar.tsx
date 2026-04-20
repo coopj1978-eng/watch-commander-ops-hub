@@ -13,7 +13,7 @@ import type { CalendarVisibility } from "~backend/calendar/types";
 import type { Task } from "~backend/task/types";
 import type { Inspection } from "~backend/inspection/types";
 import { getShiftsForDateRange, hasRotaConfig } from "@/lib/shiftRota";
-import { ClipboardPlus, CalendarDays, GraduationCap } from "lucide-react";
+import { ClipboardPlus, CalendarDays, GraduationCap, Filter, X } from "lucide-react";
 import ScheduleTrainingDialog from "@/components/ScheduleTrainingDialog";
 
 // ─── Calendar sidebar config ──────────────────────────────────────────────────
@@ -79,6 +79,10 @@ export default function UnifiedCalendar() {
 
   // Schedule Training modal — opens from the calendar toolbar
   const [trainingModalOpen, setTrainingModalOpen] = useState(false);
+
+  // Mobile filters drawer — desktop has a permanent sidebar, so this is only
+  // consulted below the md breakpoint.
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   // ─── Date range for queries ─────────────────────────────────────────────────
   const getDateRange = () => {
@@ -309,12 +313,11 @@ export default function UnifiedCalendar() {
     ...(visibleCalendars.has("personal") ? personalEvents : []),
   ];
 
-  return (
-    <div className="flex overflow-hidden" style={{ height: "calc(100vh - 160px)" }}>
-      {/* ── Sidebar (desktop only) ─────────────────────────────────────────── */}
-      <aside className="hidden md:flex w-52 shrink-0 border-r border-border bg-card flex-col py-4 px-3 gap-6 h-full overflow-y-auto">
-        {/* My Calendars */}
-        <div>
+  // Shared filter content — rendered in the permanent desktop sidebar AND
+  // in the mobile drawer so both stay in sync without code duplication.
+  const filterContent = (
+    <>
+      <div>
           <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-2 px-1">
             My Calendars
           </p>
@@ -413,13 +416,53 @@ export default function UnifiedCalendar() {
           </div>
         )}
 
-        {/* Legend */}
-        <div className="mt-auto">
-          <p className="text-[10px] text-muted-foreground px-1 leading-relaxed">
-            Click a calendar to show/hide its events
-          </p>
-        </div>
+      {/* Legend */}
+      <div className="mt-auto">
+        <p className="text-[10px] text-muted-foreground px-1 leading-relaxed">
+          Click a calendar to show/hide its events
+        </p>
+      </div>
+    </>
+  );
+
+  return (
+    <div className="flex overflow-hidden" style={{ height: "calc(100vh - 160px)" }}>
+      {/* ── Desktop sidebar — permanent ────────────────────────────────────── */}
+      <aside className="hidden md:flex w-52 shrink-0 border-r border-border bg-card flex-col py-4 px-3 gap-6 h-full overflow-y-auto">
+        {filterContent}
       </aside>
+
+      {/* ── Mobile filters drawer — slides in from the left ───────────────── */}
+      <div
+        className={`md:hidden fixed inset-0 z-40 transition-opacity ${
+          filtersOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+      >
+        {/* Backdrop */}
+        <div
+          className="absolute inset-0 bg-black/40"
+          onClick={() => setFiltersOpen(false)}
+        />
+        {/* Panel */}
+        <aside
+          className={`absolute left-0 top-0 bottom-0 w-72 max-w-[85vw] bg-card border-r border-border flex flex-col py-4 px-3 gap-6 overflow-y-auto transition-transform shadow-xl ${
+            filtersOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
+          <div className="flex items-center justify-between pb-2 border-b border-border/50">
+            <h2 className="text-sm font-semibold">Calendars</h2>
+            <button
+              type="button"
+              className="h-8 w-8 rounded-lg hover:bg-muted flex items-center justify-center"
+              onClick={() => setFiltersOpen(false)}
+              aria-label="Close filters"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          {filterContent}
+        </aside>
+      </div>
 
       {/* ── Main calendar area ──────────────────────────────────────────────── */}
       <div className="flex-1 flex flex-col overflow-hidden p-2 md:p-4">
@@ -427,12 +470,25 @@ export default function UnifiedCalendar() {
             buttons fit comfortably on a 375px screen. On sm+ the full label
             shows again.  Each button is at least 40x40 to meet tap-target
             minimums. */}
-        <div className="flex items-center justify-end gap-1.5 md:gap-2 mb-2 shrink-0">
+        <div className="flex items-center gap-1.5 md:gap-2 mb-2 shrink-0">
+          {/* Mobile-only: open the calendar filters drawer */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setFiltersOpen(true)}
+            className="md:hidden h-10 w-10 px-0 flex items-center justify-center"
+            aria-label="Filters"
+          >
+            <Filter className="h-4 w-4" />
+          </Button>
+
+          <div className="flex-1 md:hidden" />
+
           <Button
             variant="outline"
             size="sm"
             onClick={() => { setShiftAdjDate(undefined); setShiftAdjModalOpen(true); }}
-            className="h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+            className="h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5 border-indigo-200 text-indigo-700 hover:bg-indigo-50 md:ml-auto"
             aria-label="Log Shift"
           >
             <CalendarDays className="h-4 w-4" />
