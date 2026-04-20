@@ -233,10 +233,13 @@
     --color-rose-500: oklch(64.5% .246 16.439);
     --color-rose-700: oklch(51.4% .222 16.935);
     --color-rose-900: oklch(41% .159 10.272);
+    --color-slate-100: oklch(96.8% .007 247.896);
     --color-slate-300: oklch(86.9% .022 252.894);
     --color-slate-400: oklch(70.4% .04 256.788);
     --color-slate-500: oklch(55.4% .046 257.417);
     --color-slate-600: oklch(44.6% .043 257.281);
+    --color-slate-700: oklch(37.2% .044 257.287);
+    --color-slate-800: oklch(27.9% .041 260.031);
     --color-slate-900: oklch(20.8% .042 265.755);
     --color-gray-50: oklch(98.5% .002 247.839);
     --color-gray-100: oklch(96.7% .003 264.542);
@@ -3357,6 +3360,10 @@
     background-color: var(--color-sky-600);
   }
 
+  .bg-slate-100 {
+    background-color: var(--color-slate-100);
+  }
+
   .bg-slate-500 {
     background-color: var(--color-slate-500);
   }
@@ -4447,6 +4454,10 @@
     color: var(--color-slate-500);
   }
 
+  .text-slate-700 {
+    color: var(--color-slate-700);
+  }
+
   .text-teal-500 {
     color: var(--color-teal-500);
   }
@@ -5172,6 +5183,16 @@
 
     .hover\:border-indigo-600:hover {
       border-color: var(--color-indigo-600);
+    }
+
+    .hover\:border-muted-foreground\/40:hover {
+      border-color: var(--muted-foreground);
+    }
+
+    @supports (color: color-mix(in lab, red, red)) {
+      .hover\:border-muted-foreground\/40:hover {
+        border-color: color-mix(in oklab, var(--muted-foreground) 40%, transparent);
+      }
     }
 
     .hover\:border-red-300:hover {
@@ -6542,6 +6563,10 @@
     border-color: var(--color-amber-800);
   }
 
+  .dark\:border-amber-900:is(.dark *) {
+    border-color: var(--color-amber-900);
+  }
+
   .dark\:border-blue-700:is(.dark *) {
     border-color: var(--color-blue-700);
   }
@@ -7234,6 +7259,10 @@
     }
   }
 
+  .dark\:bg-slate-800:is(.dark *) {
+    background-color: var(--color-slate-800);
+  }
+
   .dark\:bg-teal-900\/40:is(.dark *) {
     background-color: #0b4f4a66;
   }
@@ -7516,6 +7545,10 @@
 
   .dark\:text-sky-400:is(.dark *) {
     color: var(--color-sky-400);
+  }
+
+  .dark\:text-slate-300:is(.dark *) {
+    color: var(--color-slate-300);
   }
 
   .dark\:text-teal-300:is(.dark *) {

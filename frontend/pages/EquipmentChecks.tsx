@@ -7,6 +7,7 @@ import {
   History,
   Plus,
   Settings2,
+  Wrench,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +27,7 @@ import CheckHistory from "@/components/CheckHistory";
 import DefectsList from "@/components/DefectsList";
 import EquipmentManager from "@/components/EquipmentManager";
 import AddApplianceModal from "@/components/AddApplianceModal";
+import ReportDefectDialog from "@/components/ReportDefectDialog";
 
 export default function EquipmentChecks() {
   const isWC = useIsWatchCommander();
@@ -35,6 +37,7 @@ export default function EquipmentChecks() {
   const [checkFormOpen, setCheckFormOpen] = useState(false);
   const [manageEquipmentOpen, setManageEquipmentOpen] = useState(false);
   const [addApplianceOpen, setAddApplianceOpen] = useState(false);
+  const [reportDefectOpen, setReportDefectOpen] = useState(false);
 
   const { data: appliancesData, isLoading } = useQuery({
     queryKey: ["appliances"],
@@ -104,6 +107,15 @@ export default function EquipmentChecks() {
               {overdueDefects.length} overdue defect{overdueDefects.length !== 1 ? "s" : ""} (30+ days)
             </Badge>
           )}
+          <Button
+            onClick={() => setReportDefectOpen(true)}
+            variant="outline"
+            className="border-amber-200 text-amber-700 hover:bg-amber-50 dark:border-amber-900 dark:text-amber-400 dark:hover:bg-amber-950/20"
+            aria-label="Report Defect"
+          >
+            <Wrench className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Report Defect</span>
+          </Button>
           {isWC && (
             <Button onClick={() => setAddApplianceOpen(true)} variant="outline" aria-label="Add Appliance">
               <Plus className="h-4 w-4 sm:mr-2" />
@@ -199,6 +211,13 @@ export default function EquipmentChecks() {
       <AddApplianceModal
         open={addApplianceOpen}
         onOpenChange={setAddApplianceOpen}
+      />
+
+      {/* Report Defect Modal — standalone (not tied to a J4 check) */}
+      <ReportDefectDialog
+        open={reportDefectOpen}
+        onOpenChange={setReportDefectOpen}
+        onReported={() => setActiveTab("defects")}
       />
     </div>
   );

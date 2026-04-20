@@ -12,10 +12,25 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { Upload, FileText, Loader2 } from "lucide-react";
 import { useAuth } from "@/App";
+
+// Canonical document categories. Keep in sync with the filter on Policies.tsx.
+export const DOC_CATEGORIES = [
+  "Operational Guidance",
+  "Policy",
+  "Safety Bulletin",
+  "SOP",
+  "Training Material",
+] as const;
 
 interface PolicyUploadProps {
   open: boolean;
@@ -152,9 +167,10 @@ export default function PolicyUpload({ open, onOpenChange }: PolicyUploadProps) 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Upload Policy Document</DialogTitle>
+          <DialogTitle>Upload Document</DialogTitle>
           <DialogDescription>
-            Upload a PDF policy document to make it searchable via Q&A
+            Upload a PDF — operational guidance, policy, safety bulletin, SOP
+            or training material. Add a category so it's findable later.
           </DialogDescription>
         </DialogHeader>
 
@@ -213,14 +229,20 @@ export default function PolicyUpload({ open, onOpenChange }: PolicyUploadProps) 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="category">Category</Label>
-              <Input
-                id="category"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                placeholder="e.g., Safety, HR, Operations"
+              <Select
+                value={category || undefined}
+                onValueChange={(v) => setCategory(v)}
                 disabled={isUploading}
-                className="mt-1"
-              />
+              >
+                <SelectTrigger id="category" className="mt-1">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {DOC_CATEGORIES.map((c) => (
+                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div>
@@ -248,12 +270,6 @@ export default function PolicyUpload({ open, onOpenChange }: PolicyUploadProps) 
             />
           </div>
 
-          <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900 rounded-md p-4">
-            <p className="text-sm text-blue-900 dark:text-blue-300">
-              <strong>Note:</strong> After upload, the document will be processed for
-              embedding generation to enable AI-powered Q&A search.
-            </p>
-          </div>
         </div>
 
         <DialogFooter>
@@ -280,7 +296,7 @@ export default function PolicyUpload({ open, onOpenChange }: PolicyUploadProps) 
             ) : (
               <>
                 <Upload className="h-4 w-4 mr-2" />
-                Upload Policy
+                Upload Document
               </>
             )}
           </Button>

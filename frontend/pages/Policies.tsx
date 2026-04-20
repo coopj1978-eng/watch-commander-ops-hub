@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useBackend } from "@/lib/backend";
-import PolicyUpload from "@/components/PolicyUpload";
+import PolicyUpload, { DOC_CATEGORIES } from "@/components/PolicyUpload";
 import type { PolicyDoc } from "~backend/policy/types";
 import {
   Card,
@@ -53,8 +53,14 @@ export default function Policies() {
 
   const policies = (policiesData?.policies || []) as unknown as PolicyDoc[];
 
+  // Union canonical categories with anything actually uploaded — so the 5
+  // first-class categories are always selectable even when no doc exists for
+  // them yet, and any legacy categories on older uploads still surface.
   const categories = Array.from(
-    new Set(policies.map((p) => p.category).filter(Boolean) as string[])
+    new Set<string>([
+      ...DOC_CATEGORIES,
+      ...(policies.map((p) => p.category).filter(Boolean) as string[]),
+    ])
   ).sort();
 
   const filteredPolicies = policies.filter((policy) => {
@@ -94,7 +100,7 @@ export default function Policies() {
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
             <BookOpen className="h-7 w-7 text-orange-500 shrink-0" />
-            Policy Documents
+            Policy &amp; Guidance
           </h1>
           <p className="text-muted-foreground mt-1">
             {filteredPolicies.length} document{filteredPolicies.length === 1 ? "" : "s"}
@@ -123,9 +129,10 @@ export default function Policies() {
           <Button
             className="bg-indigo-600 hover:bg-indigo-700"
             onClick={() => setUploadDialogOpen(true)}
+            aria-label="Upload Document"
           >
-            <Upload className="h-4 w-4 mr-2" />
-            Upload Policy
+            <Upload className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Upload Document</span>
           </Button>
         </div>
       </div>
@@ -134,7 +141,7 @@ export default function Policies() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search policies by title or filename..."
+            placeholder="Search by title or filename..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"

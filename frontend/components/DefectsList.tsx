@@ -7,6 +7,9 @@ import {
   Package,
   Clock,
   ShieldAlert,
+  Wrench,
+  Truck,
+  Building2,
 } from "lucide-react";
 import {
   Table,
@@ -139,9 +142,10 @@ export default function DefectsList() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Equipment</TableHead>
-                <TableHead>Appliance</TableHead>
-                <TableHead>Description</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>What</TableHead>
+                <TableHead>Where</TableHead>
+                <TableHead>Details</TableHead>
                 <TableHead>Reported By</TableHead>
                 <TableHead>Reported</TableHead>
                 <TableHead>Status</TableHead>
@@ -155,17 +159,49 @@ export default function DefectsList() {
                     ? differenceInDays(new Date(), new Date(defect.reported_at))
                     : null;
 
+                // defect_type is 'equipment' for legacy rows (default). Fall
+                // back to equipment if missing so older defects still render.
+                const type = (defect as any).defect_type ?? "equipment";
+                const typeInfo = (() => {
+                  if (type === "appliance") return { label: "Appliance", icon: <Truck className="h-3 w-3" />,      cls: "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300" };
+                  if (type === "station")   return { label: "Station",   icon: <Building2 className="h-3 w-3" />,  cls: "bg-purple-100 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300" };
+                  return                            { label: "Equipment", icon: <Wrench className="h-3 w-3" />,     cls: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300" };
+                })();
+
+                // "What" column: equipment name for equipment defects;
+                // short title for appliance / station defects.
+                const whatLabel = type === "equipment"
+                  ? defect.equipment_name
+                  : ((defect as any).title || "—");
+
+                // "Where" column: appliance call sign for equipment /
+                // appliance defects; location for station defects.
+                const whereLabel = type === "station"
+                  ? ((defect as any).location || "—")
+                  : defect.appliance_call_sign;
+
                 return (
                   <TableRow key={defect.id}>
-                    <TableCell className="font-medium">
-                      {defect.equipment_name}
-                    </TableCell>
                     <TableCell>
-                      <Badge variant="outline">
-                        {defect.appliance_call_sign}
+                      <Badge className={`text-xs flex items-center gap-1 w-fit ${typeInfo.cls}`}>
+                        {typeInfo.icon}
+                        {typeInfo.label}
                       </Badge>
                     </TableCell>
+                    <TableCell className="font-medium">
+                      {whatLabel}
+                    </TableCell>
+                    <TableCell>
+                      {whereLabel ? (
+                        <Badge variant="outline">{whereLabel}</Badge>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">—</span>
+                      )}
+                    </TableCell>
                     <TableCell className="max-w-[250px] text-sm">
+                      {type !== "equipment" && (defect as any).title && (
+                        <span className="font-medium block">{(defect as any).title}</span>
+                      )}
                       {defect.description}
                     </TableCell>
                     <TableCell className="text-sm">

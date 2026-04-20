@@ -202,7 +202,11 @@ function AppRoutes() {
         <Route path="/equipment" element={<EquipmentChecks />} />
         <Route path="/targets" element={<Targets />} />
         <Route path="/policies" element={<Policies />} />
-        <Route path="/policies/qa" element={<PolicyQA />} />
+        {/* Q&A is a stub (fakes RAG responses). Route hidden until real
+            vector-based search is wired up — see policy/ask.ts for the TODO.
+            Leaving the component / route file in the repo so the work is a
+            straight resume when an OpenAI key is provisioned. */}
+        <Route path="/policies/qa" element={<Navigate to="/policies" replace />} />
         <Route path="/resources" element={<Resources />} />
         <Route path="/handover" element={<HandoverPage />} />
         <Route path="/detachments" element={<DetachmentsPage />} />

@@ -27345,6 +27345,7 @@ var appliance;
       this.listChecks = this.listChecks.bind(this);
       this.listDefects = this.listDefects.bind(this);
       this.listEquipment = this.listEquipment.bind(this);
+      this.reportDefect = this.reportDefect.bind(this);
       this.startCheck = this.startCheck.bind(this);
       this.updateAppliance = this.updateAppliance.bind(this);
       this.updateDefect = this.updateDefect.bind(this);
@@ -27398,6 +27399,10 @@ var appliance;
         "appliance_id": String(params["appliance_id"])
       });
       const resp = await this.baseClient.callTypedAPI("GET", `/appliances/equipment`, void 0, { query });
+      return await resp.json();
+    }
+    async reportDefect(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/appliances/defects`, JSON.stringify(params));
       return await resp.json();
     }
     async startCheck(params) {
@@ -27637,6 +27642,19 @@ var frontend;
       this.baseClient = baseClient;
       this.assets = this.assets.bind(this);
     }
+    /**
+     * ──────────────────────────────────────────────────────────────────────────────
+     * Security headers for the static frontend.
+     * NOTE: Encore statically analyses api.static() at build time, so the `headers`
+     * option MUST be an inline object literal — referencing an imported constant
+     * fails the build ("headers must be an object"). Kept inline for that reason;
+     * the accompanying doc lives in observability/security_headers.ts.
+     * CSP is tight: self-only with inline styles for Tailwind + React style props,
+     * data: for icons, https: for images. All other directives locked down. HSTS,
+     * X-Frame-Options, nosniff, Referrer-Policy, Permissions-Policy round out the
+     * hardening baseline we lost when we moved off Vercel.
+     * ──────────────────────────────────────────────────────────────────────────────
+     */
     async assets(path) {
       await this.baseClient.callTypedAPI("HEAD", `/${path.map(encodeURIComponent).join("/")}`);
     }
@@ -29094,7 +29112,7 @@ const navGroups = [
   // ── Reference & Account ──────────────────────────────────────────────────
   [
     { name: "My Profile", path: "/profile", icon: CircleUser, ariaLabel: "Go to My Profile" },
-    { name: "Policies", path: "/policies", icon: FileText, ariaLabel: "Go to Policies & Q&A", featureKey: "policies" },
+    { name: "Docs", path: "/policies", icon: FileText, ariaLabel: "Go to Policy & Guidance", featureKey: "policies" },
     { name: "Resources", path: "/resources", icon: BookOpen, ariaLabel: "Go to Resources & Guides", featureKey: "resources" },
     { name: "Settings", path: "/settings", icon: Settings$1, ariaLabel: "Go to Settings" }
   ],
@@ -54272,6 +54290,13 @@ function Targets() {
     /* @__PURE__ */ jsxRuntimeExports.jsx(InspectionAssignments, { year: inspYear, quarter: inspQuarter })
   ] });
 }
+const DOC_CATEGORIES = [
+  "Operational Guidance",
+  "Policy",
+  "Safety Bulletin",
+  "SOP",
+  "Training Material"
+];
 function PolicyUpload({ open, onOpenChange }) {
   const backend = useBackend$1();
   const { toast: toast2 } = useToast();
@@ -54386,8 +54411,8 @@ function PolicyUpload({ open, onOpenChange }) {
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-2xl", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Upload Policy Document" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: "Upload a PDF policy document to make it searchable via Q&A" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Upload Document" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: "Upload a PDF — operational guidance, policy, safety bulletin, SOP or training material. Add a category so it's findable later." })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 py-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
@@ -54441,15 +54466,16 @@ function PolicyUpload({ open, onOpenChange }) {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "category", children: "Category" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Input,
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            Select,
             {
-              id: "category",
-              value: category,
-              onChange: (e) => setCategory(e.target.value),
-              placeholder: "e.g., Safety, HR, Operations",
+              value: category || void 0,
+              onValueChange: (v) => setCategory(v),
               disabled: isUploading,
-              className: "mt-1"
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "category", className: "mt-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select category" }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: DOC_CATEGORIES.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: c, children: c }, c)) })
+              ]
             }
           )
         ] }),
@@ -54481,11 +54507,7 @@ function PolicyUpload({ open, onOpenChange }) {
             className: "mt-1"
           }
         )
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900 rounded-md p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-blue-900 dark:text-blue-300", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Note:" }),
-        " After upload, the document will be processed for embedding generation to enable AI-powered Q&A search."
-      ] }) })
+      ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogFooter, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -54511,7 +54533,7 @@ function PolicyUpload({ open, onOpenChange }) {
             "Uploading..."
           ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { className: "h-4 w-4 mr-2" }),
-            "Upload Policy"
+            "Upload Document"
           ] })
         }
       )
@@ -54535,7 +54557,10 @@ function Policies() {
   });
   const policies = (policiesData == null ? void 0 : policiesData.policies) || [];
   const categories = Array.from(
-    new Set(policies.map((p) => p.category).filter(Boolean))
+    /* @__PURE__ */ new Set([
+      ...DOC_CATEGORIES,
+      ...policies.map((p) => p.category).filter(Boolean)
+    ])
   ).sort();
   const filteredPolicies = policies.filter((policy2) => {
     const matchesSearch = policy2.title.toLowerCase().includes(searchTerm.toLowerCase()) || policy2.file_name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -54568,7 +54593,7 @@ function Policies() {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(BookOpen, { className: "h-7 w-7 text-orange-500 shrink-0" }),
-          "Policy Documents"
+          "Policy & Guidance"
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-muted-foreground mt-1", children: [
           filteredPolicies.length,
@@ -54605,9 +54630,10 @@ function Policies() {
           {
             className: "bg-indigo-600 hover:bg-indigo-700",
             onClick: () => setUploadDialogOpen(true),
+            "aria-label": "Upload Document",
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { className: "h-4 w-4 mr-2" }),
-              "Upload Policy"
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { className: "h-4 w-4 sm:mr-2" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Upload Document" })
             ]
           }
         )
@@ -54619,7 +54645,7 @@ function Policies() {
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Input,
           {
-            placeholder: "Search policies by title or filename...",
+            placeholder: "Search by title or filename...",
             value: searchTerm,
             onChange: (e) => setSearchTerm(e.target.value),
             className: "pl-10"
@@ -54739,337 +54765,6 @@ function Policies() {
       )
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(PolicyUpload, { open: uploadDialogOpen, onOpenChange: setUploadDialogOpen })
-  ] });
-}
-function PolicyQA({ onQueryComplete }) {
-  const backend = useBackend$1();
-  const { toast: toast2 } = useToast();
-  const { user: user2 } = useAuth();
-  const [question, setQuestion] = reactExports.useState("");
-  const [answer, setAnswer] = reactExports.useState(null);
-  const [citations, setCitations] = reactExports.useState([]);
-  const [confidence, setConfidence] = reactExports.useState(null);
-  const askMutation = useMutation({
-    mutationFn: async () => {
-      const response = await backend.policy.ask({
-        query: question
-      });
-      return response;
-    },
-    onSuccess: (data) => {
-      setAnswer(data.answer);
-      setCitations(data.citations || []);
-      setConfidence(data.confidence || null);
-      onQueryComplete == null ? void 0 : onQueryComplete();
-    },
-    onError: (error) => {
-      console.error("Failed to ask question:", error);
-      toast2({
-        title: "Query failed",
-        description: error instanceof Error ? error.message : "An error occurred",
-        variant: "destructive"
-      });
-    }
-  });
-  const handleSubmit = () => {
-    if (!question.trim()) {
-      toast2({
-        title: "Question required",
-        description: "Please enter a question",
-        variant: "destructive"
-      });
-      return;
-    }
-    setAnswer(null);
-    setCitations([]);
-    setConfidence(null);
-    askMutation.mutate();
-  };
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-      e.preventDefault();
-      handleSubmit();
-    }
-  };
-  const getConfidenceBadge = (conf) => {
-    if (conf >= 0.8) {
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { className: "bg-green-500/10 text-green-500", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-3 w-3 mr-1" }),
-        "High Confidence (",
-        (conf * 100).toFixed(0),
-        "%)"
-      ] });
-    } else if (conf >= 0.5) {
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { className: "bg-yellow-500/10 text-yellow-500", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { className: "h-3 w-3 mr-1" }),
-        "Medium Confidence (",
-        (conf * 100).toFixed(0),
-        "%)"
-      ] });
-    } else {
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { className: "bg-red-500/10 text-red-500", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { className: "h-3 w-3 mr-1" }),
-        "Low Confidence (",
-        (conf * 100).toFixed(0),
-        "%)"
-      ] });
-    }
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(CardHeader, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { children: "Ask a Question" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { children: "Query the policy documents using AI-powered search" })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "space-y-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Textarea,
-            {
-              value: question,
-              onChange: (e) => setQuestion(e.target.value),
-              onKeyDown: handleKeyDown,
-              placeholder: "What would you like to know about the policies?",
-              rows: 4,
-              disabled: askMutation.isPending,
-              className: "resize-none"
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground mt-2", children: [
-            "Press ",
-            navigator.platform.includes("Mac") ? "Cmd" : "Ctrl",
-            "+Enter to submit"
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-sm text-muted-foreground", children: [
-            question.trim().length,
-            " characters"
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Button,
-            {
-              onClick: handleSubmit,
-              disabled: askMutation.isPending || !question.trim(),
-              className: "bg-indigo-600 hover:bg-indigo-700",
-              children: askMutation.isPending ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "h-4 w-4 mr-2 animate-spin" }),
-                "Searching..."
-              ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Send, { className: "h-4 w-4 mr-2" }),
-                "Ask Question"
-              ] })
-            }
-          )
-        ] })
-      ] })
-    ] }),
-    answer && /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { className: "border-green-200 dark:border-green-900", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(CardHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start justify-between", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { className: "text-lg", children: "Answer" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { className: "mt-1", children: "Based on the uploaded policy documents" })
-        ] }),
-        confidence !== null && getConfidenceBadge(confidence)
-      ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "space-y-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "prose prose-sm dark:prose-invert max-w-none", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-foreground whitespace-pre-wrap", children: answer }) }),
-        citations.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("h4", { className: "text-sm font-semibold mb-3 flex items-center gap-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "h-4 w-4" }),
-            "Sources"
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-2", children: citations.map((citation, index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            Badge,
-            {
-              variant: "outline",
-              className: "cursor-pointer hover:bg-muted",
-              children: [
-                citation.doc_title,
-                " - Page ",
-                citation.page
-              ]
-            },
-            index2
-          )) })
-        ] }),
-        answer.includes("Not specified in uploaded docs") && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-900 rounded-md p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { className: "h-5 w-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm font-medium text-yellow-900 dark:text-yellow-200", children: "Information not found" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-yellow-700 dark:text-yellow-300 mt-1", children: "The answer was not found in the uploaded policy documents. Consider uploading additional documentation or refining your question." })
-          ] })
-        ] }) })
-      ] })
-    ] }),
-    askMutation.isError && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { className: "border-red-200 dark:border-red-900", children: /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { className: "py-6", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { className: "h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm font-medium text-red-900 dark:text-red-200", children: "Failed to process question" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-red-700 dark:text-red-300 mt-1", children: askMutation.error instanceof Error ? askMutation.error.message : "An unexpected error occurred" })
-      ] })
-    ] }) }) })
-  ] });
-}
-function PolicyQAPage() {
-  const backend = useBackend$1();
-  const { user: user2 } = useAuth();
-  const queryClient2 = useQueryClient();
-  const [searchTerm, setSearchTerm] = reactExports.useState("");
-  const [confidenceFilter, setConfidenceFilter] = reactExports.useState("");
-  const { data: historyData, isLoading } = useQuery({
-    queryKey: ["policy-queries", user2 == null ? void 0 : user2.id],
-    queryFn: async () => {
-      if (!user2) return { queries: [], total: 0 };
-      const result = await backend.policy.queryHistory({ user_id: user2.id });
-      return result;
-    },
-    enabled: !!user2
-  });
-  const history = (historyData == null ? void 0 : historyData.queries) || [];
-  const filteredHistory = history.filter((item) => {
-    const matchesSearch = item.question.toLowerCase().includes(searchTerm.toLowerCase()) || item.answer.toLowerCase().includes(searchTerm.toLowerCase());
-    let matchesConfidence = true;
-    if (confidenceFilter === "high") {
-      matchesConfidence = (item.confidence || 0) >= 0.8;
-    } else if (confidenceFilter === "medium") {
-      matchesConfidence = (item.confidence || 0) >= 0.5 && (item.confidence || 0) < 0.8;
-    } else if (confidenceFilter === "low") {
-      matchesConfidence = (item.confidence || 0) < 0.5;
-    }
-    return matchesSearch && matchesConfidence;
-  });
-  const getConfidenceBadge = (confidence) => {
-    if (!confidence) {
-      return /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", children: "Unknown" });
-    }
-    if (confidence >= 0.8) {
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { className: "bg-green-500/10 text-green-500", children: [
-        "High (",
-        (confidence * 100).toFixed(0),
-        "%)"
-      ] });
-    } else if (confidence >= 0.5) {
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { className: "bg-yellow-500/10 text-yellow-500", children: [
-        "Medium (",
-        (confidence * 100).toFixed(0),
-        "%)"
-      ] });
-    } else {
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { className: "bg-red-500/10 text-red-500", children: [
-        "Low (",
-        (confidence * 100).toFixed(0),
-        "%)"
-      ] });
-    }
-  };
-  const activeFiltersCount = [confidenceFilter].filter(Boolean).length;
-  const handleQueryComplete = () => {
-    queryClient2.invalidateQueries({ queryKey: ["policy-queries", user2 == null ? void 0 : user2.id] });
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 md:p-8 space-y-6", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(MessageSquare, { className: "h-7 w-7 text-violet-500 shrink-0" }),
-        "Policy Q&A"
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground mt-1", children: "Ask questions about policy documents using AI-powered search" })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid gap-6 lg:grid-cols-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "lg:col-span-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(PolicyQA, { onQueryComplete: handleQueryComplete }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { className: "sticky top-6", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(CardHeader, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(CardTitle, { className: "flex items-center gap-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(MessageSquare, { className: "h-5 w-5" }),
-            "Recent Questions"
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { children: "Your query history" })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { children: isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: [...Array(3)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-16 w-full" }, i)) }) : history.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3", children: history.slice(0, 5).map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "div",
-          {
-            className: "p-3 rounded-lg border border-border hover:border-indigo-600 transition-colors",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-foreground font-medium line-clamp-2", children: item.question }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mt-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: new Date(item.created_at).toLocaleDateString() }),
-                getConfidenceBadge(item.confidence)
-              ] })
-            ]
-          },
-          item.id
-        )) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-center text-muted-foreground py-8 text-sm", children: "No questions yet" }) })
-      ] }) })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(CardHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-between", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { children: "Query History" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(CardDescription, { children: [
-          "All your previous questions and answers",
-          activeFiltersCount > 0 && ` (${activeFiltersCount} filter active)`
-        ] })
-      ] }) }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "space-y-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row gap-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative flex-1", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Input,
-              {
-                placeholder: "Search questions and answers...",
-                value: searchTerm,
-                onChange: (e) => setSearchTerm(e.target.value),
-                className: "pl-10"
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: confidenceFilter, onValueChange: setConfidenceFilter, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "w-[180px]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "All confidence" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "", children: "All confidence" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "high", children: "High (80%+)" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "medium", children: "Medium (50-79%)" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "low", children: "Low (<50%)" })
-              ] })
-            ] }),
-            activeFiltersCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline", onClick: () => setConfidenceFilter(""), children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { className: "h-4 w-4 mr-2" }),
-              "Clear"
-            ] })
-          ] })
-        ] }),
-        isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-64 w-full" }) : filteredHistory.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Question" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Answer Preview" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Citations" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Confidence" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Date" })
-          ] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableBody, { children: filteredHistory.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium max-w-xs line-clamp-2", children: item.question }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground max-w-md line-clamp-2", children: item.answer }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: item.citations && item.citations.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-1", children: [
-              item.citations.slice(0, 2).map((citation, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-xs", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "h-3 w-3 mr-1" }),
-                citation.doc_title
-              ] }, i)),
-              item.citations.length > 2 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-xs", children: [
-                "+",
-                item.citations.length - 2
-              ] })
-            ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-muted-foreground", children: "-" }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: getConfidenceBadge(item.confidence) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-muted-foreground", children: new Date(item.created_at).toLocaleDateString() }) })
-          ] }, item.id)) })
-        ] }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg border border-dashed py-16 text-center", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(MessageSquare, { className: "mx-auto h-10 w-10 mb-3 text-muted-foreground/40" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium text-foreground", children: activeFiltersCount > 0 || searchTerm ? "No queries match the search criteria" : "No queries yet" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground mt-1", children: activeFiltersCount > 0 || searchTerm ? "Try adjusting the filters or search term." : "Ask a question about your policy documents to get started." })
-        ] })
-      ] })
-    ] })
   ] });
 }
 function getCurrentFinancialQuarter() {
@@ -59363,9 +59058,10 @@ function DefectsList() {
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground mt-1", children: filterStatus === "Open" ? "All equipment is operational." : "No defects match the current filter." })
     ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "rounded-md border", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(TableHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Equipment" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Appliance" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Description" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Type" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "What" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Where" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Details" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Reported By" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Reported" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Status" }),
@@ -59373,10 +59069,25 @@ function DefectsList() {
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(TableBody, { children: defects.map((defect) => {
         const daysOpen = defect.status !== "Resolved" ? differenceInDays(/* @__PURE__ */ new Date(), new Date(defect.reported_at)) : null;
+        const type = defect.defect_type ?? "equipment";
+        const typeInfo = (() => {
+          if (type === "appliance") return { label: "Appliance", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Truck, { className: "h-3 w-3" }), cls: "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300" };
+          if (type === "station") return { label: "Station", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Building2, { className: "h-3 w-3" }), cls: "bg-purple-100 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300" };
+          return { label: "Equipment", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Wrench, { className: "h-3 w-3" }), cls: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300" };
+        })();
+        const whatLabel = type === "equipment" ? defect.equipment_name : defect.title || "—";
+        const whereLabel = type === "station" ? defect.location || "—" : defect.appliance_call_sign;
         return /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "font-medium", children: defect.equipment_name }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", children: defect.appliance_call_sign }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "max-w-[250px] text-sm", children: defect.description }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { className: `text-xs flex items-center gap-1 w-fit ${typeInfo.cls}`, children: [
+            typeInfo.icon,
+            typeInfo.label
+          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "font-medium", children: whatLabel }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: whereLabel ? /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", children: whereLabel }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground text-sm", children: "—" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(TableCell, { className: "max-w-[250px] text-sm", children: [
+            type !== "equipment" && defect.title && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium block", children: defect.title }),
+            defect.description
+          ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "text-sm", children: defect.reported_by_name }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", children: format(
@@ -59881,6 +59592,231 @@ function AddApplianceModal({
     ] })
   ] }) });
 }
+function ReportDefectDialog({
+  open,
+  onOpenChange,
+  defaultApplianceId,
+  onReported
+}) {
+  var _a2, _b2;
+  const { toast: toast2 } = useToast();
+  const queryClient2 = useQueryClient();
+  const [defectType, setDefectType] = reactExports.useState("equipment");
+  const [applianceId, setApplianceId] = reactExports.useState("");
+  const [equipmentId, setEquipmentId] = reactExports.useState("");
+  const [location, setLocation] = reactExports.useState("");
+  const [title, setTitle] = reactExports.useState("");
+  const [description, setDescription] = reactExports.useState("");
+  reactExports.useEffect(() => {
+    if (open) {
+      setDefectType("equipment");
+      setApplianceId(defaultApplianceId ? String(defaultApplianceId) : "");
+      setEquipmentId("");
+      setLocation("");
+      setTitle("");
+      setDescription("");
+    }
+  }, [open, defaultApplianceId]);
+  const appliancesQuery = useQuery({
+    queryKey: ["appliances"],
+    queryFn: async () => backendClient.appliance.listAppliances({}),
+    enabled: open && defectType !== "station"
+  });
+  const appliances = ((_a2 = appliancesQuery.data) == null ? void 0 : _a2.appliances) ?? [];
+  const equipmentQuery = useQuery({
+    queryKey: ["equipment-items", applianceId],
+    queryFn: async () => backendClient.appliance.listEquipment({ appliance_id: Number(applianceId) }),
+    enabled: open && defectType === "equipment" && !!applianceId
+  });
+  const equipmentItems = ((_b2 = equipmentQuery.data) == null ? void 0 : _b2.items) ?? [];
+  const valid = reactExports.useMemo(() => {
+    if (!title.trim() || !description.trim()) return false;
+    if (defectType === "equipment") return !!applianceId && !!equipmentId;
+    if (defectType === "appliance") return !!applianceId;
+    return true;
+  }, [defectType, applianceId, equipmentId, title, description]);
+  const mutation = useMutation({
+    mutationFn: () => backendClient.appliance.reportDefect({
+      defect_type: defectType,
+      appliance_id: defectType !== "station" ? Number(applianceId) : void 0,
+      equipment_item_id: defectType === "equipment" ? Number(equipmentId) : void 0,
+      location: defectType === "station" ? location.trim() || void 0 : void 0,
+      title: title.trim(),
+      description: description.trim()
+    }),
+    onSuccess: () => {
+      toast2({
+        title: "Defect reported",
+        description: "Added to the open defects list."
+      });
+      queryClient2.invalidateQueries({ queryKey: ["defects"] });
+      onReported == null ? void 0 : onReported();
+      onOpenChange(false);
+    },
+    onError: (e) => {
+      toast2({
+        title: "Could not report defect",
+        description: (e == null ? void 0 : e.message) ?? "Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-lg", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { className: "flex items-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "h-5 w-5 text-amber-500" }),
+        "Report Defect"
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: "Log a fault outside of the J4 check flow — equipment, appliance, or station infrastructure." })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 pt-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Defect Type *" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-3 gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            TypePill,
+            {
+              active: defectType === "equipment",
+              label: "Equipment",
+              icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Wrench, { className: "h-4 w-4" }),
+              onClick: () => setDefectType("equipment")
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            TypePill,
+            {
+              active: defectType === "appliance",
+              label: "Appliance",
+              icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Truck, { className: "h-4 w-4" }),
+              onClick: () => setDefectType("appliance")
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            TypePill,
+            {
+              active: defectType === "station",
+              label: "Station",
+              icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Building2, { className: "h-4 w-4" }),
+              onClick: () => setDefectType("station")
+            }
+          )
+        ] })
+      ] }),
+      defectType !== "station" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Appliance *" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          Select,
+          {
+            value: applianceId,
+            onValueChange: (v) => {
+              setApplianceId(v);
+              setEquipmentId("");
+            },
+            disabled: appliancesQuery.isLoading,
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select appliance" }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: appliances.map((a) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: String(a.id), children: [
+                a.call_sign,
+                " — ",
+                a.name
+              ] }, a.id)) })
+            ]
+          }
+        )
+      ] }),
+      defectType === "equipment" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Equipment *" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          Select,
+          {
+            value: equipmentId,
+            onValueChange: setEquipmentId,
+            disabled: !applianceId || equipmentQuery.isLoading,
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: applianceId ? "Select equipment" : "Pick an appliance first" }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: equipmentItems.map((e) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: String(e.id), children: [
+                e.name,
+                e.serial_number ? ` (S/N ${e.serial_number})` : ""
+              ] }, e.id)) })
+            ]
+          }
+        )
+      ] }),
+      defectType === "station" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Location" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Input,
+          {
+            placeholder: "e.g. Appliance Bay 2, Ops Office, Mess Kitchen",
+            value: location,
+            onChange: (e) => setLocation(e.target.value)
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Short Summary *" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Input,
+          {
+            placeholder: defectType === "equipment" ? "e.g. Low-pressure warning" : defectType === "appliance" ? "e.g. Engine warning light" : "e.g. Bay door stuck open",
+            value: title,
+            onChange: (e) => setTitle(e.target.value),
+            maxLength: 120
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Details *" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Textarea,
+          {
+            rows: 4,
+            placeholder: "Describe the fault — what's happening, when it started, any error messages or visible damage…",
+            value: description,
+            onChange: (e) => setDescription(e.target.value)
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end gap-3 pt-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", onClick: () => onOpenChange(false), children: "Cancel" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Button,
+          {
+            className: "bg-amber-600 hover:bg-amber-700",
+            disabled: !valid || mutation.isPending,
+            onClick: () => mutation.mutate(),
+            children: mutation.isPending ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "h-4 w-4 mr-2 animate-spin" }),
+              "Reporting…"
+            ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "h-4 w-4 mr-2" }),
+              "Report Defect"
+            ] })
+          }
+        )
+      ] })
+    ] })
+  ] }) });
+}
+function TypePill({
+  active,
+  label,
+  icon,
+  onClick
+}) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "button",
+    {
+      type: "button",
+      onClick,
+      className: `flex flex-col items-center justify-center gap-1 py-3 rounded-lg border-2 transition-colors ${active ? "bg-amber-50 border-amber-500 text-amber-700 dark:bg-amber-950/30 dark:text-amber-300" : "bg-muted/30 border-border text-muted-foreground hover:border-muted-foreground/40"}`,
+      children: [
+        icon,
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", children: label })
+      ]
+    }
+  );
+}
 function EquipmentChecks() {
   var _a2, _b2;
   const isWC = useIsWatchCommander();
@@ -59890,6 +59826,7 @@ function EquipmentChecks() {
   const [checkFormOpen, setCheckFormOpen] = reactExports.useState(false);
   const [manageEquipmentOpen, setManageEquipmentOpen] = reactExports.useState(false);
   const [addApplianceOpen, setAddApplianceOpen] = reactExports.useState(false);
+  const [reportDefectOpen, setReportDefectOpen] = reactExports.useState(false);
   const { data: appliancesData, isLoading } = useQuery({
     queryKey: ["appliances"],
     queryFn: async () => {
@@ -59941,6 +59878,19 @@ function EquipmentChecks() {
           overdueDefects.length !== 1 ? "s" : "",
           " (30+ days)"
         ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          Button,
+          {
+            onClick: () => setReportDefectOpen(true),
+            variant: "outline",
+            className: "border-amber-200 text-amber-700 hover:bg-amber-50 dark:border-amber-900 dark:text-amber-400 dark:hover:bg-amber-950/20",
+            "aria-label": "Report Defect",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Wrench, { className: "h-4 w-4 sm:mr-2" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Report Defect" })
+            ]
+          }
+        ),
         isWC && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { onClick: () => setAddApplianceOpen(true), variant: "outline", "aria-label": "Add Appliance", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4 sm:mr-2" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Add Appliance" })
@@ -60003,6 +59953,14 @@ function EquipmentChecks() {
       {
         open: addApplianceOpen,
         onOpenChange: setAddApplianceOpen
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ReportDefectDialog,
+      {
+        open: reportDefectOpen,
+        onOpenChange: setReportDefectOpen,
+        onReported: () => setActiveTab("defects")
       }
     )
   ] });
@@ -65416,7 +65374,7 @@ function AppRoutes() {
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/equipment", element: /* @__PURE__ */ jsxRuntimeExports.jsx(EquipmentChecks, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/targets", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Targets, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/policies", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Policies, {}) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/policies/qa", element: /* @__PURE__ */ jsxRuntimeExports.jsx(PolicyQAPage, {}) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/policies/qa", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Navigate, { to: "/policies", replace: true }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/resources", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Resources, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/handover", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Handover, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/detachments", element: /* @__PURE__ */ jsxRuntimeExports.jsx(DetachmentsPage, {}) }),

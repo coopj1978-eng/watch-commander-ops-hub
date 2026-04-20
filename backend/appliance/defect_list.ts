@@ -17,15 +17,20 @@ interface DefectRow extends EquipmentDefect {
 export const listDefects = api<ListDefectsRequest, ListDefectsResponse>(
   { auth: true, expose: true, method: "GET", path: "/appliances/defects" },
   async (req) => {
+    // LEFT JOIN on equipment + appliance so appliance-level defects (no
+    // equipment item) and station-level defects (no equipment, no appliance)
+    // still come back from this query. COALESCE the names to empty strings
+    // to keep the API shape stable — the frontend already renders a blank
+    // when the name is missing.
     let query = `
       SELECT d.*,
-        ei.name as equipment_name,
-        a.call_sign as appliance_call_sign,
-        u.name as reported_by_name
+        COALESCE(ei.name, '')      AS equipment_name,
+        COALESCE(a.call_sign, '')  AS appliance_call_sign,
+        u.name                     AS reported_by_name
       FROM equipment_defects d
-      JOIN equipment_items ei ON ei.id = d.equipment_item_id
-      JOIN appliances a ON a.id = d.appliance_id
-      JOIN users u ON u.id = d.reported_by
+      LEFT JOIN equipment_items ei ON ei.id = d.equipment_item_id
+      LEFT JOIN appliances a       ON a.id  = d.appliance_id
+      JOIN users u                 ON u.id  = d.reported_by
     `;
     const params: any[] = [];
     const conditions: string[] = [];

@@ -801,6 +801,8 @@ export namespace appliance {
 
     export type DefectStatus = "Open" | "Ordered" | "Resolved"
 
+    export type DefectType = "equipment" | "appliance" | "station"
+
     export type EquipmentCategory = "BA" | "Ladders" | "Hose" | "TIC" | "PPE" | "Tools" | "Medical" | "Other"
 
     export interface EquipmentCheck {
@@ -828,8 +830,11 @@ export namespace appliance {
     export interface EquipmentDefect {
         id: number
         "check_item_id": number | null
-        "equipment_item_id": number
-        "appliance_id": number
+        "equipment_item_id": number | null
+        "appliance_id": number | null
+        "defect_type": DefectType
+        title: string | null
+        location: string | null
         "reported_by": string
         description: string
         status: DefectStatus
@@ -880,11 +885,19 @@ export namespace appliance {
     }
 
     export interface ListDefectsResponse {
+        /**
+         * equipment_name / appliance_call_sign are empty strings when the defect
+         * isn't tied to a specific item or appliance (appliance-level and station-
+         * level defects respectively). Kept as string for API-shape stability.
+         */
         defects: {
             id: number
             "check_item_id": number | null
-            "equipment_item_id": number
-            "appliance_id": number
+            "equipment_item_id": number | null
+            "appliance_id": number | null
+            "defect_type": DefectType
+            title: string | null
+            location: string | null
             "reported_by": string
             description: string
             status: DefectStatus
@@ -907,6 +920,15 @@ export namespace appliance {
 
     export interface ListEquipmentResponse {
         items: EquipmentItem[]
+    }
+
+    export interface ReportDefectRequest {
+        "defect_type": DefectType
+        "appliance_id"?: number
+        "equipment_item_id"?: number
+        location?: string
+        title: string
+        description: string
     }
 
     export interface StartCheckRequest {
@@ -957,6 +979,7 @@ export namespace appliance {
             this.listChecks = this.listChecks.bind(this)
             this.listDefects = this.listDefects.bind(this)
             this.listEquipment = this.listEquipment.bind(this)
+            this.reportDefect = this.reportDefect.bind(this)
             this.startCheck = this.startCheck.bind(this)
             this.updateAppliance = this.updateAppliance.bind(this)
             this.updateDefect = this.updateDefect.bind(this)
@@ -1034,6 +1057,12 @@ export namespace appliance {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/appliances/equipment`, undefined, {query})
             return await resp.json() as ListEquipmentResponse
+        }
+
+        public async reportDefect(params: ReportDefectRequest): Promise<EquipmentDefect> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/appliances/defects`, JSON.stringify(params))
+            return await resp.json() as EquipmentDefect
         }
 
         public async startCheck(params: StartCheckRequest): Promise<StartCheckResponse> {
@@ -1657,6 +1686,19 @@ export namespace frontend {
             this.assets = this.assets.bind(this)
         }
 
+        /**
+         * ──────────────────────────────────────────────────────────────────────────────
+         * Security headers for the static frontend.
+         * NOTE: Encore statically analyses api.static() at build time, so the `headers`
+         * option MUST be an inline object literal — referencing an imported constant
+         * fails the build ("headers must be an object"). Kept inline for that reason;
+         * the accompanying doc lives in observability/security_headers.ts.
+         * CSP is tight: self-only with inline styles for Tailwind + React style props,
+         * data: for icons, https: for images. All other directives locked down. HSTS,
+         * X-Frame-Options, nosniff, Referrer-Policy, Permissions-Policy round out the
+         * hardening baseline we lost when we moved off Vercel.
+         * ──────────────────────────────────────────────────────────────────────────────
+         */
         public async assets(path: string[]): Promise<void> {
             await this.baseClient.callTypedAPI("HEAD", `/${path.map(encodeURIComponent).join("/")}`)
         }

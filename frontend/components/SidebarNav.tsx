@@ -62,7 +62,7 @@ const navGroups: NavItem[][] = [
   // ── Reference & Account ──────────────────────────────────────────────────
   [
     { name: "My Profile", path: "/profile",   icon: UserCircle, ariaLabel: "Go to My Profile" },
-    { name: "Policies",   path: "/policies",  icon: FileText,   ariaLabel: "Go to Policies & Q&A",  featureKey: "policies" },
+    { name: "Docs",       path: "/policies",  icon: FileText,   ariaLabel: "Go to Policy & Guidance", featureKey: "policies" },
     { name: "Resources",  path: "/resources", icon: BookOpen,   ariaLabel: "Go to Resources & Guides", featureKey: "resources" },
     { name: "Settings",   path: "/settings",  icon: Settings,   ariaLabel: "Go to Settings" },
   ],
