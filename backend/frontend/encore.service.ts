@@ -24,20 +24,11 @@ export const assets = api.static({
   notFound: "./dist/index.html",
   notFoundStatus: 200,
   headers: {
-    "Content-Security-Policy":
-      "default-src 'self'; " +
-      "script-src 'self'; " +
-      "style-src 'self' 'unsafe-inline'; " +
-      "img-src 'self' data: https:; " +
-      "font-src 'self' data:; " +
-      "connect-src 'self'; " +
-      "media-src 'self'; " +
-      "worker-src 'self'; " +
-      "manifest-src 'self'; " +
-      "object-src 'none'; " +
-      "base-uri 'self'; " +
-      "form-action 'self'; " +
-      "frame-ancestors 'none'",
+    // Encore's static analyser only accepts plain string literals here —
+    // string concatenation ("a" + "b") is parsed as an expression and
+    // rejected with "header value must be a string or array of strings",
+    // hence the single-line CSP.
+    "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; media-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
     "X-Content-Type-Options":    "nosniff",
     "X-Frame-Options":           "DENY",
     "Referrer-Policy":           "strict-origin-when-cross-origin",
