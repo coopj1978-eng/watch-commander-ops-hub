@@ -500,11 +500,11 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
             </div>
           )}
 
-          {/* ── Two-column body ──────────────────────────────────────────── */}
-          <div className="flex gap-0 px-6 pb-6 pt-4 overflow-y-auto max-h-[70vh]">
+          {/* ── Body — stacks vertically on mobile, two-column on lg+ ──── */}
+          <div className="flex flex-col lg:flex-row gap-6 lg:gap-0 px-4 sm:px-6 pb-6 pt-4 overflow-y-auto max-h-[70vh]">
 
             {/* Left: main content */}
-            <div className="flex-1 min-w-0 space-y-5 pr-6">
+            <div className="flex-1 min-w-0 space-y-5 lg:pr-6">
 
               {/* Labels */}
               {(canEdit || tags.length > 0) && (
@@ -625,8 +625,8 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
               </div>
             </div>
 
-            {/* Right sidebar */}
-            <div className="w-44 shrink-0 space-y-4">
+            {/* Right sidebar — full width on mobile, fixed rail on lg+ */}
+            <div className="w-full lg:w-44 lg:shrink-0 space-y-4 border-t lg:border-t-0 pt-4 lg:pt-0">
 
               {/* Column */}
               <div>

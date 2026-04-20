@@ -52282,8 +52282,8 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
           ] }) })
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-0 px-6 pb-6 pt-4 overflow-y-auto max-h-[70vh]", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0 space-y-5 pr-6", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col lg:flex-row gap-6 lg:gap-0 px-4 sm:px-6 pb-6 pt-4 overflow-y-auto max-h-[70vh]", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0 space-y-5 lg:pr-6", children: [
           (canEdit || tags.length > 0) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: Tag, children: "Labels" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1.5", children: TASK_LABELS.map((label) => {
@@ -52408,7 +52408,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
             ] })
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-44 shrink-0 space-y-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full lg:w-44 lg:shrink-0 space-y-4 border-t lg:border-t-0 pt-4 lg:pt-0", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: GripVertical, children: "Column" }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: status, onValueChange: handleStatusChange, disabled: !canEdit, children: [
@@ -59004,64 +59004,66 @@ function CheckForm({
             {
               className: `rounded-lg border p-3 transition-colors ${item.status === "Defective" ? "border-amber-300 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800" : item.status === "Missing" ? "border-red-300 bg-red-50 dark:bg-red-950/20 dark:border-red-800" : "border-border"}`,
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-4", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 min-w-0", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 min-w-0", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-wrap", children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: item.name }),
                     item.serial_number && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-xs", children: [
                       "S/N: ",
                       item.serial_number
                     ] })
                   ] }) }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground whitespace-nowrap", children: "Qty" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      Input,
-                      {
-                        type: "number",
-                        min: 0,
-                        value: item.quantity_checked,
-                        onChange: (e) => updateItem(globalIdx, {
-                          quantity_checked: parseInt(e.target.value) || 0
-                        }),
-                        className: "w-16 h-8 text-center"
-                      }
-                    ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-muted-foreground", children: [
-                      "/ ",
-                      item.expected_quantity
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-3 sm:gap-4", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground whitespace-nowrap", children: "Qty" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        Input,
+                        {
+                          type: "number",
+                          min: 0,
+                          value: item.quantity_checked,
+                          onChange: (e) => updateItem(globalIdx, {
+                            quantity_checked: parseInt(e.target.value) || 0
+                          }),
+                          className: "w-16 h-8 text-center"
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-muted-foreground", children: [
+                        "/ ",
+                        item.expected_quantity
+                      ] })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        Button,
+                        {
+                          size: "sm",
+                          variant: item.status === "OK" ? "default" : "outline",
+                          className: item.status === "OK" ? "bg-green-600 hover:bg-green-700 h-8 px-2" : "h-8 px-2",
+                          onClick: () => updateItem(globalIdx, { status: "OK" }),
+                          children: /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-4 w-4" })
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        Button,
+                        {
+                          size: "sm",
+                          variant: item.status === "Defective" ? "default" : "outline",
+                          className: item.status === "Defective" ? "bg-amber-600 hover:bg-amber-700 h-8 px-2" : "h-8 px-2",
+                          onClick: () => updateItem(globalIdx, { status: "Defective" }),
+                          children: /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "h-4 w-4" })
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        Button,
+                        {
+                          size: "sm",
+                          variant: item.status === "Missing" ? "default" : "outline",
+                          className: item.status === "Missing" ? "bg-red-600 hover:bg-red-700 h-8 px-2" : "h-8 px-2",
+                          onClick: () => updateItem(globalIdx, { status: "Missing" }),
+                          children: /* @__PURE__ */ jsxRuntimeExports.jsx(CircleX, { className: "h-4 w-4" })
+                        }
+                      )
                     ] })
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      Button,
-                      {
-                        size: "sm",
-                        variant: item.status === "OK" ? "default" : "outline",
-                        className: item.status === "OK" ? "bg-green-600 hover:bg-green-700 h-8 px-2" : "h-8 px-2",
-                        onClick: () => updateItem(globalIdx, { status: "OK" }),
-                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-4 w-4" })
-                      }
-                    ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      Button,
-                      {
-                        size: "sm",
-                        variant: item.status === "Defective" ? "default" : "outline",
-                        className: item.status === "Defective" ? "bg-amber-600 hover:bg-amber-700 h-8 px-2" : "h-8 px-2",
-                        onClick: () => updateItem(globalIdx, { status: "Defective" }),
-                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "h-4 w-4" })
-                      }
-                    ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      Button,
-                      {
-                        size: "sm",
-                        variant: item.status === "Missing" ? "default" : "outline",
-                        className: item.status === "Missing" ? "bg-red-600 hover:bg-red-700 h-8 px-2" : "h-8 px-2",
-                        onClick: () => updateItem(globalIdx, { status: "Missing" }),
-                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(CircleX, { className: "h-4 w-4" })
-                      }
-                    )
                   ] })
                 ] }),
                 (item.status === "Defective" || item.status === "Missing") && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -62906,22 +62908,22 @@ function CrewingBoard() {
             }
           )
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1 w-full sm:w-auto", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-medium text-muted-foreground uppercase tracking-wide", children: "Shift" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-px rounded-md border overflow-hidden text-sm bg-border", children: SHIFT_TYPES.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-4 sm:grid-cols-2 gap-px rounded-md border overflow-hidden text-sm bg-border", children: SHIFT_TYPES.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
               onClick: () => {
                 setShiftType(s.value);
                 setShiftDate(currentShiftDate());
               },
-              className: `px-3 py-2 transition-colors font-medium ${shiftType === s.value ? s.day ? "bg-sky-600 text-white" : "bg-indigo-700 text-white" : "bg-background text-muted-foreground hover:bg-muted"}`,
+              className: `px-2 sm:px-3 py-2 transition-colors font-medium whitespace-nowrap ${shiftType === s.value ? s.day ? "bg-sky-600 text-white" : "bg-indigo-700 text-white" : "bg-background text-muted-foreground hover:bg-muted"}`,
               children: s.label
             },
             s.value
           )) })
         ] }),
-        canEdit && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline", size: "sm", className: "gap-2 ml-auto", onClick: () => copyMut.mutate(), disabled: copyMut.isPending, children: [
+        canEdit && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline", size: "sm", className: "gap-2 sm:ml-auto", onClick: () => copyMut.mutate(), disabled: copyMut.isPending, children: [
           copyMut.isPending ? /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "h-3.5 w-3.5 animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "h-3.5 w-3.5" }),
           "Copy Previous"
         ] })

@@ -244,9 +244,13 @@ export default function CheckForm({
                           : "border-border"
                       }`}
                     >
-                      <div className="flex items-center justify-between gap-4">
+                      {/* Row stacks vertically on mobile so the name, Qty
+                          field, and status buttons each get full-width
+                          breathing room instead of fighting for the same
+                          horizontal track. */}
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <span className="font-medium">{item.name}</span>
                             {item.serial_number && (
                               <Badge variant="outline" className="text-xs">
@@ -256,29 +260,30 @@ export default function CheckForm({
                           </div>
                         </div>
 
-                        {/* Quantity */}
-                        <div className="flex items-center gap-2">
-                          <Label className="text-xs text-muted-foreground whitespace-nowrap">
-                            Qty
-                          </Label>
-                          <Input
-                            type="number"
-                            min={0}
-                            value={item.quantity_checked}
-                            onChange={(e) =>
-                              updateItem(globalIdx, {
-                                quantity_checked: parseInt(e.target.value) || 0,
-                              })
-                            }
-                            className="w-16 h-8 text-center"
-                          />
-                          <span className="text-xs text-muted-foreground">
-                            / {item.expected_quantity}
-                          </span>
-                        </div>
+                        <div className="flex items-center justify-between gap-3 sm:gap-4">
+                          {/* Quantity */}
+                          <div className="flex items-center gap-2">
+                            <Label className="text-xs text-muted-foreground whitespace-nowrap">
+                              Qty
+                            </Label>
+                            <Input
+                              type="number"
+                              min={0}
+                              value={item.quantity_checked}
+                              onChange={(e) =>
+                                updateItem(globalIdx, {
+                                  quantity_checked: parseInt(e.target.value) || 0,
+                                })
+                              }
+                              className="w-16 h-8 text-center"
+                            />
+                            <span className="text-xs text-muted-foreground">
+                              / {item.expected_quantity}
+                            </span>
+                          </div>
 
-                        {/* Status buttons */}
-                        <div className="flex gap-1">
+                          {/* Status buttons */}
+                          <div className="flex gap-1">
                           <Button
                             size="sm"
                             variant={item.status === "OK" ? "default" : "outline"}
@@ -325,6 +330,7 @@ export default function CheckForm({
                           >
                             <XCircle className="h-4 w-4" />
                           </Button>
+                          </div>
                         </div>
                       </div>
 

@@ -1969,15 +1969,17 @@ export default function CrewingBoard() {
             />
           </div>
 
-          {/* 4-type shift selector */}
-          <div className="space-y-1">
+          {/* 4-type shift selector — on mobile this goes full-width as a
+              4-across row, so each button is always readable and the grid
+              doesn't get squeezed between the other controls. */}
+          <div className="space-y-1 w-full sm:w-auto">
             <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Shift</label>
-            <div className="grid grid-cols-2 gap-px rounded-md border overflow-hidden text-sm bg-border">
+            <div className="grid grid-cols-4 sm:grid-cols-2 gap-px rounded-md border overflow-hidden text-sm bg-border">
               {SHIFT_TYPES.map(s => (
                 <button
                   key={s.value}
                   onClick={() => { setShiftType(s.value); setShiftDate(currentShiftDate()); }}
-                  className={`px-3 py-2 transition-colors font-medium ${
+                  className={`px-2 sm:px-3 py-2 transition-colors font-medium whitespace-nowrap ${
                     shiftType === s.value
                       ? s.day ? "bg-sky-600 text-white" : "bg-indigo-700 text-white"
                       : "bg-background text-muted-foreground hover:bg-muted"
@@ -1990,7 +1992,7 @@ export default function CrewingBoard() {
           </div>
 
           {canEdit && (
-            <Button variant="outline" size="sm" className="gap-2 ml-auto" onClick={() => copyMut.mutate()} disabled={copyMut.isPending}>
+            <Button variant="outline" size="sm" className="gap-2 sm:ml-auto" onClick={() => copyMut.mutate()} disabled={copyMut.isPending}>
               {copyMut.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Copy className="h-3.5 w-3.5" />}
               Copy Previous
             </Button>
