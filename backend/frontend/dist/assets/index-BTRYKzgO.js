@@ -46156,119 +46156,153 @@ function People() {
         ] })
       ] }) })
     ] }),
-    isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: [...Array(5)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-16 w-full" }, i)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { className: "overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TableHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
-        visibleColumns.name && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "cursor-pointer", onClick: () => handleSort("name"), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
-          "Name ",
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { field: "name" })
-        ] }) }),
-        visibleColumns.watch && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "cursor-pointer", onClick: () => handleSort("watch"), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
-          "Watch ",
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { field: "watch" })
-        ] }) }),
-        visibleColumns.phone && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "cursor-pointer", onClick: () => handleSort("phone"), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
-          "Phone ",
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { field: "phone" })
-        ] }) }),
-        visibleColumns.email && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "cursor-pointer", onClick: () => handleSort("email"), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
-          "Email ",
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { field: "email" })
-        ] }) }),
-        visibleColumns.rank && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "cursor-pointer", onClick: () => handleSort("rank"), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
-          "Rank ",
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { field: "rank" })
-        ] }) }),
-        visibleColumns.staffNumber && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "cursor-pointer", onClick: () => handleSort("staffNumber"), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
-          "Staff # ",
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { field: "staffNumber" })
-        ] }) }),
-        visibleColumns.niNumber && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "NI Number" }),
-        visibleColumns.skills && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Skills" }),
-        visibleColumns.driverPathway && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Driver Pathway" }),
-        visibleColumns.absence && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Absence (6m/1y)" }),
-        visibleColumns.lastConversation && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "cursor-pointer", onClick: () => handleSort("lastConversation"), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
-          "Last Conv. ",
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { field: "lastConversation" })
-        ] }) }),
-        canLogSick && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "w-28", children: "Actions" })
-      ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TableBody, { children: filteredAndSortedPeople.map((person) => {
+    isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: [...Array(5)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-16 w-full" }, i)) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "md:hidden space-y-2", children: filteredAndSortedPeople.map((person) => {
         var _a3;
         const { user: user2, profile: profile2 } = person;
+        const watch = user2.watch_unit || (profile2 == null ? void 0 : profile2.watch);
+        const initials2 = ((_a3 = user2.name) == null ? void 0 : _a3.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase()) ?? "?";
         return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          TableRow,
+          "button",
           {
-            className: "cursor-pointer hover:bg-muted/50",
             onClick: () => navigate(`/people/${user2.id}`),
+            className: "w-full text-left bg-card border border-border rounded-xl p-3 flex items-center gap-3 hover:bg-muted/40 active:bg-muted/60 transition-colors",
             children: [
-              visibleColumns.name && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "font-medium", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-wrap", children: [
-                user2.name,
-                (sickToday == null ? void 0 : sickToday.has(user2.id)) && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-xs bg-red-500/10 text-red-600 border-red-500/20 gap-1 shrink-0", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Stethoscope, { className: "h-3 w-3" }),
-                  " Off Sick"
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-11 w-11 rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 flex items-center justify-center text-white font-bold shrink-0", children: initials2 }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-wrap", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold truncate", children: user2.name }),
+                  (sickToday == null ? void 0 : sickToday.has(user2.id)) && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-[10px] bg-red-500/10 text-red-600 border-red-500/20 gap-1", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Stethoscope, { className: "h-2.5 w-2.5" }),
+                    " Sick"
+                  ] }),
+                  !user2.is_active && !user2.left_at && /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-[10px] bg-yellow-500/10 text-yellow-600 border-yellow-500/20", children: "Pending" })
                 ] }),
-                !user2.is_active && !user2.left_at && /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-xs bg-yellow-500/10 text-yellow-600 border-yellow-500/20", children: "Pending Login" })
-              ] }) }),
-              visibleColumns.watch && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: user2.watch_unit || (profile2 == null ? void 0 : profile2.watch) ? /* @__PURE__ */ jsxRuntimeExports.jsx(WatchBadge$2, { watch: user2.watch_unit || (profile2 == null ? void 0 : profile2.watch) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "-" }) }),
-              visibleColumns.phone && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: (profile2 == null ? void 0 : profile2.phone) || "-" }),
-              visibleColumns.email && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "text-sm", children: user2.email }),
-              visibleColumns.rank && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: (profile2 == null ? void 0 : profile2.rank) || "-" }),
-              visibleColumns.staffNumber && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: (profile2 == null ? void 0 : profile2.service_number) || "-" }),
-              visibleColumns.niNumber && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: ((_a3 = profile2 == null ? void 0 : profile2.customFields) == null ? void 0 : _a3.niNumber) || "-" }),
-              visibleColumns.skills && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1 max-w-xs", children: (profile2 == null ? void 0 : profile2.skills) && profile2.skills.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                profile2.skills.slice(0, 3).map((skill2, idx) => /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-xs", children: skill2 }, idx)),
-                profile2.skills.length > 3 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-muted-foreground", children: [
-                  "+",
-                  profile2.skills.length - 3
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 mt-0.5 text-xs text-muted-foreground", children: [
+                  (profile2 == null ? void 0 : profile2.rank) && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate", children: profile2.rank }),
+                  (profile2 == null ? void 0 : profile2.rank) && watch && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground/40", children: "·" }),
+                  watch && /* @__PURE__ */ jsxRuntimeExports.jsx(WatchBadge$2, { watch })
                 ] })
-              ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "-" }) }) }),
-              visibleColumns.driverPathway && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: (profile2 == null ? void 0 : profile2.driverPathway) ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: DRIVER_PATHWAY_COLORS[profile2.driverPathway.status] || "", children: DRIVER_PATHWAY_STATUS_LABELS[profile2.driverPathway.status] || profile2.driverPathway.status }),
-                profile2.driverPathway.lgvPassedDate && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs text-muted-foreground", children: [
-                  "LGV: ",
-                  new Date(profile2.driverPathway.lgvPassedDate).toLocaleDateString()
-                ] })
-              ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "-" }) }),
-              visibleColumns.absence && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-sm", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                  (profile2 == null ? void 0 : profile2.rolling_sick_days) || 0,
-                  " days"
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs text-muted-foreground", children: [
-                  (profile2 == null ? void 0 : profile2.rolling_sick_episodes) || 0,
-                  " episodes"
-                ] })
-              ] }) }),
-              visibleColumns.lastConversation && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: (profile2 == null ? void 0 : profile2.lastConversation) ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-sm max-w-xs", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-medium", children: new Date(profile2.lastConversation.date).toLocaleDateString() }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-muted-foreground truncate", children: profile2.lastConversation.text })
-              ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "-" }) }),
-              canLogSick && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { onClick: (e) => e.stopPropagation(), children: (sickToday == null ? void 0 : sickToday.has(user2.id)) ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-xs text-red-600 border-red-500/30 gap-1", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Stethoscope, { className: "h-3 w-3" }),
-                " Booked Off"
-              ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                Button,
-                {
-                  size: "sm",
-                  variant: "ghost",
-                  className: "h-7 px-2 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20",
-                  onClick: () => {
-                    logSickMutation.reset();
-                    setLogSickPerson({ id: user2.id, name: user2.name });
-                    setLogSickOpen(true);
-                  },
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(Stethoscope, { className: "h-3 w-3 mr-1" }),
-                    "Log Sick"
-                  ]
-                }
-              ) })
+              ] })
             ]
           },
           user2.id
         );
-      }) })
-    ] }) }) }),
+      }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { className: "hidden md:block overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
+          visibleColumns.name && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "cursor-pointer", onClick: () => handleSort("name"), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
+            "Name ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { field: "name" })
+          ] }) }),
+          visibleColumns.watch && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "cursor-pointer", onClick: () => handleSort("watch"), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
+            "Watch ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { field: "watch" })
+          ] }) }),
+          visibleColumns.phone && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "cursor-pointer", onClick: () => handleSort("phone"), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
+            "Phone ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { field: "phone" })
+          ] }) }),
+          visibleColumns.email && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "cursor-pointer", onClick: () => handleSort("email"), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
+            "Email ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { field: "email" })
+          ] }) }),
+          visibleColumns.rank && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "cursor-pointer", onClick: () => handleSort("rank"), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
+            "Rank ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { field: "rank" })
+          ] }) }),
+          visibleColumns.staffNumber && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "cursor-pointer", onClick: () => handleSort("staffNumber"), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
+            "Staff # ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { field: "staffNumber" })
+          ] }) }),
+          visibleColumns.niNumber && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "NI Number" }),
+          visibleColumns.skills && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Skills" }),
+          visibleColumns.driverPathway && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Driver Pathway" }),
+          visibleColumns.absence && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Absence (6m/1y)" }),
+          visibleColumns.lastConversation && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "cursor-pointer", onClick: () => handleSort("lastConversation"), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
+            "Last Conv. ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { field: "lastConversation" })
+          ] }) }),
+          canLogSick && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "w-28", children: "Actions" })
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TableBody, { children: filteredAndSortedPeople.map((person) => {
+          var _a3;
+          const { user: user2, profile: profile2 } = person;
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            TableRow,
+            {
+              className: "cursor-pointer hover:bg-muted/50",
+              onClick: () => navigate(`/people/${user2.id}`),
+              children: [
+                visibleColumns.name && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "font-medium", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-wrap", children: [
+                  user2.name,
+                  (sickToday == null ? void 0 : sickToday.has(user2.id)) && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-xs bg-red-500/10 text-red-600 border-red-500/20 gap-1 shrink-0", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Stethoscope, { className: "h-3 w-3" }),
+                    " Off Sick"
+                  ] }),
+                  !user2.is_active && !user2.left_at && /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-xs bg-yellow-500/10 text-yellow-600 border-yellow-500/20", children: "Pending Login" })
+                ] }) }),
+                visibleColumns.watch && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: user2.watch_unit || (profile2 == null ? void 0 : profile2.watch) ? /* @__PURE__ */ jsxRuntimeExports.jsx(WatchBadge$2, { watch: user2.watch_unit || (profile2 == null ? void 0 : profile2.watch) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "-" }) }),
+                visibleColumns.phone && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: (profile2 == null ? void 0 : profile2.phone) || "-" }),
+                visibleColumns.email && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "text-sm", children: user2.email }),
+                visibleColumns.rank && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: (profile2 == null ? void 0 : profile2.rank) || "-" }),
+                visibleColumns.staffNumber && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: (profile2 == null ? void 0 : profile2.service_number) || "-" }),
+                visibleColumns.niNumber && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: ((_a3 = profile2 == null ? void 0 : profile2.customFields) == null ? void 0 : _a3.niNumber) || "-" }),
+                visibleColumns.skills && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1 max-w-xs", children: (profile2 == null ? void 0 : profile2.skills) && profile2.skills.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                  profile2.skills.slice(0, 3).map((skill2, idx) => /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-xs", children: skill2 }, idx)),
+                  profile2.skills.length > 3 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-muted-foreground", children: [
+                    "+",
+                    profile2.skills.length - 3
+                  ] })
+                ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "-" }) }) }),
+                visibleColumns.driverPathway && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: (profile2 == null ? void 0 : profile2.driverPathway) ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: DRIVER_PATHWAY_COLORS[profile2.driverPathway.status] || "", children: DRIVER_PATHWAY_STATUS_LABELS[profile2.driverPathway.status] || profile2.driverPathway.status }),
+                  profile2.driverPathway.lgvPassedDate && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs text-muted-foreground", children: [
+                    "LGV: ",
+                    new Date(profile2.driverPathway.lgvPassedDate).toLocaleDateString()
+                  ] })
+                ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "-" }) }),
+                visibleColumns.absence && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-sm", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    (profile2 == null ? void 0 : profile2.rolling_sick_days) || 0,
+                    " days"
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs text-muted-foreground", children: [
+                    (profile2 == null ? void 0 : profile2.rolling_sick_episodes) || 0,
+                    " episodes"
+                  ] })
+                ] }) }),
+                visibleColumns.lastConversation && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: (profile2 == null ? void 0 : profile2.lastConversation) ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-sm max-w-xs", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-medium", children: new Date(profile2.lastConversation.date).toLocaleDateString() }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-muted-foreground truncate", children: profile2.lastConversation.text })
+                ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "-" }) }),
+                canLogSick && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { onClick: (e) => e.stopPropagation(), children: (sickToday == null ? void 0 : sickToday.has(user2.id)) ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-xs text-red-600 border-red-500/30 gap-1", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Stethoscope, { className: "h-3 w-3" }),
+                  " Booked Off"
+                ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  Button,
+                  {
+                    size: "sm",
+                    variant: "ghost",
+                    className: "h-7 px-2 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20",
+                    onClick: () => {
+                      logSickMutation.reset();
+                      setLogSickPerson({ id: user2.id, name: user2.name });
+                      setLogSickOpen(true);
+                    },
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Stethoscope, { className: "h-3 w-3 mr-1" }),
+                      "Log Sick"
+                    ]
+                  }
+                ) })
+              ]
+            },
+            user2.id
+          );
+        }) })
+      ] }) }) })
+    ] }),
     filteredAndSortedPeople.length === 0 && !isLoading && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { className: "border-dashed", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "py-16 text-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { className: "h-10 w-10 mx-auto mb-3 text-muted-foreground/40" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium text-foreground", children: activeFiltersCount > 0 ? "No people match the filters" : "No people found" }),
@@ -51891,7 +51925,53 @@ function TaskList({ tasks, isLoading, onTaskClick }) {
         "Clear Filters"
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border rounded-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "md:hidden space-y-2", children: isLoading ? [...Array(5)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-20 w-full rounded-xl" }, i)) : filteredTasks.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border border-dashed rounded-xl py-10 text-center text-sm text-muted-foreground", children: hasActiveFilters ? "No tasks match your filters" : "No tasks yet" }) : filteredTasks.map((task2) => {
+      const checklistProgress = task2.checklist ? {
+        completed: task2.checklist.filter((item) => item.done).length,
+        total: task2.checklist.length,
+        percentage: Math.round(
+          task2.checklist.filter((item) => item.done).length / task2.checklist.length * 100
+        )
+      } : null;
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "button",
+        {
+          onClick: () => onTaskClick == null ? void 0 : onTaskClick(task2),
+          className: "w-full text-left bg-card border border-border rounded-xl p-3 space-y-2 hover:bg-muted/40 active:bg-muted/60 transition-colors",
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-2", children: [
+              task2.rrule && /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat, { className: "h-4 w-4 text-blue-500 mt-0.5 shrink-0" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-semibold leading-snug", children: task2.title }),
+                task2.description && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground line-clamp-2 mt-0.5", children: task2.description })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-1.5", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: getStatusColor(task2.status), variant: "outline", children: statusLabels[task2.status] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: getPriorityColor(task2.priority), variant: "outline", children: task2.priority }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-xs", children: task2.category }),
+              getDueBadge(task2)
+            ] }),
+            checklistProgress && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 pt-1", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 h-1.5 bg-muted rounded-full overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  className: "h-full bg-indigo-500 transition-all",
+                  style: { width: `${checklistProgress.percentage}%` }
+                }
+              ) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-[11px] text-muted-foreground whitespace-nowrap", children: [
+                checklistProgress.completed,
+                "/",
+                checklistProgress.total
+              ] })
+            ] })
+          ]
+        },
+        task2.id
+      );
+    }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hidden md:block border rounded-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(TableHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Title" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Status" }),
@@ -61701,7 +61781,9 @@ function DraggableTile({
   assignedEntry,
   isAbsent,
   adjustment,
-  isPending
+  isPending,
+  isTapSelected,
+  onTap
 }) {
   const disabled = !!assignedEntry || isAbsent || !!adjustment || !!isPending;
   const { attributes, listeners: listeners2, setNodeRef, transform, isDragging } = useDraggable({
@@ -61710,6 +61792,10 @@ function DraggableTile({
     disabled
   });
   const style = transform ? { transform: CSS$1.Translate.toString(transform) } : void 0;
+  const handleClick = () => {
+    if (disabled) return;
+    onTap == null ? void 0 : onTap();
+  };
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
     "div",
     {
@@ -61717,7 +61803,8 @@ function DraggableTile({
       style,
       ...disabled ? {} : listeners2,
       ...disabled ? {} : attributes,
-      className: `${disabled ? "cursor-default" : "cursor-grab active:cursor-grabbing"} touch-none`,
+      onClick: handleClick,
+      className: `${disabled ? "cursor-default" : "cursor-grab active:cursor-grabbing"} touch-none rounded-xl transition-all ${isTapSelected ? "ring-2 ring-indigo-500 ring-offset-2 ring-offset-background" : ""}`,
       children: /* @__PURE__ */ jsxRuntimeExports.jsx(
         TileCard,
         {
@@ -62161,7 +62248,9 @@ function RosterPanel({
   canEdit,
   pendingExternal,
   onDismissPending,
-  onExternalClick
+  onExternalClick,
+  tapSelectedId,
+  onTapMember
 }) {
   const unassigned = roster.filter(
     (m) => !assignedByUserId.has(m.id) && !pendingAssignIds.has(m.id) && !absentIds.has(m.id) && !adjustmentByUserId.has(m.id)
@@ -62195,7 +62284,16 @@ function RosterPanel({
             unassigned.length,
             ")"
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-2", children: unassigned.map((m) => /* @__PURE__ */ jsxRuntimeExports.jsx(DraggableTile, { member: m, isAbsent: false }, m.id)) })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-2", children: unassigned.map((m) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            DraggableTile,
+            {
+              member: m,
+              isAbsent: false,
+              isTapSelected: tapSelectedId === m.id,
+              onTap: () => onTapMember(tapSelectedId === m.id ? null : m.id)
+            },
+            m.id
+          )) })
         ] }),
         assigned.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-2", children: [
@@ -62587,6 +62685,7 @@ function CrewingBoard() {
   const [showDetached, setShowDetached] = reactExports.useState(false);
   const [showExtDialog, setShowExtDialog] = reactExports.useState(false);
   const [pendingAssignIds, setPendingAssignIds] = reactExports.useState(/* @__PURE__ */ new Set());
+  const [tapSelectedId, setTapSelectedId] = reactExports.useState(null);
   const [pendingDetach, setPendingDetach] = reactExports.useState(null);
   const [pendingExternal, setPendingExternal] = reactExports.useState([]);
   const [draggingMember, setDraggingMember] = reactExports.useState(null);
@@ -62881,6 +62980,22 @@ function CrewingBoard() {
       });
     }
   };
+  const handleSlotActivate = (slotId) => {
+    const meta = slotMetaRef.current.get(slotId);
+    if (!meta) return;
+    if (tapSelectedId) {
+      const member = roster.find((m) => m.id === tapSelectedId);
+      if (!member) {
+        setTapSelectedId(null);
+        return;
+      }
+      handleSlotAssign(slotId, member.id, void 0, meta.role);
+      setTapSelectedId(null);
+      return;
+    }
+    setActiveSlotId(slotId);
+    setShowDetached(false);
+  };
   const handleSlotAssign = (slotId, userId, extName, role) => {
     const meta = slotMetaRef.current.get(slotId);
     if (!meta) return;
@@ -62913,7 +63028,24 @@ function CrewingBoard() {
     }]);
     setShowExtDialog(false);
   };
+  const tapSelectedMember = tapSelectedId ? roster.find((m) => m.id === tapSelectedId) : null;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(DndContext, { sensors, onDragStart: handleDragStart, onDragEnd: handleDragEnd, children: [
+    tapSelectedMember && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "sticky top-16 z-20 md:top-20 mx-auto max-w-sm mb-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 rounded-full bg-indigo-600 text-white shadow-lg px-4 py-2.5", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-7 w-7 rounded-full bg-white/20 flex items-center justify-center text-[11px] font-bold shrink-0", children: initials(tapSelectedMember.name) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs font-semibold truncate", children: tapSelectedMember.name }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[10px] opacity-80", children: "Tap an empty slot to place" })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          type: "button",
+          onClick: () => setTapSelectedId(null),
+          className: "shrink-0 h-7 px-3 rounded-full bg-white/10 hover:bg-white/20 text-xs font-medium",
+          children: "Cancel"
+        }
+      )
+    ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-end gap-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1", children: [
@@ -62992,10 +63124,7 @@ function CrewingBoard() {
                 activeSlotId,
                 isDragActive: !!draggingMember || !!draggingEntry,
                 addPending: addMut.isPending,
-                onActivateSlot: (id) => {
-                  setActiveSlotId(id);
-                  setShowDetached(false);
-                },
+                onActivateSlot: handleSlotActivate,
                 onDeactivateSlot: () => setActiveSlotId(null),
                 onSlotAssign: handleSlotAssign,
                 onRemove: (id) => removeMut.mutate(id)
@@ -63011,10 +63140,7 @@ function CrewingBoard() {
                 activeSlotId,
                 isDragActive: !!draggingMember || !!draggingEntry,
                 addPending: addMut.isPending,
-                onActivateSlot: (id) => {
-                  setActiveSlotId(id);
-                  setShowDetached(false);
-                },
+                onActivateSlot: handleSlotActivate,
                 onDeactivateSlot: () => setActiveSlotId(null),
                 onSlotAssign: handleSlotAssign,
                 onRemove: (id) => removeMut.mutate(id)
@@ -63055,7 +63181,9 @@ function CrewingBoard() {
               canEdit,
               pendingExternal,
               onDismissPending: (tempId) => setPendingExternal((prev) => prev.filter((p) => p.tempId !== tempId)),
-              onExternalClick: () => setShowExtDialog(true)
+              onExternalClick: () => setShowExtDialog(true),
+              tapSelectedId,
+              onTapMember: setTapSelectedId
             }
           ) })
         ] })

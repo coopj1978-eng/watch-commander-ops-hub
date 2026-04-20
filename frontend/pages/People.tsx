@@ -507,9 +507,56 @@ export default function People() {
           ))}
         </div>
       ) : (
-        <Card className="overflow-hidden">
-          <div className="overflow-x-auto">
-          <Table>
+        <>
+          {/* ── MOBILE: card list (hidden on md+) ─────────────────────────── */}
+          <div className="md:hidden space-y-2">
+            {filteredAndSortedPeople.map((person) => {
+              const { user, profile } = person;
+              const watch = user.watch_unit || profile?.watch;
+              const initials = user.name
+                ?.split(" ")
+                .map((p: string) => p[0])
+                .slice(0, 2)
+                .join("")
+                .toUpperCase() ?? "?";
+              return (
+                <button
+                  key={user.id}
+                  onClick={() => navigate(`/people/${user.id}`)}
+                  className="w-full text-left bg-card border border-border rounded-xl p-3 flex items-center gap-3 hover:bg-muted/40 active:bg-muted/60 transition-colors"
+                >
+                  <div className="h-11 w-11 rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 flex items-center justify-center text-white font-bold shrink-0">
+                    {initials}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-semibold truncate">{user.name}</span>
+                      {sickToday?.has(user.id) && (
+                        <Badge variant="outline" className="text-[10px] bg-red-500/10 text-red-600 border-red-500/20 gap-1">
+                          <Stethoscope className="h-2.5 w-2.5" /> Sick
+                        </Badge>
+                      )}
+                      {!user.is_active && !user.left_at && (
+                        <Badge variant="outline" className="text-[10px] bg-yellow-500/10 text-yellow-600 border-yellow-500/20">
+                          Pending
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground">
+                      {profile?.rank && <span className="truncate">{profile.rank}</span>}
+                      {profile?.rank && watch && <span className="text-muted-foreground/40">·</span>}
+                      {watch && <WatchBadge watch={watch} />}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* ── DESKTOP: full table (hidden on mobile) ────────────────────── */}
+          <Card className="hidden md:block overflow-hidden">
+            <div className="overflow-x-auto">
+            <Table>
             <TableHeader>
               <TableRow>
                 {visibleColumns.name && (
@@ -712,6 +759,7 @@ export default function People() {
           </Table>
           </div>
         </Card>
+        </>
       )}
 
       {filteredAndSortedPeople.length === 0 && !isLoading && (

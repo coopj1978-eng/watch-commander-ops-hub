@@ -340,12 +340,16 @@ function DraggableTile({
   isAbsent,
   adjustment,
   isPending,
+  isTapSelected,
+  onTap,
 }: {
   member: RosterMember;
   assignedEntry?: CrewingEntry;
   isAbsent: boolean;
   adjustment?: ShiftAdjType;
   isPending?: boolean;
+  isTapSelected?: boolean;
+  onTap?: () => void;
 }) {
   const disabled = !!assignedEntry || isAbsent || !!adjustment || !!isPending;
 
@@ -359,13 +363,24 @@ function DraggableTile({
     ? { transform: CSS.Translate.toString(transform) }
     : undefined;
 
+  // A plain click fires this. When the user is dragging, React doesn't fire
+  // onClick (pointerdown → drag activates a different path), so this safely
+  // distinguishes a tap from a drag for the tap-to-assign flow.
+  const handleClick = () => {
+    if (disabled) return;
+    onTap?.();
+  };
+
   return (
     <div
       ref={setNodeRef}
       style={style}
       {...(disabled ? {} : listeners)}
       {...(disabled ? {} : attributes)}
-      className={`${disabled ? "cursor-default" : "cursor-grab active:cursor-grabbing"} touch-none`}
+      onClick={handleClick}
+      className={`${disabled ? "cursor-default" : "cursor-grab active:cursor-grabbing"} touch-none rounded-xl transition-all ${
+        isTapSelected ? "ring-2 ring-indigo-500 ring-offset-2 ring-offset-background" : ""
+      }`}
     >
       <TileCard
         member={member}
@@ -1011,6 +1026,8 @@ function RosterPanel({
   pendingExternal,
   onDismissPending,
   onExternalClick,
+  tapSelectedId,
+  onTapMember,
 }: {
   roster: RosterMember[];
   assignedByUserId: Map<string, CrewingEntry>;
@@ -1025,6 +1042,10 @@ function RosterPanel({
   pendingExternal: PendingExternal[];
   onDismissPending: (tempId: string) => void;
   onExternalClick: () => void;
+  /** Currently tap-selected member id (for the tap-to-assign touch flow). */
+  tapSelectedId: string | null;
+  /** Toggle tap-selection for this member. Null clears selection. */
+  onTapMember: (id: string | null) => void;
 }) {
   const unassigned = roster.filter(m =>
     !assignedByUserId.has(m.id) && !pendingAssignIds.has(m.id) && !absentIds.has(m.id) && !adjustmentByUserId.has(m.id)
@@ -1069,7 +1090,13 @@ function RosterPanel({
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {unassigned.map(m => (
-                    <DraggableTile key={m.id} member={m} isAbsent={false} />
+                    <DraggableTile
+                      key={m.id}
+                      member={m}
+                      isAbsent={false}
+                      isTapSelected={tapSelectedId === m.id}
+                      onTap={() => onTapMember(tapSelectedId === m.id ? null : m.id)}
+                    />
                   ))}
                 </div>
               </div>
@@ -1551,6 +1578,11 @@ export default function CrewingBoard() {
   // User IDs currently mid-mutation (optimistic disable to prevent double-assign)
   const [pendingAssignIds, setPendingAssignIds] = useState<Set<string>>(new Set());
 
+  // Tap-to-assign: on touch devices drag-and-drop is finicky, so members can
+  // also be "tapped" to select, then a tap on an empty slot directly assigns
+  // them.  null = no selection; otherwise the roster member id.
+  const [tapSelectedId, setTapSelectedId] = useState<string | null>(null);
+
   // Detachment modal — opened when a tile is dropped onto the detached zone
   const [pendingDetach,  setPendingDetach]  = useState<{ member?: RosterMember; entry?: CrewingEntry } | null>(null);
 
@@ -1902,6 +1934,28 @@ export default function CrewingBoard() {
   };
 
   // ── Assign handlers ───────────────────────────────────────────────────────
+  // Tap-to-assign entry point: called from SlotDropZone when the user taps
+  // an empty slot. If a roster member is already tap-selected, skip the
+  // inline picker and drop them straight in — that's the whole point of the
+  // tap flow.  Otherwise fall back to the original picker path.
+  const handleSlotActivate = (slotId: string) => {
+    const meta = slotMetaRef.current.get(slotId);
+    if (!meta) return;
+
+    if (tapSelectedId) {
+      // Direct assign using the tap-selected member.
+      const member = roster.find(m => m.id === tapSelectedId);
+      if (!member) { setTapSelectedId(null); return; }
+      handleSlotAssign(slotId, member.id, undefined, meta.role);
+      setTapSelectedId(null);
+      return;
+    }
+
+    // No tap selection → open the inline picker as before.
+    setActiveSlotId(slotId);
+    setShowDetached(false);
+  };
+
   const handleSlotAssign = (
     slotId: string,
     userId: string | undefined,
@@ -1941,9 +1995,36 @@ export default function CrewingBoard() {
     setShowExtDialog(false);
   };
 
+  const tapSelectedMember = tapSelectedId ? roster.find(m => m.id === tapSelectedId) : null;
+
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+      {/* Tap-to-assign banner — appears when a roster member has been tapped
+          on mobile.  Sticks to the top of the viewport so the WC can scroll
+          to the appliance card and tap a slot to drop them in.  Tapping
+          Cancel clears the selection. */}
+      {tapSelectedMember && (
+        <div className="sticky top-16 z-20 md:top-20 mx-auto max-w-sm mb-3">
+          <div className="flex items-center gap-3 rounded-full bg-indigo-600 text-white shadow-lg px-4 py-2.5">
+            <div className="h-7 w-7 rounded-full bg-white/20 flex items-center justify-center text-[11px] font-bold shrink-0">
+              {initials(tapSelectedMember.name)}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold truncate">{tapSelectedMember.name}</p>
+              <p className="text-[10px] opacity-80">Tap an empty slot to place</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setTapSelectedId(null)}
+              className="shrink-0 h-7 px-3 rounded-full bg-white/10 hover:bg-white/20 text-xs font-medium"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="space-y-5">
 
         {/* ── Controls ───────────────────────────────────────────────────── */}
@@ -2033,7 +2114,7 @@ export default function CrewingBoard() {
                 activeSlotId={activeSlotId}
                 isDragActive={!!draggingMember || !!draggingEntry}
                 addPending={addMut.isPending}
-                onActivateSlot={id => { setActiveSlotId(id); setShowDetached(false); }}
+                onActivateSlot={handleSlotActivate}
                 onDeactivateSlot={() => setActiveSlotId(null)}
                 onSlotAssign={handleSlotAssign}
                 onRemove={id => removeMut.mutate(id)}
@@ -2046,7 +2127,7 @@ export default function CrewingBoard() {
                 activeSlotId={activeSlotId}
                 isDragActive={!!draggingMember || !!draggingEntry}
                 addPending={addMut.isPending}
-                onActivateSlot={id => { setActiveSlotId(id); setShowDetached(false); }}
+                onActivateSlot={handleSlotActivate}
                 onDeactivateSlot={() => setActiveSlotId(null)}
                 onSlotAssign={handleSlotAssign}
                 onRemove={id => removeMut.mutate(id)}
@@ -2082,6 +2163,8 @@ export default function CrewingBoard() {
                 pendingExternal={pendingExternal}
                 onDismissPending={tempId => setPendingExternal(prev => prev.filter(p => p.tempId !== tempId))}
                 onExternalClick={() => setShowExtDialog(true)}
+                tapSelectedId={tapSelectedId}
+                onTapMember={setTapSelectedId}
               />
             </div>
           </div>

@@ -247,7 +247,71 @@ export default function TaskList({ tasks, isLoading, onTaskClick }: TaskListProp
         </div>
       )}
 
-      <div className="border rounded-lg">
+      {/* ── MOBILE: card list (hidden on md+) ────────────────────────────── */}
+      <div className="md:hidden space-y-2">
+        {isLoading ? (
+          [...Array(5)].map((_, i) => <Skeleton key={i} className="h-20 w-full rounded-xl" />)
+        ) : filteredTasks.length === 0 ? (
+          <div className="border border-dashed rounded-xl py-10 text-center text-sm text-muted-foreground">
+            {hasActiveFilters ? "No tasks match your filters" : "No tasks yet"}
+          </div>
+        ) : (
+          filteredTasks.map((task) => {
+            const checklistProgress = task.checklist
+              ? {
+                  completed: task.checklist.filter((item) => item.done).length,
+                  total: task.checklist.length,
+                  percentage: Math.round(
+                    (task.checklist.filter((item) => item.done).length / task.checklist.length) * 100
+                  ),
+                }
+              : null;
+            return (
+              <button
+                key={task.id}
+                onClick={() => onTaskClick?.(task)}
+                className="w-full text-left bg-card border border-border rounded-xl p-3 space-y-2 hover:bg-muted/40 active:bg-muted/60 transition-colors"
+              >
+                <div className="flex items-start gap-2">
+                  {task.rrule && <Repeat className="h-4 w-4 text-blue-500 mt-0.5 shrink-0" />}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold leading-snug">{task.title}</p>
+                    {task.description && (
+                      <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{task.description}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <Badge className={getStatusColor(task.status)} variant="outline">
+                    {statusLabels[task.status]}
+                  </Badge>
+                  <Badge className={getPriorityColor(task.priority)} variant="outline">
+                    {task.priority}
+                  </Badge>
+                  <Badge variant="outline" className="text-xs">{task.category}</Badge>
+                  {getDueBadge(task)}
+                </div>
+                {checklistProgress && (
+                  <div className="flex items-center gap-2 pt-1">
+                    <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-indigo-500 transition-all"
+                        style={{ width: `${checklistProgress.percentage}%` }}
+                      />
+                    </div>
+                    <span className="text-[11px] text-muted-foreground whitespace-nowrap">
+                      {checklistProgress.completed}/{checklistProgress.total}
+                    </span>
+                  </div>
+                )}
+              </button>
+            );
+          })
+        )}
+      </div>
+
+      {/* ── DESKTOP: table (hidden on mobile) ────────────────────────────── */}
+      <div className="hidden md:block border rounded-lg">
         <div className="overflow-x-auto">
         <Table>
           <TableHeader>

@@ -673,6 +673,10 @@
     top: calc(var(--spacing) * 11);
   }
 
+  .top-16 {
+    top: calc(var(--spacing) * 16);
+  }
+
   .top-\[50\%\] {
     top: 50%;
   }
@@ -1361,6 +1365,10 @@
 
   .w-10 {
     width: calc(var(--spacing) * 10);
+  }
+
+  .w-11 {
+    width: calc(var(--spacing) * 11);
   }
 
   .w-12 {
@@ -4711,6 +4719,11 @@
     --tw-ring-offset-shadow: var(--tw-ring-inset, ) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
   }
 
+  .ring-offset-2 {
+    --tw-ring-offset-width: 2px;
+    --tw-ring-offset-shadow: var(--tw-ring-inset, ) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  }
+
   .ring-offset-background {
     --tw-ring-offset-color: var(--background);
   }
@@ -5905,8 +5918,14 @@
     cursor: grabbing;
   }
 
-  .active\:bg-muted:active {
+  .active\:bg-muted:active, .active\:bg-muted\/60:active {
     background-color: var(--muted);
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .active\:bg-muted\/60:active {
+      background-color: color-mix(in oklab, var(--muted) 60%, transparent);
+    }
   }
 
   .disabled\:pointer-events-none:disabled {
@@ -6373,6 +6392,10 @@
   }
 
   @media (min-width: 48rem) {
+    .md\:top-20 {
+      top: calc(var(--spacing) * 20);
+    }
+
     .md\:col-span-2 {
       grid-column: span 2 / span 2;
     }
@@ -6391,6 +6414,10 @@
 
     .md\:ml-auto {
       margin-left: auto;
+    }
+
+    .md\:block {
+      display: block;
     }
 
     .md\:flex {
