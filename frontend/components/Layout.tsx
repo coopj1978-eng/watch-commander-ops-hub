@@ -4,6 +4,7 @@ import SidebarNav from "./SidebarNav";
 import TopBar from "./TopBar";
 import PageContainer from "./PageContainer";
 import { MobileBottomNav } from "./MobileBottomNav";
+import PWAInstallPrompt from "./PWAInstallPrompt";
 import { useKeyboardShortcuts, SHORTCUTS } from "@/lib/useKeyboardShortcuts";
 import {
   Dialog,
@@ -90,6 +91,9 @@ export default function Layout() {
       </PageContainer>
 
       <MobileBottomNav />
+
+      {/* PWA install nudge — iOS instructions or Chrome's prompt() helper */}
+      <PWAInstallPrompt />
 
       {/* Global keyboard shortcuts help modal */}
       <ShortcutsHelpModal open={showHelp} onClose={() => setShowHelp(false)} />
