@@ -36,6 +36,7 @@ import { WCContactsWidget }       from "@/components/WCContactsWidget";
 import { WCHandoverWidget }       from "@/components/WCHandoverWidget";
 import { WCAlertBanner }          from "@/components/WCAlertBanner";
 import { WCPersonalCalendarWidget } from "@/components/WCPersonalCalendarWidget";
+import { OperationalStatusBar }   from "@/components/OperationalStatusBar";
 
 // CC widgets
 import { CCDashboard } from "@/components/CCDashboardWidgets";
@@ -304,6 +305,11 @@ function WatchCommanderDashboard() {
 
       {/* ── Alert banner ───────────────────────────────────────────────── */}
       <WCAlertBanner />
+
+      {/* ── At-a-glance status bar (6 cells: date, watch, shift, strength,
+              weather, tasks). Reuses the same TanStack queryKeys as the
+              downstream widgets so it adds no extra network traffic. ── */}
+      <OperationalStatusBar />
 
       {/* ── Operational Status ─────────────────────────────────────────── */}
       <section className={SECTION_ANIM}>
