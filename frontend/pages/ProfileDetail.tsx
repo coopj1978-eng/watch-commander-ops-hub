@@ -508,7 +508,9 @@ export default function ProfileDetail() {
             </h1>
             <p className="text-muted-foreground mt-1">{user?.email}</p>
             {profile?.service_number && (
-              <p className="text-sm text-muted-foreground">Service #{profile.service_number}</p>
+              <p className="text-sm text-muted-foreground">
+                Service <span className="font-mono">#{profile.service_number}</span>
+              </p>
             )}
           </div>
         </div>
@@ -634,7 +636,7 @@ export default function ProfileDetail() {
                     () => (
                       <div className="flex items-center gap-2 mt-1">
                         <Phone className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-foreground">{profile?.phone || "-"}</span>
+                        <span className="text-foreground font-mono">{profile?.phone || "-"}</span>
                       </div>
                     )
                   )}
@@ -1017,7 +1019,7 @@ export default function ProfileDetail() {
                       />
                     ),
                     () => (
-                      <p className="text-foreground font-medium mt-1">
+                      <p className="text-foreground font-medium font-mono mt-1">
                         {profile?.emergency_contact_phone || "-"}
                       </p>
                     )

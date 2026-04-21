@@ -4,6 +4,21 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ── Typography ───────────────────────────────────────────────────────────────
+ * IBM Plex Sans is the UI default (loaded in index.html). IBM Plex Mono is
+ * used for reference / tabular data via font-mono and tabular-nums. Fallback
+ * stacks mirror Tailwind v4's preflight defaults so if Google Fonts fails to
+ * load the UI still renders cleanly.
+ * ------------------------------------------------------------------------- */
+@theme {
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif,
+               "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+               "Noto Color Emoji";
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo,
+               Monaco, Consolas, "Liberation Mono", "Courier New",
+               monospace;
+}
+
 @utility container {
   margin-inline: auto;
   padding-inline: 1rem;

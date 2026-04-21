@@ -735,7 +735,7 @@ export default function Handover() {
                             By {h.written_by_name ?? "Unknown"} · {timeAgo}
                             {editedAt && (
                               <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-muted text-muted-foreground border border-border/60">
-                                edited {editedAt}
+                                edited <span className="font-mono">{editedAt}</span>
                               </span>
                             )}
                           </p>
