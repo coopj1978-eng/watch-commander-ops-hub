@@ -47,13 +47,16 @@ where possible, and always preview on `localhost:5173` before merging.
       icon tint on active item. Optional `count` prop added to nav
       items (unused until real counts are wired in a follow-up).
       Mobile drawer + expand/collapse UX preserved.
-- [ ] **Compact top bar** — replace the "Good evening, John!" greeting
-      with a breadcrumb + watch / shift / duty-count pills (like
-      `Blue Watch · 07:00 → 19:00 · 11 on / 1 off`). Move the user
-      avatar + notification bell inline. _~1–2 hr_
+- [x] **Compact top bar** — greeting replaced with a breadcrumb
+      ("Ops / {Current Page}") plus a watch/shift/duty pill
+      (`● White Watch · 08:00–18:00 · 11 on / 1 off`) that's hidden
+      on the dashboard where the OperationalStatusBar already
+      covers it. Notification bell drawer preserved verbatim. Added
+      a jump-to-page search (⌘K to focus) that filters the nav
+      registry. — commit _(next push)_
 
-_Together these are the single biggest "this looks like a different
-app" change. No feature logic touched — purely a re-skin of Layout +
+_Together these were the single biggest "this looks like a different
+app" change. No feature logic touched — purely a re-skin of
 SidebarNav + TopBar._
 
 ---

@@ -1,8 +1,15 @@
+import { useMemo, useState, useEffect, useRef } from "react";
 import { useAuth } from "@/App";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import backend from "@/lib/backend";
-import { Bell, Calendar, Menu, Stethoscope, AlertCircle, Info, CheckCheck, ShieldAlert, ClipboardList } from "lucide-react";
+import {
+  Bell, Menu, Stethoscope, AlertCircle, Info, CheckCheck, ShieldAlert,
+  ClipboardList, Search, ChevronRight,
+  LayoutDashboard, Users, Calendar as CalendarIcon, CheckSquare,
+  Target, Navigation, Truck, GraduationCap, UserCircle, FileText,
+  BookOpen, Settings as SettingsIcon, ShieldCheck,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -13,9 +20,37 @@ import { Badge } from "@/components/ui/badge";
 import ThemeSwitcher from "./ThemeSwitcher";
 import type { notification } from "@/client";
 
+// ──────────────────────────────────────────────────────────────────────────────
+// Route registry for breadcrumb + jump-to-page search. Kept in sync with
+// SidebarNav. When a new page is added, add its entry here so it shows up in
+// the search dropdown and gets a sensible breadcrumb label.
+// ──────────────────────────────────────────────────────────────────────────────
+const ROUTES: { path: string; name: string; icon: React.ElementType }[] = [
+  { path: "/",            name: "Dashboard",   icon: LayoutDashboard },
+  { path: "/people",      name: "People",      icon: Users },
+  { path: "/calendar",    name: "Calendar",    icon: CalendarIcon },
+  { path: "/tasks",       name: "Tasks",       icon: CheckSquare },
+  { path: "/handover",    name: "Shift",       icon: ClipboardList },
+  { path: "/targets",     name: "Targets",     icon: Target },
+  { path: "/detachments", name: "Detachments", icon: Navigation },
+  { path: "/equipment",   name: "J4 Checks",   icon: Truck },
+  { path: "/training",    name: "Training",    icon: GraduationCap },
+  { path: "/policies",    name: "Docs",        icon: FileText },
+  { path: "/resources",   name: "Resources",   icon: BookOpen },
+  { path: "/profile",     name: "My Profile",  icon: UserCircle },
+  { path: "/settings",    name: "Settings",    icon: SettingsIcon },
+  { path: "/admin",       name: "Admin",       icon: ShieldCheck },
+];
+
 interface TopBarProps {
   onMenuClick?: () => void;
 }
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Notification helpers — kept verbatim from the previous TopBar. The whole
+// notifications experience (icons, grouping, time-ago formatting) is
+// preserved unchanged.
+// ──────────────────────────────────────────────────────────────────────────────
 
 function NotificationIcon({ type }: { type: notification.NotificationType }) {
   switch (type) {
@@ -60,11 +95,198 @@ function timeAgo(dateStr: string): string {
   return `${diffDays}d ago`;
 }
 
+// ──────────────────────────────────────────────────────────────────────────────
+// Breadcrumb + shift helpers
+// ──────────────────────────────────────────────────────────────────────────────
+
+function getBreadcrumbLabel(pathname: string): string {
+  // Match longest-prefix first — e.g. "/people/123" matches "/people".
+  // The root "/" matches "Dashboard" exactly.
+  if (pathname === "/") return "Dashboard";
+  const match = ROUTES
+    .filter(r => r.path !== "/" && pathname.startsWith(r.path))
+    .sort((a, b) => b.path.length - a.path.length)[0];
+  return match?.name ?? pathname;
+}
+
+function getShiftSpan(): { label: string; time: string } {
+  // Matches the app-wide pattern (TopBar / WCCommandStrip / WCShiftWidget).
+  const h = new Date().getHours();
+  const isDay = h >= 8 && h < 18;
+  return {
+    label: isDay ? "Day Shift" : "Night Shift",
+    time:  isDay ? "08:00–18:00" : "18:00–08:00",
+  };
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Watch / shift / duty pill — shown on every page except /dashboard where the
+// OperationalStatusBar already surfaces the same info in a bigger form.
+// Reuses the existing TanStack queryKeys so no extra network requests.
+// ──────────────────────────────────────────────────────────────────────────────
+
+function WatchShiftPill() {
+  const { user } = useAuth();
+  const watch = user?.watch_unit ?? "";
+
+  const profilesQ = useQuery({
+    queryKey: ["wc-profiles", watch],
+    queryFn: async () => backend.profile.list({ watch: watch || undefined, limit: 200 }),
+    enabled: !!watch,
+  });
+
+  const absencesQ = useQuery({
+    queryKey: ["wc-absences-today"],
+    queryFn: async () =>
+      backend.absence.list({
+        status: "approved",
+        start_date: new Date().toISOString().split("T")[0],
+        end_date: new Date().toISOString().split("T")[0],
+        limit: 200,
+      }),
+    enabled: !!watch,
+  });
+
+  const total = profilesQ.data?.total ?? 0;
+  const absences = absencesQ.data?.absences ?? [];
+  const watchUserIds = new Set((profilesQ.data?.profiles ?? []).map(p => p.user_id));
+  const watchAbsences = watch ? absences.filter(a => watchUserIds.has(a.firefighter_id)) : absences;
+  const off = watchAbsences.length;
+  const on  = Math.max(0, total - off);
+
+  const shift = getShiftSpan();
+
+  if (!watch) return null;
+
+  return (
+    <div className="hidden lg:flex items-center gap-2 px-2.5 py-1 rounded bg-muted/60 text-xs">
+      <span className="inline-block h-1.5 w-1.5 rounded-full bg-indigo-500" aria-hidden />
+      <span className="font-medium text-foreground">{watch} Watch</span>
+      <span className="text-muted-foreground">·</span>
+      <span className="font-mono text-muted-foreground">{shift.time}</span>
+      <span className="text-muted-foreground">·</span>
+      <span className="font-mono text-foreground">
+        {on}
+        <span className="text-muted-foreground"> on / </span>
+        {off}
+        <span className="text-muted-foreground"> off</span>
+      </span>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Jump-to-page search — client-side route switcher. Input filters the nav
+// registry; click or Enter navigates. Wiring to real full-text search across
+// crew / tasks / docs is a future step; this is deliberately scoped to pages
+// only so the "nothing happens" cosmetic-only pattern is avoided.
+// ──────────────────────────────────────────────────────────────────────────────
+
+function JumpSearch() {
+  const navigate = useNavigate();
+  const [query, setQuery] = useState("");
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Close on click outside
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (!containerRef.current?.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [open]);
+
+  // Cmd/Ctrl+K focuses the input from anywhere
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        inputRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const results = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return ROUTES;
+    return ROUTES.filter(r => r.name.toLowerCase().includes(q));
+  }, [query]);
+
+  const go = (path: string) => {
+    navigate(path);
+    setQuery("");
+    setOpen(false);
+    inputRef.current?.blur();
+  };
+
+  return (
+    <div ref={containerRef} className="relative hidden md:block">
+      <div className="relative">
+        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+        <input
+          ref={inputRef}
+          type="text"
+          placeholder="Jump to page…"
+          value={query}
+          onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
+          onFocus={() => setOpen(true)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && results[0]) go(results[0].path);
+            if (e.key === "Escape") { setOpen(false); inputRef.current?.blur(); }
+          }}
+          className="h-8 w-56 pl-8 pr-10 rounded text-xs bg-muted/60 border border-transparent
+                     focus:bg-background focus:border-border focus:outline-none
+                     focus-visible:ring-2 focus-visible:ring-indigo-400/40
+                     placeholder:text-muted-foreground"
+          aria-label="Jump to page"
+        />
+        <kbd className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono text-muted-foreground/60 pointer-events-none">
+          ⌘K
+        </kbd>
+      </div>
+
+      {open && results.length > 0 && (
+        <div className="absolute right-0 top-[calc(100%+4px)] w-64 rounded-md border border-border bg-popover shadow-lg z-50 overflow-hidden">
+          <ul role="listbox">
+            {results.slice(0, 10).map((r) => {
+              const Icon = r.icon;
+              return (
+                <li key={r.path}>
+                  <button
+                    type="button"
+                    onClick={() => go(r.path)}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-left hover:bg-muted/60 transition-colors"
+                  >
+                    <Icon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                    <span className="flex-1 font-medium text-foreground">{r.name}</span>
+                    <span className="font-mono text-[10px] text-muted-foreground">{r.path}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// TopBar
+// ──────────────────────────────────────────────────────────────────────────────
+
 export default function TopBar({ onMenuClick }: TopBarProps) {
   const { user, signOut } = useAuth();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const location = useLocation();
 
+  // ── Notifications — verbatim from previous TopBar ──────────────────────────
   const { data: notifData } = useQuery({
     queryKey: ["notifications"],
     queryFn: () => backend.notification.list(),
@@ -72,7 +294,6 @@ export default function TopBar({ onMenuClick }: TopBarProps) {
     refetchOnWindowFocus: true,
   });
 
-  // Refresh (generate new) notifications on load
   useQuery({
     queryKey: ["notifications-refresh"],
     queryFn: async () => {
@@ -82,7 +303,7 @@ export default function TopBar({ onMenuClick }: TopBarProps) {
       }
       return result;
     },
-    refetchInterval: 5 * 60_000, // re-check every 5 minutes
+    refetchInterval: 5 * 60_000,
     refetchOnWindowFocus: true,
     staleTime: 4 * 60_000,
   });
@@ -106,72 +327,63 @@ export default function TopBar({ onMenuClick }: TopBarProps) {
   const unreadCount = notifData?.unread_count ?? 0;
   const { today, thisWeek, older } = groupNotifications(notifications);
 
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 18) return "Good afternoon";
-    return "Good evening";
-  };
-
-  const firstName = user?.name?.split(" ")[0] || "there";
+  // ── Derived: breadcrumb + dashboard flag ──────────────────────────────────
+  const currentPageLabel = getBreadcrumbLabel(location.pathname);
+  const isDashboard = location.pathname === "/";
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between px-4 md:px-8 py-3 md:py-4 bg-background/80 backdrop-blur-md border-b border-border print:hidden">
+    <header className="sticky top-0 z-30 flex items-center gap-3 px-4 md:px-6 py-2.5 bg-background/80 backdrop-blur-md border-b border-border print:hidden">
+      {/* ── Left: hamburger + breadcrumb ───────────────────────────────── */}
       <div className="flex items-center gap-3 min-w-0">
         {/* Hamburger — only shown on mobile */}
         <Button
           variant="ghost"
           size="icon"
-          className="md:hidden h-9 w-9 rounded-lg hover:bg-muted shrink-0"
+          className="md:hidden h-9 w-9 rounded hover:bg-muted shrink-0"
           onClick={onMenuClick}
           aria-label="Open navigation menu"
         >
           <Menu className="h-5 w-5" />
         </Button>
 
-        <h1 className="text-lg md:text-2xl font-bold text-foreground whitespace-nowrap">
-          <span className="hidden sm:inline">{getGreeting()}, {firstName}!</span>
-          <span className="sm:hidden">Hi, {firstName}!</span>
-        </h1>
-
-        <div className="hidden md:flex items-center gap-2 ml-3 px-3 py-1 rounded-lg bg-muted/60">
-          <span className="text-xs font-medium text-muted-foreground">
-            {new Date().toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}
-          </span>
-          <span className="text-muted-foreground/40 text-xs">·</span>
-          <span className="text-xs font-semibold text-foreground">
-            {new Date().getHours() >= 8 && new Date().getHours() < 18
-              ? "Day Shift"
-              : "Night Shift"}
-          </span>
-        </div>
+        {/* Breadcrumb — "Ops / {CurrentPage}" */}
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm min-w-0">
+          <Link
+            to="/"
+            className="text-muted-foreground hover:text-foreground transition-colors font-medium"
+          >
+            Ops
+          </Link>
+          <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" aria-hidden />
+          <span className="font-semibold text-foreground truncate">{currentPageLabel}</span>
+        </nav>
       </div>
 
-      <div className="flex items-center gap-2 md:gap-3">
+      {/* ── Watch pill — hidden on dashboard (OperationalStatusBar covers) ─ */}
+      {!isDashboard && <WatchShiftPill />}
+
+      {/* Flex spacer pushes the right cluster to the end */}
+      <div className="flex-1" />
+
+      {/* ── Right: search + theme + bell + avatar ──────────────────────── */}
+      <div className="flex items-center gap-1.5 md:gap-2">
+        <JumpSearch />
+
         <ThemeSwitcher />
 
-        <Button
-          variant="ghost"
-          size="icon"
-          className="hidden sm:flex relative h-10 w-10 rounded-xl hover:bg-muted transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-          aria-label="Calendar"
-        >
-          <Calendar className="h-5 w-5 text-muted-foreground" />
-        </Button>
-
-        {/* Notification Bell */}
+        {/* Notification Bell — drawer contents preserved verbatim */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
               size="icon"
-              className="relative h-10 w-10 rounded-xl hover:bg-muted transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="relative h-9 w-9 rounded hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               aria-label={`Notifications, ${unreadCount} unread`}
             >
-              <Bell className={`h-5 w-5 ${unreadCount > 0 ? "text-foreground" : "text-muted-foreground"}`} />
+              <Bell className={`h-4.5 w-4.5 ${unreadCount > 0 ? "text-foreground" : "text-muted-foreground"}`} />
               {unreadCount > 0 && (
                 <Badge
-                  className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-red-500 text-white text-xs"
+                  className="absolute -top-1 -right-1 h-4.5 min-w-[18px] px-1 rounded-full flex items-center justify-center bg-red-500 text-white text-[10px] font-mono"
                   aria-label={`${unreadCount} unread notifications`}
                 >
                   {unreadCount > 9 ? "9+" : unreadCount}
@@ -279,19 +491,19 @@ export default function TopBar({ onMenuClick }: TopBarProps) {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* User menu */}
-        <div className="flex items-center gap-2 pl-2 border-l border-border">
+        {/* User menu — preserved verbatim */}
+        <div className="flex items-center gap-2 pl-1.5 md:pl-2 border-l border-border">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="h-10 px-2 md:px-3 rounded-xl hover:bg-muted transition-all duration-200"
+                className="h-9 px-1.5 md:px-2 rounded hover:bg-muted"
               >
                 <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-semibold shrink-0">
+                  <div className="h-7 w-7 rounded bg-indigo-600 flex items-center justify-center text-white font-mono font-semibold text-xs shrink-0">
                     {user?.name?.charAt(0).toUpperCase() || "U"}
                   </div>
-                  <span className="hidden sm:block text-sm font-medium">{user?.name || "User"}</span>
+                  <span className="hidden sm:block text-sm font-medium">{user?.name?.split(" ")[0] || "User"}</span>
                 </div>
               </Button>
             </DropdownMenuTrigger>
