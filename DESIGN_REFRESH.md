@@ -83,10 +83,18 @@ SidebarNav + TopBar._
       replace the interactive Crewing board at /handover — this is
       the at-a-glance read view; that page is still the editing
       surface. — commit _(next push)_
-- [ ] **Compact targets sidebar** — tight list of progress bars for
-      every KPI with "Day X / 30" header and pace commentary. Replaces
-      or supplements the current large HFSV / Community / Multistory
-      widget cards. _~1 hr_
+- [x] **Compact targets sidebar** — new TargetsCompact component
+      added inside the Performance Targets section, rendered above
+      the existing widget grid. Tight full-width list of 4 metrics
+      (HFSV / High-Rise / Hydrant / Community) with label, progress
+      bar, actual/target, and pace pill (On pace / Slightly behind /
+      Behind / Complete / No target). Period label shows the current
+      SFRS financial quarter + day-of-quarter counter in the header.
+      All 4 queries reuse the caches of the individual widgets below
+      so no extra network traffic. Mockup's 'Training Certifications'
+      and 'Local Property Visits' deliberately skipped — both are
+      fictional in the mockup and we have no data source. — commit
+      _(next push)_
 
 ---
 

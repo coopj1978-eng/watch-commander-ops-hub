@@ -40,6 +40,7 @@ import { OperationalStatusBar }   from "@/components/OperationalStatusBar";
 import { LatestHandoverBanner }   from "@/components/LatestHandoverBanner";
 import { DashboardKPIs }          from "@/components/DashboardKPIs";
 import { CrewOnWatchTable }       from "@/components/CrewOnWatchTable";
+import { TargetsCompact }         from "@/components/TargetsCompact";
 
 // CC widgets
 import { CCDashboard } from "@/components/CCDashboardWidgets";
@@ -372,6 +373,10 @@ function WatchCommanderDashboard() {
       {/* ── Performance Targets ────────────────────────────────────────── */}
       <section className={`${SECTION_ANIM} delay-200`}>
         <SectionLabel>Performance Targets</SectionLabel>
+        {/* Compact at-a-glance summary — HFSV / High-Rise / Hydrant /
+            Community with progress bars and pace. Reuses the same query
+            caches as the widget grid below so no extra network traffic. */}
+        <TargetsCompact />
         <SortableGrid
           sectionKey="targets"
           items={layout.targets}
