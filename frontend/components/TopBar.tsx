@@ -160,7 +160,7 @@ function WatchShiftPill() {
 
   return (
     <div className="hidden lg:flex items-center gap-2 px-2.5 py-1 rounded bg-muted/60 text-xs">
-      <span className="inline-block h-1.5 w-1.5 rounded-full bg-indigo-500" aria-hidden />
+      <span className="inline-block h-1.5 w-1.5 rounded-full bg-brand" aria-hidden />
       <span className="font-medium text-foreground">{watch} Watch</span>
       <span className="text-muted-foreground">·</span>
       <span className="font-mono text-muted-foreground">{shift.time}</span>
@@ -500,7 +500,7 @@ export default function TopBar({ onMenuClick }: TopBarProps) {
                 className="h-9 px-1.5 md:px-2 rounded hover:bg-muted"
               >
                 <div className="flex items-center gap-2">
-                  <div className="h-7 w-7 rounded bg-indigo-600 flex items-center justify-center text-white font-mono font-semibold text-xs shrink-0">
+                  <div className="h-7 w-7 rounded bg-brand text-brand-foreground flex items-center justify-center font-mono font-semibold text-xs shrink-0">
                     {user?.name?.charAt(0).toUpperCase() || "U"}
                   </div>
                   <span className="hidden sm:block text-sm font-medium">{user?.name?.split(" ")[0] || "User"}</span>

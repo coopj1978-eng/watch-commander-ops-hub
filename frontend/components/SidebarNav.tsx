@@ -139,10 +139,11 @@ export default function SidebarNav({
         "mb-3 flex items-center shrink-0",
         expanded ? "w-full px-4 pb-3 border-b border-white/10 gap-3" : "justify-center pb-2",
       )}>
-        {/* "WC" mark — tight square, accent colour, mono letters */}
+        {/* "WC" mark — tight square, user-pickable brand accent. Uses the
+            brighter variant because the sidebar bg is always dark. */}
         <div className={cn(
-          "bg-indigo-500 flex items-center justify-center shrink-0",
-          "font-mono font-semibold text-white tracking-wide",
+          "bg-brand-bright text-neutral-900 flex items-center justify-center shrink-0",
+          "font-mono font-semibold tracking-wide",
           "transition-all duration-300",
           expanded ? "w-8 h-8 text-xs rounded-sm" : "w-10 h-10 text-sm rounded",
         )}>
@@ -201,15 +202,15 @@ export default function SidebarNav({
                       "relative flex items-center rounded-sm",
                       "transition-colors duration-150",
                       "hover:bg-white/5",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-bright",
                       expanded
                         ? "w-full h-9 gap-3 px-3"
                         : "justify-center w-14 h-11",
                       isActive && cn(
                         "bg-white/10",
-                        // Left accent bar — indigo, full height, slim
+                        // Left accent bar — user-pickable brand colour
                         "before:absolute before:left-0 before:top-1.5 before:bottom-1.5",
-                        "before:w-[2px] before:rounded-r before:bg-indigo-400",
+                        "before:w-[2px] before:rounded-r before:bg-brand-bright",
                       ),
                     )}
                   >
@@ -217,7 +218,7 @@ export default function SidebarNav({
                       className={cn(
                         "shrink-0 transition-colors",
                         expanded ? "h-[18px] w-[18px]" : "h-5 w-5",
-                        isActive ? "text-indigo-400" : "text-white/50 group-hover:text-white/80",
+                        isActive ? "text-brand-bright" : "text-white/50 group-hover:text-white/80",
                       )}
                       aria-hidden="true"
                     />

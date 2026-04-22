@@ -49,15 +49,15 @@ export function MobileBottomNav() {
               className={cn(
                 "flex-1 flex flex-col items-center justify-center gap-0.5",
                 "transition-colors duration-150",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-inset",
-                isActive ? "text-indigo-600 dark:text-indigo-400" : "text-muted-foreground",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-inset",
+                isActive ? "text-brand dark:text-brand-bright" : "text-muted-foreground",
               )}
             >
               {/* Active indicator dot */}
               <span
                 className={cn(
                   "w-1 h-1 rounded-full mb-0.5 transition-all duration-150",
-                  isActive ? "bg-indigo-500 scale-100" : "scale-0 bg-transparent",
+                  isActive ? "bg-brand dark:bg-brand-bright scale-100" : "scale-0 bg-transparent",
                 )}
                 aria-hidden="true"
               />

@@ -299,8 +299,11 @@ const SECTION_ANIM  = "space-y-3 animate-in fade-in-0 slide-in-from-bottom-3 dur
 function WatchCommanderDashboard() {
   const { layout, isCustomised, reorder, reset } = useDashboardLayout();
 
+  // Top-level section gap responds to the user's density preference via the
+  // --gap-section CSS variable. Defaults to 32px (space-y-8 equivalent) but
+  // compresses to 20px or stretches to 40px based on the Appearance setting.
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col gap-[var(--gap-section)]">
 
       {/* ── Command strip ──────────────────────────────────────────────── */}
       <div className="animate-in fade-in-0 slide-in-from-top-2 duration-400">

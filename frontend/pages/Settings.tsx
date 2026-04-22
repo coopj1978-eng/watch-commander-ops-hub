@@ -5,7 +5,8 @@ import { AbsenceThresholds } from "@/components/AbsenceThresholds";
 import { BrandingSettings } from "@/components/BrandingSettings";
 import { CSVExportUtility } from "@/components/CSVExportUtility";
 import { InspectionPlans } from "@/components/InspectionPlans";
-import { Settings as SettingsIcon, FileSpreadsheet, Palette, AlertTriangle, Database, ClipboardList } from "lucide-react";
+import { AppearanceSettings } from "@/components/AppearanceSettings";
+import { Settings as SettingsIcon, FileSpreadsheet, Palette, AlertTriangle, Database, ClipboardList, Sparkles } from "lucide-react";
 
 export default function Settings() {
   return (
@@ -21,8 +22,12 @@ export default function Settings() {
           </p>
         </div>
 
-        <Tabs defaultValue="dictionaries" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+        <Tabs defaultValue="appearance" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-6">
+            <TabsTrigger value="appearance" className="gap-2">
+              <Sparkles className="h-4 w-4" />
+              <span className="hidden sm:inline">Appearance</span>
+            </TabsTrigger>
             <TabsTrigger value="dictionaries" className="gap-2">
               <Database className="h-4 w-4" />
               <span className="hidden sm:inline">Skills & Certs</span>
@@ -44,6 +49,10 @@ export default function Settings() {
               <span className="hidden sm:inline">Inspection Plans</span>
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="appearance" className="space-y-6">
+            <AppearanceSettings />
+          </TabsContent>
 
           <TabsContent value="dictionaries" className="space-y-6">
             <DictionariesManager />

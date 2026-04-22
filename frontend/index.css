@@ -19,6 +19,95 @@
                monospace;
 }
 
+/* ── User-pickable accent colour (the "brand" accent) ────────────────────────
+ * Distinct from shadcn's --accent (that's a near-white/near-black subtle-
+ * highlight used by hover states on rows and menu items — don't touch it).
+ * --brand is the dominant operational accent used by the sidebar brand mark,
+ * active nav left-bar, TopBar avatar mark, mobile bottom-nav active state.
+ *
+ * Swap via `data-accent="..."` on <html>. Stored per-device in localStorage
+ * — see hooks/useUIPreferences.ts. Palette mirrors the design refresh
+ * mockup's 6 options.
+ * --------------------------------------------------------------------------- */
+:root {
+  /* --brand is the darker variant tuned for use on LIGHT backgrounds
+   *   (TopBar avatar mark, light-mode button accents).
+   * --brand-bright is the lighter variant tuned for DARK backgrounds
+   *   (the always-dark SidebarNav chrome, mobile bottom-nav active dot).
+   * Both track the same hue — splitting the lightness keeps WCAG contrast
+   * decent in both contexts without forcing the user to pick twice. */
+  --brand:            oklch(0.48 0.16 268);   /* Indigo (default) */
+  --brand-foreground: oklch(0.98 0.005 268);
+  --brand-bright:     oklch(0.68 0.16 268);
+}
+html[data-accent="oxblood"] {
+  --brand:            oklch(0.42 0.14 14);
+  --brand-foreground: oklch(0.98 0.005 14);
+  --brand-bright:     oklch(0.64 0.14 14);
+}
+html[data-accent="blue"] {
+  --brand:            oklch(0.42 0.13 248);
+  --brand-foreground: oklch(0.98 0.005 248);
+  --brand-bright:     oklch(0.64 0.13 248);
+}
+html[data-accent="teal"] {
+  --brand:            oklch(0.38 0.09 190);
+  --brand-foreground: oklch(0.98 0.005 190);
+  --brand-bright:     oklch(0.62 0.09 190);
+}
+html[data-accent="forest"] {
+  --brand:            oklch(0.35 0.08 155);
+  --brand-foreground: oklch(0.98 0.005 155);
+  --brand-bright:     oklch(0.60 0.08 155);
+}
+html[data-accent="amber"] {
+  --brand:            oklch(0.55 0.14 70);
+  --brand-foreground: oklch(0.18 0.01 70);
+  --brand-bright:     oklch(0.72 0.14 70);
+}
+
+/* Dark mode nudges the lightness up so the brand stays legible on dark bg.
+ * Applied to every accent via a single override — individual hues inherit. */
+.dark {
+  --brand: oklch(0.62 0.16 268);
+}
+.dark[data-accent="oxblood"] { --brand: oklch(0.60 0.14 14); }
+.dark[data-accent="blue"]    { --brand: oklch(0.60 0.13 248); }
+.dark[data-accent="teal"]    { --brand: oklch(0.58 0.09 190); }
+.dark[data-accent="forest"]  { --brand: oklch(0.58 0.08 155); }
+.dark[data-accent="amber"]   { --brand: oklch(0.70 0.14 70); }
+
+/* ── Density tokens ──────────────────────────────────────────────────────────
+ * Three density modes swap these spacing variables via `data-density` on
+ * <html>. Kept deliberately narrow in scope — only card padding, table row
+ * height, and top-level dashboard section gap flex. Font sizes and dialog
+ * paddings stay fixed because compressing them risks breaking layouts that
+ * weren't designed to wrap tight.
+ * --------------------------------------------------------------------------- */
+:root {
+  --pad-card:     1rem;       /* 16px — p-4-ish */
+  --row-h:        2.75rem;    /* 44px — current default row height */
+  --gap-section:  2rem;       /* 32px — between dashboard sections */
+}
+html[data-density="compact"] {
+  --pad-card:     0.625rem;   /* 10px */
+  --row-h:        2rem;       /* 32px */
+  --gap-section:  1.25rem;    /* 20px */
+}
+html[data-density="airy"] {
+  --pad-card:     1.5rem;     /* 24px */
+  --row-h:        3.25rem;    /* 52px */
+  --gap-section:  2.5rem;     /* 40px */
+}
+
+/* Expose the brand colour to Tailwind so `bg-brand` / `text-brand` /
+ * `border-brand` / `ring-brand` all resolve to the live variable value. */
+@theme inline {
+  --color-brand:            var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-bright:     var(--brand-bright);
+}
+
 @utility container {
   margin-inline: auto;
   padding-inline: 1rem;

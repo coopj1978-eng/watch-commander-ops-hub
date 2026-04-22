@@ -107,10 +107,20 @@ SidebarNav + TopBar._
       colours used across widgets to match the mockup's minimal
       greyscale + single accent approach. Careful: some colours do
       useful signalling work today (e.g. orange for incidents). _~2 hr_
-- [ ] **Accent picker** — 6-colour accent switcher (indigo / oxblood /
-      blue / teal / forest / amber) stored per user. _~1 hr_
-- [ ] **Density switcher** — compact / comfortable / airy density
-      swap via Tailwind custom utilities. _~1 hr_
+- [x] **Accent picker** — 6-colour picker (indigo / oxblood / blue /
+      teal / forest / amber) in a new Appearance tab on Settings,
+      stored per-device in localStorage. Swaps --brand +
+      --brand-bright CSS variables via `data-accent` on <html>.
+      Applied to the sidebar brand mark, active nav state, TopBar
+      avatar, watch-pill dot, and mobile bottom-nav active indicator.
+      Widget colours and status pills deliberately untouched — they
+      still do semantic signalling. — commit _(next push)_
+- [x] **Density switcher** — 3 options (Compact / Comfortable /
+      Airy) in the same Appearance tab. v1 scope flexes only the
+      dashboard's top-level section gap (20 / 32 / 40px) via the
+      --gap-section CSS variable. More density applications (card
+      padding, table row heights) can follow based on real-use
+      feedback. — commit _(next push)_
 
 ---
 
