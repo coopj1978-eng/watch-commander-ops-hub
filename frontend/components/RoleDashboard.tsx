@@ -38,6 +38,7 @@ import { WCAlertBanner }          from "@/components/WCAlertBanner";
 import { WCPersonalCalendarWidget } from "@/components/WCPersonalCalendarWidget";
 import { OperationalStatusBar }   from "@/components/OperationalStatusBar";
 import { LatestHandoverBanner }   from "@/components/LatestHandoverBanner";
+import { DashboardKPIs }          from "@/components/DashboardKPIs";
 
 // CC widgets
 import { CCDashboard } from "@/components/CCDashboardWidgets";
@@ -319,6 +320,11 @@ function WatchCommanderDashboard() {
               tasks). Reuses the same TanStack queryKeys as the downstream
               widgets so it adds no extra network traffic. ────────────── */}
       <OperationalStatusBar />
+
+      {/* ── 4-KPI row — Tasks / HFSV / Absence / Alerts. Shares query
+              caches with the dashboard widgets below, so adds no network
+              traffic. Clickable tiles navigate to the relevant page. ── */}
+      <DashboardKPIs />
 
       {/* ── Operational Status ─────────────────────────────────────────── */}
       <section className={SECTION_ANIM}>

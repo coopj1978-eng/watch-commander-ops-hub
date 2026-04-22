@@ -63,10 +63,16 @@ SidebarNav + TopBar._
 
 ## 🎯 Phase 2 — Dashboard densification
 
-- [ ] **4-KPI tile row** — a tight row of four metric tiles (Tasks on
-      watch / HFSV this month / Absence today / Alerts) with sparklines
-      and trend deltas, matching the mockup. Pulls from existing data
-      sources. _~2 hr_
+- [x] **4-KPI tile row** — Tasks on watch / HFSV this quarter /
+      Absence today / Alerts rendered as a tight 4-tile row above the
+      Operational Status section. Every tile pulls from existing query
+      caches (wc-crew-stats, wc-hfsv, wc-profiles, wc-absences-today,
+      wc-sickness-triggers, wc-skills-expiring) so zero extra network
+      traffic. Alert tile gets a red-tinted border when count > 0.
+      Tiles are clickable — navigate to /tasks, /targets, /people.
+      Sparklines and "+3 vs last shift" trend deltas deliberately
+      skipped — we have no historical series endpoint; adding them is
+      a separate backend task. — commit _(next push)_
 - [ ] **Crew-on-watch table** — a new read-only tabular view on the
       dashboard showing today's crew (Name / Rank / Service # / Driver
       quals / BA quals / Status). Uses the existing roster endpoint.
