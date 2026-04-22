@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/App";
 import backend from "@/lib/backend";
 import { Card } from "@/components/ui/card";
@@ -39,13 +40,16 @@ function StatusCell({
   label,
   value,
   loading,
+  href,
 }: {
   label: string;
   value: React.ReactNode;
   loading?: boolean;
+  /** When provided, the whole cell becomes a link with a hover affordance. */
+  href?: string;
 }) {
-  return (
-    <div className="px-4 py-3 min-w-0">
+  const body = (
+    <>
       <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-medium">
         {label}
       </div>
@@ -56,8 +60,25 @@ function StatusCell({
           {value}
         </div>
       )}
-    </div>
+    </>
   );
+
+  // When the cell has a destination we render it as a react-router Link with
+  // a subtle hover tint so users discover it's clickable; non-navigable cells
+  // (Date, Watch) stay as plain divs so they don't suggest affordance they
+  // don't have.
+  if (href) {
+    return (
+      <Link
+        to={href}
+        className="block px-4 py-3 min-w-0 transition-colors hover:bg-muted/50 focus-visible:bg-muted/60 focus-visible:outline-none"
+      >
+        {body}
+      </Link>
+    );
+  }
+
+  return <div className="px-4 py-3 min-w-0">{body}</div>;
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -130,6 +151,7 @@ export function OperationalStatusBar() {
 
         <StatusCell
           label="Shift"
+          href="/handover"
           value={
             <>
               {shift.label}{" "}
@@ -142,6 +164,7 @@ export function OperationalStatusBar() {
 
         <StatusCell
           label="Strength"
+          href="/people"
           loading={strengthLoading}
           value={
             <span className="font-mono">
@@ -152,6 +175,7 @@ export function OperationalStatusBar() {
 
         <StatusCell
           label="Tasks"
+          href="/tasks"
           loading={tasksLoading}
           value={
             <>
