@@ -37,39 +37,53 @@ interface NavItem {
   featureKey?: keyof FeatureFlags;
   /** If true, only shown to admin/WC users */
   adminOnly?: boolean;
+  /** Optional small right-aligned count badge (shown only in expanded mode).
+   *  Wiring to real data is a follow-up; all items currently render without a count. */
+  count?: number;
 }
 
-// Items are grouped — a divider renders between each group
-const navGroups: NavItem[][] = [
-  // ── Command ─────────────────────────────────────────────────────────────
-  [
-    { name: "Dashboard", path: "/", icon: LayoutDashboard, ariaLabel: "Go to Dashboard", featureKey: "dashboard" },
-  ],
-  // ── People & Planning ────────────────────────────────────────────────────
-  [
-    { name: "People",       path: "/people",       icon: Users,       ariaLabel: "Go to People",            featureKey: "people" },
-    { name: "Calendar",     path: "/calendar",     icon: Calendar,    ariaLabel: "Go to Calendar",          featureKey: "calendar" },
-    { name: "Tasks",        path: "/tasks",        icon: CheckSquare, ariaLabel: "Go to Tasks",             featureKey: "tasks" },
-    { name: "Targets",      path: "/targets",      icon: Target,      ariaLabel: "Go to Targets",           featureKey: "targets" },
-    { name: "Detachments",  path: "/detachments",  icon: Navigation,  ariaLabel: "Go to Detachment Rota",   featureKey: "detachments" },
-  ],
-  // ── Operations ───────────────────────────────────────────────────────────
-  [
-    { name: "J4 Checks",   path: "/equipment",   icon: Truck,          ariaLabel: "Go to J4 Equipment Checks", featureKey: "equipment" },
-    { name: "Shift",       path: "/handover",    icon: ClipboardList,  ariaLabel: "Go to Shift Management",    featureKey: "handover" },
-    { name: "Training",   path: "/training",   icon: GraduationCap,  ariaLabel: "Go to Training" },
-  ],
-  // ── Reference & Account ──────────────────────────────────────────────────
-  [
-    { name: "My Profile", path: "/profile",   icon: UserCircle, ariaLabel: "Go to My Profile" },
-    { name: "Docs",       path: "/policies",  icon: FileText,   ariaLabel: "Go to Policy & Guidance", featureKey: "policies" },
-    { name: "Resources",  path: "/resources", icon: BookOpen,   ariaLabel: "Go to Resources & Guides", featureKey: "resources" },
-    { name: "Settings",   path: "/settings",  icon: Settings,   ariaLabel: "Go to Settings" },
-  ],
-  // ── Admin ────────────────────────────────────────────────────────────────
-  [
-    { name: "Admin",  path: "/admin",  icon: ShieldCheck, ariaLabel: "Go to Admin Panel", adminOnly: true },
-  ],
+// Nav items are grouped into three labelled sections (Operations / Work /
+// Admin) matching the "command-room" design refresh mockup. Group headings
+// render in expanded mode only; the collapsed rail hides them to keep the
+// narrow column visually clean.
+interface NavGroup {
+  label: string;
+  items: NavItem[];
+}
+
+const navGroups: NavGroup[] = [
+  // ── Operations — day-to-day command ────────────────────────────────────────
+  {
+    label: "Operations",
+    items: [
+      { name: "Dashboard", path: "/",         icon: LayoutDashboard, ariaLabel: "Go to Dashboard",             featureKey: "dashboard" },
+      { name: "People",    path: "/people",   icon: Users,           ariaLabel: "Go to People",                featureKey: "people" },
+      { name: "Calendar",  path: "/calendar", icon: Calendar,        ariaLabel: "Go to Calendar",              featureKey: "calendar" },
+      { name: "Tasks",     path: "/tasks",    icon: CheckSquare,     ariaLabel: "Go to Tasks",                 featureKey: "tasks" },
+      { name: "Shift",     path: "/handover", icon: ClipboardList,   ariaLabel: "Go to Shift Management",      featureKey: "handover" },
+    ],
+  },
+  // ── Work — operational admin ───────────────────────────────────────────────
+  {
+    label: "Work",
+    items: [
+      { name: "Targets",     path: "/targets",     icon: Target,        ariaLabel: "Go to Targets",             featureKey: "targets" },
+      { name: "Detachments", path: "/detachments", icon: Navigation,    ariaLabel: "Go to Detachment Rota",     featureKey: "detachments" },
+      { name: "J4 Checks",   path: "/equipment",   icon: Truck,         ariaLabel: "Go to J4 Equipment Checks", featureKey: "equipment" },
+      { name: "Training",    path: "/training",    icon: GraduationCap, ariaLabel: "Go to Training" },
+      { name: "Docs",        path: "/policies",    icon: FileText,      ariaLabel: "Go to Policy & Guidance",   featureKey: "policies" },
+      { name: "Resources",   path: "/resources",   icon: BookOpen,      ariaLabel: "Go to Resources & Guides",  featureKey: "resources" },
+    ],
+  },
+  // ── Admin — personal & system ──────────────────────────────────────────────
+  {
+    label: "Admin",
+    items: [
+      { name: "My Profile", path: "/profile",  icon: UserCircle, ariaLabel: "Go to My Profile" },
+      { name: "Settings",   path: "/settings", icon: Settings,   ariaLabel: "Go to Settings" },
+      { name: "Admin",      path: "/admin",    icon: ShieldCheck, ariaLabel: "Go to Admin Panel", adminOnly: true },
+    ],
+  },
 ];
 
 interface SidebarNavProps {
@@ -92,24 +106,26 @@ export default function SidebarNav({
 
   const isWCOrAdmin = user?.role === "WC" || user?.is_admin === true;
 
-  // Filter nav groups based on feature flags and admin access
-  const filteredGroups = navGroups
-    .map((group) =>
-      group.filter((item) => {
-        // Admin-only items: only visible to WC/admin
+  // Filter groups/items by feature flags + admin access, drop empty groups.
+  const filteredGroups: NavGroup[] = navGroups
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => {
         if (item.adminOnly && !isWCOrAdmin) return false;
-        // Feature-flagged items: WC/admin always see them, others check the flag
         if (item.featureKey && !isWCOrAdmin && !flags[item.featureKey]) return false;
         return true;
-      })
-    )
-    .filter((group) => group.length > 0);
+      }),
+    }))
+    .filter((group) => group.items.length > 0);
 
   return (
     <aside
       className={cn(
-        "fixed left-0 top-0 h-screen bg-gradient-to-b from-indigo-600 to-purple-700",
-        "flex flex-col py-4 shadow-lg z-40",
+        // Near-black "command-room" panel. bg-neutral-900 keeps it readable
+        // against any content background; dark variant nudges it slightly
+        // deeper so dark-mode users don't see two identical darks touching.
+        "fixed left-0 top-0 h-screen bg-neutral-900 dark:bg-neutral-950",
+        "flex flex-col py-4 shadow-lg z-40 border-r border-white/5",
         "transition-all duration-300 ease-in-out",
         "print:hidden",
         expanded ? "w-56 items-start" : "w-20 items-center",
@@ -120,30 +136,27 @@ export default function SidebarNav({
     >
       {/* ── Brand / Logo ────────────────────────────────────────────────── */}
       <div className={cn(
-        "mb-5 flex items-center shrink-0",
-        expanded ? "w-full px-4 gap-3" : "justify-center",
+        "mb-3 flex items-center shrink-0",
+        expanded ? "w-full px-4 pb-3 border-b border-white/10 gap-3" : "justify-center pb-2",
       )}>
+        {/* "WC" mark — tight square, accent colour, mono letters */}
         <div className={cn(
-          "bg-white/10 backdrop-blur-sm flex items-center justify-center shrink-0",
+          "bg-indigo-500 flex items-center justify-center shrink-0",
+          "font-mono font-semibold text-white tracking-wide",
           "transition-all duration-300",
-          expanded ? "w-9 h-9 rounded-xl" : "w-12 h-12 rounded-2xl",
+          expanded ? "w-8 h-8 text-xs rounded-sm" : "w-10 h-10 text-sm rounded",
         )}>
-          <img
-            src="/logo.svg"
-            alt="Watch Commander Ops Hub"
-            className={cn(
-              "transition-all duration-300",
-              expanded ? "w-7 h-7" : "w-9 h-9",
-            )}
-          />
+          WC
         </div>
         {expanded && (
           <div
             className="min-w-0 animate-in fade-in-0 slide-in-from-left-1 duration-200"
             style={{ animationDelay: "120ms" }}
           >
-            <p className="text-white font-semibold text-sm leading-tight">Watch Cmd</p>
-            <p className="text-white/60 text-xs leading-tight">Ops Hub</p>
+            <p className="text-white font-semibold text-[13px] leading-tight">Watch Commander</p>
+            <p className="text-white/40 font-mono text-[10px] uppercase tracking-[0.08em] leading-tight mt-0.5">
+              Ops Hub · Station A
+            </p>
           </div>
         )}
       </div>
@@ -155,15 +168,24 @@ export default function SidebarNav({
           expanded ? "gap-0.5 px-2" : "gap-1 px-3",
         )}>
           {filteredGroups.map((group, gi) => (
-            <Fragment key={gi}>
-              {gi > 0 && (
-                <div className={cn(
-                  "my-1 h-px bg-white/20 rounded-full",
-                  expanded ? "mx-2" : "mx-1",
-                )} />
+            <Fragment key={group.label}>
+              {/* Group heading (expanded only). On the collapsed rail we
+                  drop a thin divider instead to preserve the grouping
+                  rhythm without text. The first group needs no separator. */}
+              {expanded ? (
+                <div
+                  className="px-3 pt-4 pb-1 text-[10px] font-mono uppercase tracking-[0.14em] text-white/40"
+                  aria-hidden="true"
+                >
+                  {group.label}
+                </div>
+              ) : (
+                gi > 0 && (
+                  <div className="my-1 mx-3 h-px bg-white/10 rounded-full" aria-hidden="true" />
+                )
               )}
 
-              {group.map((item) => {
+              {group.items.map((item) => {
                 const Icon = item.icon;
                 const isActive =
                   location.pathname === item.path ||
@@ -176,43 +198,53 @@ export default function SidebarNav({
                     aria-label={item.ariaLabel}
                     aria-current={isActive ? "page" : undefined}
                     className={cn(
-                      "relative flex items-center rounded-xl",
-                      "transition-all duration-200 ease-in-out",
-                      "hover:bg-white/20",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white",
-                      "focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+                      "relative flex items-center rounded-sm",
+                      "transition-colors duration-150",
+                      "hover:bg-white/5",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400",
                       expanded
-                        ? "w-full h-10 gap-3 px-3"
-                        : "justify-center w-14 h-11 hover:scale-105",
-                      isActive
-                        ? cn(
-                          "bg-white/20 shadow-lg",
-                          "before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2",
-                          "before:w-1 before:rounded-r-full before:bg-white",
-                          expanded ? "before:h-5" : "before:h-8",
-                        )
-                        : "hover:shadow-md",
+                        ? "w-full h-9 gap-3 px-3"
+                        : "justify-center w-14 h-11",
+                      isActive && cn(
+                        "bg-white/10",
+                        // Left accent bar — indigo, full height, slim
+                        "before:absolute before:left-0 before:top-1.5 before:bottom-1.5",
+                        "before:w-[2px] before:rounded-r before:bg-indigo-400",
+                      ),
                     )}
                   >
                     <Icon
                       className={cn(
                         "shrink-0 transition-colors",
-                        expanded ? "h-5 w-5" : "h-6 w-6",
-                        isActive ? "text-white" : "text-white/70",
+                        expanded ? "h-[18px] w-[18px]" : "h-5 w-5",
+                        isActive ? "text-indigo-400" : "text-white/50 group-hover:text-white/80",
                       )}
                       aria-hidden="true"
                     />
                     {expanded && (
-                      <span
-                        className={cn(
-                          "text-sm font-medium truncate",
-                          "animate-in fade-in-0 duration-150",
-                          isActive ? "text-white" : "text-white/80",
+                      <>
+                        <span
+                          className={cn(
+                            "flex-1 text-[13px] truncate",
+                            "animate-in fade-in-0 duration-150",
+                            isActive ? "text-white" : "text-white/70",
+                          )}
+                          style={{ animationDelay: "120ms" }}
+                        >
+                          {item.name}
+                        </span>
+                        {/* Count badge — only rendered when a count is
+                            supplied. Opt-in, so items without counts are
+                            visually unaffected until someone wires one in. */}
+                        {typeof item.count === "number" && item.count > 0 && (
+                          <span
+                            className="ml-auto font-mono text-[10.5px] text-white/40 tabular-nums"
+                            aria-label={`${item.count} items`}
+                          >
+                            {item.count}
+                          </span>
                         )}
-                        style={{ animationDelay: "120ms" }}
-                      >
-                        {item.name}
-                      </span>
+                      </>
                     )}
                   </Link>
                 );
@@ -238,24 +270,24 @@ export default function SidebarNav({
 
       {/* ── Expand / collapse toggle ────────────────────────────────────── */}
       <div className={cn(
-        "mt-2 shrink-0",
+        "mt-2 shrink-0 border-t border-white/5 pt-2",
         expanded ? "w-full px-2" : "flex justify-center",
       )}>
         <button
           onClick={onToggleExpand}
           aria-label={expanded ? "Collapse sidebar" : "Expand sidebar"}
           className={cn(
-            "flex items-center rounded-xl",
-            "text-white/50 hover:text-white/90 hover:bg-white/10",
-            "transition-all duration-200",
-            expanded ? "w-full h-10 gap-3 px-3" : "w-14 h-10 justify-center",
+            "flex items-center rounded-sm",
+            "text-white/40 hover:text-white/80 hover:bg-white/5",
+            "transition-colors duration-150",
+            expanded ? "w-full h-9 gap-3 px-3" : "w-14 h-10 justify-center",
           )}
         >
           {expanded ? (
             <>
               <ChevronsLeft className="h-4 w-4 shrink-0" />
               <span
-                className="text-xs font-medium animate-in fade-in-0 duration-150"
+                className="text-[11px] font-mono uppercase tracking-[0.14em] animate-in fade-in-0 duration-150"
                 style={{ animationDelay: "120ms" }}
               >
                 Collapse

@@ -39,11 +39,14 @@ where possible, and always preview on `localhost:5173` before merging.
 
 ## 🎯 Phase 1 — Visual shell (biggest before/after impact)
 
-- [ ] **Dark sidebar** — replace the current indigo→purple gradient
-      with the mockup's dark operational sidebar. Station brand block
-      at the top ("WC · Watch Commander Ops Hub · Station A"). Keep
-      the existing icon-rail + expandable-label UX intact so mobile /
-      desktop behaviour is unchanged. _~1.5 hr_
+- [x] **Dark sidebar** — gradient replaced with near-black
+      `bg-neutral-900` panel. New tight "WC" accent-coloured brand
+      mark + "Watch Commander / OPS HUB · STATION A" block. 3
+      labelled groups (Operations / Work / Admin) in expanded mode;
+      collapsed rail keeps thin dividers. Indigo left-accent bar +
+      icon tint on active item. Optional `count` prop added to nav
+      items (unused until real counts are wired in a follow-up).
+      Mobile drawer + expand/collapse UX preserved.
 - [ ] **Compact top bar** — replace the "Good evening, John!" greeting
       with a breadcrumb + watch / shift / duty-count pills (like
       `Blue Watch · 07:00 → 19:00 · 11 on / 1 off`). Move the user
