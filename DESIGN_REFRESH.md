@@ -73,11 +73,16 @@ SidebarNav + TopBar._
       Sparklines and "+3 vs last shift" trend deltas deliberately
       skipped — we have no historical series endpoint; adding them is
       a separate backend task. — commit _(next push)_
-- [ ] **Crew-on-watch table** — a new read-only tabular view on the
-      dashboard showing today's crew (Name / Rank / Service # / Driver
-      quals / BA quals / Status). Uses the existing roster endpoint.
-      Complements the existing drag-and-drop Crewing board — doesn't
-      replace it. _~2 hr_
+- [x] **Crew-on-watch table** — new CrewOnWatchTable component added
+      as its own "Crew on Watch" section between Operational Status
+      and Today's Shift. Read-only table: Name / Rank / Service # /
+      Driver / Quals / Status with on-duty sort at the top, Stage 3
+      / Sick / Leave highlighted via coloured badges. Joins three
+      existing query caches (crewing-roster, wc-profiles,
+      wc-absences-today) so no extra network traffic. Does NOT
+      replace the interactive Crewing board at /handover — this is
+      the at-a-glance read view; that page is still the editing
+      surface. — commit _(next push)_
 - [ ] **Compact targets sidebar** — tight list of progress bars for
       every KPI with "Day X / 30" header and pace commentary. Replaces
       or supplements the current large HFSV / Community / Multistory

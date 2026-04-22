@@ -39,6 +39,7 @@ import { WCPersonalCalendarWidget } from "@/components/WCPersonalCalendarWidget"
 import { OperationalStatusBar }   from "@/components/OperationalStatusBar";
 import { LatestHandoverBanner }   from "@/components/LatestHandoverBanner";
 import { DashboardKPIs }          from "@/components/DashboardKPIs";
+import { CrewOnWatchTable }       from "@/components/CrewOnWatchTable";
 
 // CC widgets
 import { CCDashboard } from "@/components/CCDashboardWidgets";
@@ -335,6 +336,15 @@ function WatchCommanderDashboard() {
           onReorder={reorder}
           className={GRID_CLASS}
         />
+      </section>
+
+      {/* ── Crew on Watch ──────────────────────────────────────────────── */}
+      {/* Read-only at-a-glance table of every watch member with their quals
+          and today's status. Joins the existing crewing roster + profile
+          list + absence list query caches — zero extra network traffic. */}
+      <section className={`${SECTION_ANIM} delay-75`}>
+        <SectionLabel>Crew on Watch</SectionLabel>
+        <CrewOnWatchTable />
       </section>
 
       {/* ── Today's Shift ──────────────────────────────────────────────── */}
