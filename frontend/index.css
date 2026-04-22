@@ -29,7 +29,11 @@
 }
 
 :root {
-  --radius: 0.625rem;
+  /* Tighter base radius — 6px vs 10px. Propagates to --radius-sm/md/lg/xl via
+   * the existing calc() expressions further down, giving 2/4/6/10px across
+   * the scale to match the "command-room" operational aesthetic of the design
+   * refresh. Change this single value to revert. */
+  --radius: 0.375rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);

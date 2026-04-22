@@ -37,6 +37,7 @@ import { WCHandoverWidget }       from "@/components/WCHandoverWidget";
 import { WCAlertBanner }          from "@/components/WCAlertBanner";
 import { WCPersonalCalendarWidget } from "@/components/WCPersonalCalendarWidget";
 import { OperationalStatusBar }   from "@/components/OperationalStatusBar";
+import { LatestHandoverBanner }   from "@/components/LatestHandoverBanner";
 
 // CC widgets
 import { CCDashboard } from "@/components/CCDashboardWidgets";
@@ -306,9 +307,17 @@ function WatchCommanderDashboard() {
       {/* ── Alert banner ───────────────────────────────────────────────── */}
       <WCAlertBanner />
 
-      {/* ── At-a-glance status bar (6 cells: date, watch, shift, strength,
-              weather, tasks). Reuses the same TanStack queryKeys as the
-              downstream widgets so it adds no extra network traffic. ── */}
+      {/* ── Last handover summary ─ one-line strip surfacing what the
+              previous shift left for this WC. Shares the
+              ["wc-latest-handover"] query cache with WCHandoverWidget so
+              there's no extra network traffic. Renders nothing when no
+              handover exists — the widget lower in the grid handles the
+              first-handover CTA. ─────────────────────────────────────── */}
+      <LatestHandoverBanner />
+
+      {/* ── At-a-glance status bar (5 cells: date, watch, shift, strength,
+              tasks). Reuses the same TanStack queryKeys as the downstream
+              widgets so it adds no extra network traffic. ────────────── */}
       <OperationalStatusBar />
 
       {/* ── Operational Status ─────────────────────────────────────────── */}
