@@ -237,7 +237,7 @@ function WatchCommanderDashboard() {
   // --gap-section CSS variable. Defaults to 32px (space-y-8 equivalent) but
   // compresses to 20px or stretches to 40px based on the Appearance setting.
   return (
-    <div className="flex flex-col gap-[var(--gap-section)]">
+    <div className="flex flex-col" style={{ gap: "var(--gap-section)" }}>
 
       {/* ── Reset-layout affordance — only surfaces when the WC has
               re-ordered widgets from defaults. Replaces the old command

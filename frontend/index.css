@@ -92,19 +92,21 @@ html[data-accent="amber"] {
  *                    Default ≈ space-y-8.
  * --------------------------------------------------------------------------- */
 :root {
-  --pad-block:    0.75rem;    /* 12px — py-3 */
-  --pad-row:      0.5rem;     /*  8px — py-2 */
+  --pad-block:    0.75rem;    /* 12px */
+  --pad-row:      0.5rem;     /*  8px */
   --gap-section:  2rem;       /* 32px */
 }
+/* More aggressive deltas so the 3 modes are visibly different.
+ * Compact: ~40% of comfortable. Airy: ~160-175% of comfortable. */
 html[data-density="compact"] {
-  --pad-block:    0.375rem;   /*  6px — py-1.5 */
-  --pad-row:      0.25rem;    /*  4px — py-1 */
-  --gap-section:  1.25rem;    /* 20px */
+  --pad-block:    0.25rem;    /*  4px */
+  --pad-row:      0.125rem;   /*  2px */
+  --gap-section:  1rem;       /* 16px */
 }
 html[data-density="airy"] {
-  --pad-block:    1.25rem;    /* 20px — py-5 */
-  --pad-row:      0.875rem;   /* 14px — py-3.5 */
-  --gap-section:  2.5rem;     /* 40px */
+  --pad-block:    1.5rem;     /* 24px */
+  --pad-row:      1rem;       /* 16px */
+  --gap-section:  3rem;       /* 48px */
 }
 
 /* Expose the brand colour to Tailwind so `bg-brand` / `text-brand` /

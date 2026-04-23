@@ -88,7 +88,10 @@ function TargetRow({
 }) {
   if (loading) {
     return (
-      <div className="flex items-center gap-3 py-[var(--pad-block)] px-4">
+      <div
+        className="flex items-center gap-3 px-4"
+        style={{ paddingBlock: "var(--pad-block)" }}
+      >
         <Skeleton className="h-3 w-40" />
         <div className="flex-1"><Skeleton className="h-1.5 w-full" /></div>
         <Skeleton className="h-3 w-12" />
@@ -100,7 +103,10 @@ function TargetRow({
   const pace = computePace(actual, target, timePct);
 
   return (
-    <div className="flex items-center gap-3 py-[var(--pad-block)] px-4 hover:bg-muted/30 transition-colors">
+    <div
+      className="flex items-center gap-3 px-4 hover:bg-muted/30 transition-colors"
+      style={{ paddingBlock: "var(--pad-block)" }}
+    >
       {/* Label — fixed width so the bars line up */}
       <span className="text-sm font-medium text-foreground w-44 shrink-0 truncate">
         {label}

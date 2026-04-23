@@ -71,14 +71,19 @@ function StatusCell({
     return (
       <Link
         to={href}
-        className="block px-4 py-[var(--pad-block)] min-w-0 transition-colors hover:bg-muted/50 focus-visible:bg-muted/60 focus-visible:outline-none"
+        className="block px-4 min-w-0 transition-colors hover:bg-muted/50 focus-visible:bg-muted/60 focus-visible:outline-none"
+        style={{ paddingBlock: "var(--pad-block)" }}
       >
         {body}
       </Link>
     );
   }
 
-  return <div className="px-4 py-[var(--pad-block)] min-w-0">{body}</div>;
+  return (
+    <div className="px-4 min-w-0" style={{ paddingBlock: "var(--pad-block)" }}>
+      {body}
+    </div>
+  );
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
