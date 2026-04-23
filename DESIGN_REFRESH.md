@@ -98,6 +98,17 @@ SidebarNav + TopBar._
 
 ---
 
+## 🧹 Editorial cleanup
+
+- [x] **Drop redundant dashboard widgets** — command strip removed
+      (watch/date/shift now live in the TopBar + status bar);
+      WCTasksWidget removed (KPI row covers it); WCHFSVWidget /
+      WCCommunityWidget / WCMultiStoryWidget removed (TargetsCompact
+      covers all three). Layout customisation preserved via a small
+      Reset-layout link that only appears when the WC has re-ordered
+      things. Widget components left on disk so they can be
+      re-surfaced if we add a widget picker later.
+
 ## 🎯 Phase 3 — Polish & theming
 
 - [ ] **Global search bar** — top-of-page "Search crew, tasks, SOPs..."

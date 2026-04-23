@@ -19,18 +19,14 @@ import { useUserRole } from "@/lib/rbac";
 import { useAuth } from "@/App";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, ClipboardCheck, FileText, Shield, Clock, GripVertical, RotateCcw } from "lucide-react";
+import { Users, ClipboardCheck, FileText, GripVertical, RotateCcw } from "lucide-react";
 
 // WC widgets
 import { WCStaffingWidget }      from "@/components/WCStaffingWidget";
-import { WCTasksWidget }          from "@/components/WCTasksWidget";
 import { WCInspectionsWidget }    from "@/components/WCInspectionsWidget";
 import { WCSicknessAlertsWidget } from "@/components/WCSicknessAlertsWidget";
 import { WCShiftWidget }          from "@/components/WCShiftWidget";
 import { WCSkillsExpiryWidget }   from "@/components/WCSkillsExpiryWidget";
-import { WCHFSVWidget }           from "@/components/WCHFSVWidget";
-import { WCCommunityWidget }      from "@/components/WCCommunityWidget";
-import { WCMultiStoryWidget }     from "@/components/WCMultiStoryWidget";
 import { WCWeatherWidget }        from "@/components/WCWeatherWidget";
 import { WCContactsWidget }       from "@/components/WCContactsWidget";
 import { WCHandoverWidget }       from "@/components/WCHandoverWidget";
@@ -71,27 +67,29 @@ export default function RoleDashboard() {
 
 type SectionKey = "operational" | "shift" | "certs" | "targets";
 
+// Editorial cleanup (2026-04-23): removed `tasks`, `hfsv`, `community`,
+// `multistory` from the defaults because they're now covered by the new
+// compact dashboard pieces (DashboardKPIs covers Tasks; TargetsCompact
+// covers HFSV/Community/Multi-Story with progress bars + pace). Widget
+// components left on disk so users who prefer the detailed view can
+// re-enable them if/when we add a widget picker.
 const SECTION_DEFAULTS: Record<SectionKey, string[]> = {
-  operational: ["staffing", "sickness", "tasks", "inspections"],
+  operational: ["staffing", "sickness", "inspections"],
   shift:       ["shift", "calendar", "weather", "contacts", "handover", "h4h", "toil"],
   certs:       ["skills"],
-  targets:     ["hfsv", "community", "multistory"],
+  targets:     [],
 };
 
 /** Maps widget id → component. */
 const WIDGET_COMPONENTS: Record<string, React.ComponentType> = {
   staffing:    WCStaffingWidget,
-  tasks:       WCTasksWidget,
   inspections: WCInspectionsWidget,
-  multistory:  WCMultiStoryWidget,
   sickness:    WCSicknessAlertsWidget,
   weather:     WCWeatherWidget,
   shift:       WCShiftWidget,
   contacts:    WCContactsWidget,
   handover:    WCHandoverWidget,
   skills:      WCSkillsExpiryWidget,
-  hfsv:        WCHFSVWidget,
-  community:   WCCommunityWidget,
   h4h:         WCH4HWidget,
   toil:        ToilWidget,
   calendar:    WCPersonalCalendarWidget,
@@ -214,70 +212,6 @@ function SortableGrid({
   );
 }
 
-// ── Command strip ─────────────────────────────────────────────────────────────
-
-function getShiftLabel(): string {
-  const h = new Date().getHours();
-  return h >= 8 && h < 18 ? "Day Shift" : "Night Shift";
-}
-
-function WCCommandStrip({ isCustomised, onReset }: { isCustomised: boolean; onReset: () => void }) {
-  const { user } = useAuth();
-  const watch = user?.watch_unit;
-
-  const dateStr = new Date().toLocaleDateString("en-GB", {
-    weekday: "long",
-    day:     "numeric",
-    month:   "long",
-    year:    "numeric",
-  });
-  const shift = getShiftLabel();
-
-  return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2.5 rounded-xl bg-muted/50 border border-border/60 text-sm">
-      {/* Watch badge */}
-      {watch ? (
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 text-xs font-semibold">
-          <Shield className="h-3.5 w-3.5" />
-          {watch} Watch
-        </span>
-      ) : (
-        <Badge variant="outline" className="text-xs text-muted-foreground">No watch assigned</Badge>
-      )}
-
-      <span className="h-4 w-px bg-border hidden sm:block" />
-
-      {/* Date */}
-      <span className="text-xs text-muted-foreground">
-        <span className="font-medium text-foreground">{dateStr}</span>
-      </span>
-
-      <span className="h-4 w-px bg-border hidden sm:block" />
-
-      {/* Shift */}
-      <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-        <Clock className="h-3.5 w-3.5 shrink-0" />
-        <span className="font-medium text-foreground">{shift}</span>
-      </span>
-
-      {/* Reset layout — only shown when layout has been customised */}
-      {isCustomised && (
-        <>
-          <span className="flex-1" />
-          <button
-            onClick={onReset}
-            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            title="Restore default widget positions"
-          >
-            <RotateCcw className="h-3 w-3" />
-            Reset layout
-          </button>
-        </>
-      )}
-    </div>
-  );
-}
-
 // ── Section label ─────────────────────────────────────────────────────────────
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
@@ -305,10 +239,22 @@ function WatchCommanderDashboard() {
   return (
     <div className="flex flex-col gap-[var(--gap-section)]">
 
-      {/* ── Command strip ──────────────────────────────────────────────── */}
-      <div className="animate-in fade-in-0 slide-in-from-top-2 duration-400">
-        <WCCommandStrip isCustomised={isCustomised} onReset={reset} />
-      </div>
+      {/* ── Reset-layout affordance — only surfaces when the WC has
+              re-ordered widgets from defaults. Replaces the old command
+              strip (watch/date/shift now live in the TopBar and the
+              OperationalStatusBar below). ─────────────────────────────── */}
+      {isCustomised && (
+        <div className="flex justify-end -mb-2 animate-in fade-in-0 duration-300">
+          <button
+            onClick={reset}
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            title="Restore default widget positions"
+          >
+            <RotateCcw className="h-3 w-3" />
+            Reset widget layout
+          </button>
+        </div>
+      )}
 
       {/* ── Alert banner ───────────────────────────────────────────────── */}
       <WCAlertBanner />
@@ -374,18 +320,14 @@ function WatchCommanderDashboard() {
       </section>
 
       {/* ── Performance Targets ────────────────────────────────────────── */}
+      {/* Compact at-a-glance summary replaces the old HFSV / Community /
+          Multi-Story widget cards — TargetsCompact shows all four
+          quarterly metrics with progress bars + pace pills. The widget
+          components are still on disk if we ever want to add a widget
+          picker that surfaces them again. */}
       <section className={`${SECTION_ANIM} delay-200`}>
         <SectionLabel>Performance Targets</SectionLabel>
-        {/* Compact at-a-glance summary — HFSV / High-Rise / Hydrant /
-            Community with progress bars and pace. Reuses the same query
-            caches as the widget grid below so no extra network traffic. */}
         <TargetsCompact />
-        <SortableGrid
-          sectionKey="targets"
-          items={layout.targets}
-          onReorder={reorder}
-          className={GRID_CLASS}
-        />
       </section>
 
     </div>
