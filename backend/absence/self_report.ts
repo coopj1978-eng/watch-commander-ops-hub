@@ -106,8 +106,16 @@ export const updateAbsence = api<UpdateAbsenceDatesRequest, Absence>(
   async (req) => {
     const auth = getAuthData()!;
 
-    const existing = await db.queryRow<{ id: number; firefighter_id: string }>`
-      SELECT id, firefighter_id FROM absences WHERE id = ${req.id}
+    const existing = await db.queryRow<{
+      id: number;
+      firefighter_id: string;
+      type: string;
+      start_date: Date;
+      sick_line_document: string | null;
+    }>`
+      SELECT id, firefighter_id, type, start_date, sick_line_document
+      FROM absences
+      WHERE id = ${req.id}
     `;
 
     if (!existing) throw APIError.notFound("Absence record not found");
@@ -131,6 +139,53 @@ export const updateAbsence = api<UpdateAbsenceDatesRequest, Absence>(
     `;
 
     if (!updated) throw APIError.internal("Failed to update absence");
+
+    // If a firefighter attached a sick line where there wasn't one before,
+    // notify the Watch Commanders (+CCs) on their watch so they know to
+    // check it. Only fires on the null → set transition; subsequent
+    // replacements don't spam. We only send these for sickness absences —
+    // non-sickness record types don't use the sick-line field.
+    const sickLineJustUploaded =
+      isOwn &&
+      existing.type === "sickness" &&
+      !existing.sick_line_document &&
+      !!req.sick_line_document;
+
+    if (sickLineJustUploaded) {
+      try {
+        const person = await db.queryRow<{ name: string; watch_unit: string | null }>`
+          SELECT name, watch_unit FROM users WHERE id = ${auth.userID}
+        `;
+
+        if (person?.watch_unit) {
+          const startDateStr = new Date(existing.start_date).toLocaleDateString("en-GB");
+
+          const wcUsers = db.query<{ id: string }>`
+            SELECT id FROM users
+            WHERE role IN ('WC', 'CC')
+              AND left_at IS NULL
+              AND watch_unit = ${person.watch_unit}
+              AND id != ${auth.userID}
+          `;
+
+          for await (const recipient of wcUsers) {
+            await createNotification({
+              user_id: recipient.id,
+              type: "sick_booking",
+              title: "📄 Sick Line Uploaded",
+              message: `${person.name} has uploaded a sick line for their ${startDateStr} absence.`,
+              entity_type: "absence",
+              entity_id: updated.id.toString(),
+              link: `/people`,
+            });
+          }
+        }
+      } catch (err) {
+        // Notification failures shouldn't block the user's upload.
+        console.error("Failed to send sick-line-uploaded notifications:", err);
+      }
+    }
+
     return updated;
   }
 );

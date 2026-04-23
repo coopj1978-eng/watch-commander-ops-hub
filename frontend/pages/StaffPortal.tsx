@@ -4,6 +4,7 @@ import MyTasks from "@/components/MyTasks";
 import MyCalendar from "@/components/MyCalendar";
 import MyProfile from "@/components/MyProfile";
 import AbsenceRequest from "@/components/AbsenceRequest";
+import FFSickLineUpload from "@/components/FFSickLineUpload";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   LayoutDashboard,
@@ -23,7 +24,7 @@ export default function StaffPortal() {
       <div className="p-4 md:p-8 space-y-6">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
-            <User className="h-7 w-7 text-indigo-500 shrink-0" />
+            <User className="h-7 w-7 text-brand shrink-0" />
             Staff Portal
           </h1>
           <p className="text-muted-foreground mt-1">Your personal workspace</p>
@@ -69,7 +70,13 @@ export default function StaffPortal() {
             <MyProfile />
           </TabsContent>
 
-          <TabsContent value="absence" className="mt-6">
+          <TabsContent value="absence" className="mt-6 space-y-6">
+            {/* Sick line uploads — attach evidence to sickness bookings the
+                WC/CC has already logged. Appears first because it's the
+                most time-sensitive action (compliance clock starts when
+                a GP issues a sick line). */}
+            <FFSickLineUpload />
+            {/* Request other leave types (annual leave, TOIL, etc.). */}
             <AbsenceRequest />
           </TabsContent>
         </Tabs>
