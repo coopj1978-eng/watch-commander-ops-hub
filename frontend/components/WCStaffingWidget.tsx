@@ -35,7 +35,7 @@ export function WCStaffingWidget() {
 
   if (isLoading) {
     return (
-      <Card className="border-t-2 border-t-indigo-500">
+      <Card className="border-t-2 border-t-brand">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <Skeleton className="h-4 w-28" />
           <Skeleton className="h-4 w-4" />
@@ -63,10 +63,10 @@ export function WCStaffingWidget() {
   const onDuty = Math.max(0, total - sickToday - onLeaveToday);
 
   return (
-    <Card className="border-t-2 border-t-indigo-500">
+    <Card className="border-t-2 border-t-brand">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">Staffing Today</CardTitle>
-        <Users className="h-4 w-4 text-indigo-500" />
+        <Users className="h-4 w-4 text-brand" />
       </CardHeader>
       <CardContent>
         <div className="text-4xl font-bold tabular-nums">{animatedTotal}</div>

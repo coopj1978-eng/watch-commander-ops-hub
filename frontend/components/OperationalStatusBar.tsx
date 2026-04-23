@@ -148,7 +148,7 @@ export function OperationalStatusBar() {
   const tasksLoading = statsQ.isLoading;
 
   return (
-    <Card className="border-t-2 border-t-indigo-500 overflow-hidden">
+    <Card className="border-t-2 border-t-brand overflow-hidden">
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 divide-x divide-y md:divide-y-0 divide-border/40">
         <StatusCell label="Date" value={dateStr} />
 

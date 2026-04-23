@@ -36,14 +36,14 @@ export function CCCrewWidget() {
     queryFn: async () => backend.crew.getStats(),
   });
 
-  if (isLoading) return <CCStatsSkeleton className="border-t-2 border-t-indigo-500" />;
+  if (isLoading) return <CCStatsSkeleton className="border-t-2 border-t-brand" />;
   if (!stats) return null;
 
   return (
-    <Card className="border-t-2 border-t-indigo-500">
+    <Card className="border-t-2 border-t-brand">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">My Crew</CardTitle>
-        <Users className="h-4 w-4 text-indigo-500" />
+        <Users className="h-4 w-4 text-brand" />
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">{stats.total_firefighters}</div>
@@ -59,11 +59,11 @@ export function CCTasksWidget() {
     queryFn: async () => backend.crew.getStats(),
   });
 
-  if (isLoading) return <CCStatsSkeleton className="border-t-2 border-t-indigo-500" />;
+  if (isLoading) return <CCStatsSkeleton className="border-t-2 border-t-brand" />;
   if (!stats) return null;
 
   const { total_tasks, completed_tasks, overdue_tasks, completion_rate } = stats;
-  const accentColor = overdue_tasks > 0 ? "border-t-amber-500" : "border-t-indigo-500";
+  const accentColor = overdue_tasks > 0 ? "border-t-amber-500" : "border-t-brand";
 
   return (
     <Card className={`border-t-2 ${accentColor}`}>
@@ -92,14 +92,14 @@ export function CCInspectionsWidget() {
     queryFn: async () => backend.crew.getStats(),
   });
 
-  if (isLoading) return <CCStatsSkeleton className="border-t-2 border-t-purple-500" />;
+  if (isLoading) return <CCStatsSkeleton className="border-t-2 border-t-brand" />;
   if (!stats) return null;
 
   return (
-    <Card className="border-t-2 border-t-purple-500">
+    <Card className="border-t-2 border-t-brand">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">Upcoming Inspections</CardTitle>
-        <CalendarCheck className="h-4 w-4 text-purple-500" />
+        <CalendarCheck className="h-4 w-4 text-brand" />
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">{stats.upcoming_inspections}</div>
@@ -115,11 +115,11 @@ export function CCOneToOnesWidget() {
     queryFn: async () => backend.crew.getStats(),
   });
 
-  if (isLoading) return <CCStatsSkeleton className="border-t-2 border-t-indigo-500" />;
+  if (isLoading) return <CCStatsSkeleton className="border-t-2 border-t-brand" />;
   if (!stats) return null;
 
   const overdue = stats.overdue_one_to_ones;
-  const accentColor = overdue > 0 ? "border-t-amber-500" : "border-t-indigo-500";
+  const accentColor = overdue > 0 ? "border-t-amber-500" : "border-t-brand";
 
   return (
     <Card className={`border-t-2 ${accentColor}`}>
@@ -145,7 +145,7 @@ export function CCSicknessWidget() {
     queryFn: async () => backend.profile.list({ limit: 200 }),
   });
 
-  if (isLoading) return <CCStatsSkeleton className="border-t-2 border-t-indigo-500" />;
+  if (isLoading) return <CCStatsSkeleton className="border-t-2 border-t-brand" />;
 
   const profiles = data?.profiles ?? [];
   const stage1 = profiles.filter((p) => p.trigger_stage === "Stage1").length;

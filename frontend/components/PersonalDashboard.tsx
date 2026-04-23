@@ -87,7 +87,7 @@ export default function PersonalDashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="border-t-2 border-t-indigo-500">
+        <Card className="border-t-2 border-t-brand">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Tasks</CardTitle>
             <ListTodo className="h-4 w-4 text-muted-foreground" />
@@ -129,7 +129,7 @@ export default function PersonalDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-t-2 border-t-indigo-500">
+        <Card className="border-t-2 border-t-brand">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Absence Days</CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -146,7 +146,7 @@ export default function PersonalDashboard() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Card className="border-t-2 border-t-indigo-500">
+        <Card className="border-t-2 border-t-brand">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5" />

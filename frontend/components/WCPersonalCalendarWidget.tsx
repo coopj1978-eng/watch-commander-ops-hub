@@ -187,16 +187,16 @@ export function WCPersonalCalendarWidget() {
   };
 
   return (
-    <Card className="border-t-2 border-t-indigo-500">
+    <Card className="border-t-2 border-t-brand">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <div className="flex items-center gap-2">
-          <Calendar className="h-4 w-4 text-indigo-500" />
+          <Calendar className="h-4 w-4 text-brand" />
           <CardTitle className="text-sm font-medium">My Calendar</CardTitle>
         </div>
         {todayCount > 0 ? (
           <Badge
             variant="outline"
-            className="text-[10px] bg-indigo-50 text-indigo-600 border-indigo-200 dark:bg-indigo-950/40 dark:text-indigo-400 dark:border-indigo-800"
+            className="text-[10px] bg-brand/10 text-brand border-brand/30"
           >
             {todayCount} today
           </Badge>
@@ -332,7 +332,7 @@ export function WCPersonalCalendarWidget() {
                 )}
                 <Link
                   to={`/calendar?date=${toDateKey(selectedDay)}`}
-                  className="text-[10px] text-indigo-500 hover:text-indigo-700 flex items-center gap-0.5"
+                  className="text-[10px] text-brand hover:text-brand/80 flex items-center gap-0.5"
                 >
                   Open <ExternalLink className="h-2.5 w-2.5" />
                 </Link>

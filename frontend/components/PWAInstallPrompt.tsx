@@ -175,7 +175,7 @@ export default function PWAInstallPrompt() {
               <li className="flex items-center gap-2">
                 <span className="h-5 w-5 rounded-full bg-muted flex items-center justify-center text-[10px] font-semibold shrink-0">1</span>
                 <span>Tap the</span>
-                <Share className="h-4 w-4 text-indigo-500" />
+                <Share className="h-4 w-4 text-brand" />
                 <span>Share icon at the bottom.</span>
               </li>
               <li className="flex items-center gap-2">

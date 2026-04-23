@@ -203,10 +203,10 @@ export function TargetsCompact() {
   const yearTimePct     = yearElapsedDays / yearTotalDays;
 
   return (
-    <Card className="border-t-2 border-t-orange-500">
+    <Card className="border-t-2 border-t-brand">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <div className="flex items-center gap-2">
-          <Target className="h-4 w-4 text-orange-500" />
+          <Target className="h-4 w-4 text-brand" />
           <CardTitle className="text-sm font-medium">Performance Summary</CardTitle>
         </div>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">

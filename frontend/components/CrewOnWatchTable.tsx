@@ -92,7 +92,7 @@ function Avatar({ name }: { name: string }) {
     .toUpperCase();
   return (
     <span
-      className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 text-[9px] font-mono font-semibold text-white shrink-0"
+      className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-brand-bright to-brand text-[9px] font-mono font-semibold text-white shrink-0"
       aria-hidden
     >
       {initials || "?"}
@@ -267,10 +267,10 @@ export function CrewOnWatchTable() {
   const onDutyCount = rows.filter((r) => r.status.kind === "on_duty").length;
 
   return (
-    <Card className="border-t-2 border-t-indigo-500">
+    <Card className="border-t-2 border-t-brand">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
         <div className="flex items-center gap-2">
-          <Users className="h-4 w-4 text-indigo-500" />
+          <Users className="h-4 w-4 text-brand" />
           <CardTitle className="text-sm font-medium">Crew on Watch</CardTitle>
         </div>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -488,7 +488,7 @@ export function CrewOnWatchTable() {
               Cancel
             </Button>
             <Button
-              className="bg-indigo-600 hover:bg-indigo-700 text-white"
+              className="bg-brand hover:bg-brand/90 text-brand-foreground"
               disabled={
                 !logSickEformConfirmed ||
                 logSickMutation.isPending ||

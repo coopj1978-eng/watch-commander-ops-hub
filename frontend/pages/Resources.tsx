@@ -50,14 +50,14 @@ export default function Resources() {
               rel="noopener noreferrer"
               className="group block"
             >
-              <Card className="h-full border-t-2 border-t-indigo-500 transition-all hover:shadow-md hover:border-indigo-400/60 group-focus-visible:ring-2 group-focus-visible:ring-indigo-500">
+              <Card className="h-full border-t-2 border-t-brand transition-all hover:shadow-md hover:border-brand/60 group-focus-visible:ring-2 group-focus-visible:ring-brand">
                 <CardContent className="pt-6">
                   <div className="flex items-start gap-4">
                     <div className={`p-2.5 rounded-lg ${link.bg} shrink-0`}>
                       <Icon className={`h-5 w-5 ${link.colour}`} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-foreground group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                      <h3 className="font-semibold text-foreground group-hover:text-brand transition-colors">
                         {link.title}
                       </h3>
                       <p className="text-sm text-muted-foreground mt-1">

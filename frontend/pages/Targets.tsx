@@ -101,10 +101,10 @@ function QuarterlyOverview({ watch }: { watch: string }) {
   const isLoading = activityResults.some((r) => r.isLoading) || msResults.some((r) => r.isLoading);
 
   return (
-    <Card className="border-t-2 border-t-indigo-500">
+    <Card className="border-t-2 border-t-brand">
       <CardHeader className="pb-3">
         <div className="flex items-center gap-2">
-          <BarChart3 className="h-5 w-5 text-indigo-500" />
+          <BarChart3 className="h-5 w-5 text-brand" />
           <CardTitle className="text-base">Year at a Glance — FY {fy}/{String(fy + 1).slice(2)}</CardTitle>
         </div>
       </CardHeader>

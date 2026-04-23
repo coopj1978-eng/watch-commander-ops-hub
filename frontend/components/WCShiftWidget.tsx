@@ -110,7 +110,7 @@ export function WCShiftWidget() {
   // ── Loading skeleton ────────────────────────────────────────────────────
   if (isLoading) {
     return (
-      <Card className="border-t-2 border-t-indigo-500">
+      <Card className="border-t-2 border-t-brand">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <Skeleton className="h-4 w-36" />
           <Skeleton className="h-8 w-24" />
@@ -134,7 +134,7 @@ export function WCShiftWidget() {
   const crewingStarted = totalAssigned > 0;
 
   return (
-    <Card className="border-t-2 border-t-indigo-500">
+    <Card className="border-t-2 border-t-brand">
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
         <div className="flex flex-col gap-1.5">

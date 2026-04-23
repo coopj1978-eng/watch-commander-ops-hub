@@ -23,7 +23,7 @@ export function WCHandoverWidget() {
 
   if (isLoading) {
     return (
-      <Card className="border-t-2 border-t-indigo-500">
+      <Card className="border-t-2 border-t-brand">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <Skeleton className="h-4 w-36" />
           <Skeleton className="h-4 w-4" />
@@ -43,10 +43,10 @@ export function WCHandoverWidget() {
   // ── Empty state ────────────────────────────────────────────────────────────
   if (!latest) {
     return (
-      <Card className="border-t-2 border-t-indigo-500">
+      <Card className="border-t-2 border-t-brand">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Last Handover</CardTitle>
-          <ClipboardList className="h-4 w-4 text-indigo-500" />
+          <ClipboardList className="h-4 w-4 text-brand" />
         </CardHeader>
         <CardContent className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-2 text-muted-foreground">
@@ -74,7 +74,7 @@ export function WCHandoverWidget() {
   // Top accent: orange if there are incidents/outstanding tasks, otherwise indigo
   const accentBorder = hasIncidents || hasTasks
     ? "border-t-orange-500"
-    : "border-t-indigo-500";
+    : "border-t-brand";
 
   return (
     <Card className={`border-t-2 ${accentBorder}`}>
@@ -86,7 +86,7 @@ export function WCHandoverWidget() {
           </Badge>
           <span className="text-xs text-muted-foreground">{shiftDateStr}</span>
         </div>
-        <ClipboardList className={`h-4 w-4 shrink-0 ${hasIncidents || hasTasks ? "text-orange-500" : "text-indigo-500"}`} />
+        <ClipboardList className={`h-4 w-4 shrink-0 ${hasIncidents || hasTasks ? "text-orange-500" : "text-brand"}`} />
       </CardHeader>
 
       <CardContent className="space-y-3">

@@ -114,10 +114,17 @@ SidebarNav + TopBar._
 - [ ] **Global search bar** — top-of-page "Search crew, tasks, SOPs..."
       input that routes to the right page with a query param. _~1.5 hr
       for UI; backend search is its own build._
-- [ ] **Muted palette refinements** — reduce the variety of accent
-      colours used across widgets to match the mockup's minimal
-      greyscale + single accent approach. Careful: some colours do
-      useful signalling work today (e.g. orange for incidents). _~2 hr_
+- [x] **Muted palette refinements** — decorative `indigo-500` /
+      `purple-500` top-borders + icon tints on dashboard widgets,
+      settings links, and CrewOnWatchTable avatar gradient all swapped
+      to `--brand`. Semantic colours (red for overdue/expired/Stage 3,
+      amber/orange for warnings, green for all-clear, blue for
+      InProgress) preserved everywhere. TargetsCompact demoted from
+      HFSV-orange to brand since it's a multi-metric summary, not
+      HFSV-specific. Affects ~15 widget files + 3 page headers. Net:
+      picking Oxblood / Teal / Forest in Settings now repaints the
+      whole dashboard, not just the sidebar and avatar. — commit
+      _(next push)_
 - [x] **Accent picker** — 6-colour picker (indigo / oxblood / blue /
       teal / forest / amber) in a new Appearance tab on Settings,
       stored per-device in localStorage. Swaps --brand +

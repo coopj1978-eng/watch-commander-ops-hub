@@ -57,10 +57,10 @@ export default function FFShiftAdjustmentWidget() {
 
   return (
     <>
-      <Card className="border-t-2 border-t-indigo-500">
+      <Card className="border-t-2 border-t-brand">
         <CardHeader className="flex flex-row items-center justify-between pb-3">
           <div className="flex items-center gap-2">
-            <CalendarDays className="h-5 w-5 text-indigo-500" />
+            <CalendarDays className="h-5 w-5 text-brand" />
             <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
               Shift Adjustments
             </CardTitle>
@@ -68,7 +68,7 @@ export default function FFShiftAdjustmentWidget() {
           <Button
             size="sm"
             onClick={() => setModalOpen(true)}
-            className="h-7 text-xs bg-indigo-600 hover:bg-indigo-700 text-white gap-1"
+            className="h-7 text-xs bg-brand hover:bg-brand/90 text-brand-foreground gap-1"
           >
             <Plus className="h-3.5 w-3.5" /> Log
           </Button>
@@ -106,7 +106,7 @@ export default function FFShiftAdjustmentWidget() {
                     </div>
                     <button
                       onClick={() => setModalOpen(true)}
-                      className="shrink-0 text-muted-foreground hover:text-indigo-500"
+                      className="shrink-0 text-muted-foreground hover:text-brand"
                       title="Edit"
                     >
                       <Pencil className="h-3 w-3" />

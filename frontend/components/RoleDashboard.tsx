@@ -372,17 +372,17 @@ function ReadOnlyDashboard() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
-        <Card className="border-t-2 border-t-indigo-500">
+        <Card className="border-t-2 border-t-brand">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Staff</CardTitle>
-            <Users className="h-5 w-5 text-indigo-500" />
+            <Users className="h-5 w-5 text-brand" />
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-foreground">—</div>
           </CardContent>
         </Card>
 
-        <Card className="border-t-2 border-t-indigo-500">
+        <Card className="border-t-2 border-t-brand">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Active Tasks</CardTitle>
             <ClipboardCheck className="h-5 w-5 text-blue-500" />
@@ -392,7 +392,7 @@ function ReadOnlyDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-t-2 border-t-indigo-500">
+        <Card className="border-t-2 border-t-brand">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Reports Available</CardTitle>
             <FileText className="h-5 w-5 text-purple-500" />

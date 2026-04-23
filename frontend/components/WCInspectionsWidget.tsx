@@ -51,13 +51,13 @@ export function WCInspectionsWidget() {
     );
   }
 
-  const accentColor = overdue.length > 0 ? "border-t-red-500" : "border-t-purple-500";
+  const accentColor = overdue.length > 0 ? "border-t-red-500" : "border-t-brand";
 
   return (
     <Card className={`border-t-2 ${accentColor}`}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">Inspections</CardTitle>
-        <CalendarCheck className="h-4 w-4 text-purple-500" />
+        <CalendarCheck className="h-4 w-4 text-brand" />
       </CardHeader>
       <CardContent>
         <div className="text-4xl font-bold tabular-nums">{animatedUpcoming}</div>

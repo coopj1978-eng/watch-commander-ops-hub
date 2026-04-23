@@ -57,7 +57,7 @@ export function WCMultiStoryWidget() {
           <div className="flex flex-col items-center gap-1.5 py-3 text-center">
             <MapPin className="h-5 w-5 text-muted-foreground/40" />
             <p className="text-xs text-muted-foreground">No watch unit assigned</p>
-            <Link to="/settings" className="text-xs text-indigo-600 hover:underline dark:text-indigo-400">
+            <Link to="/settings" className="text-xs text-brand hover:underline">
               Set up in Settings →
             </Link>
           </div>
