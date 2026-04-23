@@ -186,6 +186,44 @@ function initials(name: string) {
 }
 
 /**
+ * Does this roster member hold the qualification the slot role requires?
+ *
+ * Returns:
+ *   true   — member meets the role's qual (or role has no qual requirement)
+ *   false  — role requires a qual the member doesn't hold
+ *   null   — role carries no specific qualification (ff / detached)
+ *
+ * Kept as a single source of truth — used by the drag-over highlight,
+ * the inline-picker ordering, and the placed-slot warning. If an extra
+ * role → qual rule is added later, this is the one place to change it.
+ */
+function memberMeetsSlotRole(
+  member: RosterMember,
+  role: CrewRole,
+): boolean | null {
+  switch (role) {
+    case "driver": return member.driver_lgv;
+    case "oic":    return member.oic;
+    case "ba":     return member.ba;
+    case "baeco":  return member.ba; // BA entry control also requires BA
+    case "ff":
+    case "detached":
+      return null;
+  }
+}
+
+/** Short human label for the qualification a slot role requires (or null). */
+function qualLabelForRole(role: CrewRole): string | null {
+  switch (role) {
+    case "driver": return "LGV";
+    case "oic":    return "OIC";
+    case "ba":     return "BA";
+    case "baeco":  return "BA";
+    default:       return null;
+  }
+}
+
+/**
  * Match entries to ordered slots. Roles that appear more than once (ba)
  * fill first slot first, second slot second.
  */
@@ -446,18 +484,33 @@ function SlotDropZone({
   id,
   slot,
   isDragActive,
+  dragQualifies,
   onClick,
   canEdit,
 }: {
   id: string;
   slot: ApplianceSlot;
   isDragActive: boolean;   // true while any tile is being dragged
+  /**
+   * When a roster tile is being dragged:
+   *   true   — member is qualified for this slot's role
+   *   false  — member lacks the required qual (show red)
+   *   null   — slot has no qual rule (e.g. FF / detached)
+   *   undefined — not dragging a roster tile (dragging an already-placed entry
+   *               — we don't re-check quals on re-drag for now)
+   */
+  dragQualifies?: boolean | null;
   onClick: () => void;
   canEdit: boolean;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id, data: { slotId: id } });
 
   const highlight = isOver && isDragActive;
+  // While dragging a qualified-check failed, flag the unqualified state so we
+  // can colour every slot (not just the hovered one) red-tinted to tell the
+  // WC this tile can't go anywhere qualified.
+  const unqualForDrag = isDragActive && dragQualifies === false;
+  const qualLabel     = qualLabelForRole(slot.role);
 
   return (
     <div ref={setNodeRef} className="flex-1">
@@ -467,22 +520,34 @@ function SlotDropZone({
           className={`
             w-full flex items-center justify-center gap-1.5 rounded-lg border-2 border-dashed
             py-2 px-3 text-xs transition-all duration-150
-            ${highlight
-              ? "border-indigo-500 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300 scale-[1.02] shadow-sm"
+            ${highlight && dragQualifies === false
+              ? "border-red-500 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 scale-[1.02] shadow-sm"
+              : highlight
+              ? "border-green-500 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 scale-[1.02] shadow-sm"
+              : unqualForDrag
+              ? "border-red-300/70 bg-red-50/40 dark:bg-red-950/20 text-red-500/80"
               : isDragActive
-              ? "border-indigo-300 bg-indigo-50/50 dark:bg-indigo-950/20 text-indigo-400 animate-pulse"
+              ? "border-brand/40 bg-brand/10 text-brand animate-pulse"
               : slot.required
               ? "border-amber-300/70 bg-amber-50/40 dark:bg-amber-950/10 text-amber-600/70 dark:text-amber-400/60 hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/20 hover:text-amber-700 dark:hover:text-amber-400"
-              : "border-muted-foreground/20 text-muted-foreground/40 hover:border-indigo-300 hover:text-indigo-500 hover:bg-indigo-50/60 dark:hover:bg-indigo-950/20"
+              : "border-muted-foreground/20 text-muted-foreground/40 hover:border-brand/50 hover:text-brand hover:bg-brand/5"
             }
           `}
         >
-          {highlight
+          {highlight && dragQualifies === false
+            ? <AlertTriangle className="h-3.5 w-3.5" />
+            : highlight
             ? <CheckCircle2 className="h-3.5 w-3.5" />
             : <Plus className="h-3 w-3" />
           }
           <span className="font-medium">
-            {highlight ? "Drop here" : slot.required ? "Assign (required)" : "Optional — assign"}
+            {highlight && dragQualifies === false && qualLabel
+              ? `Not ${qualLabel} qualified — drop to assign anyway`
+              : highlight
+              ? "Drop here"
+              : slot.required
+              ? "Assign (required)"
+              : "Optional — assign"}
           </span>
         </button>
       ) : (
@@ -570,15 +635,20 @@ function DraggableFilledSlot({
         {entry.is_change_of_shift && (
           <span className="text-[9px] font-semibold text-amber-600 dark:text-amber-400">External / CoS</span>
         )}
+        {/* Visible qualification warning — replaces the old tooltip-only
+            AlertTriangle so the WC can't miss a misqualified placement.
+            Still just a warning (not a block) — acting-up assignments
+            happen and the WC needs to retain override. */}
+        {qualWarning && (
+          <p className="text-[10px] font-semibold text-red-600 dark:text-red-400 flex items-center gap-1 leading-tight mt-0.5">
+            <AlertTriangle className="h-2.5 w-2.5 shrink-0" />
+            <span className="truncate">{qualWarning}</span>
+          </p>
+        )}
       </div>
       <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0 ${ROLE_BADGE[entry.crew_role]}`}>
         {slot.label}
       </span>
-      {qualWarning && (
-        <span title={qualWarning} className="shrink-0">
-          <AlertTriangle className="h-3 w-3 text-amber-500" />
-        </span>
-      )}
       {canEdit && (
         <button
           onPointerDown={e => e.stopPropagation()} // prevent drag starting on remove button
@@ -601,12 +671,15 @@ function InlinePicker({
   roster,
   alreadyAssignedIds,
   isPending,
+  slotRole,
   onAssign,
   onCancel,
 }: {
   roster: RosterMember[];
   alreadyAssignedIds: Set<string>;
   isPending: boolean;
+  /** Role the slot requires — drives qualification chips + sort order. */
+  slotRole: CrewRole;
   onAssign: (userId: string | undefined, externalName: string | undefined) => void;
   onCancel: () => void;
 }) {
@@ -616,23 +689,66 @@ function InlinePicker({
 
   useEffect(() => { setMode("roster"); setUserId(""); setExtName(""); }, []);
 
-  const available = roster.filter(m => !alreadyAssignedIds.has(m.id));
+  const qualLabel = qualLabelForRole(slotRole);
+
+  // Sort: qualified members first, then unqualified, then alpha within each
+  // group. This surfaces the "right" people at the top of the dropdown.
+  const available = roster
+    .filter(m => !alreadyAssignedIds.has(m.id))
+    .slice()
+    .sort((a, b) => {
+      const aq = memberMeetsSlotRole(a, slotRole);
+      const bq = memberMeetsSlotRole(b, slotRole);
+      // qual === null means no qual requirement — treat as qualified
+      const aOk = aq === null || aq === true;
+      const bOk = bq === null || bq === true;
+      if (aOk !== bOk) return aOk ? -1 : 1;
+      return a.name.localeCompare(b.name);
+    });
   const valid     = mode === "roster" ? !!userId : extName.trim().length > 0;
 
   return (
     <div className="flex flex-wrap items-center gap-2 py-1.5 pl-1">
       {mode === "roster" ? (
         <Select value={userId} onValueChange={setUserId}>
-          <SelectTrigger className="h-8 text-xs w-48 min-w-0">
+          <SelectTrigger className="h-8 text-xs w-60 min-w-0">
             <SelectValue placeholder="Select person…" />
           </SelectTrigger>
           <SelectContent>
             {!available.length && <SelectItem value="_none" disabled>All assigned</SelectItem>}
-            {available.map(m => (
-              <SelectItem key={m.id} value={m.id}>
-                {m.name}{m.rank ? ` — ${m.rank}` : ""}
-              </SelectItem>
-            ))}
+            {available.map(m => {
+              const meets = memberMeetsSlotRole(m, slotRole);
+              // meets === null means no qual requirement for this slot
+              const unqual = meets === false;
+              return (
+                <SelectItem key={m.id} value={m.id}>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className={unqual ? "text-muted-foreground" : ""}>
+                      {m.name}{m.rank ? ` — ${m.rank}` : ""}
+                    </span>
+                    {unqual && qualLabel && (
+                      <span
+                        className="text-[9px] font-semibold px-1 py-px rounded bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-300"
+                        title={`Not ${qualLabel} qualified`}
+                      >
+                        ⚠ No {qualLabel}
+                      </span>
+                    )}
+                    {/* Compact qual summary chips — shown in muted colour so
+                        qualified members at a glance read "BA·LGV·OIC" style. */}
+                    {!unqual && (
+                      <span className="text-[9px] font-mono text-muted-foreground/70">
+                        {[
+                          m.ba && "BA",
+                          m.driver_lgv && "LGV",
+                          m.oic && "OIC",
+                        ].filter(Boolean).join(" · ")}
+                      </span>
+                    )}
+                  </span>
+                </SelectItem>
+              );
+            })}
           </SelectContent>
         </Select>
       ) : (
@@ -690,6 +806,7 @@ function SlotRow({
   onRemove,
   isLast,
   qualWarning,
+  dragQualifies,
 }: {
   slotId: string;
   slot: ApplianceSlot;
@@ -706,6 +823,7 @@ function SlotRow({
   onRemove: (id: number) => void;
   isLast: boolean;
   qualWarning?: string | null;
+  dragQualifies?: boolean | null;
 }) {
   const borderB = !isLast ? "border-b border-border/40" : "";
 
@@ -741,6 +859,7 @@ function SlotRow({
             roster={roster}
             alreadyAssignedIds={alreadyAssignedIds}
             isPending={isPending}
+            slotRole={slot.role}
             onAssign={onAssign}
             onCancel={onDeactivate}
           />
@@ -757,6 +876,7 @@ function SlotRow({
         id={slotId}
         slot={slot}
         isDragActive={isDragActive}
+        dragQualifies={dragQualifies}
         onClick={onActivate}
         canEdit={canEdit}
       />
@@ -775,6 +895,7 @@ function ApplianceSlotsCard({
   canEdit,
   activeSlotId,
   isDragActive,
+  draggingMember,
   addPending,
   onActivateSlot,
   onDeactivateSlot,
@@ -787,6 +908,10 @@ function ApplianceSlotsCard({
   canEdit: boolean;
   activeSlotId: string | null;
   isDragActive: boolean;
+  /** Roster tile currently being dragged — lets each slot live-check
+   *  whether the drag would meet its role requirement. Null when dragging
+   *  an already-placed entry (re-move) or when no drag is active. */
+  draggingMember: RosterMember | null;
   addPending: boolean;
   onActivateSlot: (slotId: string) => void;
   onDeactivateSlot: () => void;
@@ -873,6 +998,11 @@ function ApplianceSlotsCard({
       <CardContent className="p-0 pb-2">
         {slots.map((slot, idx) => {
           const slotId = `slot-${appliance}-${idx}`;
+          // Live qualification check for the tile currently being dragged —
+          // null when no qual rule applies OR when nothing is being dragged.
+          const dragQualifies = draggingMember
+            ? memberMeetsSlotRole(draggingMember, slot.role)
+            : undefined;
           return (
             <SlotRow
               key={slotId}
@@ -891,6 +1021,7 @@ function ApplianceSlotsCard({
               onRemove={onRemove}
               isLast={idx === slots.length - 1}
               qualWarning={qualWarnings[idx]}
+              dragQualifies={dragQualifies}
             />
           );
         })}
@@ -991,6 +1122,7 @@ function DetachedCard({
               roster={roster}
               alreadyAssignedIds={allAssignedIds}
               isPending={isPending}
+              slotRole="detached"
               onAssign={onAssign}
               onCancel={onHidePicker}
             />
@@ -2113,6 +2245,7 @@ export default function CrewingBoard() {
                 canEdit={canEdit}
                 activeSlotId={activeSlotId}
                 isDragActive={!!draggingMember || !!draggingEntry}
+                draggingMember={draggingMember}
                 addPending={addMut.isPending}
                 onActivateSlot={handleSlotActivate}
                 onDeactivateSlot={() => setActiveSlotId(null)}
@@ -2126,6 +2259,7 @@ export default function CrewingBoard() {
                 canEdit={canEdit}
                 activeSlotId={activeSlotId}
                 isDragActive={!!draggingMember || !!draggingEntry}
+                draggingMember={draggingMember}
                 addPending={addMut.isPending}
                 onActivateSlot={handleSlotActivate}
                 onDeactivateSlot={() => setActiveSlotId(null)}
