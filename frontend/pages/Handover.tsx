@@ -745,7 +745,7 @@ export default function Handover() {
                             <Button
                               size="icon"
                               variant="ghost"
-                              className="h-7 w-7 text-muted-foreground hover:text-indigo-500"
+                              className="h-7 w-7 text-muted-foreground hover:text-brand"
                               title="Edit handover"
                               onClick={(e) => {
                                 e.stopPropagation();
