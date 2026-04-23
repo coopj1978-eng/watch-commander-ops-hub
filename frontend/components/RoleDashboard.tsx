@@ -34,6 +34,7 @@ import { WCAlertBanner }          from "@/components/WCAlertBanner";
 import { WCPersonalCalendarWidget } from "@/components/WCPersonalCalendarWidget";
 import { OperationalStatusBar }   from "@/components/OperationalStatusBar";
 import { LatestHandoverBanner }   from "@/components/LatestHandoverBanner";
+import { BulletinsTile }          from "@/components/BulletinsTile";
 import { DashboardKPIs }          from "@/components/DashboardKPIs";
 import { CrewOnWatchTable }       from "@/components/CrewOnWatchTable";
 import { TargetsCompact }         from "@/components/TargetsCompact";
@@ -266,6 +267,11 @@ function WatchCommanderDashboard() {
               handover exists — the widget lower in the grid handles the
               first-handover CTA. ─────────────────────────────────────── */}
       <LatestHandoverBanner />
+
+      {/* ── Unread bulletins summary ─ only renders when there's something
+              to chase. Links through to /bulletins. Urgent red variant
+              kicks in when a requires_ack bulletin is still outstanding. */}
+      <BulletinsTile />
 
       {/* ── At-a-glance status bar (5 cells: date, watch, shift, strength,
               tasks). Reuses the same TanStack queryKeys as the downstream

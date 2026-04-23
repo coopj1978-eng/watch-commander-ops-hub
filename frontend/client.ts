@@ -36,6 +36,7 @@ export default class Client {
     public readonly activity: activity.ServiceClient
     public readonly admin: admin.ServiceClient
     public readonly appliance: appliance.ServiceClient
+    public readonly bulletin: bulletin.ServiceClient
     public readonly calendar: calendar.ServiceClient
     public readonly crew: crew.ServiceClient
     public readonly crewing: crewing.ServiceClient
@@ -80,6 +81,7 @@ export default class Client {
         this.activity = new activity.ServiceClient(base)
         this.admin = new admin.ServiceClient(base)
         this.appliance = new appliance.ServiceClient(base)
+        this.bulletin = new bulletin.ServiceClient(base)
         this.calendar = new calendar.ServiceClient(base)
         this.crew = new crew.ServiceClient(base)
         this.crewing = new crewing.ServiceClient(base)
@@ -1094,6 +1096,117 @@ export namespace appliance {
 export namespace auth {
     export interface AuthParams {
         authorization?: string
+    }
+}
+
+export namespace bulletin {
+    export type BulletinScope = "watch" | "station"
+    export type BulletinPriority = "routine" | "important" | "urgent"
+
+    export interface Bulletin {
+        id: number
+        "posted_by": string
+        "posted_by_name"?: string
+        scope: BulletinScope
+        "watch_unit"?: string
+        title: string
+        body: string
+        priority: BulletinPriority
+        "requires_ack": boolean
+        "expires_at"?: string
+        "created_at": string
+        "updated_at": string
+        "is_read"?: boolean
+        "is_acknowledged"?: boolean
+        "audience_count"?: number
+        "read_count"?: number
+        "acknowledged_count"?: number
+    }
+
+    export interface CreateBulletinRequest {
+        scope: BulletinScope
+        "watch_unit"?: string
+        title: string
+        body: string
+        priority?: BulletinPriority
+        "requires_ack"?: boolean
+        "expires_at"?: string
+    }
+
+    export interface ListBulletinsRequest {
+        "include_read"?: boolean
+        limit?: number
+        offset?: number
+    }
+
+    export interface ListBulletinsResponse {
+        bulletins: Bulletin[]
+        total: number
+        "unread_count": number
+        "unacked_count": number
+    }
+
+    export interface BulletinReadStats {
+        "user_id": string
+        name: string
+        rank?: string
+        "watch_unit"?: string
+        "read_at"?: string
+        "acknowledged_at"?: string
+    }
+
+    export interface GetBulletinStatsResponse {
+        bulletin: Bulletin
+        audience: BulletinReadStats[]
+    }
+
+    export class ServiceClient {
+        private baseClient: BaseClient
+
+        constructor(baseClient: BaseClient) {
+            this.baseClient = baseClient
+            this.create = this.create.bind(this)
+            this.list = this.list.bind(this)
+            this.markRead = this.markRead.bind(this)
+            this.acknowledge = this.acknowledge.bind(this)
+            this.getStats = this.getStats.bind(this)
+            this.deleteBulletin = this.deleteBulletin.bind(this)
+        }
+
+        public async create(params: CreateBulletinRequest): Promise<Bulletin> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/bulletins`, JSON.stringify(params))
+            return await resp.json() as Bulletin
+        }
+
+        public async list(params?: ListBulletinsRequest): Promise<ListBulletinsResponse> {
+            const qs: string[] = []
+            if (params?.include_read !== undefined) qs.push(`include_read=${params.include_read}`)
+            if (params?.limit !== undefined) qs.push(`limit=${params.limit}`)
+            if (params?.offset !== undefined) qs.push(`offset=${params.offset}`)
+            const q = qs.length ? `?${qs.join("&")}` : ""
+            const resp = await this.baseClient.callTypedAPI("GET", `/bulletins${q}`)
+            return await resp.json() as ListBulletinsResponse
+        }
+
+        public async markRead(id: number): Promise<{ ok: true; read_at: string }> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/bulletins/${encodeURIComponent(id)}/read`)
+            return await resp.json() as { ok: true; read_at: string }
+        }
+
+        public async acknowledge(id: number): Promise<{ ok: true; acknowledged_at: string }> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/bulletins/${encodeURIComponent(id)}/acknowledge`)
+            return await resp.json() as { ok: true; acknowledged_at: string }
+        }
+
+        public async getStats(id: number): Promise<GetBulletinStatsResponse> {
+            const resp = await this.baseClient.callTypedAPI("GET", `/bulletins/${encodeURIComponent(id)}/stats`)
+            return await resp.json() as GetBulletinStatsResponse
+        }
+
+        public async deleteBulletin(id: number): Promise<{ ok: true }> {
+            const resp = await this.baseClient.callTypedAPI("DELETE", `/bulletins/${encodeURIComponent(id)}`)
+            return await resp.json() as { ok: true }
+        }
     }
 }
 
@@ -2956,7 +3069,7 @@ export namespace notification {
         "created_at": string
     }
 
-    export type NotificationType = "sick_booking" | "cert_expiry" | "task_overdue" | "crewing_gap" | "general"
+    export type NotificationType = "sick_booking" | "cert_expiry" | "task_overdue" | "crewing_gap" | "bulletin_posted" | "general"
 
     export interface RefreshResponse {
         generated: number

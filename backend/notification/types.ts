@@ -3,6 +3,7 @@ export type NotificationType =
   | "cert_expiry"
   | "task_overdue"
   | "crewing_gap"
+  | "bulletin_posted"
   | "general";
 
 export interface Notification {

@@ -8,7 +8,7 @@ import {
   ClipboardList, Search, ChevronRight, X as XIcon,
   LayoutDashboard, Users, Calendar as CalendarIcon, CheckSquare,
   Target, Navigation, Truck, GraduationCap, UserCircle, FileText,
-  BookOpen, Settings as SettingsIcon, ShieldCheck,
+  BookOpen, Settings as SettingsIcon, ShieldCheck, Megaphone,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -36,6 +36,7 @@ const ROUTES: { path: string; name: string; icon: React.ElementType }[] = [
   { path: "/calendar",    name: "Calendar",    icon: CalendarIcon },
   { path: "/tasks",       name: "Tasks",       icon: CheckSquare },
   { path: "/handover",    name: "Shift",       icon: ClipboardList },
+  { path: "/bulletins",   name: "Bulletins",   icon: Megaphone },
   { path: "/targets",     name: "Targets",     icon: Target },
   { path: "/detachments", name: "Detachments", icon: Navigation },
   { path: "/equipment",   name: "J4 Checks",   icon: Truck },
@@ -67,6 +68,8 @@ function NotificationIcon({ type }: { type: notification.NotificationType }) {
       return <ClipboardList className="h-4 w-4 text-orange-500 shrink-0" />;
     case "crewing_gap":
       return <ShieldAlert className="h-4 w-4 text-red-500 shrink-0" />;
+    case "bulletin_posted":
+      return <Megaphone className="h-4 w-4 text-brand shrink-0" />;
     default:
       return <Info className="h-4 w-4 text-blue-500 shrink-0" />;
   }

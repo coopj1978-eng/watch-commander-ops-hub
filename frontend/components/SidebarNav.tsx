@@ -17,6 +17,7 @@ import {
   UserCircle,
   ShieldCheck,
   GraduationCap,
+  Megaphone,
 } from "lucide-react";
 import {
   Tooltip,
@@ -61,6 +62,7 @@ const navGroups: NavGroup[] = [
       { name: "Calendar",  path: "/calendar", icon: Calendar,        ariaLabel: "Go to Calendar",              featureKey: "calendar" },
       { name: "Tasks",     path: "/tasks",    icon: CheckSquare,     ariaLabel: "Go to Tasks",                 featureKey: "tasks" },
       { name: "Shift",     path: "/handover", icon: ClipboardList,   ariaLabel: "Go to Shift Management",      featureKey: "handover" },
+      { name: "Bulletins", path: "/bulletins", icon: Megaphone,      ariaLabel: "Go to Bulletins" },
     ],
   },
   // ── Work — operational admin ───────────────────────────────────────────────

@@ -23,6 +23,7 @@ import HandoverPage from "./pages/Handover";
 import DetachmentsPage from "./pages/Detachments";
 import TrainingPage from "./pages/Training";
 import Resources from "./pages/Resources";
+import Bulletins from "./pages/Bulletins";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import ResetPassword from "./pages/ResetPassword";
@@ -208,6 +209,7 @@ function AppRoutes() {
             straight resume when an OpenAI key is provisioned. */}
         <Route path="/policies/qa" element={<Navigate to="/policies" replace />} />
         <Route path="/resources" element={<Resources />} />
+        <Route path="/bulletins" element={<Bulletins />} />
         <Route path="/handover" element={<HandoverPage />} />
         <Route path="/detachments" element={<DetachmentsPage />} />
         <Route path="/training" element={<TrainingPage />} />
