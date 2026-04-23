@@ -5,7 +5,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import backend from "@/lib/backend";
 import {
   Bell, Menu, Stethoscope, AlertCircle, Info, CheckCheck, ShieldAlert,
-  ClipboardList, Search, ChevronRight,
+  ClipboardList, Search, ChevronRight, X as XIcon,
   LayoutDashboard, Users, Calendar as CalendarIcon, CheckSquare,
   Target, Navigation, Truck, GraduationCap, UserCircle, FileText,
   BookOpen, Settings as SettingsIcon, ShieldCheck,
@@ -16,6 +16,11 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import ThemeSwitcher from "./ThemeSwitcher";
 import type { notification } from "@/client";
@@ -318,14 +323,165 @@ export default function TopBar({ onMenuClick }: TopBarProps) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notifications"] }),
   });
 
+  // Mobile drawer state — on small screens the Radix DropdownMenu feels
+  // cramped so we render a Dialog-as-sheet (full viewport height, right-
+  // docked) instead. Desktop still uses the DropdownMenu for the nicer
+  // anchored-dropdown feel and smaller footprint.
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   const handleNotificationClick = (n: notification.Notification) => {
     if (!n.read) markReadMutation.mutate(n.id);
     if (n.link) navigate(n.link);
+    setMobileOpen(false); // auto-close the mobile sheet after selecting
   };
 
   const notifications = notifData?.notifications ?? [];
   const unreadCount = notifData?.unread_count ?? 0;
   const { today, thisWeek, older } = groupNotifications(notifications);
+
+  // Drawer contents — shared between desktop dropdown + mobile sheet so the
+  // two renderings stay in lockstep. Rendered twice in the JSX; each tree is
+  // portaled separately (DropdownMenuContent / DialogContent both portal to
+  // <body>) so there's no DOM duplication concern.
+  //
+  // `onMobileClose` is only supplied by the mobile sheet path — when present,
+  // we render a visible ✕ in the header. Desktop dropdown closes on
+  // click-outside / Escape so no explicit button needed.
+  const renderNotificationPanel = (onMobileClose?: () => void) => (
+    <>
+      {/* Header */}
+      <div className="flex items-center justify-between gap-2 px-4 py-3 border-b bg-muted/30 shrink-0">
+        <div className="flex items-center gap-2 min-w-0">
+          {onMobileClose && (
+            <button
+              type="button"
+              onClick={onMobileClose}
+              aria-label="Close notifications"
+              className="h-7 w-7 -ml-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shrink-0"
+            >
+              <XIcon className="h-4 w-4" />
+            </button>
+          )}
+          <div className="min-w-0">
+            <h3 className="font-semibold text-foreground">Notifications</h3>
+            <p className="text-xs text-muted-foreground">
+              {unreadCount > 0 ? `${unreadCount} unread` : "All caught up ✓"}
+            </p>
+          </div>
+        </div>
+        {unreadCount > 0 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground shrink-0"
+            onClick={() => markAllReadMutation.mutate()}
+            disabled={markAllReadMutation.isPending}
+          >
+            <CheckCheck className="h-3.5 w-3.5 mr-1" />
+            Mark all read
+          </Button>
+        )}
+      </div>
+
+      {/* Notification list — bounded on desktop (dropdown), flex-1 on mobile
+          (fills the sheet). max-h keyed off a CSS var so both contexts work. */}
+      <div className="flex-1 min-h-0 overflow-y-auto md:max-h-[420px]">
+        {notifications.length === 0 ? (
+          <div className="flex flex-col items-center gap-3 py-10 text-muted-foreground">
+            <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
+              <Bell className="h-6 w-6 opacity-40" />
+            </div>
+            <div className="text-center">
+              <p className="text-sm font-medium">You're all caught up</p>
+              <p className="text-xs mt-0.5">No notifications right now</p>
+            </div>
+          </div>
+        ) : (
+          <>
+            {[
+              { label: "Today", items: today },
+              { label: "This week", items: thisWeek },
+              { label: "Older", items: older },
+            ].map(({ label, items }) =>
+              items.length === 0 ? null : (
+                <div key={label}>
+                  <div className="px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 bg-muted/20 border-b border-border/40">
+                    {label}
+                  </div>
+                  {items.map((n) => (
+                    <button
+                      key={n.id}
+                      className={`w-full text-left flex items-start gap-3 px-4 py-3 hover:bg-muted/60 transition-colors border-b border-border/40 last:border-0 ${!n.read ? "bg-brand/5" : ""} ${n.link ? "cursor-pointer" : "cursor-default"}`}
+                      onClick={() => handleNotificationClick(n)}
+                    >
+                      <div className="mt-0.5 shrink-0 h-8 w-8 rounded-lg bg-muted flex items-center justify-center">
+                        <NotificationIcon type={n.type} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <p className={`text-xs font-semibold leading-snug ${!n.read ? "text-foreground" : "text-muted-foreground"}`}>
+                            {n.title}
+                          </p>
+                          <span className="text-[10px] text-muted-foreground shrink-0 mt-0.5">{timeAgo(n.created_at)}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed line-clamp-2">
+                          {n.message}
+                        </p>
+                        {n.link && (
+                          <span className="text-[10px] text-brand mt-1 inline-block">
+                            Tap to view →
+                          </span>
+                        )}
+                      </div>
+                      {!n.read && (
+                        <div className="h-2 w-2 rounded-full bg-brand shrink-0 mt-2" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Footer */}
+      {notifications.length > 0 && (
+        <div className="px-4 py-2.5 border-t bg-muted/20 flex items-center justify-between shrink-0">
+          <span className="text-xs text-muted-foreground">{notifications.length} total</span>
+          <button
+            onClick={() => markAllReadMutation.mutate()}
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Clear all
+          </button>
+        </div>
+      )}
+    </>
+  );
+
+  // Bell button — rendered twice (mobile + desktop trigger), identical
+  // except for how the click is wired up. Kept as a render fn to avoid
+  // duplicating the aria-label / badge logic.
+  const renderBellButton = (onClick?: () => void) => (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="relative h-9 w-9 rounded hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+      aria-label={`Notifications, ${unreadCount} unread`}
+      onClick={onClick}
+    >
+      <Bell className={`h-4.5 w-4.5 ${unreadCount > 0 ? "text-foreground" : "text-muted-foreground"}`} />
+      {unreadCount > 0 && (
+        <Badge
+          className="absolute -top-1 -right-1 h-4.5 min-w-[18px] px-1 rounded-full flex items-center justify-center bg-red-500 text-white text-[10px] font-mono"
+          aria-label={`${unreadCount} unread notifications`}
+        >
+          {unreadCount > 9 ? "9+" : unreadCount}
+        </Badge>
+      )}
+    </Button>
+  );
 
   // ── Derived: breadcrumb + dashboard flag ──────────────────────────────────
   const currentPageLabel = getBreadcrumbLabel(location.pathname);
@@ -371,125 +527,43 @@ export default function TopBar({ onMenuClick }: TopBarProps) {
 
         <ThemeSwitcher />
 
-        {/* Notification Bell — drawer contents preserved verbatim */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative h-9 w-9 rounded hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              aria-label={`Notifications, ${unreadCount} unread`}
+        {/* Notification Bell — two surfaces sharing the same panel contents:
+            • Desktop (md+): Radix DropdownMenu anchored to the bell — smaller
+              footprint, feels like a proper dropdown
+            • Mobile: Dialog rendered as a right-docked full-height sheet —
+              readable at 03:00 on a phone screen, proper focus trap, escape
+              to close, doesn't overflow the viewport edge */}
+        <div className="hidden md:inline-flex">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              {renderBellButton()}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="w-96 p-0 flex flex-col"
+              onCloseAutoFocus={(e) => e.preventDefault()}
             >
-              <Bell className={`h-4.5 w-4.5 ${unreadCount > 0 ? "text-foreground" : "text-muted-foreground"}`} />
-              {unreadCount > 0 && (
-                <Badge
-                  className="absolute -top-1 -right-1 h-4.5 min-w-[18px] px-1 rounded-full flex items-center justify-center bg-red-500 text-white text-[10px] font-mono"
-                  aria-label={`${unreadCount} unread notifications`}
-                >
-                  {unreadCount > 9 ? "9+" : unreadCount}
-                </Badge>
-              )}
-            </Button>
-          </DropdownMenuTrigger>
+              {renderNotificationPanel()}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
 
-          <DropdownMenuContent align="end" className="w-96 p-0" onCloseAutoFocus={(e) => e.preventDefault()}>
-            {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b bg-muted/30">
-              <div>
-                <h3 className="font-semibold text-foreground">Notifications</h3>
-                <p className="text-xs text-muted-foreground">
-                  {unreadCount > 0 ? `${unreadCount} unread` : "All caught up ✓"}
-                </p>
-              </div>
-              {unreadCount > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
-                  onClick={() => markAllReadMutation.mutate()}
-                  disabled={markAllReadMutation.isPending}
-                >
-                  <CheckCheck className="h-3.5 w-3.5 mr-1" />
-                  Mark all read
-                </Button>
-              )}
-            </div>
-
-            {/* Notification list */}
-            <div className="max-h-[420px] overflow-y-auto">
-              {notifications.length === 0 ? (
-                <div className="flex flex-col items-center gap-3 py-10 text-muted-foreground">
-                  <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
-                    <Bell className="h-6 w-6 opacity-40" />
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm font-medium">You're all caught up</p>
-                    <p className="text-xs mt-0.5">No notifications right now</p>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  {[
-                    { label: "Today", items: today },
-                    { label: "This week", items: thisWeek },
-                    { label: "Older", items: older },
-                  ].map(({ label, items }) =>
-                    items.length === 0 ? null : (
-                      <div key={label}>
-                        <div className="px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 bg-muted/20 border-b border-border/40">
-                          {label}
-                        </div>
-                        {items.map((n) => (
-                          <button
-                            key={n.id}
-                            className={`w-full text-left flex items-start gap-3 px-4 py-3 hover:bg-muted/60 transition-colors border-b border-border/40 last:border-0 ${!n.read ? "bg-indigo-50/50 dark:bg-indigo-950/20" : ""} ${n.link ? "cursor-pointer" : "cursor-default"}`}
-                            onClick={() => handleNotificationClick(n)}
-                          >
-                            <div className="mt-0.5 shrink-0 h-8 w-8 rounded-lg bg-muted flex items-center justify-center">
-                              <NotificationIcon type={n.type} />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-start justify-between gap-2">
-                                <p className={`text-xs font-semibold leading-snug ${!n.read ? "text-foreground" : "text-muted-foreground"}`}>
-                                  {n.title}
-                                </p>
-                                <span className="text-[10px] text-muted-foreground shrink-0 mt-0.5">{timeAgo(n.created_at)}</span>
-                              </div>
-                              <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed line-clamp-2">
-                                {n.message}
-                              </p>
-                              {n.link && (
-                                <span className="text-[10px] text-indigo-500 mt-1 inline-block">
-                                  Tap to view →
-                                </span>
-                              )}
-                            </div>
-                            {!n.read && (
-                              <div className="h-2 w-2 rounded-full bg-indigo-500 shrink-0 mt-2" />
-                            )}
-                          </button>
-                        ))}
-                      </div>
-                    )
-                  )}
-                </>
-              )}
-            </div>
-
-            {/* Footer */}
-            {notifications.length > 0 && (
-              <div className="px-4 py-2.5 border-t bg-muted/20 flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">{notifications.length} total</span>
-                <button
-                  onClick={() => markAllReadMutation.mutate()}
-                  className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Clear all
-                </button>
-              </div>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="md:hidden">
+          {renderBellButton(() => setMobileOpen(true))}
+          <Dialog open={mobileOpen} onOpenChange={setMobileOpen}>
+            <DialogContent
+              showCloseButton={false}
+              className="fixed top-0 right-0 left-auto translate-x-0 translate-y-0 h-[100dvh] w-full max-w-[calc(100%-2rem)] sm:max-w-sm rounded-none border-0 border-l p-0 gap-0 flex flex-col data-[state=open]:slide-in-from-right data-[state=closed]:slide-out-to-right"
+            >
+              {/* Visually-hidden title for Radix a11y — the shared panel
+                  header already renders a visible "Notifications" heading,
+                  so this is just for screen readers (Dialog requires a
+                  title). */}
+              <DialogTitle className="sr-only">Notifications</DialogTitle>
+              {renderNotificationPanel(() => setMobileOpen(false))}
+            </DialogContent>
+          </Dialog>
+        </div>
 
         {/* User menu — preserved verbatim */}
         <div className="flex items-center gap-2 pl-1.5 md:pl-2 border-l border-border">
