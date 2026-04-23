@@ -127,11 +127,13 @@ SidebarNav + TopBar._
       Widget colours and status pills deliberately untouched — they
       still do semantic signalling. — commit _(next push)_
 - [x] **Density switcher** — 3 options (Compact / Comfortable /
-      Airy) in the same Appearance tab. v1 scope flexes only the
-      dashboard's top-level section gap (20 / 32 / 40px) via the
-      --gap-section CSS variable. More density applications (card
-      padding, table row heights) can follow based on real-use
-      feedback. — commit _(next push)_
+      Airy) in the Appearance tab. Flexes section gap + vertical
+      padding inside dashboard cards (KPI row, status bar cells,
+      targets rows) + table row padding (Crew on Watch body rows)
+      via --gap-section / --pad-block / --pad-row CSS variables.
+      Horizontal padding and font sizes stay fixed. Cleaner 3-var
+      token design vs the earlier v1 which had unused --pad-card
+      and --row-h. — commit _(next push)_
 
 ---
 

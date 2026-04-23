@@ -323,7 +323,7 @@ export function CrewOnWatchTable() {
                     key={r.id}
                     className="border-b border-border/40 last:border-0 hover:bg-muted/30 transition-colors"
                   >
-                    <td className="px-4 py-2">
+                    <td className="px-4 py-[var(--pad-row)]">
                       <Link
                         to={`/people/${r.id}`}
                         className="inline-flex items-center gap-2.5 min-w-0 hover:text-primary transition-colors"
@@ -332,17 +332,17 @@ export function CrewOnWatchTable() {
                         <span className="font-medium truncate">{r.name}</span>
                       </Link>
                     </td>
-                    <td className="px-3 py-2 text-xs text-muted-foreground hidden md:table-cell">
+                    <td className="px-3 py-[var(--pad-row)] text-xs text-muted-foreground hidden md:table-cell">
                       {r.rank}
                     </td>
-                    <td className="px-3 py-2 hidden lg:table-cell">
+                    <td className="px-3 py-[var(--pad-row)] hidden lg:table-cell">
                       {r.service_number ? (
                         <span className="font-mono text-xs text-muted-foreground">{r.service_number}</span>
                       ) : (
                         <span className="text-muted-foreground/40">—</span>
                       )}
                     </td>
-                    <td className="px-3 py-2 hidden md:table-cell">
+                    <td className="px-3 py-[var(--pad-row)] hidden md:table-cell">
                       {r.driver_lgv || r.driver_erd ? (
                         <div className="flex gap-1">
                           {r.driver_lgv && <Qual label="LGV" tone="blue" />}
@@ -352,7 +352,7 @@ export function CrewOnWatchTable() {
                         <span className="text-muted-foreground/40 text-xs">—</span>
                       )}
                     </td>
-                    <td className="px-3 py-2">
+                    <td className="px-3 py-[var(--pad-row)]">
                       {r.quals.length > 0 ? (
                         <div className="flex flex-wrap gap-1">
                           {r.quals.map((q) => (
@@ -372,11 +372,11 @@ export function CrewOnWatchTable() {
                         <span className="text-muted-foreground/40 text-xs">—</span>
                       )}
                     </td>
-                    <td className="px-4 py-2">
+                    <td className="px-4 py-[var(--pad-row)]">
                       <StatusBadge status={r.status} />
                     </td>
                     {canLogSick && (
-                      <td className="px-4 py-2 text-right hidden sm:table-cell">
+                      <td className="px-4 py-[var(--pad-row)] text-right hidden sm:table-cell">
                         {r.status.kind === "on_duty" ? (
                           <Button
                             size="sm"

@@ -79,24 +79,31 @@ html[data-accent="amber"] {
 
 /* ── Density tokens ──────────────────────────────────────────────────────────
  * Three density modes swap these spacing variables via `data-density` on
- * <html>. Kept deliberately narrow in scope — only card padding, table row
- * height, and top-level dashboard section gap flex. Font sizes and dialog
- * paddings stay fixed because compressing them risks breaking layouts that
- * weren't designed to wrap tight.
+ * <html>. Applied only to vertical padding inside dashboard blocks + table
+ * rows + top-level section gap. Horizontal padding and font sizes stay
+ * fixed — compressing them risks breaking layouts and hurts readability.
+ *
+ *   --pad-block    — vertical padding inside a card / KPI tile / status
+ *                    bar cell / targets row. Default ≈ py-3.
+ *   --pad-row      — vertical padding inside a table body row. Default
+ *                    ≈ py-2 — smaller because table rows should be tighter
+ *                    than standalone cards.
+ *   --gap-section  — space between top-level dashboard sections.
+ *                    Default ≈ space-y-8.
  * --------------------------------------------------------------------------- */
 :root {
-  --pad-card:     1rem;       /* 16px — p-4-ish */
-  --row-h:        2.75rem;    /* 44px — current default row height */
-  --gap-section:  2rem;       /* 32px — between dashboard sections */
+  --pad-block:    0.75rem;    /* 12px — py-3 */
+  --pad-row:      0.5rem;     /*  8px — py-2 */
+  --gap-section:  2rem;       /* 32px */
 }
 html[data-density="compact"] {
-  --pad-card:     0.625rem;   /* 10px */
-  --row-h:        2rem;       /* 32px */
+  --pad-block:    0.375rem;   /*  6px — py-1.5 */
+  --pad-row:      0.25rem;    /*  4px — py-1 */
   --gap-section:  1.25rem;    /* 20px */
 }
 html[data-density="airy"] {
-  --pad-card:     1.5rem;     /* 24px */
-  --row-h:        3.25rem;    /* 52px */
+  --pad-block:    1.25rem;    /* 20px — py-5 */
+  --pad-row:      0.875rem;   /* 14px — py-3.5 */
   --gap-section:  2.5rem;     /* 40px */
 }
 

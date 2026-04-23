@@ -47,7 +47,7 @@ function KPITile({
       : "";
 
   const body = (
-    <CardContent className="px-4 py-3 space-y-1">
+    <CardContent className="px-4 py-[var(--pad-block)] space-y-1">
       <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-medium">
         {label}
       </div>
