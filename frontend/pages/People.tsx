@@ -6,18 +6,10 @@ import { useAuth } from "@/App";
 import { STATION_OPTIONS } from "@/lib/constants";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ShieldAlert, Search, UserPlus, Settings2, ChevronDown, ChevronUp, BookOpen, Stethoscope, Users } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import AddPersonModal from "@/components/AddPersonModal";
 import ColumnsDrawer from "@/components/ColumnsDrawer";
 import DictionaryManager from "@/components/DictionaryManager";
+import { LogSickDialog } from "@/components/LogSickDialog";
 import {
   Card,
   CardContent,
@@ -134,8 +126,6 @@ export default function People() {
 
   const [logSickOpen, setLogSickOpen] = useState(false);
   const [logSickPerson, setLogSickPerson] = useState<{ id: string; name: string } | null>(null);
-  const [logSickReason, setLogSickReason] = useState("");
-  const [logSickEformConfirmed, setLogSickEformConfirmed] = useState(false);
 
   if (!canView) {
     return (
@@ -200,29 +190,6 @@ export default function People() {
       );
     },
     refetchInterval: 60_000,
-  });
-
-  const logSickMutation = useMutation({
-    mutationFn: async ({ userId }: { userId: string }) => {
-      const todayStr = new Date().toISOString().split("T")[0];
-      return await backend.absence.create({
-        user_id: userId,
-        type: "sickness",
-        start_date: todayStr,
-        end_date: todayStr,
-        reason: logSickReason || "Sick booking logged via Watch Commander Ops Hub",
-        evidence_urls: [],
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["absences", "sick-today"] });
-      queryClient.invalidateQueries({ queryKey: ["people"] });
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
-      setLogSickOpen(false);
-      setLogSickPerson(null);
-      setLogSickReason("");
-      setLogSickEformConfirmed(false);
-    },
   });
 
   const people = peopleData?.people || [];
@@ -741,7 +708,6 @@ export default function People() {
                             variant="ghost"
                             className="h-7 px-2 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20"
                             onClick={() => {
-                              logSickMutation.reset();
                               setLogSickPerson({ id: user.id, name: user.name });
                               setLogSickOpen(true);
                             }}
@@ -794,97 +760,13 @@ export default function People() {
         />
       )}
 
-      {/* Log Sick Modal */}
-      <Dialog
+      {/* Log Sick — shared with CrewOnWatchTable. One endpoint, one UX,
+          one place to edit if policy changes. */}
+      <LogSickDialog
         open={logSickOpen}
-        onOpenChange={(open) => {
-          if (!open) {
-            setLogSickOpen(false);
-            setLogSickPerson(null);
-            setLogSickReason("");
-            setLogSickEformConfirmed(false);
-            logSickMutation.reset();
-          }
-        }}
-      >
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Stethoscope className="h-5 w-5 text-red-500" />
-              Log Sick Booking
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Firefighter</p>
-              <p className="font-semibold">{logSickPerson?.name}</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Date</p>
-              <p className="font-semibold">
-                {new Date().toLocaleDateString("en-GB", {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </p>
-            </div>
-            <div>
-              <Label htmlFor="sick-reason" className="text-sm font-medium">
-                Notes <span className="text-muted-foreground font-normal">(optional)</span>
-              </Label>
-              <Textarea
-                id="sick-reason"
-                placeholder="Any additional notes about this sick booking..."
-                className="mt-1.5 resize-none"
-                rows={3}
-                value={logSickReason}
-                onChange={(e) => setLogSickReason(e.target.value)}
-              />
-            </div>
-            <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 border">
-              <Checkbox
-                id="eform-confirmed"
-                checked={logSickEformConfirmed}
-                onCheckedChange={(checked) => setLogSickEformConfirmed(!!checked)}
-                className="mt-0.5"
-              />
-              <label htmlFor="eform-confirmed" className="text-sm cursor-pointer leading-snug">
-                <span className="font-medium">eForm submitted to central staffing</span>
-                <span className="block text-muted-foreground text-xs mt-0.5">
-                  Confirm the sickness eForm has been completed and submitted before logging
-                </span>
-              </label>
-            </div>
-            {logSickMutation.isError && (
-              <p className="text-sm text-red-600">Failed to log sick booking. Please try again.</p>
-            )}
-          </div>
-          <DialogFooter className="gap-2 sm:gap-2">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setLogSickOpen(false);
-                setLogSickPerson(null);
-                setLogSickReason("");
-                setLogSickEformConfirmed(false);
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              className="bg-indigo-600 hover:bg-indigo-700 text-white"
-              disabled={!logSickEformConfirmed || logSickMutation.isPending || !logSickPerson}
-              onClick={() => {
-                if (logSickPerson) logSickMutation.mutate({ userId: logSickPerson.id });
-              }}
-            >
-              {logSickMutation.isPending ? "Logging..." : "Confirm Sick Booking"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        onOpenChange={setLogSickOpen}
+        person={logSickPerson}
+      />
     </div>
   );
 }

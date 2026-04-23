@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/App";
 import { useIsCrewCommander } from "@/lib/rbac";
@@ -8,16 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
+import { LogSickDialog } from "@/components/LogSickDialog";
 import { Users, ChevronRight, Stethoscope } from "lucide-react";
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -131,58 +122,17 @@ export function CrewOnWatchTable() {
   const { user } = useAuth();
   const watch = user?.watch_unit ?? "";
   const today = new Date().toISOString().split("T")[0];
-  const queryClient = useQueryClient();
   const canLogSick = useIsCrewCommander(); // WC or CC
 
-  // ── Log Sick dialog state ────────────────────────────────────────────────
-  // Mirrors the People page pattern exactly — same endpoint, same required
-  // eForm-confirmed gate, same cache invalidations. Kept local here so
-  // nothing on /people changes; if this pattern lands in a third place we
-  // should extract a shared LogSickDialog component.
+  // ── Log Sick dialog — shared component handles state, mutation, eForm
+  //    gate, and cache invalidations (union of keys the old duplicated
+  //    inline dialog invalidated). Parent just owns open/person.
   const [logSickOpen, setLogSickOpen] = useState(false);
   const [logSickPerson, setLogSickPerson] = useState<{ id: string; name: string } | null>(null);
-  const [logSickReason, setLogSickReason] = useState("");
-  const [logSickEformConfirmed, setLogSickEformConfirmed] = useState(false);
-
-  const logSickMutation = useMutation({
-    mutationFn: async ({ userId }: { userId: string }) => {
-      return await backend.absence.create({
-        user_id: userId,
-        type: "sickness",
-        start_date: today,
-        end_date: today,
-        reason: logSickReason || "Sick booking logged via Watch Commander Ops Hub",
-        evidence_urls: [],
-      });
-    },
-    onSuccess: () => {
-      // Invalidate every query that surfaces today's sickness so dashboards
-      // + alert banners refresh immediately. Keys chosen to match the
-      // invalidations on the People page.
-      queryClient.invalidateQueries({ queryKey: ["absences", "sick-today"] });
-      queryClient.invalidateQueries({ queryKey: ["wc-absences-today"] });
-      queryClient.invalidateQueries({ queryKey: ["absences-today-sick"] });
-      queryClient.invalidateQueries({ queryKey: ["people"] });
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
-      setLogSickOpen(false);
-      setLogSickPerson(null);
-      setLogSickReason("");
-      setLogSickEformConfirmed(false);
-    },
-  });
 
   const openLogSickFor = (id: string, name: string) => {
-    logSickMutation.reset();
     setLogSickPerson({ id, name });
     setLogSickOpen(true);
-  };
-
-  const closeLogSick = () => {
-    setLogSickOpen(false);
-    setLogSickPerson(null);
-    setLogSickReason("");
-    setLogSickEformConfirmed(false);
-    logSickMutation.reset();
   };
 
   // ── Shared caches ─────────────────────────────────────────────────────────
@@ -414,95 +364,13 @@ export function CrewOnWatchTable() {
         )}
       </CardContent>
 
-      {/* ── Log Sick dialog ─────────────────────────────────────────────
-          Mirror of the People page dialog, same endpoint, same required
-          eForm confirmation gate. WC/CC only (gated by the caller
-          rendering the Actions column). */}
-      <Dialog
+      {/* Log Sick — shared with the People page. WC/CC only (gated by the
+          caller rendering the Actions column). */}
+      <LogSickDialog
         open={logSickOpen}
-        onOpenChange={(open) => { if (!open) closeLogSick(); }}
-      >
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Stethoscope className="h-5 w-5 text-red-500" />
-              Log Sick Booking
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">
-                Firefighter
-              </p>
-              <p className="font-semibold">{logSickPerson?.name}</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">
-                Date
-              </p>
-              <p className="font-semibold">
-                {new Date().toLocaleDateString("en-GB", {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </p>
-            </div>
-            <div>
-              <Label htmlFor="crew-sick-reason" className="text-sm font-medium">
-                Notes{" "}
-                <span className="text-muted-foreground font-normal">(optional)</span>
-              </Label>
-              <Textarea
-                id="crew-sick-reason"
-                placeholder="Any additional notes about this sick booking..."
-                className="mt-1.5 resize-none"
-                rows={3}
-                value={logSickReason}
-                onChange={(e) => setLogSickReason(e.target.value)}
-              />
-            </div>
-            <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 border">
-              <Checkbox
-                id="crew-eform-confirmed"
-                checked={logSickEformConfirmed}
-                onCheckedChange={(checked) => setLogSickEformConfirmed(!!checked)}
-                className="mt-0.5"
-              />
-              <label htmlFor="crew-eform-confirmed" className="text-sm cursor-pointer leading-snug">
-                <span className="font-medium">eForm submitted to central staffing</span>
-                <span className="block text-muted-foreground text-xs mt-0.5">
-                  Confirm the sickness eForm has been completed and submitted before logging
-                </span>
-              </label>
-            </div>
-            {logSickMutation.isError && (
-              <p className="text-sm text-red-600">
-                Failed to log sick booking. Please try again.
-              </p>
-            )}
-          </div>
-          <DialogFooter className="gap-2 sm:gap-2">
-            <Button variant="outline" onClick={closeLogSick}>
-              Cancel
-            </Button>
-            <Button
-              className="bg-brand hover:bg-brand/90 text-brand-foreground"
-              disabled={
-                !logSickEformConfirmed ||
-                logSickMutation.isPending ||
-                !logSickPerson
-              }
-              onClick={() => {
-                if (logSickPerson) logSickMutation.mutate({ userId: logSickPerson.id });
-              }}
-            >
-              {logSickMutation.isPending ? "Logging..." : "Confirm Sick Booking"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        onOpenChange={setLogSickOpen}
+        person={logSickPerson}
+      />
     </Card>
   );
 }
