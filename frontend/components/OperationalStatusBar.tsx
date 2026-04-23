@@ -95,10 +95,14 @@ export function OperationalStatusBar() {
   const watch = user?.watch_unit ?? "";
 
   // ── Shared caches: same queryKeys as the widgets below ────────────────────
-  const profilesQ = useQuery({
-    queryKey: ["wc-profiles", watch],
-    queryFn: async () => backend.profile.list({ watch: watch || undefined, limit: 200 }),
-    enabled: true,
+  // Staffing headcount comes from /crew/stats now (users-based). The old
+  // /profiles path silently dropped users who never had a firefighter_profiles
+  // row created (e.g. anyone who signed up through the normal flow rather than
+  // being added via "Add Person"), which showed as "0 total staff" on live
+  // watches.
+  const statsQ = useQuery({
+    queryKey: ["wc-crew-stats"],
+    queryFn: async () => backend.crew.getStats(),
   });
 
   const absencesQ = useQuery({
@@ -112,11 +116,6 @@ export function OperationalStatusBar() {
       }),
   });
 
-  const statsQ = useQuery({
-    queryKey: ["wc-crew-stats"],
-    queryFn: async () => backend.crew.getStats(),
-  });
-
   // ── Derived values ───────────────────────────────────────────────────────
   const dateStr = new Date().toLocaleDateString("en-GB", {
     weekday: "short",
@@ -128,9 +127,9 @@ export function OperationalStatusBar() {
   const shift = getShiftSpan();
 
   // Strength — mirrors WCStaffingWidget derivation exactly
-  const total = profilesQ.data?.total ?? 0;
+  const total = statsQ.data?.total_watch_members ?? 0;
   const absences = absencesQ.data?.absences ?? [];
-  const watchUserIds = new Set((profilesQ.data?.profiles ?? []).map((p) => p.user_id));
+  const watchUserIds = new Set(statsQ.data?.watch_member_ids ?? []);
   const watchAbsences = watch
     ? absences.filter((a) => watchUserIds.has(a.firefighter_id))
     : absences;
@@ -144,7 +143,7 @@ export function OperationalStatusBar() {
   const completedTasks = statsQ.data?.completed_tasks ?? 0;
   const activeTasks = Math.max(0, totalTasks - completedTasks);
 
-  const strengthLoading = profilesQ.isLoading || absencesQ.isLoading;
+  const strengthLoading = statsQ.isLoading || absencesQ.isLoading;
   const tasksLoading = statsQ.isLoading;
 
   return (

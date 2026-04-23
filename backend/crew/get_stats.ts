@@ -37,10 +37,13 @@ export const getStats = api<void, CrewStats>(
     const total_firefighters = watchMembers.filter((m) => m.role === "FF").length;
     const watchMemberIds = watchMembers.map((r) => r.id);
     const crewMemberIds = watchMembers.filter((m) => m.role === "FF").map((r) => r.id);
+    const total_watch_members = watchMembers.length;
 
     if (watchMemberIds.length === 0) {
       return {
         total_firefighters: 0,
+        total_watch_members: 0,
+        watch_member_ids: [],
         total_tasks: 0,
         completed_tasks: 0,
         overdue_tasks: 0,
@@ -88,6 +91,8 @@ export const getStats = api<void, CrewStats>(
 
     return {
       total_firefighters,
+      total_watch_members,
+      watch_member_ids: watchMemberIds,
       total_tasks,
       completed_tasks,
       overdue_tasks,

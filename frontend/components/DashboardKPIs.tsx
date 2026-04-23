@@ -110,11 +110,6 @@ export function DashboardKPIs() {
     enabled: !!watch,
   });
 
-  const profilesQ = useQuery({
-    queryKey: ["wc-profiles", watch],
-    queryFn: async () => backend.profile.list({ watch: watch || undefined, limit: 200 }),
-  });
-
   const absencesQ = useQuery({
     queryKey: ["wc-absences-today"],
     queryFn: async () =>
@@ -169,9 +164,11 @@ export function DashboardKPIs() {
   );
 
   // ── Absence today ──────────────────────────────────────────────────────────
-  const profiles = profilesQ.data?.profiles ?? [];
+  // Source-of-truth watch membership from /crew/stats (users table) rather
+  // than /profiles — ensures users without firefighter_profiles rows are
+  // still counted.
   const absences = absencesQ.data?.absences ?? [];
-  const watchIds = new Set(profiles.map((p) => p.user_id));
+  const watchIds = new Set(statsQ.data?.watch_member_ids ?? []);
   const watchAbsences = watch ? absences.filter((a) => watchIds.has(a.firefighter_id)) : absences;
   const sickToday = watchAbsences.filter((a) => a.type === "sickness").length;
   const leaveToday = watchAbsences.filter((a) => a.type !== "sickness").length;
@@ -237,7 +234,7 @@ export function DashboardKPIs() {
 
       <KPITile
         label="Absence Today"
-        loading={profilesQ.isLoading || absencesQ.isLoading}
+        loading={statsQ.isLoading || absencesQ.isLoading}
         value={absenceTotal}
         unit={absenceTotal === 1 ? "person" : "people"}
         detail={absenceDetail}

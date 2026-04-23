@@ -12,10 +12,14 @@ export function WCStaffingWidget() {
   const { user } = useAuth();
   const watch = user?.watch_unit ?? "";
 
-  const { data: profilesData, isLoading: profilesLoading } = useQuery({
-    queryKey: ["wc-profiles", watch],
-    queryFn: async () => backend.profile.list({ watch: watch || undefined, limit: 200 }),
-    enabled: true,
+  // Count users on the watch (not profiles). A user that signed up normally
+  // has a `users` row but may not have a `firefighter_profiles` row — the
+  // old /profiles-based query silently dropped those, so Staffing Today read
+  // "0 staff" for real watches. /crew/stats does the watch resolution from
+  // users directly with the same COALESCE trick the roster endpoint uses.
+  const { data: statsData, isLoading: statsLoading } = useQuery({
+    queryKey: ["wc-crew-stats"],
+    queryFn: async () => backend.crew.getStats(),
   });
 
   const { data: absencesData, isLoading: absencesLoading } = useQuery({
@@ -29,9 +33,9 @@ export function WCStaffingWidget() {
       }),
   });
 
-  const isLoading = profilesLoading || absencesLoading;
+  const isLoading = statsLoading || absencesLoading;
 
-  const animatedTotal = useCountUp(profilesData?.total ?? 0);
+  const animatedTotal = useCountUp(statsData?.total_watch_members ?? 0);
 
   if (isLoading) {
     return (
@@ -49,11 +53,14 @@ export function WCStaffingWidget() {
     );
   }
 
-  const total = profilesData?.total ?? 0;
+  const total = statsData?.total_watch_members ?? 0;
   const absences = absencesData?.absences ?? [];
 
-  // Only count absences for people on this watch
-  const watchUserIds = new Set((profilesData?.profiles ?? []).map((p) => p.user_id));
+  // Only count absences for people on this watch. Source-of-truth user IDs
+  // now come from /crew/stats (users table) rather than /profiles, so
+  // everyone on the watch is counted even if their profile row was never
+  // created.
+  const watchUserIds = new Set(statsData?.watch_member_ids ?? []);
   const watchAbsences = watch
     ? absences.filter((a) => watchUserIds.has(a.firefighter_id))
     : absences;

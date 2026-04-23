@@ -1302,6 +1302,8 @@ export namespace crew {
 
     export interface CrewStats {
         "total_firefighters": number
+        "total_watch_members": number
+        "watch_member_ids": string[]
         "total_tasks": number
         "completed_tasks": number
         "overdue_tasks": number
