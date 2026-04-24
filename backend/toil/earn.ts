@@ -25,57 +25,94 @@ function financialYear(d: Date): number {
 // Watch lookup uses the COALESCE(users.watch_unit, firefighter_profiles.watch)
 // pattern that the rest of the app uses — older accounts where one column
 // drifted from the other still resolve correctly.
+//
+// Every DB call is individually try/caught — Encore's default error-shape
+// for an unhandled exception is just "an internal error occurred" with no
+// detail, which is useless for debugging. Each call wraps its own error so
+// the message returned to the client identifies exactly which step failed.
 // ─────────────────────────────────────────────────────────────────────────────
 export const earn = api<EarnToilRequest, ToilEntry>(
   { auth: true, expose: true, method: "POST", path: "/toil/earn" },
   async (req) => {
     const auth = getAuthData()!;
 
+    // ── Input validation ────────────────────────────────────────────────────
     if (req.hours <= 0) {
       throw APIError.invalidArgument("Hours must be greater than 0.");
     }
     if (!req.reason?.trim()) {
       throw APIError.invalidArgument("A reason is required.");
     }
+    if (!req.incident_date) {
+      throw APIError.invalidArgument("Incident date is required.");
+    }
+    const incidentDate = new Date(req.incident_date);
+    if (Number.isNaN(incidentDate.getTime())) {
+      throw APIError.invalidArgument(
+        `Invalid incident_date format: ${req.incident_date}`
+      );
+    }
+    const fy = financialYear(incidentDate);
 
-    // Resolve target user. Only WC/CC may log on someone else's behalf.
+    // ── Caller role lookup (only needed if logging for someone else) ────────
     let targetUserId = auth.userID;
     if (req.for_user_id && req.for_user_id !== auth.userID) {
-      const callerRole = await db.queryRow<{ role: string }>`
-        SELECT role FROM users WHERE id = ${auth.userID}
-      `;
+      let callerRole: { role: string } | null = null;
+      try {
+        callerRole = await db.rawQueryRow<{ role: string }>(
+          `SELECT role FROM users WHERE id = $1`,
+          auth.userID
+        );
+      } catch (err) {
+        console.error("toil/earn: caller role lookup failed", { auth, err });
+        throw APIError.internal(
+          `Caller role lookup failed: ${err instanceof Error ? err.message : "DB error"}`
+        );
+      }
       if (!callerRole || !["WC", "CC"].includes(callerRole.role)) {
-        throw APIError.permissionDenied("Only WC/CC can log TOIL for other users.");
+        throw APIError.permissionDenied(
+          "Only WC/CC can log TOIL for other users."
+        );
       }
       targetUserId = req.for_user_id;
     }
 
-    // Watch lookup with COALESCE so users without users.watch_unit but with
-    // a valid firefighter_profiles.watch still resolve. Matches the pattern
-    // in crew/get_stats.ts and crewing/roster.ts.
-    const userInfo = await db.queryRow<{ name: string; watch_unit: string | null }>`
-      SELECT u.name, COALESCE(u.watch_unit, fp.watch) AS watch_unit
-      FROM users u
-      LEFT JOIN firefighter_profiles fp ON fp.user_id = u.id
-      WHERE u.id = ${targetUserId}
-    `;
+    // ── Target user + watch lookup ─────────────────────────────────────────
+    // COALESCE(users.watch_unit, firefighter_profiles.watch) so accounts
+    // where one column has drifted from the other still resolve. Same
+    // pattern as crew/get_stats.ts and crewing/roster.ts.
+    let userInfo: { name: string; watch_unit: string | null } | null = null;
+    try {
+      userInfo = await db.rawQueryRow<{
+        name: string;
+        watch_unit: string | null;
+      }>(
+        `SELECT u.name,
+                COALESCE(u.watch_unit, fp.watch) AS watch_unit
+         FROM users u
+         LEFT JOIN firefighter_profiles fp ON fp.user_id = u.id
+         WHERE u.id = $1`,
+        targetUserId
+      );
+    } catch (err) {
+      console.error("toil/earn: target user lookup failed", {
+        targetUserId,
+        err,
+      });
+      throw APIError.internal(
+        `Target user lookup failed: ${err instanceof Error ? err.message : "DB error"}`
+      );
+    }
     if (!userInfo) {
-      throw APIError.notFound("Target user not found.");
+      throw APIError.notFound(`Target user not found (id=${targetUserId}).`);
     }
     if (!userInfo.watch_unit) {
       throw APIError.failedPrecondition(
-        "Target user has no watch unit on either their account or their firefighter profile — assign one first."
+        `${userInfo.name} has no watch unit on either their account or their firefighter profile — assign one in Settings before logging TOIL.`
       );
     }
 
-    const incidentDate = new Date(req.incident_date);
-    if (Number.isNaN(incidentDate.getTime())) {
-      throw APIError.invalidArgument("Invalid incident_date.");
-    }
-    const fy = financialYear(incidentDate);
-
-    // ── Insert as pending — every TOIL entry is now subject to review by
-    //    a different WC/CC. The earn endpoint never auto-approves. ─────────
+    // ── Insert as pending ──────────────────────────────────────────────────
     let entry: ToilEntry | null = null;
     try {
       entry = await db.rawQueryRow<ToilEntry>(
@@ -98,35 +135,39 @@ export const earn = api<EarnToilRequest, ToilEntry>(
         auth.userID
       );
     } catch (err) {
-      // Surface the underlying DB error in the server log so an "internal
-      // error" toast on the client is debuggable from the deploy logs.
       console.error("toil/earn: INSERT into toil_ledger failed", {
         targetUserId,
         callerId: auth.userID,
         watchUnit: userInfo.watch_unit,
         hours: req.hours,
+        incidentDate: req.incident_date,
         err,
       });
       throw APIError.internal(
-        `Failed to record TOIL: ${err instanceof Error ? err.message : "DB error"}`
+        `INSERT failed: ${err instanceof Error ? err.message : "DB error"}`
       );
     }
 
     if (!entry) {
-      throw APIError.internal("Failed to create TOIL entry.");
+      throw APIError.internal(
+        "INSERT returned no row — check toil_ledger schema."
+      );
     }
 
     // ── Notify every active WC/CC on the recipient's watch (except the
     //    creator) so an authorisation prompt always lands in a bell.
+    //    Wrapped so a notification dispatch failure never blocks the create.
     try {
       const dateStr = incidentDate.toLocaleDateString("en-GB");
-      const recipients = db.query<{ id: string }>`
-        SELECT id FROM users
-        WHERE role IN ('WC', 'CC')
-          AND left_at IS NULL
-          AND watch_unit = ${userInfo.watch_unit}
-          AND id != ${auth.userID}
-      `;
+      const recipients = db.rawQuery<{ id: string }>(
+        `SELECT id FROM users
+         WHERE role IN ('WC', 'CC')
+           AND left_at IS NULL
+           AND watch_unit = $1
+           AND id != $2`,
+        userInfo.watch_unit,
+        auth.userID
+      );
       const isSelfLog = targetUserId === auth.userID;
       const subject = isSelfLog
         ? `${userInfo.name} logged ${req.hours}hr TOIL for themselves`
@@ -139,14 +180,11 @@ export const earn = api<EarnToilRequest, ToilEntry>(
           message: `${subject} (${dateStr}). Reason: ${req.reason.trim()}`,
           entity_type: "toil",
           entity_id: entry.id.toString(),
-          // Link to the recipient's profile TOIL tab so the approver can
-          // review the full ledger context, not just the single entry.
           link: `/people/${encodeURIComponent(targetUserId)}`,
         });
       }
     } catch (err) {
-      // Notifications must never block the create.
-      console.error("Failed to send TOIL approval notifications:", err);
+      console.error("toil/earn: notification dispatch failed", err);
     }
 
     return entry;
