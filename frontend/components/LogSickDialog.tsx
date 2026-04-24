@@ -74,7 +74,30 @@ export function LogSickDialog({ open, onOpenChange, person }: LogSickDialogProps
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
       onOpenChange(false);
     },
+    onError: (err) => {
+      // Log the underlying error to the console so debugging is possible
+      // when a WC reports a failure — the visible UI surfaces the message
+      // below, but the structured payload is more useful in DevTools.
+      // eslint-disable-next-line no-console
+      console.error("LogSickDialog: backend.absence.create failed", err);
+    },
   });
+
+  // Try to extract a human-readable reason from whatever shape the Encore
+  // client gave us. Encore errors usually have a `.message` and sometimes a
+  // `.code`; fall back to JSON if it's something more exotic.
+  const errorDetail = (() => {
+    const err = mutation.error as
+      | { message?: string; code?: string; details?: unknown }
+      | null;
+    if (!err) return null;
+    if (err.message && typeof err.message === "string") return err.message;
+    try {
+      return JSON.stringify(err);
+    } catch {
+      return String(err);
+    }
+  })();
 
   // Reset form state + mutation status whenever we close. Also called when
   // the parent flips `open` back to false (controlled).
@@ -152,9 +175,20 @@ export function LogSickDialog({ open, onOpenChange, person }: LogSickDialogProps
             </label>
           </div>
           {mutation.isError && (
-            <p className="text-sm text-red-600">
-              Failed to log sick booking. Please try again.
-            </p>
+            <div className="rounded-lg border border-red-300 bg-red-50/80 p-3 dark:border-red-900 dark:bg-red-950/30">
+              <p className="text-sm font-semibold text-red-700 dark:text-red-300">
+                Failed to log sick booking
+              </p>
+              {errorDetail && (
+                <p className="text-xs text-red-700/80 dark:text-red-300/80 mt-1 font-mono break-words">
+                  {errorDetail}
+                </p>
+              )}
+              <p className="text-xs text-red-700/70 dark:text-red-300/70 mt-1">
+                Please try again, or share the message above with the
+                administrator if it keeps happening.
+              </p>
+            </div>
           )}
         </div>
 

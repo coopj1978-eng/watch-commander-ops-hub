@@ -104,30 +104,41 @@ function TargetRow({
 
   return (
     <div
-      className="flex items-center gap-3 px-4 hover:bg-muted/30 transition-colors"
+      // Two-line layout on narrow containers (e.g. the dashboard right column
+      // at ~380px) so the pace pill stays inside the card. Single-line on
+      // sm+ where there's room to lay out everything horizontally. The bar +
+      // pace pill move to a second row on narrow widths; numbers stay
+      // on the title row.
+      className="px-4 hover:bg-muted/30 transition-colors flex flex-wrap items-center gap-x-3 gap-y-1.5"
       style={{ paddingBlock: "var(--pad-block)" }}
     >
-      {/* Label — fixed width so the bars line up */}
-      <span className="text-sm font-medium text-foreground w-44 shrink-0 truncate">
+      {/* Label — flex-1 with truncate so it consumes available room without
+          forcing the row wider than the container. */}
+      <span className="text-sm font-medium text-foreground flex-1 min-w-0 truncate">
         {label}
       </span>
 
-      {/* Progress bar — fills remaining horizontal space */}
-      <div className="flex-1 min-w-0">
+      {/* Numbers — mono for tabular alignment. Stays on the title line. */}
+      <span className="font-mono text-xs text-muted-foreground tabular-nums shrink-0">
+        {actual} / {target}
+      </span>
+
+      {/* Pace pill — sits next to the numbers when there's room, drops to
+          the next row alongside the progress bar when the container is
+          narrower than the row's natural width. shrink-0 so it never
+          truncates the "Behind" / "On track" text itself. */}
+      <div className="shrink-0">{pacePill(pace.tone, pace.label)}</div>
+
+      {/* Progress bar — basis-full forces it onto its own row below the
+          label/numbers/pill, which keeps the row legible at any width and
+          gives the bar the full container to fill. */}
+      <div className="basis-full min-w-0">
         <div className="relative h-1.5 rounded-full bg-muted overflow-hidden">
           <div
             className={`absolute left-0 top-0 bottom-0 ${pctCss(pace.tone)} transition-[width] duration-300`}
             style={{ width: `${pct}%` }}
           />
         </div>
-      </div>
-
-      {/* Numbers + pace pill — mono for tabular alignment */}
-      <span className="font-mono text-xs text-muted-foreground tabular-nums w-16 text-right shrink-0">
-        {actual} / {target}
-      </span>
-      <div className="w-24 text-right shrink-0">
-        {pacePill(pace.tone, pace.label)}
       </div>
     </div>
   );
