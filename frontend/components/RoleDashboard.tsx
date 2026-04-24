@@ -37,6 +37,7 @@ import { LatestHandoverBanner }   from "@/components/LatestHandoverBanner";
 import { BulletinsTile }          from "@/components/BulletinsTile";
 import { PolicyAcksTile }         from "@/components/PolicyAcksTile";
 import { ScheduledTodayTomorrow } from "@/components/ScheduledTodayTomorrow";
+import { AbsenceTriggersCard }   from "@/components/AbsenceTriggersCard";
 import { DashboardKPIs }          from "@/components/DashboardKPIs";
 import { CrewOnWatchTable }       from "@/components/CrewOnWatchTable";
 import { TargetsCompact }         from "@/components/TargetsCompact";
@@ -302,22 +303,47 @@ function WatchCommanderDashboard() {
         />
       </section>
 
-      {/* ── Crew on Watch ──────────────────────────────────────────────── */}
-      {/* Read-only at-a-glance table of every watch member with their quals
-          and today's status. Joins the existing crewing roster + profile
-          list + absence list query caches — zero extra network traffic. */}
+      {/* ── Two-column "command-room" section ──────────────────────────────
+              Mirrors the original design mockup: on large screens, a
+              wide left column stacks Crew on Watch + Scheduled today &
+              tomorrow, with a narrower right column holding the quarter
+              target card + absence triggers.
+              Collapses to a single column below `lg`. ──────────────── */}
       <section className={`${SECTION_ANIM} delay-75`}>
-        <SectionLabel>Crew on Watch</SectionLabel>
-        <CrewOnWatchTable />
-      </section>
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+          <div className="space-y-6 min-w-0">
+            {/* Crew on Watch — read-only at-a-glance table of every watch
+                member with their quals and today's status. Shares roster
+                + profile + absence query caches with the rest of the
+                dashboard so there's no extra network traffic. */}
+            <div>
+              <SectionLabel>Crew on Watch</SectionLabel>
+              <CrewOnWatchTable />
+            </div>
 
-      {/* ── Scheduled today & tomorrow ─ single unified table across
-              inspections, drills, 1:1s, meetings, maintenance, and
-              reminders. One request via /schedule. Design mirrors the
-              original command-room mockup. */}
-      <section className={`${SECTION_ANIM} delay-[80ms]`}>
-        <SectionLabel>What's on</SectionLabel>
-        <ScheduledTodayTomorrow />
+            {/* Scheduled today & tomorrow — unified table across
+                inspections, drills, 1:1s, meetings, maintenance, and
+                reminders. One request via /schedule. */}
+            <div>
+              <SectionLabel>What's on</SectionLabel>
+              <ScheduledTodayTomorrow />
+            </div>
+          </div>
+
+          {/* Right column — reference cards that sit alongside the
+              operational tables on lg+, stack under them on smaller
+              screens. */}
+          <aside className="space-y-6 min-w-0">
+            <div>
+              <SectionLabel>Performance Targets</SectionLabel>
+              <TargetsCompact />
+            </div>
+            <div>
+              <SectionLabel>Absence Triggers</SectionLabel>
+              <AbsenceTriggersCard />
+            </div>
+          </aside>
+        </div>
       </section>
 
       {/* ── Today's Shift ──────────────────────────────────────────────── */}
@@ -340,17 +366,6 @@ function WatchCommanderDashboard() {
           onReorder={reorder}
           className={GRID_CLASS}
         />
-      </section>
-
-      {/* ── Performance Targets ────────────────────────────────────────── */}
-      {/* Compact at-a-glance summary replaces the old HFSV / Community /
-          Multi-Story widget cards — TargetsCompact shows all four
-          quarterly metrics with progress bars + pace pills. The widget
-          components are still on disk if we ever want to add a widget
-          picker that surfaces them again. */}
-      <section className={`${SECTION_ANIM} delay-200`}>
-        <SectionLabel>Performance Targets</SectionLabel>
-        <TargetsCompact />
       </section>
 
     </div>
