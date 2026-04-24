@@ -26,8 +26,6 @@ import {
 import {
   Clock,
   Plus,
-  TrendingUp,
-  TrendingDown,
   Hourglass,
   Check,
   X,
@@ -141,6 +139,49 @@ export function ProfileToilSection({
     );
   }
 
+  // ── Build the running-balance ledger ───────────────────────────────────────
+  // The "Available" headline = approved earned − spent. We compute a running
+  // balance per row by walking the chronologically-ordered list of effective
+  // transactions (approved earned + spent), then display newest-first with
+  // each row's stored balance attached. Pending earned + rejected entries
+  // don't affect the running total — pending sits in its own section above
+  // the ledger; rejected rows are shown but flagged as not counted.
+  const sortedAsc = [...entries].sort((a, b) => {
+    const aDate = a.incident_date ? new Date(a.incident_date) : new Date(a.created_at);
+    const bDate = b.incident_date ? new Date(b.incident_date) : new Date(b.created_at);
+    if (aDate.getTime() !== bDate.getTime()) {
+      return aDate.getTime() - bDate.getTime();
+    }
+    // Stable secondary sort by id so two same-day entries always show in
+    // creation order.
+    return a.id - b.id;
+  });
+
+  let running = 0;
+  const balancesById = new Map<number, number>();
+  for (const e of sortedAsc) {
+    if (e.status === "approved" && e.type === "earned") {
+      running += Number(e.hours);
+    } else if (e.type === "spent") {
+      // Spent entries don't have a "status" — they're recorded once the
+      // shift adjustment commits — but treat any non-rejected spent row
+      // as a real movement. We sum all of them.
+      running -= Number(e.hours);
+    }
+    balancesById.set(e.id, running);
+  }
+
+  const ledgerRows = [...entries].sort((a, b) => {
+    const aDate = a.incident_date ? new Date(a.incident_date) : new Date(a.created_at);
+    const bDate = b.incident_date ? new Date(b.incident_date) : new Date(b.created_at);
+    if (aDate.getTime() !== bDate.getTime()) {
+      return bDate.getTime() - aDate.getTime();
+    }
+    return b.id - a.id;
+  });
+
+  const pendingEntries = entries.filter((e) => e.status === "pending");
+
   return (
     <>
       <Card>
@@ -164,109 +205,121 @@ export function ProfileToilSection({
         </CardHeader>
 
         <CardContent className="space-y-4">
-          {/* ── Balance summary tiles ─────────────────────────────────── */}
-          <div className="grid grid-cols-3 gap-2">
-            <BalanceTile
-              label="Earned"
-              value={balance?.total_earned}
-              icon={<TrendingUp className="h-4 w-4 text-emerald-500" />}
-              tone="emerald"
-              loading={balanceQ.isLoading}
-            />
-            <BalanceTile
-              label="Used"
-              value={balance?.total_spent}
-              icon={<TrendingDown className="h-4 w-4 text-blue-500" />}
-              tone="blue"
-              loading={balanceQ.isLoading}
-            />
-            <BalanceTile
-              label="Available"
-              value={balance?.balance}
-              icon={<Clock className="h-4 w-4 text-indigo-500" />}
-              tone="indigo"
-              loading={balanceQ.isLoading}
-            />
-          </div>
-          {(balance?.pending_earned ?? 0) > 0 && (
-            <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
-              <Hourglass className="h-3.5 w-3.5" />
-              {balance!.pending_earned}hrs pending approval
+          {/* ── Available headline ────────────────────────────────────────
+                Single big number — that's the only figure people use day-
+                to-day. "Earned" and "Used" are visible inline in the
+                ledger via the running balance column, so a separate tile
+                just duplicates the data. */}
+          <div className="rounded-xl border bg-muted/30 px-4 py-3 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-emerald-100 dark:bg-emerald-950/40 flex items-center justify-center shrink-0">
+                <Clock className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                  Available
+                </p>
+                {balanceQ.isLoading ? (
+                  <Skeleton className="h-7 w-20 mt-0.5" />
+                ) : (
+                  <p className="text-2xl font-bold tabular-nums leading-tight">
+                    {balance?.balance ?? 0}
+                    <span className="text-sm font-normal text-muted-foreground ml-1">
+                      hrs
+                    </span>
+                  </p>
+                )}
+              </div>
             </div>
-          )}
+            {(balance?.pending_earned ?? 0) > 0 && (
+              <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 text-right">
+                <Hourglass className="h-3.5 w-3.5 shrink-0" />
+                <span>
+                  <span className="font-semibold">{balance!.pending_earned}hrs</span>
+                  <br />
+                  pending approval
+                </span>
+              </div>
+            )}
+          </div>
 
           {/* ── Pending entries — WC/CC get approve/reject buttons, but
                 NOT for entries they themselves logged (separation-of-
                 duties enforced by the backend too — this is the UX
                 acknowledgement). ────────────────────────────────────── */}
-          {entries.some((e) => e.status === "pending") && (
+          {pendingEntries.length > 0 && (
             <div className="space-y-2">
               <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                Pending approval
+                Pending approval ({pendingEntries.length})
               </p>
-              {entries
-                .filter((e) => e.status === "pending")
-                .map((e) => {
-                  const iLoggedThis = e.created_by === user?.id;
-                  return (
-                    <div
-                      key={e.id}
-                      className="flex items-center gap-2 rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/30 px-3 py-2"
-                    >
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium">
-                          {e.hours}hrs · {e.reason || "—"}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          Logged {format(parseISO(String(e.created_at)), "d MMM yyyy")}
-                          {e.job_number ? ` · Job ${e.job_number}` : ""}
-                        </p>
-                      </div>
-                      {isManager && !iLoggedThis && (
-                        <>
-                          <button
-                            onClick={() =>
-                              approveMutation.mutate({
-                                id: e.id,
-                                action: "approved",
-                              })
-                            }
-                            disabled={approveMutation.isPending}
-                            className="shrink-0 h-7 w-7 rounded-md flex items-center justify-center bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/50 dark:text-emerald-400"
-                            title="Approve"
-                          >
-                            <Check className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            onClick={() =>
-                              approveMutation.mutate({
-                                id: e.id,
-                                action: "rejected",
-                              })
-                            }
-                            disabled={approveMutation.isPending}
-                            className="shrink-0 h-7 w-7 rounded-md flex items-center justify-center bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/50 dark:text-red-400"
-                            title="Reject"
-                          >
-                            <X className="h-3.5 w-3.5" />
-                          </button>
-                        </>
-                      )}
-                      {isManager && iLoggedThis && (
-                        <span
-                          className="shrink-0 text-[10px] font-medium text-muted-foreground italic px-2 py-1 rounded bg-muted/60"
-                          title="You logged this entry — another WC or CC must authorise it"
-                        >
-                          Awaiting another WC/CC
-                        </span>
-                      )}
+              {pendingEntries.map((e) => {
+                const iLoggedThis = e.created_by === user?.id;
+                return (
+                  <div
+                    key={e.id}
+                    className="flex items-center gap-2 rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/30 px-3 py-2"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium">
+                        {e.hours}hrs · {e.reason || "—"}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {e.incident_date
+                          ? `Incident ${format(parseISO(String(e.incident_date)), "d MMM yyyy")}`
+                          : `Logged ${format(parseISO(String(e.created_at)), "d MMM yyyy")}`}
+                        {e.job_number ? ` · Job ${e.job_number}` : ""}
+                      </p>
                     </div>
-                  );
-                })}
+                    {isManager && !iLoggedThis && (
+                      <>
+                        <button
+                          onClick={() =>
+                            approveMutation.mutate({
+                              id: e.id,
+                              action: "approved",
+                            })
+                          }
+                          disabled={approveMutation.isPending}
+                          className="shrink-0 h-7 w-7 rounded-md flex items-center justify-center bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/50 dark:text-emerald-400"
+                          title="Approve"
+                        >
+                          <Check className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          onClick={() =>
+                            approveMutation.mutate({
+                              id: e.id,
+                              action: "rejected",
+                            })
+                          }
+                          disabled={approveMutation.isPending}
+                          className="shrink-0 h-7 w-7 rounded-md flex items-center justify-center bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/50 dark:text-red-400"
+                          title="Reject"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </>
+                    )}
+                    {isManager && iLoggedThis && (
+                      <span
+                        className="shrink-0 text-[10px] font-medium text-muted-foreground italic px-2 py-1 rounded bg-muted/60"
+                        title="You logged this entry — another WC or CC must authorise it"
+                      >
+                        Awaiting another WC/CC
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
 
-          {/* ── Full ledger ───────────────────────────────────────────── */}
+          {/* ── Running-total ledger ──────────────────────────────────────
+                Bank-statement style. Each row shows when, what, hours,
+                job #, who authorised it, when, and the running balance
+                after that movement. Approved earned and spent rows
+                contribute to the running total; rejected and pending
+                rows are listed but marked. */}
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">
               Ledger
@@ -277,16 +330,37 @@ export function ProfileToilSection({
                   <Skeleton key={i} className="h-7 w-full" />
                 ))}
               </div>
-            ) : entries.length === 0 ? (
+            ) : ledgerRows.length === 0 ? (
               <p className="text-sm text-muted-foreground italic text-center py-4">
                 No TOIL recorded this financial year.
               </p>
             ) : (
-              <ul className="divide-y divide-border/50 border rounded-lg overflow-hidden">
-                {entries.map((e) => (
-                  <ToilEntryRow key={e.id} entry={e} />
-                ))}
-              </ul>
+              <div className="border rounded-lg overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b bg-muted/50 text-[10px] uppercase tracking-widest text-muted-foreground">
+                        <th className="text-left font-semibold px-3 py-2">Date</th>
+                        <th className="text-left font-semibold px-3 py-2">Reason</th>
+                        <th className="text-right font-semibold px-3 py-2">Hours</th>
+                        <th className="text-left font-semibold px-3 py-2">Job #</th>
+                        <th className="text-left font-semibold px-3 py-2">Authorised by</th>
+                        <th className="text-left font-semibold px-3 py-2">Auth date</th>
+                        <th className="text-right font-semibold px-3 py-2">Balance</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border/50">
+                      {ledgerRows.map((e) => (
+                        <LedgerRow
+                          key={e.id}
+                          entry={e}
+                          balanceAfter={balancesById.get(e.id)}
+                        />
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             )}
           </div>
         </CardContent>
@@ -305,98 +379,88 @@ export function ProfileToilSection({
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Balance tile
+// LedgerRow — bank-statement-style row with running balance.
+//
+// Earned/Approved → green +Xhrs, contributes to balance
+// Earned/Pending  → muted +Xhrs with "pending" badge, doesn't contribute
+// Earned/Rejected → strikethrough +Xhrs with "rejected" badge
+// Spent           → red −Xhrs, contributes to balance
 // ─────────────────────────────────────────────────────────────────────────────
-function BalanceTile({
-  label,
-  value,
-  icon,
-  tone,
-  loading,
+function LedgerRow({
+  entry,
+  balanceAfter,
 }: {
-  label: string;
-  value: number | undefined;
-  icon: React.ReactNode;
-  tone: "emerald" | "blue" | "indigo";
-  loading: boolean;
+  entry: any;
+  balanceAfter: number | undefined;
 }) {
-  const toneCls =
-    tone === "emerald"
-      ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300"
-      : tone === "blue"
-      ? "bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300"
-      : "bg-indigo-50 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300";
-
-  return (
-    <div className={`rounded-xl border p-3 text-center ${toneCls}`}>
-      <div className="flex justify-center mb-1">{icon}</div>
-      {loading ? (
-        <Skeleton className="h-6 w-12 mx-auto" />
-      ) : (
-        <p className="text-xl font-bold tabular-nums">{value ?? 0}</p>
-      )}
-      <p className="text-[10px] text-muted-foreground mt-0.5">{label}</p>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Single ledger row
-// ─────────────────────────────────────────────────────────────────────────────
-function ToilEntryRow({ entry }: { entry: any }) {
   const isEarned = entry.type === "earned";
   const isPending = entry.status === "pending";
   const isRejected = entry.status === "rejected";
+  const counts = (isEarned && entry.status === "approved") || entry.type === "spent";
+
+  const dateStr = entry.incident_date
+    ? format(parseISO(String(entry.incident_date)), "d MMM yyyy")
+    : format(parseISO(String(entry.created_at)), "d MMM yyyy");
+
+  const authDateStr =
+    entry.status === "approved" && entry.approved_at
+      ? format(parseISO(String(entry.approved_at)), "d MMM yyyy")
+      : "—";
 
   return (
-    <li className="flex items-center gap-3 px-3 py-2 text-xs">
-      {isEarned ? (
-        <TrendingUp className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-      ) : (
-        <TrendingDown className="h-3.5 w-3.5 text-blue-500 shrink-0" />
-      )}
-      <div className="flex-1 min-w-0">
-        <p className="font-medium truncate">{entry.reason || (isEarned ? "Hours earned" : "Shift off")}</p>
-        <p className="text-muted-foreground text-[10px] flex items-center gap-1.5 flex-wrap mt-0.5">
-          {entry.incident_date
-            ? format(parseISO(String(entry.incident_date)), "d MMM yyyy")
-            : format(parseISO(String(entry.created_at)), "d MMM yyyy")}
-          {entry.job_number && (
-            <>
-              <span className="text-muted-foreground/50">·</span>
-              <span>Job {entry.job_number}</span>
-            </>
-          )}
-          {entry.approved_by_name && entry.status === "approved" && (
-            <>
-              <span className="text-muted-foreground/50">·</span>
-              <span className="inline-flex items-center gap-0.5">
-                <ShieldCheck className="h-2.5 w-2.5" />
-                Approved by {entry.approved_by_name}
-              </span>
-            </>
-          )}
-        </p>
-      </div>
-      <span
-        className={`font-mono tabular-nums shrink-0 ${
-          isEarned ? "text-emerald-600 font-semibold" : "text-blue-600 font-semibold"
+    <tr className="hover:bg-muted/30 transition-colors">
+      <td className="px-3 py-2 align-top whitespace-nowrap font-mono tabular-nums text-muted-foreground">
+        {dateStr}
+      </td>
+      <td className="px-3 py-2 align-top">
+        <span className={isRejected ? "line-through text-muted-foreground" : ""}>
+          {entry.reason || (isEarned ? "Hours earned" : "Shift off (TOIL spent)")}
+        </span>
+        {(isPending || isRejected) && (
+          <Badge
+            variant={isRejected ? "destructive" : "outline"}
+            className="ml-2 text-[9px] px-1 py-0 align-middle"
+          >
+            {isPending ? "pending" : "rejected"}
+          </Badge>
+        )}
+      </td>
+      <td
+        className={`px-3 py-2 align-top text-right font-mono tabular-nums whitespace-nowrap ${
+          isRejected
+            ? "line-through text-muted-foreground"
+            : isEarned
+            ? "text-emerald-600 dark:text-emerald-400 font-semibold"
+            : "text-red-600 dark:text-red-400 font-semibold"
         }`}
       >
         {isEarned ? "+" : "−"}
-        {entry.hours}hrs
-      </span>
-      {isPending && (
-        <Badge variant="outline" className="text-[9px] px-1 py-0">
-          pending
-        </Badge>
-      )}
-      {isRejected && (
-        <Badge variant="destructive" className="text-[9px] px-1 py-0">
-          rejected
-        </Badge>
-      )}
-    </li>
+        {entry.hours}
+      </td>
+      <td className="px-3 py-2 align-top text-muted-foreground whitespace-nowrap">
+        {entry.job_number || "—"}
+      </td>
+      <td className="px-3 py-2 align-top text-muted-foreground whitespace-nowrap">
+        {entry.approved_by_name ? (
+          <span className="inline-flex items-center gap-1">
+            <ShieldCheck className="h-3 w-3 text-emerald-500" />
+            {entry.approved_by_name}
+          </span>
+        ) : (
+          "—"
+        )}
+      </td>
+      <td className="px-3 py-2 align-top text-muted-foreground whitespace-nowrap font-mono tabular-nums">
+        {authDateStr}
+      </td>
+      <td className="px-3 py-2 align-top text-right whitespace-nowrap font-mono tabular-nums">
+        {counts ? (
+          <span className="font-semibold">{balanceAfter ?? 0}</span>
+        ) : (
+          <span className="text-muted-foreground/50">—</span>
+        )}
+      </td>
+    </tr>
   );
 }
 
