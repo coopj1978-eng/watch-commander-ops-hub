@@ -195,7 +195,10 @@ export function ProfileToilSection({
             </div>
           )}
 
-          {/* ── Pending entries — WC/CC only get approve/reject buttons ── */}
+          {/* ── Pending entries — WC/CC get approve/reject buttons, but
+                NOT for entries they themselves logged (separation-of-
+                duties enforced by the backend too — this is the UX
+                acknowledgement). ────────────────────────────────────── */}
           {entries.some((e) => e.status === "pending") && (
             <div className="space-y-2">
               <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
@@ -203,52 +206,63 @@ export function ProfileToilSection({
               </p>
               {entries
                 .filter((e) => e.status === "pending")
-                .map((e) => (
-                  <div
-                    key={e.id}
-                    className="flex items-center gap-2 rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/30 px-3 py-2"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium">
-                        {e.hours}hrs · {e.reason || "—"}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Logged {format(parseISO(String(e.created_at)), "d MMM yyyy")}
-                        {e.job_number ? ` · Job ${e.job_number}` : ""}
-                      </p>
+                .map((e) => {
+                  const iLoggedThis = e.created_by === user?.id;
+                  return (
+                    <div
+                      key={e.id}
+                      className="flex items-center gap-2 rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/30 px-3 py-2"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium">
+                          {e.hours}hrs · {e.reason || "—"}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Logged {format(parseISO(String(e.created_at)), "d MMM yyyy")}
+                          {e.job_number ? ` · Job ${e.job_number}` : ""}
+                        </p>
+                      </div>
+                      {isManager && !iLoggedThis && (
+                        <>
+                          <button
+                            onClick={() =>
+                              approveMutation.mutate({
+                                id: e.id,
+                                action: "approved",
+                              })
+                            }
+                            disabled={approveMutation.isPending}
+                            className="shrink-0 h-7 w-7 rounded-md flex items-center justify-center bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/50 dark:text-emerald-400"
+                            title="Approve"
+                          >
+                            <Check className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            onClick={() =>
+                              approveMutation.mutate({
+                                id: e.id,
+                                action: "rejected",
+                              })
+                            }
+                            disabled={approveMutation.isPending}
+                            className="shrink-0 h-7 w-7 rounded-md flex items-center justify-center bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/50 dark:text-red-400"
+                            title="Reject"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        </>
+                      )}
+                      {isManager && iLoggedThis && (
+                        <span
+                          className="shrink-0 text-[10px] font-medium text-muted-foreground italic px-2 py-1 rounded bg-muted/60"
+                          title="You logged this entry — another WC or CC must authorise it"
+                        >
+                          Awaiting another WC/CC
+                        </span>
+                      )}
                     </div>
-                    {isManager && (
-                      <>
-                        <button
-                          onClick={() =>
-                            approveMutation.mutate({
-                              id: e.id,
-                              action: "approved",
-                            })
-                          }
-                          disabled={approveMutation.isPending}
-                          className="shrink-0 h-7 w-7 rounded-md flex items-center justify-center bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/50 dark:text-emerald-400"
-                          title="Approve"
-                        >
-                          <Check className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          onClick={() =>
-                            approveMutation.mutate({
-                              id: e.id,
-                              action: "rejected",
-                            })
-                          }
-                          disabled={approveMutation.isPending}
-                          className="shrink-0 h-7 w-7 rounded-md flex items-center justify-center bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/50 dark:text-red-400"
-                          title="Reject"
-                        >
-                          <X className="h-3.5 w-3.5" />
-                        </button>
-                      </>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
             </div>
           )}
 
@@ -414,9 +428,6 @@ function AddHoursDialog({
     new Date().toISOString().split("T")[0]
   );
 
-  const willAutoApprove = isManager;
-  const willPromptApproval = isOwn && !isManager;
-
   const mutation = useMutation({
     mutationFn: () =>
       backend.toil.earn({
@@ -436,9 +447,8 @@ function AddHoursDialog({
       queryClient.invalidateQueries({ queryKey: ["toil-watch-balance"] });
       toast({
         title: "TOIL logged",
-        description: willAutoApprove
-          ? "Hours approved automatically."
-          : "Submitted for approval.",
+        description:
+          "Submitted for approval — a WC or CC will be notified.",
       });
       // Reset and close
       setHours("1");
@@ -532,11 +542,11 @@ function AddHoursDialog({
             />
           </div>
 
-          {willPromptApproval && (
-            <p className="text-[11px] text-muted-foreground">
-              Your WC/CC will need to approve before these hours count.
-            </p>
-          )}
+          <p className="text-[11px] text-muted-foreground">
+            All TOIL entries require sign-off by a WC or CC who didn't log
+            them — this submission will sit pending until someone else
+            authorises it.
+          </p>
         </div>
 
         <DialogFooter className="gap-2 sm:gap-2">
@@ -553,10 +563,8 @@ function AddHoursDialog({
                 <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" />
                 Logging…
               </>
-            ) : willAutoApprove ? (
-              `Log & approve ${hours}hrs`
             ) : (
-              `Submit ${hours}hrs`
+              `Submit ${hours}hrs for approval`
             )}
           </Button>
         </DialogFooter>
