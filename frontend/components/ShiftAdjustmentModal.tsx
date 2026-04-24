@@ -564,7 +564,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
                     <input
                       type="range"
                       min={4}
-                      max={12}
+                      max={16}
                       step={0.5}
                       value={toilHours}
                       onChange={e => setToilHours(Number(e.target.value))}
@@ -572,7 +572,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
                     />
                     <span className="text-lg font-bold text-emerald-700 dark:text-emerald-300 w-16 text-right">{toilHours}hrs</span>
                   </div>
-                  <p className="text-[11px] text-muted-foreground">Minimum 4hrs. These hours will be deducted from your TOIL balance.</p>
+                  <p className="text-[11px] text-muted-foreground">Minimum 4hrs, up to 16hrs (full night shift). Deducted from your TOIL balance.</p>
                 </div>
               )}
 
