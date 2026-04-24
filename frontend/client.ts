@@ -3177,6 +3177,7 @@ export namespace policy {
     export interface ListPoliciesResponse {
         policies: PolicyDoc[]
         total: number
+        "unacked_required_count": number
     }
 
     export interface PolicyDoc {
@@ -3197,6 +3198,24 @@ export namespace policy {
         "total_pages"?: number
         "created_at": string
         "updated_at": string
+        "requires_ack": boolean
+        "is_acknowledged"?: boolean
+        "audience_count"?: number
+        "acknowledged_count"?: number
+    }
+
+    export interface PolicyAckStats {
+        "user_id": string
+        name: string
+        rank?: string
+        "watch_unit"?: string
+        "acknowledged_at"?: string
+        "acknowledged_version"?: string
+    }
+
+    export interface GetPolicyStatsResponse {
+        policy: PolicyDoc
+        audience: PolicyAckStats[]
     }
 
     export interface PolicyQuery {
@@ -3238,6 +3257,24 @@ export namespace policy {
             this.processEmbedding = this.processEmbedding.bind(this)
             this.queryHistory = this.queryHistory.bind(this)
             this.upload = this.upload.bind(this)
+            this.acknowledge = this.acknowledge.bind(this)
+            this.setRequiresAck = this.setRequiresAck.bind(this)
+            this.getStats = this.getStats.bind(this)
+        }
+
+        public async acknowledge(id: number): Promise<{ ok: true; acknowledged_at: string; version: string | null }> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/policies/${encodeURIComponent(id)}/acknowledge`)
+            return await resp.json() as { ok: true; acknowledged_at: string; version: string | null }
+        }
+
+        public async setRequiresAck(id: number, params: { requires_ack: boolean }): Promise<{ ok: true; requires_ack: boolean }> {
+            const resp = await this.baseClient.callTypedAPI("PATCH", `/policies/${encodeURIComponent(id)}/require-ack`, JSON.stringify(params))
+            return await resp.json() as { ok: true; requires_ack: boolean }
+        }
+
+        public async getStats(id: number): Promise<GetPolicyStatsResponse> {
+            const resp = await this.baseClient.callTypedAPI("GET", `/policies/${encodeURIComponent(id)}/stats`)
+            return await resp.json() as GetPolicyStatsResponse
         }
 
         public async ask(params: AskPolicyRequest): Promise<AskPolicyResponse> {

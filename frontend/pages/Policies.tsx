@@ -31,6 +31,7 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { Upload, Download, FileText, Search, Filter, Grid3x3, Table as TableIcon, BookOpen } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PolicyAckControls } from "@/components/PolicyAckControls";
 
 type ViewMode = "grid" | "table";
 
@@ -99,7 +100,7 @@ export default function Policies() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
-            <BookOpen className="h-7 w-7 text-orange-500 shrink-0" />
+            <BookOpen className="h-7 w-7 text-brand shrink-0" />
             Policy &amp; Guidance
           </h1>
           <p className="text-muted-foreground mt-1">
@@ -127,7 +128,7 @@ export default function Policies() {
             </Button>
           </div>
           <Button
-            className="bg-indigo-600 hover:bg-indigo-700"
+            className="bg-brand hover:bg-brand/90 text-brand-foreground"
             onClick={() => setUploadDialogOpen(true)}
             aria-label="Upload Document"
           >
@@ -179,7 +180,7 @@ export default function Policies() {
       ) : viewMode === "grid" ? (
         <div className="grid gap-4">
           {filteredPolicies.map((policy) => (
-            <Card key={policy.id} className="hover:border-indigo-600 transition-colors">
+            <Card key={policy.id} className="hover:border-brand transition-colors">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-3 flex-1">
@@ -231,6 +232,9 @@ export default function Policies() {
                     </div>
                   )}
                 </div>
+                {/* Acknowledgement controls — ack button for FF/CC when
+                    requires_ack, plus require-ack toggle + receipts for WC. */}
+                <PolicyAckControls policyDoc={policy as any} />
               </CardContent>
             </Card>
           ))}
@@ -247,6 +251,7 @@ export default function Policies() {
                 <TableHead>Size</TableHead>
                 <TableHead>Uploaded</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Ack</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -270,6 +275,9 @@ export default function Policies() {
                   <TableCell>{(policy.file_size / 1024 / 1024).toFixed(2)} MB</TableCell>
                   <TableCell>{new Date(policy.uploaded_at).toLocaleDateString()}</TableCell>
                   <TableCell>{getStatusBadge(policy)}</TableCell>
+                  <TableCell>
+                    <PolicyAckControls policyDoc={policy as any} compact />
+                  </TableCell>
                   <TableCell>
                     <Button
                       variant="ghost"
@@ -304,7 +312,7 @@ export default function Policies() {
             </p>
             {!searchTerm && activeFiltersCount === 0 && (
               <Button
-                className="mt-5 bg-indigo-600 hover:bg-indigo-700"
+                className="mt-5 bg-brand hover:bg-brand/90 text-brand-foreground"
                 onClick={() => setUploadDialogOpen(true)}
               >
                 <Upload className="h-4 w-4 mr-2" />

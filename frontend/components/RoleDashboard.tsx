@@ -35,6 +35,7 @@ import { WCPersonalCalendarWidget } from "@/components/WCPersonalCalendarWidget"
 import { OperationalStatusBar }   from "@/components/OperationalStatusBar";
 import { LatestHandoverBanner }   from "@/components/LatestHandoverBanner";
 import { BulletinsTile }          from "@/components/BulletinsTile";
+import { PolicyAcksTile }         from "@/components/PolicyAcksTile";
 import { DashboardKPIs }          from "@/components/DashboardKPIs";
 import { CrewOnWatchTable }       from "@/components/CrewOnWatchTable";
 import { TargetsCompact }         from "@/components/TargetsCompact";
@@ -272,6 +273,12 @@ function WatchCommanderDashboard() {
               to chase. Links through to /bulletins. Urgent red variant
               kicks in when a requires_ack bulletin is still outstanding. */}
       <BulletinsTile />
+
+      {/* ── Unacknowledged required policies — red strip when the caller
+              has SOPs still awaiting their acknowledgement. Renders nothing
+              when caught up. Shares the ["policies"] cache with the Docs
+              page so there's no extra network traffic. */}
+      <PolicyAcksTile />
 
       {/* ── At-a-glance status bar (5 cells: date, watch, shift, strength,
               tasks). Reuses the same TanStack queryKeys as the downstream

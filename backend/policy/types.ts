@@ -16,6 +16,31 @@ export interface PolicyDoc {
   total_pages?: number;
   created_at: Date;
   updated_at: Date;
+  /** When true, every active WC/CC/FF must formally acknowledge the
+   *  current version of the policy. Flipped on explicitly by an author
+   *  / WC — defaults false so reference material isn't noisy. */
+  requires_ack: boolean;
+  /** Per-caller fields populated by list + getStats endpoints. */
+  is_acknowledged?: boolean;
+  audience_count?: number;
+  acknowledged_count?: number;
+}
+
+export interface PolicyAckStats {
+  user_id: string;
+  name: string;
+  rank?: string;
+  watch_unit?: string;
+  acknowledged_at?: string;
+  /** Version the user has acknowledged — set only when they've acked
+   *  *a* version; if it differs from the current policy version they
+   *  need to ack again. */
+  acknowledged_version?: string;
+}
+
+export interface GetPolicyStatsResponse {
+  policy: PolicyDoc;
+  audience: PolicyAckStats[];
 }
 
 export interface Citation {
