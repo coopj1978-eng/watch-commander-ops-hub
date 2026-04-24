@@ -55,6 +55,7 @@ export default class Client {
     public readonly profile: profile.ServiceClient
     public readonly quarterly_report: quarterly_report.ServiceClient
     public readonly report: report.ServiceClient
+    public readonly schedule: schedule.ServiceClient
     public readonly settings: settings.ServiceClient
     public readonly shift_adjustments: shift_adjustments.ServiceClient
     public readonly skill: skill.ServiceClient
@@ -100,6 +101,7 @@ export default class Client {
         this.profile = new profile.ServiceClient(base)
         this.quarterly_report = new quarterly_report.ServiceClient(base)
         this.report = new report.ServiceClient(base)
+        this.schedule = new schedule.ServiceClient(base)
         this.settings = new settings.ServiceClient(base)
         this.shift_adjustments = new shift_adjustments.ServiceClient(base)
         this.skill = new skill.ServiceClient(base)
@@ -3871,6 +3873,64 @@ export namespace report {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("POST", `/reports/import-staff`, JSON.stringify(params))
             return await resp.json() as ImportStaffCsvResponse
+        }
+    }
+}
+
+export namespace schedule {
+    export type ScheduleEventType =
+        | "hfsv"
+        | "high_rise"
+        | "hydrant"
+        | "drill"
+        | "one_to_one"
+        | "meeting"
+        | "maintenance"
+        | "reminder"
+        | "other"
+
+    export interface ScheduleCrewMember {
+        id: string
+        name: string
+        initials: string
+    }
+
+    export interface ScheduleEvent {
+        id: string
+        type: ScheduleEventType
+        when: string
+        "end_when"?: string
+        what: string
+        location?: string
+        "is_critical"?: boolean
+        crew: ScheduleCrewMember[]
+        link: string
+    }
+
+    export interface ListScheduleRequest {
+        from?: string
+        to?: string
+    }
+
+    export interface ListScheduleResponse {
+        events: ScheduleEvent[]
+    }
+
+    export class ServiceClient {
+        private baseClient: BaseClient
+
+        constructor(baseClient: BaseClient) {
+            this.baseClient = baseClient
+            this.list = this.list.bind(this)
+        }
+
+        public async list(params?: ListScheduleRequest): Promise<ListScheduleResponse> {
+            const qs: string[] = []
+            if (params?.from) qs.push(`from=${encodeURIComponent(params.from)}`)
+            if (params?.to) qs.push(`to=${encodeURIComponent(params.to)}`)
+            const q = qs.length ? `?${qs.join("&")}` : ""
+            const resp = await this.baseClient.callTypedAPI("GET", `/schedule${q}`)
+            return await resp.json() as ListScheduleResponse
         }
     }
 }

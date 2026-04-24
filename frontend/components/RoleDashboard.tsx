@@ -36,6 +36,7 @@ import { OperationalStatusBar }   from "@/components/OperationalStatusBar";
 import { LatestHandoverBanner }   from "@/components/LatestHandoverBanner";
 import { BulletinsTile }          from "@/components/BulletinsTile";
 import { PolicyAcksTile }         from "@/components/PolicyAcksTile";
+import { ScheduledTodayTomorrow } from "@/components/ScheduledTodayTomorrow";
 import { DashboardKPIs }          from "@/components/DashboardKPIs";
 import { CrewOnWatchTable }       from "@/components/CrewOnWatchTable";
 import { TargetsCompact }         from "@/components/TargetsCompact";
@@ -308,6 +309,15 @@ function WatchCommanderDashboard() {
       <section className={`${SECTION_ANIM} delay-75`}>
         <SectionLabel>Crew on Watch</SectionLabel>
         <CrewOnWatchTable />
+      </section>
+
+      {/* ── Scheduled today & tomorrow ─ single unified table across
+              inspections, drills, 1:1s, meetings, maintenance, and
+              reminders. One request via /schedule. Design mirrors the
+              original command-room mockup. */}
+      <section className={`${SECTION_ANIM} delay-[80ms]`}>
+        <SectionLabel>What's on</SectionLabel>
+        <ScheduledTodayTomorrow />
       </section>
 
       {/* ── Today's Shift ──────────────────────────────────────────────── */}
