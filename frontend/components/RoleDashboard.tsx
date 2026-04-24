@@ -304,44 +304,34 @@ function WatchCommanderDashboard() {
       </section>
 
       {/* ── Two-column "command-room" section ──────────────────────────────
-              Mirrors the original design mockup: on large screens, a
-              wide left column stacks Crew on Watch + Scheduled today &
-              tomorrow, with a narrower right column holding the quarter
-              target card + absence triggers.
-              Collapses to a single column below `lg`. ──────────────── */}
+              Mirrors the original design mockup: a wide left column for
+              the operational tables (Crew on Watch + Scheduled today &
+              tomorrow), a narrower right column for the reference cards
+              (Performance Targets + Absence Triggers).
+              Breakpoint is `xl` (1280px) rather than `lg` because the
+              right-column Performance Summary needs ~400px to fit its
+              label / bar / numbers / pace-pill row without clipping. At
+              1024-1279px the sidebar + two-column split would squeeze
+              both sides below the usable minimum. Single column below
+              that — the exact layout we had before restructuring. */}
       <section className={`${SECTION_ANIM} delay-75`}>
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(380px,1fr)]">
           <div className="space-y-6 min-w-0">
-            {/* Crew on Watch — read-only at-a-glance table of every watch
-                member with their quals and today's status. Shares roster
-                + profile + absence query caches with the rest of the
-                dashboard so there's no extra network traffic. */}
-            <div>
-              <SectionLabel>Crew on Watch</SectionLabel>
-              <CrewOnWatchTable />
-            </div>
+            {/* Crew on Watch — the main operational table. Card title +
+                meta live inside <CrewOnWatchTable> itself, so no outer
+                SectionLabel needed here (the card speaks for itself). */}
+            <CrewOnWatchTable />
 
-            {/* Scheduled today & tomorrow — unified table across
-                inspections, drills, 1:1s, meetings, maintenance, and
-                reminders. One request via /schedule. */}
-            <div>
-              <SectionLabel>What's on</SectionLabel>
-              <ScheduledTodayTomorrow />
-            </div>
+            {/* Scheduled today & tomorrow — unified events table. Card
+                owns its "Scheduled today & tomorrow" header. */}
+            <ScheduledTodayTomorrow />
           </div>
 
-          {/* Right column — reference cards that sit alongside the
-              operational tables on lg+, stack under them on smaller
-              screens. */}
+          {/* Right column — reference cards. Their own CardTitles handle
+              the visible heading, so no SectionLabel needed. */}
           <aside className="space-y-6 min-w-0">
-            <div>
-              <SectionLabel>Performance Targets</SectionLabel>
-              <TargetsCompact />
-            </div>
-            <div>
-              <SectionLabel>Absence Triggers</SectionLabel>
-              <AbsenceTriggersCard />
-            </div>
+            <TargetsCompact />
+            <AbsenceTriggersCard />
           </aside>
         </div>
       </section>
