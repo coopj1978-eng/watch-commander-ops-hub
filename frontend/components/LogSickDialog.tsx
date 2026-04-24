@@ -53,12 +53,19 @@ export function LogSickDialog({ open, onOpenChange, person }: LogSickDialogProps
 
   const mutation = useMutation({
     mutationFn: async ({ userId }: { userId: string }) => {
-      const todayStr = new Date().toISOString().split("T")[0];
+      // Encore's body parser decodes the backend's `Date` field as a full
+      // ISO datetime — passing a date-only string ("2026-04-24") fails
+      // with "invalid datetime: premature end of input." Anchor to
+      // midnight UTC so the date portion survives Postgres' DATE-column
+      // truncation regardless of the user's timezone.
+      const today = new Date();
+      today.setUTCHours(0, 0, 0, 0);
+      const todayIso = today.toISOString();
       return await backend.absence.create({
         user_id: userId,
         type: "sickness",
-        start_date: todayStr,
-        end_date: todayStr,
+        start_date: todayIso,
+        end_date: todayIso,
         reason: reason || "Sick booking logged via Watch Commander Ops Hub",
         evidence_urls: [],
       });
