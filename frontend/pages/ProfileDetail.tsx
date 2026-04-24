@@ -86,6 +86,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useCanEditProfiles, useIsWC, useUserRole } from "@/lib/rbac";
 import { useAuth } from "@/App";
 import H4HLedgerSection from "@/components/H4HLedgerSection";
+import { ProfileToilSection } from "@/components/ProfileToilSection";
 
 export default function ProfileDetail() {
   const { userId: paramUserId } = useParams<{ userId: string }>();
@@ -599,6 +600,13 @@ export default function ProfileDetail() {
           <TabsTrigger value="notes">Notes & 1:1s</TabsTrigger>
           <TabsTrigger value="absences">Absences</TabsTrigger>
           <TabsTrigger value="h4h">H4H Balance</TabsTrigger>
+          {/* TOIL tab — visible only to the profile owner OR a WC/CC.
+              FFs viewing someone else's profile shouldn't see it. */}
+          {(isViewingOwnProfile ||
+            userRole === "WC" ||
+            userRole === "CC") && (
+            <TabsTrigger value="toil">TOIL</TabsTrigger>
+          )}
           <TabsTrigger value="documents">Documents</TabsTrigger>
           <TabsTrigger value="activity">Activity Log</TabsTrigger>
         </TabsList>
@@ -1394,6 +1402,20 @@ export default function ProfileDetail() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* TOIL — same gate as the trigger above. The ProfileToilSection
+            component does its own internal permission check too, so a
+            FF visiting another FF's URL with /toil hash can't bypass it. */}
+        {(isViewingOwnProfile ||
+          userRole === "WC" ||
+          userRole === "CC") && (
+          <TabsContent value="toil" className="space-y-6">
+            <ProfileToilSection
+              profileUserId={userId!}
+              profileName={user?.name}
+            />
+          </TabsContent>
+        )}
 
         <TabsContent value="documents" className="space-y-6">
           {canEdit && (
