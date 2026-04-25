@@ -181,55 +181,41 @@ export default function ToilWidget() {
             </div>
           )}
 
-          {/* Pending approvals (WC/CC only). Entries logged BY the current
-              user are still listed for visibility, but the approve / reject
-              buttons are hidden — separation-of-duties means a different
-              WC/CC has to sign them off. */}
+          {/* Pending approvals (WC/CC only). Any WC/CC can approve any
+              pending entry, including ones they logged themselves —
+              created_by + approved_by + activity log keep the audit
+              trail. */}
           {isManager && pending.length > 0 && (
             <div className="border-t border-border pt-3 space-y-2">
               <p className="text-xs font-semibold text-amber-600 uppercase tracking-wide">
                 Awaiting Approval ({pending.length})
               </p>
-              {pending.map(e => {
-                const iLoggedThis = e.created_by === user?.id;
-                return (
-                  <div key={e.id} className="flex items-center gap-2 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/30 px-3 py-2">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-foreground">{e.user_name}</p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {e.hours}hrs · {e.incident_date ? fmt(String(e.incident_date)) : "—"} · {e.reason}
-                      </p>
-                    </div>
-                    {!iLoggedThis ? (
-                      <>
-                        <button
-                          onClick={() => approveMutation.mutate({ id: e.id, action: "approved" })}
-                          disabled={approveMutation.isPending}
-                          className="shrink-0 h-7 w-7 rounded-lg flex items-center justify-center bg-emerald-100 text-emerald-600 hover:bg-emerald-200 dark:bg-emerald-900/50 dark:text-emerald-400"
-                          title="Approve"
-                        >
-                          <Check className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => approveMutation.mutate({ id: e.id, action: "rejected" })}
-                          disabled={approveMutation.isPending}
-                          className="shrink-0 h-7 w-7 rounded-lg flex items-center justify-center bg-red-100 text-red-500 hover:bg-red-200 dark:bg-red-900/50 dark:text-red-400"
-                          title="Reject"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </>
-                    ) : (
-                      <span
-                        className="shrink-0 text-[10px] font-medium text-muted-foreground italic px-2 py-1 rounded bg-muted/60"
-                        title="You logged this entry — another WC or CC must authorise it"
-                      >
-                        Awaiting another WC/CC
-                      </span>
-                    )}
+              {pending.map(e => (
+                <div key={e.id} className="flex items-center gap-2 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/30 px-3 py-2">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-foreground">{e.user_name}</p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {e.hours}hrs · {e.incident_date ? fmt(String(e.incident_date)) : "—"} · {e.reason}
+                    </p>
                   </div>
-                );
-              })}
+                  <button
+                    onClick={() => approveMutation.mutate({ id: e.id, action: "approved" })}
+                    disabled={approveMutation.isPending}
+                    className="shrink-0 h-7 w-7 rounded-lg flex items-center justify-center bg-emerald-100 text-emerald-600 hover:bg-emerald-200 dark:bg-emerald-900/50 dark:text-emerald-400"
+                    title="Approve"
+                  >
+                    <Check className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => approveMutation.mutate({ id: e.id, action: "rejected" })}
+                    disabled={approveMutation.isPending}
+                    className="shrink-0 h-7 w-7 rounded-lg flex items-center justify-center bg-red-100 text-red-500 hover:bg-red-200 dark:bg-red-900/50 dark:text-red-400"
+                    title="Reject"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
             </div>
           )}
 
@@ -394,7 +380,7 @@ export default function ToilWidget() {
               }
             </Button>
             <p className="text-[11px] text-muted-foreground text-center">
-              All TOIL entries need a WC or CC who didn't log them to authorise.
+              All TOIL entries need a WC or CC to authorise before they count.
             </p>
           </div>
         </DialogContent>

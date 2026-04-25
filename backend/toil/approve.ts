@@ -28,15 +28,10 @@ export const approve = api<ApproveToilRequest, ToilEntry>(
       throw APIError.failedPrecondition(`This TOIL entry is already ${existing.status}.`);
     }
 
-    // Separation-of-duties: the user who logged the entry can't authorise
-    // their own log, even if they're a WC/CC. A different WC/CC must do
-    // it. Prevents the obvious "log hours for myself / log for a friend
-    // and approve it" abuse vectors.
-    if (existing.created_by === auth.userID) {
-      throw APIError.permissionDenied(
-        "You cannot authorise a TOIL entry that you logged. Another WC or CC must approve it."
-      );
-    }
+    // Self-approval is allowed (per Service policy: any WC or CC can
+    // authorise TOIL, including their own entries). The created_by /
+    // approved_by columns + activity log preserve the audit trail so
+    // misuse is still traceable.
 
     const updated = await db.rawQueryRow<ToilEntry>(
       `UPDATE toil_ledger SET
