@@ -337,20 +337,38 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
           ? new Date(req.start_date).getFullYear()
           : new Date(req.start_date).getFullYear() - 1;
 
+        // toil_ledger.incident_date is a DATE column. The pg serializer
+        // rejects a full ISO datetime ("2026-04-25T00:00:00.000Z") with
+        // "error serializing parameter: trailing input" — the same bug
+        // we hit on the earn endpoint. Strip down to YYYY-MM-DD before
+        // binding so the INSERT actually succeeds and the spent row
+        // gets recorded (otherwise Sam's balance never gets deducted).
+        const startStr = String(req.start_date);
+        const dateOnly = (startStr.includes("T")
+          ? startStr.split("T")[0]
+          : startStr
+        ).slice(0, 10);
+
         await db.rawQuery(
           `INSERT INTO toil_ledger (user_id, type, hours, status, reason, shift_adjustment_id, incident_date, financial_year, watch_unit, created_by)
-           VALUES ($1, 'spent', $2, 'approved', $3, $4, $5, $6, $7, $8)`,
+           VALUES ($1, 'spent', $2, 'approved', $3, $4, $5::date, $6, $7, $8)`,
           targetUserId,
           req.toil_hours,
           `TOIL shift – covered by ${req.covering_name || "cover"}`,
           adjustment.id,
-          req.start_date,
+          dateOnly,
           fy,
           userInfo.watch_unit,
           auth.userID
         );
       } catch (err) {
-        console.error("Failed to deduct TOIL hours:", err);
+        // Don't re-throw: the shift_adjustment row is already committed
+        // at this point so re-throwing would leave an orphaned adjustment
+        // without a corresponding spent ledger row. Log loudly instead so
+        // the failure shows up in the deploy logs and can be reconciled
+        // by deleting + recreating the adjustment (which the new ledger-
+        // delete endpoint covers).
+        console.error("Failed to deduct TOIL hours from ledger:", err);
       }
     }
 

@@ -31,6 +31,9 @@ import {
   X,
   Loader2,
   ShieldCheck,
+  Pencil,
+  Trash2,
+  Save,
 } from "lucide-react";
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -122,6 +125,54 @@ export function ProfileToilSection({
     onError: (err: any) =>
       toast({
         title: "Failed",
+        description: err?.message ?? String(err),
+        variant: "destructive",
+      }),
+  });
+
+  // Edit + delete invalidate the same caches as approve so balances + ledgers
+  // refresh wherever they're shown (profile + dashboard widget).
+  const invalidateAll = () => {
+    queryClient.invalidateQueries({ queryKey: ["toil-balance"] });
+    queryClient.invalidateQueries({ queryKey: ["toil-entries"] });
+    queryClient.invalidateQueries({ queryKey: ["toil-pending"] });
+    queryClient.invalidateQueries({ queryKey: ["toil-watch-balance"] });
+  };
+
+  const updateMutation = useMutation({
+    mutationFn: (vars: {
+      id: number;
+      hours?: number;
+      reason?: string;
+      job_number?: string | null;
+      incident_date?: string | null;
+    }) => (backend.toil as any).update(vars.id, {
+      hours: vars.hours,
+      reason: vars.reason,
+      job_number: vars.job_number,
+      incident_date: vars.incident_date,
+    }),
+    onSuccess: () => {
+      invalidateAll();
+      toast({ title: "TOIL entry updated" });
+    },
+    onError: (err: any) =>
+      toast({
+        title: "Failed to update",
+        description: err?.message ?? String(err),
+        variant: "destructive",
+      }),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => (backend.toil as any).deleteEntry(id),
+    onSuccess: () => {
+      invalidateAll();
+      toast({ title: "TOIL entry deleted" });
+    },
+    onError: (err: any) =>
+      toast({
+        title: "Failed to delete",
         description: err?.message ?? String(err),
         variant: "destructive",
       }),
@@ -338,13 +389,33 @@ export function ProfileToilSection({
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border/50">
-                      {ledgerRows.map((e) => (
-                        <LedgerRow
-                          key={e.id}
-                          entry={e}
-                          balanceAfter={balancesById.get(e.id)}
-                        />
-                      ))}
+                      {ledgerRows.map((e) => {
+                        const iLoggedThis = e.created_by === user?.id;
+                        const canManage =
+                          iLoggedThis ||
+                          isManager; // WC + CC can manage on their watch
+                        return (
+                          <LedgerRow
+                            key={e.id}
+                            entry={e}
+                            balanceAfter={balancesById.get(e.id)}
+                            canManage={canManage}
+                            onUpdate={(payload) =>
+                              updateMutation.mutate({ id: e.id, ...payload })
+                            }
+                            onDelete={() => {
+                              if (
+                                confirm(
+                                  `Delete this ${e.type} entry of ${e.hours}hrs? This cannot be undone.`
+                                )
+                              ) {
+                                deleteMutation.mutate(e.id);
+                              }
+                            }}
+                            saving={updateMutation.isPending || deleteMutation.isPending}
+                          />
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -373,14 +444,42 @@ export function ProfileToilSection({
 // Earned/Pending  → muted +Xhrs with "pending" badge, doesn't contribute
 // Earned/Rejected → strikethrough +Xhrs with "rejected" badge
 // Spent           → red −Xhrs, contributes to balance
+//
+// When `canManage` is true the row exposes inline edit (hours / reason /
+// job # / date) and delete buttons. Edit opens an in-row form; delete
+// confirms then removes. Both invalidate the parent's TOIL caches so the
+// table + balance refresh together.
 // ─────────────────────────────────────────────────────────────────────────────
 function LedgerRow({
   entry,
   balanceAfter,
+  canManage,
+  onUpdate,
+  onDelete,
+  saving,
 }: {
   entry: any;
   balanceAfter: number | undefined;
+  canManage: boolean;
+  onUpdate: (payload: {
+    hours?: number;
+    reason?: string;
+    job_number?: string | null;
+    incident_date?: string | null;
+  }) => void;
+  onDelete: () => void;
+  saving: boolean;
 }) {
+  const [editing, setEditing] = useState(false);
+  const [editHours, setEditHours] = useState<string>(String(entry.hours));
+  const [editReason, setEditReason] = useState<string>(entry.reason ?? "");
+  const [editJob, setEditJob] = useState<string>(entry.job_number ?? "");
+  const [editDate, setEditDate] = useState<string>(
+    entry.incident_date
+      ? String(entry.incident_date).split("T")[0]
+      : String(entry.created_at).split("T")[0]
+  );
+
   const isEarned = entry.type === "earned";
   const isPending = entry.status === "pending";
   const isRejected = entry.status === "rejected";
@@ -395,8 +494,98 @@ function LedgerRow({
       ? format(parseISO(String(entry.approved_at)), "d MMM yyyy")
       : "—";
 
+  const startEdit = () => {
+    setEditHours(String(entry.hours));
+    setEditReason(entry.reason ?? "");
+    setEditJob(entry.job_number ?? "");
+    setEditDate(
+      entry.incident_date
+        ? String(entry.incident_date).split("T")[0]
+        : String(entry.created_at).split("T")[0]
+    );
+    setEditing(true);
+  };
+
+  const saveEdit = () => {
+    const hoursNum = Number(editHours);
+    if (!Number.isFinite(hoursNum) || hoursNum <= 0) return;
+    onUpdate({
+      hours: hoursNum,
+      reason: editReason.trim() || undefined,
+      job_number: editJob.trim() || null,
+      incident_date: editDate || null,
+    });
+    setEditing(false);
+  };
+
+  if (editing) {
+    return (
+      <tr className="bg-amber-50/40 dark:bg-amber-950/20">
+        <td className="px-3 py-2 align-top whitespace-nowrap">
+          <input
+            type="date"
+            value={editDate}
+            onChange={(e) => setEditDate(e.target.value)}
+            className="h-7 w-32 rounded border border-border px-2 text-xs bg-background"
+          />
+        </td>
+        <td className="px-3 py-2 align-top">
+          <input
+            type="text"
+            value={editReason}
+            onChange={(e) => setEditReason(e.target.value)}
+            placeholder="Reason"
+            className="h-7 w-full rounded border border-border px-2 text-xs bg-background"
+          />
+        </td>
+        <td className="px-3 py-2 align-top text-right whitespace-nowrap">
+          <input
+            type="number"
+            min="0.5"
+            step="0.5"
+            value={editHours}
+            onChange={(e) => setEditHours(e.target.value)}
+            className="h-7 w-16 rounded border border-border px-2 text-xs bg-background text-right font-mono tabular-nums"
+          />
+        </td>
+        <td className="px-3 py-2 align-top">
+          <input
+            type="text"
+            value={editJob}
+            onChange={(e) => setEditJob(e.target.value)}
+            placeholder="Job #"
+            className="h-7 w-28 rounded border border-border px-2 text-xs bg-background font-mono"
+          />
+        </td>
+        <td colSpan={2} className="px-3 py-2 align-top text-muted-foreground text-[10px]">
+          Editing — approver / auth date unchanged
+        </td>
+        <td className="px-3 py-2 align-top whitespace-nowrap text-right">
+          <div className="inline-flex gap-1">
+            <button
+              onClick={() => setEditing(false)}
+              className="h-6 w-6 rounded flex items-center justify-center text-muted-foreground hover:bg-muted"
+              title="Cancel"
+              disabled={saving}
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+            <button
+              onClick={saveEdit}
+              className="h-6 w-6 rounded flex items-center justify-center bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/50 dark:text-emerald-400"
+              title="Save"
+              disabled={saving}
+            >
+              <Save className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </td>
+      </tr>
+    );
+  }
+
   return (
-    <tr className="hover:bg-muted/30 transition-colors">
+    <tr className="hover:bg-muted/30 transition-colors group">
       <td className="px-3 py-2 align-top whitespace-nowrap font-mono tabular-nums text-muted-foreground">
         {dateStr}
       </td>
@@ -442,11 +631,33 @@ function LedgerRow({
         {authDateStr}
       </td>
       <td className="px-3 py-2 align-top text-right whitespace-nowrap font-mono tabular-nums">
-        {counts ? (
-          <span className="font-semibold">{balanceAfter ?? 0}</span>
-        ) : (
-          <span className="text-muted-foreground/50">—</span>
-        )}
+        <div className="inline-flex items-center gap-2">
+          {counts ? (
+            <span className="font-semibold">{balanceAfter ?? 0}</span>
+          ) : (
+            <span className="text-muted-foreground/50">—</span>
+          )}
+          {canManage && (
+            <span className="inline-flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button
+                onClick={startEdit}
+                disabled={saving}
+                className="h-6 w-6 rounded flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted"
+                title="Edit"
+              >
+                <Pencil className="h-3 w-3" />
+              </button>
+              <button
+                onClick={onDelete}
+                disabled={saving}
+                className="h-6 w-6 rounded flex items-center justify-center text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+                title="Delete"
+              >
+                <Trash2 className="h-3 w-3" />
+              </button>
+            </span>
+          )}
+        </div>
       </td>
     </tr>
   );

@@ -4639,6 +4639,8 @@ export namespace toil {
             this.balance = this.balance.bind(this)
             this.earn = this.earn.bind(this)
             this.list = this.list.bind(this)
+            this.update = this.update.bind(this)
+            this.deleteEntry = this.deleteEntry.bind(this)
         }
 
         /**
@@ -4648,6 +4650,16 @@ export namespace toil {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("PATCH", `/toil/${encodeURIComponent(id)}/approve`, JSON.stringify(params))
             return await resp.json() as ToilEntry
+        }
+
+        public async update(id: number, params: { hours?: number; reason?: string; job_number?: string | null; incident_date?: string | null }): Promise<ToilEntry> {
+            const resp = await this.baseClient.callTypedAPI("PATCH", `/toil/${encodeURIComponent(id)}`, JSON.stringify(params))
+            return await resp.json() as ToilEntry
+        }
+
+        public async deleteEntry(id: number): Promise<{ ok: true }> {
+            const resp = await this.baseClient.callTypedAPI("DELETE", `/toil/${encodeURIComponent(id)}`)
+            return await resp.json() as { ok: true }
         }
 
         /**
