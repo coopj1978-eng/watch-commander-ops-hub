@@ -131,6 +131,16 @@ async function earnImpl(req: EarnToilRequest): Promise<ToilEntry> {
     }
 
     // ── Insert as pending ──────────────────────────────────────────────────
+    // toil_ledger.incident_date is a DATE column. The pg serializer rejects
+    // a full ISO datetime string ("2026-04-25T00:00:00.000Z") with
+    // "error serializing parameter: trailing input" because it parses the
+    // date portion successfully and then complains about the time portion
+    // it doesn't expect. Strip down to YYYY-MM-DD before binding.
+    const dateOnly = (req.incident_date.includes("T")
+      ? req.incident_date.split("T")[0]
+      : req.incident_date
+    ).slice(0, 10); // safety belt — clip to 10 chars in case of stray trailing data
+
     let entry: ToilEntry | null = null;
     try {
       entry = await db.rawQueryRow<ToilEntry>(
@@ -139,15 +149,13 @@ async function earnImpl(req: EarnToilRequest): Promise<ToilEntry> {
            reason, job_number, incident_date,
            financial_year, watch_unit, created_by
          )
-         VALUES ($1, 'earned', $2, 'pending', $3, $4, $5, $6, $7, $8)
+         VALUES ($1, 'earned', $2, 'pending', $3, $4, $5::date, $6, $7, $8)
          RETURNING *`,
         targetUserId,
         req.hours,
         req.reason.trim(),
         req.job_number?.trim() || null,
-        // Encore pg driver accepts the ISO datetime string and Postgres
-        // truncates it for the DATE column.
-        req.incident_date,
+        dateOnly,
         fy,
         userInfo.watch_unit,
         auth.userID
