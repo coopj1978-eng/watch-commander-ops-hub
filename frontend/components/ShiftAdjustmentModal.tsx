@@ -120,6 +120,13 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
   // Orange Day shift selector
   const [orangeShift, setOrangeShift] = useState<"Day" | "Night">("Day");
 
+  // Outbound shift selector — used by H4H + TOIL where the person is going
+  // OFF a single shift. Drives whether the calendar event lands on the
+  // start date only (Night shifts that physically span 2 calendar dates)
+  // or the date range entered (Day shifts can legitimately span multiple
+  // days for some adjustment types).
+  const [outboundShift, setOutboundShift] = useState<"Day" | "Night">("Day");
+
   // TOIL hours
   const [toilHours, setToilHours] = useState(4);
 
@@ -143,6 +150,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
       setInboundWatch("");
       setInboundShift("Day");
       setOrangeShift("Day");
+      setOutboundShift("Day");
       setToilHours(4);
       setForAnother(false);
       setForWatch("");
@@ -186,8 +194,9 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
 
       const isFlexiPayback = type === "flexi_payback";
       const isOrangeDay = type === "orange_day";
-
       const isToil = type === "toil";
+      const isH4h = type === "h4h";
+      const isOutbound = isToil || isH4h;
 
       return backend.shift_adjustments.create({
         type: type!,
@@ -196,7 +205,18 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
         covering_user_id: isFlexiPayback || isOrangeDay ? undefined : covering_user_id,
         covering_name:    isFlexiPayback || isOrangeDay ? undefined : covering_name,
         covering_watch:   isFlexiPayback ? inboundWatch || undefined : undefined,
-        shift_day_night:  isFlexiPayback ? inboundShift : isOrangeDay ? orangeShift : undefined,
+        // Day/Night flag now drives 4 surfaces:
+        //   • flexi_payback → which shift on the covered watch (inboundShift)
+        //   • orange_day    → which shift the person is working (orangeShift)
+        //   • h4h / toil    → which shift the person is going OFF (outboundShift).
+        //                     Backend uses this to keep the calendar event on
+        //                     the start date only when the shift physically
+        //                     spans 2 calendar dates (Night).
+        shift_day_night:
+          isFlexiPayback ? inboundShift :
+          isOrangeDay    ? orangeShift  :
+          isOutbound     ? outboundShift :
+          undefined,
         toil_hours:       isToil ? toilHours : undefined,
         notes: notes.trim() || undefined,
         for_user_id: forAnother && forUserId ? forUserId : undefined,
@@ -242,7 +262,8 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
       return backend.shift_adjustments.update(editingId!, {
         start_date: `${startDate}T00:00:00.000Z`,
         end_date: `${endDate}T00:00:00.000Z`,
-        ...(type === "h4h" ? { covering_user_id, covering_name } : {}),
+        ...(type === "h4h" ? { covering_user_id, covering_name, shift_day_night: outboundShift } : {}),
+        ...(type === "toil" ? { shift_day_night: outboundShift } : {}),
         ...(type === "flexi_payback" ? { covering_watch: inboundWatch || undefined, shift_day_night: inboundShift } : {}),
         ...(type === "orange_day" ? { shift_day_night: orangeShift } : {}),
         notes: notes.trim() || undefined,
@@ -279,6 +300,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
         setCoverMode("freetext");
         setCoverName(a.covering_name ?? "");
       }
+      setOutboundShift(a.shift_day_night ?? "Day");
     }
     if (a.type === "flexi_payback") {
       setInboundWatch(a.covering_watch ?? "");
@@ -298,6 +320,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
         setCoverMode("freetext");
         setCoverName(a.covering_name ?? "");
       }
+      setOutboundShift(a.shift_day_night ?? "Day");
     }
   };
 
@@ -426,6 +449,32 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
                   />
                 </div>
               </div>
+
+              {/* ── H4H / TOIL: which shift are you OFF? Day / Night ──
+                    Drives the calendar event placement so a night shift
+                    that runs 18:00 → 08:00 next morning shows on a single
+                    day (the shift start), not spread across both calendar
+                    dates. */}
+              {(type === "h4h" || type === "toil") && (
+                <div className="space-y-3 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50/40 dark:bg-blue-950/30 p-3">
+                  <div className="flex items-center gap-1.5">
+                    <CalendarDays className="h-4 w-4 text-blue-500" />
+                    <Label className="text-sm font-medium text-blue-700 dark:text-blue-300">Which shift are you off?</Label>
+                  </div>
+                  <div className="flex gap-2">
+                    {(["Day", "Night"] as const).map(s => (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => setOutboundShift(s)}
+                        className={`flex-1 text-xs py-1.5 rounded-lg border transition-all ${outboundShift === s ? "border-blue-400 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 font-semibold" : "border-border text-muted-foreground"}`}
+                      >
+                        {s} Shift
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* ── H4H / TOIL: covering person ── */}
               {(type === "h4h" || type === "toil") && (

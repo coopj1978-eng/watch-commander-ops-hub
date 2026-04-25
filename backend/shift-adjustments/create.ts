@@ -111,8 +111,24 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
     try {
       const startMidnight = new Date(req.start_date);
       startMidnight.setUTCHours(0, 0, 0, 0);
-      const endEod = new Date(req.end_date);
+
+      // For Night shifts, the calendar event must NOT spread across both
+      // calendar dates the shift physically straddles (18:00 → 08:00 next
+      // morning). The user enters start=25, end=26 because the shift ends
+      // the next morning, but conceptually it's "the night of the 25th."
+      // Collapse end_time to end-of-start-date in that case so the event
+      // shows on one day only — like an all-day event for the start date.
+      const endSource =
+        req.shift_day_night === "Night"
+          ? new Date(req.start_date)
+          : new Date(req.end_date);
+      const endEod = endSource;
       endEod.setUTCHours(23, 59, 59, 999);
+
+      // Helpful suffix for calendar event titles + WC notifications.
+      const shiftSuffix = req.shift_day_night
+        ? ` · ${req.shift_day_night} Shift`
+        : "";
 
       const isFlexiPayback = req.type === "flexi_payback";
 
@@ -195,9 +211,9 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
             all_day, user_id, is_watch_event, watch, created_by
           ) VALUES (
             ${req.type === "h4h"
-                ? `H4H – Off (covered by ${req.covering_name || "cover"})`
+                ? `H4H – Off${shiftSuffix} (covered by ${req.covering_name || "cover"})`
                 : req.type === "toil"
-                ? `TOIL – Off ${req.toil_hours}hrs (covered by ${req.covering_name || "cover"})`
+                ? `TOIL – Off ${req.toil_hours}hrs${shiftSuffix} (covered by ${req.covering_name || "cover"})`
                 : typeLabel},
             ${eventType},
             'personal',
@@ -218,9 +234,9 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
             all_day, user_id, is_watch_event, watch, created_by
           ) VALUES (
             ${req.type === "h4h"
-                ? `${userInfo.name} – H4H (covered by ${req.covering_name || "cover"})`
+                ? `${userInfo.name} – H4H${shiftSuffix} (covered by ${req.covering_name || "cover"})`
                 : req.type === "toil"
-                ? `${userInfo.name} – TOIL ${req.toil_hours}hrs (covered by ${req.covering_name || "cover"})`
+                ? `${userInfo.name} – TOIL ${req.toil_hours}hrs${shiftSuffix} (covered by ${req.covering_name || "cover"})`
                 : `${userInfo.name} – ${typeLabel}`},
             ${eventType},
             'watch',
@@ -242,8 +258,8 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
               all_day, user_id, is_watch_event, watch, created_by
             ) VALUES (
               ${req.type === "toil"
-                ? `TOIL – Covering for ${userInfo.name} (${userInfo.watch_unit} Watch) — ${req.toil_hours}hrs`
-                : `H4H – Covering for ${userInfo.name} (${userInfo.watch_unit} Watch)`},
+                ? `TOIL – Covering for ${userInfo.name} (${userInfo.watch_unit} Watch)${shiftSuffix} — ${req.toil_hours}hrs`
+                : `H4H – Covering for ${userInfo.name} (${userInfo.watch_unit} Watch)${shiftSuffix}`},
               'personal',
               'personal',
               ${startMidnight},
@@ -358,17 +374,45 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
 
       const startStr = new Date(req.start_date).toLocaleDateString("en-GB");
       const endStr   = new Date(req.end_date).toLocaleDateString("en-GB");
-      const dateRange = startStr === endStr ? startStr : `${startStr} – ${endStr}`;
+      // For Night-shift adjustments the dates straddle two calendar days;
+      // collapse the displayed range to the start date so the notification
+      // reads cleanly ("25/04/2026 · Night Shift" rather than
+      // "25/04/2026 – 26/04/2026").
+      const dateRange =
+        req.shift_day_night === "Night" || startStr === endStr
+          ? startStr
+          : `${startStr} – ${endStr}`;
+      const shiftLabel = req.shift_day_night ? ` · ${req.shift_day_night} Shift` : "";
 
-      let message = `${userInfo.name} has logged a ${typeLabel} for ${dateRange}.`;
+      // Cover person's watch — useful context in the notification so the
+      // recipient knows where the cover is coming from. Only resolved if
+      // the cover is an in-system user.
+      let coveringWatch: string | null = null;
+      if (
+        (req.type === "h4h" || req.type === "toil") &&
+        req.covering_user_id
+      ) {
+        const coverRow = await db.queryRow<{ watch_unit: string | null }>`
+          SELECT watch_unit FROM users WHERE id = ${req.covering_user_id}
+        `;
+        coveringWatch = coverRow?.watch_unit ?? null;
+      }
+      const coverLabel = req.covering_name
+        ? coveringWatch
+          ? `${req.covering_name} (${coveringWatch} Watch)`
+          : req.covering_name
+        : "an unknown cover";
+
+      // Notification reads:
+      //   "Sam Degg (White Watch) has logged a TOIL for 25/04/2026 · Night
+      //    Shift. 16hrs TOIL used. Covered by Daniel Hazlett (Amber Watch)."
+      let message = `${userInfo.name} (${userInfo.watch_unit} Watch) has logged a ${typeLabel} for ${dateRange}${shiftLabel}.`;
       if (req.type === "h4h") {
-        message += ` Covered by: ${req.covering_name || "an unknown cover"}.`;
+        message += ` Covered by ${coverLabel}.`;
       } else if (req.type === "toil") {
-        message += ` ${req.toil_hours}hrs TOIL used. Covered by: ${req.covering_name || "an unknown cover"}.`;
+        message += ` ${req.toil_hours}hrs TOIL used. Covered by ${coverLabel}.`;
       } else if (isFlexiPayback) {
-        message += ` They will cover ${notifyWatch} Watch (${req.shift_day_night ?? "Day"} Shift).`;
-      } else if (req.type === "orange_day") {
-        message += ` ${req.shift_day_night ?? "Day"} Shift.`;
+        message += ` They will cover ${notifyWatch} Watch.`;
       }
 
       for await (const wc of wcUsers) {
