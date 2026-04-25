@@ -362,16 +362,32 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
         : startStr
       ).slice(0, 10);
 
+      // Build the reason string in plain ASCII and strip any control
+      // characters from the cover name (NUL bytes, line/paragraph
+      // separators) — rust-postgres rejects strings with those with
+      // "input contains invalid characters." Built outside the rawExec
+      // call to keep the regex literal away from any invisible chars
+      // that template literals can hide.
+      const safeCoverName = Array.from(
+        String(req.covering_name || "cover")
+      ).filter((c) => {
+        const code = c.charCodeAt(0);
+        // Drop ASCII control chars, DEL, and Unicode line/paragraph separators.
+        if (code < 0x20 || code === 0x7f) return false;
+        if (code === 0x2028 || code === 0x2029) return false;
+        return true;
+      }).join("");
+      const spentReason = "TOIL shift - covered by " + safeCoverName;
+
       try {
         // db.rawExec is the correct verb for INSERT without RETURNING
-        // (rawQuery is lazy — never runs the statement). This was the
-        // root cause for hours of debugging Sam's balance not updating.
+        // (rawQuery is lazy — never runs the statement).
         await db.rawExec(
           `INSERT INTO toil_ledger (user_id, type, hours, status, reason, shift_adjustment_id, incident_date, financial_year, watch_unit, created_by)
            VALUES ($1, 'spent', $2, 'approved', $3, $4, $5::date, $6, $7, $8)`,
           targetUserId,
           req.toil_hours,
-          `TOIL shift – covered by ${req.covering_name || "cover"}`,
+          spentReason,
           adjustment.id,
           dateOnly,
           fy,
@@ -379,9 +395,6 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
           auth.userID
         );
       } catch (err) {
-        // Compensating action: roll back the orphaned shift_adjustment.
-        // Best-effort — if the rollback itself fails we still want the
-        // user to see the original error so they know something's wrong.
         console.error("toil_ledger spent INSERT failed — rolling back shift_adjustment", { adjustmentId: adjustment.id, err });
         try {
           await db.exec`DELETE FROM shift_adjustments WHERE id = ${adjustment.id}`;
