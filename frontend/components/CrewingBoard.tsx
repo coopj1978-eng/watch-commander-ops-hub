@@ -273,12 +273,13 @@ function SkillBadges({ member, size = "normal" }: { member: RosterMember; size?:
 // Only outbound types affect roster availability on the person's OWN watch.
 // Inbound types (flexi_payback, orange_day) mean the person comes IN to another watch — they do NOT
 // remove the person from their own watch's roster.
-type ShiftAdjType = "flexi" | "training" | "h4h";
-const OUTBOUND_ADJ_TYPES: ShiftAdjType[] = ["flexi", "training", "h4h"];
+type ShiftAdjType = "flexi" | "training" | "h4h" | "toil";
+const OUTBOUND_ADJ_TYPES: ShiftAdjType[] = ["flexi", "training", "h4h", "toil"];
 const ADJ_BADGE: Record<ShiftAdjType, { label: string; cls: string }> = {
-  flexi:    { label: "Flexi",    cls: "text-amber-600"  },
-  training: { label: "Training", cls: "text-blue-600"   },
-  h4h:      { label: "H4H Away", cls: "text-purple-600" },
+  flexi:    { label: "Flexi",    cls: "text-amber-600"   },
+  training: { label: "Training", cls: "text-blue-600"    },
+  h4h:      { label: "H4H Away", cls: "text-purple-600"  },
+  toil:     { label: "TOIL",     cls: "text-emerald-600" },
 };
 
 interface TileCardProps {
@@ -1281,11 +1282,12 @@ function RosterPanel({
               </div>
             )}
 
-            {/* H4H cover people (from another watch, covering an absent member) */}
+            {/* Cover people for H4H + TOIL adjustments (from another
+                watch, covering a member of THIS watch who is off). */}
             {h4hCovers.length > 0 && (
               <div>
                 <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                  H4H Cover ({h4hCovers.length})
+                  H4H / TOIL Cover ({h4hCovers.length})
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {h4hCovers.map((cover, i) => {
@@ -1926,38 +1928,66 @@ export default function CrewingBoard() {
     return ids;
   }, [absenceData]);
 
+  // Day vs Night for the currently-displayed shift. shiftType is one of
+  // "1st Day" / "2nd Day" / "1st Night" / "2nd Night" — we only care
+  // about the Day-vs-Night component because shift_adjustments only
+  // store that level of granularity.
+  const currentShiftDN: "Day" | "Night" =
+    shiftType.includes("Night") ? "Night" : "Day";
+
+  // Match an adjustment to the current shift. NULL shift_day_night on the
+  // adjustment means "no day/night context recorded" — legacy data created
+  // before we added the picker — so we fall back to "applies to both" to
+  // avoid silently dropping older entries from the roster filter.
+  const adjMatchesShift = (a: any) =>
+    !a.shift_day_night || a.shift_day_night === currentShiftDN;
+
   const adjustmentByUserId = useMemo(() => {
     const map = new Map<string, ShiftAdjType>();
-    (shiftAdjData?.adjustments ?? []).forEach((a: any) => {
-      // Only outbound types (flexi, training, h4h) remove the person from their own watch's roster.
-      // Inbound types (flexi_payback, orange_day) must NOT be put in this map — they don't affect
-      // the person's own watch, and passing them to ADJ_BADGE would crash the component.
-      if (OUTBOUND_ADJ_TYPES.includes(a.type)) {
-        map.set(a.user_id, a.type as ShiftAdjType);
-      }
-    });
+    (shiftAdjData?.adjustments ?? [])
+      .filter(adjMatchesShift)
+      .forEach((a: any) => {
+        // Only outbound types (flexi, training, h4h, toil) remove the
+        // person from their own watch's roster. Inbound types
+        // (flexi_payback, orange_day) must NOT be put in this map — they
+        // don't affect the person's own watch, and passing them to
+        // ADJ_BADGE would crash the component.
+        if (OUTBOUND_ADJ_TYPES.includes(a.type)) {
+          map.set(a.user_id, a.type as ShiftAdjType);
+        }
+      });
     return map;
-  }, [shiftAdjData]);
+  }, [shiftAdjData, currentShiftDN]);
 
+  // Cover people for THIS watch — H4H + TOIL share this section because
+  // they're conceptually identical (someone off this watch, someone else
+  // covering — that someone else may or may not be in-system).
   const h4hCovers = useMemo(() => {
     return (shiftAdjData?.adjustments ?? [])
-      .filter((a: any) => a.type === "h4h" && (a.covering_name || a.covering_user_id))
+      .filter(adjMatchesShift)
+      .filter((a: any) =>
+        (a.type === "h4h" || a.type === "toil") &&
+        (a.covering_name || a.covering_user_id)
+      )
       .map((a: any) => ({
         name: a.covering_name || "Unknown cover",
         userId: a.covering_user_id,
       }));
-  }, [shiftAdjData]);
+  }, [shiftAdjData, currentShiftDN]);
 
-  // Inbound covers (flexi_payback / orange_day) — people covering this watch from another watch
+  // Inbound covers (flexi_payback / orange_day) — people covering this
+  // watch from another watch.
   const inboundCovers = useMemo(() => {
-    return (inboundAdjData?.adjustments ?? []).map((a: any) => ({
-      name: a.user_name || "Cover",
-      userId: a.user_id,
-      type: a.type as "flexi_payback" | "orange_day",
-      shiftDayNight: a.shift_day_night as "Day" | "Night" | undefined,
-      watchUnit: a.watch_unit,
-    }));
-  }, [inboundAdjData]);
+    return (inboundAdjData?.adjustments ?? [])
+      .filter(adjMatchesShift)
+      .map((a: any) => ({
+        name: a.user_name || "Cover",
+        userId: a.user_id,
+        type: a.type as "flexi_payback" | "orange_day",
+        shiftDayNight: a.shift_day_night as "Day" | "Night" | undefined,
+        watchUnit: a.watch_unit,
+      }));
+  }, [inboundAdjData, currentShiftDN]);
 
   // ── DnD sensors ───────────────────────────────────────────────────────────
   const sensors = useSensors(
