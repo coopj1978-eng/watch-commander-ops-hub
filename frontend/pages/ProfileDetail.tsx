@@ -87,6 +87,7 @@ import { useCanEditProfiles, useIsWC, useUserRole } from "@/lib/rbac";
 import { useAuth } from "@/App";
 import H4HLedgerSection from "@/components/H4HLedgerSection";
 import { ProfileToilSection } from "@/components/ProfileToilSection";
+import { ProfileShiftAdjustmentsSection } from "@/components/ProfileShiftAdjustmentsSection";
 
 export default function ProfileDetail() {
   const { userId: paramUserId } = useParams<{ userId: string }>();
@@ -606,6 +607,11 @@ export default function ProfileDetail() {
             userRole === "WC" ||
             userRole === "CC") && (
             <TabsTrigger value="toil">TOIL</TabsTrigger>
+          )}
+          {(isViewingOwnProfile ||
+            userRole === "WC" ||
+            userRole === "CC") && (
+            <TabsTrigger value="shift-adjustments">Shift Adjustments</TabsTrigger>
           )}
           <TabsTrigger value="documents">Documents</TabsTrigger>
           <TabsTrigger value="activity">Activity Log</TabsTrigger>
@@ -1414,6 +1420,18 @@ export default function ProfileDetail() {
               profileUserId={userId!}
               profileName={user?.name}
             />
+          </TabsContent>
+        )}
+
+        {/* Shift adjustments — owner OR WC/CC. Lets the WC delete an
+            erroneous adjustment so its calendar events get cleaned up
+            and any TOIL hours refunded. Particularly useful for legacy
+            entries created before the Day/Night picker. */}
+        {(isViewingOwnProfile ||
+          userRole === "WC" ||
+          userRole === "CC") && (
+          <TabsContent value="shift-adjustments" className="space-y-6">
+            <ProfileShiftAdjustmentsSection profileUserId={userId!} />
           </TabsContent>
         )}
 
