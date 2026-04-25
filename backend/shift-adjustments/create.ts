@@ -353,14 +353,18 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
         ? new Date(req.start_date).getFullYear()
         : new Date(req.start_date).getFullYear() - 1;
 
-      // toil_ledger.incident_date is a DATE column. The pg serializer
-      // rejects a full ISO datetime ("2026-04-25T00:00:00.000Z") — strip
-      // down to YYYY-MM-DD before binding.
-      const startStr = String(req.start_date);
-      const dateOnly = (startStr.includes("T")
-        ? startStr.split("T")[0]
-        : startStr
-      ).slice(0, 10);
+      // toil_ledger.incident_date is a DATE column. We need a YYYY-MM-DD
+      // string. Encore decodes req.start_date to a JS Date object based
+      // on the request type's declared `Date` field — String(date) returns
+      // the locale string ("Sat Apr 25 2026 00:00:00 GMT+0100 (British
+      // Summer Time)"), which after split("T")[0].slice(0,10) becomes
+      // "Sat Apr 25" — total nonsense for a DATE column. Use the ISO
+      // formatter to guarantee YYYY-MM-DD regardless of input shape.
+      const incidentDateObj =
+        req.start_date instanceof Date
+          ? req.start_date
+          : new Date(req.start_date as unknown as string);
+      const dateOnly = incidentDateObj.toISOString().slice(0, 10);
 
       // Build the reason string in plain ASCII and strip any control
       // characters from the cover name (NUL bytes, line/paragraph
