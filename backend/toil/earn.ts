@@ -34,6 +34,24 @@ function financialYear(d: Date): number {
 export const earn = api<EarnToilRequest, ToilEntry>(
   { auth: true, expose: true, method: "POST", path: "/toil/earn" },
   async (req) => {
+    try {
+      return await earnImpl(req);
+    } catch (err) {
+      // Re-throw existing APIErrors unchanged so client sees the original
+      // code (permissionDenied, notFound, failedPrecondition, etc.).
+      // For anything else — uncaught, unexpected — re-wrap as `unavailable`
+      // with the underlying message so the client gets something
+      // diagnosable instead of Encore's masked "an internal error occurred."
+      if (err instanceof APIError) throw err;
+      console.error("toil/earn: top-level catch caught unexpected error", err);
+      throw APIError.unavailable(
+        `Unexpected error: ${err instanceof Error ? err.message : String(err)}`
+      );
+    }
+  }
+);
+
+async function earnImpl(req: EarnToilRequest): Promise<ToilEntry> {
     const auth = getAuthData()!;
 
     // ── Input validation ────────────────────────────────────────────────────
@@ -65,7 +83,7 @@ export const earn = api<EarnToilRequest, ToilEntry>(
         );
       } catch (err) {
         console.error("toil/earn: caller role lookup failed", { auth, err });
-        throw APIError.internal(
+        throw APIError.unavailable(
           `Caller role lookup failed: ${err instanceof Error ? err.message : "DB error"}`
         );
       }
@@ -99,7 +117,7 @@ export const earn = api<EarnToilRequest, ToilEntry>(
         targetUserId,
         err,
       });
-      throw APIError.internal(
+      throw APIError.unavailable(
         `Target user lookup failed: ${err instanceof Error ? err.message : "DB error"}`
       );
     }
@@ -143,13 +161,13 @@ export const earn = api<EarnToilRequest, ToilEntry>(
         incidentDate: req.incident_date,
         err,
       });
-      throw APIError.internal(
+      throw APIError.unavailable(
         `INSERT failed: ${err instanceof Error ? err.message : "DB error"}`
       );
     }
 
     if (!entry) {
-      throw APIError.internal(
+      throw APIError.unavailable(
         "INSERT returned no row — check toil_ledger schema."
       );
     }
@@ -188,5 +206,4 @@ export const earn = api<EarnToilRequest, ToilEntry>(
     }
 
     return entry;
-  }
-);
+}
