@@ -1962,31 +1962,57 @@ export default function CrewingBoard() {
   // Cover people for THIS watch — H4H + TOIL share this section because
   // they're conceptually identical (someone off this watch, someone else
   // covering — that someone else may or may not be in-system).
+  //
+  // Deduped by covering_user_id (or by name for free-text covers) so a
+  // single cover person doesn't appear multiple times even if there are
+  // duplicate / overlapping adjustments pointing at them. This protects
+  // against:
+  //   • Multiple test attempts creating duplicate adjustment rows
+  //   • One person genuinely covering multiple slots (still one tile)
+  //   • Legacy entries that didn't get cleaned up
   const h4hCovers = useMemo(() => {
-    return (shiftAdjData?.adjustments ?? [])
-      .filter(adjMatchesShift)
-      .filter((a: any) =>
-        (a.type === "h4h" || a.type === "toil") &&
-        (a.covering_name || a.covering_user_id)
-      )
-      .map((a: any) => ({
+    const seen = new Set<string>();
+    const result: { name: string; userId?: string }[] = [];
+    for (const a of (shiftAdjData?.adjustments ?? []) as any[]) {
+      if (!adjMatchesShift(a)) continue;
+      if (a.type !== "h4h" && a.type !== "toil") continue;
+      if (!a.covering_name && !a.covering_user_id) continue;
+      const key = a.covering_user_id ?? `name:${a.covering_name}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      result.push({
         name: a.covering_name || "Unknown cover",
         userId: a.covering_user_id,
-      }));
+      });
+    }
+    return result;
   }, [shiftAdjData, currentShiftDN]);
 
   // Inbound covers (flexi_payback / orange_day) — people covering this
-  // watch from another watch.
+  // watch from another watch. Deduped by user_id for the same reason.
   const inboundCovers = useMemo(() => {
-    return (inboundAdjData?.adjustments ?? [])
-      .filter(adjMatchesShift)
-      .map((a: any) => ({
+    const seen = new Set<string>();
+    const result: {
+      name: string;
+      userId: string;
+      type: "flexi_payback" | "orange_day";
+      shiftDayNight: "Day" | "Night" | undefined;
+      watchUnit: string;
+    }[] = [];
+    for (const a of (inboundAdjData?.adjustments ?? []) as any[]) {
+      if (!adjMatchesShift(a)) continue;
+      if (!a.user_id) continue;
+      if (seen.has(a.user_id)) continue;
+      seen.add(a.user_id);
+      result.push({
         name: a.user_name || "Cover",
         userId: a.user_id,
         type: a.type as "flexi_payback" | "orange_day",
         shiftDayNight: a.shift_day_night as "Day" | "Night" | undefined,
         watchUnit: a.watch_unit,
-      }));
+      });
+    }
+    return result;
   }, [inboundAdjData, currentShiftDN]);
 
   // ── DnD sensors ───────────────────────────────────────────────────────────
