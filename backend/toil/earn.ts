@@ -180,30 +180,41 @@ async function earnImpl(req: EarnToilRequest): Promise<ToilEntry> {
       );
     }
 
-    // ── Notify every active WC/CC on the recipient's watch (except the
-    //    creator) so an authorisation prompt always lands in a bell.
-    //    Wrapped so a notification dispatch failure never blocks the create.
+    // ── Notify every active WC/CC on the recipient's watch — INCLUDING
+    //    the creator. The creator gets a self-reminder message ("you
+    //    logged X hr TOIL for Y — needs authorisation") so the entry
+    //    doesn't sit forgotten in pending. Other WC/CCs get an
+    //    informational version. Either way the bell badge ticks up
+    //    and clicking the notification deep-links to the recipient's
+    //    profile TOIL tab where the ✓ / ✗ buttons live.
+    //
+    //    Wrapped so a notification dispatch failure never blocks the
+    //    create.
     try {
       const dateStr = incidentDate.toLocaleDateString("en-GB");
       const recipients = db.rawQuery<{ id: string }>(
         `SELECT id FROM users
          WHERE role IN ('WC', 'CC')
            AND left_at IS NULL
-           AND watch_unit = $1
-           AND id != $2`,
-        userInfo.watch_unit,
-        auth.userID
+           AND watch_unit = $1`,
+        userInfo.watch_unit
       );
       const isSelfLog = targetUserId === auth.userID;
-      const subject = isSelfLog
+      // Two flavours of message body — one for the creator (self-
+      // reminder) and one for everyone else (informational).
+      const otherSubject = isSelfLog
         ? `${userInfo.name} logged ${req.hours}hr TOIL for themselves`
         : `${req.hours}hr TOIL logged for ${userInfo.name}`;
+      const ownSubject = isSelfLog
+        ? `You logged ${req.hours}hr TOIL for yourself — needs authorisation`
+        : `You logged ${req.hours}hr TOIL for ${userInfo.name} — needs authorisation`;
       for await (const r of recipients) {
+        const isCreator = r.id === auth.userID;
         await createNotification({
           user_id: r.id,
           type: "general",
           title: "TOIL Approval Required",
-          message: `${subject} (${dateStr}). Reason: ${req.reason.trim()}`,
+          message: `${isCreator ? ownSubject : otherSubject} (${dateStr}). Reason: ${req.reason.trim()}`,
           entity_type: "toil",
           entity_id: entry.id.toString(),
           link: `/people/${encodeURIComponent(targetUserId)}`,
