@@ -343,30 +343,29 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
     }
 
     // ── TOIL Ledger — deduct hours ──────────────────────────────────────────────
+    // Manual two-row transaction: the shift_adjustment row is already
+    // committed at this point. If the spent ledger INSERT fails for any
+    // reason, we MUST clean up the adjustment too — otherwise Sam ends up
+    // with a phantom shift_adjustment that never debited his balance,
+    // which is exactly the broken state we've been chasing all evening.
     if (req.type === "toil" && req.toil_hours) {
+      const fy = new Date(req.start_date).getMonth() >= 3
+        ? new Date(req.start_date).getFullYear()
+        : new Date(req.start_date).getFullYear() - 1;
+
+      // toil_ledger.incident_date is a DATE column. The pg serializer
+      // rejects a full ISO datetime ("2026-04-25T00:00:00.000Z") — strip
+      // down to YYYY-MM-DD before binding.
+      const startStr = String(req.start_date);
+      const dateOnly = (startStr.includes("T")
+        ? startStr.split("T")[0]
+        : startStr
+      ).slice(0, 10);
+
       try {
-        const fy = new Date(req.start_date).getMonth() >= 3
-          ? new Date(req.start_date).getFullYear()
-          : new Date(req.start_date).getFullYear() - 1;
-
-        // toil_ledger.incident_date is a DATE column. The pg serializer
-        // rejects a full ISO datetime ("2026-04-25T00:00:00.000Z") with
-        // "error serializing parameter: trailing input" — the same bug
-        // we hit on the earn endpoint. Strip down to YYYY-MM-DD before
-        // binding so the INSERT actually succeeds and the spent row
-        // gets recorded (otherwise Sam's balance never gets deducted).
-        const startStr = String(req.start_date);
-        const dateOnly = (startStr.includes("T")
-          ? startStr.split("T")[0]
-          : startStr
-        ).slice(0, 10);
-
-        // db.rawQuery returns a LAZY iterator — for an INSERT with no
-        // RETURNING clause, awaiting rawQuery is a no-op (the query
-        // never runs until you iterate). That's why Sam's balance was
-        // never debited despite the shift_adjustment row being created.
-        // db.rawExec executes the statement immediately and is the
-        // correct verb for fire-and-forget INSERT/UPDATE/DELETE.
+        // db.rawExec is the correct verb for INSERT without RETURNING
+        // (rawQuery is lazy — never runs the statement). This was the
+        // root cause for hours of debugging Sam's balance not updating.
         await db.rawExec(
           `INSERT INTO toil_ledger (user_id, type, hours, status, reason, shift_adjustment_id, incident_date, financial_year, watch_unit, created_by)
            VALUES ($1, 'spent', $2, 'approved', $3, $4, $5::date, $6, $7, $8)`,
@@ -380,13 +379,18 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
           auth.userID
         );
       } catch (err) {
-        // Don't re-throw: the shift_adjustment row is already committed
-        // at this point so re-throwing would leave an orphaned adjustment
-        // without a corresponding spent ledger row. Log loudly instead so
-        // the failure shows up in the deploy logs and can be reconciled
-        // by deleting + recreating the adjustment (which the new ledger-
-        // delete endpoint covers).
-        console.error("Failed to deduct TOIL hours from ledger:", err);
+        // Compensating action: roll back the orphaned shift_adjustment.
+        // Best-effort — if the rollback itself fails we still want the
+        // user to see the original error so they know something's wrong.
+        console.error("toil_ledger spent INSERT failed — rolling back shift_adjustment", { adjustmentId: adjustment.id, err });
+        try {
+          await db.exec`DELETE FROM shift_adjustments WHERE id = ${adjustment.id}`;
+        } catch (rollbackErr) {
+          console.error("Rollback of orphan shift_adjustment also failed:", rollbackErr);
+        }
+        throw APIError.unavailable(
+          `Couldn't debit TOIL hours: ${err instanceof Error ? err.message : "DB error"}. The adjustment was rolled back so you can try again.`
+        );
       }
     }
 
