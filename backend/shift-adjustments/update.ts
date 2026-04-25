@@ -100,7 +100,7 @@ export const update = api<UpdateShiftAdjustmentRequest, ShiftAdjustment>(
       const newEndEod = `${newEndStr}T23:59:59.999Z`;
 
       // Update all calendar events that match the old dates for this user
-      await db.rawQuery(
+      await db.rawExec(
         `UPDATE calendar_events SET
           start_time = $1::timestamptz,
           end_time = $2::timestamptz,
@@ -114,7 +114,7 @@ export const update = api<UpdateShiftAdjustmentRequest, ShiftAdjustment>(
 
       // For H4H: also update covering person's event
       if (existing.type === "h4h" && existing.covering_user_id) {
-        await db.rawQuery(
+        await db.rawExec(
           `UPDATE calendar_events SET
             start_time = $1::timestamptz,
             end_time = $2::timestamptz,
@@ -140,7 +140,7 @@ export const update = api<UpdateShiftAdjustmentRequest, ShiftAdjustment>(
           : (updated.end_date as Date).toISOString().split("T")[0];
 
         // Update watch calendar event title
-        await db.rawQuery(
+        await db.rawExec(
           `UPDATE calendar_events SET
             title = $1,
             updated_at = NOW()
@@ -156,7 +156,7 @@ export const update = api<UpdateShiftAdjustmentRequest, ShiftAdjustment>(
         );
 
         // Update personal calendar event title
-        await db.rawQuery(
+        await db.rawExec(
           `UPDATE calendar_events SET
             title = $1,
             updated_at = NOW()

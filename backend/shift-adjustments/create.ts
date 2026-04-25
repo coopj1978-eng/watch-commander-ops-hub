@@ -109,21 +109,33 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
 
     // ── Create calendar events ────────────────────────────────────────────────
     try {
-      const startMidnight = new Date(req.start_date);
-      startMidnight.setUTCHours(0, 0, 0, 0);
+      // For all-day events the start_time + end_time pair is just a
+      // wire-format anchor — any UI converts to local time before
+      // deciding which calendar cells to render in. Using UTC midnight
+      // / end-of-day was triggering a TZ-edge bug: 25/04 23:59:59 UTC
+      // converts to 26/04 00:59 BST, and the calendar grid then drew
+      // the event on both 25 and 26.
+      //
+      // Fix: anchor both start_time and end_time at *noon UTC* of the
+      // relevant day. Noon UTC is mid-day in every reasonable timezone,
+      // so the local-day conversion can never cross a calendar boundary.
+      const startNoon = new Date(req.start_date);
+      startNoon.setUTCHours(12, 0, 0, 0);
 
-      // For Night shifts, the calendar event must NOT spread across both
-      // calendar dates the shift physically straddles (18:00 → 08:00 next
-      // morning). The user enters start=25, end=26 because the shift ends
-      // the next morning, but conceptually it's "the night of the 25th."
-      // Collapse end_time to end-of-start-date in that case so the event
-      // shows on one day only — like an all-day event for the start date.
+      // For Night shifts, collapse the event to a single day — the
+      // "night of 25th" shift logically belongs to one day on the
+      // calendar even though it physically runs into 26th 08:00.
       const endSource =
         req.shift_day_night === "Night"
           ? new Date(req.start_date)
           : new Date(req.end_date);
-      const endEod = endSource;
-      endEod.setUTCHours(23, 59, 59, 999);
+      const endNoon = endSource;
+      endNoon.setUTCHours(12, 0, 0, 0);
+
+      // Reassign for the rest of the function so existing INSERTs read
+      // "startMidnight" / "endEod" but actually get the TZ-safe values.
+      const startMidnight = startNoon;
+      const endEod = endNoon;
 
       // Helpful suffix for calendar event titles + WC notifications.
       const shiftSuffix = req.shift_day_night
@@ -349,7 +361,13 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
           : startStr
         ).slice(0, 10);
 
-        await db.rawQuery(
+        // db.rawQuery returns a LAZY iterator — for an INSERT with no
+        // RETURNING clause, awaiting rawQuery is a no-op (the query
+        // never runs until you iterate). That's why Sam's balance was
+        // never debited despite the shift_adjustment row being created.
+        // db.rawExec executes the statement immediately and is the
+        // correct verb for fire-and-forget INSERT/UPDATE/DELETE.
+        await db.rawExec(
           `INSERT INTO toil_ledger (user_id, type, hours, status, reason, shift_adjustment_id, incident_date, financial_year, watch_unit, created_by)
            VALUES ($1, 'spent', $2, 'approved', $3, $4, $5::date, $6, $7, $8)`,
           targetUserId,

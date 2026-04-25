@@ -62,7 +62,7 @@ export const nightlyRollup = api(
       }
 
       if (actualCount !== target.actual_count || newStatus !== target.status) {
-        await db.rawQuery(`
+        await db.rawExec(`
           UPDATE targets
           SET actual_count = $1, status = $2, updated_at = NOW()
           WHERE id = $3
@@ -85,7 +85,7 @@ export const nightlyRollup = api(
 
     for (const inspection of inspections) {
       if (inspection.scheduled_for < today) {
-        await db.rawQuery(`
+        await db.rawExec(`
           UPDATE inspections
           SET status = 'InProgress', updated_at = NOW()
           WHERE id = $1

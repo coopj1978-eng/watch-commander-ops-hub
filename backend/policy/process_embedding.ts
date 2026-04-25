@@ -34,7 +34,7 @@ export const processEmbedding = api<ProcessEmbeddingRequest, ProcessEmbeddingRes
 
     const vectorId = `vec_${policy.id}_${Date.now()}`;
 
-    await db.rawQuery(`
+    await db.rawExec(`
       UPDATE policy_docs
       SET vector_id = $1, updated_at = NOW()
       WHERE id = $2

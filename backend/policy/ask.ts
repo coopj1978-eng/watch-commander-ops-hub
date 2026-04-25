@@ -35,7 +35,7 @@ export const ask = api(
     if (policies.length === 0) {
       const noDocsAnswer = "Not specified in uploaded docs.";
       
-      await db.rawQuery(`
+      await db.rawExec(`
         INSERT INTO policy_queries (asked_by_user_id, question, answer, citations, confidence)
         VALUES ($1, $2, $3, $4, $5)
       `, user_id, query, noDocsAnswer, JSON.stringify([]), 0);
@@ -124,7 +124,7 @@ Answer:`;
       confidence = 0;
     }
 
-    await db.rawQuery(`
+    await db.rawExec(`
       INSERT INTO policy_queries (asked_by_user_id, question, answer, citations, confidence)
       VALUES ($1, $2, $3, $4, $5)
     `, user_id, query, answer, JSON.stringify(citations), confidence);
