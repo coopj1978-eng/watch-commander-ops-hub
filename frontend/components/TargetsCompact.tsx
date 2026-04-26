@@ -215,12 +215,37 @@ export function TargetsCompact() {
     queryKey: ["targets-for-quarter", financial_year, quarter],
     queryFn: () => backend.targets.list({ limit: 100 }),
   });
-  const periodTargets = (targetsQ.data?.targets ?? []).filter((t: any) => {
-    const start = new Date(t.period_start);
-    const end = new Date(t.period_end);
-    // Match by overlap with the current financial quarter window.
-    return start <= qEnd && end >= qStart;
-  });
+
+  // Filter is two-stage:
+  //   1. Keep targets whose period STARTS within the current financial
+  //      quarter — this discards year-spanning targets that also
+  //      "overlap" the quarter and would otherwise compete for the
+  //      same metric.
+  //   2. Among multiple candidates per metric, prefer the shortest
+  //      duration. If a WC has both a Q1-specific row AND a longer
+  //      "first half" row, the Q1-specific one wins.
+  //
+  // Without (2) the widget was picking up a Multi-Story target with
+  // target=10 (a year/half row that overlaps Q1) instead of the
+  // quarter-scoped target=6 row the WC actually edited on /targets.
+  const QUARTER_MS = 95 * 86_400_000; // ~3 months tolerance
+  const periodTargets = (targetsQ.data?.targets ?? [])
+    .filter((t: any) => {
+      const start = new Date(t.period_start).getTime();
+      const end = new Date(t.period_end).getTime();
+      const startInQuarter =
+        start >= qStart.getTime() && start <= qEnd.getTime();
+      const isQuarterScoped = end - start <= QUARTER_MS;
+      return startInQuarter && isQuarterScoped;
+    })
+    .sort((a: any, b: any) => {
+      const aDur =
+        new Date(a.period_end).getTime() - new Date(a.period_start).getTime();
+      const bDur =
+        new Date(b.period_end).getTime() - new Date(b.period_start).getTime();
+      return aDur - bDur;
+    });
+
   const findTarget = (metric: string) =>
     periodTargets.find((t: any) => t.metric === metric);
 
