@@ -147,7 +147,7 @@ export const createPerson = api<CreatePersonRequest, CreatePersonResponse>(
     }
 
     const existingUser = await db.queryRow<DBUser>`
-      SELECT * FROM users WHERE email = ${req.email}
+      SELECT * FROM users WHERE LOWER(email) = LOWER(${req.email})
     `;
 
     let user: User;

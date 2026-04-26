@@ -155,8 +155,14 @@ export const signIn = api<SignInRequest, AuthResponse>(
     rateLimit(ipKey, SIGNIN_LIMIT);
 
     try {
+      // Email comparison is case-insensitive — the local-part of an email
+      // technically allows case sensitivity per RFC 5321 but in practice
+      // every mail provider folds case, and users absolutely don't track
+      // whether they typed "Kenny@test.com" vs "kenny@test.com" when they
+      // created the account. Storing as-typed and matching exactly is a
+      // recipe for "Invalid email or password" support tickets.
       const user = await db.queryRow<User>`
-        SELECT * FROM users WHERE email = ${req.email}
+        SELECT * FROM users WHERE LOWER(email) = LOWER(${req.email})
       `;
 
       if (!user || !user.password_hash) {

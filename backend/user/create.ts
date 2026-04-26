@@ -15,7 +15,7 @@ export const create = api<CreateUserRequest, User>(
     }
     
     const existingUser = await db.queryRow<User>`
-      SELECT * FROM users WHERE email = ${req.email}
+      SELECT * FROM users WHERE LOWER(email) = LOWER(${req.email})
     `;
 
     if (existingUser) {

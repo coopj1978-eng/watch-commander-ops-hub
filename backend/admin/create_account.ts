@@ -28,7 +28,7 @@ export const createAccount = api<CreateAccountRequest, CreateAccountResponse>(
     requireRole(auth, "WC");
 
     const existing = await db.queryRow<{ id: string }>`
-      SELECT id FROM users WHERE email = ${req.email}
+      SELECT id FROM users WHERE LOWER(email) = LOWER(${req.email})
     `;
     if (existing) {
       throw APIError.alreadyExists("A user with this email already exists");

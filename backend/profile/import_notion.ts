@@ -154,7 +154,7 @@ export const importNotionPersonnel = api<ImportRequest, ImportResult>(
 
         // Check if user already exists
         const existing = await db.queryRow<{ id: string; email: string }>`
-          SELECT id, email FROM users WHERE email = ${email}
+          SELECT id, email FROM users WHERE LOWER(email) = LOWER(${email})
         `;
 
         if (existing) {

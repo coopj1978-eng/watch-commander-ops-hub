@@ -20,7 +20,7 @@ export const createAdmin = api<void, CreateAdminResponse>(
       SET password_hash = ${passwordHash}, 
           role = 'WC', 
           is_active = true
-      WHERE email = ${email}
+      WHERE LOWER(email) = LOWER(${email})
     `;
     
     return {
