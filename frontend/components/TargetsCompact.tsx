@@ -29,10 +29,14 @@ import { getCurrentFinancialPeriod } from "@/lib/financialQuarter";
 //   4. Community Events — quarterly target 4,  activity.list type=community
 // ──────────────────────────────────────────────────────────────────────────────
 
-// Targets match those on /targets (Targets page). Source of truth for now.
-const HFSV_TARGET_Q      = 36;
-const HYDRANT_TARGET_Q   = 20;
-const COMMUNITY_TARGET_Q = 4;
+// Fallback constants — used when the targets DB has no row for the
+// current quarter on a given metric. The actual displayed values come
+// from backend.targets.list() (the source of truth that the /targets
+// page reads from), so editing a target on /targets reflects on the
+// dashboard widget without code changes.
+const HFSV_TARGET_Q_DEFAULT      = 36;
+const HYDRANT_TARGET_Q_DEFAULT   = 20;
+const COMMUNITY_TARGET_Q_DEFAULT = 4;
 
 type Tone = "green" | "amber" | "red" | "muted";
 
@@ -202,14 +206,45 @@ export function TargetsCompact() {
     enabled: !!watch,
   });
 
-  const hfsvActual      = hfsvQ.data?.total_completed ?? 0;
-  const communityActual = communityQ.data?.total_completed ?? 0;
-  const hydrantActual   = hydrantQ.data?.total_completed ?? 0;
-  // Multistory target now scoped to the current quarter (complete +
-  // pending for the quarter) so it lines up with the Targets page.
-  const msActual   = multistoryQ.data?.totals?.complete ?? 0;
-  const msPending  = multistoryQ.data?.totals?.pending  ?? 0;
-  const msTarget   = msActual + msPending;
+  // Source-of-truth targets for the current period. /targets writes here,
+  // nightly_rollup keeps actual_count fresh, and we read both to keep the
+  // dashboard widget perfectly aligned with what the WC sees on the
+  // Targets page. Falls back to the activity-rollup computed values when
+  // a metric has no row for this period yet.
+  const targetsQ = useQuery({
+    queryKey: ["targets-for-quarter", financial_year, quarter],
+    queryFn: () => backend.targets.list({ limit: 100 }),
+  });
+  const periodTargets = (targetsQ.data?.targets ?? []).filter((t: any) => {
+    const start = new Date(t.period_start);
+    const end = new Date(t.period_end);
+    // Match by overlap with the current financial quarter window.
+    return start <= qEnd && end >= qStart;
+  });
+  const findTarget = (metric: string) =>
+    periodTargets.find((t: any) => t.metric === metric);
+
+  const hfsvComputed      = hfsvQ.data?.total_completed ?? 0;
+  const communityComputed = communityQ.data?.total_completed ?? 0;
+  const hydrantComputed   = hydrantQ.data?.total_completed ?? 0;
+  const msComputed        = multistoryQ.data?.totals?.complete ?? 0;
+  const msPending         = multistoryQ.data?.totals?.pending  ?? 0;
+
+  // Prefer the targets-table values; fall back to live-computed actuals
+  // and the hardcoded defaults for missing rows.
+  const hfsvRow      = findTarget("HFSV");
+  const hydrantRow   = findTarget("Hydrants");
+  const communityRow = findTarget("Activities");
+  const msRow        = findTarget("HighRise");
+
+  const hfsvActual      = hfsvRow?.actual_count      ?? hfsvComputed;
+  const hfsvTarget      = hfsvRow?.target_count      ?? HFSV_TARGET_Q_DEFAULT;
+  const hydrantActual   = hydrantRow?.actual_count   ?? hydrantComputed;
+  const hydrantTarget   = hydrantRow?.target_count   ?? HYDRANT_TARGET_Q_DEFAULT;
+  const communityActual = communityRow?.actual_count ?? communityComputed;
+  const communityTarget = communityRow?.target_count ?? COMMUNITY_TARGET_Q_DEFAULT;
+  const msActual        = msRow?.actual_count        ?? msComputed;
+  const msTarget        = msRow?.target_count        ?? (msComputed + msPending);
 
   return (
     <Card className="border-t-2 border-t-brand">
@@ -238,30 +273,30 @@ export function TargetsCompact() {
         <TargetRow
           label="HFSV Completions"
           actual={hfsvActual}
-          target={HFSV_TARGET_Q}
+          target={hfsvTarget}
           timePct={qTimePct}
-          loading={hfsvQ.isLoading}
+          loading={hfsvQ.isLoading || targetsQ.isLoading}
         />
         <TargetRow
           label="Multi-Story Inspections"
           actual={msActual}
           target={msTarget || 0}
           timePct={qTimePct}
-          loading={multistoryQ.isLoading}
+          loading={multistoryQ.isLoading || targetsQ.isLoading}
         />
         <TargetRow
           label="Hydrant Inspections"
           actual={hydrantActual}
-          target={HYDRANT_TARGET_Q}
+          target={hydrantTarget}
           timePct={qTimePct}
-          loading={hydrantQ.isLoading}
+          loading={hydrantQ.isLoading || targetsQ.isLoading}
         />
         <TargetRow
           label="Community Events"
           actual={communityActual}
-          target={COMMUNITY_TARGET_Q}
+          target={communityTarget}
           timePct={qTimePct}
-          loading={communityQ.isLoading}
+          loading={communityQ.isLoading || targetsQ.isLoading}
         />
       </CardContent>
     </Card>
