@@ -65,7 +65,18 @@ export const deleteAdjustment = api<DeleteShiftAdjustmentRequest, void>(
     }
 
     // ── Clean up calendar events created by this adjustment ───────────────────
-    // Calendar events are linked by: user_id + all_day + date overlap
+    // Migration 062 added a shift_adjustment_id FK on calendar_events. New
+    // events (all those created via this service since the migration) have
+    // it set, so we can delete cleanly with one statement.
+    //
+    // The legacy date-match cleanup is retained as a fallback for events
+    // created before the migration that have shift_adjustment_id IS NULL.
+    // Once those legacy entries have aged out the fallback can go.
+    await db.exec`
+      DELETE FROM calendar_events WHERE shift_adjustment_id = ${req.id}
+    `;
+
+    // ── Legacy fallback: date-match cleanup for pre-migration events
     const startStr = typeof existing.start_date === "string"
       ? existing.start_date
       : (existing.start_date as Date).toISOString().split("T")[0];
@@ -76,20 +87,20 @@ export const deleteAdjustment = api<DeleteShiftAdjustmentRequest, void>(
     const startMidnight = `${startStr}T00:00:00.000Z`;
     const endEod = `${endStr}T23:59:59.999Z`;
 
-    // Delete calendar events that match this adjustment's user + date range + all_day
     await db.exec`
       DELETE FROM calendar_events
-      WHERE all_day = true
+      WHERE shift_adjustment_id IS NULL
+        AND all_day = true
         AND start_time = ${startMidnight}::timestamptz
         AND end_time = ${endEod}::timestamptz
         AND (user_id = ${existing.user_id} OR created_by = ${existing.user_id})
     `;
 
-    // For H4H / TOIL: also delete the covering person's calendar event
     if ((existing.type === "h4h" || existing.type === "toil") && existing.covering_user_id) {
       await db.exec`
         DELETE FROM calendar_events
-        WHERE all_day = true
+        WHERE shift_adjustment_id IS NULL
+          AND all_day = true
           AND start_time = ${startMidnight}::timestamptz
           AND end_time = ${endEod}::timestamptz
           AND user_id = ${existing.covering_user_id}

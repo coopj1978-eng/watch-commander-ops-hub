@@ -144,6 +144,14 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
 
       const isFlexiPayback = req.type === "flexi_payback";
 
+      // adjustment.id is set on every calendar event so calendar/delete.ts
+      // can resolve the link and cascade-delete the underlying adjustment
+      // (refunding TOIL, removing the other linked events). Without this
+      // FK, deleting an event from the calendar leaves the
+      // shift_adjustment + ledger row orphaned, which is the UX bug the
+      // user just hit.
+      const adjId = adjustment.id;
+
       if (isFlexiPayback) {
         // Flexi Payback: person comes IN to cover another watch.
         const coveredWatch = req.covering_watch!;
@@ -152,7 +160,7 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
         await db.exec`
           INSERT INTO calendar_events (
             title, event_type, calendar_visibility, start_time, end_time,
-            all_day, user_id, is_watch_event, watch, created_by
+            all_day, user_id, is_watch_event, watch, created_by, shift_adjustment_id
           ) VALUES (
             ${`${userInfo.name} – Flexi Payback (${shiftLabel} Shift)`},
             'personal',
@@ -163,7 +171,8 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
             ${targetUserId},
             true,
             ${coveredWatch},
-            ${auth.userID}
+            ${auth.userID},
+            ${adjId}
           )
         `;
       } else if (req.type === "orange_day") {
@@ -174,7 +183,7 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
         await db.exec`
           INSERT INTO calendar_events (
             title, event_type, calendar_visibility, start_time, end_time,
-            all_day, user_id, is_watch_event, watch, created_by
+            all_day, user_id, is_watch_event, watch, created_by, shift_adjustment_id
           ) VALUES (
             ${`Orange Day (${shiftLabel} Shift)`},
             'personal',
@@ -185,7 +194,8 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
             ${targetUserId},
             false,
             ${userInfo.watch_unit},
-            ${auth.userID}
+            ${auth.userID},
+            ${adjId}
           )
         `;
 
@@ -193,7 +203,7 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
         await db.exec`
           INSERT INTO calendar_events (
             title, event_type, calendar_visibility, start_time, end_time,
-            all_day, user_id, is_watch_event, watch, created_by
+            all_day, user_id, is_watch_event, watch, created_by, shift_adjustment_id
           ) VALUES (
             ${`${userInfo.name} – Orange Day (${shiftLabel} Shift)`},
             'personal',
@@ -204,7 +214,8 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
             ${targetUserId},
             true,
             ${userInfo.watch_unit},
-            ${auth.userID}
+            ${auth.userID},
+            ${adjId}
           )
         `;
       } else {
@@ -220,7 +231,7 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
         await db.exec`
           INSERT INTO calendar_events (
             title, event_type, calendar_visibility, start_time, end_time,
-            all_day, user_id, is_watch_event, watch, created_by
+            all_day, user_id, is_watch_event, watch, created_by, shift_adjustment_id
           ) VALUES (
             ${req.type === "h4h"
                 ? `H4H – Off${shiftSuffix} (covered by ${req.covering_name || "cover"})`
@@ -235,7 +246,8 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
             ${targetUserId},
             false,
             ${userInfo.watch_unit},
-            ${auth.userID}
+            ${auth.userID},
+            ${adjId}
           )
         `;
 
@@ -243,7 +255,7 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
         await db.exec`
           INSERT INTO calendar_events (
             title, event_type, calendar_visibility, start_time, end_time,
-            all_day, user_id, is_watch_event, watch, created_by
+            all_day, user_id, is_watch_event, watch, created_by, shift_adjustment_id
           ) VALUES (
             ${req.type === "h4h"
                 ? `${userInfo.name} – H4H${shiftSuffix} (covered by ${req.covering_name || "cover"})`
@@ -258,7 +270,8 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
             ${targetUserId},
             true,
             ${userInfo.watch_unit},
-            ${auth.userID}
+            ${auth.userID},
+            ${adjId}
           )
         `;
 
@@ -267,7 +280,7 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
           await db.exec`
             INSERT INTO calendar_events (
               title, event_type, calendar_visibility, start_time, end_time,
-              all_day, user_id, is_watch_event, watch, created_by
+              all_day, user_id, is_watch_event, watch, created_by, shift_adjustment_id
             ) VALUES (
               ${req.type === "toil"
                 ? `TOIL – Covering for ${userInfo.name} (${userInfo.watch_unit} Watch)${shiftSuffix} — ${req.toil_hours}hrs`
@@ -280,7 +293,8 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
               ${req.covering_user_id},
               false,
               ${userInfo.watch_unit},
-              ${auth.userID}
+              ${auth.userID},
+              ${adjId}
             )
           `;
         }
