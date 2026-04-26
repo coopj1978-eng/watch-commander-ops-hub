@@ -5,7 +5,7 @@ import { logActivity } from "../logging/logger";
 import type { CreateTargetRequest, Target } from "./types";
 
 export const create = api(
-  { auth: true, expose: true, method: "POST", path: "/targets" },
+  { auth: true, expose: true, method: "POST", path: "/api/targets" },
   async (req: CreateTargetRequest): Promise<Target> => {
     const auth = getAuthData()!;
 

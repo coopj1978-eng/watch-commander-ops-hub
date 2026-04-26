@@ -9,7 +9,7 @@ interface UpdateTaskParams {
 }
 
 export const update = api(
-  { auth: true, expose: true, method: "PATCH", path: "/tasks/:id" },
+  { auth: true, expose: true, method: "PATCH", path: "/api/tasks/:id" },
   async (params: UpdateTaskParams & UpdateTaskRequest): Promise<Task> => {
     const { id, ...updates } = params;
     const auth = getAuthData()!;

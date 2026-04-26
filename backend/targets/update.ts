@@ -9,7 +9,7 @@ interface UpdateTargetParams {
 }
 
 export const update = api(
-  { auth: true, expose: true, method: "PATCH", path: "/targets/:id" },
+  { auth: true, expose: true, method: "PATCH", path: "/api/targets/:id" },
   async (params: UpdateTargetParams & UpdateTargetRequest): Promise<Target> => {
     const { id, ...updates } = params;
     const auth = getAuthData()!;

@@ -20,7 +20,7 @@ interface ListTasksResponse {
 }
 
 export const list = api<ListTasksRequest, ListTasksResponse>(
-  { auth: true, expose: true, method: "GET", path: "/tasks" },
+  { auth: true, expose: true, method: "GET", path: "/api/tasks" },
   async (req) => {
     const auth = getAuthData()!;
     const limit  = req.limit  ?? 200;

@@ -5,7 +5,7 @@ import { logActivity } from "../logging/logger";
 import type { CreateTaskRequest, Task } from "./types";
 
 export const create = api<CreateTaskRequest, Task>(
-  { auth: true, expose: true, method: "POST", path: "/tasks" },
+  { auth: true, expose: true, method: "POST", path: "/api/tasks" },
   async (req) => {
     const auth = getAuthData()!;
 

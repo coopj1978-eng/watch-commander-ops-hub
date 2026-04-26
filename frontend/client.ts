@@ -4265,7 +4265,7 @@ export namespace targets {
 
         public async create(params: CreateTargetRequest): Promise<Target> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/targets`, JSON.stringify(params))
+            const resp = await this.baseClient.callTypedAPI("POST", `/api/targets`, JSON.stringify(params))
             return await resp.json() as Target
         }
 
@@ -4281,7 +4281,7 @@ export namespace targets {
             })
 
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/targets`, undefined, {query})
+            const resp = await this.baseClient.callTypedAPI("GET", `/api/targets`, undefined, {query})
             return await resp.json() as ListTargetsResponse
         }
 
@@ -4295,7 +4295,7 @@ export namespace targets {
     status?: TargetStatus
 }): Promise<Target> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("PATCH", `/targets/${encodeURIComponent(id)}`, JSON.stringify(params))
+            const resp = await this.baseClient.callTypedAPI("PATCH", `/api/targets/${encodeURIComponent(id)}`, JSON.stringify(params))
             return await resp.json() as Target
         }
     }
@@ -4468,7 +4468,7 @@ export namespace task {
 
         public async create(params: CreateTaskRequest): Promise<Task> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/tasks`, JSON.stringify(params))
+            const resp = await this.baseClient.callTypedAPI("POST", `/api/tasks`, JSON.stringify(params))
             return await resp.json() as Task
         }
 
@@ -4489,7 +4489,7 @@ export namespace task {
         }
 
         public async deleteTask(id: number): Promise<void> {
-            await this.baseClient.callTypedAPI("DELETE", `/tasks/${encodeURIComponent(id)}`)
+            await this.baseClient.callTypedAPI("DELETE", `/api/tasks/${encodeURIComponent(id)}`)
         }
 
         public async deleteTemplate(id: number): Promise<void> {
@@ -4509,7 +4509,7 @@ export namespace task {
             })
 
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/tasks`, undefined, {query})
+            const resp = await this.baseClient.callTypedAPI("GET", `/api/tasks`, undefined, {query})
             return await resp.json() as ListTasksResponse
         }
 
@@ -4546,7 +4546,7 @@ export namespace task {
     position?: number
 }): Promise<Task> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("PATCH", `/tasks/${encodeURIComponent(id)}`, JSON.stringify(params))
+            const resp = await this.baseClient.callTypedAPI("PATCH", `/api/tasks/${encodeURIComponent(id)}`, JSON.stringify(params))
             return await resp.json() as Task
         }
 
@@ -4819,19 +4819,19 @@ export namespace training {
 
         public async addAttendance(id: number, params: AddAttendanceRequest): Promise<SuccessResponse> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/training/${encodeURIComponent(id)}/attendance`, JSON.stringify(params))
+            const resp = await this.baseClient.callTypedAPI("POST", `/api/training/${encodeURIComponent(id)}/attendance`, JSON.stringify(params))
             return await resp.json() as SuccessResponse
         }
 
         public async create(params: CreateTrainingRequest): Promise<TrainingRecord> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/training`, JSON.stringify(params))
+            const resp = await this.baseClient.callTypedAPI("POST", `/api/training`, JSON.stringify(params))
             return await resp.json() as TrainingRecord
         }
 
         public async get(id: number): Promise<TrainingRecord> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/training/${encodeURIComponent(id)}`)
+            const resp = await this.baseClient.callTypedAPI("GET", `/api/training/${encodeURIComponent(id)}`)
             return await resp.json() as TrainingRecord
         }
 
@@ -4847,19 +4847,19 @@ export namespace training {
             })
 
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/training`, undefined, {query})
+            const resp = await this.baseClient.callTypedAPI("GET", `/api/training`, undefined, {query})
             return await resp.json() as ListTrainingResponse
         }
 
         public async removeAttendance(id: number, userId: string): Promise<SuccessResponse> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("DELETE", `/training/${encodeURIComponent(id)}/attendance/${encodeURIComponent(userId)}`)
+            const resp = await this.baseClient.callTypedAPI("DELETE", `/api/training/${encodeURIComponent(id)}/attendance/${encodeURIComponent(userId)}`)
             return await resp.json() as SuccessResponse
         }
 
         public async update(id: number, params: UpdateTrainingRequest): Promise<TrainingRecord> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("PUT", `/training/${encodeURIComponent(id)}`, JSON.stringify(params))
+            const resp = await this.baseClient.callTypedAPI("PUT", `/api/training/${encodeURIComponent(id)}`, JSON.stringify(params))
             return await resp.json() as TrainingRecord
         }
     }

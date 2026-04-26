@@ -57,7 +57,7 @@ function transformRecord(row: DBTrainingRecord): TrainingRecord {
 }
 
 export const list = api<ListRequest, ListTrainingResponse>(
-  { auth: true, expose: true, method: "GET", path: "/training" },
+  { auth: true, expose: true, method: "GET", path: "/api/training" },
   async (req) => {
     getAuthData()!;
 

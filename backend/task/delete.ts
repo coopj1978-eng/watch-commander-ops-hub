@@ -8,7 +8,7 @@ interface DeleteTaskRequest {
 }
 
 export const deleteTask = api<DeleteTaskRequest, void>(
-  { auth: true, expose: true, method: "DELETE", path: "/tasks/:id" },
+  { auth: true, expose: true, method: "DELETE", path: "/api/tasks/:id" },
   async ({ id }) => {
     const auth = getAuthData()!;
     await db.exec`DELETE FROM tasks WHERE id = ${id}`;

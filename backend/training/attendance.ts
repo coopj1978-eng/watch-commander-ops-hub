@@ -8,7 +8,7 @@ interface SuccessResponse {
 }
 
 export const addAttendance = api<AddAttendanceRequest, SuccessResponse>(
-  { auth: true, expose: true, method: "POST", path: "/training/:id/attendance" },
+  { auth: true, expose: true, method: "POST", path: "/api/training/:id/attendance" },
   async (req) => {
     getAuthData()!;
 
@@ -80,7 +80,7 @@ export const addAttendance = api<AddAttendanceRequest, SuccessResponse>(
 );
 
 export const removeAttendance = api<RemoveAttendanceRequest, SuccessResponse>(
-  { auth: true, expose: true, method: "DELETE", path: "/training/:id/attendance/:userId" },
+  { auth: true, expose: true, method: "DELETE", path: "/api/training/:id/attendance/:userId" },
   async (req) => {
     getAuthData()!;
 

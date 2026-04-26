@@ -47,7 +47,7 @@ function transformRecord(row: DBTrainingRecord): TrainingRecord {
 }
 
 export const update = api<UpdateTrainingRequest, TrainingRecord>(
-  { auth: true, expose: true, method: "PUT", path: "/training/:id" },
+  { auth: true, expose: true, method: "PUT", path: "/api/training/:id" },
   async (req) => {
     const auth = getAuthData()!;
 

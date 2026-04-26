@@ -18,7 +18,7 @@ interface ListTargetsResponse {
 }
 
 export const list = api<ListTargetsRequest, ListTargetsResponse>(
-  { expose: true, method: "GET", path: "/targets" },
+  { expose: true, method: "GET", path: "/api/targets" },
   async (req) => {
     const limit = req.limit || 50;
     const offset = req.offset || 0;

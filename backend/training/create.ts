@@ -47,7 +47,7 @@ function transformRecord(row: DBTrainingRecord): TrainingRecord {
 }
 
 export const create = api<CreateTrainingRequest, TrainingRecord>(
-  { auth: true, expose: true, method: "POST", path: "/training" },
+  { auth: true, expose: true, method: "POST", path: "/api/training" },
   async (req) => {
     const auth = getAuthData()!;
 

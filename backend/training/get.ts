@@ -30,7 +30,7 @@ interface DBAttendee {
 }
 
 export const get = api<GetTrainingRequest, TrainingRecord>(
-  { auth: true, expose: true, method: "GET", path: "/training/:id" },
+  { auth: true, expose: true, method: "GET", path: "/api/training/:id" },
   async (req) => {
     getAuthData()!;
 
