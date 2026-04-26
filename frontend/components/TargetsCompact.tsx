@@ -185,13 +185,19 @@ export function TargetsCompact() {
     enabled: !!watch,
   });
 
+  // Quarter filter matches what TargetsDashboard does — without it we'd
+  // pull the whole year's multi-story assignments and the user sees
+  // "6 / 26" on the dashboard (year total) while the Targets page
+  // shows "6 / 6 complete" (quarter total) for the same metric. Same
+  // data, two different denominators — exactly the bug we're fixing.
   const multistoryQ = useQuery({
-    queryKey: ["wc-multistory", watch, year],
+    queryKey: ["wc-multistory", watch, financial_year, quarter],
     queryFn: async () =>
       backend.inspection_plans.listAssignments({
         plan_type: "multistory",
         watch: watch || undefined,
         year,
+        quarter,
       }),
     enabled: !!watch,
   });
@@ -199,19 +205,11 @@ export function TargetsCompact() {
   const hfsvActual      = hfsvQ.data?.total_completed ?? 0;
   const communityActual = communityQ.data?.total_completed ?? 0;
   const hydrantActual   = hydrantQ.data?.total_completed ?? 0;
-  // Multistory has no explicit target field — its target is all assigned
-  // inspections for the year, so we use complete + pending as the total.
+  // Multistory target now scoped to the current quarter (complete +
+  // pending for the quarter) so it lines up with the Targets page.
   const msActual   = multistoryQ.data?.totals?.complete ?? 0;
   const msPending  = multistoryQ.data?.totals?.pending  ?? 0;
   const msTarget   = msActual + msPending;
-
-  // For the yearly multistory metric, use day-of-year for the pace calc
-  // instead of day-of-quarter so it matches its own time baseline.
-  const yearStart       = new Date(now.getFullYear(), 0, 1);
-  const yearEnd         = new Date(now.getFullYear(), 11, 31);
-  const yearTotalDays   = Math.round((yearEnd.getTime() - yearStart.getTime()) / 86_400_000) + 1;
-  const yearElapsedDays = Math.round((now.getTime() - yearStart.getTime()) / 86_400_000) + 1;
-  const yearTimePct     = yearElapsedDays / yearTotalDays;
 
   return (
     <Card className="border-t-2 border-t-brand">
@@ -245,10 +243,10 @@ export function TargetsCompact() {
           loading={hfsvQ.isLoading}
         />
         <TargetRow
-          label="High-Rise Inspections"
+          label="Multi-Story Inspections"
           actual={msActual}
           target={msTarget || 0}
-          timePct={yearTimePct}
+          timePct={qTimePct}
           loading={multistoryQ.isLoading}
         />
         <TargetRow
