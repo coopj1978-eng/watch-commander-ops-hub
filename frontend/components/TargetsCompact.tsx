@@ -155,6 +155,14 @@ export function TargetsCompact() {
   const { financial_year, quarter, label: periodLabel } = getCurrentFinancialPeriod();
   const year = new Date().getFullYear();
 
+  // Inspection assignments are stored by CALENDAR quarter, not financial
+  // quarter — TargetsDashboard uses `calPeriod.quarter` (1-4 from month/3)
+  // when querying multi-story, and `quarter: 0` (annual) for hydrants.
+  // Mirroring that here is the difference between the dashboard widget
+  // showing "0/10" and "0/20" vs the /targets page showing "6/6" and
+  // "1/1": same DB rows, completely different bucket keys.
+  const calendarQuarter = Math.floor(new Date().getMonth() / 3) + 1;
+
   // Day-of-quarter / days-in-quarter — used for pace calculation.
   const now = new Date();
   // Financial quarter start months: Q1=Apr, Q2=Jul, Q3=Oct, Q4=Jan
@@ -181,36 +189,35 @@ export function TargetsCompact() {
     enabled: !!watch,
   });
 
-  // Quarter filter matches what TargetsDashboard does — without it we'd
-  // pull the whole year's multi-story assignments and the user sees
-  // "6 / 26" on the dashboard (year total) while the Targets page
-  // shows "6 / 6 complete" (quarter total) for the same metric. Same
-  // data, two different denominators — exactly the bug we're fixing.
+  // Multi-story assignments — TargetsDashboard queries with CALENDAR
+  // quarter (Apr-Jun = 2), not financial quarter (Apr-Jun = FY Q1).
+  // Using the financial quarter here was returning the wrong bucket
+  // (e.g. "0 / 10" while the page showed "6 / 6"). queryKey shares the
+  // exact same shape as TargetsDashboard so the cache is reused.
   const multistoryQ = useQuery({
-    queryKey: ["wc-multistory", watch, financial_year, quarter],
+    queryKey: ["assignments", "multistory", watch, year, calendarQuarter],
     queryFn: async () =>
       backend.inspection_plans.listAssignments({
         plan_type: "multistory",
         watch: watch || undefined,
         year,
-        quarter,
+        quarter: calendarQuarter,
       }),
     enabled: !!watch,
   });
 
-  // Hydrant assignments — same shape as multistory. The /targets page
-  // computes its hydrant target as `pending + complete` from this
-  // endpoint (NOT from activity.list), so the widget mirrors that here.
-  // Without this we were summing only `total_completed` and the
-  // denominator was way off.
+  // Hydrants are tracked ANNUALLY on the /targets page (quarter: 0).
+  // Querying with the current quarter — financial OR calendar — buckets
+  // wrong and gives 0/0 (or 0/20 from a stale fallback). Reuse the
+  // same query key shape as TargetsDashboard.
   const hydrantAssignmentsQ = useQuery({
-    queryKey: ["wc-hydrant-assignments", watch, year, quarter],
+    queryKey: ["assignments", "hydrant", watch, year],
     queryFn: async () =>
       backend.inspection_plans.listAssignments({
         plan_type: "hydrant",
         watch: watch || undefined,
         year,
-        quarter,
+        quarter: 0,
       }),
     enabled: !!watch,
   });

@@ -42843,6 +42843,7 @@ function TargetsCompact() {
   const watch = (user2 == null ? void 0 : user2.watch_unit) ?? "";
   const { financial_year, quarter, label: periodLabel } = getCurrentFinancialPeriod();
   const year = (/* @__PURE__ */ new Date()).getFullYear();
+  const calendarQuarter = Math.floor((/* @__PURE__ */ new Date()).getMonth() / 3) + 1;
   const now = /* @__PURE__ */ new Date();
   const qStartMonth = quarter === 1 ? 3 : quarter === 2 ? 6 : quarter === 3 ? 9 : 0;
   const qStartYear = quarter === 4 ? financial_year + 1 : financial_year;
@@ -42862,22 +42863,22 @@ function TargetsCompact() {
     enabled: !!watch
   });
   const multistoryQ = useQuery({
-    queryKey: ["wc-multistory", watch, financial_year, quarter],
+    queryKey: ["assignments", "multistory", watch, year, calendarQuarter],
     queryFn: async () => backendClient.inspection_plans.listAssignments({
       plan_type: "multistory",
       watch: watch || void 0,
       year,
-      quarter
+      quarter: calendarQuarter
     }),
     enabled: !!watch
   });
   const hydrantAssignmentsQ = useQuery({
-    queryKey: ["wc-hydrant-assignments", watch, year, quarter],
+    queryKey: ["assignments", "hydrant", watch, year],
     queryFn: async () => backendClient.inspection_plans.listAssignments({
       plan_type: "hydrant",
       watch: watch || void 0,
       year,
-      quarter
+      quarter: 0
     }),
     enabled: !!watch
   });
