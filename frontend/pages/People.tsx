@@ -320,16 +320,26 @@ export default function People() {
 
   return (
     <div className="p-4 md:p-8 space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
-            <Users className="h-7 w-7 text-indigo-500 shrink-0" />
+      {/* ── Page header ──────────────────────────────────────────────────────
+          Visual-refresh pattern: heading + eyebrow context line + spacer +
+          action buttons. The eyebrow surfaces the active watch, station and
+          counts so the WC has the same situational frame here as on the
+          dashboard. */}
+      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-3">
+        <div className="flex items-baseline flex-wrap gap-x-4 gap-y-1">
+          <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+            <Users className="h-7 w-7 text-brand shrink-0" />
             People
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <span className="eyebrow whitespace-nowrap">
             {filteredAndSortedPeople.length} {filteredAndSortedPeople.length === 1 ? 'person' : 'people'}
-            {activeFiltersCount > 0 && ` (${activeFiltersCount} filter${activeFiltersCount === 1 ? '' : 's'} active)`}
-          </p>
+            {activeFiltersCount > 0 && (
+              <>
+                <span className="crumb-sep">·</span>
+                <span>{activeFiltersCount} filter{activeFiltersCount === 1 ? '' : 's'} active</span>
+              </>
+            )}
+          </span>
         </div>
         <div className="flex flex-wrap gap-2">
           {canCreate && (
@@ -343,7 +353,11 @@ export default function People() {
             <span className="hidden sm:inline">Columns</span>
           </Button>
           {canCreate && (
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => setShowAddModal(true)} aria-label="Add Person">
+            <Button
+              className="bg-brand hover:bg-brand/90 text-brand-foreground"
+              onClick={() => setShowAddModal(true)}
+              aria-label="Add Person"
+            >
               <UserPlus className="h-4 w-4 sm:mr-2" />
               <span className="hidden sm:inline">Add Person</span>
             </Button>
@@ -351,6 +365,7 @@ export default function People() {
         </div>
       </div>
 
+      {/* ── Search ───────────────────────────────────────────────────────── */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
@@ -361,21 +376,46 @@ export default function People() {
         />
       </div>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-base">Filters</CardTitle>
-            {activeFiltersCount > 0 && (
-              <Button variant="ghost" size="sm" onClick={clearFilters}>
-                Clear all
-              </Button>
-            )}
+      <Card className="border-border/60">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-3">
+              <CardTitle className="eyebrow !text-foreground">Filters</CardTitle>
+              {activeFiltersCount > 0 && (
+                <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={clearFilters}>
+                  Clear all
+                </Button>
+              )}
+            </div>
+            {/* Quick status switch — segmented control matches the design's
+                .seg primitive. Backed by the same statusFilter state as the
+                Select dropdown below — they're kept in sync. */}
+            <div className="seg" style={{ width: 280 }}>
+              <button
+                data-on={statusFilter === "active"}
+                onClick={() => setStatusFilter("active")}
+              >
+                Current
+              </button>
+              <button
+                data-on={statusFilter === "all"}
+                onClick={() => setStatusFilter("all")}
+              >
+                All
+              </button>
+              <button
+                data-on={statusFilter === "inactive"}
+                onClick={() => setStatusFilter("inactive")}
+              >
+                Left station
+              </button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">Station</label>
+              <label className="eyebrow mb-2 block">Station</label>
               <Select value={stationFilter} onValueChange={setStationFilter}>
                 <SelectTrigger>
                   <SelectValue placeholder="All Stations" />
@@ -390,22 +430,8 @@ export default function People() {
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Status</label>
-              <Select value={statusFilter} onValueChange={(v: any) => setStatusFilter(v)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Active only" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="active">Current staff</SelectItem>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="inactive">Left station</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium mb-2 block">Watch ({watchFilters.length})</label>
-              <div className="border rounded-md p-2 space-y-1 max-h-40 overflow-y-auto">
+              <label className="eyebrow mb-2 block">Watch ({watchFilters.length})</label>
+              <div className="border border-border rounded-md p-2 space-y-1 max-h-40 overflow-y-auto bg-card">
                 {WATCH_OPTIONS.map(watch => (
                   <label key={watch} className="flex items-center gap-2 cursor-pointer hover:bg-muted/50 p-1 rounded">
                     <Checkbox
@@ -420,8 +446,8 @@ export default function People() {
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Rank ({rankFilters.length})</label>
-              <div className="border rounded-md p-2 space-y-1">
+              <label className="eyebrow mb-2 block">Rank ({rankFilters.length})</label>
+              <div className="border border-border rounded-md p-2 space-y-1 bg-card">
                 {RANK_OPTIONS.map(rank => (
                   <label key={rank} className="flex items-center gap-2 cursor-pointer hover:bg-muted/50 p-1 rounded">
                     <Checkbox
@@ -435,8 +461,8 @@ export default function People() {
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Skills ({skillFilters.length})</label>
-              <div className="border rounded-md p-2 space-y-1 max-h-40 overflow-y-auto">
+              <label className="eyebrow mb-2 block">Skills ({skillFilters.length})</label>
+              <div className="border border-border rounded-md p-2 space-y-1 max-h-40 overflow-y-auto bg-card">
                 {availableSkills.map(skill => (
                   <label key={skill} className="flex items-center gap-2 cursor-pointer hover:bg-muted/50 p-1 rounded">
                     <Checkbox
@@ -450,7 +476,7 @@ export default function People() {
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Driver Pathway</label>
+              <label className="eyebrow mb-2 block">Driver Pathway</label>
               <Select value={driverPathwayFilter} onValueChange={setDriverPathwayFilter}>
                 <SelectTrigger>
                   <SelectValue placeholder="All" />
@@ -520,10 +546,14 @@ export default function People() {
             })}
           </div>
 
-          {/* ── DESKTOP: full table (hidden on mobile) ────────────────────── */}
-          <Card className="hidden md:block overflow-hidden">
+          {/* ── DESKTOP: full table (hidden on mobile) ──────────────────────
+              Uses the visual-refresh `plain` table style: mono uppercase
+              headers, hairline borders, hover wash. The Table is wrapped
+              in a card-flush div so the rounded outer frame still reads
+              against the page background. */}
+          <div className="card-flush hidden md:block">
             <div className="overflow-x-auto">
-            <Table>
+            <Table className="plain">
             <TableHeader>
               <TableRow>
                 {visibleColumns.name && (
@@ -627,7 +657,9 @@ export default function People() {
                       <TableCell>{profile?.rank || "-"}</TableCell>
                     )}
                     {visibleColumns.staffNumber && (
-                      <TableCell>{profile?.service_number || "-"}</TableCell>
+                      <TableCell className="font-mono text-xs tabular-nums text-muted-foreground">
+                        {profile?.service_number || "—"}
+                      </TableCell>
                     )}
                     {visibleColumns.niNumber && (
                       <TableCell>{profile?.customFields?.niNumber || "-"}</TableCell>
@@ -724,7 +756,7 @@ export default function People() {
             </TableBody>
           </Table>
           </div>
-        </Card>
+        </div>
         </>
       )}
 

@@ -246,6 +246,350 @@ html[data-density="airy"] {
   }
 }
 
+/* ── Visual-refresh primitives ────────────────────────────────────────────────
+ * Reusable class-based primitives that mirror the Claude Design refresh
+ * (watch-commanders-visual-refresh) so People / Tasks / Calendar can adopt
+ * the operational / command-room aesthetic without each page reinventing it.
+ *
+ * These classes intentionally consume the existing shadcn tokens
+ * (`--background`, `--foreground`, `--muted-foreground`, `--border`,
+ * `--brand`, `--card`) so they react automatically to dark mode, accent
+ * swaps, and density changes. Don't hard-code colours here.
+ *
+ * Naming follows the design bundle so future imports stay 1:1:
+ *   .eyebrow       small uppercase mono caption
+ *   .seg           segmented button group (Day / Week / Month, etc.)
+ *   .divider-label `↳ Section name` row separator with a fade-out rule
+ *   table.plain    flat table look with sticky uppercase headers
+ *   .today-strip   horizontal KPI strip used on dashboards / sub-pages
+ *   .kanban + .kan-col + .kan-card   Tasks board
+ *   .cal + .cal .day + .cal .ev       Calendar grid
+ *   .ppl-head + .cell-bars            People profile chrome
+ * --------------------------------------------------------------------------- */
+
+/* Eyebrow caption */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+/* Inline status dot — sits before "On duty" / "Sick" labels */
+.status-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: currentColor;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+/* Segmented button group. Active tab uses high-contrast fg so the choice
+   reads at a glance even in a dense filter row. */
+.seg {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  height: 30px;
+}
+.seg button {
+  font: inherit;
+  font-size: 11.5px;
+  padding: 0 10px;
+  background: var(--background);
+  border: none;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  border-right: 1px solid var(--border);
+  transition: background-color 120ms ease-out, color 120ms ease-out;
+}
+.seg button:last-child { border-right: none; }
+.seg button[data-on="true"] {
+  background: var(--foreground);
+  color: var(--background);
+}
+.seg button:hover { background: var(--muted); color: var(--foreground); }
+.seg button[data-on="true"]:hover { background: var(--foreground); color: var(--background); }
+
+/* ↳ Section divider with horizontal hairline */
+.divider-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  margin: 28px 0 14px;
+}
+.divider-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* Plain flat table. Use on a wrapping div with `card` to get the
+   bordered-frame look from the design. Header cells are uppercase mono. */
+table.plain {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+table.plain th {
+  text-align: left;
+  padding: 10px 14px;
+  font-weight: 500;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted-foreground);
+  border-bottom: 1px solid var(--border);
+  background: var(--muted);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+table.plain td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+table.plain tbody tr:hover td { background: var(--muted); }
+table.plain tbody tr:last-child td { border-bottom: none; }
+
+/* Card-flush wrapper for plain tables — matches the design's `.card.flush` */
+.card-flush {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Horizontal stat strip used on Tasks (Open · Due · Overdue · …) and
+   anywhere else a compact KPI row beats a row of full-fat tile cards. */
+.today-strip {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--card);
+}
+.today-strip > div {
+  padding: 12px 16px;
+  border-right: 1px solid var(--border);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.today-strip > div:last-child { border-right: none; }
+.today-strip .k {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+.today-strip .v {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--foreground);
+}
+.today-strip .v.mono {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 768px) {
+  .today-strip { flex-wrap: wrap; }
+  .today-strip > div { flex: 1 1 50%; min-width: 130px; border-bottom: 1px solid var(--border); }
+  .today-strip > div:nth-last-child(-n+2) { border-bottom: none; }
+}
+
+/* Kanban board — used by Tasks. Columns own the grey wash so cards pop. */
+.kanban {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+.kan-col {
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 320px;
+}
+.kan-col header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px 8px;
+  border-bottom: 1px solid var(--border);
+}
+.kan-col header .t {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  font-weight: 500;
+}
+.kan-col header .ct {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+.kan-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--border);
+  border-radius: 4px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+  transition: border-color 120ms ease-out;
+}
+.kan-card:hover { border-color: var(--brand); }
+.kan-card[data-pri="high"]   { border-left-color: oklch(0.55 0.18 27); }
+.kan-card[data-pri="medium"] { border-left-color: oklch(0.72 0.14 75); }
+.kan-card[data-pri="low"]    { border-left-color: oklch(0.55 0.12 240); }
+.kan-card .tt { font-size: 12.5px; line-height: 1.35; color: var(--foreground); }
+.kan-card .meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted-foreground);
+}
+
+@media (max-width: 1023px) { .kanban { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px)  { .kanban { grid-template-columns: 1fr; } .kan-col { min-height: auto; } }
+
+/* Calendar month grid */
+.cal {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-left: 1px solid var(--border);
+  border-top: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.cal .dow {
+  padding: 8px 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  background: var(--muted);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.cal .day {
+  min-height: 86px;
+  padding: 6px 8px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 11px;
+  position: relative;
+  background: var(--card);
+}
+.cal .day[data-muted="true"] { background: var(--muted); color: var(--muted-foreground); }
+.cal .day[data-today="true"] {
+  box-shadow: inset 0 0 0 1px var(--brand);
+  z-index: 1;
+}
+.cal .day .n {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+.cal .day[data-today="true"] .n {
+  color: var(--brand);
+  font-weight: 600;
+}
+.cal .ev {
+  font-size: 10.5px;
+  padding: 1px 5px;
+  border-radius: 2px;
+  line-height: 1.3;
+  background: var(--muted);
+  border-left: 2px solid var(--muted-foreground);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.cal .ev.accent { border-left-color: var(--brand); background: color-mix(in oklch, var(--brand) 12%, var(--card)); color: var(--foreground); }
+.cal .ev.warn   { border-left-color: oklch(0.72 0.14 75);  background: oklch(0.96 0.06 85);  color: oklch(0.42 0.15 75); }
+.cal .ev.ok     { border-left-color: oklch(0.58 0.11 150); background: oklch(0.95 0.04 150); color: oklch(0.32 0.10 150); }
+.cal .ev.info   { border-left-color: oklch(0.55 0.12 240); background: oklch(0.95 0.04 240); color: oklch(0.32 0.11 240); }
+.cal .ev.alert  { border-left-color: oklch(0.55 0.18 27);  background: oklch(0.95 0.05 27);  color: oklch(0.42 0.16 27); }
+
+.dark .cal .ev.warn  { background: oklch(0.30 0.07 85);  color: oklch(0.85 0.10 75); }
+.dark .cal .ev.ok    { background: oklch(0.28 0.05 150); color: oklch(0.80 0.10 150); }
+.dark .cal .ev.info  { background: oklch(0.28 0.06 240); color: oklch(0.80 0.10 240); }
+.dark .cal .ev.alert { background: oklch(0.30 0.07 27);  color: oklch(0.82 0.13 27); }
+
+@media (max-width: 768px) { .cal .day { min-height: 60px; padding: 4px 6px; } }
+
+/* Profile header — used at the top of People list selection / profile detail */
+.ppl-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  margin-bottom: 14px;
+}
+
+/* Skill bar chart for the People table — 8 little vertical bars */
+.cell-bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 16px;
+}
+.cell-bars i {
+  width: 3px;
+  background: var(--border);
+  display: inline-block;
+}
+.cell-bars i.on    { background: var(--brand); }
+.cell-bars i.alert { background: oklch(0.55 0.18 27); }
+
+/* Eyebrow tag inside a dot-separated header line */
+.crumb-sep {
+  color: var(--muted-foreground);
+  margin: 0 6px;
+  font-weight: 300;
+}
+
 /* ── Print styles ─────────────────────────────────────────────────────────── */
 
 @media print {

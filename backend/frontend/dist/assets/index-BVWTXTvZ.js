@@ -47743,17 +47743,25 @@ function People() {
     }
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 md:p-8 space-y-6", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-center justify-between gap-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { className: "h-7 w-7 text-indigo-500 shrink-0" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-baseline justify-between gap-3", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline flex-wrap gap-x-4 gap-y-1", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-3xl font-bold text-foreground flex items-center gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { className: "h-7 w-7 text-brand shrink-0" }),
           "People"
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-muted-foreground mt-1", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "eyebrow whitespace-nowrap", children: [
           filteredAndSortedPeople.length,
           " ",
           filteredAndSortedPeople.length === 1 ? "person" : "people",
-          activeFiltersCount > 0 && ` (${activeFiltersCount} filter${activeFiltersCount === 1 ? "" : "s"} active)`
+          activeFiltersCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "crumb-sep", children: "·" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+              activeFiltersCount,
+              " filter",
+              activeFiltersCount === 1 ? "" : "s",
+              " active"
+            ] })
+          ] })
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-2", children: [
@@ -47765,10 +47773,18 @@ function People() {
           /* @__PURE__ */ jsxRuntimeExports.jsx(Settings2, { className: "h-4 w-4 sm:mr-2" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Columns" })
         ] }),
-        canCreate && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { className: "bg-indigo-600 hover:bg-indigo-700", onClick: () => setShowAddModal(true), "aria-label": "Add Person", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(UserPlus, { className: "h-4 w-4 sm:mr-2" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Add Person" })
-        ] })
+        canCreate && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          Button,
+          {
+            className: "bg-brand hover:bg-brand/90 text-brand-foreground",
+            onClick: () => setShowAddModal(true),
+            "aria-label": "Add Person",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(UserPlus, { className: "h-4 w-4 sm:mr-2" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Add Person" })
+            ]
+          }
+        )
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
@@ -47783,14 +47799,42 @@ function People() {
         }
       )
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(CardHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { className: "text-base", children: "Filters" }),
-        activeFiltersCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "ghost", size: "sm", onClick: clearFilters, children: "Clear all" })
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { className: "border-border/60", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(CardHeader, { className: "pb-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-3 flex-wrap", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { className: "eyebrow !text-foreground", children: "Filters" }),
+          activeFiltersCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "ghost", size: "sm", className: "h-7 text-xs", onClick: clearFilters, children: "Clear all" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "seg", style: { width: 280 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              "data-on": statusFilter === "active",
+              onClick: () => setStatusFilter("active"),
+              children: "Current"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              "data-on": statusFilter === "all",
+              onClick: () => setStatusFilter("all"),
+              children: "All"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              "data-on": statusFilter === "inactive",
+              onClick: () => setStatusFilter("inactive"),
+              children: "Left station"
+            }
+          )
+        ] })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-sm font-medium mb-2 block", children: "Station" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "eyebrow mb-2 block", children: "Station" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: stationFilter, onValueChange: setStationFilter, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "All Stations" }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
@@ -47800,23 +47844,12 @@ function People() {
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-sm font-medium mb-2 block", children: "Status" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: statusFilter, onValueChange: (v) => setStatusFilter(v), children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Active only" }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "active", children: "Current staff" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "all", children: "All" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "inactive", children: "Left station" })
-            ] })
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-sm font-medium mb-2 block", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "eyebrow mb-2 block", children: [
             "Watch (",
             watchFilters.length,
             ")"
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border rounded-md p-2 space-y-1 max-h-40 overflow-y-auto", children: WATCH_OPTIONS.map((watch) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 cursor-pointer hover:bg-muted/50 p-1 rounded", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border border-border rounded-md p-2 space-y-1 max-h-40 overflow-y-auto bg-card", children: WATCH_OPTIONS.map((watch) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 cursor-pointer hover:bg-muted/50 p-1 rounded", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               Checkbox,
               {
@@ -47829,12 +47862,12 @@ function People() {
           ] }, watch)) })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-sm font-medium mb-2 block", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "eyebrow mb-2 block", children: [
             "Rank (",
             rankFilters.length,
             ")"
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border rounded-md p-2 space-y-1", children: RANK_OPTIONS.map((rank) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 cursor-pointer hover:bg-muted/50 p-1 rounded", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border border-border rounded-md p-2 space-y-1 bg-card", children: RANK_OPTIONS.map((rank) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 cursor-pointer hover:bg-muted/50 p-1 rounded", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               Checkbox,
               {
@@ -47846,12 +47879,12 @@ function People() {
           ] }, rank)) })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-sm font-medium mb-2 block", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "eyebrow mb-2 block", children: [
             "Skills (",
             skillFilters.length,
             ")"
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border rounded-md p-2 space-y-1 max-h-40 overflow-y-auto", children: availableSkills.map((skill2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 cursor-pointer hover:bg-muted/50 p-1 rounded", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border border-border rounded-md p-2 space-y-1 max-h-40 overflow-y-auto bg-card", children: availableSkills.map((skill2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 cursor-pointer hover:bg-muted/50 p-1 rounded", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               Checkbox,
               {
@@ -47863,7 +47896,7 @@ function People() {
           ] }, skill2)) })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-sm font-medium mb-2 block", children: "Driver Pathway" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "eyebrow mb-2 block", children: "Driver Pathway" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: driverPathwayFilter, onValueChange: setDriverPathwayFilter, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "All" }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
@@ -47907,7 +47940,7 @@ function People() {
           user2.id
         );
       }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { className: "hidden md:block overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "card-flush hidden md:block", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { className: "plain", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
           visibleColumns.name && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "cursor-pointer", onClick: () => handleSort("name"), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
             "Name ",
@@ -47964,7 +47997,7 @@ function People() {
                 visibleColumns.phone && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: (profile2 == null ? void 0 : profile2.phone) || "-" }),
                 visibleColumns.email && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "text-sm", children: user2.email }),
                 visibleColumns.rank && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: (profile2 == null ? void 0 : profile2.rank) || "-" }),
-                visibleColumns.staffNumber && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: (profile2 == null ? void 0 : profile2.service_number) || "-" }),
+                visibleColumns.staffNumber && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "font-mono text-xs tabular-nums text-muted-foreground", children: (profile2 == null ? void 0 : profile2.service_number) || "—" }),
                 visibleColumns.niNumber && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: ((_a3 = profile2 == null ? void 0 : profile2.customFields) == null ? void 0 : _a3.niNumber) || "-" }),
                 visibleColumns.skills && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1 max-w-xs", children: (profile2 == null ? void 0 : profile2.skills) && profile2.skills.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                   profile2.skills.slice(0, 3).map((skill2, idx) => /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-xs", children: skill2 }, idx)),
