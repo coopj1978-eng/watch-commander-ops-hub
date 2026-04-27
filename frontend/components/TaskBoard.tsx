@@ -98,8 +98,13 @@ function EditableColumnHeader({
               className={`flex items-center gap-2 flex-1 min-w-0 ${canEdit ? "cursor-pointer" : ""}`}
               onDoubleClick={() => canEdit && setEditing(true)}
             >
-              <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: column.color }} />
-              <span className="text-sm font-semibold truncate" style={{ color: column.color }}>{column.name}</span>
+              <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: column.color }} />
+              <span
+                className="font-mono text-[11px] font-medium uppercase tracking-wider truncate"
+                style={{ color: column.color }}
+              >
+                {column.name}
+              </span>
             </div>
             <div className="flex items-center gap-1">
               {canEdit && (
@@ -342,14 +347,17 @@ export default function TaskBoard({
   if (isLoading && columns.length === 0) {
     return (
       <div className="flex gap-3">
-        {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-64 w-[66vw] sm:w-64 shrink-0 rounded-xl" />)}
+        {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-64 w-[66vw] sm:w-64 shrink-0 rounded-md" />)}
       </div>
     );
   }
 
+  // Column wash — design's `.kan-col` uses a muted-grey container so the
+  // cards (lighter background) pop against it. The dark-mode equivalent
+  // keeps the existing translucent panel.
   const colCardClass = isDark
     ? "bg-black/30 backdrop-blur-sm border-white/10"
-    : "bg-white/90 border-border";
+    : "bg-muted border-border";
 
   return (
     <div className="flex gap-3 overflow-x-auto pb-4 items-start">
@@ -365,7 +373,7 @@ export default function TaskBoard({
           return (
             <div
               key={col.id}
-              className={`shrink-0 w-10 flex flex-col items-center rounded-xl border shadow-sm cursor-pointer hover:opacity-90 transition-all py-3 gap-2 ${colCardClass}`}
+              className={`shrink-0 w-10 flex flex-col items-center rounded-md border shadow-sm cursor-pointer hover:opacity-90 transition-all py-3 gap-2 ${colCardClass}`}
               onClick={() => toggleCollapse(col.status_key)}
               title={`Expand ${col.name}`}
             >
@@ -393,7 +401,7 @@ export default function TaskBoard({
               if (!e.currentTarget.contains(e.relatedTarget as Node)) { setDragOverColKey(null); setDragOverTaskId(null); }
             }}
           >
-            <Card className={`flex flex-col transition-all rounded-xl ${isDropTarget ? "ring-2 ring-indigo-400 ring-offset-1" : ""} ${colCardClass}`}>
+            <Card className={`flex flex-col transition-all rounded-md ${isDropTarget ? "ring-2 ring-indigo-400 ring-offset-1" : ""} ${colCardClass}`}>
               <CardHeader
                 className={`px-3 py-2.5 border-b ${isDark ? "border-white/10" : "border-border"} rounded-t-xl`}
                 style={{ backgroundColor: col.color + "18" }}
@@ -419,7 +427,7 @@ export default function TaskBoard({
 
               <CardContent className="flex flex-col gap-2 p-2 flex-1 min-h-[60px]">
                 {isLoading ? (
-                  [...Array(2)].map((_, i) => <Skeleton key={i} className="h-20 w-full rounded-xl" />)
+                  [...Array(2)].map((_, i) => <Skeleton key={i} className="h-20 w-full rounded-md" />)
                 ) : (
                   <>
                     {colTasks.map((task) => (
@@ -432,7 +440,7 @@ export default function TaskBoard({
                         className={[
                           "transition-opacity",
                           draggedTask?.id === task.id ? "opacity-30" : "opacity-100",
-                          dragOverTaskId === task.id && draggedTask?.id !== task.id ? "ring-2 ring-indigo-400 rounded-xl" : "",
+                          dragOverTaskId === task.id && draggedTask?.id !== task.id ? "ring-2 ring-indigo-400 rounded-md" : "",
                           canEdit ? "cursor-move" : "",
                         ].join(" ")}
                       >
@@ -448,13 +456,13 @@ export default function TaskBoard({
                     ))}
 
                     {colTasks.length === 0 && !isDropTarget && (
-                      <div className={`text-center py-6 text-xs border-2 border-dashed rounded-xl ${isDark ? "border-white/20 text-white/40" : "border-border text-muted-foreground"}`}>
+                      <div className={`text-center py-6 text-xs border-2 border-dashed rounded-md ${isDark ? "border-white/20 text-white/40" : "border-border text-muted-foreground"}`}>
                         No tasks
                       </div>
                     )}
 
                     {isDropTarget && (
-                      <div className="border-2 border-dashed border-indigo-400 rounded-xl py-4 text-center text-sm text-indigo-400 font-medium bg-indigo-500/10">
+                      <div className="border-2 border-dashed border-indigo-400 rounded-md py-4 text-center text-sm text-indigo-400 font-medium bg-indigo-500/10">
                         Drop here
                       </div>
                     )}
@@ -479,7 +487,7 @@ export default function TaskBoard({
       {canManageColumns && (
         <div className="shrink-0 w-[66vw] sm:w-64">
           {addingColumn ? (
-            <Card className={`p-3 space-y-2 rounded-xl ${colCardClass}`}>
+            <Card className={`p-3 space-y-2 rounded-md ${colCardClass}`}>
               <input
                 className="w-full text-sm border-b border-foreground bg-transparent outline-none pb-1 placeholder:text-muted-foreground"
                 placeholder="Column name…"
@@ -497,7 +505,7 @@ export default function TaskBoard({
             </Card>
           ) : (
             <button
-              className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm border-2 border-dashed transition-colors ${
+              className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-md text-sm border-2 border-dashed transition-colors ${
                 isDark
                   ? "border-white/20 text-white/50 hover:text-white hover:border-white/40"
                   : "border-border text-muted-foreground hover:text-foreground hover:bg-muted/50"

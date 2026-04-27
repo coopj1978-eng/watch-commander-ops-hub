@@ -108,20 +108,36 @@ export default function TaskCard({ task, onChecklistToggle, onTitleEdit, onClick
     ? (userMap?.[task.assigned_to_user_id] ?? { initials: task.assigned_to_user_id.slice(0, 2).toUpperCase(), colour: avatarColour(task.assigned_to_user_id) })
     : null;
 
+  // Priority → left border colour (visual-refresh signature look). The
+  // border-l-2 here gives the card its priority colour without needing a
+  // separate badge in the footer; the badge underneath becomes a small
+  // mono caption instead.
+  const priorityKey =
+    task.priority === "High" ? "high" : task.priority === "Med" ? "medium" : "low";
+
   const cardBase = isDark
-    ? "bg-white/95 border-white/20 hover:bg-white shadow-md"
-    : "bg-card border-border hover:border-indigo-400 hover:shadow-md";
+    ? "bg-white/95 border-white/20 hover:bg-white shadow-sm"
+    : "bg-card border-border hover:border-foreground/20";
 
   return (
     <div
-      className={`rounded-xl border transition-all cursor-pointer ${cardBase}`}
+      data-pri={priorityKey}
+      className={`kan-card rounded-md border border-l-2 transition-colors cursor-pointer ${cardBase}`}
       onClick={onClick}
+      style={{
+        borderLeftColor:
+          priorityKey === "high"
+            ? "oklch(0.55 0.18 27)"
+            : priorityKey === "medium"
+            ? "oklch(0.72 0.14 75)"
+            : "oklch(0.55 0.12 240)",
+      }}
     >
       {/* Card cover */}
       {coverStyle && (
         <div
-          className="w-full rounded-t-xl"
-          style={{ ...coverStyle, height: 80 }}
+          className="w-full rounded-t-md"
+          style={{ ...coverStyle, height: 64 }}
         />
       )}
 
@@ -192,21 +208,27 @@ export default function TaskCard({ task, onChecklistToggle, onTitleEdit, onClick
           </div>
         )}
 
-        {/* Footer: priority + avatar */}
+        {/* Footer: priority caption + avatar.
+            Priority colour now lives on the card's left border, so this
+            footer only needs the priority *name* in mono caps. The
+            avatar still anchors the right edge. */}
         <div className="flex items-center justify-between gap-1 mt-1">
-          <Badge
-            variant="outline"
-            className={`text-xs ${
-              task.priority === "High" ? "text-red-500 border-red-300 bg-red-50" :
-              task.priority === "Med"  ? "text-orange-500 border-orange-300 bg-orange-50" :
-                                         "text-blue-500 border-blue-300 bg-blue-50"
-            }`}
+          <span
+            className="font-mono text-[10px] uppercase tracking-wider"
+            style={{
+              color:
+                priorityKey === "high"
+                  ? "oklch(0.55 0.18 27)"
+                  : priorityKey === "medium"
+                  ? "oklch(0.55 0.14 75)"
+                  : "var(--muted-foreground)",
+            }}
           >
-            {task.priority}
-          </Badge>
+            {task.priority === "Med" ? "Medium" : task.priority}
+          </span>
           {assignee && (
             <div
-              className="h-6 w-6 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-sm"
+              className="h-6 w-6 rounded-full flex items-center justify-center text-white text-[10px] font-mono font-semibold shrink-0"
               style={{ backgroundColor: assignee.colour }}
               title={assignee.initials}
             >

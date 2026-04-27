@@ -2226,6 +2226,11 @@
     border-top-right-radius: var(--radius-2xl);
   }
 
+  .rounded-t-md {
+    border-top-left-radius: calc(var(--radius)  - 2px);
+    border-top-right-radius: calc(var(--radius)  - 2px);
+  }
+
   .rounded-t-xl {
     border-top-left-radius: calc(var(--radius)  + 4px);
     border-top-right-radius: calc(var(--radius)  + 4px);
@@ -3756,16 +3761,6 @@
   @supports (color: color-mix(in lab, red, red)) {
     .bg-white\/70 {
       background-color: color-mix(in oklab, var(--color-white) 70%, transparent);
-    }
-  }
-
-  .bg-white\/90 {
-    background-color: #ffffffe6;
-  }
-
-  @supports (color: color-mix(in lab, red, red)) {
-    .bg-white\/90 {
-      background-color: color-mix(in oklab, var(--color-white) 90%, transparent);
     }
   }
 
@@ -5588,6 +5583,16 @@
     @supports (color: color-mix(in lab, red, red)) {
       .hover\:border-brand\/60:hover {
         border-color: color-mix(in oklab, var(--brand) 60%, transparent);
+      }
+    }
+
+    .hover\:border-foreground\/20:hover {
+      border-color: var(--foreground);
+    }
+
+    @supports (color: color-mix(in lab, red, red)) {
+      .hover\:border-foreground\/20:hover {
+        border-color: color-mix(in oklab, var(--foreground) 20%, transparent);
       }
     }
 
