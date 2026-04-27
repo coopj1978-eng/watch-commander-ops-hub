@@ -6963,8 +6963,8 @@
       height: calc(var(--spacing) * 7);
     }
 
-    .md\:h-\[calc\(100vh-160px\)\] {
-      height: calc(100vh - 160px);
+    .md\:h-\[calc\(100vh-220px\)\] {
+      height: calc(100vh - 220px);
     }
 
     .md\:h-full {

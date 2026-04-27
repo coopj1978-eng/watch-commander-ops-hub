@@ -429,7 +429,12 @@ export default function UnifiedCalendar() {
     // Desktop: fixed height + overflow-hidden so the calendar fits neatly
     // between TopBar and bottom of viewport. Mobile: natural height so the
     // page scrolls — otherwise a day with 3+ events clips the later rows.
-    <div className="flex md:overflow-hidden md:h-[calc(100vh-160px)]">
+    //
+    // Height calculation accounts for: TopBar (52px) + page padding +
+    // the new visual-refresh page header (h1 + eyebrow + action buttons,
+    // ~64px). Bumped from 160px → 220px so the last row of the month
+    // grid stops getting clipped below the viewport.
+    <div className="flex md:overflow-hidden md:h-[calc(100vh-220px)]">
       {/* ── Desktop sidebar — permanent ────────────────────────────────────── */}
       <aside className="hidden md:flex w-52 shrink-0 border-r border-border bg-card flex-col py-4 px-3 gap-6 h-full overflow-y-auto">
         {filterContent}
