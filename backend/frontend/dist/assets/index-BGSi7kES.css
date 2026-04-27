@@ -5977,10 +5977,6 @@
       }
     }
 
-    .hover\:bg-teal-50:hover {
-      background-color: var(--color-teal-50);
-    }
-
     .hover\:bg-teal-100:hover {
       background-color: var(--color-teal-100);
     }
@@ -6949,10 +6945,6 @@
       margin-left: calc(var(--spacing) * 56);
     }
 
-    .md\:ml-auto {
-      margin-left: auto;
-    }
-
     .md\:block {
       display: block;
     }
@@ -6973,6 +6965,10 @@
       display: table-cell;
     }
 
+    .md\:h-7 {
+      height: calc(var(--spacing) * 7);
+    }
+
     .md\:h-\[calc\(100vh-160px\)\] {
       height: calc(100vh - 160px);
     }
@@ -6987,6 +6983,10 @@
 
     .md\:min-h-\[500px\] {
       min-height: 500px;
+    }
+
+    .md\:w-7 {
+      width: calc(var(--spacing) * 7);
     }
 
     .md\:w-\[380px\] {

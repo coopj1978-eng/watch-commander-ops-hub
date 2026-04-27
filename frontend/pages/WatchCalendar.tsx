@@ -318,7 +318,7 @@ export default function UnifiedCalendar() {
   const filterContent = (
     <>
       <div>
-          <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-2 px-1">
+          <p className="eyebrow mb-2 px-1">
             My Calendars
           </p>
           <div className="space-y-1">
@@ -353,7 +353,7 @@ export default function UnifiedCalendar() {
 
         {/* Other */}
         <div>
-          <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-2 px-1">
+          <p className="eyebrow mb-2 px-1">
             Other
           </p>
           <div className="space-y-1">
@@ -385,7 +385,7 @@ export default function UnifiedCalendar() {
         {/* Shift Rota */}
         {rotaAvailable && (
           <div>
-            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-2 px-1">
+            <p className="eyebrow mb-2 px-1">
               Shift Rota
             </p>
             <div className="space-y-1">
@@ -471,54 +471,72 @@ export default function UnifiedCalendar() {
       {/* Desktop keeps overflow-hidden so the fixed-height calendar owns its
           own scroll; mobile lets the content flow and the page scrolls. */}
       <div className="flex-1 flex flex-col md:overflow-hidden p-2 md:p-4">
-        {/* Toolbar — on mobile the button labels are hidden so three icon-only
-            buttons fit comfortably on a 375px screen. On sm+ the full label
-            shows again.  Each button is at least 40x40 to meet tap-target
-            minimums. */}
-        <div className="flex items-center gap-1.5 md:gap-2 mb-2 shrink-0">
-          {/* Mobile-only: open the calendar filters drawer */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setFiltersOpen(true)}
-            className="md:hidden h-10 w-10 px-0 flex items-center justify-center"
-            aria-label="Filters"
-          >
-            <Filter className="h-4 w-4" />
-          </Button>
+        {/* ── Page header ──────────────────────────────────────────────────
+            Visual-refresh pattern: heading + eyebrow context line carrying
+            the current month + watch (matching the design's
+            "April 2026 · Blue Watch"). Action buttons sit on the right —
+            their accent colour now flows through `--brand` so swapping the
+            user's accent re-skins the whole toolbar. */}
+        <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-3 mb-3 shrink-0">
+          <div className="flex items-baseline flex-wrap gap-x-4 gap-y-1">
+            <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-3 text-foreground">
+              <CalendarDays className="h-6 w-6 md:h-7 md:w-7 shrink-0 text-brand" />
+              Calendar
+            </h1>
+            <span className="eyebrow whitespace-nowrap">
+              {currentDate.toLocaleDateString("en-GB", { month: "long", year: "numeric" })}
+              {userWatch && (
+                <>
+                  <span className="crumb-sep">·</span>
+                  <span>{userWatch} Watch</span>
+                </>
+              )}
+            </span>
+          </div>
 
-          <div className="flex-1 md:hidden" />
+          <div className="flex items-center gap-1.5 md:gap-2">
+            {/* Mobile-only: open the calendar filters drawer */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setFiltersOpen(true)}
+              className="md:hidden h-10 w-10 px-0 flex items-center justify-center"
+              aria-label="Filters"
+            >
+              <Filter className="h-4 w-4" />
+            </Button>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => { setShiftAdjDate(undefined); setShiftAdjModalOpen(true); }}
-            className="h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5 border-indigo-200 text-indigo-700 hover:bg-indigo-50 md:ml-auto"
-            aria-label="Log Shift"
-          >
-            <CalendarDays className="h-4 w-4" />
-            <span className="hidden sm:inline">Log Shift</span>
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setInspectionModalOpen(true)}
-            className="h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5 border-orange-200 text-orange-700 hover:bg-orange-50"
-            aria-label="New Inspection"
-          >
-            <ClipboardPlus className="h-4 w-4" />
-            <span className="hidden sm:inline">New Inspection</span>
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setTrainingModalOpen(true)}
-            className="h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5 border-teal-200 text-teal-700 hover:bg-teal-50"
-            aria-label="Schedule Training"
-          >
-            <GraduationCap className="h-4 w-4" />
-            <span className="hidden sm:inline">Schedule Training</span>
-          </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => { setShiftAdjDate(undefined); setShiftAdjModalOpen(true); }}
+              className="h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5"
+              aria-label="Log Shift"
+            >
+              <CalendarDays className="h-4 w-4" />
+              <span className="hidden sm:inline">Log Shift</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setInspectionModalOpen(true)}
+              className="h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5"
+              aria-label="New Inspection"
+            >
+              <ClipboardPlus className="h-4 w-4" />
+              <span className="hidden sm:inline">New Inspection</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setTrainingModalOpen(true)}
+              className="h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5"
+              aria-label="Schedule Training"
+            >
+              <GraduationCap className="h-4 w-4" />
+              <span className="hidden sm:inline">Schedule Training</span>
+            </Button>
+          </div>
         </div>
         <CalendarWidget
           events={allEvents as any}

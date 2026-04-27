@@ -53371,7 +53371,7 @@ function UnifiedCalendar() {
   ];
   const filterContent = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-2 px-1", children: "My Calendars" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eyebrow mb-2 px-1", children: "My Calendars" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1", children: CALENDARS.map(({ key: key2, label, sublabel, color }) => {
         const active = visibleCalendars.has(key2);
         return /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -53402,7 +53402,7 @@ function UnifiedCalendar() {
       }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-2 px-1", children: "Other" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eyebrow mb-2 px-1", children: "Other" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1", children: OTHER_CALENDARS.map(({ key: key2, label, color }) => {
         const active = visibleCalendars.has(key2);
         return /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -53430,7 +53430,7 @@ function UnifiedCalendar() {
       }) })
     ] }),
     rotaAvailable && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-2 px-1", children: "Shift Rota" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eyebrow mb-2 px-1", children: "Shift Rota" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "button",
         {
@@ -53509,64 +53509,81 @@ function UnifiedCalendar() {
         }
       ),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col md:overflow-hidden p-2 md:p-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5 md:gap-2 mb-2 shrink-0", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Button,
-            {
-              variant: "outline",
-              size: "sm",
-              onClick: () => setFiltersOpen(true),
-              className: "md:hidden h-10 w-10 px-0 flex items-center justify-center",
-              "aria-label": "Filters",
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { className: "h-4 w-4" })
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 md:hidden" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            Button,
-            {
-              variant: "outline",
-              size: "sm",
-              onClick: () => {
-                setShiftAdjDate(void 0);
-                setShiftAdjModalOpen(true);
-              },
-              className: "h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5 border-indigo-200 text-indigo-700 hover:bg-indigo-50 md:ml-auto",
-              "aria-label": "Log Shift",
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarDays, { className: "h-4 w-4" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Log Shift" })
-              ]
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            Button,
-            {
-              variant: "outline",
-              size: "sm",
-              onClick: () => setInspectionModalOpen(true),
-              className: "h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5 border-orange-200 text-orange-700 hover:bg-orange-50",
-              "aria-label": "New Inspection",
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(ClipboardPlus, { className: "h-4 w-4" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "New Inspection" })
-              ]
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            Button,
-            {
-              variant: "outline",
-              size: "sm",
-              onClick: () => setTrainingModalOpen(true),
-              className: "h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5 border-teal-200 text-teal-700 hover:bg-teal-50",
-              "aria-label": "Schedule Training",
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(GraduationCap, { className: "h-4 w-4" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Schedule Training" })
-              ]
-            }
-          )
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-baseline justify-between gap-3 mb-3 shrink-0", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline flex-wrap gap-x-4 gap-y-1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-2xl md:text-3xl font-bold flex items-center gap-3 text-foreground", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarDays, { className: "h-6 w-6 md:h-7 md:w-7 shrink-0 text-brand" }),
+              "Calendar"
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "eyebrow whitespace-nowrap", children: [
+              currentDate.toLocaleDateString("en-GB", { month: "long", year: "numeric" }),
+              userWatch && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "crumb-sep", children: "·" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                  userWatch,
+                  " Watch"
+                ] })
+              ] })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5 md:gap-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Button,
+              {
+                variant: "outline",
+                size: "sm",
+                onClick: () => setFiltersOpen(true),
+                className: "md:hidden h-10 w-10 px-0 flex items-center justify-center",
+                "aria-label": "Filters",
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { className: "h-4 w-4" })
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              Button,
+              {
+                variant: "outline",
+                size: "sm",
+                onClick: () => {
+                  setShiftAdjDate(void 0);
+                  setShiftAdjModalOpen(true);
+                },
+                className: "h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5",
+                "aria-label": "Log Shift",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarDays, { className: "h-4 w-4" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Log Shift" })
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              Button,
+              {
+                variant: "outline",
+                size: "sm",
+                onClick: () => setInspectionModalOpen(true),
+                className: "h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5",
+                "aria-label": "New Inspection",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(ClipboardPlus, { className: "h-4 w-4" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "New Inspection" })
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              Button,
+              {
+                variant: "outline",
+                size: "sm",
+                onClick: () => setTrainingModalOpen(true),
+                className: "h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5",
+                "aria-label": "Schedule Training",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(GraduationCap, { className: "h-4 w-4" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Schedule Training" })
+                ]
+              }
+            )
+          ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           CalendarWidget,
