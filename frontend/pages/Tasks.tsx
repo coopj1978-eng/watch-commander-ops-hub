@@ -74,6 +74,49 @@ export default function Tasks() {
   // All watch members see all watch tasks — backend already scopes by watch_unit
   const filteredTasks = tasks;
 
+  // ── KPI summary for the today-strip ─────────────────────────────────────
+  // Derived live from the task list so the strip never disagrees with the
+  // board below it. Mirrors the design's header strip:
+  //   open · due this week · overdue · blocked · completed (7d) · in progress
+  const taskStats = useMemo(() => {
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const endOfWeek = new Date(startOfDay.getTime() + 7 * 86_400_000);
+    const sevenDaysAgo = new Date(startOfDay.getTime() - 7 * 86_400_000);
+
+    let open = 0;
+    let dueThisWeek = 0;
+    let overdue = 0;
+    let blocked = 0;
+    let completedRecent = 0;
+    let inProgress = 0;
+
+    for (const t of tasks) {
+      const status = (t.status ?? "").toLowerCase();
+      const isDone = status === "done" || status === "completed";
+      if (!isDone) open += 1;
+      if (status.includes("progress")) inProgress += 1;
+      if (status.includes("block")) blocked += 1;
+
+      if (t.due_at && !isDone) {
+        const due = new Date(t.due_at);
+        if (!Number.isNaN(due.getTime())) {
+          if (due < startOfDay) overdue += 1;
+          else if (due < endOfWeek) dueThisWeek += 1;
+        }
+      }
+
+      if (isDone && t.updated_at) {
+        const updated = new Date(t.updated_at);
+        if (!Number.isNaN(updated.getTime()) && updated >= sevenDaysAgo) {
+          completedRecent += 1;
+        }
+      }
+    }
+
+    return { open, dueThisWeek, overdue, blocked, completedRecent, inProgress };
+  }, [tasks]);
+
   // ── Mutations ────────────────────────────────────────────────────────────
   const createTaskMutation = useMutation({
     mutationFn: async (data: any) => backend.task.create({ ...data, assigned_by: user?.id || "" }),
@@ -165,26 +208,38 @@ export default function Tasks() {
       className="min-h-screen -m-4 md:-m-8 p-4 md:p-8 space-y-5 transition-all duration-500"
       style={bgId !== "default" ? { background: bg.style.replace("background: ", "") } : {}}
     >
-      {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h1 className={`text-2xl md:text-3xl font-bold flex items-center gap-3 ${headingClass}`}>
-            <CheckSquare className={`h-7 w-7 shrink-0 ${isDark ? "text-white/80" : "text-blue-500"}`} />
+      {/* ── Page header ──────────────────────────────────────────────────────
+          Visual-refresh pattern: heading + eyebrow context line that mirrors
+          what the design calls out (`This watch · 14 total · 3 overdue`)
+          + spacer + action buttons. Eyebrow uses the live taskStats so the
+          numbers never drift from the board / today-strip below. */}
+      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-3">
+        <div className="flex items-baseline flex-wrap gap-x-4 gap-y-1">
+          <h1 className={`text-3xl font-bold flex items-center gap-3 ${headingClass}`}>
+            <CheckSquare className={`h-7 w-7 shrink-0 ${isDark ? "text-white/80" : "text-brand"}`} />
             Tasks
           </h1>
-          <p className={`mt-1 ${subtitleClass}`}>
-            {watchName} Tasks
-          </p>
+          <span className={`eyebrow whitespace-nowrap ${isDark ? "!text-white/60" : ""}`}>
+            {watchName} Watch
+            <span className="crumb-sep">·</span>
+            {tasks.length} total
+            {taskStats.overdue > 0 && (
+              <>
+                <span className="crumb-sep">·</span>
+                <span className="text-red-600 dark:text-red-400">{taskStats.overdue} overdue</span>
+              </>
+            )}
+          </span>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           {/* Board/List toggle */}
           <Button variant="outline" size="icon" onClick={() => setViewMode("board")} title="Board view"
-            className={`${viewMode === "board" ? "bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700" : btnOutlineClass}`}>
+            className={`${viewMode === "board" ? "bg-brand text-brand-foreground border-brand hover:bg-brand/90" : btnOutlineClass}`}>
             <LayoutGrid className="h-4 w-4" />
           </Button>
           <Button variant="outline" size="icon" onClick={() => setViewMode("list")} title="List view"
-            className={`${viewMode === "list" ? "bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700" : btnOutlineClass}`}>
+            className={`${viewMode === "list" ? "bg-brand text-brand-foreground border-brand hover:bg-brand/90" : btnOutlineClass}`}>
             <List className="h-4 w-4" />
           </Button>
 
@@ -195,14 +250,14 @@ export default function Tasks() {
               size="icon"
               onClick={() => setShowBgPicker(!showBgPicker)}
               title="Board background"
-              className={`${showBgPicker ? "bg-indigo-600 text-white border-indigo-600" : btnOutlineClass}`}
+              className={`${showBgPicker ? "bg-brand text-brand-foreground border-brand" : btnOutlineClass}`}
             >
               <Palette className="h-4 w-4" />
             </Button>
             {showBgPicker && (
-              <div className={`absolute right-0 top-11 z-50 rounded-2xl shadow-2xl border p-4 w-72 ${isDark ? "bg-gray-900/95 border-white/10" : "bg-white border-border"}`}>
+              <div className={`absolute right-0 top-11 z-50 rounded-md shadow-2xl border p-4 w-72 ${isDark ? "bg-gray-900/95 border-white/10" : "bg-card border-border"}`}>
                 <div className="flex items-center justify-between mb-3">
-                  <span className={`text-sm font-semibold ${isDark ? "text-white" : ""}`}>Board Background</span>
+                  <span className={`eyebrow ${isDark ? "!text-white" : ""}`}>Board Background</span>
                   <button onClick={() => setShowBgPicker(false)} className={isDark ? "text-white/50 hover:text-white" : "text-muted-foreground hover:text-foreground"}>
                     <XIcon className="h-4 w-4" />
                   </button>
@@ -212,7 +267,7 @@ export default function Tasks() {
                     <button
                       key={b.id}
                       onClick={() => handleBgChange(b.id)}
-                      className={`h-12 rounded-xl transition-all hover:scale-105 border-2 ${bgId === b.id ? "border-indigo-500 scale-105 shadow-lg" : "border-transparent"}`}
+                      className={`h-12 rounded-md transition-all hover:scale-105 border-2 ${bgId === b.id ? "border-brand scale-105 shadow-lg" : "border-transparent"}`}
                       style={{ background: b.style.replace("background: ", "") }}
                       title={b.name}
                     />
@@ -227,17 +282,59 @@ export default function Tasks() {
             <Repeat className="h-4 w-4 sm:mr-2" />
             <span className="hidden sm:inline">Templates</span>
           </Button>
-          <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleNewTask} aria-label="New Task">
+          <Button
+            className="bg-brand hover:bg-brand/90 text-brand-foreground"
+            onClick={handleNewTask}
+            aria-label="New Task"
+          >
             <Plus className="h-4 w-4 sm:mr-2" />
             <span className="hidden sm:inline">New Task</span>
           </Button>
         </div>
       </div>
 
+      {/* ── KPI strip ────────────────────────────────────────────────────────
+          The .today-strip primitive from the visual refresh — flat, mono-
+          numeric, no separate cards. Lives between the header and the
+          filter row so the numbers are always in view above the board. */}
+      {viewMode === "board" && (
+        <div className="today-strip">
+          <div>
+            <span className="k">Open</span>
+            <span className="v mono">{taskStats.open}</span>
+          </div>
+          <div>
+            <span className="k">Due this week</span>
+            <span className="v mono">{taskStats.dueThisWeek}</span>
+          </div>
+          <div>
+            <span className="k">Overdue</span>
+            <span
+              className="v mono"
+              style={{ color: taskStats.overdue > 0 ? "var(--destructive)" : undefined }}
+            >
+              {taskStats.overdue}
+            </span>
+          </div>
+          <div>
+            <span className="k">Blocked</span>
+            <span className="v mono">{taskStats.blocked}</span>
+          </div>
+          <div>
+            <span className="k">In progress</span>
+            <span className="v mono">{taskStats.inProgress}</span>
+          </div>
+          <div>
+            <span className="k">Completed (7d)</span>
+            <span className="v mono">{taskStats.completedRecent}</span>
+          </div>
+        </div>
+      )}
+
       {/* ── Filter Bar (board only) ─────────────────────────────────────────── */}
       {viewMode === "board" && (
-        <div className={`flex flex-wrap items-center gap-2 p-3 rounded-2xl border ${
-          isDark ? "bg-black/20 border-white/10 backdrop-blur-sm" : "bg-white/70 border-border backdrop-blur-sm shadow-sm"
+        <div className={`flex flex-wrap items-center gap-2 p-2.5 rounded-md border ${
+          isDark ? "bg-black/20 border-white/10 backdrop-blur-sm" : "bg-card border-border"
         }`}>
           {/* Search */}
           <div className="relative flex-1 min-w-[150px] max-w-xs">

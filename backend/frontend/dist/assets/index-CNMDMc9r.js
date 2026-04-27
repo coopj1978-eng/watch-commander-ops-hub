@@ -55797,6 +55797,39 @@ function Tasks() {
     return map;
   }, [profilesData]);
   const filteredTasks = tasks;
+  const taskStats = reactExports.useMemo(() => {
+    const now = /* @__PURE__ */ new Date();
+    const startOfDay2 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const endOfWeek = new Date(startOfDay2.getTime() + 7 * 864e5);
+    const sevenDaysAgo = new Date(startOfDay2.getTime() - 7 * 864e5);
+    let open = 0;
+    let dueThisWeek = 0;
+    let overdue = 0;
+    let blocked = 0;
+    let completedRecent = 0;
+    let inProgress = 0;
+    for (const t of tasks) {
+      const status = (t.status ?? "").toLowerCase();
+      const isDone = status === "done" || status === "completed";
+      if (!isDone) open += 1;
+      if (status.includes("progress")) inProgress += 1;
+      if (status.includes("block")) blocked += 1;
+      if (t.due_at && !isDone) {
+        const due = new Date(t.due_at);
+        if (!Number.isNaN(due.getTime())) {
+          if (due < startOfDay2) overdue += 1;
+          else if (due < endOfWeek) dueThisWeek += 1;
+        }
+      }
+      if (isDone && t.updated_at) {
+        const updated = new Date(t.updated_at);
+        if (!Number.isNaN(updated.getTime()) && updated >= sevenDaysAgo) {
+          completedRecent += 1;
+        }
+      }
+    }
+    return { open, dueThisWeek, overdue, blocked, completedRecent, inProgress };
+  }, [tasks]);
   const createTaskMutation = useMutation({
     mutationFn: async (data) => backendClient.task.create({ ...data, assigned_by: (user2 == null ? void 0 : user2.id) || "" }),
     onSuccess: () => queryClient2.invalidateQueries({ queryKey: ["tasks"] }),
@@ -55869,7 +55902,6 @@ function Tasks() {
   const syncedSelectedTask = selectedTask ? tasks.find((t) => t.id === selectedTask.id) ?? selectedTask : null;
   const boardFilters = { search: filterSearch, labels: filterLabels, overdueOnly: filterOverdue, assignee: filterAssignee };
   const headingClass = isDark ? "text-white" : "text-foreground";
-  const subtitleClass = isDark ? "text-white/60" : "text-muted-foreground";
   const btnOutlineClass = isDark ? "bg-white/15 text-white border-white/25 hover:bg-white/25" : "";
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
@@ -55877,15 +55909,25 @@ function Tasks() {
       className: "min-h-screen -m-4 md:-m-8 p-4 md:p-8 space-y-5 transition-all duration-500",
       style: bgId !== "default" ? { background: bg.style.replace("background: ", "") } : {},
       children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-center justify-between gap-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: `text-2xl md:text-3xl font-bold flex items-center gap-3 ${headingClass}`, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SquareCheckBig, { className: `h-7 w-7 shrink-0 ${isDark ? "text-white/80" : "text-blue-500"}` }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-baseline justify-between gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline flex-wrap gap-x-4 gap-y-1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: `text-3xl font-bold flex items-center gap-3 ${headingClass}`, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SquareCheckBig, { className: `h-7 w-7 shrink-0 ${isDark ? "text-white/80" : "text-brand"}` }),
               "Tasks"
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: `mt-1 ${subtitleClass}`, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: `eyebrow whitespace-nowrap ${isDark ? "!text-white/60" : ""}`, children: [
               watchName,
-              " Tasks"
+              " Watch",
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "crumb-sep", children: "·" }),
+              tasks.length,
+              " total",
+              taskStats.overdue > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "crumb-sep", children: "·" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-red-600 dark:text-red-400", children: [
+                  taskStats.overdue,
+                  " overdue"
+                ] })
+              ] })
             ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
@@ -55896,7 +55938,7 @@ function Tasks() {
                 size: "icon",
                 onClick: () => setViewMode("board"),
                 title: "Board view",
-                className: `${viewMode === "board" ? "bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700" : btnOutlineClass}`,
+                className: `${viewMode === "board" ? "bg-brand text-brand-foreground border-brand hover:bg-brand/90" : btnOutlineClass}`,
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(LayoutGrid, { className: "h-4 w-4" })
               }
             ),
@@ -55907,7 +55949,7 @@ function Tasks() {
                 size: "icon",
                 onClick: () => setViewMode("list"),
                 title: "List view",
-                className: `${viewMode === "list" ? "bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700" : btnOutlineClass}`,
+                className: `${viewMode === "list" ? "bg-brand text-brand-foreground border-brand hover:bg-brand/90" : btnOutlineClass}`,
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(List$1, { className: "h-4 w-4" })
               }
             ),
@@ -55919,20 +55961,20 @@ function Tasks() {
                   size: "icon",
                   onClick: () => setShowBgPicker(!showBgPicker),
                   title: "Board background",
-                  className: `${showBgPicker ? "bg-indigo-600 text-white border-indigo-600" : btnOutlineClass}`,
+                  className: `${showBgPicker ? "bg-brand text-brand-foreground border-brand" : btnOutlineClass}`,
                   children: /* @__PURE__ */ jsxRuntimeExports.jsx(Palette, { className: "h-4 w-4" })
                 }
               ),
-              showBgPicker && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `absolute right-0 top-11 z-50 rounded-2xl shadow-2xl border p-4 w-72 ${isDark ? "bg-gray-900/95 border-white/10" : "bg-white border-border"}`, children: [
+              showBgPicker && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `absolute right-0 top-11 z-50 rounded-md shadow-2xl border p-4 w-72 ${isDark ? "bg-gray-900/95 border-white/10" : "bg-card border-border"}`, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-3", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `text-sm font-semibold ${isDark ? "text-white" : ""}`, children: "Board Background" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `eyebrow ${isDark ? "!text-white" : ""}`, children: "Board Background" }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowBgPicker(false), className: isDark ? "text-white/50 hover:text-white" : "text-muted-foreground hover:text-foreground", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4" }) })
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-4 gap-2", children: BOARD_BACKGROUNDS.map((b) => /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "button",
                   {
                     onClick: () => handleBgChange(b.id),
-                    className: `h-12 rounded-xl transition-all hover:scale-105 border-2 ${bgId === b.id ? "border-indigo-500 scale-105 shadow-lg" : "border-transparent"}`,
+                    className: `h-12 rounded-md transition-all hover:scale-105 border-2 ${bgId === b.id ? "border-brand scale-105 shadow-lg" : "border-transparent"}`,
                     style: { background: b.style.replace("background: ", "") },
                     title: b.name
                   },
@@ -55945,13 +55987,54 @@ function Tasks() {
               /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat, { className: "h-4 w-4 sm:mr-2" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Templates" })
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { className: "bg-indigo-600 hover:bg-indigo-700", onClick: handleNewTask, "aria-label": "New Task", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4 sm:mr-2" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "New Task" })
-            ] })
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              Button,
+              {
+                className: "bg-brand hover:bg-brand/90 text-brand-foreground",
+                onClick: handleNewTask,
+                "aria-label": "New Task",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4 sm:mr-2" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "New Task" })
+                ]
+              }
+            )
           ] })
         ] }),
-        viewMode === "board" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `flex flex-wrap items-center gap-2 p-3 rounded-2xl border ${isDark ? "bg-black/20 border-white/10 backdrop-blur-sm" : "bg-white/70 border-border backdrop-blur-sm shadow-sm"}`, children: [
+        viewMode === "board" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "today-strip", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "k", children: "Open" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "v mono", children: taskStats.open })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "k", children: "Due this week" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "v mono", children: taskStats.dueThisWeek })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "k", children: "Overdue" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "span",
+              {
+                className: "v mono",
+                style: { color: taskStats.overdue > 0 ? "var(--destructive)" : void 0 },
+                children: taskStats.overdue
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "k", children: "Blocked" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "v mono", children: taskStats.blocked })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "k", children: "In progress" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "v mono", children: taskStats.inProgress })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "k", children: "Completed (7d)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "v mono", children: taskStats.completedRecent })
+          ] })
+        ] }),
+        viewMode === "board" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `flex flex-wrap items-center gap-2 p-2.5 rounded-md border ${isDark ? "bg-black/20 border-white/10 backdrop-blur-sm" : "bg-card border-border"}`, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative flex-1 min-w-[150px] max-w-xs", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: `absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 ${isDark ? "text-white/40" : "text-muted-foreground"}` }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(

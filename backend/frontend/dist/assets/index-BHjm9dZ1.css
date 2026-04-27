@@ -4459,6 +4459,20 @@
     color: var(--foreground) !important;
   }
 
+  .\!text-white {
+    color: var(--color-white) !important;
+  }
+
+  .\!text-white\/60 {
+    color: #fff9 !important;
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .\!text-white\/60 {
+      color: color-mix(in oklab, var(--color-white) 60%, transparent) !important;
+    }
+  }
+
   .text-amber-400 {
     color: var(--color-amber-400);
   }
