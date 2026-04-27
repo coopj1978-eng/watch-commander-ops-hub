@@ -27556,7 +27556,7 @@ var bulletin;
       this.deleteBulletin = this.deleteBulletin.bind(this);
     }
     async create(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/bulletins`, JSON.stringify(params));
+      const resp = await this.baseClient.callTypedAPI("POST", `/api/bulletins`, JSON.stringify(params));
       return await resp.json();
     }
     async list(params) {
@@ -27737,7 +27737,7 @@ var detachments;
      * POST /detachments — record a firefighter detachment event
      */
     async create(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/detachments`, JSON.stringify(params));
+      const resp = await this.baseClient.callTypedAPI("POST", `/api/detachments`, JSON.stringify(params));
       return await resp.json();
     }
     /**
@@ -27759,7 +27759,7 @@ var detachments;
         offset: params.offset === void 0 ? void 0 : String(params.offset),
         watch: params.watch
       });
-      const resp = await this.baseClient.callTypedAPI("GET", `/detachments`, void 0, { query });
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/detachments`, void 0, { query });
       return await resp.json();
     }
   }
@@ -28121,7 +28121,7 @@ var mock;
       this.updateMockPerson = this.updateMockPerson.bind(this);
     }
     async createMockAbsence(id, params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/api/people/${encodeURIComponent(id)}/absences`, JSON.stringify(params));
+      const resp = await this.baseClient.callTypedAPI("POST", `/api/mock/people/${encodeURIComponent(id)}/absences`, JSON.stringify(params));
       return await resp.json();
     }
     async createSkill(params) {
@@ -28133,7 +28133,7 @@ var mock;
       return await resp.json();
     }
     async getMockAbsences(id) {
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/people/${encodeURIComponent(id)}/absences`);
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/people/${encodeURIComponent(id)}/absences`);
       return await resp.json();
     }
     async getMockInspection(id) {
@@ -28149,11 +28149,11 @@ var mock;
       return await resp.json();
     }
     async getMockPeople() {
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/people`);
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/people`);
       return await resp.json();
     }
     async getMockPerson(id) {
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/people/${encodeURIComponent(id)}`);
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/people/${encodeURIComponent(id)}`);
       return await resp.json();
     }
     async getMockPolicyDocs(params) {
@@ -28218,7 +28218,7 @@ var mock;
       return await resp.json();
     }
     async updateMockPerson(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PUT", `/api/people/${encodeURIComponent(id)}`, JSON.stringify(params));
+      const resp = await this.baseClient.callTypedAPI("PUT", `/api/mock/people/${encodeURIComponent(id)}`, JSON.stringify(params));
       return await resp.json();
     }
   }
@@ -28390,7 +28390,7 @@ var profile;
       return await resp.json();
     }
     async createPerson(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/people`, JSON.stringify(params));
+      const resp = await this.baseClient.callTypedAPI("POST", `/api/people`, JSON.stringify(params));
       return await resp.json();
     }
     async getByUser(user_id) {
@@ -28422,7 +28422,7 @@ var profile;
         status: params.status === void 0 ? void 0 : String(params.status),
         "watch_unit": params["watch_unit"]
       });
-      const resp = await this.baseClient.callTypedAPI("GET", `/people`, void 0, { query });
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/people`, void 0, { query });
       return await resp.json();
     }
     async recalculateTriggers(params) {
@@ -28547,7 +28547,7 @@ var settings;
       this.updateTriggerThresholds = this.updateTriggerThresholds.bind(this);
     }
     async get() {
-      const resp = await this.baseClient.callTypedAPI("GET", `/settings`);
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/settings`);
       return await resp.json();
     }
     async updateAbsenceThresholds(params) {

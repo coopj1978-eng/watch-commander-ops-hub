@@ -56,7 +56,7 @@ function toBulletin(row: DBBulletin, postedByName?: string): Bulletin {
 }
 
 export const create = api<CreateBulletinRequest, Bulletin>(
-  { auth: true, expose: true, method: "POST", path: "/bulletins" },
+  { auth: true, expose: true, method: "POST", path: "/api/bulletins" },
   async (req) => {
     const auth = getAuthData()!;
 

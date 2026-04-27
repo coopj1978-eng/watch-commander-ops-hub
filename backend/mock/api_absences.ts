@@ -49,7 +49,7 @@ let mockAbsences: MockAbsence[] = [
 ];
 
 export const getMockAbsences = api(
-  { expose: true, method: "GET", path: "/api/people/:id/absences" },
+  { expose: true, method: "GET", path: "/api/mock/people/:id/absences" },
   async ({ id }: { id: string }): Promise<{ data: MockAbsence[] }> => {
     const absences = mockAbsences.filter((a) => a.firefighterId === id);
     return { data: absences };
@@ -57,7 +57,7 @@ export const getMockAbsences = api(
 );
 
 export const createMockAbsence = api(
-  { expose: true, method: "POST", path: "/api/people/:id/absences" },
+  { expose: true, method: "POST", path: "/api/mock/people/:id/absences" },
   async ({
     id,
     type,

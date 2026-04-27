@@ -149,7 +149,7 @@ function transformUserProfile(row: DBUserProfile): PersonWithProfile {
 }
 
 export const listWithUsers = api<ListPeopleRequest, ListPeopleResponse>(
-  { expose: true, method: "GET", path: "/people" },
+  { expose: true, method: "GET", path: "/api/people" },
   async (req) => {
     const limit = req.limit || 200;
     const offset = req.offset || 0;

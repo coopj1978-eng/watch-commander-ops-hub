@@ -138,7 +138,7 @@ function transformProfile(dbProfile: DBProfile): FirefighterProfile {
 }
 
 export const createPerson = api<CreatePersonRequest, CreatePersonResponse>(
-  { auth: true, expose: true, method: "POST", path: "/people" },
+  { auth: true, expose: true, method: "POST", path: "/api/people" },
   async (req) => {
     const auth = getAuthData()!;
     

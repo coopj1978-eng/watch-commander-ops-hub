@@ -3,7 +3,7 @@ import db from "../db";
 import type { SystemSettings } from "./types";
 
 export const get = api<void, SystemSettings>(
-  { auth: true, expose: true, method: "GET", path: "/settings" },
+  { auth: true, expose: true, method: "GET", path: "/api/settings" },
   async () => {
     const settings = await db.rawQueryRow<SystemSettings>(
       `SELECT * FROM system_settings ORDER BY id DESC LIMIT 1`

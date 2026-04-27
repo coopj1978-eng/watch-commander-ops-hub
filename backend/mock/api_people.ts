@@ -86,14 +86,14 @@ let mockPeople: MockPerson[] = [
 ];
 
 export const getMockPeople = api(
-  { expose: true, method: "GET", path: "/api/people" },
+  { expose: true, method: "GET", path: "/api/mock/people" },
   async (): Promise<{ data: MockPerson[] }> => {
     return { data: mockPeople };
   }
 );
 
 export const getMockPerson = api(
-  { expose: true, method: "GET", path: "/api/people/:id" },
+  { expose: true, method: "GET", path: "/api/mock/people/:id" },
   async ({ id }: { id: string }): Promise<{ data: MockPerson | null }> => {
     const person = mockPeople.find((p) => p.id === id);
     return { data: person || null };
@@ -101,7 +101,7 @@ export const getMockPerson = api(
 );
 
 export const updateMockPerson = api(
-  { expose: true, method: "PUT", path: "/api/people/:id" },
+  { expose: true, method: "PUT", path: "/api/mock/people/:id" },
   async ({
     id,
     ...updates

@@ -5,7 +5,7 @@ import type { CreateDetachmentRequest, Detachment } from "./types";
 
 // POST /detachments — record a firefighter detachment event
 export const create = api<CreateDetachmentRequest, Detachment>(
-  { auth: true, expose: true, method: "POST", path: "/detachments" },
+  { auth: true, expose: true, method: "POST", path: "/api/detachments" },
   async (req) => {
     const auth = getAuthData()!;
 

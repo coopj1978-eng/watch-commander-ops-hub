@@ -1206,7 +1206,7 @@ export namespace bulletin {
         }
 
         public async create(params: CreateBulletinRequest): Promise<Bulletin> {
-            const resp = await this.baseClient.callTypedAPI("POST", `/bulletins`, JSON.stringify(params))
+            const resp = await this.baseClient.callTypedAPI("POST", `/api/bulletins`, JSON.stringify(params))
             return await resp.json() as Bulletin
         }
 
@@ -1711,7 +1711,7 @@ export namespace detachments {
          */
         public async create(params: CreateDetachmentRequest): Promise<Detachment> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/detachments`, JSON.stringify(params))
+            const resp = await this.baseClient.callTypedAPI("POST", `/api/detachments`, JSON.stringify(params))
             return await resp.json() as Detachment
         }
 
@@ -1741,7 +1741,7 @@ export namespace detachments {
             })
 
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/detachments`, undefined, {query})
+            const resp = await this.baseClient.callTypedAPI("GET", `/api/detachments`, undefined, {query})
             return await resp.json() as ListDetachmentsResponse
         }
     }
@@ -2742,7 +2742,7 @@ export namespace mock {
     data: MockAbsence
 }> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/api/people/${encodeURIComponent(id)}/absences`, JSON.stringify(params))
+            const resp = await this.baseClient.callTypedAPI("POST", `/api/mock/people/${encodeURIComponent(id)}/absences`, JSON.stringify(params))
             return await resp.json() as {
     data: MockAbsence
 }
@@ -2775,7 +2775,7 @@ export namespace mock {
     data: MockAbsence[]
 }> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/api/people/${encodeURIComponent(id)}/absences`)
+            const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/people/${encodeURIComponent(id)}/absences`)
             return await resp.json() as {
     data: MockAbsence[]
 }
@@ -2803,7 +2803,7 @@ export namespace mock {
     data: MockPerson[]
 }> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/api/people`)
+            const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/people`)
             return await resp.json() as {
     data: MockPerson[]
 }
@@ -2813,7 +2813,7 @@ export namespace mock {
     data: MockPerson | null
 }> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/api/people/${encodeURIComponent(id)}`)
+            const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/people/${encodeURIComponent(id)}`)
             return await resp.json() as {
     data: MockPerson | null
 }
@@ -2947,7 +2947,7 @@ export namespace mock {
     data: MockPerson
 }> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("PUT", `/api/people/${encodeURIComponent(id)}`, JSON.stringify(params))
+            const resp = await this.baseClient.callTypedAPI("PUT", `/api/mock/people/${encodeURIComponent(id)}`, JSON.stringify(params))
             return await resp.json() as {
     data: MockPerson
 }
@@ -3566,7 +3566,7 @@ export namespace profile {
 
         public async createPerson(params: CreatePersonRequest): Promise<CreatePersonResponse> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/people`, JSON.stringify(params))
+            const resp = await this.baseClient.callTypedAPI("POST", `/api/people`, JSON.stringify(params))
             return await resp.json() as CreatePersonResponse
         }
 
@@ -3610,7 +3610,7 @@ export namespace profile {
             })
 
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/people`, undefined, {query})
+            const resp = await this.baseClient.callTypedAPI("GET", `/api/people`, undefined, {query})
             return await resp.json() as ListPeopleResponse
         }
 
@@ -4045,7 +4045,7 @@ export namespace settings {
 
         public async get(): Promise<SystemSettings> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/settings`)
+            const resp = await this.baseClient.callTypedAPI("GET", `/api/settings`)
             return await resp.json() as SystemSettings
         }
 

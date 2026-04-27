@@ -10,7 +10,7 @@ import type {
 
 // GET /detachments — list detachment history, optionally filtered by watch
 export const list = api<ListDetachmentsRequest, ListDetachmentsResponse>(
-  { auth: true, expose: true, method: "GET", path: "/detachments" },
+  { auth: true, expose: true, method: "GET", path: "/api/detachments" },
   async (req) => {
     const conditions: string[] = [];
     const params: SQLPrimitive[] = [];

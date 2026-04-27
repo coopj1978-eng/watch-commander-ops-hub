@@ -43,7 +43,7 @@ interface DBBulletinRow {
 }
 
 export const list = api<ListBulletinsRequest, ListBulletinsResponse>(
-  { auth: true, expose: true, method: "GET", path: "/bulletins" },
+  { auth: true, expose: true, method: "GET", path: "/api/bulletins" },
   async (req) => {
     const auth = getAuthData()!;
     const limit = Math.min(req.limit ?? 50, 200);
