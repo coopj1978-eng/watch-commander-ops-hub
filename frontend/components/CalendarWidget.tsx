@@ -617,20 +617,41 @@ function MonthView({
   const cells = getDaysInMonthGrid(date);
   const isDark = document.documentElement.classList.contains("dark");
 
+  // Visual-refresh month grid: 7-col cal with mono uppercase DOW headers,
+  // mono top-left date numbers, hairline borders, and coloured-left-border
+  // event pills. Today is marked with an inset brand-coloured outline
+  // instead of a red filled circle (the old look reads as "alert" in
+  // glyph terms; the new pattern reads as "current cursor").
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <div className="grid grid-cols-7 border-b border-border bg-muted/20 shrink-0">
+      <div className="grid grid-cols-7 shrink-0 border-l border-t border-border rounded-t-md overflow-hidden">
         {MONTH_LABELS.map((d) => (
-          <div key={d} className="text-center py-1.5 text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">
+          <div
+            key={d}
+            className="border-r border-b border-border bg-muted text-muted-foreground"
+            style={{
+              padding: "8px 10px",
+              fontFamily: "var(--font-mono)",
+              fontSize: 10,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+            }}
+          >
             {d}
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-7 flex-1 overflow-y-auto">
+      <div className="grid grid-cols-7 flex-1 overflow-y-auto border-l border-border">
         {cells.map((day, idx) => {
           if (!day) {
-            return <div key={`empty-${idx}`} className="border-r border-b border-border/30 bg-muted/10" />;
+            return (
+              <div
+                key={`empty-${idx}`}
+                className="border-r border-b border-border bg-muted"
+                style={{ minHeight: 86 }}
+              />
+            );
           }
 
           const isToday = sameDay(day, today);
@@ -645,22 +666,42 @@ function MonthView({
           return (
             <div
               key={day.toISOString()}
-              className={`border-r border-b border-border/30 p-1 min-h-[100px] cursor-pointer transition-colors hover:brightness-95 ${
-                !isCurrentMonth ? "opacity-40" : ""
-              }`}
-              style={shiftBg ? { backgroundColor: shiftBg } : undefined}
+              data-today={isToday ? "true" : undefined}
+              data-muted={!isCurrentMonth ? "true" : undefined}
+              className="border-r border-b border-border bg-card cursor-pointer relative transition-colors hover:bg-muted/40"
+              style={{
+                minHeight: 86,
+                padding: "6px 8px",
+                ...(shiftBg ? { backgroundColor: shiftBg } : {}),
+                ...(isToday
+                  ? { boxShadow: "inset 0 0 0 1px var(--brand)", zIndex: 1 }
+                  : {}),
+                ...(!isCurrentMonth
+                  ? { background: "var(--muted)", color: "var(--muted-foreground)" }
+                  : {}),
+              }}
               onClick={() => onSlotClick?.(day)}
             >
-              <div className="flex justify-center mb-1">
-                <span
-                  className={`text-sm font-medium w-7 h-7 flex items-center justify-center rounded-full ${
-                    isToday ? "bg-red-500 text-white" : "text-foreground"
-                  }`}
-                >
-                  {day.getDate()}
-                </span>
+              {/* Date number — mono top-left, brand-coloured on today.
+                  Replaces the centred red circle with a typographic cue
+                  so the cell stays usable for events. */}
+              <div
+                className="font-mono mb-1"
+                style={{
+                  fontSize: 11,
+                  fontWeight: isToday ? 600 : 400,
+                  color: isToday
+                    ? "var(--brand)"
+                    : isCurrentMonth
+                    ? "var(--foreground)"
+                    : "var(--muted-foreground)",
+                  lineHeight: 1.2,
+                }}
+              >
+                {String(day.getDate()).padStart(2, "0")}
               </div>
-              <div className="space-y-0.5">
+
+              <div className="flex flex-col gap-[3px]">
                 {dayShifts.map((s) => (
                   <div key={`shift-${s.date}-${s.shiftType}`} onClick={(e) => e.stopPropagation()}>
                     <ShiftCellLabel shift={s} />
@@ -672,15 +713,26 @@ function MonthView({
                     <div
                       key={`${item.type}-${item.id}`}
                       data-event
-                      className="rounded px-1.5 py-0.5 text-white text-[11px] truncate cursor-pointer"
-                      style={{ backgroundColor: hexToRgba(color, 0.85) }}
+                      className="cursor-pointer overflow-hidden whitespace-nowrap text-ellipsis"
+                      style={{
+                        fontSize: 10.5,
+                        padding: "1px 5px",
+                        borderRadius: 2,
+                        lineHeight: 1.3,
+                        background: hexToRgba(color, isDark ? 0.18 : 0.12),
+                        borderLeft: `2px solid ${color}`,
+                        color: isDark ? "var(--foreground)" : color,
+                      }}
                       onClick={(e) => {
                         e.stopPropagation();
                         onEventClick?.(item);
                       }}
                     >
                       {!item.allDay && (
-                        <span className="opacity-80 mr-1">
+                        <span
+                          className="font-mono opacity-70 mr-1"
+                          style={{ fontSize: 9.5 }}
+                        >
                           {item.startTime.getHours().toString().padStart(2, "0")}:
                           {item.startTime.getMinutes().toString().padStart(2, "0")}
                         </span>
@@ -691,7 +743,8 @@ function MonthView({
                 })}
                 {overflow > 0 && (
                   <div
-                    className="text-[11px] text-muted-foreground pl-1 cursor-pointer hover:text-foreground"
+                    className="font-mono text-muted-foreground hover:text-foreground cursor-pointer"
+                    style={{ fontSize: 10, paddingLeft: 2 }}
                     onClick={(e) => {
                       e.stopPropagation();
                       onDayNavigate?.(day);

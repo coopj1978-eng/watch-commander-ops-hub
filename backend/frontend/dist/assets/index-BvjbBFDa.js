@@ -51717,10 +51717,31 @@ function MonthView({
   const cells = getDaysInMonthGrid(date);
   const isDark = document.documentElement.classList.contains("dark");
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col h-full overflow-hidden", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-7 border-b border-border bg-muted/20 shrink-0", children: MONTH_LABELS.map((d) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-1.5 text-[11px] font-semibold text-muted-foreground uppercase tracking-wide", children: d }, d)) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-7 flex-1 overflow-y-auto", children: cells.map((day, idx) => {
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-7 shrink-0 border-l border-t border-border rounded-t-md overflow-hidden", children: MONTH_LABELS.map((d) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: "border-r border-b border-border bg-muted text-muted-foreground",
+        style: {
+          padding: "8px 10px",
+          fontFamily: "var(--font-mono)",
+          fontSize: 10,
+          letterSpacing: "0.12em",
+          textTransform: "uppercase"
+        },
+        children: d
+      },
+      d
+    )) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-7 flex-1 overflow-y-auto border-l border-border", children: cells.map((day, idx) => {
       if (!day) {
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border-r border-b border-border/30 bg-muted/10" }, `empty-${idx}`);
+        return /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: "border-r border-b border-border bg-muted",
+            style: { minHeight: 86 }
+          },
+          `empty-${idx}`
+        );
       }
       const isToday2 = sameDay(day, today);
       const isCurrentMonth = day.getMonth() === date.getMonth();
@@ -51732,18 +51753,32 @@ function MonthView({
       return /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "div",
         {
-          className: `border-r border-b border-border/30 p-1 min-h-[100px] cursor-pointer transition-colors hover:brightness-95 ${!isCurrentMonth ? "opacity-40" : ""}`,
-          style: shiftBg ? { backgroundColor: shiftBg } : void 0,
+          "data-today": isToday2 ? "true" : void 0,
+          "data-muted": !isCurrentMonth ? "true" : void 0,
+          className: "border-r border-b border-border bg-card cursor-pointer relative transition-colors hover:bg-muted/40",
+          style: {
+            minHeight: 86,
+            padding: "6px 8px",
+            ...shiftBg ? { backgroundColor: shiftBg } : {},
+            ...isToday2 ? { boxShadow: "inset 0 0 0 1px var(--brand)", zIndex: 1 } : {},
+            ...!isCurrentMonth ? { background: "var(--muted)", color: "var(--muted-foreground)" } : {}
+          },
           onClick: () => onSlotClick == null ? void 0 : onSlotClick(day),
           children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center mb-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "span",
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "div",
               {
-                className: `text-sm font-medium w-7 h-7 flex items-center justify-center rounded-full ${isToday2 ? "bg-red-500 text-white" : "text-foreground"}`,
-                children: day.getDate()
+                className: "font-mono mb-1",
+                style: {
+                  fontSize: 11,
+                  fontWeight: isToday2 ? 600 : 400,
+                  color: isToday2 ? "var(--brand)" : isCurrentMonth ? "var(--foreground)" : "var(--muted-foreground)",
+                  lineHeight: 1.2
+                },
+                children: String(day.getDate()).padStart(2, "0")
               }
-            ) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-0.5", children: [
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-[3px]", children: [
               dayShifts.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { onClick: (e) => e.stopPropagation(), children: /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftCellLabel, { shift: s }) }, `shift-${s.date}-${s.shiftType}`)),
               visibleItems.map((item) => {
                 const color = getItemColor(item);
@@ -51751,18 +51786,33 @@ function MonthView({
                   "div",
                   {
                     "data-event": true,
-                    className: "rounded px-1.5 py-0.5 text-white text-[11px] truncate cursor-pointer",
-                    style: { backgroundColor: hexToRgba(color, 0.85) },
+                    className: "cursor-pointer overflow-hidden whitespace-nowrap text-ellipsis",
+                    style: {
+                      fontSize: 10.5,
+                      padding: "1px 5px",
+                      borderRadius: 2,
+                      lineHeight: 1.3,
+                      background: hexToRgba(color, isDark ? 0.18 : 0.12),
+                      borderLeft: `2px solid ${color}`,
+                      color: isDark ? "var(--foreground)" : color
+                    },
                     onClick: (e) => {
                       e.stopPropagation();
                       onEventClick == null ? void 0 : onEventClick(item);
                     },
                     children: [
-                      !item.allDay && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "opacity-80 mr-1", children: [
-                        item.startTime.getHours().toString().padStart(2, "0"),
-                        ":",
-                        item.startTime.getMinutes().toString().padStart(2, "0")
-                      ] }),
+                      !item.allDay && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "span",
+                        {
+                          className: "font-mono opacity-70 mr-1",
+                          style: { fontSize: 9.5 },
+                          children: [
+                            item.startTime.getHours().toString().padStart(2, "0"),
+                            ":",
+                            item.startTime.getMinutes().toString().padStart(2, "0")
+                          ]
+                        }
+                      ),
                       item.title
                     ]
                   },
@@ -51772,7 +51822,8 @@ function MonthView({
               overflow > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "div",
                 {
-                  className: "text-[11px] text-muted-foreground pl-1 cursor-pointer hover:text-foreground",
+                  className: "font-mono text-muted-foreground hover:text-foreground cursor-pointer",
+                  style: { fontSize: 10, paddingLeft: 2 },
                   onClick: (e) => {
                     e.stopPropagation();
                     onDayNavigate == null ? void 0 : onDayNavigate(day);
