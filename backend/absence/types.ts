@@ -15,6 +15,10 @@ export interface Absence {
   status: AbsenceStatus;
   approved_by?: string;
   approved_at?: Date;
+  /** Timestamp when the FF was explicitly booked back fit. NULL means
+   *  the sickness is still open and the FF is currently off, regardless
+   *  of whether the original end_date has passed. */
+  returned_to_work_at?: Date | null;
   created_by_user_id?: string;
   created_at: Date;
   updated_at: Date;

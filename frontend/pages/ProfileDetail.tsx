@@ -88,6 +88,7 @@ import { useAuth } from "@/App";
 import H4HLedgerSection from "@/components/H4HLedgerSection";
 import { ProfileToilSection } from "@/components/ProfileToilSection";
 import { ProfileShiftAdjustmentsSection } from "@/components/ProfileShiftAdjustmentsSection";
+import { AbsenceHistorySection } from "@/components/AbsenceHistorySection";
 
 export default function ProfileDetail() {
   const { userId: paramUserId } = useParams<{ userId: string }>();
@@ -1330,72 +1331,7 @@ export default function ProfileDetail() {
             </div>
           )}
 
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Absence History</CardTitle>
-                  <CardDescription>
-                    Rolling 6-month totals: <strong>{profile?.rolling_sick_episodes || 0} episodes</strong>, <strong>{profile?.rolling_sick_days || 0} days</strong>
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Start Date</TableHead>
-                    <TableHead>End Date</TableHead>
-                    <TableHead>Days</TableHead>
-                    <TableHead>Reason</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {absencesLoading ? (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8">
-                        <Skeleton className="h-6 w-full" />
-                      </TableCell>
-                    </TableRow>
-                  ) : absences && absences.length > 0 ? (
-                    absences.map((absence) => {
-                      const days = Math.ceil(
-                        (new Date(absence.end_date).getTime() - new Date(absence.start_date).getTime()) /
-                          (1000 * 60 * 60 * 24)
-                      ) + 1;
-                      return (
-                        <TableRow key={absence.id}>
-                          <TableCell>
-                            <Badge variant="outline">{absenceTypeLabels[absence.type]}</Badge>
-                          </TableCell>
-                          <TableCell>{new Date(absence.start_date).toLocaleDateString()}</TableCell>
-                          <TableCell>{new Date(absence.end_date).toLocaleDateString()}</TableCell>
-                          <TableCell>{days}</TableCell>
-                          <TableCell className="max-w-xs truncate">{absence.reason}</TableCell>
-                          <TableCell>
-                            <Badge className={absenceStatusColors[absence.status]}>
-                              {absence.status}
-                            </Badge>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                        No absences recorded
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-              </div>
-            </CardContent>
-          </Card>
+          {userId && <AbsenceHistorySection userId={userId} />}
         </TabsContent>
 
         <TabsContent value="h4h" className="space-y-6">

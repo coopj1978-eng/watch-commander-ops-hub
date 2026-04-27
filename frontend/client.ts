@@ -162,9 +162,15 @@ export namespace absence {
         status: AbsenceStatus
         "approved_by"?: string
         "approved_at"?: string
+        "returned_to_work_at"?: string | null
         "created_by_user_id"?: string
         "created_at": string
         "updated_at": string
+    }
+
+    export interface BookBackFitRequest {
+        "absence_id": number
+        "returned_on"?: string
     }
 
     export interface AbsenceStats {
@@ -233,7 +239,9 @@ export namespace absence {
         constructor(baseClient: BaseClient) {
             this.baseClient = baseClient
             this.approve = this.approve.bind(this)
+            this.bookBackFit = this.bookBackFit.bind(this)
             this.create = this.create.bind(this)
+            this.deleteAbsence = this.deleteAbsence.bind(this)
             this.getStats = this.getStats.bind(this)
             this.list = this.list.bind(this)
             this.selfReport = this.selfReport.bind(this)
@@ -247,10 +255,32 @@ export namespace absence {
             return await resp.json() as Absence
         }
 
+        /**
+         * Closes out an open sickness absence. Until this is called, the FF
+         * is treated as currently off regardless of end_date.
+         */
+        public async bookBackFit(params: BookBackFitRequest): Promise<Absence> {
+            const { absence_id, ...body } = params
+            const resp = await this.baseClient.callTypedAPI(
+                "POST",
+                `/absences/${encodeURIComponent(absence_id)}/book-back-fit`,
+                JSON.stringify(body)
+            )
+            return await resp.json() as Absence
+        }
+
         public async create(params: CreateAbsenceRequest): Promise<Absence> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("POST", `/absences`, JSON.stringify(params))
             return await resp.json() as Absence
+        }
+
+        /**
+         * Permanently deletes an absence record. WC/CC only.
+         */
+        public async deleteAbsence(id: number): Promise<{ success: boolean }> {
+            const resp = await this.baseClient.callTypedAPI("DELETE", `/absences/${encodeURIComponent(id)}`)
+            return await resp.json() as { success: boolean }
         }
 
         public async getStats(user_id: string): Promise<AbsenceStats> {

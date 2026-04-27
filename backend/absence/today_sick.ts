@@ -23,6 +23,12 @@ export const todaySick = api<void, TodaySickResponse>(
 
     const today = new Date().toISOString().split("T")[0];
 
+    // Sickness counts as covering today when:
+    //   • start_date is on or before today, AND
+    //   • either the original end_date covers today, OR the FF hasn't
+    //     been booked back fit yet (returned_to_work_at IS NULL — the
+    //     end_date is just the WC's expected return; the FF stays sick
+    //     until explicitly closed out).
     const rows = await db.rawQueryAll<TodaySickMember>(
       `SELECT u.id AS user_id, u.name, u.watch_unit
        FROM absences a
@@ -30,7 +36,7 @@ export const todaySick = api<void, TodaySickResponse>(
        WHERE a.type = 'sickness'
          AND a.status = 'approved'
          AND a.start_date::date <= $1::date
-         AND a.end_date::date   >= $1::date
+         AND (a.end_date::date >= $1::date OR a.returned_to_work_at IS NULL)
        ORDER BY u.name`,
       today
     );

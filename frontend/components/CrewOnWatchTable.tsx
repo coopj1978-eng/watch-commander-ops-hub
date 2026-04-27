@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/App";
 import { useIsCrewCommander } from "@/lib/rbac";
@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LogSickDialog } from "@/components/LogSickDialog";
-import { Users, ChevronRight, Stethoscope } from "lucide-react";
+import { Users, ChevronRight, Stethoscope, Heart } from "lucide-react";
 
 // ──────────────────────────────────────────────────────────────────────────────
 // CrewOnWatchTable — read-only tabular view of the current watch's personnel,
@@ -135,6 +135,22 @@ export function CrewOnWatchTable() {
     setLogSickOpen(true);
   };
 
+  // Book a sick FF back fit. Closes the absence so the dashboard stops
+  // counting them as off without needing the WC to fiddle with the
+  // end_date field. Invalidates every cache that gates on "is this
+  // person sick today" so the row flips to "On duty" immediately.
+  const queryClient = useQueryClient();
+  const bookBackFit = useMutation({
+    mutationFn: async (absenceId: number) =>
+      backend.absence.bookBackFit({ absence_id: absenceId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["wc-absences-today"] });
+      queryClient.invalidateQueries({ queryKey: ["absences-today-sick"] });
+      queryClient.invalidateQueries({ queryKey: ["sick-today"] });
+      queryClient.invalidateQueries({ queryKey: ["people"] });
+    },
+  });
+
   // ── Shared caches ─────────────────────────────────────────────────────────
   const rosterQ = useQuery({
     queryKey: ["crewing-roster", watch],
@@ -199,6 +215,7 @@ export function CrewOnWatchTable() {
         m.hooklift_operator && "HOOKLIFT",
       ].filter(Boolean) as string[],
       status,
+      absence_id: absence?.id ?? null,
     };
   });
 
@@ -350,7 +367,21 @@ export function CrewOnWatchTable() {
                             Log sick
                           </Button>
                         ) : r.status.kind === "sick" ? (
-                          <span className="text-[11px] text-muted-foreground italic">Booked off</span>
+                          r.absence_id ? (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 px-2 text-xs text-green-700 hover:text-green-800 hover:bg-green-50 dark:hover:bg-green-950/20"
+                              disabled={bookBackFit.isPending}
+                              onClick={() => bookBackFit.mutate(r.absence_id!)}
+                              title="Book this firefighter back fit and close the sickness"
+                            >
+                              <Heart className="h-3 w-3 mr-1" />
+                              Mark fit
+                            </Button>
+                          ) : (
+                            <span className="text-[11px] text-muted-foreground italic">Booked off</span>
+                          )
                         ) : (
                           <span className="text-muted-foreground/40 text-xs">—</span>
                         )}

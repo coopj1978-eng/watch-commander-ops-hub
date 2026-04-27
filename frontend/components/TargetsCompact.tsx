@@ -29,14 +29,15 @@ import { getCurrentFinancialPeriod } from "@/lib/financialQuarter";
 //   4. Community Events — quarterly target 4,  activity.list type=community
 // ──────────────────────────────────────────────────────────────────────────────
 
-// Fallback constants — used when the targets DB has no row for the
-// current quarter on a given metric. The actual displayed values come
-// from backend.targets.list() (the source of truth that the /targets
-// page reads from), so editing a target on /targets reflects on the
-// dashboard widget without code changes.
-const HFSV_TARGET_Q_DEFAULT      = 36;
-const HYDRANT_TARGET_Q_DEFAULT   = 20;
-const COMMUNITY_TARGET_Q_DEFAULT = 4;
+// Targets are mirrored from TargetsDashboard (the /targets page) so the
+// widget and the page can never drift apart. The /targets page does NOT
+// read from the targets DB table — it reads activity_records and
+// inspection_assignments directly, with these constants for the fixed
+// quarterly metrics. Multi-Story + Hydrant targets are dynamic
+// (pending + complete from inspection_assignments). If those constants
+// ever move on TargetsDashboard, mirror the change here.
+const HFSV_TARGET_Q      = 36;
+const COMMUNITY_TARGET_Q = 6;
 
 type Tone = "green" | "amber" | "red" | "muted";
 
@@ -180,15 +181,6 @@ export function TargetsCompact() {
     enabled: !!watch,
   });
 
-  const hydrantQ = useQuery({
-    // Same endpoint pattern as WCHFSVWidget so one day, if a WCHydrantWidget
-    // appears, it can share this cache.
-    queryKey: ["wc-hydrant", watch, financial_year, quarter],
-    queryFn: async () =>
-      backend.activity.list({ type: "hydrant", watch: watch || undefined, financial_year, quarter }),
-    enabled: !!watch,
-  });
-
   // Quarter filter matches what TargetsDashboard does — without it we'd
   // pull the whole year's multi-story assignments and the user sees
   // "6 / 26" on the dashboard (year total) while the Targets page
@@ -206,70 +198,35 @@ export function TargetsCompact() {
     enabled: !!watch,
   });
 
-  // Source-of-truth targets for the current period. /targets writes here,
-  // nightly_rollup keeps actual_count fresh, and we read both to keep the
-  // dashboard widget perfectly aligned with what the WC sees on the
-  // Targets page. Falls back to the activity-rollup computed values when
-  // a metric has no row for this period yet.
-  const targetsQ = useQuery({
-    queryKey: ["targets-for-quarter", financial_year, quarter],
-    queryFn: () => backend.targets.list({ limit: 100 }),
+  // Hydrant assignments — same shape as multistory. The /targets page
+  // computes its hydrant target as `pending + complete` from this
+  // endpoint (NOT from activity.list), so the widget mirrors that here.
+  // Without this we were summing only `total_completed` and the
+  // denominator was way off.
+  const hydrantAssignmentsQ = useQuery({
+    queryKey: ["wc-hydrant-assignments", watch, year, quarter],
+    queryFn: async () =>
+      backend.inspection_plans.listAssignments({
+        plan_type: "hydrant",
+        watch: watch || undefined,
+        year,
+        quarter,
+      }),
+    enabled: !!watch,
   });
 
-  // Filter is two-stage:
-  //   1. Keep targets whose period STARTS within the current financial
-  //      quarter — this discards year-spanning targets that also
-  //      "overlap" the quarter and would otherwise compete for the
-  //      same metric.
-  //   2. Among multiple candidates per metric, prefer the shortest
-  //      duration. If a WC has both a Q1-specific row AND a longer
-  //      "first half" row, the Q1-specific one wins.
-  //
-  // Without (2) the widget was picking up a Multi-Story target with
-  // target=10 (a year/half row that overlaps Q1) instead of the
-  // quarter-scoped target=6 row the WC actually edited on /targets.
-  const QUARTER_MS = 95 * 86_400_000; // ~3 months tolerance
-  const periodTargets = (targetsQ.data?.targets ?? [])
-    .filter((t: any) => {
-      const start = new Date(t.period_start).getTime();
-      const end = new Date(t.period_end).getTime();
-      const startInQuarter =
-        start >= qStart.getTime() && start <= qEnd.getTime();
-      const isQuarterScoped = end - start <= QUARTER_MS;
-      return startInQuarter && isQuarterScoped;
-    })
-    .sort((a: any, b: any) => {
-      const aDur =
-        new Date(a.period_end).getTime() - new Date(a.period_start).getTime();
-      const bDur =
-        new Date(b.period_end).getTime() - new Date(b.period_start).getTime();
-      return aDur - bDur;
-    });
-
-  const findTarget = (metric: string) =>
-    periodTargets.find((t: any) => t.metric === metric);
-
-  const hfsvComputed      = hfsvQ.data?.total_completed ?? 0;
-  const communityComputed = communityQ.data?.total_completed ?? 0;
-  const hydrantComputed   = hydrantQ.data?.total_completed ?? 0;
-  const msComputed        = multistoryQ.data?.totals?.complete ?? 0;
-  const msPending         = multistoryQ.data?.totals?.pending  ?? 0;
-
-  // Prefer the targets-table values; fall back to live-computed actuals
-  // and the hardcoded defaults for missing rows.
-  const hfsvRow      = findTarget("HFSV");
-  const hydrantRow   = findTarget("Hydrants");
-  const communityRow = findTarget("Activities");
-  const msRow        = findTarget("HighRise");
-
-  const hfsvActual      = hfsvRow?.actual_count      ?? hfsvComputed;
-  const hfsvTarget      = hfsvRow?.target_count      ?? HFSV_TARGET_Q_DEFAULT;
-  const hydrantActual   = hydrantRow?.actual_count   ?? hydrantComputed;
-  const hydrantTarget   = hydrantRow?.target_count   ?? HYDRANT_TARGET_Q_DEFAULT;
-  const communityActual = communityRow?.actual_count ?? communityComputed;
-  const communityTarget = communityRow?.target_count ?? COMMUNITY_TARGET_Q_DEFAULT;
-  const msActual        = msRow?.actual_count        ?? msComputed;
-  const msTarget        = msRow?.target_count        ?? (msComputed + msPending);
+  // Mirror TargetsDashboard logic exactly so the widget can never
+  // disagree with the page. HFSV + Community use activity.list totals
+  // with hardcoded quarter targets; Multi-Story + Hydrant use the
+  // inspection-assignments endpoint with target = pending + complete.
+  const hfsvActual      = hfsvQ.data?.total_completed ?? 0;
+  const hfsvTarget      = HFSV_TARGET_Q;
+  const communityActual = communityQ.data?.total_completed ?? 0;
+  const communityTarget = COMMUNITY_TARGET_Q;
+  const msActual        = multistoryQ.data?.totals?.complete ?? 0;
+  const msTarget        = (multistoryQ.data?.totals?.pending ?? 0) + msActual;
+  const hydrantActual   = hydrantAssignmentsQ.data?.totals?.complete ?? 0;
+  const hydrantTarget   = (hydrantAssignmentsQ.data?.totals?.pending ?? 0) + hydrantActual;
 
   return (
     <Card className="border-t-2 border-t-brand">
@@ -300,28 +257,28 @@ export function TargetsCompact() {
           actual={hfsvActual}
           target={hfsvTarget}
           timePct={qTimePct}
-          loading={hfsvQ.isLoading || targetsQ.isLoading}
+          loading={hfsvQ.isLoading }
         />
         <TargetRow
           label="Multi-Story Inspections"
           actual={msActual}
           target={msTarget || 0}
           timePct={qTimePct}
-          loading={multistoryQ.isLoading || targetsQ.isLoading}
+          loading={multistoryQ.isLoading }
         />
         <TargetRow
           label="Hydrant Inspections"
           actual={hydrantActual}
           target={hydrantTarget}
           timePct={qTimePct}
-          loading={hydrantQ.isLoading || targetsQ.isLoading}
+          loading={hydrantAssignmentsQ.isLoading}
         />
         <TargetRow
           label="Community Events"
           actual={communityActual}
           target={communityTarget}
           timePct={qTimePct}
-          loading={communityQ.isLoading || targetsQ.isLoading}
+          loading={communityQ.isLoading }
         />
       </CardContent>
     </Card>
