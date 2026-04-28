@@ -51732,115 +51732,120 @@ function MonthView({
       },
       d
     )) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-7 flex-1 overflow-y-auto border-l border-border", children: cells.map((day, idx) => {
-      if (!day) {
-        return /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "div",
-          {
-            className: "border-r border-b border-border bg-muted",
-            style: { minHeight: 86 }
-          },
-          `empty-${idx}`
-        );
-      }
-      const isToday2 = sameDay(day, today);
-      const isCurrentMonth = day.getMonth() === date.getMonth();
-      const dayShifts = getShiftsForDay(shiftSchedule, day, userWatch);
-      const dayItems = items.filter((it) => spansDay(it, day));
-      const visibleItems = dayItems.slice(0, Math.max(0, 3 - dayShifts.length));
-      const overflow = dayItems.length - visibleItems.length;
-      const shiftBg = getShiftCellBg(dayShifts, isDark);
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "div",
-        {
-          "data-today": isToday2 ? "true" : void 0,
-          "data-muted": !isCurrentMonth ? "true" : void 0,
-          className: "border-r border-b border-border bg-card cursor-pointer relative transition-colors hover:bg-muted/40",
-          style: {
-            minHeight: 86,
-            padding: "6px 8px",
-            ...shiftBg ? { backgroundColor: shiftBg } : {},
-            ...isToday2 ? { boxShadow: "inset 0 0 0 1px var(--brand)", zIndex: 1 } : {},
-            ...!isCurrentMonth ? { background: "var(--muted)", color: "var(--muted-foreground)" } : {}
-          },
-          onClick: () => onSlotClick == null ? void 0 : onSlotClick(day),
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: "grid grid-cols-7 flex-1 overflow-y-auto border-l border-border",
+        style: { gridAutoRows: "minmax(60px, 1fr)" },
+        children: cells.map((day, idx) => {
+          if (!day) {
+            return /* @__PURE__ */ jsxRuntimeExports.jsx(
               "div",
               {
-                className: "font-mono mb-1",
-                style: {
-                  fontSize: 11,
-                  fontWeight: isToday2 ? 600 : 400,
-                  color: isToday2 ? "var(--brand)" : isCurrentMonth ? "var(--foreground)" : "var(--muted-foreground)",
-                  lineHeight: 1.2
-                },
-                children: String(day.getDate()).padStart(2, "0")
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-[3px]", children: [
-              dayShifts.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { onClick: (e) => e.stopPropagation(), children: /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftCellLabel, { shift: s }) }, `shift-${s.date}-${s.shiftType}`)),
-              visibleItems.map((item) => {
-                const color = getItemColor(item);
-                return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                className: "border-r border-b border-border bg-muted"
+              },
+              `empty-${idx}`
+            );
+          }
+          const isToday2 = sameDay(day, today);
+          const isCurrentMonth = day.getMonth() === date.getMonth();
+          const dayShifts = getShiftsForDay(shiftSchedule, day, userWatch);
+          const dayItems = items.filter((it) => spansDay(it, day));
+          const visibleItems = dayItems.slice(0, Math.max(0, 3 - dayShifts.length));
+          const overflow = dayItems.length - visibleItems.length;
+          const shiftBg = getShiftCellBg(dayShifts, isDark);
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
+            {
+              "data-today": isToday2 ? "true" : void 0,
+              "data-muted": !isCurrentMonth ? "true" : void 0,
+              className: "border-r border-b border-border bg-card cursor-pointer relative transition-colors hover:bg-muted/40 overflow-hidden",
+              style: {
+                padding: "6px 8px",
+                ...shiftBg ? { backgroundColor: shiftBg } : {},
+                ...isToday2 ? { boxShadow: "inset 0 0 0 1px var(--brand)", zIndex: 1 } : {},
+                ...!isCurrentMonth ? { background: "var(--muted)", color: "var(--muted-foreground)" } : {}
+              },
+              onClick: () => onSlotClick == null ? void 0 : onSlotClick(day),
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "div",
                   {
-                    "data-event": true,
-                    className: "cursor-pointer overflow-hidden whitespace-nowrap text-ellipsis",
+                    className: "font-mono mb-1",
                     style: {
-                      fontSize: 10.5,
-                      padding: "1px 5px",
-                      borderRadius: 2,
-                      lineHeight: 1.3,
-                      background: hexToRgba(color, isDark ? 0.18 : 0.12),
-                      borderLeft: `2px solid ${color}`,
-                      color: isDark ? "var(--foreground)" : color
+                      fontSize: 11,
+                      fontWeight: isToday2 ? 600 : 400,
+                      color: isToday2 ? "var(--brand)" : isCurrentMonth ? "var(--foreground)" : "var(--muted-foreground)",
+                      lineHeight: 1.2
                     },
-                    onClick: (e) => {
-                      e.stopPropagation();
-                      onEventClick == null ? void 0 : onEventClick(item);
-                    },
-                    children: [
-                      !item.allDay && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                        "span",
-                        {
-                          className: "font-mono opacity-70 mr-1",
-                          style: { fontSize: 9.5 },
-                          children: [
-                            item.startTime.getHours().toString().padStart(2, "0"),
-                            ":",
-                            item.startTime.getMinutes().toString().padStart(2, "0")
-                          ]
-                        }
-                      ),
-                      item.title
-                    ]
-                  },
-                  `${item.type}-${item.id}`
-                );
-              }),
-              overflow > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "div",
-                {
-                  className: "font-mono text-muted-foreground hover:text-foreground cursor-pointer",
-                  style: { fontSize: 10, paddingLeft: 2 },
-                  onClick: (e) => {
-                    e.stopPropagation();
-                    onDayNavigate == null ? void 0 : onDayNavigate(day);
-                  },
-                  children: [
-                    "+",
-                    overflow,
-                    " more"
-                  ]
-                }
-              )
-            ] })
-          ]
-        },
-        day.toISOString()
-      );
-    }) })
+                    children: String(day.getDate()).padStart(2, "0")
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-[3px]", children: [
+                  dayShifts.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { onClick: (e) => e.stopPropagation(), children: /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftCellLabel, { shift: s }) }, `shift-${s.date}-${s.shiftType}`)),
+                  visibleItems.map((item) => {
+                    const color = getItemColor(item);
+                    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "div",
+                      {
+                        "data-event": true,
+                        className: "cursor-pointer overflow-hidden whitespace-nowrap text-ellipsis",
+                        style: {
+                          fontSize: 10.5,
+                          padding: "1px 5px",
+                          borderRadius: 2,
+                          lineHeight: 1.3,
+                          background: hexToRgba(color, isDark ? 0.18 : 0.12),
+                          borderLeft: `2px solid ${color}`,
+                          color: isDark ? "var(--foreground)" : color
+                        },
+                        onClick: (e) => {
+                          e.stopPropagation();
+                          onEventClick == null ? void 0 : onEventClick(item);
+                        },
+                        children: [
+                          !item.allDay && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                            "span",
+                            {
+                              className: "font-mono opacity-70 mr-1",
+                              style: { fontSize: 9.5 },
+                              children: [
+                                item.startTime.getHours().toString().padStart(2, "0"),
+                                ":",
+                                item.startTime.getMinutes().toString().padStart(2, "0")
+                              ]
+                            }
+                          ),
+                          item.title
+                        ]
+                      },
+                      `${item.type}-${item.id}`
+                    );
+                  }),
+                  overflow > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "div",
+                    {
+                      className: "font-mono text-muted-foreground hover:text-foreground cursor-pointer",
+                      style: { fontSize: 10, paddingLeft: 2 },
+                      onClick: (e) => {
+                        e.stopPropagation();
+                        onDayNavigate == null ? void 0 : onDayNavigate(day);
+                      },
+                      children: [
+                        "+",
+                        overflow,
+                        " more"
+                      ]
+                    }
+                  )
+                ] })
+              ]
+            },
+            day.toISOString()
+          );
+        })
+      }
+    )
   ] });
 }
 const MONTH_NAMES = [
@@ -53521,11 +53526,13 @@ function UnifiedCalendar() {
     // between TopBar and bottom of viewport. Mobile: natural height so the
     // page scrolls — otherwise a day with 3+ events clips the later rows.
     //
-    // Height calculation accounts for: TopBar (52px) + page padding +
-    // the new visual-refresh page header (h1 + eyebrow + action buttons,
-    // ~64px). Bumped from 160px → 220px so the last row of the month
-    // grid stops getting clipped below the viewport.
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex md:overflow-hidden md:h-[calc(100vh-220px)]", children: [
+    // Subtracts 130px for TopBar (52px) + page padding (~24px top + 32px
+    // bottom). The calendar should be the dominant feature on this page,
+    // so we keep the chrome subtraction tight and let the month grid
+    // fill the rest. Cell height is now flex-distributed (see MonthView)
+    // so rows shrink to fit when the viewport is small instead of
+    // clipping the last row off-screen.
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex md:overflow-hidden md:h-[calc(100vh-130px)]", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("aside", { className: "hidden md:flex w-52 shrink-0 border-r border-border bg-card flex-col py-4 px-3 gap-6 h-full overflow-y-auto", children: filterContent }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "div",

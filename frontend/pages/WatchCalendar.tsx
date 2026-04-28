@@ -430,11 +430,13 @@ export default function UnifiedCalendar() {
     // between TopBar and bottom of viewport. Mobile: natural height so the
     // page scrolls — otherwise a day with 3+ events clips the later rows.
     //
-    // Height calculation accounts for: TopBar (52px) + page padding +
-    // the new visual-refresh page header (h1 + eyebrow + action buttons,
-    // ~64px). Bumped from 160px → 220px so the last row of the month
-    // grid stops getting clipped below the viewport.
-    <div className="flex md:overflow-hidden md:h-[calc(100vh-220px)]">
+    // Subtracts 130px for TopBar (52px) + page padding (~24px top + 32px
+    // bottom). The calendar should be the dominant feature on this page,
+    // so we keep the chrome subtraction tight and let the month grid
+    // fill the rest. Cell height is now flex-distributed (see MonthView)
+    // so rows shrink to fit when the viewport is small instead of
+    // clipping the last row off-screen.
+    <div className="flex md:overflow-hidden md:h-[calc(100vh-130px)]">
       {/* ── Desktop sidebar — permanent ────────────────────────────────────── */}
       <aside className="hidden md:flex w-52 shrink-0 border-r border-border bg-card flex-col py-4 px-3 gap-6 h-full overflow-y-auto">
         {filterContent}

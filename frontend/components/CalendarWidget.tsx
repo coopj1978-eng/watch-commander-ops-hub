@@ -642,14 +642,22 @@ function MonthView({
         ))}
       </div>
 
-      <div className="grid grid-cols-7 flex-1 overflow-y-auto border-l border-border">
+      {/* Grid uses auto-rows so the six rows share the available container
+          height equally instead of each cell forcing min-height:86px. The
+          old min-height was the root cause of the last row clipping —
+          6×86 = 516px overflows shorter viewports. minmax(60px, 1fr)
+          keeps cells legible at small screens while letting them grow
+          to fill the calendar area on a normal monitor. */}
+      <div
+        className="grid grid-cols-7 flex-1 overflow-y-auto border-l border-border"
+        style={{ gridAutoRows: "minmax(60px, 1fr)" }}
+      >
         {cells.map((day, idx) => {
           if (!day) {
             return (
               <div
                 key={`empty-${idx}`}
                 className="border-r border-b border-border bg-muted"
-                style={{ minHeight: 86 }}
               />
             );
           }
@@ -668,9 +676,8 @@ function MonthView({
               key={day.toISOString()}
               data-today={isToday ? "true" : undefined}
               data-muted={!isCurrentMonth ? "true" : undefined}
-              className="border-r border-b border-border bg-card cursor-pointer relative transition-colors hover:bg-muted/40"
+              className="border-r border-b border-border bg-card cursor-pointer relative transition-colors hover:bg-muted/40 overflow-hidden"
               style={{
-                minHeight: 86,
                 padding: "6px 8px",
                 ...(shiftBg ? { backgroundColor: shiftBg } : {}),
                 ...(isToday
