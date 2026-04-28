@@ -53530,16 +53530,17 @@ function UnifiedCalendar() {
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[10px] text-muted-foreground px-1 leading-relaxed", children: "Click a calendar to show/hide its events" }) })
   ] });
   return (
-    // Desktop: fixed height + overflow-hidden so the calendar fits neatly
-    // between TopBar and bottom of viewport. Mobile: natural height so the
-    // page scrolls — otherwise a day with 3+ events clips the later rows.
+    // Desktop: escape PageContainer's padding chrome (md:-m-8 negates
+    // the p-8) and the space-y-6 gap above (md:-mt-14 = -mt-8 for the
+    // padding + -mt-6 for the gap), then size the page to exactly the
+    // viewport height minus the sticky TopBar (~56px). This makes the
+    // calendar dominant — no scrolling, no dead space below the grid.
     //
-    // Subtracts 90px for TopBar (52px) + tightened page padding. The
-    // calendar should dominate this page, so the chrome subtraction is
-    // kept as small as possible. Cell height is flex-distributed via
-    // grid-auto-rows minmax(60px, 1fr) (see MonthView), so rows shrink
-    // gracefully on shorter viewports instead of clipping off-screen.
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex md:overflow-hidden md:h-[calc(100vh-90px)]", children: [
+    // Mobile: natural height + page scroll. Cell height is flex-distributed
+    // via grid-auto-rows minmax(60px, 1fr) (see MonthView), so rows
+    // shrink gracefully on shorter viewports instead of clipping off-
+    // screen.
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex md:overflow-hidden md:h-[calc(100vh-56px)] md:-mx-8 md:-mt-14 md:-mb-8", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("aside", { className: "hidden md:flex w-52 shrink-0 border-r border-border bg-card flex-col py-4 px-3 gap-6 h-full overflow-y-auto", children: filterContent }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "div",
