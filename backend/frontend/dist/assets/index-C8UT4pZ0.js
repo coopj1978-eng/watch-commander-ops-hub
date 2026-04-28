@@ -51495,14 +51495,16 @@ function EventBlock({
 }) {
   const color = getItemColor(item);
   const heightNum = typeof style.height === "number" ? style.height : 30;
+  const isDark = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
-      className: "absolute rounded-md px-1.5 py-0.5 cursor-pointer overflow-hidden text-white select-none",
+      className: "absolute rounded-sm px-1.5 py-0.5 cursor-pointer overflow-hidden select-none",
       style: {
         ...style,
-        backgroundColor: hexToRgba(color, 0.85),
+        backgroundColor: hexToRgba(color, isDark ? 0.22 : 0.14),
         borderLeft: `3px solid ${color}`,
+        color: isDark ? "var(--foreground)" : color,
         fontSize: 11,
         lineHeight: "1.3"
       },
@@ -51511,8 +51513,8 @@ function EventBlock({
         onClick();
       },
       children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-semibold truncate", children: item.title }),
-        heightNum > 28 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "opacity-80 truncate", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-medium truncate", style: { color: isDark ? "var(--foreground)" : color }, children: item.title }),
+        heightNum > 28 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "font-mono opacity-75 truncate", style: { fontSize: 10 }, children: [
           formatTime(item.startTime),
           " – ",
           formatTime(item.endTime)
@@ -51550,17 +51552,28 @@ function DayView({
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: TIME_COL_WIDTH }, className: "text-[11px] text-muted-foreground text-right pr-2 py-1 shrink-0", children: "all-day" }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-wrap gap-1 p-1", children: [
         dayShifts.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftBanner, { shift: s }, `shift-${s.date}-${s.shiftType}`)),
-        allDayItems.map((it) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "div",
-          {
-            "data-event": true,
-            className: "rounded px-2 py-0.5 text-white text-xs cursor-pointer",
-            style: { backgroundColor: hexToRgba(getItemColor(it), 0.85) },
-            onClick: () => onEventClick == null ? void 0 : onEventClick(it),
-            children: it.title
-          },
-          it.id
-        ))
+        allDayItems.map((it) => {
+          const color = getItemColor(it);
+          const dark = document.documentElement.classList.contains("dark");
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              "data-event": true,
+              className: "cursor-pointer",
+              style: {
+                fontSize: 11,
+                padding: "2px 6px",
+                borderRadius: 2,
+                background: hexToRgba(color, dark ? 0.18 : 0.12),
+                borderLeft: `2px solid ${color}`,
+                color: dark ? "var(--foreground)" : color
+              },
+              onClick: () => onEventClick == null ? void 0 : onEventClick(it),
+              children: it.title
+            },
+            it.id
+          );
+        })
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { ref: scrollRef, className: "flex-1 overflow-y-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", style: { height: TOTAL_HEIGHT }, children: [
@@ -51627,11 +51640,28 @@ function WeekView({
           className: "flex-1 text-center py-2 cursor-pointer hover:bg-muted/40 transition-colors",
           onClick: () => onDayClick == null ? void 0 : onDayClick(day),
           children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] text-muted-foreground uppercase tracking-wide", children: WEEK_LABELS[i] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "div",
               {
-                className: `text-sm font-semibold mx-auto w-7 h-7 flex items-center justify-center rounded-full mt-0.5 ${isToday2 ? "bg-red-500 text-white" : "text-foreground"}`,
+                className: "font-mono",
+                style: {
+                  fontSize: 10,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  color: "var(--muted-foreground)"
+                },
+                children: WEEK_LABELS[i]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "div",
+              {
+                className: "text-sm font-mono mx-auto w-7 h-7 flex items-center justify-center rounded-full mt-0.5",
+                style: isToday2 ? {
+                  boxShadow: "inset 0 0 0 1.5px var(--brand)",
+                  color: "var(--brand)",
+                  fontWeight: 600
+                } : { color: "var(--foreground)" },
                 children: day.getDate()
               }
             )
@@ -51660,17 +51690,29 @@ function WeekView({
           ),
           allDayCols.map((col, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col gap-0.5 p-0.5 min-w-0", children: [
             shiftCols[i].map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftBanner, { shift: s }, `shift-${s.date}-${s.shiftType}`)),
-            col.map((it) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "div",
-              {
-                "data-event": true,
-                className: "rounded px-1 py-0.5 text-white text-[11px] cursor-pointer truncate",
-                style: { backgroundColor: hexToRgba(getItemColor(it), 0.85) },
-                onClick: () => onEventClick == null ? void 0 : onEventClick(it),
-                children: it.title
-              },
-              it.id
-            ))
+            col.map((it) => {
+              const color = getItemColor(it);
+              const dark = document.documentElement.classList.contains("dark");
+              return /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  "data-event": true,
+                  className: "cursor-pointer truncate",
+                  style: {
+                    fontSize: 10.5,
+                    padding: "1px 5px",
+                    borderRadius: 2,
+                    lineHeight: 1.3,
+                    background: hexToRgba(color, dark ? 0.18 : 0.12),
+                    borderLeft: `2px solid ${color}`,
+                    color: dark ? "var(--foreground)" : color
+                  },
+                  onClick: () => onEventClick == null ? void 0 : onEventClick(it),
+                  children: it.title
+                },
+                it.id
+              );
+            })
           ] }, i))
         ]
       }
@@ -51883,12 +51925,36 @@ function YearView({
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "div",
       {
-        className: "rounded-xl border border-border bg-card p-3 cursor-pointer hover:border-indigo-500 transition-colors",
+        className: "rounded-md border border-border bg-card p-3 cursor-pointer hover:border-brand transition-colors",
         onClick: () => onMonthClick(monthDate),
         children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-foreground mb-2", children: MONTH_NAMES[mi] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              className: "font-mono mb-2",
+              style: {
+                fontSize: 11,
+                fontWeight: 500,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                color: "var(--foreground)"
+              },
+              children: MONTH_NAMES[mi]
+            }
+          ),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-7 gap-px text-center", children: [
-            MONTH_LABELS.map((d) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[9px] text-muted-foreground font-medium pb-0.5", children: d.slice(0, 1) }, d)),
+            MONTH_LABELS.map((d) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "div",
+              {
+                className: "font-mono pb-0.5",
+                style: {
+                  fontSize: 9,
+                  color: "var(--muted-foreground)"
+                },
+                children: d.slice(0, 1)
+              },
+              d
+            )),
             cells.map((day, di) => {
               if (!day) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", {}, `e-${di}`);
               const isToday2 = sameDay(day, today);
@@ -51897,19 +51963,42 @@ function YearView({
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "span",
                   {
-                    className: `text-[10px] w-5 h-5 flex items-center justify-center rounded-full ${isToday2 ? "bg-red-500 text-white font-bold" : "text-foreground"}`,
+                    className: "font-mono w-5 h-5 flex items-center justify-center rounded-full",
+                    style: isToday2 ? {
+                      fontSize: 10,
+                      boxShadow: "inset 0 0 0 1.5px var(--brand)",
+                      color: "var(--brand)",
+                      fontWeight: 600
+                    } : { fontSize: 10, color: "var(--foreground)" },
                     children: day.getDate()
                   }
                 ),
-                hasEvents && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-1 h-1 rounded-full bg-red-400 mt-px" })
+                hasEvents && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "div",
+                  {
+                    className: "w-1 h-1 rounded-full mt-px",
+                    style: { background: "var(--brand)" }
+                  }
+                )
               ] }, di);
             })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-[11px] text-muted-foreground mt-2", children: [
-            monthItems.length,
-            " event",
-            monthItems.length !== 1 ? "s" : ""
-          ] })
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
+            {
+              className: "font-mono mt-2",
+              style: {
+                fontSize: 10,
+                letterSpacing: "0.06em",
+                color: "var(--muted-foreground)"
+              },
+              children: [
+                monthItems.length,
+                " event",
+                monthItems.length !== 1 ? "s" : ""
+              ]
+            }
+          )
         ]
       },
       mi
@@ -51954,9 +52043,9 @@ function MobileMonthView({
               "span",
               {
                 className: `
-                  w-8 h-8 flex items-center justify-center rounded-full text-sm font-medium transition-colors
-                  ${isToday2 && !isSelected ? "text-indigo-600 font-bold" : ""}
-                  ${isSelected ? "bg-indigo-600 text-white font-bold shadow-sm" : ""}
+                  w-8 h-8 flex items-center justify-center rounded-full text-sm font-mono transition-colors
+                  ${isToday2 && !isSelected ? "text-brand font-semibold" : ""}
+                  ${isSelected ? "bg-brand text-brand-foreground font-semibold shadow-sm" : ""}
                   ${!isSelected && !isToday2 && inMonth ? "text-foreground" : ""}
                 `,
                 children: day.getDate()

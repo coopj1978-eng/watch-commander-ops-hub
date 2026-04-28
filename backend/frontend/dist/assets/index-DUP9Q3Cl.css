@@ -3597,10 +3597,6 @@
     background-color: var(--color-red-100);
   }
 
-  .bg-red-400 {
-    background-color: var(--color-red-400);
-  }
-
   .bg-red-500 {
     background-color: var(--color-red-500);
   }
@@ -5028,6 +5024,10 @@
     opacity: .7;
   }
 
+  .opacity-75 {
+    opacity: .75;
+  }
+
   .opacity-80 {
     opacity: .8;
   }
@@ -5605,10 +5605,6 @@
       .hover\:border-indigo-400\/60:hover {
         border-color: color-mix(in oklab, var(--color-indigo-400) 60%, transparent);
       }
-    }
-
-    .hover\:border-indigo-500:hover {
-      border-color: var(--color-indigo-500);
     }
 
     .hover\:border-indigo-500\/40:hover {

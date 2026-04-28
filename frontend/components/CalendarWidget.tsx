@@ -339,15 +339,22 @@ function EventBlock({
   style: React.CSSProperties;
   onClick: () => void;
 }) {
+  // Visual-refresh `.ev` style — soft tint background + 3px coloured
+  // left border + text in the event's own colour. Replaces the saturated
+  // white-on-filled-colour pills the time grid was using before; this
+  // way the colour stays meaningful at small sizes and the title doesn't
+  // disappear into a dark fill at low contrast.
   const color = getItemColor(item);
   const heightNum = typeof style.height === "number" ? style.height : 30;
+  const isDark = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
   return (
     <div
-      className="absolute rounded-md px-1.5 py-0.5 cursor-pointer overflow-hidden text-white select-none"
+      className="absolute rounded-sm px-1.5 py-0.5 cursor-pointer overflow-hidden select-none"
       style={{
         ...style,
-        backgroundColor: hexToRgba(color, 0.85),
+        backgroundColor: hexToRgba(color, isDark ? 0.22 : 0.14),
         borderLeft: `3px solid ${color}`,
+        color: isDark ? "var(--foreground)" : color,
         fontSize: 11,
         lineHeight: "1.3",
       }}
@@ -356,9 +363,11 @@ function EventBlock({
         onClick();
       }}
     >
-      <div className="font-semibold truncate">{item.title}</div>
+      <div className="font-medium truncate" style={{ color: isDark ? "var(--foreground)" : color }}>
+        {item.title}
+      </div>
       {heightNum > 28 && (
-        <div className="opacity-80 truncate">
+        <div className="font-mono opacity-75 truncate" style={{ fontSize: 10 }}>
           {formatTime(item.startTime)} – {formatTime(item.endTime)}
         </div>
       )}
@@ -411,17 +420,28 @@ function DayView({
             {dayShifts.map((s) => (
               <ShiftBanner key={`shift-${s.date}-${s.shiftType}`} shift={s} />
             ))}
-            {allDayItems.map((it) => (
-              <div
-                key={it.id}
-                data-event
-                className="rounded px-2 py-0.5 text-white text-xs cursor-pointer"
-                style={{ backgroundColor: hexToRgba(getItemColor(it), 0.85) }}
-                onClick={() => onEventClick?.(it)}
-              >
-                {it.title}
-              </div>
-            ))}
+            {allDayItems.map((it) => {
+              const color = getItemColor(it);
+              const dark = document.documentElement.classList.contains("dark");
+              return (
+                <div
+                  key={it.id}
+                  data-event
+                  className="cursor-pointer"
+                  style={{
+                    fontSize: 11,
+                    padding: "2px 6px",
+                    borderRadius: 2,
+                    background: hexToRgba(color, dark ? 0.18 : 0.12),
+                    borderLeft: `2px solid ${color}`,
+                    color: dark ? "var(--foreground)" : color,
+                  }}
+                  onClick={() => onEventClick?.(it)}
+                >
+                  {it.title}
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -505,13 +525,31 @@ function WeekView({
               className="flex-1 text-center py-2 cursor-pointer hover:bg-muted/40 transition-colors"
               onClick={() => onDayClick?.(day)}
             >
-              <div className="text-[11px] text-muted-foreground uppercase tracking-wide">
+              <div
+                className="font-mono"
+                style={{
+                  fontSize: 10,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  color: "var(--muted-foreground)",
+                }}
+              >
                 {WEEK_LABELS[i]}
               </div>
+              {/* Today indicator: brand-coloured outline ring instead of a
+                  red filled circle — matches the Month view's design and
+                  keeps red reserved for genuine alerts. */}
               <div
-                className={`text-sm font-semibold mx-auto w-7 h-7 flex items-center justify-center rounded-full mt-0.5 ${
-                  isToday ? "bg-red-500 text-white" : "text-foreground"
-                }`}
+                className="text-sm font-mono mx-auto w-7 h-7 flex items-center justify-center rounded-full mt-0.5"
+                style={
+                  isToday
+                    ? {
+                        boxShadow: "inset 0 0 0 1.5px var(--brand)",
+                        color: "var(--brand)",
+                        fontWeight: 600,
+                      }
+                    : { color: "var(--foreground)" }
+                }
               >
                 {day.getDate()}
               </div>
@@ -540,17 +578,29 @@ function WeekView({
               {shiftCols[i].map((s) => (
                 <ShiftBanner key={`shift-${s.date}-${s.shiftType}`} shift={s} />
               ))}
-              {col.map((it) => (
-                <div
-                  key={it.id}
-                  data-event
-                  className="rounded px-1 py-0.5 text-white text-[11px] cursor-pointer truncate"
-                  style={{ backgroundColor: hexToRgba(getItemColor(it), 0.85) }}
-                  onClick={() => onEventClick?.(it)}
-                >
-                  {it.title}
-                </div>
-              ))}
+              {col.map((it) => {
+                const color = getItemColor(it);
+                const dark = document.documentElement.classList.contains("dark");
+                return (
+                  <div
+                    key={it.id}
+                    data-event
+                    className="cursor-pointer truncate"
+                    style={{
+                      fontSize: 10.5,
+                      padding: "1px 5px",
+                      borderRadius: 2,
+                      lineHeight: 1.3,
+                      background: hexToRgba(color, dark ? 0.18 : 0.12),
+                      borderLeft: `2px solid ${color}`,
+                      color: dark ? "var(--foreground)" : color,
+                    }}
+                    onClick={() => onEventClick?.(it)}
+                  >
+                    {it.title}
+                  </div>
+                );
+              })}
             </div>
           ))}
         </div>
@@ -800,13 +850,31 @@ function YearView({
         return (
           <div
             key={mi}
-            className="rounded-xl border border-border bg-card p-3 cursor-pointer hover:border-indigo-500 transition-colors"
+            className="rounded-md border border-border bg-card p-3 cursor-pointer hover:border-brand transition-colors"
             onClick={() => onMonthClick(monthDate)}
           >
-            <div className="text-sm font-semibold text-foreground mb-2">{MONTH_NAMES[mi]}</div>
+            <div
+              className="font-mono mb-2"
+              style={{
+                fontSize: 11,
+                fontWeight: 500,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                color: "var(--foreground)",
+              }}
+            >
+              {MONTH_NAMES[mi]}
+            </div>
             <div className="grid grid-cols-7 gap-px text-center">
               {MONTH_LABELS.map((d) => (
-                <div key={d} className="text-[9px] text-muted-foreground font-medium pb-0.5">
+                <div
+                  key={d}
+                  className="font-mono pb-0.5"
+                  style={{
+                    fontSize: 9,
+                    color: "var(--muted-foreground)",
+                  }}
+                >
                   {d.slice(0, 1)}
                 </div>
               ))}
@@ -814,21 +882,43 @@ function YearView({
                 if (!day) return <div key={`e-${di}`} />;
                 const isToday = sameDay(day, today);
                 const hasEvents = itemDays.has(day.getDate());
+                // Today indicator + event marker both use --brand instead
+                // of red, matching the Month/Week view treatment.
                 return (
                   <div key={di} className="flex flex-col items-center">
                     <span
-                      className={`text-[10px] w-5 h-5 flex items-center justify-center rounded-full ${
-                        isToday ? "bg-red-500 text-white font-bold" : "text-foreground"
-                      }`}
+                      className="font-mono w-5 h-5 flex items-center justify-center rounded-full"
+                      style={
+                        isToday
+                          ? {
+                              fontSize: 10,
+                              boxShadow: "inset 0 0 0 1.5px var(--brand)",
+                              color: "var(--brand)",
+                              fontWeight: 600,
+                            }
+                          : { fontSize: 10, color: "var(--foreground)" }
+                      }
                     >
                       {day.getDate()}
                     </span>
-                    {hasEvents && <div className="w-1 h-1 rounded-full bg-red-400 mt-px" />}
+                    {hasEvents && (
+                      <div
+                        className="w-1 h-1 rounded-full mt-px"
+                        style={{ background: "var(--brand)" }}
+                      />
+                    )}
                   </div>
                 );
               })}
             </div>
-            <div className="text-[11px] text-muted-foreground mt-2">
+            <div
+              className="font-mono mt-2"
+              style={{
+                fontSize: 10,
+                letterSpacing: "0.06em",
+                color: "var(--muted-foreground)",
+              }}
+            >
               {monthItems.length} event{monthItems.length !== 1 ? "s" : ""}
             </div>
           </div>
@@ -898,11 +988,14 @@ function MobileMonthView({
               style={shiftBg ? { backgroundColor: shiftBg } : undefined}
               onClick={() => onDaySelect(day)}
             >
+              {/* Mobile day cell: brand-coloured today + selected states
+                  so the user's accent flows through (was hard-coded
+                  indigo-600 — broke colour consistency on other accents). */}
               <span
                 className={`
-                  w-8 h-8 flex items-center justify-center rounded-full text-sm font-medium transition-colors
-                  ${isToday && !isSelected ? "text-indigo-600 font-bold" : ""}
-                  ${isSelected ? "bg-indigo-600 text-white font-bold shadow-sm" : ""}
+                  w-8 h-8 flex items-center justify-center rounded-full text-sm font-mono transition-colors
+                  ${isToday && !isSelected ? "text-brand font-semibold" : ""}
+                  ${isSelected ? "bg-brand text-brand-foreground font-semibold shadow-sm" : ""}
                   ${!isSelected && !isToday && inMonth ? "text-foreground" : ""}
                 `}
               >
