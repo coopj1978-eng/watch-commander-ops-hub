@@ -97,16 +97,22 @@ export default function Policies() {
 
   return (
     <div className="p-4 md:p-8 space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
+      {/* Visual-refresh page header: h1 + eyebrow + view toggle. */}
+      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-3">
+        <div className="flex items-baseline flex-wrap gap-x-4 gap-y-1">
+          <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
             <BookOpen className="h-7 w-7 text-brand shrink-0" />
             Policy &amp; Guidance
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <span className="eyebrow whitespace-nowrap">
             {filteredPolicies.length} document{filteredPolicies.length === 1 ? "" : "s"}
-            {activeFiltersCount > 0 && ` (${activeFiltersCount} filter active)`}
-          </p>
+            {activeFiltersCount > 0 && (
+              <>
+                <span className="crumb-sep">·</span>
+                <span>{activeFiltersCount} filter active</span>
+              </>
+            )}
+          </span>
         </div>
         <div className="flex flex-wrap gap-2">
           <div className="flex border rounded-md">

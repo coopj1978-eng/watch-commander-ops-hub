@@ -65,17 +65,15 @@ export default function Bulletins() {
 
   return (
     <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-6">
-      <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
-            <Megaphone className="h-7 w-7 text-brand shrink-0" />
-            Bulletins
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Station + watch-wide notices with read-receipts. Unread items
-            show on your dashboard until you mark them read.
-          </p>
-        </div>
+      {/* Visual-refresh page header: h1 + eyebrow context line. */}
+      <header className="flex items-baseline flex-wrap gap-x-4 gap-y-1">
+        <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+          <Megaphone className="h-7 w-7 text-brand shrink-0" />
+          Bulletins
+        </h1>
+        <span className="eyebrow">
+          Station + watch-wide notices with read-receipts
+        </span>
       </header>
 
       {/* ── Tabs ─────────────────────────────────────────────────────────── */}

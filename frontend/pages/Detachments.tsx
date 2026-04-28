@@ -247,16 +247,16 @@ export default function DetachmentsPage() {
   return (
     <div className="space-y-6 max-w-3xl">
 
-      {/* ── Header ──────────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-            <MapPin className="h-6 w-6 text-amber-500" />
+      {/* Visual-refresh page header: h1 + eyebrow + watch filter on the right. */}
+      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-3">
+        <div className="flex items-baseline flex-wrap gap-x-4 gap-y-1">
+          <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+            <MapPin className="h-7 w-7 text-brand shrink-0" />
             Detachment Rota
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Track who has been detached and determine who is next in line
-          </p>
+          <span className="eyebrow">
+            Who has been detached and who's next in line
+          </span>
         </div>
 
         {/* Watch filter */}

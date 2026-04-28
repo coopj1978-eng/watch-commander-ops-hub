@@ -322,14 +322,15 @@ export default function Reports() {
 
   return (
     <div className="p-4 md:p-8 space-y-6">
-      <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
-          <BarChart2 className="h-7 w-7 text-emerald-500 shrink-0" />
+      {/* Visual-refresh page header: h1 + eyebrow context line. */}
+      <div className="flex items-baseline flex-wrap gap-x-4 gap-y-1">
+        <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+          <BarChart2 className="h-7 w-7 text-brand shrink-0" />
           Reports
         </h1>
-        <p className="text-muted-foreground mt-1">
+        <span className="eyebrow">
           Quarterly performance checklists and data exports
-        </p>
+        </span>
       </div>
 
       {/* Tab bar */}
@@ -345,7 +346,7 @@ export default function Reports() {
             onClick={() => setActiveTab(key)}
             className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors flex items-center gap-1.5 ${
               activeTab === key
-                ? "border-indigo-600 text-indigo-600"
+                ? "border-brand text-brand"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >

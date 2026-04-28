@@ -89,16 +89,18 @@ export default function EquipmentChecks() {
 
   return (
     <div className="p-4 md:p-8 space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-3">
-            <Truck className="h-8 w-8 text-red-600" />
+      {/* Visual-refresh page header: h1 + eyebrow + action buttons. */}
+      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-3">
+        <div className="flex items-baseline flex-wrap gap-x-4 gap-y-1">
+          <h1 className="text-3xl font-bold flex items-center gap-3">
+            <Truck className="h-7 w-7 text-brand shrink-0" />
             J4 Equipment Checks
           </h1>
-          <p className="text-muted-foreground mt-1">
-            B10 Springburn — Appliance & Equipment Management
-          </p>
+          <span className="eyebrow whitespace-nowrap">
+            B10 Springburn
+            <span className="crumb-sep">·</span>
+            Appliance & Equipment Management
+          </span>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           {overdueDefects.length > 0 && (

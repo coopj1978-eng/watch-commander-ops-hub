@@ -57759,17 +57759,23 @@ function Policies() {
   };
   const activeFiltersCount = [categoryFilter !== "all" ? categoryFilter : ""].filter(Boolean).length;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 md:p-8 space-y-6", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-center justify-between gap-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-baseline justify-between gap-3", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline flex-wrap gap-x-4 gap-y-1", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-3xl font-bold text-foreground flex items-center gap-3", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(BookOpen, { className: "h-7 w-7 text-brand shrink-0" }),
           "Policy & Guidance"
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-muted-foreground mt-1", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "eyebrow whitespace-nowrap", children: [
           filteredPolicies.length,
           " document",
           filteredPolicies.length === 1 ? "" : "s",
-          activeFiltersCount > 0 && ` (${activeFiltersCount} filter active)`
+          activeFiltersCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "crumb-sep", children: "·" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+              activeFiltersCount,
+              " filter active"
+            ] })
+          ] })
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-2", children: [
@@ -58182,12 +58188,12 @@ function Reports() {
     reader.readAsText(file);
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 md:p-8 space-y-6", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(ChartNoAxesColumn, { className: "h-7 w-7 text-emerald-500 shrink-0" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline flex-wrap gap-x-4 gap-y-1", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-3xl font-bold text-foreground flex items-center gap-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(ChartNoAxesColumn, { className: "h-7 w-7 text-brand shrink-0" }),
         "Reports"
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground mt-1", children: "Quarterly performance checklists and data exports" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eyebrow", children: "Quarterly performance checklists and data exports" })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-1 border-b", children: [
       { key: "quarterly", label: "Quarterly Checklist", icon: ClipboardList },
@@ -58196,7 +58202,7 @@ function Reports() {
       "button",
       {
         onClick: () => setActiveTab(key2),
-        className: `px-4 py-2 text-sm font-medium border-b-2 transition-colors flex items-center gap-1.5 ${activeTab === key2 ? "border-indigo-600 text-indigo-600" : "border-transparent text-muted-foreground hover:text-foreground"}`,
+        className: `px-4 py-2 text-sm font-medium border-b-2 transition-colors flex items-center gap-1.5 ${activeTab === key2 ? "border-brand text-brand" : "border-transparent text-muted-foreground hover:text-foreground"}`,
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "h-4 w-4" }),
           label
@@ -63227,13 +63233,17 @@ function EquipmentChecks() {
     ] });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 md:p-8 space-y-6", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-center justify-between gap-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-2xl md:text-3xl font-bold flex items-center gap-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Truck, { className: "h-8 w-8 text-red-600" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-baseline justify-between gap-3", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline flex-wrap gap-x-4 gap-y-1", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-3xl font-bold flex items-center gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Truck, { className: "h-7 w-7 text-brand shrink-0" }),
           "J4 Equipment Checks"
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground mt-1", children: "B10 Springburn — Appliance & Equipment Management" })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "eyebrow whitespace-nowrap", children: [
+          "B10 Springburn",
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "crumb-sep", children: "·" }),
+          "Appliance & Equipment Management"
+        ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-3", children: [
         overdueDefects.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "destructive", className: "text-sm px-3 py-1", children: [
@@ -67695,13 +67705,13 @@ function DetachmentsPage() {
   const [tab, setTab] = reactExports.useState("rota");
   const [watch, setWatch] = reactExports.useState((user2 == null ? void 0 : user2.watch_unit) ?? "White");
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6 max-w-3xl", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-start justify-between gap-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-2xl font-bold text-foreground flex items-center gap-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(MapPin, { className: "h-6 w-6 text-amber-500" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-baseline justify-between gap-3", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline flex-wrap gap-x-4 gap-y-1", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-3xl font-bold text-foreground flex items-center gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(MapPin, { className: "h-7 w-7 text-brand shrink-0" }),
           "Detachment Rota"
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground mt-1", children: "Track who has been detached and determine who is next in line" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eyebrow", children: "Who has been detached and who's next in line" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watch, onValueChange: setWatch, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "w-36", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
@@ -67891,18 +67901,18 @@ function Training() {
     year: "numeric"
   });
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 md:p-8 space-y-6 max-w-5xl mx-auto", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-center justify-between gap-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(GraduationCap, { className: "h-8 w-8 text-teal-500" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-baseline justify-between gap-3", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline flex-wrap gap-x-4 gap-y-1", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-3xl font-bold text-foreground flex items-center gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(GraduationCap, { className: "h-7 w-7 text-brand shrink-0" }),
           "Training"
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground mt-1", children: "Schedule drills, log sessions, and track attendance" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eyebrow", children: "Schedule drills, log sessions, track attendance" })
       ] }),
       canEdit && /* @__PURE__ */ jsxRuntimeExports.jsxs(
         Button,
         {
-          className: "self-start sm:self-auto bg-indigo-600 hover:bg-indigo-700",
+          className: "self-start sm:self-auto bg-brand hover:bg-brand/90 text-brand-foreground",
           onClick: () => setScheduleOpen(true),
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4 mr-2" }),
@@ -68467,12 +68477,12 @@ const QUICK_LINKS = [
 ];
 function Resources() {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 md:p-8 space-y-6", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(BookOpen, { className: "h-7 w-7 text-indigo-500 shrink-0" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-2xl md:text-3xl font-bold text-foreground", children: "Resources & Guides" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground mt-1", children: "Quick access to processes, reference documents and useful links" })
-      ] })
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline flex-wrap gap-x-4 gap-y-1", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-3xl font-bold text-foreground flex items-center gap-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(BookOpen, { className: "h-7 w-7 text-brand shrink-0" }),
+        "Resources & Guides"
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eyebrow", children: "Quick access to processes, reference documents and useful links" })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid gap-4 md:grid-cols-2 lg:grid-cols-3", children: QUICK_LINKS.map((link) => {
       const Icon2 = link.icon;
@@ -68507,13 +68517,13 @@ function Bulletins() {
   const [tab, setTab] = reactExports.useState("open");
   const [expandedId, setExpandedId] = reactExports.useState(null);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 md:p-8 max-w-5xl mx-auto space-y-6", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("header", { className: "flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "flex items-baseline flex-wrap gap-x-4 gap-y-1", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-3xl font-bold text-foreground flex items-center gap-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Megaphone, { className: "h-7 w-7 text-brand shrink-0" }),
         "Bulletins"
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground mt-1", children: "Station + watch-wide notices with read-receipts. Unread items show on your dashboard until you mark them read." })
-    ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eyebrow", children: "Station + watch-wide notices with read-receipts" })
+    ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1 border-b", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(TabButton, { active: tab === "open", onClick: () => setTab("open"), children: "Open" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(TabButton, { active: tab === "history", onClick: () => setTab("history"), children: "History" }),
