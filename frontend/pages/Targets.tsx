@@ -337,17 +337,17 @@ export default function Targets() {
 
   return (
     <div className="p-4 md:p-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
-            <Target className="h-7 w-7 text-rose-500 shrink-0" />
-            Performance Targets
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Track and manage performance metrics
-          </p>
-        </div>
-{/* Targets are auto-derived from activity records and inspection assignments */}
+      {/* Visual-refresh page header: h1 + eyebrow context line.
+          Targets are auto-derived from activity records and inspection
+          assignments — no add/manage button needed here. */}
+      <div className="flex items-baseline flex-wrap gap-x-4 gap-y-1">
+        <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+          <Target className="h-7 w-7 text-brand shrink-0" />
+          Performance Targets
+        </h1>
+        <span className="eyebrow">
+          Track and manage quarterly performance metrics
+        </span>
       </div>
 
       <QuarterlyOverview watch={user?.watch_unit ?? ""} />

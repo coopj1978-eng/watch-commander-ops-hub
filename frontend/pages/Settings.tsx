@@ -12,14 +12,15 @@ export default function Settings() {
   return (
     <PageContainer>
       <div className="p-6 space-y-6">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-2">
-            <SettingsIcon className="h-7 w-7 text-slate-500 shrink-0" />
-            Settings & Utilities
+        {/* Visual-refresh page header: h1 + eyebrow context line. */}
+        <div className="flex items-baseline flex-wrap gap-x-4 gap-y-1">
+          <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+            <SettingsIcon className="h-7 w-7 text-brand shrink-0" />
+            Settings &amp; Utilities
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <span className="eyebrow">
             Configure system settings and export data
-          </p>
+          </span>
         </div>
 
         <Tabs defaultValue="appearance" className="space-y-6">

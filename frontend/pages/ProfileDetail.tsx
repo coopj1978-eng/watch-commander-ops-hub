@@ -496,12 +496,16 @@ export default function ProfileDetail() {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <div className="flex items-center justify-between">
+        {/* Visual-refresh profile header: large brand-coloured initials
+            avatar + h1 with the name + eyebrow context line carrying
+            email and service number (mono). The avatar uses bg-brand
+            instead of bg-red-600 so it follows the user's accent. */}
         <div className="flex items-center gap-4">
-          <div className="h-16 w-16 rounded-full bg-red-600 flex items-center justify-center text-white text-2xl font-bold">
+          <div className="h-16 w-16 rounded-full bg-brand text-brand-foreground flex items-center justify-center text-2xl font-mono font-semibold shrink-0">
             {user?.name.charAt(0)}
           </div>
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-2">
+          <div className="flex flex-col gap-1">
+            <h1 className="text-3xl font-bold text-foreground flex items-center gap-2 flex-wrap">
               {user?.name}
               {!user?.is_active && (
                 <Badge variant="outline" className="text-xs bg-yellow-500/10 text-yellow-600 border-yellow-500/20">
@@ -509,12 +513,15 @@ export default function ProfileDetail() {
                 </Badge>
               )}
             </h1>
-            <p className="text-muted-foreground mt-1">{user?.email}</p>
-            {profile?.service_number && (
-              <p className="text-sm text-muted-foreground">
-                Service <span className="font-mono">#{profile.service_number}</span>
-              </p>
-            )}
+            <span className="eyebrow whitespace-nowrap">
+              {user?.email}
+              {profile?.service_number && (
+                <>
+                  <span className="crumb-sep">·</span>
+                  <span>Service <span className="font-mono normal-case">#{profile.service_number}</span></span>
+                </>
+              )}
+            </span>
           </div>
         </div>
         {(canEdit || (userRole === "FF" && isViewingOwnProfile)) && (

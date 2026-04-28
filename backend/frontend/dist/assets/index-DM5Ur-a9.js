@@ -50353,18 +50353,23 @@ function ProfileDetail() {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 md:p-8 space-y-6", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-16 w-16 rounded-full bg-red-600 flex items-center justify-center text-white text-2xl font-bold", children: user2 == null ? void 0 : user2.name.charAt(0) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-2xl md:text-3xl font-bold text-foreground flex items-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-16 w-16 rounded-full bg-brand text-brand-foreground flex items-center justify-center text-2xl font-mono font-semibold shrink-0", children: user2 == null ? void 0 : user2.name.charAt(0) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-1", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-3xl font-bold text-foreground flex items-center gap-2 flex-wrap", children: [
             user2 == null ? void 0 : user2.name,
             !(user2 == null ? void 0 : user2.is_active) && /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-xs bg-yellow-500/10 text-yellow-600 border-yellow-500/20", children: "Pending Sign-up" })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground mt-1", children: user2 == null ? void 0 : user2.email }),
-          (profile2 == null ? void 0 : profile2.service_number) && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-muted-foreground", children: [
-            "Service ",
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono", children: [
-              "#",
-              profile2.service_number
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "eyebrow whitespace-nowrap", children: [
+            user2 == null ? void 0 : user2.email,
+            (profile2 == null ? void 0 : profile2.service_number) && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "crumb-sep", children: "·" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                "Service ",
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono normal-case", children: [
+                  "#",
+                  profile2.service_number
+                ] })
+              ] })
             ] })
           ] })
         ] })
@@ -57192,13 +57197,13 @@ function Targets() {
     return { inspYear: d.getFullYear(), inspQuarter: calQ };
   }, [getPeriodDates, periodType]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 md:p-8 space-y-6", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-between", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Target, { className: "h-7 w-7 text-rose-500 shrink-0" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline flex-wrap gap-x-4 gap-y-1", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-3xl font-bold text-foreground flex items-center gap-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Target, { className: "h-7 w-7 text-brand shrink-0" }),
         "Performance Targets"
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground mt-1", children: "Track and manage performance metrics" })
-    ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eyebrow", children: "Track and manage quarterly performance metrics" })
+    ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(QuarterlyOverview, { watch: (user2 == null ? void 0 : user2.watch_unit) ?? "" }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(CardHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
@@ -61756,12 +61761,12 @@ function DensityCard({
 }
 function Settings() {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(PageContainer, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-6 space-y-6", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-2xl md:text-3xl font-bold text-foreground flex items-center gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { className: "h-7 w-7 text-slate-500 shrink-0" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline flex-wrap gap-x-4 gap-y-1", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-3xl font-bold text-foreground flex items-center gap-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { className: "h-7 w-7 text-brand shrink-0" }),
         "Settings & Utilities"
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground mt-1", children: "Configure system settings and export data" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eyebrow", children: "Configure system settings and export data" })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Tabs, { defaultValue: "appearance", className: "space-y-6", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(TabsList, { className: "grid w-full grid-cols-6", children: [
@@ -67046,19 +67051,26 @@ function Handover() {
     }
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 md:p-8 space-y-6 max-w-5xl mx-auto", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-center justify-between gap-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(ClipboardList, { className: "h-8 w-8 text-indigo-500" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-baseline justify-between gap-3", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline flex-wrap gap-x-4 gap-y-1", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-3xl font-bold text-foreground flex items-center gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ClipboardList, { className: "h-7 w-7 text-brand shrink-0" }),
           "Shift Management"
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground mt-1", children: "Crewing board and handover notes for each watch" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eyebrow", children: "Crewing board and handover notes" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 self-start sm:self-auto print:hidden", children: [
-        activeTab === "handover" && canWrite && !showForm && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { onClick: handleNewHandover, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4 mr-2" }),
-          "New Handover"
-        ] }),
+        activeTab === "handover" && canWrite && !showForm && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          Button,
+          {
+            className: "bg-brand hover:bg-brand/90 text-brand-foreground",
+            onClick: handleNewHandover,
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4 mr-2" }),
+              "New Handover"
+            ]
+          }
+        ),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline", onClick: () => window.print(), title: "Print handover", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Printer, { className: "h-4 w-4 mr-2" }),
           "Print"

@@ -394,22 +394,25 @@ export default function Handover() {
 
   return (
     <div className="p-4 md:p-8 space-y-6 max-w-5xl mx-auto">
-      {/* ── Page header ─────────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
-            <ClipboardList className="h-8 w-8 text-indigo-500" />
+      {/* Visual-refresh page header: h1 + eyebrow + brand-coloured action buttons. */}
+      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-3">
+        <div className="flex items-baseline flex-wrap gap-x-4 gap-y-1">
+          <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+            <ClipboardList className="h-7 w-7 text-brand shrink-0" />
             Shift Management
           </h1>
-          <p className="text-muted-foreground mt-1">
-            Crewing board and handover notes for each watch
-          </p>
+          <span className="eyebrow">
+            Crewing board and handover notes
+          </span>
         </div>
 
         {/* Action buttons */}
         <div className="flex items-center gap-2 self-start sm:self-auto print:hidden">
           {activeTab === "handover" && canWrite && !showForm && (
-            <Button onClick={handleNewHandover}>
+            <Button
+              className="bg-brand hover:bg-brand/90 text-brand-foreground"
+              onClick={handleNewHandover}
+            >
               <Plus className="h-4 w-4 mr-2" />
               New Handover
             </Button>

@@ -233,7 +233,6 @@
     --color-rose-100: oklch(94.1% .03 12.58);
     --color-rose-200: oklch(89.2% .058 10.001);
     --color-rose-300: oklch(81% .117 11.638);
-    --color-rose-500: oklch(64.5% .246 16.439);
     --color-rose-700: oklch(51.4% .222 16.935);
     --color-rose-900: oklch(41% .159 10.272);
     --color-rose-950: oklch(27.1% .105 12.094);
@@ -4840,10 +4839,6 @@
 
   .text-red-900 {
     color: var(--color-red-900);
-  }
-
-  .text-rose-500 {
-    color: var(--color-rose-500);
   }
 
   .text-rose-700 {
