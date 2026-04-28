@@ -6971,12 +6971,12 @@
       display: table-cell;
     }
 
-    .md\:h-7 {
-      height: calc(var(--spacing) * 7);
+    .md\:h-6 {
+      height: calc(var(--spacing) * 6);
     }
 
-    .md\:h-\[calc\(100vh-130px\)\] {
-      height: calc(100vh - 130px);
+    .md\:h-\[calc\(100vh-90px\)\] {
+      height: calc(100vh - 90px);
     }
 
     .md\:h-full {
@@ -6991,8 +6991,8 @@
       min-height: 500px;
     }
 
-    .md\:w-7 {
-      width: calc(var(--spacing) * 7);
+    .md\:w-6 {
+      width: calc(var(--spacing) * 6);
     }
 
     .md\:w-\[380px\] {
@@ -7048,10 +7048,6 @@
       overflow: hidden;
     }
 
-    .md\:p-4 {
-      padding: calc(var(--spacing) * 4);
-    }
-
     .md\:p-8 {
       padding: calc(var(--spacing) * 8);
     }
@@ -7060,8 +7056,16 @@
       padding-inline: calc(var(--spacing) * 2);
     }
 
+    .md\:px-4 {
+      padding-inline: calc(var(--spacing) * 4);
+    }
+
     .md\:px-6 {
       padding-inline: calc(var(--spacing) * 6);
+    }
+
+    .md\:py-2 {
+      padding-block: calc(var(--spacing) * 2);
     }
 
     .md\:pb-8 {
@@ -7070,6 +7074,11 @@
 
     .md\:pl-2 {
       padding-left: calc(var(--spacing) * 2);
+    }
+
+    .md\:text-2xl {
+      font-size: var(--text-2xl);
+      line-height: var(--tw-leading, var(--text-2xl--line-height));
     }
 
     .md\:text-3xl {

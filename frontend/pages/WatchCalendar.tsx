@@ -430,13 +430,12 @@ export default function UnifiedCalendar() {
     // between TopBar and bottom of viewport. Mobile: natural height so the
     // page scrolls — otherwise a day with 3+ events clips the later rows.
     //
-    // Subtracts 130px for TopBar (52px) + page padding (~24px top + 32px
-    // bottom). The calendar should be the dominant feature on this page,
-    // so we keep the chrome subtraction tight and let the month grid
-    // fill the rest. Cell height is now flex-distributed (see MonthView)
-    // so rows shrink to fit when the viewport is small instead of
-    // clipping the last row off-screen.
-    <div className="flex md:overflow-hidden md:h-[calc(100vh-130px)]">
+    // Subtracts 90px for TopBar (52px) + tightened page padding. The
+    // calendar should dominate this page, so the chrome subtraction is
+    // kept as small as possible. Cell height is flex-distributed via
+    // grid-auto-rows minmax(60px, 1fr) (see MonthView), so rows shrink
+    // gracefully on shorter viewports instead of clipping off-screen.
+    <div className="flex md:overflow-hidden md:h-[calc(100vh-90px)]">
       {/* ── Desktop sidebar — permanent ────────────────────────────────────── */}
       <aside className="hidden md:flex w-52 shrink-0 border-r border-border bg-card flex-col py-4 px-3 gap-6 h-full overflow-y-auto">
         {filterContent}
@@ -477,17 +476,16 @@ export default function UnifiedCalendar() {
       {/* ── Main calendar area ──────────────────────────────────────────────── */}
       {/* Desktop keeps overflow-hidden so the fixed-height calendar owns its
           own scroll; mobile lets the content flow and the page scrolls. */}
-      <div className="flex-1 flex flex-col md:overflow-hidden p-2 md:p-4">
-        {/* ── Page header ──────────────────────────────────────────────────
-            Visual-refresh pattern: heading + eyebrow context line carrying
-            the current month + watch (matching the design's
-            "April 2026 · Blue Watch"). Action buttons sit on the right —
-            their accent colour now flows through `--brand` so swapping the
-            user's accent re-skins the whole toolbar. */}
-        <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-3 mb-3 shrink-0">
-          <div className="flex items-baseline flex-wrap gap-x-4 gap-y-1">
-            <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-3 text-foreground">
-              <CalendarDays className="h-6 w-6 md:h-7 md:w-7 shrink-0 text-brand" />
+      <div className="flex-1 flex flex-col md:overflow-hidden p-2 md:px-4 md:py-2">
+        {/* ── Page header — tight ────────────────────────────────────────
+            Compact single-row pattern so the calendar grid below gets the
+            most vertical space possible. h1 sits on the same line as the
+            eyebrow context (April 2026 · White Watch) and the action
+            buttons; nothing wraps unless the viewport forces it. */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2 shrink-0">
+          <div className="flex items-baseline flex-wrap gap-x-3 gap-y-0.5">
+            <h1 className="text-xl md:text-2xl font-bold flex items-center gap-2 text-foreground">
+              <CalendarDays className="h-5 w-5 md:h-6 md:w-6 shrink-0 text-brand" />
               Calendar
             </h1>
             <span className="eyebrow whitespace-nowrap">

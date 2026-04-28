@@ -52105,23 +52105,31 @@ function CalendarHeader({
     return currentDate.getFullYear().toString();
   })();
   const views = ["day", "week", "month", "year"];
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-4 py-2 border-b border-border bg-card shrink-0", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", size: "sm", onClick: onToday, className: "text-xs h-7 px-3", children: "Today" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "ghost", size: "icon", onClick: onPrev, className: "h-7 w-7", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronLeft, { className: "h-4 w-4" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "ghost", size: "icon", onClick: onNext, className: "h-7 w-7", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-4 w-4" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-base font-semibold text-foreground ml-1", children: title })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center rounded-lg border border-border overflow-hidden", children: views.map((v) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "button",
-      {
-        onClick: () => onViewChange(v),
-        className: `px-3 py-1 text-xs font-medium transition-colors capitalize ${view === v ? "bg-red-500 text-white" : "bg-card text-muted-foreground hover:bg-muted"}`,
-        children: v
-      },
-      v
-    )) })
-  ] });
+  return (
+    // Internal calendar toolbar — kept tight (py-1, h-7 controls) so the
+    // grid below gets the most room. Page header already shows the month
+    // + watch in eyebrow form, so the title here only needs to reflect
+    // the visible range (week-spans, year). Active view button uses
+    // --brand instead of bg-red-500 so it stays consistent with the
+    // rest of the app's accent system.
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-3 py-1 border-b border-border bg-card shrink-0", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", size: "sm", onClick: onToday, className: "text-xs h-7 px-3", children: "Today" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "ghost", size: "icon", onClick: onPrev, className: "h-7 w-7", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronLeft, { className: "h-4 w-4" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "ghost", size: "icon", onClick: onNext, className: "h-7 w-7", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-4 w-4" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-sm font-medium text-muted-foreground ml-1", children: title })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center rounded-md border border-border overflow-hidden h-7", children: views.map((v) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          onClick: () => onViewChange(v),
+          className: `px-3 text-xs font-medium transition-colors capitalize h-full ${view === v ? "bg-brand text-brand-foreground" : "bg-card text-muted-foreground hover:bg-muted"}`,
+          children: v
+        },
+        v
+      )) })
+    ] })
+  );
 }
 function CalendarWidget({
   events: events2 = [],
@@ -53526,13 +53534,12 @@ function UnifiedCalendar() {
     // between TopBar and bottom of viewport. Mobile: natural height so the
     // page scrolls — otherwise a day with 3+ events clips the later rows.
     //
-    // Subtracts 130px for TopBar (52px) + page padding (~24px top + 32px
-    // bottom). The calendar should be the dominant feature on this page,
-    // so we keep the chrome subtraction tight and let the month grid
-    // fill the rest. Cell height is now flex-distributed (see MonthView)
-    // so rows shrink to fit when the viewport is small instead of
-    // clipping the last row off-screen.
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex md:overflow-hidden md:h-[calc(100vh-130px)]", children: [
+    // Subtracts 90px for TopBar (52px) + tightened page padding. The
+    // calendar should dominate this page, so the chrome subtraction is
+    // kept as small as possible. Cell height is flex-distributed via
+    // grid-auto-rows minmax(60px, 1fr) (see MonthView), so rows shrink
+    // gracefully on shorter viewports instead of clipping off-screen.
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex md:overflow-hidden md:h-[calc(100vh-90px)]", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("aside", { className: "hidden md:flex w-52 shrink-0 border-r border-border bg-card flex-col py-4 px-3 gap-6 h-full overflow-y-auto", children: filterContent }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "div",
@@ -53571,11 +53578,11 @@ function UnifiedCalendar() {
           ]
         }
       ),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col md:overflow-hidden p-2 md:p-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-baseline justify-between gap-3 mb-3 shrink-0", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline flex-wrap gap-x-4 gap-y-1", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-2xl md:text-3xl font-bold flex items-center gap-3 text-foreground", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarDays, { className: "h-6 w-6 md:h-7 md:w-7 shrink-0 text-brand" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col md:overflow-hidden p-2 md:px-4 md:py-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2 shrink-0", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline flex-wrap gap-x-3 gap-y-0.5", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-xl md:text-2xl font-bold flex items-center gap-2 text-foreground", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarDays, { className: "h-5 w-5 md:h-6 md:w-6 shrink-0 text-brand" }),
               "Calendar"
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "eyebrow whitespace-nowrap", children: [

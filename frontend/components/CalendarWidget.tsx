@@ -1086,7 +1086,13 @@ function CalendarHeader({
   const views: CalendarViewType[] = ["day", "week", "month", "year"];
 
   return (
-    <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card shrink-0">
+    // Internal calendar toolbar — kept tight (py-1, h-7 controls) so the
+    // grid below gets the most room. Page header already shows the month
+    // + watch in eyebrow form, so the title here only needs to reflect
+    // the visible range (week-spans, year). Active view button uses
+    // --brand instead of bg-red-500 so it stays consistent with the
+    // rest of the app's accent system.
+    <div className="flex items-center justify-between px-3 py-1 border-b border-border bg-card shrink-0">
       <div className="flex items-center gap-2">
         <Button variant="outline" size="sm" onClick={onToday} className="text-xs h-7 px-3">
           Today
@@ -1097,16 +1103,16 @@ function CalendarHeader({
         <Button variant="ghost" size="icon" onClick={onNext} className="h-7 w-7">
           <ChevronRight className="h-4 w-4" />
         </Button>
-        <h2 className="text-base font-semibold text-foreground ml-1">{title}</h2>
+        <h2 className="text-sm font-medium text-muted-foreground ml-1">{title}</h2>
       </div>
-      <div className="flex items-center rounded-lg border border-border overflow-hidden">
+      <div className="flex items-center rounded-md border border-border overflow-hidden h-7">
         {views.map((v) => (
           <button
             key={v}
             onClick={() => onViewChange(v)}
-            className={`px-3 py-1 text-xs font-medium transition-colors capitalize ${
+            className={`px-3 text-xs font-medium transition-colors capitalize h-full ${
               view === v
-                ? "bg-red-500 text-white"
+                ? "bg-brand text-brand-foreground"
                 : "bg-card text-muted-foreground hover:bg-muted"
             }`}
           >
