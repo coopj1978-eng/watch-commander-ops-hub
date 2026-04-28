@@ -426,17 +426,23 @@ export default function UnifiedCalendar() {
   );
 
   return (
-    // Desktop: escape PageContainer's padding chrome (md:-m-8 negates
-    // the p-8) and the space-y-6 gap above (md:-mt-14 = -mt-8 for the
-    // padding + -mt-6 for the gap), then size the page to exactly the
-    // viewport height minus the sticky TopBar (~56px). This makes the
-    // calendar dominant — no scrolling, no dead space below the grid.
+    // Desktop: size to exactly the remaining viewport so the page never
+    // scrolls.
     //
-    // Mobile: natural height + page scroll. Cell height is flex-distributed
-    // via grid-auto-rows minmax(60px, 1fr) (see MonthView), so rows
-    // shrink gracefully on shorter viewports instead of clipping off-
-    // screen.
-    <div className="flex md:overflow-hidden md:h-[calc(100vh-56px)] md:-mx-8 md:-mt-14 md:-mb-8">
+    // Chrome math (PageContainer wraps every page):
+    //   p-8 top  (32px)  + TopBar (~56px, sticky) +
+    //   space-y-6 (24px) gap between TopBar and Outlet → 112px total
+    //   above this wrapper.
+    //
+    // We escape the parent's horizontal padding (md:-mx-8) so the
+    // calendar runs edge-to-edge under the sidebar, and the parent's
+    // pb-8 (md:-mb-8) so the wrapper can extend to the very bottom of
+    // the viewport. Height is then 100vh − 112px = the remaining space
+    // under TopBar.
+    //
+    // Mobile keeps natural height + page scroll because narrow viewports
+    // genuinely benefit from scrolling the day-spans-day events.
+    <div className="flex md:overflow-hidden md:h-[calc(100vh-112px)] md:-mx-8 md:-mb-8">
       {/* ── Desktop sidebar — permanent ────────────────────────────────────── */}
       <aside className="hidden md:flex w-52 shrink-0 border-r border-border bg-card flex-col py-4 px-3 gap-6 h-full overflow-y-auto">
         {filterContent}
