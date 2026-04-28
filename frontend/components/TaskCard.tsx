@@ -158,7 +158,13 @@ export default function TaskCard({ task, onChecklistToggle, onTitleEdit, onClick
       <div className="p-3">
         {/* Title */}
         <div className="flex items-start gap-1.5 mb-1.5" onClick={(e) => e.stopPropagation()}>
-          {task.rrule && <Repeat className="h-3.5 w-3.5 text-blue-500 shrink-0 mt-0.5" title={rruleDisplay ?? "Recurring"} />}
+          {task.rrule && (
+            // Lucide icons don't accept `title` directly — wrap in a span
+            // with title so the hover hint still works.
+            <span title={rruleDisplay ?? "Recurring"} className="inline-flex shrink-0 mt-0.5">
+              <Repeat className="h-3.5 w-3.5 text-blue-500" />
+            </span>
+          )}
           {editingTitle ? (
             <input
               ref={titleInputRef}

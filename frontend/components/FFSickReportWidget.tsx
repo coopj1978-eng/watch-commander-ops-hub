@@ -65,8 +65,12 @@ export default function FFSickReportWidget() {
 
   const reportMutation = useMutation({
     mutationFn: () => backend.absence.selfReport({
-      start_date: new Date(startDate),
-      end_date: new Date(endDate),
+      // Encore decodes a Date type from an ISO 8601 string on the wire,
+      // so the generated client takes string here. We send the picker's
+      // YYYY-MM-DD value as an ISO datetime anchored at midnight UTC so
+      // it survives the DATE-column truncation.
+      start_date: new Date(startDate + "T00:00:00.000Z").toISOString(),
+      end_date: new Date(endDate + "T00:00:00.000Z").toISOString(),
       reason: reason.trim() || undefined,
       sick_line_document: sickLineDoc || undefined,
     }),
@@ -274,7 +278,12 @@ export default function FFSickReportWidget() {
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
                       {(a as any).sick_line_document && (
-                        <FileImage className="h-3.5 w-3.5 text-brand-bright" title="Sick line attached" />
+                        // Lucide icons don't accept the `title` prop directly
+                        // (it's not in their typed LucideProps). Wrap in a
+                        // span with title so the hover tooltip still works.
+                        <span title="Sick line attached" className="inline-flex">
+                          <FileImage className="h-3.5 w-3.5 text-brand-bright" />
+                        </span>
                       )}
                       <Badge
                         variant="outline"

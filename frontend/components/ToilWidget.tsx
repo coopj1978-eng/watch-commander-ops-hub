@@ -114,7 +114,7 @@ export default function ToilWidget() {
 
   const approveMutation = useMutation({
     mutationFn: ({ id, action }: { id: number; action: "approved" | "rejected" }) =>
-      backend.toil.approve(id, { id, action }),
+      backend.toil.approve(id, { action }),
     onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: ["toil-balance"] });
       queryClient.invalidateQueries({ queryKey: ["toil-entries"] });

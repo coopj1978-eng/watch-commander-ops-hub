@@ -43565,8 +43565,12 @@ function FFSickReportWidget() {
   const sickAbsences = absences.filter((a) => a.type === "sickness").slice(0, 5);
   const reportMutation = useMutation({
     mutationFn: () => backendClient.absence.selfReport({
-      start_date: new Date(startDate),
-      end_date: new Date(endDate),
+      // Encore decodes a Date type from an ISO 8601 string on the wire,
+      // so the generated client takes string here. We send the picker's
+      // YYYY-MM-DD value as an ISO datetime anchored at midnight UTC so
+      // it survives the DATE-column truncation.
+      start_date: (/* @__PURE__ */ new Date(startDate + "T00:00:00.000Z")).toISOString(),
+      end_date: (/* @__PURE__ */ new Date(endDate + "T00:00:00.000Z")).toISOString(),
       reason: reason.trim() || void 0,
       sick_line_document: sickLineDoc || void 0
     }),
@@ -43779,7 +43783,10 @@ function FFSickReportWidget() {
                     ] })
                   ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5 shrink-0", children: [
-                    a.sick_line_document && /* @__PURE__ */ jsxRuntimeExports.jsx(FileImage, { className: "h-3.5 w-3.5 text-brand-bright", title: "Sick line attached" }),
+                    a.sick_line_document && // Lucide icons don't accept the `title` prop directly
+                    // (it's not in their typed LucideProps). Wrap in a
+                    // span with title so the hover tooltip still works.
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { title: "Sick line attached", className: "inline-flex", children: /* @__PURE__ */ jsxRuntimeExports.jsx(FileImage, { className: "h-3.5 w-3.5 text-brand-bright" }) }),
                     /* @__PURE__ */ jsxRuntimeExports.jsx(
                       Badge,
                       {
@@ -46017,7 +46024,7 @@ function ToilWidget() {
     onError: (err) => toast2({ title: "Failed", description: (err == null ? void 0 : err.message) ?? String(err), variant: "destructive" })
   });
   const approveMutation = useMutation({
-    mutationFn: ({ id, action }) => backendClient.toil.approve(id, { id, action }),
+    mutationFn: ({ id, action }) => backendClient.toil.approve(id, { action }),
     onSuccess: (_, vars) => {
       queryClient2.invalidateQueries({ queryKey: ["toil-balance"] });
       queryClient2.invalidateQueries({ queryKey: ["toil-entries"] });
@@ -54006,7 +54013,9 @@ function TaskCard({ task: task2, onChecklistToggle, onTitleEdit, onClick, compac
         )) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-1.5 mb-1.5", onClick: (e) => e.stopPropagation(), children: [
-            task2.rrule && /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat, { className: "h-3.5 w-3.5 text-blue-500 shrink-0 mt-0.5", title: rruleDisplay ?? "Recurring" }),
+            task2.rrule && // Lucide icons don't accept `title` directly — wrap in a span
+            // with title so the hover hint still works.
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { title: rruleDisplay ?? "Recurring", className: "inline-flex shrink-0 mt-0.5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat, { className: "h-3.5 w-3.5 text-blue-500" }) }),
             editingTitle ? /* @__PURE__ */ jsxRuntimeExports.jsx(
               "input",
               {
@@ -55984,7 +55993,7 @@ function Tasks() {
   const columns = columnsData ?? [];
   const { data: profilesData } = useQuery({
     queryKey: ["profiles-for-tasks"],
-    queryFn: async () => (await backendClient.profile.list()).profiles ?? [],
+    queryFn: async () => (await backendClient.profile.list({})).profiles ?? [],
     staleTime: 5 * 60 * 1e3
   });
   const userMap = reactExports.useMemo(() => {
@@ -56422,7 +56431,7 @@ function ActivityDrawer({
     onError: () => toast2({ title: "Error", description: "Failed to create record", variant: "destructive" })
   });
   const deleteMut = useMutation({
-    mutationFn: (id) => backendClient.activity.remove({ id }),
+    mutationFn: (id) => backendClient.activity.remove(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: actKey });
       qc.invalidateQueries({ queryKey: ["activities"] });

@@ -56,7 +56,7 @@ export default function Tasks() {
   // ── Users for avatars ───────────────────────────────────────────────────
   const { data: profilesData } = useQuery({
     queryKey: ["profiles-for-tasks"],
-    queryFn: async () => (await backend.profile.list()).profiles ?? [],
+    queryFn: async () => (await backend.profile.list({})).profiles ?? [],
     staleTime: 5 * 60 * 1000,
   });
 

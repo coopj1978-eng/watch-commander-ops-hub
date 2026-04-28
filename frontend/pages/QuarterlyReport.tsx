@@ -240,13 +240,18 @@ export default function QuarterlyReportPage() {
 
   // ── Mutations ──────────────────────────────────────────────────────────────
 
+  // Inline param types where the generated client doesn't export named
+  // request interfaces (the Encore client treats inline param objects on
+  // updateItem / updateReport / updateCustomItem as anonymous types).
+  // Using `Parameters<typeof fn>` keeps the page in lockstep with the
+  // client signatures without re-declaring the shapes here.
   const updateItemMut = useMutation({
     mutationFn: ({
       itemId,
       params,
     }: {
       itemId: number;
-      params: quarterly_report.UpdateItemRequest;
+      params: Parameters<typeof backend.quarterly_report.updateItem>[2];
     }) => backend.quarterly_report.updateItem(reportId, itemId, params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["quarterly-report", reportId] });
@@ -256,7 +261,7 @@ export default function QuarterlyReportPage() {
   });
 
   const updateReportMut = useMutation({
-    mutationFn: (params: quarterly_report.UpdateReportRequest) =>
+    mutationFn: (params: Parameters<typeof backend.quarterly_report.updateReport>[1]) =>
       backend.quarterly_report.updateReport(reportId, params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["quarterly-report", reportId] });
@@ -279,7 +284,7 @@ export default function QuarterlyReportPage() {
       params,
     }: {
       itemId: number;
-      params: quarterly_report.UpdateCustomItemRequest;
+      params: Parameters<typeof backend.quarterly_report.updateCustomItem>[2];
     }) => backend.quarterly_report.updateCustomItem(reportId, itemId, params),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["quarterly-report", reportId] }),

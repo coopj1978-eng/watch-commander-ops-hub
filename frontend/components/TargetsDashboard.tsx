@@ -137,7 +137,7 @@ function ActivityDrawer({
   });
 
   const deleteMut = useMutation({
-    mutationFn: (id: number) => backend.activity.remove({ id }),
+    mutationFn: (id: number) => backend.activity.remove(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: actKey });
       qc.invalidateQueries({ queryKey: ["activities"] });
