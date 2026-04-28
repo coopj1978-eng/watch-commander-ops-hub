@@ -54829,7 +54829,7 @@ function TaskList({ tasks, isLoading, onTaskClick }) {
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 h-1.5 bg-muted rounded-full overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "div",
                 {
-                  className: "h-full bg-indigo-500 transition-all",
+                  className: "h-full bg-brand transition-all",
                   style: { width: `${checklistProgress.percentage}%` }
                 }
               ) }),
@@ -54844,7 +54844,7 @@ function TaskList({ tasks, isLoading, onTaskClick }) {
         task2.id
       );
     }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hidden md:block border rounded-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "card-flush hidden md:block", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { className: "plain", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(TableHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Title" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Status" }),
@@ -55149,7 +55149,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "textarea",
             {
-              className: "w-full text-xl font-bold bg-transparent border-none outline-none resize-none text-foreground leading-snug focus:ring-2 focus:ring-indigo-400/50 rounded-lg px-0",
+              className: "w-full text-xl font-bold bg-transparent border-none outline-none resize-none text-foreground leading-snug focus:ring-2 focus:ring-brand/40 rounded-lg px-0",
               value: title,
               onChange: (e) => setTitle(e.target.value),
               onBlur: handleTitleBlur,
@@ -55179,7 +55179,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
           "button",
           {
             onClick: () => setCoverTab(tab),
-            className: `flex-1 py-2 text-xs font-medium capitalize transition-colors ${coverTab === tab ? "text-indigo-600 border-b-2 border-indigo-500 bg-indigo-50/50" : "text-muted-foreground hover:text-foreground"}`,
+            className: `flex-1 py-2 text-xs font-medium capitalize transition-colors ${coverTab === tab ? "text-brand border-b-2 border-brand bg-brand/10" : "text-muted-foreground hover:text-foreground"}`,
             children: tab === "colours" ? "🎨 Colours" : tab === "upload" ? "⬆ Upload" : "📷 Unsplash"
           },
           tab
@@ -55190,7 +55190,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
             {
               onClick: () => handleCoverChange(c.id),
               title: c.name,
-              className: `h-8 rounded-lg border-2 transition-all hover:scale-110 ${coverColour === c.id ? "border-indigo-500 scale-110 shadow" : "border-transparent"}`,
+              className: `h-8 rounded-lg border-2 transition-all hover:scale-110 ${coverColour === c.id ? "border-brand scale-110 shadow" : "border-transparent"}`,
               style: c.id ? { background: c.bg } : { background: "#f1f5f9", border: "2px dashed #cbd5e1" },
               children: !c.id && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-slate-400", children: "✕" })
             },
@@ -55206,7 +55206,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
                   var _a2;
                   return (_a2 = fileInputRef.current) == null ? void 0 : _a2.click();
                 },
-                className: "w-full flex items-center justify-center gap-2 py-6 rounded-xl border-2 border-dashed border-border text-sm text-muted-foreground hover:text-foreground hover:border-indigo-400 hover:bg-indigo-50/30 transition-all",
+                className: "w-full flex items-center justify-center gap-2 py-6 rounded-xl border-2 border-dashed border-border text-sm text-muted-foreground hover:text-foreground hover:border-brand hover:bg-brand/5 transition-all",
                 children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { className: "h-5 w-5" }),
                   "Click to choose an image"
@@ -55229,7 +55229,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
             /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground", children: [
               "Get a free API key at",
               " ",
-              /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://unsplash.com/developers", target: "_blank", rel: "noopener noreferrer", className: "text-indigo-500 underline", children: "unsplash.com/developers" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://unsplash.com/developers", target: "_blank", rel: "noopener noreferrer", className: "text-brand underline", children: "unsplash.com/developers" }),
               " ",
               "→ New Application → copy the ",
               /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Access Key" }),
@@ -55239,7 +55239,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "input",
                 {
-                  className: "flex-1 h-8 rounded-lg border border-border px-2 text-xs bg-background outline-none focus:border-indigo-400 font-mono",
+                  className: "flex-1 h-8 rounded-lg border border-border px-2 text-xs bg-background outline-none focus:border-brand font-mono",
                   placeholder: "Paste your Unsplash Access Key…",
                   value: keyDraft,
                   onChange: (e) => setKeyDraft(e.target.value),
@@ -55254,7 +55254,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
                 {
                   onClick: handleSaveUnsplashKey,
                   disabled: !keyDraft.trim(),
-                  className: "h-8 px-3 rounded-lg bg-indigo-600 text-white text-xs font-medium hover:bg-indigo-700 disabled:opacity-40 transition-colors",
+                  className: "h-8 px-3 rounded-lg bg-brand text-brand-foreground text-xs font-medium hover:bg-brand/90 disabled:opacity-40 transition-colors",
                   children: "Save"
                 }
               )
@@ -55266,7 +55266,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "input",
                   {
-                    className: "w-full h-8 pl-7 pr-3 rounded-lg border border-border text-xs bg-background outline-none focus:border-indigo-400",
+                    className: "w-full h-8 pl-7 pr-3 rounded-lg border border-border text-xs bg-background outline-none focus:border-brand",
                     placeholder: "Search Unsplash…",
                     value: unsplashQuery,
                     onChange: (e) => setUnsplashQuery(e.target.value),
@@ -55282,7 +55282,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
                 {
                   onClick: handleUnsplashSearch,
                   disabled: unsplashLoading || !unsplashQuery.trim(),
-                  className: "h-8 px-3 rounded-lg bg-indigo-600 text-white text-xs font-medium hover:bg-indigo-700 disabled:opacity-40 transition-colors",
+                  className: "h-8 px-3 rounded-lg bg-brand text-brand-foreground text-xs font-medium hover:bg-brand/90 disabled:opacity-40 transition-colors",
                   children: unsplashLoading ? "…" : "Search"
                 }
               ),
@@ -55293,7 +55293,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
                     setShowKeyInput(true);
                     setKeyDraft(unsplashKey);
                   },
-                  className: "h-8 w-8 flex items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-foreground hover:border-indigo-400 transition-colors",
+                  className: "h-8 w-8 flex items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-foreground hover:border-brand transition-colors",
                   title: "Change API key",
                   children: /* @__PURE__ */ jsxRuntimeExports.jsx(Key, { className: "h-3.5 w-3.5" })
                 }
@@ -55306,7 +55306,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
                   setUnsplashQuery(term);
                   setTimeout(handleUnsplashSearch, 50);
                 },
-                className: "px-2.5 py-1 rounded-full text-xs bg-muted/60 text-muted-foreground hover:bg-indigo-100 hover:text-indigo-700 transition-colors border border-border",
+                className: "px-2.5 py-1 rounded-full text-xs bg-muted/60 text-muted-foreground hover:bg-brand/15 hover:text-brand transition-colors border border-border",
                 children: term
               },
               term
@@ -55315,7 +55315,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
               "button",
               {
                 onClick: () => handleCoverChange(photo.full),
-                className: `relative h-16 rounded-lg overflow-hidden hover:scale-105 transition-all border-2 ${coverColour === photo.full ? "border-indigo-500 scale-105" : "border-transparent"}`,
+                className: `relative h-16 rounded-lg overflow-hidden hover:scale-105 transition-all border-2 ${coverColour === photo.full ? "border-brand scale-105" : "border-transparent"}`,
                 title: photo.alt,
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: photo.thumb, alt: photo.alt, className: "w-full h-full object-cover" })
               },
@@ -55367,7 +55367,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "textarea",
               {
-                className: "w-full text-sm bg-muted/40 rounded-xl p-3 border border-transparent focus:border-indigo-400 outline-none resize-none text-foreground placeholder:text-muted-foreground",
+                className: "w-full text-sm bg-muted/40 rounded-xl p-3 border border-transparent focus:border-brand outline-none resize-none text-foreground placeholder:text-muted-foreground",
                 value: description,
                 onChange: (e) => setDescription(e.target.value),
                 onBlur: handleDescriptionBlur,
@@ -55389,7 +55389,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
             checklist.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-1.5 bg-muted rounded-full overflow-hidden mb-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
               "div",
               {
-                className: "h-full bg-indigo-500 transition-all duration-300",
+                className: "h-full bg-brand transition-all duration-300",
                 style: { width: `${checklistPct}%` }
               }
             ) }),
@@ -55418,7 +55418,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
                 "input",
                 {
                   ref: newItemInputRef,
-                  className: "flex-1 h-8 rounded-xl border border-border px-3 text-sm bg-background outline-none focus:border-indigo-400",
+                  className: "flex-1 h-8 rounded-xl border border-border px-3 text-sm bg-background outline-none focus:border-brand",
                   placeholder: "Add an item…",
                   value: newChecklistItem,
                   onChange: (e) => setNewChecklistItem(e.target.value),
@@ -55432,7 +55432,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
                   autoFocus: true
                 }
               ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", className: "h-8 bg-indigo-600 hover:bg-indigo-700 text-xs rounded-xl", onClick: handleAddChecklistItem, children: "Add" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", className: "h-8 bg-brand hover:bg-brand/90 text-brand-foreground text-xs rounded-xl", onClick: handleAddChecklistItem, children: "Add" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "ghost", className: "h-8 text-xs rounded-xl", onClick: () => {
                 setAddingItem(false);
                 setNewChecklistItem("");
@@ -55495,7 +55495,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
               "input",
               {
                 type: "date",
-                className: `h-8 w-full rounded-xl border px-2 text-xs bg-background outline-none focus:border-indigo-400 ${isOverdue ? "border-red-400 text-red-500" : isDueToday ? "border-orange-400" : "border-input"}`,
+                className: `h-8 w-full rounded-xl border px-2 text-xs bg-background outline-none focus:border-brand ${isOverdue ? "border-red-400 text-red-500" : isDueToday ? "border-orange-400" : "border-input"}`,
                 value: dueDate,
                 onChange: (e) => {
                   setDueDate(e.target.value);
@@ -55524,13 +55524,13 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "input",
                 {
-                  className: "flex-1 h-7 rounded-lg border border-input px-2 text-xs bg-background outline-none focus:border-indigo-400",
+                  className: "flex-1 h-7 rounded-lg border border-input px-2 text-xs bg-background outline-none focus:border-brand",
                   placeholder: "FREQ=WEEKLY;BYDAY=TU",
                   value: customRrule,
                   onChange: (e) => setCustomRrule(e.target.value)
                 }
               ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", className: "h-7 text-xs px-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg", onClick: () => save({ rrule: customRrule || void 0 }), children: "Save" })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", className: "h-7 text-xs px-2 bg-brand hover:bg-brand/90 text-brand-foreground rounded-lg", onClick: () => save({ rrule: customRrule || void 0 }), children: "Save" })
             ] })
           ] }),
           userRole === "WC" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [

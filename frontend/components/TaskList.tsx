@@ -295,7 +295,7 @@ export default function TaskList({ tasks, isLoading, onTaskClick }: TaskListProp
                   <div className="flex items-center gap-2 pt-1">
                     <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-indigo-500 transition-all"
+                        className="h-full bg-brand transition-all"
                         style={{ width: `${checklistProgress.percentage}%` }}
                       />
                     </div>
@@ -310,10 +310,12 @@ export default function TaskList({ tasks, isLoading, onTaskClick }: TaskListProp
         )}
       </div>
 
-      {/* ── DESKTOP: table (hidden on mobile) ────────────────────────────── */}
-      <div className="hidden md:block border rounded-lg">
+      {/* ── DESKTOP: table (hidden on mobile) ──────────────────────────────
+          Uses the visual-refresh `plain` table style: mono uppercase
+          headers, hairline borders, hover wash. */}
+      <div className="card-flush hidden md:block">
         <div className="overflow-x-auto">
-        <Table>
+        <Table className="plain">
           <TableHeader>
             <TableRow>
               <TableHead>Title</TableHead>

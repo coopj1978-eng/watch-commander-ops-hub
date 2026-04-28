@@ -305,7 +305,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
               )}
               {/* Title */}
               <textarea
-                className="w-full text-xl font-bold bg-transparent border-none outline-none resize-none text-foreground leading-snug focus:ring-2 focus:ring-indigo-400/50 rounded-lg px-0"
+                className="w-full text-xl font-bold bg-transparent border-none outline-none resize-none text-foreground leading-snug focus:ring-2 focus:ring-brand/40 rounded-lg px-0"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 onBlur={handleTitleBlur}
@@ -347,7 +347,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                   <button
                     key={tab}
                     onClick={() => setCoverTab(tab)}
-                    className={`flex-1 py-2 text-xs font-medium capitalize transition-colors ${coverTab === tab ? "text-indigo-600 border-b-2 border-indigo-500 bg-indigo-50/50" : "text-muted-foreground hover:text-foreground"}`}
+                    className={`flex-1 py-2 text-xs font-medium capitalize transition-colors ${coverTab === tab ? "text-brand border-b-2 border-brand bg-brand/10" : "text-muted-foreground hover:text-foreground"}`}
                   >
                     {tab === "colours" ? "🎨 Colours" : tab === "upload" ? "⬆ Upload" : "📷 Unsplash"}
                   </button>
@@ -363,7 +363,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                         key={c.id || "none"}
                         onClick={() => handleCoverChange(c.id)}
                         title={c.name}
-                        className={`h-8 rounded-lg border-2 transition-all hover:scale-110 ${coverColour === c.id ? "border-indigo-500 scale-110 shadow" : "border-transparent"}`}
+                        className={`h-8 rounded-lg border-2 transition-all hover:scale-110 ${coverColour === c.id ? "border-brand scale-110 shadow" : "border-transparent"}`}
                         style={c.id ? { background: c.bg } : { background: "#f1f5f9", border: "2px dashed #cbd5e1" }}
                       >
                         {!c.id && <span className="text-xs text-slate-400">✕</span>}
@@ -379,7 +379,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                     <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
                     <button
                       onClick={() => fileInputRef.current?.click()}
-                      className="w-full flex items-center justify-center gap-2 py-6 rounded-xl border-2 border-dashed border-border text-sm text-muted-foreground hover:text-foreground hover:border-indigo-400 hover:bg-indigo-50/30 transition-all"
+                      className="w-full flex items-center justify-center gap-2 py-6 rounded-xl border-2 border-dashed border-border text-sm text-muted-foreground hover:text-foreground hover:border-brand hover:bg-brand/5 transition-all"
                     >
                       <Upload className="h-5 w-5" />
                       Click to choose an image
@@ -406,12 +406,12 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                       <div className="space-y-2">
                         <p className="text-xs text-muted-foreground">
                           Get a free API key at{" "}
-                          <a href="https://unsplash.com/developers" target="_blank" rel="noopener noreferrer" className="text-indigo-500 underline">unsplash.com/developers</a>
+                          <a href="https://unsplash.com/developers" target="_blank" rel="noopener noreferrer" className="text-brand underline">unsplash.com/developers</a>
                           {" "}→ New Application → copy the <strong>Access Key</strong>.
                         </p>
                         <div className="flex gap-2">
                           <input
-                            className="flex-1 h-8 rounded-lg border border-border px-2 text-xs bg-background outline-none focus:border-indigo-400 font-mono"
+                            className="flex-1 h-8 rounded-lg border border-border px-2 text-xs bg-background outline-none focus:border-brand font-mono"
                             placeholder="Paste your Unsplash Access Key…"
                             value={keyDraft}
                             onChange={(e) => setKeyDraft(e.target.value)}
@@ -421,7 +421,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                           <button
                             onClick={handleSaveUnsplashKey}
                             disabled={!keyDraft.trim()}
-                            className="h-8 px-3 rounded-lg bg-indigo-600 text-white text-xs font-medium hover:bg-indigo-700 disabled:opacity-40 transition-colors"
+                            className="h-8 px-3 rounded-lg bg-brand text-brand-foreground text-xs font-medium hover:bg-brand/90 disabled:opacity-40 transition-colors"
                           >
                             Save
                           </button>
@@ -434,7 +434,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                           <div className="relative flex-1">
                             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                             <input
-                              className="w-full h-8 pl-7 pr-3 rounded-lg border border-border text-xs bg-background outline-none focus:border-indigo-400"
+                              className="w-full h-8 pl-7 pr-3 rounded-lg border border-border text-xs bg-background outline-none focus:border-brand"
                               placeholder="Search Unsplash…"
                               value={unsplashQuery}
                               onChange={(e) => setUnsplashQuery(e.target.value)}
@@ -445,13 +445,13 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                           <button
                             onClick={handleUnsplashSearch}
                             disabled={unsplashLoading || !unsplashQuery.trim()}
-                            className="h-8 px-3 rounded-lg bg-indigo-600 text-white text-xs font-medium hover:bg-indigo-700 disabled:opacity-40 transition-colors"
+                            className="h-8 px-3 rounded-lg bg-brand text-brand-foreground text-xs font-medium hover:bg-brand/90 disabled:opacity-40 transition-colors"
                           >
                             {unsplashLoading ? "…" : "Search"}
                           </button>
                           <button
                             onClick={() => { setShowKeyInput(true); setKeyDraft(unsplashKey); }}
-                            className="h-8 w-8 flex items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-foreground hover:border-indigo-400 transition-colors"
+                            className="h-8 w-8 flex items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-foreground hover:border-brand transition-colors"
                             title="Change API key"
                           >
                             <Key className="h-3.5 w-3.5" />
@@ -465,7 +465,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                               <button
                                 key={term}
                                 onClick={() => { setUnsplashQuery(term); setTimeout(handleUnsplashSearch, 50); }}
-                                className="px-2.5 py-1 rounded-full text-xs bg-muted/60 text-muted-foreground hover:bg-indigo-100 hover:text-indigo-700 transition-colors border border-border"
+                                className="px-2.5 py-1 rounded-full text-xs bg-muted/60 text-muted-foreground hover:bg-brand/15 hover:text-brand transition-colors border border-border"
                               >
                                 {term}
                               </button>
@@ -480,7 +480,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                               <button
                                 key={photo.id}
                                 onClick={() => handleCoverChange(photo.full)}
-                                className={`relative h-16 rounded-lg overflow-hidden hover:scale-105 transition-all border-2 ${coverColour === photo.full ? "border-indigo-500 scale-105" : "border-transparent"}`}
+                                className={`relative h-16 rounded-lg overflow-hidden hover:scale-105 transition-all border-2 ${coverColour === photo.full ? "border-brand scale-105" : "border-transparent"}`}
                                 title={photo.alt}
                               >
                                 <img src={photo.thumb} alt={photo.alt} className="w-full h-full object-cover" />
@@ -538,7 +538,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
               <div>
                 <SectionLabel icon={AlignLeft}>Description</SectionLabel>
                 <textarea
-                  className="w-full text-sm bg-muted/40 rounded-xl p-3 border border-transparent focus:border-indigo-400 outline-none resize-none text-foreground placeholder:text-muted-foreground"
+                  className="w-full text-sm bg-muted/40 rounded-xl p-3 border border-transparent focus:border-brand outline-none resize-none text-foreground placeholder:text-muted-foreground"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   onBlur={handleDescriptionBlur}
@@ -558,7 +558,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                 {checklist.length > 0 && (
                   <div className="h-1.5 bg-muted rounded-full overflow-hidden mb-3">
                     <div
-                      className="h-full bg-indigo-500 transition-all duration-300"
+                      className="h-full bg-brand transition-all duration-300"
                       style={{ width: `${checklistPct}%` }}
                     />
                   </div>
@@ -593,14 +593,14 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                     <div className="flex gap-2 mt-2">
                       <input
                         ref={newItemInputRef}
-                        className="flex-1 h-8 rounded-xl border border-border px-3 text-sm bg-background outline-none focus:border-indigo-400"
+                        className="flex-1 h-8 rounded-xl border border-border px-3 text-sm bg-background outline-none focus:border-brand"
                         placeholder="Add an item…"
                         value={newChecklistItem}
                         onChange={(e) => setNewChecklistItem(e.target.value)}
                         onKeyDown={(e) => { if (e.key === "Enter") handleAddChecklistItem(); if (e.key === "Escape") { setAddingItem(false); setNewChecklistItem(""); } }}
                         autoFocus
                       />
-                      <Button size="sm" className="h-8 bg-indigo-600 hover:bg-indigo-700 text-xs rounded-xl" onClick={handleAddChecklistItem}>Add</Button>
+                      <Button size="sm" className="h-8 bg-brand hover:bg-brand/90 text-brand-foreground text-xs rounded-xl" onClick={handleAddChecklistItem}>Add</Button>
                       <Button size="sm" variant="ghost" className="h-8 text-xs rounded-xl" onClick={() => { setAddingItem(false); setNewChecklistItem(""); }}>Cancel</Button>
                     </div>
                   ) : (
@@ -687,7 +687,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                 </SectionLabel>
                 <input
                   type="date"
-                  className={`h-8 w-full rounded-xl border px-2 text-xs bg-background outline-none focus:border-indigo-400 ${isOverdue ? "border-red-400 text-red-500" : isDueToday ? "border-orange-400" : "border-input"}`}
+                  className={`h-8 w-full rounded-xl border px-2 text-xs bg-background outline-none focus:border-brand ${isOverdue ? "border-red-400 text-red-500" : isDueToday ? "border-orange-400" : "border-input"}`}
                   value={dueDate}
                   onChange={(e) => { setDueDate(e.target.value); save({ due_date: e.target.value ? new Date(e.target.value) : undefined }); }}
                   disabled={!canEdit}
@@ -712,12 +712,12 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                 {showCustomRrule && canEdit && (
                   <div className="flex gap-1 mt-1">
                     <input
-                      className="flex-1 h-7 rounded-lg border border-input px-2 text-xs bg-background outline-none focus:border-indigo-400"
+                      className="flex-1 h-7 rounded-lg border border-input px-2 text-xs bg-background outline-none focus:border-brand"
                       placeholder="FREQ=WEEKLY;BYDAY=TU"
                       value={customRrule}
                       onChange={(e) => setCustomRrule(e.target.value)}
                     />
-                    <Button size="sm" className="h-7 text-xs px-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg" onClick={() => save({ rrule: customRrule || undefined })}>
+                    <Button size="sm" className="h-7 text-xs px-2 bg-brand hover:bg-brand/90 text-brand-foreground rounded-lg" onClick={() => save({ rrule: customRrule || undefined })}>
                       Save
                     </Button>
                   </div>
