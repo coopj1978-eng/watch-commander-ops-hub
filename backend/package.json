@@ -18,7 +18,7 @@
     "@clerk/backend": "^1.27.0",
     "@types/bcrypt": "^5",
     "@types/jsonwebtoken": "^9",
-    "typescript": "^5.8.3",
+    "typescript": "^6.0.3",
     "vitest": "^3.0.9"
   }
 }
