@@ -158,11 +158,14 @@ export default function EventForm({
     e.preventDefault();
     if (!title.trim()) return;
 
+    // All-day events are anchored at noon UTC of the picked day (same as
+    // shift adjustments). Local midnight is 23:00Z the day before in BST,
+    // which made the server's rota lookup pick the wrong day's watch.
     const start = allDay
-      ? (() => { const d = new Date(startDate); d.setHours(0, 0, 0, 0); return d; })()
+      ? new Date(`${startDate}T12:00:00.000Z`)
       : parseDateTimeInputs(startDate, startTime);
     const end = allDay
-      ? (() => { const d = new Date(endDate); d.setHours(23, 59, 59, 0); return d; })()
+      ? new Date(`${endDate}T12:00:00.000Z`)
       : parseDateTimeInputs(endDate, endTime);
 
     onSubmit({

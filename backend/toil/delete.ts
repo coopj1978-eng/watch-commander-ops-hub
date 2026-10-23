@@ -2,6 +2,7 @@ import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { logActivity } from "../logging/logger";
+import { cascadeDeleteAdjustment, loadAdjustment } from "../shift-adjustments/events";
 
 interface DeleteToilRequest {
   id: number;
@@ -23,11 +24,9 @@ interface DeleteToilResponse {
 //   • Any WC can delete any entry
 //   • CC can delete entries on their own watch but not station-wide
 //
-// Spent entries linked to a shift_adjustment are still allowed to be
-// deleted here — the activity log records the deletion and the WC is
-// expected to also delete the corresponding shift adjustment if needed.
-// (The schema FK is ON DELETE SET NULL, so deleting the adjustment first
-// would leave the spent row orphaned but valid.)
+// A spent entry linked to a shift adjustment is the ledger half of a
+// booked TOIL shift. Deleting it removes the whole booking (adjustment,
+// calendar events, crewing "TOIL off") so the refund and the rota agree.
 // ─────────────────────────────────────────────────────────────────────────────
 export const deleteToil = api<DeleteToilRequest, DeleteToilResponse>(
   { auth: true, expose: true, method: "DELETE", path: "/toil/:id" },
@@ -47,8 +46,9 @@ export const deleteToil = api<DeleteToilRequest, DeleteToilResponse>(
       watch_unit: string;
       hours: string;
       type: string;
+      shift_adjustment_id: number | null;
     }>`
-      SELECT id, created_by, watch_unit, hours, type
+      SELECT id, created_by, watch_unit, hours, type, shift_adjustment_id
       FROM toil_ledger
       WHERE id = ${req.id}
     `;
@@ -68,7 +68,17 @@ export const deleteToil = api<DeleteToilRequest, DeleteToilResponse>(
       );
     }
 
-    await db.exec`DELETE FROM toil_ledger WHERE id = ${req.id}`;
+    const linkedAdjustment =
+      existing.type === "spent" && existing.shift_adjustment_id
+        ? await loadAdjustment(existing.shift_adjustment_id)
+        : null;
+
+    if (linkedAdjustment) {
+      // Also deletes this spent row (refunding the hours).
+      await cascadeDeleteAdjustment(linkedAdjustment);
+    } else {
+      await db.exec`DELETE FROM toil_ledger WHERE id = ${req.id}`;
+    }
 
     await logActivity({
       user_id: auth.userID,
@@ -79,6 +89,7 @@ export const deleteToil = api<DeleteToilRequest, DeleteToilResponse>(
         type: existing.type,
         hours: existing.hours,
         watch: existing.watch_unit,
+        shift_adjustment_id: linkedAdjustment?.id ?? null,
       },
     });
 

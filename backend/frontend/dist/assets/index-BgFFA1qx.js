@@ -32442,6 +32442,55 @@ function ThemeSwitcher() {
     }
   );
 }
+function localTodayIso(d = /* @__PURE__ */ new Date()) {
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+const ABSENCE_VIEW_KEYS = /* @__PURE__ */ new Set([
+  "absences",
+  "wc-absences-today",
+  "absences-today-sick",
+  "absences-date",
+  "my-absences",
+  "my-absence-stats",
+  "people",
+  "profile",
+  "wc-profiles",
+  "my-profile"
+]);
+function invalidateAbsenceViews(queryClient2) {
+  return queryClient2.invalidateQueries({
+    predicate: (q) => ABSENCE_VIEW_KEYS.has(String(q.queryKey[0]))
+  });
+}
+function latestAbsencePerPerson(absences) {
+  const byPerson = /* @__PURE__ */ new Map();
+  for (const a of absences) {
+    const current = byPerson.get(a.firefighter_id);
+    if (!current) {
+      byPerson.set(a.firefighter_id, a);
+      continue;
+    }
+    const aOpen = a.type === "sickness" && !a.returned_to_work_at;
+    const cOpen = current.type === "sickness" && !current.returned_to_work_at;
+    if (aOpen !== cOpen) {
+      if (aOpen) byPerson.set(a.firefighter_id, a);
+      continue;
+    }
+    if (new Date(a.start_date) > new Date(current.start_date)) byPerson.set(a.firefighter_id, a);
+  }
+  return byPerson;
+}
+function useTodaysAbsences(enabled = true) {
+  const today = localTodayIso();
+  return useQuery({
+    queryKey: ["wc-absences-today", today],
+    queryFn: async () => backendClient.absence.list({ status: "approved", start_date: today, end_date: today, limit: 500 }),
+    enabled
+  });
+}
 const ROUTES = [
   { path: "/", name: "Dashboard", icon: LayoutDashboard },
   { path: "/people", name: "People", icon: Users },
@@ -32523,18 +32572,9 @@ function WatchShiftPill() {
     queryFn: async () => backendClient.profile.list({ watch: watch || void 0, limit: 200 }),
     enabled: !!watch
   });
-  const absencesQ = useQuery({
-    queryKey: ["wc-absences-today"],
-    queryFn: async () => backendClient.absence.list({
-      status: "approved",
-      start_date: (/* @__PURE__ */ new Date()).toISOString().split("T")[0],
-      end_date: (/* @__PURE__ */ new Date()).toISOString().split("T")[0],
-      limit: 200
-    }),
-    enabled: !!watch
-  });
+  const absencesQ = useTodaysAbsences(!!watch);
   const total = ((_a2 = profilesQ.data) == null ? void 0 : _a2.total) ?? 0;
-  const absences = ((_b2 = absencesQ.data) == null ? void 0 : _b2.absences) ?? [];
+  const absences = [...latestAbsencePerPerson(((_b2 = absencesQ.data) == null ? void 0 : _b2.absences) ?? []).values()];
   const watchUserIds = new Set((((_c2 = profilesQ.data) == null ? void 0 : _c2.profiles) ?? []).map((p) => p.user_id));
   const watchAbsences = watch ? absences.filter((a) => watchUserIds.has(a.firefighter_id)) : absences;
   const off = watchAbsences.length;
@@ -37496,15 +37536,7 @@ function WCStaffingWidget() {
     queryKey: ["wc-crew-stats"],
     queryFn: async () => backendClient.crew.getStats()
   });
-  const { data: absencesData, isLoading: absencesLoading } = useQuery({
-    queryKey: ["wc-absences-today"],
-    queryFn: async () => backendClient.absence.list({
-      status: "approved",
-      start_date: (/* @__PURE__ */ new Date()).toISOString().split("T")[0],
-      end_date: (/* @__PURE__ */ new Date()).toISOString().split("T")[0],
-      limit: 200
-    })
-  });
+  const { data: absencesData, isLoading: absencesLoading } = useTodaysAbsences();
   const isLoading = statsLoading || absencesLoading;
   const animatedTotal = useCountUp((statsData == null ? void 0 : statsData.total_watch_members) ?? 0);
   if (isLoading) {
@@ -37521,7 +37553,7 @@ function WCStaffingWidget() {
     ] });
   }
   const total = (statsData == null ? void 0 : statsData.total_watch_members) ?? 0;
-  const absences = (absencesData == null ? void 0 : absencesData.absences) ?? [];
+  const absences = [...latestAbsencePerPerson((absencesData == null ? void 0 : absencesData.absences) ?? []).values()];
   const watchUserIds = new Set((statsData == null ? void 0 : statsData.watch_member_ids) ?? []);
   const watchAbsences = watch ? absences.filter((a) => watchUserIds.has(a.firefighter_id)) : absences;
   const sickToday = watchAbsences.filter((a) => a.type === "sickness").length;
@@ -41104,15 +41136,7 @@ function OperationalStatusBar() {
     queryKey: ["wc-crew-stats"],
     queryFn: async () => backendClient.crew.getStats()
   });
-  const absencesQ = useQuery({
-    queryKey: ["wc-absences-today"],
-    queryFn: async () => backendClient.absence.list({
-      status: "approved",
-      start_date: (/* @__PURE__ */ new Date()).toISOString().split("T")[0],
-      end_date: (/* @__PURE__ */ new Date()).toISOString().split("T")[0],
-      limit: 200
-    })
-  });
+  const absencesQ = useTodaysAbsences();
   const dateStr = (/* @__PURE__ */ new Date()).toLocaleDateString("en-GB", {
     weekday: "short",
     day: "numeric",
@@ -41121,7 +41145,7 @@ function OperationalStatusBar() {
   });
   const shift2 = getShiftSpan();
   const total = ((_a2 = statsQ.data) == null ? void 0 : _a2.total_watch_members) ?? 0;
-  const absences = ((_b2 = absencesQ.data) == null ? void 0 : _b2.absences) ?? [];
+  const absences = [...latestAbsencePerPerson(((_b2 = absencesQ.data) == null ? void 0 : _b2.absences) ?? []).values()];
   const watchUserIds = new Set(((_c2 = statsQ.data) == null ? void 0 : _c2.watch_member_ids) ?? []);
   const watchAbsences = watch ? absences.filter((a) => watchUserIds.has(a.firefighter_id)) : absences;
   const sickToday = watchAbsences.filter((a) => a.type === "sickness").length;
@@ -41576,15 +41600,7 @@ function AbsenceTriggersCard() {
     queryKey: ["wc-profiles-with-users"],
     queryFn: async () => backendClient.profile.listWithUsers({ limit: 500 })
   });
-  const absencesQ = useQuery({
-    queryKey: ["wc-absences-today"],
-    queryFn: async () => backendClient.absence.list({
-      status: "approved",
-      start_date: (/* @__PURE__ */ new Date()).toISOString().split("T")[0],
-      end_date: (/* @__PURE__ */ new Date()).toISOString().split("T")[0],
-      limit: 200
-    })
-  });
+  const absencesQ = useTodaysAbsences();
   const statsQ = useQuery({
     queryKey: ["wc-crew-stats"],
     queryFn: async () => backendClient.crew.getStats()
@@ -41642,7 +41658,7 @@ function AbsenceTriggersCard() {
         });
       }
     }
-    const leaveToday = (((_c2 = absencesQ.data) == null ? void 0 : _c2.absences) ?? []).filter(
+    const leaveToday = [...latestAbsencePerPerson(((_c2 = absencesQ.data) == null ? void 0 : _c2.absences) ?? []).values()].filter(
       (a) => a.type !== "sickness" && (watchMemberIds.size === 0 || watchMemberIds.has(a.firefighter_id))
     ).slice(0, 6);
     const nameById = /* @__PURE__ */ new Map();
@@ -41772,15 +41788,7 @@ function DashboardKPIs() {
     }),
     enabled: !!watch
   });
-  const absencesQ = useQuery({
-    queryKey: ["wc-absences-today"],
-    queryFn: async () => backendClient.absence.list({
-      status: "approved",
-      start_date: (/* @__PURE__ */ new Date()).toISOString().split("T")[0],
-      end_date: (/* @__PURE__ */ new Date()).toISOString().split("T")[0],
-      limit: 200
-    })
-  });
+  const absencesQ = useTodaysAbsences();
   const sicknessQ = useQuery({
     queryKey: ["wc-sickness-triggers"],
     queryFn: async () => backendClient.profile.list({ limit: 200 })
@@ -41816,7 +41824,7 @@ function DashboardKPIs() {
       hfsvPeriodLabel
     ] })
   ] });
-  const absences = ((_e2 = absencesQ.data) == null ? void 0 : _e2.absences) ?? [];
+  const absences = [...latestAbsencePerPerson(((_e2 = absencesQ.data) == null ? void 0 : _e2.absences) ?? []).values()];
   const watchIds = new Set(((_f2 = statsQ.data) == null ? void 0 : _f2.watch_member_ids) ?? []);
   const watchAbsences = watch ? absences.filter((a) => watchIds.has(a.firefighter_id)) : absences;
   const sickToday = watchAbsences.filter((a) => a.type === "sickness").length;
@@ -42312,10 +42320,7 @@ function LogSickDialog({ open, onOpenChange, person }) {
       });
     },
     onSuccess: () => {
-      queryClient2.invalidateQueries({ queryKey: ["absences", "sick-today"] });
-      queryClient2.invalidateQueries({ queryKey: ["wc-absences-today"] });
-      queryClient2.invalidateQueries({ queryKey: ["absences-today-sick"] });
-      queryClient2.invalidateQueries({ queryKey: ["people"] });
+      invalidateAbsenceViews(queryClient2);
       queryClient2.invalidateQueries({ queryKey: ["notifications"] });
       onOpenChange(false);
     },
@@ -42529,7 +42534,6 @@ function CrewOnWatchTable() {
   var _a2, _b2, _c2;
   const { user: user2 } = useAuth();
   const watch = (user2 == null ? void 0 : user2.watch_unit) ?? "";
-  const today = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
   const canLogSick = useIsCrewCommander();
   const [logSickOpen, setLogSickOpen] = reactExports.useState(false);
   const [logSickPerson, setLogSickPerson] = reactExports.useState(null);
@@ -42538,14 +42542,15 @@ function CrewOnWatchTable() {
     setLogSickOpen(true);
   };
   const queryClient2 = useQueryClient();
+  const { toast: toast2 } = useToast();
   const bookBackFit = useMutation({
     mutationFn: async (absenceId) => backendClient.absence.bookBackFit({ absence_id: absenceId }),
-    onSuccess: () => {
-      queryClient2.invalidateQueries({ queryKey: ["wc-absences-today"] });
-      queryClient2.invalidateQueries({ queryKey: ["absences-today-sick"] });
-      queryClient2.invalidateQueries({ queryKey: ["sick-today"] });
-      queryClient2.invalidateQueries({ queryKey: ["people"] });
-    }
+    onSuccess: () => invalidateAbsenceViews(queryClient2),
+    onError: (err) => toast2({
+      title: "Couldn't book back fit",
+      description: (err == null ? void 0 : err.message) ?? "Please try again.",
+      variant: "destructive"
+    })
   });
   const rosterQ = useQuery({
     queryKey: ["crewing-roster", watch],
@@ -42557,28 +42562,18 @@ function CrewOnWatchTable() {
     queryFn: async () => backendClient.profile.list({ watch: watch || void 0, limit: 200 }),
     enabled: !!watch
   });
-  const absencesQ = useQuery({
-    queryKey: ["wc-absences-today"],
-    queryFn: async () => backendClient.absence.list({
-      status: "approved",
-      start_date: today,
-      end_date: today,
-      limit: 200
-    })
-  });
+  const absencesQ = useTodaysAbsences();
   const isLoading = rosterQ.isLoading || profilesQ.isLoading || absencesQ.isLoading;
   const members = ((_a2 = rosterQ.data) == null ? void 0 : _a2.members) ?? [];
   const profiles = ((_b2 = profilesQ.data) == null ? void 0 : _b2.profiles) ?? [];
   const absences = ((_c2 = absencesQ.data) == null ? void 0 : _c2.absences) ?? [];
   const profileByUser = new Map(profiles.map((p) => [p.user_id, p]));
-  const absenceByUser = new Map(absences.map((a) => [a.firefighter_id, a]));
+  const absenceByUser = latestAbsencePerPerson(absences);
   const rows = members.map((m) => {
     const profile2 = profileByUser.get(m.id);
     const absence2 = absenceByUser.get(m.id);
     let status;
-    if ((profile2 == null ? void 0 : profile2.trigger_stage) === "Stage3") {
-      status = { kind: "stage3", label: "Stage 3" };
-    } else if ((absence2 == null ? void 0 : absence2.type) === "sickness") {
+    if ((absence2 == null ? void 0 : absence2.type) === "sickness") {
       status = { kind: "sick", label: "Sick" };
     } else if (absence2) {
       status = { kind: "leave", label: "Leave" };
@@ -42600,6 +42595,7 @@ function CrewOnWatchTable() {
         m.hooklift_operator && "HOOKLIFT"
       ].filter(Boolean),
       status,
+      stage3: (profile2 == null ? void 0 : profile2.trigger_stage) === "Stage3",
       absence_id: (absence2 == null ? void 0 : absence2.id) ?? null
     };
   });
@@ -42704,7 +42700,10 @@ function CrewOnWatchTable() {
               },
               q
             )) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground/40 text-xs", children: "—" }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4", style: { paddingBlock: "var(--pad-row)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(StatusBadge$1, { status: r2.status }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4", style: { paddingBlock: "var(--pad-row)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(StatusBadge$1, { status: r2.status }),
+              r2.stage3 && /* @__PURE__ */ jsxRuntimeExports.jsx(StatusBadge$1, { status: { kind: "stage3", label: "Stage 3" } })
+            ] }) }),
             canLogSick && /* @__PURE__ */ jsxRuntimeExports.jsx(
               "td",
               {
@@ -43565,8 +43564,7 @@ function FFSickReportWidget() {
       sick_line_document: sickLineDoc || void 0
     }),
     onSuccess: () => {
-      queryClient2.invalidateQueries({ queryKey: ["my-absences"] });
-      queryClient2.invalidateQueries({ queryKey: ["absences"] });
+      invalidateAbsenceViews(queryClient2);
       toast2({ title: "Sickness reported", description: "Your Watch Commander has been notified." });
       setShowForm(false);
       setStartDate((/* @__PURE__ */ new Date()).toISOString().split("T")[0]);
@@ -43580,8 +43578,7 @@ function FFSickReportWidget() {
   const updateMutation = useMutation({
     mutationFn: (params) => backendClient.absence.updateAbsence(params),
     onSuccess: () => {
-      queryClient2.invalidateQueries({ queryKey: ["my-absences"] });
-      queryClient2.invalidateQueries({ queryKey: ["absences"] });
+      invalidateAbsenceViews(queryClient2);
       toast2({ title: "Absence updated" });
       setEditingId(null);
     },
@@ -45327,7 +45324,12 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate }) {
     onSuccess: () => {
       queryClient2.invalidateQueries({ queryKey: ["shift-adjustments"] });
       queryClient2.invalidateQueries({ queryKey: ["shift-adjustments-mine"] });
-      queryClient2.invalidateQueries({ queryKey: ["calendar-events"] });
+      queryClient2.invalidateQueries({ queryKey: ["cal-station"] });
+      queryClient2.invalidateQueries({ queryKey: ["cal-watch"] });
+      queryClient2.invalidateQueries({ queryKey: ["cal-personal"] });
+      queryClient2.invalidateQueries({ queryKey: ["toil-balance"] });
+      queryClient2.invalidateQueries({ queryKey: ["toil-entries"] });
+      queryClient2.invalidateQueries({ queryKey: ["crewing-roster"] });
       toast2({
         title: `${TYPE_CONFIG[type].label} logged`,
         description: "Your Watch Commander has been notified."
@@ -45344,6 +45346,9 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate }) {
       queryClient2.invalidateQueries({ queryKey: ["cal-station"] });
       queryClient2.invalidateQueries({ queryKey: ["cal-watch"] });
       queryClient2.invalidateQueries({ queryKey: ["cal-personal"] });
+      queryClient2.invalidateQueries({ queryKey: ["toil-balance"] });
+      queryClient2.invalidateQueries({ queryKey: ["toil-entries"] });
+      queryClient2.invalidateQueries({ queryKey: ["crewing-roster"] });
       toast2({ title: "Shift adjustment removed" });
     },
     onError: () => toast2({ title: "Failed to remove", variant: "destructive" })
@@ -45356,8 +45361,9 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate }) {
       return backendClient.shift_adjustments.update(editingId, {
         start_date: `${startDate}T00:00:00.000Z`,
         end_date: `${endDate}T00:00:00.000Z`,
-        ...type === "h4h" ? { covering_user_id, covering_name, shift_day_night: outboundShift } : {},
-        ...type === "toil" ? { shift_day_night: outboundShift } : {},
+        // "" clears a previous roster cover when switching to a free-text name.
+        ...type === "h4h" || type === "toil" ? { covering_user_id: covering_user_id ?? "", covering_name, shift_day_night: outboundShift } : {},
+        ...type === "toil" ? { toil_hours: toilHours } : {},
         ...type === "flexi_payback" ? { covering_watch: inboundWatch || void 0, shift_day_night: inboundShift } : {},
         ...type === "orange_day" ? { shift_day_night: orangeShift } : {},
         notes: notes.trim() || void 0
@@ -45369,6 +45375,9 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate }) {
       queryClient2.invalidateQueries({ queryKey: ["cal-station"] });
       queryClient2.invalidateQueries({ queryKey: ["cal-watch"] });
       queryClient2.invalidateQueries({ queryKey: ["cal-personal"] });
+      queryClient2.invalidateQueries({ queryKey: ["toil-balance"] });
+      queryClient2.invalidateQueries({ queryKey: ["toil-entries"] });
+      queryClient2.invalidateQueries({ queryKey: ["crewing-roster"] });
       toast2({ title: "Shift adjustment updated" });
       setEditingId(null);
       setType(null);
@@ -47625,19 +47634,13 @@ function People() {
     queryKey: ["dictionaries", "skills"],
     queryFn: async () => backend.dictionary.list({ type: "skill" })
   });
-  const { data: sickToday } = useQuery({
-    queryKey: ["absences", "sick-today"],
-    queryFn: async () => {
-      const result = await backend.absence.list({ status: "approved", limit: 200 });
-      const todayStr = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
-      return new Set(
-        result.absences.filter(
-          (a) => a.type === "sickness" && a.start_date.slice(0, 10) <= todayStr && a.end_date.slice(0, 10) >= todayStr
-        ).map((a) => a.firefighter_id)
-      );
-    },
-    refetchInterval: 6e4
-  });
+  const { data: todaysAbsences } = useTodaysAbsences();
+  const sickToday = reactExports.useMemo(
+    () => new Set(
+      ((todaysAbsences == null ? void 0 : todaysAbsences.absences) ?? []).filter((a) => a.type === "sickness").map((a) => a.firefighter_id)
+    ),
+    [todaysAbsences]
+  );
   const people = (peopleData == null ? void 0 : peopleData.people) || [];
   reactExports.useEffect(() => {
     var _a3, _b3;
@@ -49042,6 +49045,13 @@ function ProfileToilSection({
     queryClient2.invalidateQueries({ queryKey: ["toil-entries"] });
     queryClient2.invalidateQueries({ queryKey: ["toil-pending"] });
     queryClient2.invalidateQueries({ queryKey: ["toil-watch-balance"] });
+    queryClient2.invalidateQueries({ queryKey: ["shift-adjustments"] });
+    queryClient2.invalidateQueries({ queryKey: ["shift-adjustments-mine"] });
+    queryClient2.invalidateQueries({ queryKey: ["shift-adjustments-for-profile"] });
+    queryClient2.invalidateQueries({ queryKey: ["crewing-roster"] });
+    queryClient2.invalidateQueries({ queryKey: ["cal-station"] });
+    queryClient2.invalidateQueries({ queryKey: ["cal-watch"] });
+    queryClient2.invalidateQueries({ queryKey: ["cal-personal"] });
   };
   const updateMutation = useMutation({
     mutationFn: (vars) => backendClient.toil.update(vars.id, {
@@ -49229,8 +49239,9 @@ function ProfileToilSection({
                   canManage,
                   onUpdate: (payload) => updateMutation.mutate({ id: e.id, ...payload }),
                   onDelete: () => {
+                    const isBooking = e.type === "spent" && !!e.shift_adjustment_id;
                     if (confirm(
-                      `Delete this ${e.type} entry of ${e.hours}hrs? This cannot be undone.`
+                      isBooking ? `This is a booked TOIL shift. Deleting it refunds ${e.hours}hrs and also removes the booking from the calendar and crewing board. Continue?` : `Delete this ${e.type} entry of ${e.hours}hrs? This cannot be undone.`
                     )) {
                       deleteMutation.mutate(e.id);
                     }
@@ -49273,6 +49284,7 @@ function LedgerRow({
     entry.incident_date ? String(entry.incident_date).split("T")[0] : String(entry.created_at).split("T")[0]
   );
   const isEarned = entry.type === "earned";
+  const isBooking = entry.type === "spent" && !!entry.shift_adjustment_id;
   const isPending = entry.status === "pending";
   const isRejected = entry.status === "rejected";
   const counts = isEarned && entry.status === "approved" || entry.type === "spent";
@@ -49398,13 +49410,19 @@ function LedgerRow({
       counts ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold", children: balanceAfter ?? 0 }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground/50", children: "—" }),
       canManage && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
+          "span",
           {
-            onClick: startEdit,
-            disabled: saving,
-            className: "h-6 w-6 rounded flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted",
-            title: "Edit",
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "h-3 w-3" })
+            className: "inline-flex",
+            title: isBooking ? "Booked TOIL shift — edit it from the Shift Adjustments tab" : "Edit",
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: startEdit,
+                disabled: saving || isBooking,
+                className: "h-6 w-6 rounded flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-40 disabled:pointer-events-none",
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "h-3 w-3" })
+              }
+            )
           }
         ),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -49637,7 +49655,10 @@ function ProfileShiftAdjustmentsSection({
       queryClient2.invalidateQueries({ queryKey: ["cal-station"] });
       queryClient2.invalidateQueries({ queryKey: ["cal-watch"] });
       queryClient2.invalidateQueries({ queryKey: ["cal-personal"] });
-      queryClient2.invalidateQueries({ queryKey: ["calendar-events"] });
+      queryClient2.invalidateQueries({ queryKey: ["cal-station"] });
+      queryClient2.invalidateQueries({ queryKey: ["cal-watch"] });
+      queryClient2.invalidateQueries({ queryKey: ["cal-personal"] });
+      queryClient2.invalidateQueries({ queryKey: ["crewing-roster"] });
       toast2({
         title: "Shift adjustment deleted",
         description: "Calendar events removed and any TOIL hours have been refunded."
@@ -49762,6 +49783,41 @@ function ProfileShiftAdjustmentsSection({
     ] })
   ] });
 }
+const DAY_MS = 864e5;
+function ukTodayIso(now = /* @__PURE__ */ new Date()) {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/London",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).format(now);
+}
+function toIsoDate$1(v) {
+  return v instanceof Date ? v.toISOString().slice(0, 10) : String(v).slice(0, 10);
+}
+function isoToDay(iso) {
+  return Date.UTC(+iso.slice(0, 4), +iso.slice(5, 7) - 1, +iso.slice(8, 10)) / DAY_MS;
+}
+function rollingSickness(rows, todayIso = ukTodayIso()) {
+  const today = isoToDay(todayIso);
+  const windowStartDate = /* @__PURE__ */ new Date(todayIso + "T00:00:00.000Z");
+  windowStartDate.setUTCMonth(windowStartDate.getUTCMonth() - 6);
+  const windowStart = windowStartDate.getTime() / DAY_MS;
+  const intervals = rows.map((r2) => {
+    const start = isoToDay(toIsoDate$1(r2.start_date));
+    const end = r2.returned_to_work_at === null ? today : isoToDay(toIsoDate$1(r2.end_date));
+    return { start, end: Math.min(Math.max(end, start), today) };
+  }).filter((i) => i.start <= today && i.end >= windowStart).sort((a, b) => a.start - b.start);
+  const merged = [];
+  for (const i of intervals) {
+    const last = merged[merged.length - 1];
+    if (last && i.start <= last.end) last.end = Math.max(last.end, i.end);
+    else merged.push({ ...i });
+  }
+  let days = 0;
+  for (const m of merged) days += m.end - Math.max(m.start, windowStart) + 1;
+  return { episodes: merged.length, days };
+}
 const absenceTypeLabels = {
   sickness: "Sickness",
   AL: "Annual Leave",
@@ -49801,24 +49857,17 @@ function AbsenceHistorySection({ userId }) {
     enabled: !!userId
   });
   const absences = (data == null ? void 0 : data.absences) ?? [];
-  const totals = reactExports.useMemo(() => {
-    const sixMonthsAgo = /* @__PURE__ */ new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-    const today2 = /* @__PURE__ */ new Date();
-    let episodes = 0;
-    let days = 0;
-    for (const a of absences) {
-      if (a.type !== "sickness" || a.status !== "approved") continue;
-      const start = new Date(a.start_date);
-      const end = a.returned_to_work_at ? new Date(a.returned_to_work_at) : new Date(a.end_date) > today2 ? today2 : new Date(a.end_date);
-      if (end < sixMonthsAgo) continue;
-      episodes += 1;
-      const windowStart = start < sixMonthsAgo ? sixMonthsAgo : start;
-      const windowEnd = end > today2 ? today2 : end;
-      days += inclusiveDays(windowStart, windowEnd);
-    }
-    return { episodes, days };
-  }, [absences]);
+  const totals = reactExports.useMemo(
+    () => rollingSickness(
+      absences.filter((a) => a.type === "sickness" && a.status === "approved").map((a) => ({
+        start_date: a.start_date,
+        end_date: a.end_date,
+        returned_to_work_at: a.returned_to_work_at ?? null
+      })),
+      localTodayIso()
+    ),
+    [absences]
+  );
   const [editing, setEditing] = reactExports.useState(null);
   const updateMutation = useMutation({
     mutationFn: async (vars) => {
@@ -49829,9 +49878,7 @@ function AbsenceHistorySection({ userId }) {
     },
     onSuccess: () => {
       toast2({ title: "Absence updated" });
-      queryClient2.invalidateQueries({ queryKey: ["absences", userId] });
-      queryClient2.invalidateQueries({ queryKey: ["wc-absences-today"] });
-      queryClient2.invalidateQueries({ queryKey: ["absences-today-sick"] });
+      invalidateAbsenceViews(queryClient2);
       setEditing(null);
     },
     onError: (err) => {
@@ -49846,9 +49893,7 @@ function AbsenceHistorySection({ userId }) {
     mutationFn: async (id) => backendClient.absence.deleteAbsence(id),
     onSuccess: () => {
       toast2({ title: "Absence deleted" });
-      queryClient2.invalidateQueries({ queryKey: ["absences", userId] });
-      queryClient2.invalidateQueries({ queryKey: ["wc-absences-today"] });
-      queryClient2.invalidateQueries({ queryKey: ["absences-today-sick"] });
+      invalidateAbsenceViews(queryClient2);
     },
     onError: (err) => {
       toast2({
@@ -49862,9 +49907,7 @@ function AbsenceHistorySection({ userId }) {
     mutationFn: async (id) => backendClient.absence.bookBackFit({ absence_id: id }),
     onSuccess: () => {
       toast2({ title: "Booked back fit" });
-      queryClient2.invalidateQueries({ queryKey: ["absences", userId] });
-      queryClient2.invalidateQueries({ queryKey: ["wc-absences-today"] });
-      queryClient2.invalidateQueries({ queryKey: ["absences-today-sick"] });
+      invalidateAbsenceViews(queryClient2);
     },
     onError: (err) => {
       toast2({
@@ -50211,7 +50254,10 @@ function ProfileDetail() {
     onSuccess: (note2) => {
       queryClient2.invalidateQueries({ queryKey: ["notes", profile2 == null ? void 0 : profile2.id] });
       if (newNote.reminder_enabled) {
-        queryClient2.invalidateQueries({ queryKey: ["calendar-events"] });
+        queryClient2.invalidateQueries({ queryKey: ["cal-station"] });
+        queryClient2.invalidateQueries({ queryKey: ["cal-watch"] });
+        queryClient2.invalidateQueries({ queryKey: ["cal-personal"] });
+        queryClient2.invalidateQueries({ queryKey: ["crewing-roster"] });
       }
       const hasAttachments = uploadingFiles.length > 0;
       const hasReminder = newNote.reminder_enabled;
@@ -52487,16 +52533,8 @@ function EventForm({
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!title.trim()) return;
-    const start = allDay ? (() => {
-      const d = new Date(startDate);
-      d.setHours(0, 0, 0, 0);
-      return d;
-    })() : parseDateTimeInputs(startDate, startTime);
-    const end = allDay ? (() => {
-      const d = new Date(endDate);
-      d.setHours(23, 59, 59, 0);
-      return d;
-    })() : parseDateTimeInputs(endDate, endTime);
+    const start = allDay ? /* @__PURE__ */ new Date(`${startDate}T12:00:00.000Z`) : parseDateTimeInputs(startDate, startTime);
+    const end = allDay ? /* @__PURE__ */ new Date(`${endDate}T12:00:00.000Z`) : parseDateTimeInputs(endDate, endTime);
     onSubmit({
       title: title.trim(),
       description: notes,
@@ -64113,8 +64151,7 @@ function AbsenceRequest() {
       });
     },
     onSuccess: () => {
-      queryClient2.invalidateQueries({ queryKey: ["my-absences", user2 == null ? void 0 : user2.id] });
-      queryClient2.invalidateQueries({ queryKey: ["my-absence-stats", user2 == null ? void 0 : user2.id] });
+      invalidateAbsenceViews(queryClient2);
       toast2({
         title: "Absence request submitted",
         description: "Your request has been sent to your supervisor for approval"
@@ -64359,8 +64396,7 @@ function FFSickLineUpload() {
         {
           absence: absence2,
           onUpdated: () => {
-            queryClient2.invalidateQueries({ queryKey: ["my-absences"] });
-            queryClient2.invalidateQueries({ queryKey: ["absences"] });
+            invalidateAbsenceViews(queryClient2);
             toast2({
               title: "Sick line uploaded",
               description: "Your Watch Commander has been notified."

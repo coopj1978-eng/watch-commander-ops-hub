@@ -5048,6 +5048,7 @@ export namespace shift_adjustments {
         "covering_name"?: string
         "covering_watch"?: string
         "shift_day_night"?: "Day" | "Night"
+        "toil_hours"?: number
         notes?: string
     }
 }

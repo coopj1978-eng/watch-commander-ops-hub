@@ -23,17 +23,28 @@ export const create = api<CreateEventRequest, CalendarEvent>(
   { auth: true, expose: true, method: "POST", path: "/calendar/events" },
   async (req) => {
     const auth = getAuthData()!;
+
+    // Watch events belong to the creator's watch so calendar/list can scope
+    // them; created_by comes from the token (it drives edit/delete rights).
+    let watch: string | null = null;
+    if ((req.calendar_visibility || "station") === "watch") {
+      const creator = await db.queryRow<{ watch_unit: string | null }>`
+        SELECT watch_unit FROM users WHERE id = ${auth.userID}
+      `;
+      watch = creator?.watch_unit ?? null;
+    }
+
     const event = await db.queryRow<CalendarEvent>`
       INSERT INTO calendar_events (
         title, description, event_type, calendar_visibility, start_time, end_time, all_day,
-        user_id, is_watch_event, location, attendees, color, created_by
+        user_id, is_watch_event, location, attendees, color, created_by, watch
       )
       VALUES (
         ${req.title}, ${req.description}, ${req.event_type},
         ${req.calendar_visibility || 'station'}, ${req.start_time},
         ${req.end_time}, ${req.all_day || false}, ${req.user_id},
         ${req.is_watch_event || false}, ${req.location}, ${req.attendees},
-        ${req.color}, ${req.created_by}
+        ${req.color}, ${auth.userID}, ${watch}
       )
       RETURNING *
     `;

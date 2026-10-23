@@ -299,7 +299,10 @@ export default function ProfileDetail() {
       queryClient.invalidateQueries({ queryKey: ["notes", profile?.id] });
       
       if (newNote.reminder_enabled) {
-        queryClient.invalidateQueries({ queryKey: ["calendar-events"] });
+        queryClient.invalidateQueries({ queryKey: ["cal-station"] });
+        queryClient.invalidateQueries({ queryKey: ["cal-watch"] });
+        queryClient.invalidateQueries({ queryKey: ["cal-personal"] });
+        queryClient.invalidateQueries({ queryKey: ["crewing-roster"] });
       }
       
       const hasAttachments = uploadingFiles.length > 0;

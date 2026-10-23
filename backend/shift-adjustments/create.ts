@@ -3,6 +3,7 @@ import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { createNotification } from "../notification/helpers";
 import type { ShiftAdjustment, ShiftAdjustmentType } from "./types";
+import { insertAdjustmentEvents, spentReasonFor } from "./events";
 
 export interface CreateShiftAdjustmentRequest {
   type: ShiftAdjustmentType;
@@ -108,197 +109,13 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
     if (!adjustment) throw APIError.internal("Failed to create shift adjustment.");
 
     // ── Create calendar events ────────────────────────────────────────────────
+    // Every event is linked by shift_adjustment_id so edits/deletes can find
+    // them; all-day anchors are noon UTC (see events.ts).
     try {
-      // For all-day events the start_time + end_time pair is just a
-      // wire-format anchor — any UI converts to local time before
-      // deciding which calendar cells to render in. Using UTC midnight
-      // / end-of-day was triggering a TZ-edge bug: 25/04 23:59:59 UTC
-      // converts to 26/04 00:59 BST, and the calendar grid then drew
-      // the event on both 25 and 26.
-      //
-      // Fix: anchor both start_time and end_time at *noon UTC* of the
-      // relevant day. Noon UTC is mid-day in every reasonable timezone,
-      // so the local-day conversion can never cross a calendar boundary.
-      const startNoon = new Date(req.start_date);
-      startNoon.setUTCHours(12, 0, 0, 0);
-
-      // For Night shifts, collapse the event to a single day — the
-      // "night of 25th" shift logically belongs to one day on the
-      // calendar even though it physically runs into 26th 08:00.
-      const endSource =
-        req.shift_day_night === "Night"
-          ? new Date(req.start_date)
-          : new Date(req.end_date);
-      const endNoon = endSource;
-      endNoon.setUTCHours(12, 0, 0, 0);
-
-      // Reassign for the rest of the function so existing INSERTs read
-      // "startMidnight" / "endEod" but actually get the TZ-safe values.
-      const startMidnight = startNoon;
-      const endEod = endNoon;
-
-      // Helpful suffix for calendar event titles + WC notifications.
-      const shiftSuffix = req.shift_day_night
-        ? ` · ${req.shift_day_night} Shift`
-        : "";
-
-      const isFlexiPayback = req.type === "flexi_payback";
-
-      // adjustment.id is set on every calendar event so calendar/delete.ts
-      // can resolve the link and cascade-delete the underlying adjustment
-      // (refunding TOIL, removing the other linked events). Without this
-      // FK, deleting an event from the calendar leaves the
-      // shift_adjustment + ledger row orphaned, which is the UX bug the
-      // user just hit.
-      const adjId = adjustment.id;
-
-      if (isFlexiPayback) {
-        // Flexi Payback: person comes IN to cover another watch.
-        const coveredWatch = req.covering_watch!;
-        const shiftLabel   = req.shift_day_night ?? "Day";
-
-        await db.exec`
-          INSERT INTO calendar_events (
-            title, event_type, calendar_visibility, start_time, end_time,
-            all_day, user_id, is_watch_event, watch, created_by, shift_adjustment_id
-          ) VALUES (
-            ${`${userInfo.name} – Flexi Payback (${shiftLabel} Shift)`},
-            'personal',
-            'watch',
-            ${startMidnight},
-            ${endEod},
-            true,
-            ${targetUserId},
-            true,
-            ${coveredWatch},
-            ${auth.userID},
-            ${adjId}
-          )
-        `;
-      } else if (req.type === "orange_day") {
-        // Orange Day: person is working an extra shift (day or night)
-        const shiftLabel = req.shift_day_night ?? "Day";
-
-        // 1. Personal event
-        await db.exec`
-          INSERT INTO calendar_events (
-            title, event_type, calendar_visibility, start_time, end_time,
-            all_day, user_id, is_watch_event, watch, created_by, shift_adjustment_id
-          ) VALUES (
-            ${`Orange Day (${shiftLabel} Shift)`},
-            'personal',
-            'personal',
-            ${startMidnight},
-            ${endEod},
-            true,
-            ${targetUserId},
-            false,
-            ${userInfo.watch_unit},
-            ${auth.userID},
-            ${adjId}
-          )
-        `;
-
-        // 2. Watch calendar event so WC can see it
-        await db.exec`
-          INSERT INTO calendar_events (
-            title, event_type, calendar_visibility, start_time, end_time,
-            all_day, user_id, is_watch_event, watch, created_by, shift_adjustment_id
-          ) VALUES (
-            ${`${userInfo.name} – Orange Day (${shiftLabel} Shift)`},
-            'personal',
-            'watch',
-            ${startMidnight},
-            ${endEod},
-            true,
-            ${targetUserId},
-            true,
-            ${userInfo.watch_unit},
-            ${auth.userID},
-            ${adjId}
-          )
-        `;
-      } else {
-        // Outbound: person is away from their own watch
-        const typeLabel =
-          req.type === "flexi"    ? "Flexi Day"    :
-          req.type === "training" ? "Training"     :
-          req.type === "toil"    ? `TOIL (${req.toil_hours}hrs)` : "Head for Head";
-
-        const eventType = req.type === "training" ? "training" : "personal";
-
-        // 1. Personal event for the absent person
-        await db.exec`
-          INSERT INTO calendar_events (
-            title, event_type, calendar_visibility, start_time, end_time,
-            all_day, user_id, is_watch_event, watch, created_by, shift_adjustment_id
-          ) VALUES (
-            ${req.type === "h4h"
-                ? `H4H – Off${shiftSuffix} (covered by ${req.covering_name || "cover"})`
-                : req.type === "toil"
-                ? `TOIL – Off ${req.toil_hours}hrs${shiftSuffix} (covered by ${req.covering_name || "cover"})`
-                : typeLabel},
-            ${eventType},
-            'personal',
-            ${startMidnight},
-            ${endEod},
-            true,
-            ${targetUserId},
-            false,
-            ${userInfo.watch_unit},
-            ${auth.userID},
-            ${adjId}
-          )
-        `;
-
-        // 2. Watch calendar event (visible to whole watch)
-        await db.exec`
-          INSERT INTO calendar_events (
-            title, event_type, calendar_visibility, start_time, end_time,
-            all_day, user_id, is_watch_event, watch, created_by, shift_adjustment_id
-          ) VALUES (
-            ${req.type === "h4h"
-                ? `${userInfo.name} – H4H${shiftSuffix} (covered by ${req.covering_name || "cover"})`
-                : req.type === "toil"
-                ? `${userInfo.name} – TOIL ${req.toil_hours}hrs${shiftSuffix} (covered by ${req.covering_name || "cover"})`
-                : `${userInfo.name} – ${typeLabel}`},
-            ${eventType},
-            'watch',
-            ${startMidnight},
-            ${endEod},
-            true,
-            ${targetUserId},
-            true,
-            ${userInfo.watch_unit},
-            ${auth.userID},
-            ${adjId}
-          )
-        `;
-
-        // 3. H4H / TOIL: personal event for the covering person (if in system)
-        if ((req.type === "h4h" || req.type === "toil") && req.covering_user_id) {
-          await db.exec`
-            INSERT INTO calendar_events (
-              title, event_type, calendar_visibility, start_time, end_time,
-              all_day, user_id, is_watch_event, watch, created_by, shift_adjustment_id
-            ) VALUES (
-              ${req.type === "toil"
-                ? `TOIL – Covering for ${userInfo.name} (${userInfo.watch_unit} Watch)${shiftSuffix} — ${req.toil_hours}hrs`
-                : `H4H – Covering for ${userInfo.name} (${userInfo.watch_unit} Watch)${shiftSuffix}`},
-              'personal',
-              'personal',
-              ${startMidnight},
-              ${endEod},
-              true,
-              ${req.covering_user_id},
-              false,
-              ${userInfo.watch_unit},
-              ${auth.userID},
-              ${adjId}
-            )
-          `;
-        }
-      }
+      await insertAdjustmentEvents(adjustment, {
+        name: userInfo.name,
+        watch_unit: userInfo.watch_unit,
+      });
     } catch (err) {
       console.error("Failed to create shift adjustment calendar events:", err);
     }
@@ -380,22 +197,8 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
           : new Date(req.start_date as unknown as string);
       const dateOnly = incidentDateObj.toISOString().slice(0, 10);
 
-      // Build the reason string in plain ASCII and strip any control
-      // characters from the cover name (NUL bytes, line/paragraph
-      // separators) — rust-postgres rejects strings with those with
-      // "input contains invalid characters." Built outside the rawExec
-      // call to keep the regex literal away from any invisible chars
-      // that template literals can hide.
-      const safeCoverName = Array.from(
-        String(req.covering_name || "cover")
-      ).filter((c) => {
-        const code = c.charCodeAt(0);
-        // Drop ASCII control chars, DEL, and Unicode line/paragraph separators.
-        if (code < 0x20 || code === 0x7f) return false;
-        if (code === 0x2028 || code === 0x2029) return false;
-        return true;
-      }).join("");
-      const spentReason = "TOIL shift - covered by " + safeCoverName;
+      // Plain-ASCII reason; control chars stripped (rust-postgres rejects them).
+      const spentReason = spentReasonFor(req.covering_name);
 
       try {
         // db.rawExec is the correct verb for INSERT without RETURNING
@@ -415,6 +218,9 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
       } catch (err) {
         console.error("toil_ledger spent INSERT failed — rolling back shift_adjustment", { adjustmentId: adjustment.id, err });
         try {
+          // Events first — their FK is ON DELETE SET NULL, so deleting the
+          // adjustment alone would leave orphan "TOIL off" events behind.
+          await db.exec`DELETE FROM calendar_events WHERE shift_adjustment_id = ${adjustment.id}`;
           await db.exec`DELETE FROM shift_adjustments WHERE id = ${adjustment.id}`;
         } catch (rollbackErr) {
           console.error("Rollback of orphan shift_adjustment also failed:", rollbackErr);

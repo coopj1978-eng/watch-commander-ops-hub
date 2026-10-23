@@ -140,7 +140,10 @@ export function ProfileShiftAdjustmentsSection({
       queryClient.invalidateQueries({ queryKey: ["cal-station"] });
       queryClient.invalidateQueries({ queryKey: ["cal-watch"] });
       queryClient.invalidateQueries({ queryKey: ["cal-personal"] });
-      queryClient.invalidateQueries({ queryKey: ["calendar-events"] });
+      queryClient.invalidateQueries({ queryKey: ["cal-station"] });
+      queryClient.invalidateQueries({ queryKey: ["cal-watch"] });
+      queryClient.invalidateQueries({ queryKey: ["cal-personal"] });
+      queryClient.invalidateQueries({ queryKey: ["crewing-roster"] });
       toast({
         title: "Shift adjustment deleted",
         description:

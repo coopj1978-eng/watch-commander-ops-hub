@@ -137,6 +137,15 @@ export function ProfileToilSection({
     queryClient.invalidateQueries({ queryKey: ["toil-entries"] });
     queryClient.invalidateQueries({ queryKey: ["toil-pending"] });
     queryClient.invalidateQueries({ queryKey: ["toil-watch-balance"] });
+    // Deleting a booked TOIL shift also removes its adjustment + calendar
+    // events, so the rota-facing views need refreshing too.
+    queryClient.invalidateQueries({ queryKey: ["shift-adjustments"] });
+    queryClient.invalidateQueries({ queryKey: ["shift-adjustments-mine"] });
+    queryClient.invalidateQueries({ queryKey: ["shift-adjustments-for-profile"] });
+    queryClient.invalidateQueries({ queryKey: ["crewing-roster"] });
+    queryClient.invalidateQueries({ queryKey: ["cal-station"] });
+    queryClient.invalidateQueries({ queryKey: ["cal-watch"] });
+    queryClient.invalidateQueries({ queryKey: ["cal-personal"] });
   };
 
   const updateMutation = useMutation({
@@ -404,9 +413,12 @@ export function ProfileToilSection({
                               updateMutation.mutate({ id: e.id, ...payload })
                             }
                             onDelete={() => {
+                              const isBooking = e.type === "spent" && !!e.shift_adjustment_id;
                               if (
                                 confirm(
-                                  `Delete this ${e.type} entry of ${e.hours}hrs? This cannot be undone.`
+                                  isBooking
+                                    ? `This is a booked TOIL shift. Deleting it refunds ${e.hours}hrs and also removes the booking from the calendar and crewing board. Continue?`
+                                    : `Delete this ${e.type} entry of ${e.hours}hrs? This cannot be undone.`
                                 )
                               ) {
                                 deleteMutation.mutate(e.id);
@@ -481,6 +493,8 @@ function LedgerRow({
   );
 
   const isEarned = entry.type === "earned";
+  // Hours/date of a booked TOIL shift belong to the shift adjustment.
+  const isBooking = entry.type === "spent" && !!entry.shift_adjustment_id;
   const isPending = entry.status === "pending";
   const isRejected = entry.status === "rejected";
   const counts = (isEarned && entry.status === "approved") || entry.type === "spent";
@@ -639,14 +653,19 @@ function LedgerRow({
           )}
           {canManage && (
             <span className="inline-flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button
-                onClick={startEdit}
-                disabled={saving}
-                className="h-6 w-6 rounded flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted"
-                title="Edit"
+              {/* Title on a wrapper: disabled buttons don't show tooltips in every browser. */}
+              <span
+                className="inline-flex"
+                title={isBooking ? "Booked TOIL shift — edit it from the Shift Adjustments tab" : "Edit"}
               >
-                <Pencil className="h-3 w-3" />
-              </button>
+                <button
+                  onClick={startEdit}
+                  disabled={saving || isBooking}
+                  className="h-6 w-6 rounded flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-40 disabled:pointer-events-none"
+                >
+                  <Pencil className="h-3 w-3" />
+                </button>
+              </span>
               <button
                 onClick={onDelete}
                 disabled={saving}

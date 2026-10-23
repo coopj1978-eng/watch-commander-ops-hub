@@ -3,6 +3,14 @@ import { getAuthData } from "~encore/auth";
 import db, { type SQLPrimitive } from "../db";
 import { logActivity } from "../logging/logger";
 import type { ShiftAdjustment } from "./types";
+import {
+  deleteAdjustmentEvents,
+  financialYearOf,
+  insertAdjustmentEvents,
+  loadAdjustment,
+  spentReasonFor,
+  toDateOnly,
+} from "./events";
 
 export interface UpdateShiftAdjustmentRequest {
   id: number;
@@ -12,6 +20,8 @@ export interface UpdateShiftAdjustmentRequest {
   covering_name?: string;
   covering_watch?: string;
   shift_day_night?: "Day" | "Night";
+  /** TOIL only: hours used for this shift (min 4). */
+  toil_hours?: number;
   notes?: string;
 }
 
@@ -20,10 +30,7 @@ export const update = api<UpdateShiftAdjustmentRequest, ShiftAdjustment>(
   async (req) => {
     const auth = getAuthData()!;
 
-    const existing = await db.queryRow<ShiftAdjustment & { covering_user_id: string | null }>`
-      SELECT * FROM shift_adjustments WHERE id = ${req.id}
-    `;
-
+    const existing = await loadAdjustment(req.id);
     if (!existing) throw APIError.notFound("Shift adjustment not found.");
 
     // Only the owner or a WC/CC can edit
@@ -33,18 +40,57 @@ export const update = api<UpdateShiftAdjustmentRequest, ShiftAdjustment>(
       throw APIError.permissionDenied("You can only edit your own shift adjustments.");
     }
 
-    // Build dynamic SET clause
+    const newStart = req.start_date !== undefined ? toDateOnly(req.start_date) : toDateOnly(existing.start_date);
+    const newEnd = req.end_date !== undefined ? toDateOnly(req.end_date) : toDateOnly(existing.end_date);
+    if (newEnd < newStart) {
+      throw APIError.invalidArgument("End date must be on or after start date.");
+    }
+
+    // ── TOIL hours / financial-year check ────────────────────────────────────
+    const isToil = existing.type === "toil";
+    if (req.toil_hours !== undefined && !isToil) {
+      throw APIError.invalidArgument("Hours can only be changed on a TOIL adjustment.");
+    }
+    if (isToil && req.toil_hours !== undefined && req.toil_hours < 4) {
+      throw APIError.invalidArgument("TOIL requires a minimum of 4 hours.");
+    }
+    const newHours = isToil
+      ? Number(req.toil_hours ?? existing.toil_hours ?? 0)
+      : null;
+    const newFy = financialYearOf(newStart);
+    if (isToil && newHours) {
+      // Balance in the (possibly new) financial year, excluding this
+      // adjustment's own spent row so it isn't double-counted.
+      const balanceRow = await db.rawQueryRow<{ balance: string }>(
+        `SELECT COALESCE(SUM(CASE WHEN type = 'earned' AND status = 'approved' THEN hours ELSE 0 END) -
+                SUM(CASE WHEN type = 'spent' THEN hours ELSE 0 END), 0) AS balance
+         FROM toil_ledger
+         WHERE user_id = $1 AND financial_year = $2
+           AND NOT (type = 'spent' AND shift_adjustment_id = $3)`,
+        existing.user_id,
+        newFy,
+        req.id
+      );
+      const available = Number(balanceRow?.balance ?? 0);
+      if (available < newHours) {
+        throw APIError.failedPrecondition(
+          `Insufficient TOIL balance. Available: ${available}hrs, requested: ${newHours}hrs.`
+        );
+      }
+    }
+
+    // ── Update the adjustment row ────────────────────────────────────────────
     const setClauses: string[] = [];
     const params: SQLPrimitive[] = [];
     let idx = 1;
 
     if (req.start_date !== undefined) {
-      setClauses.push(`start_date = $${idx++}`);
-      params.push(req.start_date);
+      setClauses.push(`start_date = $${idx++}::date`);
+      params.push(newStart);
     }
     if (req.end_date !== undefined) {
-      setClauses.push(`end_date = $${idx++}`);
-      params.push(req.end_date);
+      setClauses.push(`end_date = $${idx++}::date`);
+      params.push(newEnd);
     }
     if (req.covering_user_id !== undefined) {
       setClauses.push(`covering_user_id = $${idx++}`);
@@ -62,6 +108,10 @@ export const update = api<UpdateShiftAdjustmentRequest, ShiftAdjustment>(
       setClauses.push(`shift_day_night = $${idx++}`);
       params.push(req.shift_day_night);
     }
+    if (req.toil_hours !== undefined) {
+      setClauses.push(`toil_hours = $${idx++}`);
+      params.push(req.toil_hours);
+    }
     if (req.notes !== undefined) {
       setClauses.push(`notes = $${idx++}`);
       params.push(req.notes || null);
@@ -76,101 +126,56 @@ export const update = api<UpdateShiftAdjustmentRequest, ShiftAdjustment>(
 
     const query = `UPDATE shift_adjustments SET ${setClauses.join(", ")} WHERE id = $${idx} RETURNING *`;
     const updated = await db.rawQueryRow<ShiftAdjustment>(query, ...params);
-
     if (!updated) throw APIError.internal("Failed to update shift adjustment.");
 
-    // ── Update calendar events to reflect new dates ──────────────────────────
-    if (req.start_date || req.end_date) {
-      const oldStartStr = typeof existing.start_date === "string"
-        ? existing.start_date
-        : (existing.start_date as Date).toISOString().split("T")[0];
-      const oldEndStr = typeof existing.end_date === "string"
-        ? existing.end_date
-        : (existing.end_date as Date).toISOString().split("T")[0];
-      const oldStartMidnight = `${oldStartStr}T00:00:00.000Z`;
-      const oldEndEod = `${oldEndStr}T23:59:59.999Z`;
+    // ── Rebuild calendar events ──────────────────────────────────────────────
+    // Dates, cover person, shift or hours all feed into event dates/titles
+    // (and who gets the cover event), so the simplest correct move is to
+    // replace the linked events with freshly generated ones.
+    const affectsEvents =
+      req.start_date !== undefined ||
+      req.end_date !== undefined ||
+      req.covering_user_id !== undefined ||
+      req.covering_name !== undefined ||
+      req.covering_watch !== undefined ||
+      req.shift_day_night !== undefined ||
+      req.toil_hours !== undefined;
 
-      const newStartStr = req.start_date
-        ? (typeof req.start_date === "string" ? req.start_date : (req.start_date as Date).toISOString().split("T")[0])
-        : oldStartStr;
-      const newEndStr = req.end_date
-        ? (typeof req.end_date === "string" ? req.end_date : (req.end_date as Date).toISOString().split("T")[0])
-        : oldEndStr;
-      const newStartMidnight = `${newStartStr}T00:00:00.000Z`;
-      const newEndEod = `${newEndStr}T23:59:59.999Z`;
-
-      // Update all calendar events that match the old dates for this user
-      await db.rawExec(
-        `UPDATE calendar_events SET
-          start_time = $1::timestamptz,
-          end_time = $2::timestamptz,
-          updated_at = NOW()
-        WHERE all_day = true
-          AND start_time = $3::timestamptz
-          AND end_time = $4::timestamptz
-          AND (user_id = $5 OR created_by = $5)`,
-        newStartMidnight, newEndEod, oldStartMidnight, oldEndEod, existing.user_id
-      );
-
-      // For H4H: also update covering person's event
-      if (existing.type === "h4h" && existing.covering_user_id) {
-        await db.rawExec(
-          `UPDATE calendar_events SET
-            start_time = $1::timestamptz,
-            end_time = $2::timestamptz,
-            updated_at = NOW()
-          WHERE all_day = true
-            AND start_time = $3::timestamptz
-            AND end_time = $4::timestamptz
-            AND user_id = $5`,
-          newStartMidnight, newEndEod, oldStartMidnight, oldEndEod, existing.covering_user_id
+    if (affectsEvents) {
+      const owner = await db.queryRow<{ name: string }>`
+        SELECT name FROM users WHERE id = ${existing.user_id}
+      `;
+      try {
+        await deleteAdjustmentEvents(existing);
+        await insertAdjustmentEvents(updated, {
+          name: owner?.name ?? "Unknown",
+          watch_unit: existing.watch_unit,
+        });
+      } catch (err) {
+        console.error("Failed to rebuild shift adjustment calendar events:", err);
+        throw APIError.unavailable(
+          "The adjustment was saved but its calendar entries couldn't be updated. Please try again."
         );
       }
     }
 
-    // ── Update H4H covering person name on calendar events if changed ────────
-    if (existing.type === "h4h" && req.covering_name) {
-      const userInfo = await db.queryRow<{ name: string }>`SELECT name FROM users WHERE id = ${existing.user_id}`;
-      if (userInfo) {
-        const startStr = typeof updated.start_date === "string"
-          ? updated.start_date
-          : (updated.start_date as Date).toISOString().split("T")[0];
-        const endStr = typeof updated.end_date === "string"
-          ? updated.end_date
-          : (updated.end_date as Date).toISOString().split("T")[0];
-
-        // Update watch calendar event title
-        await db.rawExec(
-          `UPDATE calendar_events SET
-            title = $1,
-            updated_at = NOW()
-          WHERE all_day = true
-            AND start_time = $2::timestamptz
-            AND end_time = $3::timestamptz
-            AND calendar_visibility = 'watch'
-            AND user_id = $4`,
-          `${userInfo.name} – H4H (covered by ${req.covering_name})`,
-          `${startStr}T00:00:00.000Z`,
-          `${endStr}T23:59:59.999Z`,
-          existing.user_id
-        );
-
-        // Update personal calendar event title
-        await db.rawExec(
-          `UPDATE calendar_events SET
-            title = $1,
-            updated_at = NOW()
-          WHERE all_day = true
-            AND start_time = $2::timestamptz
-            AND end_time = $3::timestamptz
-            AND calendar_visibility = 'personal'
-            AND user_id = $4`,
-          `H4H – Off (covered by ${req.covering_name})`,
-          `${startStr}T00:00:00.000Z`,
-          `${endStr}T23:59:59.999Z`,
-          existing.user_id
-        );
-      }
+    // ── Keep the TOIL spent ledger row in step ───────────────────────────────
+    if (isToil && newHours) {
+      const coverName = req.covering_name !== undefined ? req.covering_name : existing.covering_name;
+      await db.rawExec(
+        `UPDATE toil_ledger SET
+           hours          = $1,
+           incident_date  = $2::date,
+           financial_year = $3,
+           reason         = $4,
+           updated_at     = NOW()
+         WHERE shift_adjustment_id = $5 AND type = 'spent'`,
+        newHours,
+        newStart,
+        newFy,
+        spentReasonFor(coverName),
+        req.id
+      );
     }
 
     await logActivity({

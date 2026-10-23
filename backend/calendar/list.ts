@@ -26,13 +26,17 @@ export const list = api<ListEventsRequest, ListEventsResponse>(
     const limit = req.limit || 100;
     const offset = req.offset || 0;
 
+    // creator join: legacy watch events have no `watch` stored, so fall
+    // back to the creator's watch when scoping them below.
     let query = `
       SELECT ce.* FROM calendar_events ce
       LEFT JOIN notes n ON ce.id = n.calendar_event_id
+      LEFT JOIN users creator ON creator.id = ce.created_by
     `;
     let countQuery = `
       SELECT COUNT(*) as count FROM calendar_events ce
       LEFT JOIN notes n ON ce.id = n.calendar_event_id
+      LEFT JOIN users creator ON creator.id = ce.created_by
     `;
     const params: any[] = [];
     const conditions: string[] = [];
@@ -47,6 +51,19 @@ export const list = api<ListEventsRequest, ListEventsResponse>(
     conditions.push(visibilityCondition);
     params.push(auth.userID);
     paramIndex++;
+
+    // Watch-calendar events are only visible to that watch. Station-wide and
+    // personal events are unaffected. Callers with no watch see all (admin).
+    const caller = await db.queryRow<{ watch_unit: string | null }>`
+      SELECT watch_unit FROM users WHERE id = ${auth.userID}
+    `;
+    if (caller?.watch_unit) {
+      conditions.push(
+        `(ce.calendar_visibility <> 'watch' OR LOWER(COALESCE(ce.watch, creator.watch_unit, '')) = LOWER($${paramIndex}))`
+      );
+      params.push(caller.watch_unit);
+      paramIndex++;
+    }
 
     if (req.user_id !== undefined) {
       conditions.push(`(ce.user_id = $${paramIndex} OR ce.is_watch_event = true)`);

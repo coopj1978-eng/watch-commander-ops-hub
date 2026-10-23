@@ -225,7 +225,12 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shift-adjustments"] });
       queryClient.invalidateQueries({ queryKey: ["shift-adjustments-mine"] });
-      queryClient.invalidateQueries({ queryKey: ["calendar-events"] });
+      queryClient.invalidateQueries({ queryKey: ["cal-station"] });
+      queryClient.invalidateQueries({ queryKey: ["cal-watch"] });
+      queryClient.invalidateQueries({ queryKey: ["cal-personal"] });
+      queryClient.invalidateQueries({ queryKey: ["toil-balance"] });
+      queryClient.invalidateQueries({ queryKey: ["toil-entries"] });
+      queryClient.invalidateQueries({ queryKey: ["crewing-roster"] });
       toast({
         title: `${TYPE_CONFIG[type!].label} logged`,
         description: "Your Watch Commander has been notified.",
@@ -244,6 +249,9 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
       queryClient.invalidateQueries({ queryKey: ["cal-station"] });
       queryClient.invalidateQueries({ queryKey: ["cal-watch"] });
       queryClient.invalidateQueries({ queryKey: ["cal-personal"] });
+      queryClient.invalidateQueries({ queryKey: ["toil-balance"] });
+      queryClient.invalidateQueries({ queryKey: ["toil-entries"] });
+      queryClient.invalidateQueries({ queryKey: ["crewing-roster"] });
       toast({ title: "Shift adjustment removed" });
     },
     onError: () => toast({ title: "Failed to remove", variant: "destructive" }),
@@ -262,8 +270,11 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
       return backend.shift_adjustments.update(editingId!, {
         start_date: `${startDate}T00:00:00.000Z`,
         end_date: `${endDate}T00:00:00.000Z`,
-        ...(type === "h4h" ? { covering_user_id, covering_name, shift_day_night: outboundShift } : {}),
-        ...(type === "toil" ? { shift_day_night: outboundShift } : {}),
+        // "" clears a previous roster cover when switching to a free-text name.
+        ...(type === "h4h" || type === "toil"
+          ? { covering_user_id: covering_user_id ?? "", covering_name, shift_day_night: outboundShift }
+          : {}),
+        ...(type === "toil" ? { toil_hours: toilHours } : {}),
         ...(type === "flexi_payback" ? { covering_watch: inboundWatch || undefined, shift_day_night: inboundShift } : {}),
         ...(type === "orange_day" ? { shift_day_night: orangeShift } : {}),
         notes: notes.trim() || undefined,
@@ -275,6 +286,9 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
       queryClient.invalidateQueries({ queryKey: ["cal-station"] });
       queryClient.invalidateQueries({ queryKey: ["cal-watch"] });
       queryClient.invalidateQueries({ queryKey: ["cal-personal"] });
+      queryClient.invalidateQueries({ queryKey: ["toil-balance"] });
+      queryClient.invalidateQueries({ queryKey: ["toil-entries"] });
+      queryClient.invalidateQueries({ queryKey: ["crewing-roster"] });
       toast({ title: "Shift adjustment updated" });
       setEditingId(null);
       setType(null);

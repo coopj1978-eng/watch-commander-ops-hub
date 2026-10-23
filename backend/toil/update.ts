@@ -53,8 +53,10 @@ export const update = api<UpdateToilRequest, ToilEntry>(
       id: number;
       created_by: string;
       watch_unit: string;
+      type: string;
+      shift_adjustment_id: number | null;
     }>`
-      SELECT id, created_by, watch_unit
+      SELECT id, created_by, watch_unit, type, shift_adjustment_id
       FROM toil_ledger
       WHERE id = ${req.id}
     `;
@@ -71,6 +73,18 @@ export const update = api<UpdateToilRequest, ToilEntry>(
     if (!isAuthor && !isWC && !isCCOnSameWatch) {
       throw APIError.permissionDenied(
         "You can only edit TOIL entries you logged, or any entry as a WC, or entries on your watch as a CC."
+      );
+    }
+
+    // Hours and date of a booked TOIL shift live on the shift adjustment;
+    // editing them here would desync the ledger from the rota/calendar.
+    if (
+      existing.type === "spent" &&
+      existing.shift_adjustment_id &&
+      (req.hours !== undefined || req.incident_date !== undefined)
+    ) {
+      throw APIError.failedPrecondition(
+        "This entry is a booked TOIL shift. Change the hours or date by editing the shift adjustment (Log Shift on the calendar, or the Shift Adjustments tab on the profile)."
       );
     }
 

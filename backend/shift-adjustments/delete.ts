@@ -2,6 +2,7 @@ import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { logActivity } from "../logging/logger";
+import { cascadeDeleteAdjustment, loadAdjustment } from "./events";
 
 interface DeleteShiftAdjustmentRequest {
   id: number;
@@ -12,103 +13,28 @@ export const deleteAdjustment = api<DeleteShiftAdjustmentRequest, void>(
   async (req) => {
     const auth = getAuthData()!;
 
-    const existing = await db.queryRow<{
-      user_id: string;
-      watch_unit: string;
-      type: string;
-      start_date: Date;
-      end_date: Date;
-      covering_user_id: string | null;
-    }>`
-      SELECT user_id, watch_unit, type, start_date, end_date, covering_user_id
-      FROM shift_adjustments WHERE id = ${req.id}
-    `;
-
+    const existing = await loadAdjustment(req.id);
     if (!existing) throw APIError.notFound("Shift adjustment not found.");
 
-    // Only the owner or a WC/CC on the same watch can delete
+    // The owner can always delete their own; a WC/CC only on their own watch.
     const isOwn = existing.user_id === auth.userID;
-    const isManager = auth.role === "WC" || auth.role === "CC";
-
-    if (!isOwn && !isManager) {
-      throw APIError.permissionDenied("You can only delete your own shift adjustments.");
+    if (!isOwn) {
+      const isManager = auth.role === "WC" || auth.role === "CC";
+      if (!isManager) {
+        throw APIError.permissionDenied("You can only delete your own shift adjustments.");
+      }
+      const caller = await db.queryRow<{ watch_unit: string | null }>`
+        SELECT watch_unit FROM users WHERE id = ${auth.userID}
+      `;
+      const sameWatch =
+        !!caller?.watch_unit &&
+        caller.watch_unit.toLowerCase() === (existing.watch_unit ?? "").toLowerCase();
+      if (!sameWatch) {
+        throw APIError.permissionDenied("You can only delete shift adjustments for your own watch.");
+      }
     }
 
-    // ── Clean up TOIL ledger — refund spent hours ──────────────────────────────
-    if (existing.type === "toil") {
-      await db.exec`
-        DELETE FROM toil_ledger
-        WHERE shift_adjustment_id = ${req.id} AND type = 'spent'
-      `;
-    }
-
-    // ── Clean up H4H ledger ──────────────────────────────────────────────────
-    if (existing.type === "h4h") {
-      // Delete any pending ledger entry linked to this adjustment
-      // (If it was settled, leave the record but clear the FK — ON DELETE SET NULL handles that)
-      await db.exec`
-        DELETE FROM h4h_ledger
-        WHERE shift_adjustment_id = ${req.id} AND status = 'pending'
-      `;
-
-      // If this adjustment was the payback for a settled entry, revert it to pending
-      await db.exec`
-        UPDATE h4h_ledger SET
-          status = 'pending',
-          settled_at = NULL,
-          settled_by_user_id = NULL,
-          settled_via = NULL,
-          payback_shift_adjustment_id = NULL,
-          updated_at = NOW()
-        WHERE payback_shift_adjustment_id = ${req.id} AND status = 'settled'
-      `;
-    }
-
-    // ── Clean up calendar events created by this adjustment ───────────────────
-    // Migration 062 added a shift_adjustment_id FK on calendar_events. New
-    // events (all those created via this service since the migration) have
-    // it set, so we can delete cleanly with one statement.
-    //
-    // The legacy date-match cleanup is retained as a fallback for events
-    // created before the migration that have shift_adjustment_id IS NULL.
-    // Once those legacy entries have aged out the fallback can go.
-    await db.exec`
-      DELETE FROM calendar_events WHERE shift_adjustment_id = ${req.id}
-    `;
-
-    // ── Legacy fallback: date-match cleanup for pre-migration events
-    const startStr = typeof existing.start_date === "string"
-      ? existing.start_date
-      : (existing.start_date as Date).toISOString().split("T")[0];
-    const endStr = typeof existing.end_date === "string"
-      ? existing.end_date
-      : (existing.end_date as Date).toISOString().split("T")[0];
-
-    const startMidnight = `${startStr}T00:00:00.000Z`;
-    const endEod = `${endStr}T23:59:59.999Z`;
-
-    await db.exec`
-      DELETE FROM calendar_events
-      WHERE shift_adjustment_id IS NULL
-        AND all_day = true
-        AND start_time = ${startMidnight}::timestamptz
-        AND end_time = ${endEod}::timestamptz
-        AND (user_id = ${existing.user_id} OR created_by = ${existing.user_id})
-    `;
-
-    if ((existing.type === "h4h" || existing.type === "toil") && existing.covering_user_id) {
-      await db.exec`
-        DELETE FROM calendar_events
-        WHERE shift_adjustment_id IS NULL
-          AND all_day = true
-          AND start_time = ${startMidnight}::timestamptz
-          AND end_time = ${endEod}::timestamptz
-          AND user_id = ${existing.covering_user_id}
-      `;
-    }
-
-    // ── Delete the shift adjustment ──────────────────────────────────────────
-    await db.exec`DELETE FROM shift_adjustments WHERE id = ${req.id}`;
+    await cascadeDeleteAdjustment(existing);
 
     await logActivity({
       user_id: auth.userID,
