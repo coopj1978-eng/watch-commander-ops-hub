@@ -19,9 +19,10 @@ export const list = api<ListShiftAdjustmentsRequest, ListShiftAdjustmentsRespons
   { auth: true, expose: true, method: "GET", path: "/shift-adjustments" },
   async (req) => {
     let query = `
-      SELECT sa.*, u.name AS user_name
+      SELECT sa.*, u.name AS user_name, cu.watch_unit AS covering_user_watch
       FROM shift_adjustments sa
       JOIN users u ON u.id = sa.user_id
+      LEFT JOIN users cu ON cu.id = sa.covering_user_id
       WHERE 1=1
     `;
     const params: any[] = [];

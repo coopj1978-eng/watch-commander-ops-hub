@@ -42756,6 +42756,10 @@ function CrewOnWatchTable() {
 }
 const HFSV_TARGET_Q = 36;
 const COMMUNITY_TARGET_Q = 6;
+const COMMUNITY_TAP_MIN = 3;
+function communityMet(completed, tapCompleted) {
+  return completed >= COMMUNITY_TARGET_Q && tapCompleted >= COMMUNITY_TAP_MIN;
+}
 function pctCss(tone) {
   switch (tone) {
     case "green":
@@ -42785,7 +42789,9 @@ function TargetRow({
   actual,
   target,
   timePct,
-  loading
+  loading,
+  note: note2,
+  incomplete
 }) {
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -42801,8 +42807,8 @@ function TargetRow({
       }
     );
   }
-  const pct = target > 0 ? Math.min(100, Math.round(actual / target * 100)) : 0;
-  const pace = computePace(actual, target, timePct);
+  const pct = target > 0 ? Math.min(incomplete ? 99 : 100, Math.round(actual / target * 100)) : 0;
+  const pace = incomplete && actual >= target ? { tone: "amber", label: "Needs TAP" } : computePace(actual, target, timePct);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
@@ -42813,7 +42819,11 @@ function TargetRow({
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono text-xs text-muted-foreground tabular-nums shrink-0", children: [
           actual,
           " / ",
-          target
+          target,
+          note2 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ml-1.5", children: [
+            "· ",
+            note2
+          ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "shrink-0", children: pacePill(pace.tone, pace.label) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "basis-full min-w-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "relative h-1.5 rounded-full bg-muted overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -42828,7 +42838,7 @@ function TargetRow({
   );
 }
 function TargetsCompact() {
-  var _a2, _b2, _c2, _d2, _e2, _f2, _g2, _h2, _i2, _j2;
+  var _a2, _b2, _c2, _d2, _e2, _f2, _g2, _h2, _i2, _j2, _k2;
   const { user: user2 } = useAuth();
   const watch = (user2 == null ? void 0 : user2.watch_unit) ?? "";
   const { financial_year, quarter, label: periodLabel } = getCurrentFinancialPeriod();
@@ -42875,11 +42885,12 @@ function TargetsCompact() {
   const hfsvActual = ((_a2 = hfsvQ.data) == null ? void 0 : _a2.total_completed) ?? 0;
   const hfsvTarget = HFSV_TARGET_Q;
   const communityActual = ((_b2 = communityQ.data) == null ? void 0 : _b2.total_completed) ?? 0;
+  const communityTap = ((_c2 = communityQ.data) == null ? void 0 : _c2.total_tap_completed) ?? 0;
   const communityTarget = COMMUNITY_TARGET_Q;
-  const msActual = ((_d2 = (_c2 = multistoryQ.data) == null ? void 0 : _c2.totals) == null ? void 0 : _d2.complete) ?? 0;
-  const msTarget = (((_f2 = (_e2 = multistoryQ.data) == null ? void 0 : _e2.totals) == null ? void 0 : _f2.pending) ?? 0) + msActual;
-  const hydrantActual = ((_h2 = (_g2 = hydrantAssignmentsQ.data) == null ? void 0 : _g2.totals) == null ? void 0 : _h2.complete) ?? 0;
-  const hydrantTarget = (((_j2 = (_i2 = hydrantAssignmentsQ.data) == null ? void 0 : _i2.totals) == null ? void 0 : _j2.pending) ?? 0) + hydrantActual;
+  const msActual = ((_e2 = (_d2 = multistoryQ.data) == null ? void 0 : _d2.totals) == null ? void 0 : _e2.complete) ?? 0;
+  const msTarget = (((_g2 = (_f2 = multistoryQ.data) == null ? void 0 : _f2.totals) == null ? void 0 : _g2.pending) ?? 0) + msActual;
+  const hydrantActual = ((_i2 = (_h2 = hydrantAssignmentsQ.data) == null ? void 0 : _h2.totals) == null ? void 0 : _i2.complete) ?? 0;
+  const hydrantTarget = (((_k2 = (_j2 = hydrantAssignmentsQ.data) == null ? void 0 : _j2.totals) == null ? void 0 : _k2.pending) ?? 0) + hydrantActual;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { className: "border-t-2 border-t-brand", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(CardHeader, { className: "flex flex-row items-center justify-between space-y-0 pb-2", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
@@ -42942,7 +42953,9 @@ function TargetsCompact() {
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         TargetRow,
         {
-          label: "Community Events",
+          label: "Community Engagement",
+          note: `TAP ${communityTap}/${COMMUNITY_TAP_MIN}`,
+          incomplete: !communityMet(communityActual, communityTap),
           actual: communityActual,
           target: communityTarget,
           timePct: qTimePct,
@@ -45228,7 +45241,7 @@ const TYPE_CONFIG = {
   }
 };
 const WATCHES$a = ["Red", "White", "Green", "Blue", "Amber"];
-function ShiftAdjustmentModal({ open, onClose, defaultDate }) {
+function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
   const { user: user2 } = useAuth();
   const userRole = useUserRole();
   const isManager = ["WC", "CC"].includes(userRole);
@@ -45272,8 +45285,9 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate }) {
       setForAnother(false);
       setForWatch("");
       setForUserId("");
+      if (editAdjustment) startEditing(editAdjustment);
     }
-  }, [open, defaultDate]);
+  }, [open, defaultDate, editAdjustment]);
   const { data: coverRosterData } = useQuery({
     queryKey: ["crewing-roster", coverWatch],
     queryFn: () => backendClient.crewing.roster({ watch: coverWatch }),
@@ -45289,9 +45303,25 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate }) {
   const { data: existingData } = useQuery({
     queryKey: ["shift-adjustments-mine", user2 == null ? void 0 : user2.id, startDate],
     queryFn: () => backendClient.shift_adjustments.list({ user_id: user2.id, start_date: startDate, end_date: endDate }),
-    enabled: !!(user2 == null ? void 0 : user2.id) && open
+    enabled: !!(user2 == null ? void 0 : user2.id) && open && !editAdjustment
   });
-  const existing = (existingData == null ? void 0 : existingData.adjustments) ?? [];
+  const existing = editAdjustment ? [] : (existingData == null ? void 0 : existingData.adjustments) ?? [];
+  const invalidateAdjustmentViews = () => {
+    for (const key2 of [
+      "shift-adjustments",
+      "shift-adjustments-mine",
+      "shift-adjustments-for-profile",
+      "cal-station",
+      "cal-watch",
+      "cal-personal",
+      "toil-balance",
+      "toil-entries",
+      "toil-watch-balance",
+      "crewing-roster"
+    ]) {
+      queryClient2.invalidateQueries({ queryKey: [key2] });
+    }
+  };
   const createMutation = useMutation({
     mutationFn: () => {
       var _a2;
@@ -45323,14 +45353,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate }) {
       });
     },
     onSuccess: () => {
-      queryClient2.invalidateQueries({ queryKey: ["shift-adjustments"] });
-      queryClient2.invalidateQueries({ queryKey: ["shift-adjustments-mine"] });
-      queryClient2.invalidateQueries({ queryKey: ["cal-station"] });
-      queryClient2.invalidateQueries({ queryKey: ["cal-watch"] });
-      queryClient2.invalidateQueries({ queryKey: ["cal-personal"] });
-      queryClient2.invalidateQueries({ queryKey: ["toil-balance"] });
-      queryClient2.invalidateQueries({ queryKey: ["toil-entries"] });
-      queryClient2.invalidateQueries({ queryKey: ["crewing-roster"] });
+      invalidateAdjustmentViews();
       toast2({
         title: `${TYPE_CONFIG[type].label} logged`,
         description: "Your Watch Commander has been notified."
@@ -45342,14 +45365,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate }) {
   const deleteMutation = useMutation({
     mutationFn: (id) => backendClient.shift_adjustments.deleteAdjustment(id),
     onSuccess: () => {
-      queryClient2.invalidateQueries({ queryKey: ["shift-adjustments"] });
-      queryClient2.invalidateQueries({ queryKey: ["shift-adjustments-mine"] });
-      queryClient2.invalidateQueries({ queryKey: ["cal-station"] });
-      queryClient2.invalidateQueries({ queryKey: ["cal-watch"] });
-      queryClient2.invalidateQueries({ queryKey: ["cal-personal"] });
-      queryClient2.invalidateQueries({ queryKey: ["toil-balance"] });
-      queryClient2.invalidateQueries({ queryKey: ["toil-entries"] });
-      queryClient2.invalidateQueries({ queryKey: ["crewing-roster"] });
+      invalidateAdjustmentViews();
       toast2({ title: "Shift adjustment removed" });
     },
     onError: () => toast2({ title: "Failed to remove", variant: "destructive" })
@@ -45371,20 +45387,20 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate }) {
       });
     },
     onSuccess: () => {
-      queryClient2.invalidateQueries({ queryKey: ["shift-adjustments"] });
-      queryClient2.invalidateQueries({ queryKey: ["shift-adjustments-mine"] });
-      queryClient2.invalidateQueries({ queryKey: ["cal-station"] });
-      queryClient2.invalidateQueries({ queryKey: ["cal-watch"] });
-      queryClient2.invalidateQueries({ queryKey: ["cal-personal"] });
-      queryClient2.invalidateQueries({ queryKey: ["toil-balance"] });
-      queryClient2.invalidateQueries({ queryKey: ["toil-entries"] });
-      queryClient2.invalidateQueries({ queryKey: ["crewing-roster"] });
+      invalidateAdjustmentViews();
       toast2({ title: "Shift adjustment updated" });
-      setEditingId(null);
-      setType(null);
+      finishEditing();
     },
     onError: (err) => toast2({ title: "Failed to update", description: (err == null ? void 0 : err.message) ?? String(err), variant: "destructive" })
   });
+  const finishEditing = () => {
+    if (editAdjustment) {
+      onClose();
+      return;
+    }
+    setEditingId(null);
+    setType(null);
+  };
   const startEditing = (a) => {
     setEditingId(a.id);
     setType(a.type);
@@ -45395,7 +45411,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate }) {
       if (a.covering_user_id) {
         setCoverMode("roster");
         setCoverUserId(a.covering_user_id);
-        setCoverWatch("");
+        setCoverWatch(a.covering_user_watch ?? "");
         setCoverName(a.covering_name ?? "");
       } else {
         setCoverMode("freetext");
@@ -45415,7 +45431,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate }) {
       if (a.covering_user_id) {
         setCoverMode("roster");
         setCoverUserId(a.covering_user_id);
-        setCoverWatch("");
+        setCoverWatch(a.covering_user_watch ?? "");
         setCoverName(a.covering_name ?? "");
       } else {
         setCoverMode("freetext");
@@ -45437,7 +45453,8 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate }) {
     }
     return true;
   })();
-  const userWatch = (user2 == null ? void 0 : user2.watch_unit) ?? "";
+  const userWatch = (editAdjustment == null ? void 0 : editAdjustment.watch_unit) ?? (user2 == null ? void 0 : user2.watch_unit) ?? "";
+  const subjectName = (editAdjustment == null ? void 0 : editAdjustment.user_name) ?? (user2 == null ? void 0 : user2.name);
   const otherWatches = WATCHES$a.filter((w) => w !== userWatch);
   const fmt2 = (d) => (/* @__PURE__ */ new Date(d + "T12:00:00")).toLocaleDateString("en-GB", {
     day: "numeric",
@@ -45455,7 +45472,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate }) {
       userWatch && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground mt-0.5", children: [
         userWatch,
         " Watch · ",
-        user2 == null ? void 0 : user2.name
+        subjectName
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "px-5 py-4 space-y-5 max-h-[75vh] overflow-y-auto", children: [
@@ -45754,10 +45771,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate }) {
             {
               variant: "outline",
               className: "flex-shrink-0",
-              onClick: () => {
-                setEditingId(null);
-                setType(null);
-              },
+              onClick: finishEditing,
               children: "Cancel"
             }
           ),
@@ -49636,6 +49650,7 @@ function ProfileShiftAdjustmentsSection({
   const isManager = role === "WC" || role === "CC";
   const canManage = isOwn || isManager;
   const [showAll, setShowAll] = reactExports.useState(false);
+  const [editing, setEditing] = reactExports.useState(null);
   const adjustmentsQ = useQuery({
     queryKey: ["shift-adjustments-for-profile", profileUserId],
     queryFn: () => backendClient.shift_adjustments.list({
@@ -49696,7 +49711,7 @@ function ProfileShiftAdjustmentsSection({
     /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "space-y-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-2 rounded-lg border bg-muted/40 p-3 text-xs text-muted-foreground", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "h-3.5 w-3.5 shrink-0 mt-0.5 text-amber-500" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "leading-snug", children: "Deleting an adjustment removes its calendar events and refunds any TOIL hours that were spent on it. Use this to back out an erroneous entry — including legacy night-shift entries created before the Day/Night picker that show on two calendar dates." })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "leading-snug", children: "Editing an adjustment updates its calendar entry and any TOIL hours to match. Deleting removes its calendar events and refunds any TOIL hours spent on it. Saving a legacy night-shift entry (one showing on two calendar dates) with a Day/Night choice fixes it." })
       ] }),
       adjustmentsQ.isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: [...Array(2)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-14 w-full" }, i)) }) : visible.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-muted-foreground italic text-center py-4", children: [
         "No shift adjustments",
@@ -49749,6 +49764,16 @@ function ProfileShiftAdjustmentsSection({
               canManage && /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "button",
                 {
+                  onClick: () => setEditing(a),
+                  className: "shrink-0 h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition-colors",
+                  title: "Edit adjustment",
+                  "aria-label": `Edit ${cfg.label} on ${dateStr}`,
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "h-3.5 w-3.5" })
+                }
+              ),
+              canManage && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
                   onClick: () => {
                     if (confirm(
                       `Delete this ${cfg.label.toLowerCase()} entry? This will remove the calendar events and refund any TOIL hours. Cannot be undone.`
@@ -49759,6 +49784,7 @@ function ProfileShiftAdjustmentsSection({
                   disabled: deleteMutation.isPending,
                   className: "shrink-0 h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors",
                   title: "Delete adjustment",
+                  "aria-label": `Delete ${cfg.label} on ${dateStr}`,
                   children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-3.5 w-3.5" })
                 }
               )
@@ -49781,7 +49807,15 @@ function ProfileShiftAdjustmentsSection({
           ]
         }
       )
-    ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ShiftAdjustmentModal,
+      {
+        open: !!editing,
+        onClose: () => setEditing(null),
+        editAdjustment: editing
+      }
+    )
   ] });
 }
 const DAY_MS = 864e5;
@@ -56457,7 +56491,10 @@ function ActivityDrawer({
   });
   const updateMut = useMutation({
     mutationFn: ({ id, ...fields }) => backendClient.activity.update(id, fields),
-    onSuccess: () => qc.invalidateQueries({ queryKey: actKey })
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: actKey });
+      qc.invalidateQueries({ queryKey: ["activities"] });
+    }
   });
   const createMut = useMutation({
     mutationFn: (req) => backendClient.activity.create(req),
@@ -56494,7 +56531,14 @@ function ActivityDrawer({
         completed,
         " / ",
         total,
-        " complete"
+        " complete",
+        type === "community" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          " · TAP ",
+          items.filter((i) => i.completed && i.is_tap).length,
+          " / ",
+          COMMUNITY_TAP_MIN,
+          " minimum"
+        ] })
       ] }),
       total > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(Progress, { value: completed / total * 100, className: "h-1.5 mt-2" })
     ] }),
@@ -56539,6 +56583,17 @@ function ActivityDrawer({
               }
             }
           ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 text-xs text-muted-foreground cursor-pointer w-fit", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Checkbox,
+              {
+                checked: item.is_tap,
+                disabled: updateMut.isPending || !isWCOrCC,
+                onCheckedChange: (v) => updateMut.mutate({ id: item.id, is_tap: v === true })
+              }
+            ),
+            "TAP engagement"
+          ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Input,
             {
@@ -56661,9 +56716,10 @@ function TargetsDashboard({
   const metrics = reactExports.useMemo(() => {
     var _a2, _b2, _c2, _d2;
     const hfsvComplete = (hfsvData == null ? void 0 : hfsvData.total_completed) ?? 0;
-    const hfsvTotal = 36;
+    const hfsvTotal = HFSV_TARGET_Q;
     const communityComplete = (communityData == null ? void 0 : communityData.total_completed) ?? 0;
-    const communityTotal = 6;
+    const communityTap = (communityData == null ? void 0 : communityData.total_tap_completed) ?? 0;
+    const communityTotal = COMMUNITY_TARGET_Q;
     const msComplete = ((_a2 = multiStoryData == null ? void 0 : multiStoryData.totals) == null ? void 0 : _a2.complete) ?? 0;
     const msTotal = (((_b2 = multiStoryData == null ? void 0 : multiStoryData.totals) == null ? void 0 : _b2.pending) ?? 0) + msComplete;
     const hydrantComplete = ((_c2 = hydrantData == null ? void 0 : hydrantData.totals) == null ? void 0 : _c2.complete) ?? 0;
@@ -56700,7 +56756,8 @@ function TargetsDashboard({
         actual: hydrantComplete,
         isFetching: hydrantFetching,
         clickable: false,
-        subtitle: "Managed via Hydrant Register below"
+        subtitle: "Annual route — managed via Hydrant Register below",
+        noTargetLabel: "No route uploaded"
       },
       {
         key: "community",
@@ -56709,6 +56766,7 @@ function TargetsDashboard({
         iconColor: "text-purple-500",
         target: communityTotal,
         actual: communityComplete,
+        tap: { done: communityTap, min: COMMUNITY_TAP_MIN },
         isFetching: communityFetching,
         clickable: true,
         drawerType: "community"
@@ -56761,7 +56819,10 @@ function TargetsDashboard({
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid gap-6 md:grid-cols-2", children: metrics.map((m) => {
-      const pct = m.target > 0 ? m.actual / m.target * 100 : 0;
+      const rawPct = m.target > 0 ? m.actual / m.target * 100 : 0;
+      const tapShort = "tap" in m && m.tap ? m.tap.done < m.tap.min : false;
+      const pct = tapShort ? Math.min(rawPct, 99) : rawPct;
+      const noTarget = m.target === 0 && "noTargetLabel" in m;
       return /* @__PURE__ */ jsxRuntimeExports.jsxs(
         Card,
         {
@@ -56789,7 +56850,7 @@ function TargetsDashboard({
                   ] })
                 ] })
               ] }),
-              getStatusBadge(pct)
+              noTarget ? /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: "bg-muted text-muted-foreground", children: m.noTargetLabel }) : getStatusBadge(pct)
             ] }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-3 rounded-full bg-muted overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -56809,6 +56870,15 @@ function TargetsDashboard({
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between text-sm", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "Remaining" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: Math.max(0, m.target - m.actual) })
+              ] }),
+              "tap" in m && m.tap && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between text-sm", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "TAP engagements" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: `font-medium ${m.tap.done < m.tap.min ? "text-red-600 dark:text-red-400" : "text-green-600 dark:text-green-400"}`, children: [
+                  m.tap.done,
+                  " / ",
+                  m.tap.min,
+                  " minimum"
+                ] })
               ] }),
               pct >= 100 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 text-sm text-green-500", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-4 w-4" }),
@@ -57088,12 +57158,12 @@ function InspectionAssignments({ year, quarter }) {
   ] });
 }
 const ACTIVITY_METRICS = [
-  { key: "hfsv", label: "HFSV", target: 36, colour: "orange" },
-  { key: "community", label: "Community", target: 4, colour: "teal" },
-  { key: "hydrant", label: "Hydrant", target: 20, colour: "purple" }
+  { key: "hfsv", label: "HFSV", target: HFSV_TARGET_Q, colour: "orange" },
+  { key: "community", label: "Community", target: COMMUNITY_TARGET_Q, colour: "teal" }
 ];
 const QUARTER_LABELS = ["Q1 Apr–Jun", "Q2 Jul–Sep", "Q3 Oct–Dec", "Q4 Jan–Mar"];
 function QuarterlyOverview({ watch }) {
+  var _a2, _b2, _c2, _d2;
   const now = /* @__PURE__ */ new Date();
   const fy = now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
   const currentQ = Math.floor((now.getMonth() + 9) % 12 / 3) + 1;
@@ -57127,6 +57197,19 @@ function QuarterlyOverview({ watch }) {
       };
     })
   });
+  const hydrantYear = now.getFullYear();
+  const hydrantQ = useQuery({
+    queryKey: ["assignments", "hydrant", watch, hydrantYear],
+    queryFn: () => backendClient.inspection_plans.listAssignments({
+      plan_type: "hydrant",
+      watch: watch || void 0,
+      year: hydrantYear,
+      quarter: 0
+    }),
+    enabled: !!watch
+  });
+  const hydrantDone = ((_b2 = (_a2 = hydrantQ.data) == null ? void 0 : _a2.totals) == null ? void 0 : _b2.complete) ?? 0;
+  const hydrantTotal = hydrantDone + (((_d2 = (_c2 = hydrantQ.data) == null ? void 0 : _c2.totals) == null ? void 0 : _d2.pending) ?? 0);
   function getActivityResult(metricIdx, q) {
     return activityResults[metricIdx * 4 + (q - 1)];
   }
@@ -57179,11 +57262,14 @@ function QuarterlyOverview({ watch }) {
         ACTIVITY_METRICS.map((metric, mIdx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "py-3 pr-4 font-medium text-foreground", children: metric.label }),
           [1, 2, 3, 4].map((q) => {
-            var _a2, _b2;
+            var _a3, _b3, _c3;
             const result = getActivityResult(mIdx, q);
-            const completed = ((_a2 = result.data) == null ? void 0 : _a2.total_completed) ?? 0;
-            const isFuture = q > currentQ && (((_b2 = result.data) == null ? void 0 : _b2.total) ?? 0) === 0;
-            const pct = Math.min(100, Math.round(completed / metric.target * 100));
+            const completed = ((_a3 = result.data) == null ? void 0 : _a3.total_completed) ?? 0;
+            const tap = ((_b3 = result.data) == null ? void 0 : _b3.total_tap_completed) ?? 0;
+            const isCommunity = metric.key === "community";
+            const isFuture = q > currentQ && (((_c3 = result.data) == null ? void 0 : _c3.total) ?? 0) === 0;
+            const rawPct = Math.min(100, Math.round(completed / metric.target * 100));
+            const pct = isCommunity && !communityMet(completed, tap) ? Math.min(rawPct, 99) : rawPct;
             const isCurrent = q === currentQ;
             return /* @__PURE__ */ jsxRuntimeExports.jsx(
               "td",
@@ -57197,7 +57283,19 @@ function QuarterlyOverview({ watch }) {
                       style: { width: isFuture ? "0%" : `${pct}%` }
                     }
                   ) }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `text-xs font-semibold tabular-nums ${textColour(pct, isFuture)}`, children: isFuture ? "–" : `${completed}/${metric.target}` })
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `text-xs font-semibold tabular-nums ${textColour(pct, isFuture)}`, children: isFuture ? "–" : `${completed}/${metric.target}` }),
+                  isCommunity && !isFuture && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "span",
+                    {
+                      className: `text-[10px] tabular-nums ${tap >= COMMUNITY_TAP_MIN ? "text-green-600 dark:text-green-400" : "text-muted-foreground"}`,
+                      children: [
+                        "TAP ",
+                        tap,
+                        "/",
+                        COMMUNITY_TAP_MIN
+                      ]
+                    }
+                  )
                 ] })
               },
               q
@@ -57205,12 +57303,36 @@ function QuarterlyOverview({ watch }) {
           })
         ] }, metric.key)),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "py-3 pr-4 font-medium text-foreground", children: "Hydrant" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 4, className: "py-3 px-2", children: hydrantTotal === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-muted-foreground", children: [
+            "No ",
+            hydrantYear,
+            " hydrant route uploaded yet"
+          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 h-2 rounded-full bg-muted overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "div",
+              {
+                className: `h-full rounded-full transition-all duration-500 ${barColour(Math.round(hydrantDone / hydrantTotal * 100), false)}`,
+                style: { width: `${Math.round(hydrantDone / hydrantTotal * 100)}%` }
+              }
+            ) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-semibold tabular-nums whitespace-nowrap", children: [
+              hydrantDone,
+              "/",
+              hydrantTotal,
+              " · ",
+              hydrantYear,
+              " route"
+            ] })
+          ] }) })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "py-3 pr-4 font-medium text-foreground", children: "Multi-Story" }),
           [1, 2, 3, 4].map((q) => {
-            var _a2, _b2, _c2, _d2;
+            var _a3, _b3, _c3, _d3;
             const result = getMsResult(q);
-            const total = ((_b2 = (_a2 = result.data) == null ? void 0 : _a2.items) == null ? void 0 : _b2.length) ?? 0;
-            const completed = ((_d2 = (_c2 = result.data) == null ? void 0 : _c2.totals) == null ? void 0 : _d2.complete) ?? 0;
+            const total = ((_b3 = (_a3 = result.data) == null ? void 0 : _a3.items) == null ? void 0 : _b3.length) ?? 0;
+            const completed = ((_d3 = (_c3 = result.data) == null ? void 0 : _c3.totals) == null ? void 0 : _d3.complete) ?? 0;
             const isFuture = q > currentQ && total === 0;
             const pct = total > 0 ? Math.min(100, Math.round(completed / total * 100)) : 0;
             const isCurrent = q === currentQ;

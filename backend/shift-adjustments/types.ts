@@ -9,6 +9,8 @@ export interface ShiftAdjustment {
   end_date: Date;
   covering_user_id?: string;
   covering_name?: string;
+  /** Watch of the roster person covering (list only) — pre-fills the edit form. */
+  covering_user_watch?: string;
   covering_watch?: string;
   shift_day_night?: "Day" | "Night";
   toil_hours?: number;          // how many TOIL hours used for this shift

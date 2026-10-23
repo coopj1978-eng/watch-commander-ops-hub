@@ -86,9 +86,12 @@ interface Props {
   open: boolean;
   onClose: () => void;
   defaultDate?: Date;
+  /** Open straight into editing this adjustment (e.g. from a profile, which
+   *  may be someone else's). The modal closes once it's saved or cancelled. */
+  editAdjustment?: shift_adjustments.ShiftAdjustment | null;
 }
 
-export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Props) {
+export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }: Props) {
   const { user } = useAuth();
   const userRole = useUserRole();
   const isManager = ["WC", "CC"].includes(userRole);
@@ -155,8 +158,9 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
       setForAnother(false);
       setForWatch("");
       setForUserId("");
+      if (editAdjustment) startEditing(editAdjustment);
     }
-  }, [open, defaultDate]);
+  }, [open, defaultDate, editAdjustment]);
 
   // Fetch cover watch roster when selected
   const { data: coverRosterData } = useQuery({
@@ -178,9 +182,20 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
   const { data: existingData } = useQuery({
     queryKey: ["shift-adjustments-mine", user?.id, startDate],
     queryFn: () => backend.shift_adjustments.list({ user_id: user!.id, start_date: startDate, end_date: endDate }),
-    enabled: !!user?.id && open,
+    enabled: !!user?.id && open && !editAdjustment,
   });
-  const existing = existingData?.adjustments ?? [];
+  // Editing from a profile is about that one entry, not the viewer's own list.
+  const existing = editAdjustment ? [] : existingData?.adjustments ?? [];
+
+  const invalidateAdjustmentViews = () => {
+    for (const key of [
+      "shift-adjustments", "shift-adjustments-mine", "shift-adjustments-for-profile",
+      "cal-station", "cal-watch", "cal-personal",
+      "toil-balance", "toil-entries", "toil-watch-balance", "crewing-roster",
+    ]) {
+      queryClient.invalidateQueries({ queryKey: [key] });
+    }
+  };
 
   const createMutation = useMutation({
     mutationFn: () => {
@@ -223,14 +238,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["shift-adjustments"] });
-      queryClient.invalidateQueries({ queryKey: ["shift-adjustments-mine"] });
-      queryClient.invalidateQueries({ queryKey: ["cal-station"] });
-      queryClient.invalidateQueries({ queryKey: ["cal-watch"] });
-      queryClient.invalidateQueries({ queryKey: ["cal-personal"] });
-      queryClient.invalidateQueries({ queryKey: ["toil-balance"] });
-      queryClient.invalidateQueries({ queryKey: ["toil-entries"] });
-      queryClient.invalidateQueries({ queryKey: ["crewing-roster"] });
+      invalidateAdjustmentViews();
       toast({
         title: `${TYPE_CONFIG[type!].label} logged`,
         description: "Your Watch Commander has been notified.",
@@ -244,14 +252,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
   const deleteMutation = useMutation({
     mutationFn: (id: number) => backend.shift_adjustments.deleteAdjustment(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["shift-adjustments"] });
-      queryClient.invalidateQueries({ queryKey: ["shift-adjustments-mine"] });
-      queryClient.invalidateQueries({ queryKey: ["cal-station"] });
-      queryClient.invalidateQueries({ queryKey: ["cal-watch"] });
-      queryClient.invalidateQueries({ queryKey: ["cal-personal"] });
-      queryClient.invalidateQueries({ queryKey: ["toil-balance"] });
-      queryClient.invalidateQueries({ queryKey: ["toil-entries"] });
-      queryClient.invalidateQueries({ queryKey: ["crewing-roster"] });
+      invalidateAdjustmentViews();
       toast({ title: "Shift adjustment removed" });
     },
     onError: () => toast({ title: "Failed to remove", variant: "destructive" }),
@@ -281,21 +282,22 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["shift-adjustments"] });
-      queryClient.invalidateQueries({ queryKey: ["shift-adjustments-mine"] });
-      queryClient.invalidateQueries({ queryKey: ["cal-station"] });
-      queryClient.invalidateQueries({ queryKey: ["cal-watch"] });
-      queryClient.invalidateQueries({ queryKey: ["cal-personal"] });
-      queryClient.invalidateQueries({ queryKey: ["toil-balance"] });
-      queryClient.invalidateQueries({ queryKey: ["toil-entries"] });
-      queryClient.invalidateQueries({ queryKey: ["crewing-roster"] });
+      invalidateAdjustmentViews();
       toast({ title: "Shift adjustment updated" });
-      setEditingId(null);
-      setType(null);
+      finishEditing();
     },
     onError: (err: any) =>
       toast({ title: "Failed to update", description: err?.message ?? String(err), variant: "destructive" }),
   });
+
+  const finishEditing = () => {
+    if (editAdjustment) {
+      onClose();
+      return;
+    }
+    setEditingId(null);
+    setType(null);
+  };
 
   const startEditing = (a: any) => {
     setEditingId(a.id);
@@ -307,8 +309,8 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
       if (a.covering_user_id) {
         setCoverMode("roster");
         setCoverUserId(a.covering_user_id);
-        // We need the watch to load roster — infer from existing data
-        setCoverWatch(""); // User may need to re-select
+        // Loads the cover's roster so the person shows as selected.
+        setCoverWatch(a.covering_user_watch ?? "");
         setCoverName(a.covering_name ?? "");
       } else {
         setCoverMode("freetext");
@@ -328,7 +330,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
       if (a.covering_user_id) {
         setCoverMode("roster");
         setCoverUserId(a.covering_user_id);
-        setCoverWatch("");
+        setCoverWatch(a.covering_user_watch ?? "");
         setCoverName(a.covering_name ?? "");
       } else {
         setCoverMode("freetext");
@@ -353,7 +355,9 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
     return true;
   })();
 
-  const userWatch = user?.watch_unit ?? "";
+  // Whose booking this is: the person being edited, otherwise the viewer.
+  const userWatch = editAdjustment?.watch_unit ?? user?.watch_unit ?? "";
+  const subjectName = editAdjustment?.user_name ?? user?.name;
   const otherWatches = WATCHES.filter(w => w !== userWatch);
 
   const fmt = (d: string) => new Date(d + "T12:00:00").toLocaleDateString("en-GB", {
@@ -369,7 +373,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
             {editingId ? "Edit Shift Adjustment" : "Log Shift Adjustment"}
           </DialogTitle>
           {userWatch && (
-            <p className="text-xs text-muted-foreground mt-0.5">{userWatch} Watch · {user?.name}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{userWatch} Watch · {subjectName}</p>
           )}
         </DialogHeader>
 
@@ -703,7 +707,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate }: Pro
                   <Button
                     variant="outline"
                     className="flex-shrink-0"
-                    onClick={() => { setEditingId(null); setType(null); }}
+                    onClick={finishEditing}
                   >
                     Cancel
                   </Button>

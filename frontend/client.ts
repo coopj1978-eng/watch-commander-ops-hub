@@ -5032,6 +5032,7 @@ export namespace shift_adjustments {
         "end_date": string
         "covering_user_id"?: string
         "covering_name"?: string
+        "covering_user_watch"?: string
         "covering_watch"?: string
         "shift_day_night"?: "Day" | "Night"
         "toil_hours"?: number

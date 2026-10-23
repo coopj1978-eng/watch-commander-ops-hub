@@ -14,10 +14,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import ShiftAdjustmentModal from "@/components/ShiftAdjustmentModal";
+import type { shift_adjustments } from "@/client";
 import {
   CalendarDays,
   ArrowLeftRight,
   GraduationCap,
+  Pencil,
   Trash2,
   RefreshCw,
   Sun,
@@ -29,8 +32,9 @@ import {
 // ProfileShiftAdjustmentsSection
 //
 // Lists all shift adjustments (Flexi / Training / H4H / TOIL / Flexi Payback
-// / Orange Day) for the profile owner, with delete buttons gated to the
-// owner or any WC/CC. Used to back out an erroneous adjustment so it can be
+// / Orange Day) for the profile owner, with edit and delete buttons gated to
+// the owner or any WC/CC — so a WC can correct a booking made for someone
+// else. Delete backs out an erroneous adjustment so it can be
 // recreated cleanly — particularly useful for legacy TOIL/H4H entries
 // created before the Day/Night picker shipped (those entries have
 // shift_day_night = NULL and spread across two calendar dates for night
@@ -115,6 +119,7 @@ export function ProfileShiftAdjustmentsSection({
   const canManage = isOwn || isManager;
 
   const [showAll, setShowAll] = useState(false);
+  const [editing, setEditing] = useState<shift_adjustments.ShiftAdjustment | null>(null);
 
   const adjustmentsQ = useQuery({
     queryKey: ["shift-adjustments-for-profile", profileUserId],
@@ -196,10 +201,11 @@ export function ProfileShiftAdjustmentsSection({
         <div className="flex items-start gap-2 rounded-lg border bg-muted/40 p-3 text-xs text-muted-foreground">
           <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5 text-amber-500" />
           <p className="leading-snug">
-            Deleting an adjustment removes its calendar events and refunds
-            any TOIL hours that were spent on it. Use this to back out an
-            erroneous entry — including legacy night-shift entries created
-            before the Day/Night picker that show on two calendar dates.
+            Editing an adjustment updates its calendar entry and any TOIL
+            hours to match. Deleting removes its calendar events and refunds
+            any TOIL hours spent on it. Saving a legacy night-shift entry
+            (one showing on two calendar dates) with a Day/Night choice fixes
+            it.
           </p>
         </div>
 
@@ -277,6 +283,16 @@ export function ProfileShiftAdjustmentsSection({
                   </div>
                   {canManage && (
                     <button
+                      onClick={() => setEditing(a)}
+                      className="shrink-0 h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition-colors"
+                      title="Edit adjustment"
+                      aria-label={`Edit ${cfg.label} on ${dateStr}`}
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                  {canManage && (
+                    <button
                       onClick={() => {
                         if (
                           confirm(
@@ -289,6 +305,7 @@ export function ProfileShiftAdjustmentsSection({
                       disabled={deleteMutation.isPending}
                       className="shrink-0 h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
                       title="Delete adjustment"
+                      aria-label={`Delete ${cfg.label} on ${dateStr}`}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
@@ -310,6 +327,12 @@ export function ProfileShiftAdjustmentsSection({
           </Button>
         )}
       </CardContent>
+
+      <ShiftAdjustmentModal
+        open={!!editing}
+        onClose={() => setEditing(null)}
+        editAdjustment={editing}
+      />
     </Card>
   );
 }
