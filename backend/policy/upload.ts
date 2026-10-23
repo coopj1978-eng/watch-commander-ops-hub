@@ -6,7 +6,7 @@ import { logActivity } from "../logging/logger";
 import type { CreatePolicyDocRequest, PolicyDoc } from "./types";
 
 export const upload = api<CreatePolicyDocRequest, PolicyDoc>(
-  { auth: true, expose: true, method: "POST", path: "/policies" },
+  { auth: true, expose: true, method: "POST", path: "/api/policies" },
   async (req) => {
     const auth = getAuthData()!;
     const doc = await db.queryRow<PolicyDoc>`

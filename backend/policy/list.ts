@@ -32,7 +32,7 @@ interface DBRow extends PolicyDoc {
 }
 
 export const list = api<ListPoliciesRequest, ListPoliciesResponse>(
-  { expose: true, method: "GET", path: "/policies", auth: true },
+  { expose: true, method: "GET", path: "/api/policies", auth: true },
   async (req) => {
     const auth = getAuthData()!;
     const limit = req.limit || 50;

@@ -27365,7 +27365,6 @@ var admin;
       this.createAccount = this.createAccount.bind(this);
       this.createActivityLog = this.createActivityLog.bind(this);
       this.deactivateUser = this.deactivateUser.bind(this);
-      this.fixMyRole = this.fixMyRole.bind(this);
       this.getActivityLog = this.getActivityLog.bind(this);
       this.getInviteLink = this.getInviteLink.bind(this);
       this.getReassignmentPreview = this.getReassignmentPreview.bind(this);
@@ -27399,10 +27398,6 @@ var admin;
     }
     async deactivateUser(userId, params) {
       await this.baseClient.callTypedAPI("POST", `/api/admin/users/${encodeURIComponent(userId)}/deactivate`, JSON.stringify(params));
-    }
-    async fixMyRole() {
-      const resp = await this.baseClient.callTypedAPI("POST", `/admin/fix-my-role`);
-      return await resp.json();
     }
     async getActivityLog(params) {
       const query = makeRecord({
@@ -27565,7 +27560,7 @@ var bulletin;
       if ((params == null ? void 0 : params.limit) !== void 0) qs.push(`limit=${params.limit}`);
       if ((params == null ? void 0 : params.offset) !== void 0) qs.push(`offset=${params.offset}`);
       const q = qs.length ? `?${qs.join("&")}` : "";
-      const resp = await this.baseClient.callTypedAPI("GET", `/bulletins${q}`);
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/bulletins${q}`);
       return await resp.json();
     }
     async markRead(id) {
@@ -28051,7 +28046,6 @@ var localauth;
     constructor(baseClient) {
       this.baseClient = baseClient;
       this.changePassword = this.changePassword.bind(this);
-      this.createAdmin = this.createAdmin.bind(this);
       this.forgotPassword = this.forgotPassword.bind(this);
       this.resetPassword = this.resetPassword.bind(this);
       this.resetUserPassword = this.resetUserPassword.bind(this);
@@ -28061,10 +28055,6 @@ var localauth;
     }
     async changePassword(params) {
       const resp = await this.baseClient.callTypedAPI("POST", `/auth/change-password`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async createAdmin() {
-      const resp = await this.baseClient.callTypedAPI("POST", `/localauth/create-admin`);
       return await resp.json();
     }
     async forgotPassword(params) {
@@ -28348,7 +28338,7 @@ var policy;
         limit: params.limit === void 0 ? void 0 : String(params.limit),
         offset: params.offset === void 0 ? void 0 : String(params.offset)
       });
-      const resp = await this.baseClient.callTypedAPI("GET", `/policies`, void 0, { query });
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/policies`, void 0, { query });
       return await resp.json();
     }
     async processEmbedding(policy_id) {
@@ -28365,7 +28355,7 @@ var policy;
       return await resp.json();
     }
     async upload(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/policies`, JSON.stringify(params));
+      const resp = await this.baseClient.callTypedAPI("POST", `/api/policies`, JSON.stringify(params));
       return await resp.json();
     }
   }

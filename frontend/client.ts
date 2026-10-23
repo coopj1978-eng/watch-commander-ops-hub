@@ -648,7 +648,6 @@ export namespace admin {
             this.createAccount = this.createAccount.bind(this)
             this.createActivityLog = this.createActivityLog.bind(this)
             this.deactivateUser = this.deactivateUser.bind(this)
-            this.fixMyRole = this.fixMyRole.bind(this)
             this.getActivityLog = this.getActivityLog.bind(this)
             this.getInviteLink = this.getInviteLink.bind(this)
             this.getReassignmentPreview = this.getReassignmentPreview.bind(this)
@@ -694,18 +693,6 @@ export namespace admin {
 
         public async deactivateUser(userId: string, params: DeactivateUserRequest): Promise<void> {
             await this.baseClient.callTypedAPI("POST", `/api/admin/users/${encodeURIComponent(userId)}/deactivate`, JSON.stringify(params))
-        }
-
-        public async fixMyRole(): Promise<{
-    success: boolean
-    message: string
-}> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/admin/fix-my-role`)
-            return await resp.json() as {
-    success: boolean
-    message: string
-}
         }
 
         public async getActivityLog(params: GetActivityLogRequest): Promise<GetActivityLogResponse> {
@@ -1216,7 +1203,7 @@ export namespace bulletin {
             if (params?.limit !== undefined) qs.push(`limit=${params.limit}`)
             if (params?.offset !== undefined) qs.push(`offset=${params.offset}`)
             const q = qs.length ? `?${qs.join("&")}` : ""
-            const resp = await this.baseClient.callTypedAPI("GET", `/bulletins${q}`)
+            const resp = await this.baseClient.callTypedAPI("GET", `/api/bulletins${q}`)
             return await resp.json() as ListBulletinsResponse
         }
 
@@ -2452,11 +2439,6 @@ export namespace localauth {
         success: boolean
     }
 
-    export interface CreateAdminResponse {
-        success: boolean
-        message: string
-    }
-
     export interface ForgotPasswordRequest {
         email: string
     }
@@ -2501,7 +2483,6 @@ export namespace localauth {
         constructor(baseClient: BaseClient) {
             this.baseClient = baseClient
             this.changePassword = this.changePassword.bind(this)
-            this.createAdmin = this.createAdmin.bind(this)
             this.forgotPassword = this.forgotPassword.bind(this)
             this.resetPassword = this.resetPassword.bind(this)
             this.resetUserPassword = this.resetUserPassword.bind(this)
@@ -2514,12 +2495,6 @@ export namespace localauth {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("POST", `/auth/change-password`, JSON.stringify(params))
             return await resp.json() as ChangePasswordResponse
-        }
-
-        public async createAdmin(): Promise<CreateAdminResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/localauth/create-admin`)
-            return await resp.json() as CreateAdminResponse
         }
 
         public async forgotPassword(params: ForgotPasswordRequest): Promise<ForgotPasswordResponse> {
@@ -3336,7 +3311,7 @@ export namespace policy {
             })
 
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/policies`, undefined, {query})
+            const resp = await this.baseClient.callTypedAPI("GET", `/api/policies`, undefined, {query})
             return await resp.json() as ListPoliciesResponse
         }
 
@@ -3361,7 +3336,7 @@ export namespace policy {
 
         public async upload(params: CreatePolicyDocRequest): Promise<PolicyDoc> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/policies`, JSON.stringify(params))
+            const resp = await this.baseClient.callTypedAPI("POST", `/api/policies`, JSON.stringify(params))
             return await resp.json() as PolicyDoc
         }
     }
