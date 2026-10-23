@@ -16,7 +16,7 @@ interface BookBackFitRequest {
 //
 // Closes out an open sickness. The original end_date is only the WC's
 // expectation, so this sets end_date to the day before the FF actually
-// returned — shorter or longer than expected — so Bradford totals reflect
+// returned — shorter or longer than expected — so trigger totals reflect
 // the real absence. Closes all of the person's open sickness rows.
 //
 // WC/CC only — same authorisation level as logging the sickness.

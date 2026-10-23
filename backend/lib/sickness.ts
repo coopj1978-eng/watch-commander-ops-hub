@@ -4,7 +4,7 @@ import { rollingSickness, type SicknessRow, type TriggerStage } from "./sickness
 
 export { ukTodayIso } from "./sicknessMath";
 
-/** Recompute and store rolling sickness + Bradford trigger stage for one person. */
+/** Recompute and store rolling sickness + trigger stage (episodes/days in 6 months) for one person. */
 export async function recalcTriggersForUser(userId: string) {
   const rows: SicknessRow[] = [];
   for await (const r of db.query<SicknessRow>`

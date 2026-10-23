@@ -36,7 +36,7 @@ export const getStats = api<GetStatsRequest, AbsenceStats>(
     `;
 
     // Rolling six-month sickness + stage use the same calculation as the
-    // Bradford triggers so every screen agrees.
+    // sickness triggers so every screen agrees.
     const rolling = await recalcTriggersForUser(user_id);
 
     const sick = totals?.sick_days ?? 0;
