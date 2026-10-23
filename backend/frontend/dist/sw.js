@@ -42,6 +42,11 @@ self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (request.method !== 'GET') return;
 
+  // Only handle our own origin. Fetching other sites (Google Fonts, the
+  // weather API) from inside the worker is subject to the worker's own CSP
+  // and fails, so let the browser fetch those directly.
+  if (new URL(request.url).origin !== self.location.origin) return;
+
   // Skip API calls — always go to network
   if (request.url.includes('/api/') || request.url.includes(':4000')) return;
 
