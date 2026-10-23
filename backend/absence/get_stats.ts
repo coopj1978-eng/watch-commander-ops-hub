@@ -1,51 +1,56 @@
-import { api } from "encore.dev/api";
+import { api, APIError } from "encore.dev/api";
+import { getAuthData } from "~encore/auth";
 import db from "../db";
+import { recalcTriggersForUser } from "../lib/sickness";
 import type { AbsenceStats } from "./types";
 
 interface GetStatsRequest {
   user_id: string;
 }
 
+const STAGE_LABELS: Record<string, string | undefined> = {
+  Stage1: "Stage 1 - Monitor",
+  Stage2: "Stage 2 - Warning",
+  Stage3: "Stage 3 - Critical",
+};
+
 export const getStats = api<GetStatsRequest, AbsenceStats>(
   { auth: true, expose: true, method: "GET", path: "/absences/stats/:user_id" },
   async ({ user_id }) => {
-    const sixMonthsAgo = new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    const auth = getAuthData()!;
+    if (auth.userID !== user_id && auth.role !== "WC" && auth.role !== "CC") {
+      throw APIError.permissionDenied("You can only view your own absence stats");
+    }
 
-    const stats = await db.queryRow<{
+    const totals = await db.queryRow<{
       sick_days: number;
       vacation_days: number;
       other_days: number;
-      six_month_total: number;
     }>`
       SELECT
-        COALESCE(SUM(CASE WHEN absence_type = 'sick' THEN (end_date - start_date + 1) ELSE 0 END), 0) as sick_days,
-        COALESCE(SUM(CASE WHEN absence_type = 'vacation' THEN (end_date - start_date + 1) ELSE 0 END), 0) as vacation_days,
-        COALESCE(SUM(CASE WHEN absence_type NOT IN ('sick', 'vacation') THEN (end_date - start_date + 1) ELSE 0 END), 0) as other_days,
-        COALESCE(SUM(CASE WHEN start_date >= ${sixMonthsAgo} THEN (end_date - start_date + 1) ELSE 0 END), 0) as six_month_total
+        COALESCE(SUM(CASE WHEN type = 'sickness' THEN (end_date - start_date + 1) ELSE 0 END), 0)::int AS sick_days,
+        COALESCE(SUM(CASE WHEN type = 'AL' THEN (end_date - start_date + 1) ELSE 0 END), 0)::int AS vacation_days,
+        COALESCE(SUM(CASE WHEN type NOT IN ('sickness', 'AL') THEN (end_date - start_date + 1) ELSE 0 END), 0)::int AS other_days
       FROM absences
-      WHERE user_id = ${user_id} AND status = 'approved'
+      WHERE firefighter_id = ${user_id} AND status = 'approved'
     `;
 
-    const sixMonthTotal = stats?.six_month_total || 0;
-    let stageAlert: string | undefined;
+    // Rolling six-month sickness + stage use the same calculation as the
+    // Bradford triggers so every screen agrees.
+    const rolling = await recalcTriggersForUser(user_id);
 
-    if (sixMonthTotal >= 15) {
-      stageAlert = "Stage 3 - Critical";
-    } else if (sixMonthTotal >= 10) {
-      stageAlert = "Stage 2 - Warning";
-    } else if (sixMonthTotal >= 5) {
-      stageAlert = "Stage 1 - Monitor";
-    }
+    const sick = totals?.sick_days ?? 0;
+    const vacation = totals?.vacation_days ?? 0;
+    const other = totals?.other_days ?? 0;
 
     return {
       user_id,
-      total_days: (stats?.sick_days || 0) + (stats?.vacation_days || 0) + (stats?.other_days || 0),
-      sick_days: stats?.sick_days || 0,
-      vacation_days: stats?.vacation_days || 0,
-      other_days: stats?.other_days || 0,
-      six_month_total: sixMonthTotal,
-      stage_alert: stageAlert,
+      total_days: sick + vacation + other,
+      sick_days: sick,
+      vacation_days: vacation,
+      other_days: other,
+      six_month_total: rolling.rolling_sick_days,
+      stage_alert: STAGE_LABELS[rolling.trigger_stage],
     };
   }
 );

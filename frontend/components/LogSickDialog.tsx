@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Stethoscope, CalendarDays } from "lucide-react";
+import { invalidateAbsenceViews } from "@/lib/absences";
 
 // ──────────────────────────────────────────────────────────────────────────────
 // LogSickDialog
@@ -83,10 +84,7 @@ export function LogSickDialog({ open, onOpenChange, person }: LogSickDialogProps
     },
     onSuccess: () => {
       // Union of every cache key any caller depends on.
-      queryClient.invalidateQueries({ queryKey: ["absences", "sick-today"] });
-      queryClient.invalidateQueries({ queryKey: ["wc-absences-today"] });
-      queryClient.invalidateQueries({ queryKey: ["absences-today-sick"] });
-      queryClient.invalidateQueries({ queryKey: ["people"] });
+      invalidateAbsenceViews(queryClient);
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
       onOpenChange(false);
     },

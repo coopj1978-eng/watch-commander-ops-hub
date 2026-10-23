@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { ChevronRight } from "lucide-react";
+import { latestAbsencePerPerson, useTodaysAbsences } from "@/lib/absences";
 
 // ──────────────────────────────────────────────────────────────────────────────
 // AbsenceTriggersCard
@@ -40,16 +41,7 @@ export function AbsenceTriggersCard() {
     queryFn: async () => backend.profile.listWithUsers({ limit: 500 }),
   });
 
-  const absencesQ = useQuery({
-    queryKey: ["wc-absences-today"],
-    queryFn: async () =>
-      backend.absence.list({
-        status: "approved",
-        start_date: new Date().toISOString().split("T")[0],
-        end_date: new Date().toISOString().split("T")[0],
-        limit: 200,
-      }),
-  });
+  const absencesQ = useTodaysAbsences();
 
   const statsQ = useQuery({
     queryKey: ["wc-crew-stats"],
@@ -123,7 +115,7 @@ export function AbsenceTriggersCard() {
 
     // People on approved leave today — annual, parental, etc. Shown at
     // the bottom so the WC can see the full absence picture in one view.
-    const leaveToday = (absencesQ.data?.absences ?? [])
+    const leaveToday = [...latestAbsencePerPerson(absencesQ.data?.absences ?? []).values()]
       .filter(
         (a: any) =>
           a.type !== "sickness" &&

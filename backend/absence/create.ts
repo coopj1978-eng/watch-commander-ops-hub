@@ -1,14 +1,22 @@
-import { api } from "encore.dev/api";
+import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { logActivity } from "../logging/logger";
 import { createNotification } from "../notification/helpers";
 import type { CreateAbsenceRequest, Absence } from "./types";
+import { assertNoOpenSickness, recalcTriggersSafely } from "../lib/sickness";
 
 export const create = api<CreateAbsenceRequest, Absence>(
   { auth: true, expose: true, method: "POST", path: "/absences" },
   async (req) => {
     const auth = getAuthData()!;
+    const isManager = auth.role === "WC" || auth.role === "CC";
+    if (!isManager && req.user_id !== auth.userID) {
+      throw APIError.permissionDenied("You can only request absences for yourself");
+    }
+    if (req.type === "sickness") {
+      await assertNoOpenSickness(req.user_id);
+    }
 
     // WC and CC logging a sick booking confirms it immediately — no separate approval needed
     const autoApprove = req.type === "sickness" && (auth.role === "WC" || auth.role === "CC");
@@ -84,6 +92,7 @@ export const create = api<CreateAbsenceRequest, Absence>(
       }
     }
 
+    await recalcTriggersSafely(absence.firefighter_id);
     return absence;
   }
 );

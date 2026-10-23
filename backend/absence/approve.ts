@@ -3,6 +3,7 @@ import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { logActivity } from "../logging/logger";
 import type { Absence } from "./types";
+import { recalcTriggersSafely } from "../lib/sickness";
 
 interface ApproveAbsenceRequest {
   id: number;
@@ -34,6 +35,7 @@ export const approve = api<ApproveAbsenceRequest, Absence>(
       details: { firefighter_id: absence.firefighter_id },
     });
 
+    await recalcTriggersSafely(absence.firefighter_id);
     return absence;
   }
 );

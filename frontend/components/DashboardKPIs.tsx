@@ -5,6 +5,7 @@ import backend from "@/lib/backend";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getCurrentFinancialPeriod } from "@/lib/financialQuarter";
+import { latestAbsencePerPerson, useTodaysAbsences } from "@/lib/absences";
 
 // ──────────────────────────────────────────────────────────────────────────────
 // DashboardKPIs — tight 4-tile row pinned above the "Operational Status"
@@ -110,16 +111,7 @@ export function DashboardKPIs() {
     enabled: !!watch,
   });
 
-  const absencesQ = useQuery({
-    queryKey: ["wc-absences-today"],
-    queryFn: async () =>
-      backend.absence.list({
-        status: "approved",
-        start_date: new Date().toISOString().split("T")[0],
-        end_date: new Date().toISOString().split("T")[0],
-        limit: 200,
-      }),
-  });
+  const absencesQ = useTodaysAbsences();
 
   const sicknessQ = useQuery({
     queryKey: ["wc-sickness-triggers"],
@@ -167,7 +159,7 @@ export function DashboardKPIs() {
   // Source-of-truth watch membership from /crew/stats (users table) rather
   // than /profiles — ensures users without firefighter_profiles rows are
   // still counted.
-  const absences = absencesQ.data?.absences ?? [];
+  const absences = [...latestAbsencePerPerson(absencesQ.data?.absences ?? []).values()];
   const watchIds = new Set(statsQ.data?.watch_member_ids ?? []);
   const watchAbsences = watch ? absences.filter((a) => watchIds.has(a.firefighter_id)) : absences;
   const sickToday = watchAbsences.filter((a) => a.type === "sickness").length;

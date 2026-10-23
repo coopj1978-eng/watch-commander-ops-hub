@@ -12,6 +12,7 @@ import {
   Camera, FileImage, Loader2, Thermometer, X, Info,
 } from "lucide-react";
 import { compressImage } from "@/lib/imageCompress";
+import { invalidateAbsenceViews } from "@/lib/absences";
 
 // ──────────────────────────────────────────────────────────────────────────────
 // FFSickLineUpload
@@ -106,8 +107,7 @@ export default function FFSickLineUpload() {
                 key={absence.id}
                 absence={absence}
                 onUpdated={() => {
-                  queryClient.invalidateQueries({ queryKey: ["my-absences"] });
-                  queryClient.invalidateQueries({ queryKey: ["absences"] });
+                  invalidateAbsenceViews(queryClient);
                   toast({
                     title: "Sick line uploaded",
                     description: "Your Watch Commander has been notified.",

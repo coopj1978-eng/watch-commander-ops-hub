@@ -2,6 +2,7 @@ import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { logActivity } from "../logging/logger";
+import { recalcTriggersSafely } from "../lib/sickness";
 
 interface DeleteAbsenceRequest {
   id: number;
@@ -67,6 +68,7 @@ export const deleteAbsence = api<DeleteAbsenceRequest, DeleteAbsenceResponse>(
       },
     });
 
+    await recalcTriggersSafely(existing.firefighter_id);
     return { success: true };
   }
 );

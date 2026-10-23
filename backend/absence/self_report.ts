@@ -3,6 +3,7 @@ import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { createNotification } from "../notification/helpers";
 import type { Absence } from "./types";
+import { assertNoOpenSickness, recalcTriggersSafely } from "../lib/sickness";
 
 export interface SelfReportRequest {
   start_date: Date;
@@ -17,6 +18,8 @@ export const selfReport = api<SelfReportRequest, Absence>(
     const auth = getAuthData()!;
 
     // Any role can self-report sickness for themselves
+    await assertNoOpenSickness(auth.userID);
+
     const absence = await db.queryRow<Absence>`
       INSERT INTO absences (
         firefighter_id, type, start_date, end_date, reason,
@@ -89,6 +92,7 @@ export const selfReport = api<SelfReportRequest, Absence>(
       console.error("Failed to send sick notifications:", err);
     }
 
+    await recalcTriggersSafely(absence.firefighter_id);
     return absence;
   }
 );
@@ -186,6 +190,7 @@ export const updateAbsence = api<UpdateAbsenceDatesRequest, Absence>(
       }
     }
 
+    await recalcTriggersSafely(updated.firefighter_id);
     return updated;
   }
 );

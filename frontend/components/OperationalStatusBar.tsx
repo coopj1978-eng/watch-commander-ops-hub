@@ -4,6 +4,7 @@ import { useAuth } from "@/App";
 import backend from "@/lib/backend";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { latestAbsencePerPerson, useTodaysAbsences } from "@/lib/absences";
 
 // ──────────────────────────────────────────────────────────────────────────────
 // OperationalStatusBar
@@ -105,16 +106,7 @@ export function OperationalStatusBar() {
     queryFn: async () => backend.crew.getStats(),
   });
 
-  const absencesQ = useQuery({
-    queryKey: ["wc-absences-today"],
-    queryFn: async () =>
-      backend.absence.list({
-        status: "approved",
-        start_date: new Date().toISOString().split("T")[0],
-        end_date: new Date().toISOString().split("T")[0],
-        limit: 200,
-      }),
-  });
+  const absencesQ = useTodaysAbsences();
 
   // ── Derived values ───────────────────────────────────────────────────────
   const dateStr = new Date().toLocaleDateString("en-GB", {
@@ -128,7 +120,7 @@ export function OperationalStatusBar() {
 
   // Strength — mirrors WCStaffingWidget derivation exactly
   const total = statsQ.data?.total_watch_members ?? 0;
-  const absences = absencesQ.data?.absences ?? [];
+  const absences = [...latestAbsencePerPerson(absencesQ.data?.absences ?? []).values()];
   const watchUserIds = new Set(statsQ.data?.watch_member_ids ?? []);
   const watchAbsences = watch
     ? absences.filter((a) => watchUserIds.has(a.firefighter_id))

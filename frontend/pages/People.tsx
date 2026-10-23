@@ -37,6 +37,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useTodaysAbsences } from "@/lib/absences";
 
 type SortField = "name" | "watch" | "rank" | "email" | "phone" | "staffNumber" | "lastConversation";
 type SortDirection = "asc" | "desc";
@@ -173,24 +174,18 @@ export default function People() {
     queryFn: async () => backend.dictionary.list({ type: "skill" }),
   });
 
-  const { data: sickToday } = useQuery({
-    queryKey: ["absences", "sick-today"],
-    queryFn: async () => {
-      const result = await backend.absence.list({ status: "approved", limit: 200 });
-      const todayStr = new Date().toISOString().split("T")[0];
-      return new Set(
-        result.absences
-          .filter(
-            (a) =>
-              a.type === "sickness" &&
-              a.start_date.slice(0, 10) <= todayStr &&
-              a.end_date.slice(0, 10) >= todayStr
-          )
+  // Same source as the dashboard, so an open sickness (not yet booked back
+  // fit) shows as sick here too and can't be booked a second time.
+  const { data: todaysAbsences } = useTodaysAbsences();
+  const sickToday = useMemo(
+    () =>
+      new Set(
+        (todaysAbsences?.absences ?? [])
+          .filter((a) => a.type === "sickness")
           .map((a) => a.firefighter_id)
-      );
-    },
-    refetchInterval: 60_000,
-  });
+      ),
+    [todaysAbsences]
+  );
 
   const people = peopleData?.people || [];
 

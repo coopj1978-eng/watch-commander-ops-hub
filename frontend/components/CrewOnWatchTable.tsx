@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LogSickDialog } from "@/components/LogSickDialog";
 import { Users, ChevronRight, Stethoscope, Heart } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { invalidateAbsenceViews, latestAbsencePerPerson, useTodaysAbsences } from "@/lib/absences";
 
 // ──────────────────────────────────────────────────────────────────────────────
 // CrewOnWatchTable — read-only tabular view of the current watch's personnel,
@@ -121,7 +123,6 @@ function shortRank(m: { rank?: string; system_role: string }): string {
 export function CrewOnWatchTable() {
   const { user } = useAuth();
   const watch = user?.watch_unit ?? "";
-  const today = new Date().toISOString().split("T")[0];
   const canLogSick = useIsCrewCommander(); // WC or CC
 
   // ── Log Sick dialog — shared component handles state, mutation, eForm
@@ -140,15 +141,17 @@ export function CrewOnWatchTable() {
   // end_date field. Invalidates every cache that gates on "is this
   // person sick today" so the row flips to "On duty" immediately.
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const bookBackFit = useMutation({
     mutationFn: async (absenceId: number) =>
       backend.absence.bookBackFit({ absence_id: absenceId }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["wc-absences-today"] });
-      queryClient.invalidateQueries({ queryKey: ["absences-today-sick"] });
-      queryClient.invalidateQueries({ queryKey: ["sick-today"] });
-      queryClient.invalidateQueries({ queryKey: ["people"] });
-    },
+    onSuccess: () => invalidateAbsenceViews(queryClient),
+    onError: (err: any) =>
+      toast({
+        title: "Couldn't book back fit",
+        description: err?.message ?? "Please try again.",
+        variant: "destructive",
+      }),
   });
 
   // ── Shared caches ─────────────────────────────────────────────────────────
@@ -164,16 +167,7 @@ export function CrewOnWatchTable() {
     enabled: !!watch,
   });
 
-  const absencesQ = useQuery({
-    queryKey: ["wc-absences-today"],
-    queryFn: async () =>
-      backend.absence.list({
-        status: "approved",
-        start_date: today,
-        end_date: today,
-        limit: 200,
-      }),
-  });
+  const absencesQ = useTodaysAbsences();
 
   const isLoading = rosterQ.isLoading || profilesQ.isLoading || absencesQ.isLoading;
 
@@ -183,16 +177,16 @@ export function CrewOnWatchTable() {
   const absences = absencesQ.data?.absences ?? [];
 
   const profileByUser = new Map(profiles.map((p) => [p.user_id, p]));
-  const absenceByUser = new Map(absences.map((a) => [a.firefighter_id, a]));
+  const absenceByUser = latestAbsencePerPerson(absences);
 
   const rows = members.map((m) => {
     const profile = profileByUser.get(m.id);
     const absence = absenceByUser.get(m.id);
 
+    // Stage 3 is a Bradford flag, not an absence — show it alongside the
+    // real status so a Stage 3 FF who's at work still counts as on duty.
     let status: Status;
-    if (profile?.trigger_stage === "Stage3") {
-      status = { kind: "stage3", label: "Stage 3" };
-    } else if (absence?.type === "sickness") {
+    if (absence?.type === "sickness") {
       status = { kind: "sick", label: "Sick" };
     } else if (absence) {
       status = { kind: "leave", label: "Leave" };
@@ -215,6 +209,7 @@ export function CrewOnWatchTable() {
         m.hooklift_operator && "HOOKLIFT",
       ].filter(Boolean) as string[],
       status,
+      stage3: profile?.trigger_stage === "Stage3",
       absence_id: absence?.id ?? null,
     };
   });
@@ -349,7 +344,10 @@ export function CrewOnWatchTable() {
                       )}
                     </td>
                     <td className="px-4" style={{ paddingBlock: "var(--pad-row)" }}>
-                      <StatusBadge status={r.status} />
+                      <span className="inline-flex items-center gap-1">
+                        <StatusBadge status={r.status} />
+                        {r.stage3 && <StatusBadge status={{ kind: "stage3", label: "Stage 3" }} />}
+                      </span>
                     </td>
                     {canLogSick && (
                       <td

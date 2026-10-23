@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { Send, Calendar, AlertCircle, CheckCircle2 } from "lucide-react";
+import { invalidateAbsenceViews } from "@/lib/absences";
 
 export default function AbsenceRequest() {
   const { user } = useAuth();
@@ -49,8 +50,7 @@ export default function AbsenceRequest() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["my-absences", user?.id] });
-      queryClient.invalidateQueries({ queryKey: ["my-absence-stats", user?.id] });
+      invalidateAbsenceViews(queryClient);
       toast({
         title: "Absence request submitted",
         description: "Your request has been sent to your supervisor for approval",

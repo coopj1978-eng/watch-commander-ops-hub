@@ -3,27 +3,21 @@ import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { logActivity } from "../logging/logger";
 import type { Absence } from "./types";
+import { recalcTriggersSafely, ukTodayIso } from "../lib/sickness";
 
 interface BookBackFitRequest {
   absence_id: number;
-  /** Optional — defaults to today. The day the FF returned to work; the
-   *  absence's end_date gets snapped to (returned_at - 1 day) so the
-   *  total-days roll-up reflects when they were actually off. */
+  /** Optional — defaults to today (UK). The day the FF returned to work. */
   returned_on?: string; // YYYY-MM-DD
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
 // bookBackFit
 //
-// Closes out an open sickness absence. The original end_date may have
-// been just the WC's best guess; this endpoint:
-//   • stamps `returned_to_work_at` so the absence stops counting as
-//     "currently off" on the dashboard,
-//   • adjusts end_date if returned_on is on or before the existing
-//     end_date so the historical record reflects when the FF actually
-//     returned (whichever is earlier — never extend the recorded
-//     sickness beyond the original window unless the WC explicitly
-//     does so via the edit-absence flow).
+// Closes out an open sickness. The original end_date is only the WC's
+// expectation, so this sets end_date to the day before the FF actually
+// returned — shorter or longer than expected — so Bradford totals reflect
+// the real absence. Closes all of the person's open sickness rows.
 //
 // WC/CC only — same authorisation level as logging the sickness.
 // ──────────────────────────────────────────────────────────────────────────────
@@ -46,34 +40,41 @@ export const bookBackFit = api<BookBackFitRequest, Absence>(
       throw APIError.invalidArgument("Only sickness absences can be booked back fit");
     }
 
-    // Default returned-on = today (local). Stored as a real timestamp
-    // so we keep the full audit trail of WHEN the WC actioned this, not
-    // just the date.
-    const returnedOnDate = req.returned_on
-      ? new Date(req.returned_on + "T00:00:00.000Z")
-      : new Date();
+    if (existing.returned_to_work_at) {
+      throw APIError.failedPrecondition("This sickness has already been booked back fit");
+    }
 
-    // Effective end_date: the day before they came back, but never
-    // beyond the original end_date (the WC can extend via the absence
-    // edit flow, not via this action).
-    const dayBeforeReturn = new Date(returnedOnDate.getTime() - 86_400_000);
-    const dayBeforeReturnIso = dayBeforeReturn.toISOString().slice(0, 10);
-    const originalEndIso =
-      existing.end_date instanceof Date
-        ? existing.end_date.toISOString().slice(0, 10)
-        : String(existing.end_date).slice(0, 10);
-    const newEndIso =
-      dayBeforeReturnIso < originalEndIso ? dayBeforeReturnIso : originalEndIso;
+    // The day they came back (UK date). The sickness ran until the day
+    // before — which may be later than the originally expected end date
+    // (they didn't come back when expected) or earlier (came back early).
+    const returnedIso = req.returned_on ?? ukTodayIso();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(returnedIso)) {
+      throw APIError.invalidArgument("returned_on must be YYYY-MM-DD");
+    }
+    const dayBeforeIso = new Date(Date.parse(returnedIso + "T00:00:00Z") - 86_400_000)
+      .toISOString()
+      .slice(0, 10);
 
-    const updated = await db.queryRow<Absence>`
+    // Close every open sickness for this person, not just this row — a
+    // duplicate booking would otherwise leave them showing as sick.
+    // GREATEST keeps end_date >= start_date for same-day returns.
+    const closedRows: Absence[] = [];
+    for await (const row of db.query<Absence>`
       UPDATE absences
-         SET returned_to_work_at = ${returnedOnDate},
-             end_date = ${newEndIso}::date,
+         SET returned_to_work_at = ${returnedIso}::date,
+             end_date = GREATEST(start_date, ${dayBeforeIso}::date),
              updated_at = NOW()
-       WHERE id = ${req.absence_id}
+       WHERE firefighter_id = ${existing.firefighter_id}
+         AND type = 'sickness'
+         AND status = 'approved'
+         AND returned_to_work_at IS NULL
+         AND start_date <= ${returnedIso}::date
        RETURNING *
-    `;
+    `) {
+      closedRows.push(row);
+    }
 
+    const updated = closedRows.find((r) => r.id === existing.id) ?? closedRows[0];
     if (!updated) {
       throw APIError.internal("Failed to book back fit");
     }
@@ -85,12 +86,12 @@ export const bookBackFit = api<BookBackFitRequest, Absence>(
       entity_id: String(updated.id),
       details: {
         firefighter_id: updated.firefighter_id,
-        returned_on: returnedOnDate.toISOString(),
-        original_end_date: originalEndIso,
-        new_end_date: newEndIso,
+        returned_on: returnedIso,
+        closed_absence_ids: closedRows.map((r) => r.id),
       },
     });
 
+    await recalcTriggersSafely(updated.firefighter_id);
     return updated;
   }
 );

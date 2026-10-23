@@ -24,6 +24,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import ThemeSwitcher from "./ThemeSwitcher";
 import type { notification } from "@/client";
+import { latestAbsencePerPerson, useTodaysAbsences } from "@/lib/absences";
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Route registry for breadcrumb + jump-to-page search. Kept in sync with
@@ -143,20 +144,10 @@ function WatchShiftPill() {
     enabled: !!watch,
   });
 
-  const absencesQ = useQuery({
-    queryKey: ["wc-absences-today"],
-    queryFn: async () =>
-      backend.absence.list({
-        status: "approved",
-        start_date: new Date().toISOString().split("T")[0],
-        end_date: new Date().toISOString().split("T")[0],
-        limit: 200,
-      }),
-    enabled: !!watch,
-  });
+  const absencesQ = useTodaysAbsences(!!watch);
 
   const total = profilesQ.data?.total ?? 0;
-  const absences = absencesQ.data?.absences ?? [];
+  const absences = [...latestAbsencePerPerson(absencesQ.data?.absences ?? []).values()];
   const watchUserIds = new Set((profilesQ.data?.profiles ?? []).map(p => p.user_id));
   const watchAbsences = watch ? absences.filter(a => watchUserIds.has(a.firefighter_id)) : absences;
   const off = watchAbsences.length;

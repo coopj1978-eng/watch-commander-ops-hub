@@ -10,6 +10,7 @@ import {
   Thermometer, Plus, X, Camera, FileImage, Pencil,
   CheckCircle, Clock, ChevronDown, ChevronUp, Loader2,
 } from "lucide-react";
+import { invalidateAbsenceViews } from "@/lib/absences";
 
 function compressImage(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -75,8 +76,7 @@ export default function FFSickReportWidget() {
       sick_line_document: sickLineDoc || undefined,
     }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["my-absences"] });
-      queryClient.invalidateQueries({ queryKey: ["absences"] });
+      invalidateAbsenceViews(queryClient);
       toast({ title: "Sickness reported", description: "Your Watch Commander has been notified." });
       setShowForm(false);
       setStartDate(new Date().toISOString().split("T")[0]);
@@ -92,8 +92,7 @@ export default function FFSickReportWidget() {
     mutationFn: (params: { id: number; start_date?: Date; end_date?: Date; sick_line_document?: string }) =>
       (backend.absence as any).updateAbsence(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["my-absences"] });
-      queryClient.invalidateQueries({ queryKey: ["absences"] });
+      invalidateAbsenceViews(queryClient);
       toast({ title: "Absence updated" });
       setEditingId(null);
     },

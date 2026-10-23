@@ -33,6 +33,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { useUserRole } from "@/lib/rbac";
 import { Heart, Pencil, Trash2 } from "lucide-react";
 import type { AbsenceType } from "~backend/absence/types";
+import { invalidateAbsenceViews, localTodayIso } from "@/lib/absences";
+import { rollingSickness } from "~backend/lib/sicknessMath";
 
 // ──────────────────────────────────────────────────────────────────────────────
 // AbsenceHistorySection
@@ -108,36 +110,22 @@ export function AbsenceHistorySection({ userId }: { userId: string }) {
 
   const absences = data?.absences ?? [];
 
-  // Rolling 6-month totals — computed live so they always match the
-  // table on screen. We count only sickness, only approved, and only
-  // episodes that intersect the last six months. An episode that
-  // started 7 months ago but extended into the window still counts;
-  // days are only the portion inside the window.
-  const totals = useMemo(() => {
-    const sixMonthsAgo = new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-    const today = new Date();
-    let episodes = 0;
-    let days = 0;
-    for (const a of absences) {
-      if (a.type !== "sickness" || a.status !== "approved") continue;
-      const start = new Date(a.start_date);
-      // For open sicknesses (no return-to-work yet), use today as the
-      // effective end so the running total reflects what the WC is
-      // actually managing right now.
-      const end = a.returned_to_work_at
-        ? new Date(a.returned_to_work_at)
-        : new Date(a.end_date) > today
-        ? today
-        : new Date(a.end_date);
-      if (end < sixMonthsAgo) continue;
-      episodes += 1;
-      const windowStart = start < sixMonthsAgo ? sixMonthsAgo : start;
-      const windowEnd = end > today ? today : end;
-      days += inclusiveDays(windowStart, windowEnd);
-    }
-    return { episodes, days };
-  }, [absences]);
+  // Rolling 6-month totals — the same calculation the backend uses for
+  // Bradford triggers, so this always agrees with the dashboard.
+  const totals = useMemo(
+    () =>
+      rollingSickness(
+        absences
+          .filter((a) => a.type === "sickness" && a.status === "approved")
+          .map((a) => ({
+            start_date: a.start_date,
+            end_date: a.end_date,
+            returned_to_work_at: a.returned_to_work_at ?? null,
+          })),
+        localTodayIso()
+      ),
+    [absences]
+  );
 
   // ── Edit dialog state ─────────────────────────────────────────────────────
   const [editing, setEditing] = useState<null | {
@@ -157,9 +145,7 @@ export function AbsenceHistorySection({ userId }: { userId: string }) {
     },
     onSuccess: () => {
       toast({ title: "Absence updated" });
-      queryClient.invalidateQueries({ queryKey: ["absences", userId] });
-      queryClient.invalidateQueries({ queryKey: ["wc-absences-today"] });
-      queryClient.invalidateQueries({ queryKey: ["absences-today-sick"] });
+      invalidateAbsenceViews(queryClient);
       setEditing(null);
     },
     onError: (err: any) => {
@@ -175,9 +161,7 @@ export function AbsenceHistorySection({ userId }: { userId: string }) {
     mutationFn: async (id: number) => backend.absence.deleteAbsence(id),
     onSuccess: () => {
       toast({ title: "Absence deleted" });
-      queryClient.invalidateQueries({ queryKey: ["absences", userId] });
-      queryClient.invalidateQueries({ queryKey: ["wc-absences-today"] });
-      queryClient.invalidateQueries({ queryKey: ["absences-today-sick"] });
+      invalidateAbsenceViews(queryClient);
     },
     onError: (err: any) => {
       toast({
@@ -192,9 +176,7 @@ export function AbsenceHistorySection({ userId }: { userId: string }) {
     mutationFn: async (id: number) => backend.absence.bookBackFit({ absence_id: id }),
     onSuccess: () => {
       toast({ title: "Booked back fit" });
-      queryClient.invalidateQueries({ queryKey: ["absences", userId] });
-      queryClient.invalidateQueries({ queryKey: ["wc-absences-today"] });
-      queryClient.invalidateQueries({ queryKey: ["absences-today-sick"] });
+      invalidateAbsenceViews(queryClient);
     },
     onError: (err: any) => {
       toast({

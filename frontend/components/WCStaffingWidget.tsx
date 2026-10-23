@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { MiniBar } from "@/components/ui/MiniBar";
 import { Users, ChevronRight } from "lucide-react";
 import { useCountUp } from "@/hooks/useCountUp";
+import { latestAbsencePerPerson, useTodaysAbsences } from "@/lib/absences";
 
 export function WCStaffingWidget() {
   const { user } = useAuth();
@@ -22,16 +23,7 @@ export function WCStaffingWidget() {
     queryFn: async () => backend.crew.getStats(),
   });
 
-  const { data: absencesData, isLoading: absencesLoading } = useQuery({
-    queryKey: ["wc-absences-today"],
-    queryFn: async () =>
-      backend.absence.list({
-        status: "approved",
-        start_date: new Date().toISOString().split("T")[0],
-        end_date: new Date().toISOString().split("T")[0],
-        limit: 200,
-      }),
-  });
+  const { data: absencesData, isLoading: absencesLoading } = useTodaysAbsences();
 
   const isLoading = statsLoading || absencesLoading;
 
@@ -54,7 +46,7 @@ export function WCStaffingWidget() {
   }
 
   const total = statsData?.total_watch_members ?? 0;
-  const absences = absencesData?.absences ?? [];
+  const absences = [...latestAbsencePerPerson(absencesData?.absences ?? []).values()];
 
   // Only count absences for people on this watch. Source-of-truth user IDs
   // now come from /crew/stats (users table) rather than /profiles, so
