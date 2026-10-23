@@ -96,7 +96,17 @@ export const update = api(
   async (params: UpdateProfileParams & UpdateProfileRequest): Promise<FirefighterProfile> => {
     const { id, ...updates } = params;
     const auth = getAuthData()!;
-    
+
+    if (auth.role !== "WC" && auth.role !== "CC") {
+      const owner = await db.queryRow<{ user_id: string }>`
+        SELECT user_id FROM firefighter_profiles WHERE id = ${id}
+      `;
+      if (!owner) throw APIError.notFound("profile not found");
+      if (owner.user_id !== auth.userID) {
+        throw APIError.permissionDenied("You can only edit your own profile");
+      }
+    }
+
     if (updates.skills && updates.skills.length > 0) {
       await syncSkillsToDictionary(updates.skills);
     }

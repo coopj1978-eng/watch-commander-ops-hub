@@ -13,7 +13,7 @@ interface GetMockPolicyDocsResponse {
 }
 
 export const getMockPolicyDocs = api<GetMockPolicyDocsRequest, GetMockPolicyDocsResponse>(
-  { expose: true, method: "GET", path: "/api/mock/policies/docs" },
+  { auth: true, expose: true, method: "GET", path: "/api/mock/policies/docs" },
   async (req) => {
     let docs = mockPolicyDocs;
     
@@ -38,7 +38,7 @@ interface GetMockPolicyQueriesResponse {
 }
 
 export const getMockPolicyQueries = api<GetMockPolicyQueriesRequest, GetMockPolicyQueriesResponse>(
-  { expose: true, method: "GET", path: "/api/mock/policies/queries" },
+  { auth: true, expose: true, method: "GET", path: "/api/mock/policies/queries" },
   async (req) => {
     let queries = mockPolicyQueries;
     
@@ -64,7 +64,7 @@ interface MockAskPolicyResponse {
 }
 
 export const mockAskPolicy = api<MockAskPolicyRequest, MockAskPolicyResponse>(
-  { expose: true, method: "POST", path: "/api/mock/policies/ask" },
+  { auth: true, expose: true, method: "POST", path: "/api/mock/policies/ask" },
   async ({ question }) => {
     return {
       answer: `This is a mock answer to your question: "${question}". In a production environment, this would use a vector database and AI to provide accurate answers from policy documents.`,

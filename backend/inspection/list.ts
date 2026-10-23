@@ -17,7 +17,7 @@ interface ListInspectionsResponse {
 }
 
 export const list = api<ListInspectionsRequest, ListInspectionsResponse>(
-  { expose: true, method: "GET", path: "/inspections" },
+  { auth: true, expose: true, method: "GET", path: "/inspections" },
   async (req) => {
     const limit = req.limit || 50;
     const offset = req.offset || 0;

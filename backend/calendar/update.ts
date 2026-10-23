@@ -3,16 +3,19 @@ import db from "../db";
 import { logActivity } from "../logging/logger";
 import type { UpdateEventRequest, CalendarEvent } from "./types";
 import { getWatchOnShift, getWatchOnShiftForDate } from "../lib/shiftRota";
+import { assertCanModifyEvent } from "./permissions";
 
 interface UpdateEventParams {
   id: number;
-  user_id: string;
+  /** Ignored — the caller is taken from the auth token. */
+  user_id?: string;
   updates: UpdateEventRequest;
 }
 
 export const update = api<UpdateEventParams, CalendarEvent>(
-  { expose: true, method: "PATCH", path: "/calendar/events/:id" },
-  async ({ id, user_id, updates }) => {
+  { auth: true, expose: true, method: "PATCH", path: "/calendar/events/:id" },
+  async ({ id, updates }) => {
+    const user_id = await assertCanModifyEvent(id);
     const setClauses: string[] = [];
     const params: any[] = [];
     let paramIndex = 1;

@@ -2,7 +2,7 @@ import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { logActivity } from "../logging/logger";
-import type { CreateUserRequest, User } from "./types";
+import { toPublicUser, type CreateUserRequest, type User } from "./types";
 
 export const create = api<CreateUserRequest, User>(
   { auth: true, expose: true, method: "POST", path: "/users" },
@@ -19,7 +19,7 @@ export const create = api<CreateUserRequest, User>(
     `;
 
     if (existingUser) {
-      return existingUser;
+      return toPublicUser(existingUser);
     }
 
     const user = await db.queryRow<User>`
@@ -49,6 +49,6 @@ export const create = api<CreateUserRequest, User>(
       details: { email: user.email, role: user.role },
     });
 
-    return user;
+    return toPublicUser(user);
   }
 );

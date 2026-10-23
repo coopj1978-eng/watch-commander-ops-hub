@@ -19,6 +19,12 @@ export interface User {
   updated_at: Date;
 }
 
+/** Strip credential columns before a user row leaves the API. */
+export function toPublicUser<T extends User>(user: T): T {
+  const { password_hash, password_reset_token, password_reset_expires, ...rest } = user;
+  return rest as T;
+}
+
 export interface CreateUserRequest {
   id: string;
   email: string;

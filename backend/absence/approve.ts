@@ -12,6 +12,9 @@ export const approve = api<ApproveAbsenceRequest, Absence>(
   { auth: true, expose: true, method: "POST", path: "/absences/:id/approve" },
   async ({ id }) => {
     const auth = getAuthData()!;
+    if (auth.role !== "WC" && auth.role !== "CC") {
+      throw APIError.permissionDenied("Only WC or CC can approve absences");
+    }
     const absence = await db.queryRow<Absence>`
       UPDATE absences
       SET status = 'approved', approved_by = ${auth.userID}, approved_at = NOW(), updated_at = NOW()

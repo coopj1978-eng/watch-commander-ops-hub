@@ -14,7 +14,7 @@ interface GetMockTargetsResponse {
 }
 
 export const getMockTargets = api<GetMockTargetsRequest, GetMockTargetsResponse>(
-  { expose: true, method: "GET", path: "/api/mock/targets" },
+  { auth: true, expose: true, method: "GET", path: "/api/mock/targets" },
   async (req) => {
     let targets = mockTargets;
     
@@ -38,7 +38,7 @@ interface GetMockTargetRequest {
 }
 
 export const getMockTarget = api<GetMockTargetRequest, Target>(
-  { expose: true, method: "GET", path: "/api/mock/targets/:id" },
+  { auth: true, expose: true, method: "GET", path: "/api/mock/targets/:id" },
   async ({ id }) => {
     const target = mockTargets.find(t => t.id === id);
     if (!target) {

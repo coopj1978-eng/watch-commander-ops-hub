@@ -14,7 +14,7 @@ interface GetMockInspectionsResponse {
 }
 
 export const getMockInspections = api<GetMockInspectionsRequest, GetMockInspectionsResponse>(
-  { expose: true, method: "GET", path: "/api/mock/inspections" },
+  { auth: true, expose: true, method: "GET", path: "/api/mock/inspections" },
   async (req) => {
     let inspections = mockInspections;
     
@@ -38,7 +38,7 @@ interface GetMockInspectionRequest {
 }
 
 export const getMockInspection = api<GetMockInspectionRequest, Inspection>(
-  { expose: true, method: "GET", path: "/api/mock/inspections/:id" },
+  { auth: true, expose: true, method: "GET", path: "/api/mock/inspections/:id" },
   async ({ id }) => {
     const inspection = mockInspections.find(i => i.id === id);
     if (!inspection) {

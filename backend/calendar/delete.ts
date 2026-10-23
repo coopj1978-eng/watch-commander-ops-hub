@@ -1,15 +1,18 @@
 import { api } from "encore.dev/api";
 import db from "../db";
 import { logActivity } from "../logging/logger";
+import { assertCanModifyEvent } from "./permissions";
 
 interface DeleteEventRequest {
   id: number;
-  user_id: string;
+  /** Ignored — the caller is taken from the auth token. */
+  user_id?: string;
 }
 
 export const deleteEvent = api<DeleteEventRequest, void>(
   { auth: true, expose: true, method: "DELETE", path: "/calendar/events/:id" },
-  async ({ id, user_id }) => {
+  async ({ id }) => {
+    const user_id = await assertCanModifyEvent(id);
     // Look up the event's source links so we can cascade properly:
     //   • source_type='hfsv' → unmark the activity slot so it can be
     //     re-scheduled

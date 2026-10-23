@@ -22,7 +22,7 @@ interface DBDictionary {
 }
 
 export const list = api<ListDictionaryRequest, ListDictionaryResponse>(
-  { method: "GET", path: "/dictionary", expose: true },
+  { auth: true, method: "GET", path: "/dictionary", expose: true },
   async (req) => {
     let query = `SELECT * FROM dictionaries WHERE 1=1`;
     const params: any[] = [];

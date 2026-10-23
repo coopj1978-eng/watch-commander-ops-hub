@@ -2,7 +2,7 @@ import { api } from "encore.dev/api";
 import { Query } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
-import type { User, UserRole } from "./types";
+import { toPublicUser, type User, type UserRole } from "./types";
 import { requirePermission, Permission } from "../auth/rbac";
 
 interface ListUsersRequest {
@@ -47,7 +47,7 @@ export const list = api<ListUsersRequest, ListUsersResponse>(
     );
 
     return {
-      users,
+      users: users.map(toPublicUser),
       total: countResult?.count || 0,
     };
   }

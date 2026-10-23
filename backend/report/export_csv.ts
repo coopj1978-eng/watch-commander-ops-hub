@@ -1,11 +1,20 @@
 import { api, APIError } from "encore.dev/api";
+import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { logActivity } from "../logging/logger";
 
 interface ExportCsvRequest {
   table: string;
-  user_id: string;
+  /** Ignored — the caller is taken from the auth token. Kept so older clients still validate. */
+  user_id?: string;
 }
+
+// Credential columns must never leave the database, even for a WC export.
+const SECRET_COLUMNS = new Set([
+  "password_hash",
+  "password_reset_token",
+  "password_reset_expires",
+]);
 
 interface ExportCsvResponse {
   csv: string;
@@ -24,8 +33,12 @@ const ALLOWED_TABLES = [
 ];
 
 export const exportCsv = api<ExportCsvRequest, ExportCsvResponse>(
-  { expose: true, method: "GET", path: "/reports/export/:table" },
-  async ({ table, user_id }) => {
+  { auth: true, expose: true, method: "GET", path: "/reports/export/:table" },
+  async ({ table }) => {
+    const auth = getAuthData()!;
+    if (auth.role !== "WC" && auth.role !== "CC") {
+      throw APIError.permissionDenied("Only WC or CC can export data");
+    }
     if (!ALLOWED_TABLES.includes(table)) {
       throw APIError.invalidArgument("invalid table name");
     }
@@ -36,7 +49,7 @@ export const exportCsv = api<ExportCsvRequest, ExportCsvResponse>(
       return { csv: "" };
     }
 
-    const headers = Object.keys(rows[0]);
+    const headers = Object.keys(rows[0]).filter((h) => !SECRET_COLUMNS.has(h));
     const csvRows = [headers.join(",")];
 
     for (const row of rows) {
@@ -61,7 +74,7 @@ export const exportCsv = api<ExportCsvRequest, ExportCsvResponse>(
     }
 
     await logActivity({
-      user_id: user_id,
+      user_id: auth.userID,
       action: "export_csv",
       entity_type: "report",
       entity_id: table,

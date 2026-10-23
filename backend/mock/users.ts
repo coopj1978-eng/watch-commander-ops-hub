@@ -12,7 +12,7 @@ interface GetMockUsersResponse {
 }
 
 export const getMockUsers = api<GetMockUsersRequest, GetMockUsersResponse>(
-  { expose: true, method: "GET", path: "/api/mock/users" },
+  { auth: true, expose: true, method: "GET", path: "/api/mock/users" },
   async (req) => {
     let users = mockUsers;
     
@@ -32,7 +32,7 @@ interface GetMockUserRequest {
 }
 
 export const getMockUser = api<GetMockUserRequest, User>(
-  { expose: true, method: "GET", path: "/api/mock/users/:id" },
+  { auth: true, expose: true, method: "GET", path: "/api/mock/users/:id" },
   async ({ id }) => {
     const user = mockUsers.find(u => u.id === id);
     if (!user) {

@@ -25,7 +25,7 @@ let mockSettings: AbsenceTriggers = {
 };
 
 export const getAbsenceTriggers = api(
-  { expose: true, method: "GET", path: "/api/settings/absence-triggers" },
+  { auth: true, expose: true, method: "GET", path: "/api/settings/absence-triggers" },
   async (): Promise<{ data: AbsenceTriggers }> => {
     return { data: mockSettings };
   }
@@ -43,7 +43,7 @@ interface UpdateAbsenceTriggersRequest {
 }
 
 export const updateAbsenceTriggers = api(
-  { expose: true, method: "PUT", path: "/api/settings/absence-triggers" },
+  { auth: true, expose: true, method: "PUT", path: "/api/settings/absence-triggers" },
   async (
     updates: UpdateAbsenceTriggersRequest
   ): Promise<{ data: AbsenceTriggers }> => {

@@ -99,7 +99,7 @@ function transformProfile(dbProfile: DBProfile): FirefighterProfile {
 }
 
 export const list = api<ListProfilesRequest, ListProfilesResponse>(
-  { expose: true, method: "GET", path: "/profiles" },
+  { auth: true, expose: true, method: "GET", path: "/profiles" },
   async (req) => {
     const limit = req.limit || 50;
     const offset = req.offset || 0;

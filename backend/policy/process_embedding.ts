@@ -13,7 +13,7 @@ interface ProcessEmbeddingResponse {
 }
 
 export const processEmbedding = api<ProcessEmbeddingRequest, ProcessEmbeddingResponse>(
-  { expose: true, method: "POST", path: "/policies/:policy_id/embed" },
+  { auth: true, expose: true, method: "POST", path: "/policies/:policy_id/embed" },
   async ({ policy_id }) => {
     log.info(`Processing embedding for policy ${policy_id}`);
 

@@ -7,7 +7,7 @@ interface GetStatsRequest {
 }
 
 export const getStats = api<GetStatsRequest, AbsenceStats>(
-  { expose: true, method: "GET", path: "/absences/stats/:user_id" },
+  { auth: true, expose: true, method: "GET", path: "/absences/stats/:user_id" },
   async ({ user_id }) => {
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);

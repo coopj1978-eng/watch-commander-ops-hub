@@ -2,7 +2,7 @@ import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { logActivity } from "../logging/logger";
-import type { UpdateUserRequest, User } from "./types";
+import { toPublicUser, type UpdateUserRequest, type User } from "./types";
 
 interface UpdateUserParams {
   id: string;
@@ -13,6 +13,21 @@ export const update = api<UpdateUserParams, User>(
   { auth: true, expose: true, method: "PATCH", path: "/users/:id" },
   async ({ id, updates }) => {
     const auth = getAuthData()!;
+    const isWC = auth.role === "WC";
+    const isSelf = auth.userID === id;
+
+    // Role or email changes enable account takeover, so they're WC-only,
+    // and a WC can't change their own role (avoids locking the watch out).
+    if ((updates.role !== undefined || updates.email !== undefined) && !isWC) {
+      throw APIError.permissionDenied("Only a Watch Commander can change role or email");
+    }
+    if (updates.role !== undefined && isSelf) {
+      throw APIError.permissionDenied("You can't change your own role");
+    }
+    if (!isSelf && !isWC && auth.role !== "CC") {
+      throw APIError.permissionDenied("You can only update your own account");
+    }
+
     const setClauses: string[] = [];
     const params: any[] = [];
     let paramIndex = 1;
@@ -58,6 +73,6 @@ export const update = api<UpdateUserParams, User>(
       details: updates,
     });
 
-    return user;
+    return toPublicUser(user);
   }
 );

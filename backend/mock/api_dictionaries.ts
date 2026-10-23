@@ -47,14 +47,14 @@ let mockSkills: DictionarySkill[] = [
 ];
 
 export const getSkills = api(
-  { expose: true, method: "GET", path: "/api/dictionaries/skills" },
+  { auth: true, expose: true, method: "GET", path: "/api/dictionaries/skills" },
   async (): Promise<{ data: DictionarySkill[] }> => {
     return { data: mockSkills };
   }
 );
 
 export const createSkill = api(
-  { expose: true, method: "POST", path: "/api/dictionaries/skills" },
+  { auth: true, expose: true, method: "POST", path: "/api/dictionaries/skills" },
   async ({
     value,
     active = true,

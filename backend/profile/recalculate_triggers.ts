@@ -17,7 +17,7 @@ interface RecalculateTriggersResponse {
 }
 
 export const recalculateTriggers = api<RecalculateTriggersRequest, RecalculateTriggersResponse>(
-  { method: "POST", path: "/profile/recalculate-triggers", expose: true },
+  { auth: true, method: "POST", path: "/profile/recalculate-triggers", expose: true },
   async (req) => {
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);

@@ -1,7 +1,7 @@
 import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
-import type { User } from "./types";
+import { toPublicUser, type User } from "./types";
 
 interface GetUserRequest {
   id: string;
@@ -22,6 +22,6 @@ export const get = api<GetUserRequest, User>(
       throw APIError.notFound("user not found");
     }
 
-    return user;
+    return toPublicUser(user);
   }
 );
