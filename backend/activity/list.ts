@@ -29,7 +29,8 @@ export const list = api<ListActivitiesRequest, ListActivitiesResponse>(
     );
 
     const total_completed = items.filter(i => i.completed).length;
+    const total_tap_completed = items.filter(i => i.completed && i.is_tap).length;
 
-    return { items, total_completed, total: items.length };
+    return { items, total_completed, total_tap_completed, total: items.length };
   }
 );

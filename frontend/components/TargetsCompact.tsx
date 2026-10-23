@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Target, ChevronRight } from "lucide-react";
 import { getCurrentFinancialPeriod } from "@/lib/financialQuarter";
+import { COMMUNITY_TAP_MIN, COMMUNITY_TARGET_Q, HFSV_TARGET_Q, communityMet } from "@/lib/targets";
 
 // ──────────────────────────────────────────────────────────────────────────────
 // TargetsCompact — tight horizontal list of the current period's performance
@@ -29,15 +30,9 @@ import { getCurrentFinancialPeriod } from "@/lib/financialQuarter";
 //   4. Community Events — quarterly target 4,  activity.list type=community
 // ──────────────────────────────────────────────────────────────────────────────
 
-// Targets are mirrored from TargetsDashboard (the /targets page) so the
-// widget and the page can never drift apart. The /targets page does NOT
-// read from the targets DB table — it reads activity_records and
-// inspection_assignments directly, with these constants for the fixed
-// quarterly metrics. Multi-Story + Hydrant targets are dynamic
-// (pending + complete from inspection_assignments). If those constants
-// ever move on TargetsDashboard, mirror the change here.
-const HFSV_TARGET_Q      = 36;
-const COMMUNITY_TARGET_Q = 6;
+// HFSV / Community targets come from lib/targets (shared with the Targets
+// page). Multi-Story + Hydrant targets are dynamic (pending + complete from
+// inspection_assignments), matching the Targets page cards.
 
 type Tone = "green" | "amber" | "red" | "muted";
 
@@ -84,12 +79,18 @@ function TargetRow({
   target,
   timePct,
   loading,
+  note,
+  incomplete,
 }: {
   label: string;
   actual: number;
   target: number;
   timePct: number;
   loading?: boolean;
+  /** Extra caption after the numbers, e.g. "TAP 1/3". */
+  note?: string;
+  /** Hold the row short of Complete even if actual >= target (e.g. TAP minimum unmet). */
+  incomplete?: boolean;
 }) {
   if (loading) {
     return (
@@ -104,8 +105,11 @@ function TargetRow({
     );
   }
 
-  const pct = target > 0 ? Math.min(100, Math.round((actual / target) * 100)) : 0;
-  const pace = computePace(actual, target, timePct);
+  const pct = target > 0 ? Math.min(incomplete ? 99 : 100, Math.round((actual / target) * 100)) : 0;
+  const pace =
+    incomplete && actual >= target
+      ? { tone: "amber" as Tone, label: "Needs TAP" }
+      : computePace(actual, target, timePct);
 
   return (
     <div
@@ -126,6 +130,7 @@ function TargetRow({
       {/* Numbers — mono for tabular alignment. Stays on the title line. */}
       <span className="font-mono text-xs text-muted-foreground tabular-nums shrink-0">
         {actual} / {target}
+        {note && <span className="ml-1.5">· {note}</span>}
       </span>
 
       {/* Pace pill — sits next to the numbers when there's room, drops to
@@ -229,6 +234,7 @@ export function TargetsCompact() {
   const hfsvActual      = hfsvQ.data?.total_completed ?? 0;
   const hfsvTarget      = HFSV_TARGET_Q;
   const communityActual = communityQ.data?.total_completed ?? 0;
+  const communityTap    = communityQ.data?.total_tap_completed ?? 0;
   const communityTarget = COMMUNITY_TARGET_Q;
   const msActual        = multistoryQ.data?.totals?.complete ?? 0;
   const msTarget        = (multistoryQ.data?.totals?.pending ?? 0) + msActual;
@@ -281,7 +287,9 @@ export function TargetsCompact() {
           loading={hydrantAssignmentsQ.isLoading}
         />
         <TargetRow
-          label="Community Events"
+          label="Community Engagement"
+          note={`TAP ${communityTap}/${COMMUNITY_TAP_MIN}`}
+          incomplete={!communityMet(communityActual, communityTap)}
           actual={communityActual}
           target={communityTarget}
           timePct={qTimePct}

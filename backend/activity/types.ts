@@ -16,6 +16,8 @@ export interface ActivityRecord {
   completed: boolean;
   completed_at: Date | null;
   scheduled: boolean;
+  /** Community engagements only: counts towards the minimum-3 TAP requirement. */
+  is_tap: boolean;
   sort_order: number;
   created_by: string;
   created_at: Date;
@@ -34,6 +36,8 @@ export interface ListActivitiesRequest {
 export interface ListActivitiesResponse {
   items: ActivityRecord[];
   total_completed: number;
+  /** Completed engagements flagged as TAP (community only). */
+  total_tap_completed: number;
   total: number;
 }
 
@@ -51,6 +55,7 @@ export interface CreateActivityRequest {
 
 export interface UpdateActivityRequest {
   title?: string;
+  is_tap?: boolean;
   address?: string;
   engagement_date?: string;
   details?: string;

@@ -347,6 +347,7 @@ export namespace activity {
         completed: boolean
         "completed_at": string | null
         scheduled: boolean
+        "is_tap": boolean
         "sort_order": number
         "created_by": string
         "created_at": string
@@ -377,6 +378,7 @@ export namespace activity {
     export interface ListActivitiesResponse {
         items: ActivityRecord[]
         "total_completed": number
+        "total_tap_completed": number
         total: number
     }
 
@@ -482,6 +484,7 @@ export namespace activity {
     address?: string
     "engagement_date"?: string
     details?: string
+    "is_tap"?: boolean
 }): Promise<ActivityRecord> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("PATCH", `/activities/${encodeURIComponent(id)}`, JSON.stringify(params))

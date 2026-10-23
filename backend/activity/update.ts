@@ -3,7 +3,7 @@ import db, { type SQLPrimitive } from "../db";
 import type { ActivityRecord, UpdateActivityRequest } from "./types";
 
 // PATCH /activities/:id
-// Updates editable fields (title, address, engagement_date, details).
+// Updates editable fields (title, address, engagement_date, details, is_tap).
 export const update = api<{ id: number } & UpdateActivityRequest, ActivityRecord>(
   { auth: true, expose: true, method: "PATCH", path: "/activities/:id" },
   async (req) => {
@@ -17,6 +17,7 @@ export const update = api<{ id: number } & UpdateActivityRequest, ActivityRecord
     if (fields.address !== undefined)         { setClauses.push(`address = $${idx++}`);         values.push(fields.address); }
     if (fields.engagement_date !== undefined) { setClauses.push(`engagement_date = $${idx++}`); values.push(fields.engagement_date); }
     if (fields.details !== undefined)         { setClauses.push(`details = $${idx++}`);         values.push(fields.details); }
+    if (fields.is_tap !== undefined)          { setClauses.push(`is_tap = $${idx++}`);          values.push(fields.is_tap); }
 
     if (setClauses.length === 0) throw APIError.invalidArgument("no fields to update");
 

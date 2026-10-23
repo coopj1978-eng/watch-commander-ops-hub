@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/App";
 import { useToast } from "@/components/ui/use-toast";
+import { COMMUNITY_TAP_MIN, COMMUNITY_TARGET_Q, HFSV_TARGET_Q } from "@/lib/targets";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -121,9 +122,12 @@ function ActivityDrawer({
   });
 
   const updateMut = useMutation({
-    mutationFn: ({ id, ...fields }: { id: number; address?: string; title?: string; engagement_date?: string; details?: string }) =>
+    mutationFn: ({ id, ...fields }: { id: number; address?: string; title?: string; engagement_date?: string; details?: string; is_tap?: boolean }) =>
       backend.activity.update(id, fields),
-    onSuccess: () => qc.invalidateQueries({ queryKey: actKey }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: actKey });
+      qc.invalidateQueries({ queryKey: ["activities"] });
+    },
   });
 
   const createMut = useMutation({
@@ -165,6 +169,9 @@ function ActivityDrawer({
           <DialogTitle>{titles[type]}</DialogTitle>
           <p className="text-sm text-muted-foreground">
             {watch} Watch — {quarterLabel} — {completed} / {total} complete
+            {type === "community" && (
+              <> · TAP {items.filter(i => i.completed && i.is_tap).length} / {COMMUNITY_TAP_MIN} minimum</>
+            )}
           </p>
           {total > 0 && (
             <Progress value={(completed / total) * 100} className="h-1.5 mt-2" />
@@ -219,6 +226,14 @@ function ActivityDrawer({
                       <div className="flex-1 space-y-2">
                         <Input placeholder="Engagement name" className="h-7 text-sm" defaultValue={item.title ?? ""} disabled={!isWCOrCC}
                           onBlur={e => { if (e.target.value !== (item.title ?? "")) updateMut.mutate({ id: item.id, title: e.target.value }); }} />
+                        <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer w-fit">
+                          <Checkbox
+                            checked={item.is_tap}
+                            disabled={updateMut.isPending || !isWCOrCC}
+                            onCheckedChange={(v) => updateMut.mutate({ id: item.id, is_tap: v === true })}
+                          />
+                          TAP engagement
+                        </label>
                         <Input type="date" className="h-7 text-sm"
                           defaultValue={item.engagement_date ? new Date(item.engagement_date).toISOString().split("T")[0] : ""} disabled={!isWCOrCC}
                           onBlur={e => {
@@ -339,10 +354,11 @@ export default function TargetsDashboard({
   // ── Build metric data from live sources ──────────────────────────────────
   const metrics = useMemo(() => {
     const hfsvComplete = hfsvData?.total_completed ?? 0;
-    const hfsvTotal = 36; // Fixed target
+    const hfsvTotal = HFSV_TARGET_Q;
 
     const communityComplete = communityData?.total_completed ?? 0;
-    const communityTotal = 6; // Fixed target
+    const communityTap = communityData?.total_tap_completed ?? 0;
+    const communityTotal = COMMUNITY_TARGET_Q;
 
     const msComplete = multiStoryData?.totals?.complete ?? 0;
     const msTotal = (multiStoryData?.totals?.pending ?? 0) + msComplete;
@@ -382,7 +398,8 @@ export default function TargetsDashboard({
         actual: hydrantComplete,
         isFetching: hydrantFetching,
         clickable: false,
-        subtitle: "Managed via Hydrant Register below",
+        subtitle: "Annual route — managed via Hydrant Register below",
+        noTargetLabel: "No route uploaded",
       },
       {
         key: "community" as MetricKey,
@@ -391,6 +408,7 @@ export default function TargetsDashboard({
         iconColor: "text-purple-500",
         target: communityTotal,
         actual: communityComplete,
+        tap: { done: communityTap, min: COMMUNITY_TAP_MIN },
         isFetching: communityFetching,
         clickable: true,
         drawerType: "community" as ActivityType,
@@ -450,7 +468,11 @@ export default function TargetsDashboard({
       {/* ── Metric cards ────────────────────────────────────────────────── */}
       <div className="grid gap-6 md:grid-cols-2">
         {metrics.map((m) => {
-          const pct = m.target > 0 ? (m.actual / m.target) * 100 : 0;
+          const rawPct = m.target > 0 ? (m.actual / m.target) * 100 : 0;
+          // Community isn't met until the TAP minimum is reached as well.
+          const tapShort = "tap" in m && m.tap ? m.tap.done < m.tap.min : false;
+          const pct = tapShort ? Math.min(rawPct, 99) : rawPct;
+          const noTarget = m.target === 0 && "noTargetLabel" in m;
 
           return (
             <Card
@@ -478,7 +500,11 @@ export default function TargetsDashboard({
                       </CardDescription>
                     </div>
                   </div>
-                  {getStatusBadge(pct)}
+                  {noTarget ? (
+                    <Badge className="bg-muted text-muted-foreground">{(m as { noTargetLabel?: string }).noTargetLabel}</Badge>
+                  ) : (
+                    getStatusBadge(pct)
+                  )}
                 </div>
               </CardHeader>
               <CardContent>
@@ -499,6 +525,15 @@ export default function TargetsDashboard({
                     <span className="text-muted-foreground">Remaining</span>
                     <span className="font-medium">{Math.max(0, m.target - m.actual)}</span>
                   </div>
+
+                  {"tap" in m && m.tap && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">TAP engagements</span>
+                      <span className={`font-medium ${m.tap.done < m.tap.min ? "text-red-600 dark:text-red-400" : "text-green-600 dark:text-green-400"}`}>
+                        {m.tap.done} / {m.tap.min} minimum
+                      </span>
+                    </div>
+                  )}
 
                   {pct >= 100 && (
                     <div className="flex items-center gap-2 text-sm text-green-500">

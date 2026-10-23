@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useQueries } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import TargetsDashboard from "@/components/TargetsDashboard";
 import InspectionAssignments from "@/components/InspectionAssignments";
 import {
@@ -19,15 +19,17 @@ import {
 import { BarChart3, Calendar, Target } from "lucide-react";
 import backend from "@/lib/backend";
 import { useAuth } from "@/App";
+import { COMMUNITY_TAP_MIN, COMMUNITY_TARGET_Q, HFSV_TARGET_Q, communityMet } from "@/lib/targets";
 
 type PeriodType = "month" | "quarter" | "year" | "custom";
 
 // ── Quarterly Year-at-a-Glance ───────────────────────────────────────────────
 
+// Hydrants aren't quarterly activities — they're an annual route on the
+// Hydrant Register, shown as their own row below.
 const ACTIVITY_METRICS = [
-  { key: "hfsv",      label: "HFSV",       target: 36, colour: "orange" },
-  { key: "community", label: "Community",  target: 4,  colour: "teal"   },
-  { key: "hydrant",   label: "Hydrant",    target: 20, colour: "purple" },
+  { key: "hfsv",      label: "HFSV",      target: HFSV_TARGET_Q,      colour: "orange" },
+  { key: "community", label: "Community", target: COMMUNITY_TARGET_Q, colour: "teal"   },
 ] as const;
 
 const QUARTER_LABELS = ["Q1 Apr–Jun", "Q2 Jul–Sep", "Q3 Oct–Dec", "Q4 Jan–Mar"];
@@ -75,6 +77,23 @@ function QuarterlyOverview({ watch }: { watch: string }) {
       };
     }),
   });
+
+  // Annual hydrant route for the current calendar year (same source as the
+  // Hydrant Inspections card).
+  const hydrantYear = now.getFullYear();
+  const hydrantQ = useQuery({
+    queryKey: ["assignments", "hydrant", watch, hydrantYear],
+    queryFn: () =>
+      backend.inspection_plans.listAssignments({
+        plan_type: "hydrant",
+        watch: watch || undefined,
+        year: hydrantYear,
+        quarter: 0,
+      }),
+    enabled: !!watch,
+  });
+  const hydrantDone = hydrantQ.data?.totals?.complete ?? 0;
+  const hydrantTotal = hydrantDone + (hydrantQ.data?.totals?.pending ?? 0);
 
   function getActivityResult(metricIdx: number, q: number) {
     return activityResults[metricIdx * 4 + (q - 1)];
@@ -147,8 +166,12 @@ function QuarterlyOverview({ watch }: { watch: string }) {
                     {[1, 2, 3, 4].map((q) => {
                       const result = getActivityResult(mIdx, q);
                       const completed = result.data?.total_completed ?? 0;
+                      const tap = result.data?.total_tap_completed ?? 0;
+                      const isCommunity = metric.key === "community";
                       const isFuture = q > currentQ && (result.data?.total ?? 0) === 0;
-                      const pct = Math.min(100, Math.round((completed / metric.target) * 100));
+                      const rawPct = Math.min(100, Math.round((completed / metric.target) * 100));
+                      // Community isn't met until the TAP minimum is reached too.
+                      const pct = isCommunity && !communityMet(completed, tap) ? Math.min(rawPct, 99) : rawPct;
                       const isCurrent = q === currentQ;
 
                       return (
@@ -166,12 +189,42 @@ function QuarterlyOverview({ watch }: { watch: string }) {
                             <span className={`text-xs font-semibold tabular-nums ${textColour(pct, isFuture)}`}>
                               {isFuture ? "–" : `${completed}/${metric.target}`}
                             </span>
+                            {isCommunity && !isFuture && (
+                              <span
+                                className={`text-[10px] tabular-nums ${tap >= COMMUNITY_TAP_MIN ? "text-green-600 dark:text-green-400" : "text-muted-foreground"}`}
+                              >
+                                TAP {tap}/{COMMUNITY_TAP_MIN}
+                              </span>
+                            )}
                           </div>
                         </td>
                       );
                     })}
                   </tr>
                 ))}
+                {/* Hydrants — one annual route, not a quarterly target */}
+                <tr>
+                  <td className="py-3 pr-4 font-medium text-foreground">Hydrant</td>
+                  <td colSpan={4} className="py-3 px-2">
+                    {hydrantTotal === 0 ? (
+                      <span className="text-xs text-muted-foreground">
+                        No {hydrantYear} hydrant route uploaded yet
+                      </span>
+                    ) : (
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-500 ${barColour(Math.round((hydrantDone / hydrantTotal) * 100), false, "purple")}`}
+                            style={{ width: `${Math.round((hydrantDone / hydrantTotal) * 100)}%` }}
+                          />
+                        </div>
+                        <span className="text-xs font-semibold tabular-nums whitespace-nowrap">
+                          {hydrantDone}/{hydrantTotal} · {hydrantYear} route
+                        </span>
+                      </div>
+                    )}
+                  </td>
+                </tr>
                 {/* Multi-Story row — from inspection_plans assignments */}
                 <tr>
                   <td className="py-3 pr-4 font-medium text-foreground">Multi-Story</td>
