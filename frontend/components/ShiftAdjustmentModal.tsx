@@ -326,7 +326,8 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
       setOrangeShift(a.shift_day_night ?? "Day");
     }
     if (a.type === "toil") {
-      setToilHours(a.toil_hours ?? 4);
+      // Postgres NUMERIC arrives as a string ("8"); the API expects a number.
+      setToilHours(Number(a.toil_hours ?? 4));
       if (a.covering_user_id) {
         setCoverMode("roster");
         setCoverUserId(a.covering_user_id);

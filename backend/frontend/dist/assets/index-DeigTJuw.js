@@ -45427,7 +45427,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
       setOrangeShift(a.shift_day_night ?? "Day");
     }
     if (a.type === "toil") {
-      setToilHours(a.toil_hours ?? 4);
+      setToilHours(Number(a.toil_hours ?? 4));
       if (a.covering_user_id) {
         setCoverMode("roster");
         setCoverUserId(a.covering_user_id);
