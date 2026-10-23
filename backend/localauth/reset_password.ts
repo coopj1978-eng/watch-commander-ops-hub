@@ -1,7 +1,7 @@
 import { api, APIError } from "encore.dev/api";
 import * as bcrypt from "bcrypt";
 import db from "../db";
-import { rateLimit, getRequestIp, RESET_PASSWORD_LIMIT } from "./rate_limit";
+import { rateLimit, resetRateLimit, getRequestIp, RESET_PASSWORD_LIMIT } from "./rate_limit";
 
 interface ResetPasswordRequest {
   token: string;
@@ -54,6 +54,11 @@ export const resetPassword = api<ResetPasswordRequest, ResetPasswordResponse>(
           updated_at = NOW()
       WHERE id = ${user.id}
     `;
+
+    // They've just proved they own the account, so lift any sign-in
+    // lockout left over from guessing the old password.
+    resetRateLimit(`signin:email:${user.email.trim().toLowerCase()}`);
+    resetRateLimit(`signin:ip:${getRequestIp()}`);
 
     return { success: true };
   }
