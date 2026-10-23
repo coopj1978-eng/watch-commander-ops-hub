@@ -28,11 +28,14 @@ export const assets = api.static({
     // string concatenation ("a" + "b") is parsed as an expression and
     // rejected with "header value must be a string or array of strings",
     // hence the single-line CSP.
-    "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self'; media-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
+    "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.open-meteo.com; media-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
     "X-Content-Type-Options":    "nosniff",
     "X-Frame-Options":           "DENY",
     "Referrer-Policy":           "strict-origin-when-cross-origin",
     "Permissions-Policy":        "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
     "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+    // Always revalidate (cheap 304 via the per-deploy ETag) so nobody keeps
+    // running an old build after a deploy.
+    "Cache-Control":             "no-cache",
   },
 });

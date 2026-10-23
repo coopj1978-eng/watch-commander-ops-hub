@@ -1,6 +1,6 @@
 // Bump this any time index.html or the shell assets change to force an
 // install + activate on next visit and clear stale caches.
-const CACHE_NAME = 'wc-ops-hub-v2';
+const CACHE_NAME = 'wc-ops-hub-v3';
 
 // Assets to cache on install (app shell)
 const PRECACHE_ASSETS = [
