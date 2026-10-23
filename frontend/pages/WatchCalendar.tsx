@@ -288,7 +288,12 @@ export default function UnifiedCalendar() {
   };
 
   const handleDelete = () => {
-    if (editingEvent) deleteMutation.mutate(editingEvent.id);
+    if (!editingEvent) return;
+    const isBooking = !!(editingEvent.data as { shift_adjustment_id?: number | null })?.shift_adjustment_id;
+    const message = isBooking
+      ? `Delete "${editingEvent.title}"?\n\nThis cancels the whole booking (TOIL/H4H/Flexi): any TOIL hours are refunded and the cover entries are removed.`
+      : `Delete "${editingEvent.title}"? This cannot be undone.`;
+    if (confirm(message)) deleteMutation.mutate(editingEvent.id);
   };
 
   const toggleCalendar = (key: string) => {

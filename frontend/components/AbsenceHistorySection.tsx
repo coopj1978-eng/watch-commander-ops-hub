@@ -244,7 +244,11 @@ export function AbsenceHistorySection({ userId }: { userId: string }) {
                       </TableCell>
                       <TableCell>{new Date(absence.start_date).toLocaleDateString()}</TableCell>
                       <TableCell>{new Date(absence.end_date).toLocaleDateString()}</TableCell>
-                      <TableCell>{days}</TableCell>
+                      <TableCell>
+                        {isOpenSickness
+                          ? `${inclusiveDays(absence.start_date, localTodayIso())} so far`
+                          : days}
+                      </TableCell>
                       <TableCell className="max-w-xs truncate">{absence.reason}</TableCell>
                       <TableCell>
                         <Badge className={statusBadgeClass[absence.status] ?? ""}>
@@ -280,6 +284,7 @@ export function AbsenceHistorySection({ userId }: { userId: string }) {
                                 })
                               }
                               title="Edit dates"
+                              aria-label="Edit absence dates"
                             >
                               <Pencil className="h-3.5 w-3.5" />
                             </Button>
@@ -298,6 +303,7 @@ export function AbsenceHistorySection({ userId }: { userId: string }) {
                                 }
                               }}
                               title="Delete this absence record"
+                              aria-label="Delete absence record"
                             >
                               <Trash2 className="h-3.5 w-3.5" />
                             </Button>

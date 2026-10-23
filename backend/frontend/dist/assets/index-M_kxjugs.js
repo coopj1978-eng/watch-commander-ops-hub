@@ -32502,6 +32502,7 @@ const ROUTES = [
   { path: "/detachments", name: "Detachments", icon: Navigation },
   { path: "/equipment", name: "J4 Checks", icon: Truck },
   { path: "/training", name: "Training", icon: GraduationCap },
+  { path: "/reports", name: "Reports", icon: ChartNoAxesColumn },
   { path: "/policies", name: "Docs", icon: FileText },
   { path: "/resources", name: "Resources", icon: BookOpen },
   { path: "/profile", name: "My Profile", icon: CircleUser },
@@ -49957,7 +49958,7 @@ function AbsenceHistorySection({ userId }) {
           ] }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: new Date(absence2.start_date).toLocaleDateString() }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: new Date(absence2.end_date).toLocaleDateString() }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: days }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: isOpenSickness ? `${inclusiveDays(absence2.start_date, localTodayIso())} so far` : days }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "max-w-xs truncate", children: absence2.reason }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: statusBadgeClass[absence2.status] ?? "", children: absence2.status }) }),
           canManage && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "text-right", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-end gap-1", children: [
@@ -49989,6 +49990,7 @@ function AbsenceHistorySection({ userId }) {
                   reason: absence2.reason ?? ""
                 }),
                 title: "Edit dates",
+                "aria-label": "Edit absence dates",
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "h-3.5 w-3.5" })
               }
             ),
@@ -50007,6 +50009,7 @@ function AbsenceHistorySection({ userId }) {
                   }
                 },
                 title: "Delete this absence record",
+                "aria-label": "Delete absence record",
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-3.5 w-3.5" })
               }
             )
@@ -53543,7 +53546,13 @@ function UnifiedCalendar() {
     }
   };
   const handleDelete = () => {
-    if (editingEvent) deleteMutation.mutate(editingEvent.id);
+    var _a2;
+    if (!editingEvent) return;
+    const isBooking = !!((_a2 = editingEvent.data) == null ? void 0 : _a2.shift_adjustment_id);
+    const message2 = isBooking ? `Delete "${editingEvent.title}"?
+
+This cancels the whole booking (TOIL/H4H/Flexi): any TOIL hours are refunded and the cover entries are removed.` : `Delete "${editingEvent.title}"? This cannot be undone.`;
+    if (confirm(message2)) deleteMutation.mutate(editingEvent.id);
   };
   const toggleCalendar = (key2) => {
     setVisibleCalendars((prev) => {
