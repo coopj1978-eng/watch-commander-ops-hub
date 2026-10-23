@@ -58,8 +58,13 @@ export const list = api<ListAbsencesRequest, ListAbsencesResponse>(
       params.push(req.end_date);
     }
     if (req.start_date) {
+      const p = paramIndex++;
       conditions.push(
-        `(end_date >= $${paramIndex++} OR (type = 'sickness' AND returned_to_work_at IS NULL))`
+        `(end_date >= $${p} OR (type = 'sickness' AND returned_to_work_at IS NULL))`
+      );
+      // A sickness booked back fit stops covering days from the return date on.
+      conditions.push(
+        `(type <> 'sickness' OR returned_to_work_at IS NULL OR returned_to_work_at::date > $${p})`
       );
       params.push(req.start_date);
     }

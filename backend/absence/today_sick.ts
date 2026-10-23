@@ -1,6 +1,7 @@
 import { api } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
+import { ukTodayIso } from "../lib/sickness";
 
 export interface TodaySickMember {
   user_id: string;
@@ -21,7 +22,7 @@ export const todaySick = api<void, TodaySickResponse>(
   async () => {
     getAuthData()!;
 
-    const today = new Date().toISOString().split("T")[0];
+    const today = ukTodayIso();
 
     // Sickness counts as covering today when:
     //   • start_date is on or before today, AND
@@ -37,6 +38,7 @@ export const todaySick = api<void, TodaySickResponse>(
          AND a.status = 'approved'
          AND a.start_date::date <= $1::date
          AND (a.end_date::date >= $1::date OR a.returned_to_work_at IS NULL)
+         AND (a.returned_to_work_at IS NULL OR a.returned_to_work_at::date > $1::date)
        ORDER BY u.name`,
       today
     );
