@@ -28,7 +28,9 @@ export const getStats = api<void, CrewStats>(
        LEFT JOIN firefighter_profiles fp ON fp.user_id = u.id
        WHERE (LOWER(u.watch_unit) = (SELECT watch FROM caller)
            OR LOWER(fp.watch)     = (SELECT watch FROM caller))
-         AND u.is_active = true
+         -- Still at the station. is_active only means they've signed in, and
+         -- many crew never will — they must still count in staffing.
+         AND u.left_at IS NULL
          AND (SELECT watch FROM caller) IS NOT NULL`,
       auth.userID
     );
