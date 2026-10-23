@@ -51,7 +51,8 @@ export const forgotPassword = api<ForgotPasswordRequest, ForgotPasswordResponse>
     let frontendUrl = "http://localhost:5173";
     try {
       const val = frontendUrlRef();
-      if (val) frontendUrl = val;
+      // Tolerate a pasted trailing "." or "/" — either breaks the link.
+      if (val) frontendUrl = val.trim().replace(/[./]+$/, "");
     } catch {
       // Not configured — use local dev default
     }
