@@ -3,6 +3,10 @@ import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { logActivity } from "../logging/logger";
 import type { UpdateTaskRequest, Task } from "./types";
+import { assertCanModifyTask } from "./permissions";
+
+// Fields any watch member may change by working the shared board.
+const BOARD_MOVE_FIELDS = new Set(["status", "position", "checklist"]);
 
 interface UpdateTaskParams {
   id: number;
@@ -13,6 +17,10 @@ export const update = api(
   async (params: UpdateTaskParams & UpdateTaskRequest): Promise<Task> => {
     const { id, ...updates } = params;
     const auth = getAuthData()!;
+    const changedFields = Object.keys(updates).filter(
+      (k) => (updates as Record<string, unknown>)[k] !== undefined
+    );
+    await assertCanModifyTask(id, changedFields.every((k) => BOARD_MOVE_FIELDS.has(k)));
     const setClauses: string[] = [];
     const queryParams: any[] = [];
     let paramIndex = 1;

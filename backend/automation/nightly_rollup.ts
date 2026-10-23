@@ -73,27 +73,6 @@ export const nightlyRollup = api(
       }
     }
 
-    const inspections = await db.rawQueryAll<{
-      id: number;
-      status: string;
-      scheduled_for: Date;
-    }>(`
-      SELECT id, status, scheduled_for
-      FROM inspections
-      WHERE status = 'Planned'
-    `);
-
-    for (const inspection of inspections) {
-      if (inspection.scheduled_for < today) {
-        await db.rawExec(`
-          UPDATE inspections
-          SET status = 'InProgress', updated_at = NOW()
-          WHERE id = $1
-        `, inspection.id);
-        updatedCount++;
-      }
-    }
-
     log.info(`Nightly rollup completed. Updated ${updatedCount} records`);
   }
 );

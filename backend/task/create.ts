@@ -19,8 +19,8 @@ export const create = api<CreateTaskRequest, Task>(
     }
 
     const task = await db.rawQueryRow<Task>(
-      `INSERT INTO tasks (title, description, assigned_to_user_id, assigned_by, priority, due_at, category, checklist, attachments, rrule, tags, watch_unit, source_type, source_id, calendar_event_id)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+      `INSERT INTO tasks (title, description, assigned_to_user_id, assigned_by, priority, due_at, category, checklist, attachments, rrule, tags, watch_unit, source_type, source_id, calendar_event_id, status, position)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
        RETURNING *`,
       req.title,
       req.description ?? null,
@@ -37,6 +37,8 @@ export const create = api<CreateTaskRequest, Task>(
       req.source_type ?? null,
       req.source_id ?? null,
       req.calendar_event_id ?? null,
+      req.status || "NotStarted",
+      req.position ?? 0,
     );
 
     if (!task) {

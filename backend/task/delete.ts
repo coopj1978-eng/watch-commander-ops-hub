@@ -2,6 +2,7 @@ import { api } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { logActivity } from "../logging/logger";
+import { assertCanModifyTask } from "./permissions";
 
 interface DeleteTaskRequest {
   id: number;
@@ -11,6 +12,7 @@ export const deleteTask = api<DeleteTaskRequest, void>(
   { auth: true, expose: true, method: "DELETE", path: "/api/tasks/:id" },
   async ({ id }) => {
     const auth = getAuthData()!;
+    await assertCanModifyTask(id);
     await db.exec`DELETE FROM tasks WHERE id = ${id}`;
 
     await logActivity({
