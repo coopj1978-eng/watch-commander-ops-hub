@@ -34,24 +34,34 @@ export const deleteUser = api<DeleteUserRequest, void>(
     await db.exec`DELETE FROM absences WHERE firefighter_id = ${id}`;
     await db.exec`UPDATE absences SET approved_by = NULL WHERE approved_by = ${id}`;
     await db.exec`DELETE FROM shift_crewing WHERE user_id = ${id}`;
-    await db.exec`UPDATE shift_crewing SET created_by = NULL WHERE created_by = ${id}`;
+    await db.exec`UPDATE shift_crewing SET created_by = ${auth.userID} WHERE created_by = ${id}`;
     await db.exec`DELETE FROM calendar_events WHERE user_id = ${id}`;
-    await db.exec`UPDATE calendar_events SET created_by = NULL WHERE created_by = ${id}`;
+    await db.exec`UPDATE calendar_events SET created_by = ${auth.userID} WHERE created_by = ${id}`;
     await db.exec`DELETE FROM notes WHERE created_by_user_id = ${id}`;
     await db.exec`UPDATE notes SET reminder_recipient_user_id = NULL WHERE reminder_recipient_user_id = ${id}`;
     await db.exec`DELETE FROM shift_adjustments WHERE user_id = ${id}`;
     await db.exec`UPDATE shift_adjustments SET covering_user_id = NULL WHERE covering_user_id = ${id}`;
-    await db.exec`UPDATE shift_adjustments SET created_by_user_id = NULL WHERE created_by_user_id = ${id}`;
+    await db.exec`UPDATE shift_adjustments SET created_by_user_id = ${auth.userID} WHERE created_by_user_id = ${id}`;
     await db.exec`UPDATE tasks SET assigned_to_user_id = NULL WHERE assigned_to_user_id = ${id}`;
-    await db.exec`UPDATE tasks SET assigned_by = NULL WHERE assigned_by = ${id}`;
-    await db.exec`UPDATE equipment_checks SET checked_by = NULL WHERE checked_by = ${id}`;
-    await db.exec`UPDATE equipment_defects SET reported_by = NULL WHERE reported_by = ${id}`;
+    await db.exec`UPDATE tasks SET assigned_by = ${auth.userID} WHERE assigned_by = ${id}`;
+    await db.exec`UPDATE equipment_checks SET checked_by = ${auth.userID} WHERE checked_by = ${id}`;
+    await db.exec`UPDATE equipment_defects SET reported_by = ${auth.userID} WHERE reported_by = ${id}`;
     await db.exec`UPDATE equipment_defects SET resolved_by = NULL WHERE resolved_by = ${id}`;
-    await db.exec`UPDATE task_templates SET created_by = NULL WHERE created_by = ${id}`;
-    await db.exec`UPDATE policy_docs SET uploaded_by = NULL WHERE uploaded_by = ${id}`;
+    await db.exec`UPDATE task_templates SET created_by = ${auth.userID} WHERE created_by = ${id}`;
+    await db.exec`UPDATE policy_docs SET uploaded_by = ${auth.userID} WHERE uploaded_by = ${id}`;
     await db.exec`DELETE FROM policy_queries WHERE asked_by_user_id = ${id}`;
     await db.exec`DELETE FROM h4h_ledger WHERE debtor_user_id = ${id} OR creditor_user_id = ${id}`;
-    await db.exec`UPDATE handovers SET written_by_user_id = NULL WHERE written_by_user_id = ${id}`;
+    await db.exec`UPDATE h4h_ledger SET settled_by_user_id = NULL WHERE settled_by_user_id = ${id}`;
+    await db.exec`UPDATE absences SET created_by_user_id = NULL WHERE created_by_user_id = ${id}`;
+    await db.exec`UPDATE toil_ledger SET approved_by_user_id = NULL WHERE approved_by_user_id = ${id}`;
+    await db.exec`DELETE FROM bulletin_reads WHERE user_id = ${id}`;
+    await db.exec`DELETE FROM policy_acknowledgements WHERE user_id = ${id}`;
+    // These author columns are NOT NULL, so other people's records they
+    // created are reassigned to the WC doing the deletion rather than lost.
+    await db.exec`UPDATE toil_ledger SET created_by = ${auth.userID} WHERE created_by = ${id}`;
+    await db.exec`UPDATE bulletins SET posted_by = ${auth.userID} WHERE posted_by = ${id}`;
+    await db.exec`UPDATE quarterly_reports SET created_by = ${auth.userID} WHERE created_by = ${id}`;
+    await db.exec`UPDATE handovers SET written_by_user_id = ${auth.userID} WHERE written_by_user_id = ${id}`;
     await db.exec`DELETE FROM firefighter_profiles WHERE user_id = ${id}`;
 
     // Now delete the user
