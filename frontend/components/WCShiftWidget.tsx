@@ -10,7 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/App";
 import backend from "@/lib/backend";
-import { getTodayShift, hasRotaConfig } from "@/lib/shiftRota"; // used for isOnLeave/isOnRest badges
+import { crewingShiftFor, getWatchShiftStatus } from "@/lib/shiftRota";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,26 +19,7 @@ import { Truck, Users, ArrowRight, CheckCircle2, AlertTriangle } from "lucide-re
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-type CrewingShiftType = "1st Day" | "2nd Day" | "1st Night" | "2nd Night";
 
-/**
- * Returns the current shift type using the rota for 1st/2nd designation.
- * Clock (08:00–18:00) determines day vs night; rota determines 1st vs 2nd.
- * Falls back to "2nd Day" / "2nd Night" when rota is unavailable.
- */
-function getShiftTypeForWatch(watchName: string): CrewingShiftType {
-  const h = new Date().getHours();
-  const isDay = h >= 8 && h < 18;
-
-  if (watchName && hasRotaConfig(watchName)) {
-    const todayShift = getTodayShift(watchName);
-    if (todayShift?.isWorking) {
-      return todayShift.shiftType as CrewingShiftType;
-    }
-  }
-
-  return isDay ? "2nd Day" : "2nd Night";
-}
 
 // Minimum crew targets per appliance
 const MIN_CREW = { b10p1: 5, b10p2: 4 };
@@ -93,17 +74,19 @@ export function WCShiftWidget() {
   const { user } = useAuth();
   const watch = user?.watch_unit ?? "";
 
-  const today     = new Date().toISOString().split("T")[0];
-  const rotaShift = watch && hasRotaConfig(watch) ? getTodayShift(watch) : null;
-  const isOnLeave = rotaShift?.isLeave ?? false;
-  const isOnRest  = !isOnLeave && !(rotaShift?.isWorking ?? false);
-  const shiftType = getShiftTypeForWatch(watch);
+  // From the watch's rota: the shift running now, or the next one today.
+  const status    = watch ? getWatchShiftStatus(watch) : null;
+  const crewShift = crewingShiftFor(watch);
+  const isOnLeave = status?.state === "leave";
+  const isOnRest  = status?.state === "rest";
+  const shiftType = crewShift?.shiftType;
+  const shiftDate = crewShift?.shiftDate ?? "";
 
   const { data: crewingData, isLoading } = useQuery({
-    queryKey: ["wc-shift-crewing", watch, today, shiftType],
+    queryKey: ["wc-shift-crewing", watch, shiftDate, shiftType],
     queryFn: () =>
-      backend.crewing.list({ watch, shift_date: today, shift_type: shiftType }),
-    enabled: !!watch,
+      backend.crewing.list({ watch, shift_date: shiftDate, shift_type: shiftType! }),
+    enabled: !!watch && !!crewShift,
     retry: false,
   });
 
@@ -150,7 +133,13 @@ export function WCShiftWidget() {
                   : ""
               }`}
             >
-              {isOnLeave ? "Annual Leave" : isOnRest ? "Rest Day" : `${shiftType} Shift`}
+              {isOnLeave
+                ? "Annual Leave"
+                : isOnRest
+                ? "Rest Day"
+                : crewShift?.upcoming
+                ? `Next: ${shiftType} · ${status?.nextLabel?.replace(`${shiftType} `, "") ?? ""}`
+                : `${shiftType} Shift`}
               {watch ? ` · ${watch} Watch` : ""}
             </Badge>
             {crewingReady ? (

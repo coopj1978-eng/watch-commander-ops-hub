@@ -15,29 +15,10 @@ import {
   XCircle,
 } from "lucide-react";
 import { isBefore, parseISO, startOfDay } from "date-fns";
-import { getTodayShift, hasRotaConfig } from "@/lib/shiftRota";
+import { crewingShiftFor } from "@/lib/shiftRota";
+import { useSickOn } from "@/lib/absences";
 
-type CrewingShiftType = "1st Day" | "2nd Day" | "1st Night" | "2nd Night";
 
-/**
- * Returns the current shift type using the rota for 1st/2nd designation.
- * Clock determines day (08:00–18:00) vs night; rota determines 1st vs 2nd.
- * Falls back to "2nd Day" / "2nd Night" when no rota config is available.
- */
-function getShiftTypeForWatch(watchName: string): CrewingShiftType {
-  const h = new Date().getHours();
-  const isDay = h >= 8 && h < 18;
-
-  if (watchName && hasRotaConfig(watchName)) {
-    const todayShift = getTodayShift(watchName);
-    if (todayShift?.isWorking) {
-      return todayShift.shiftType as CrewingShiftType;
-    }
-  }
-
-  // Fallback: no rota / rest / leave — default to "2nd" (main running shift)
-  return isDay ? "2nd Day" : "2nd Night";
-}
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -78,8 +59,11 @@ export function WCAlertBanner() {
   const [expanded, setExpanded] = useState(true);
   const { user } = useAuth();
   const watch     = user?.watch_unit ?? "";
-  const today     = new Date().toISOString().split("T")[0];
-  const shiftType = getShiftTypeForWatch(watch);
+  // The crewing board that matters now (from the watch's rota): the shift
+  // running, or the next one today — e.g. tonight's night in the afternoon.
+  const crewShift = crewingShiftFor(watch);
+  const shiftDate = crewShift?.shiftDate ?? "";
+  const shiftType = crewShift?.shiftType;
 
   // Re-use same queryKeys as the individual widgets → React Query returns cached
   // data instantly; no extra network requests are made.
@@ -104,18 +88,15 @@ export function WCAlertBanner() {
     refetchInterval: 5 * 60 * 1000,
   });
 
-  // Who is off sick today?
-  const { data: sickData } = useQuery({
-    queryKey: ["absences-today-sick", "alert"],
-    queryFn: () => backend.absence.todaySick(),
-    refetchInterval: 5 * 60 * 1000,
-  });
+  // Who is off sick on that shift's date (station-wide, so a Head for Head
+  // from another watch counts too)?
+  const { data: sickOn } = useSickOn(shiftDate, !!crewShift);
 
-  // Today's crewing for this watch (same key as WCShiftWidget → cache hit)
+  // That shift's crewing for this watch (same key as WCShiftWidget → cache hit)
   const { data: crewingData } = useQuery({
-    queryKey: ["wc-shift-crewing", watch, today, shiftType],
-    queryFn: () => backend.crewing.list({ watch, shift_date: today, shift_type: shiftType }),
-    enabled: !!watch,
+    queryKey: ["wc-shift-crewing", watch, shiftDate, shiftType],
+    queryFn: () => backend.crewing.list({ watch, shift_date: shiftDate, shift_type: shiftType! }),
+    enabled: !!watch && !!crewShift,
   });
 
   // ── Derive alert items ─────────────────────────────────────────────────────
@@ -168,7 +149,7 @@ export function WCAlertBanner() {
   }
 
   // CRITICAL: Sick staff assigned to today's crewing slots → gap alert
-  const sickUserIds  = new Set((sickData?.sick_staff ?? []).map((s) => s.user_id));
+  const sickUserIds  = sickOn?.ids ?? new Set<string>();
   const crewEntries  = crewingData?.entries ?? [];
   const sickOnCrew   = crewEntries.filter((e) => e.user_id && sickUserIds.has(e.user_id));
 

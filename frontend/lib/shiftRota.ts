@@ -165,6 +165,125 @@ export function hasRotaConfig(watch: string): boolean {
   return watch in REFERENCE_MONDAYS;
 }
 
+// ─── Where a watch stands right now ───────────────────────────────────────────
+
+export interface WatchShiftStatus {
+  /** on = a shift is running; off = between shifts on a working day; rest / leave = not working today. */
+  state: "on" | "off" | "rest" | "leave";
+  /** The shift running now (state "on"). A night started yesterday still runs until 08:00. */
+  current?: ShiftDay;
+  /** The next shift to start. */
+  next?: ShiftDay;
+  /** Short heading, e.g. "2nd Night · 18:00–08:00", "Off now", "Rest day", "Annual leave". */
+  label: string;
+  /** When the next shift starts, e.g. "2nd Night starts 18:00", "1st Day Mon 26 Oct 08:00". */
+  nextLabel?: string;
+}
+
+function shiftStart(s: ShiftDay): Date {
+  const [h, m] = (s.startTime ?? "08:00").split(":").map(Number);
+  const d = toDateOnly(s.date);
+  d.setHours(h, m, 0, 0);
+  return d;
+}
+
+function shiftEnd(s: ShiftDay): Date {
+  const end = shiftStart(s);
+  end.setHours(end.getHours() + (s.startTime === "18:00" ? 14 : 10));
+  return end;
+}
+
+function describeStart(s: ShiftDay, now: Date): string {
+  const days = diffDays(toDateOnly(s.date), now);
+  const when =
+    days === 0 ? "" :
+    days === 1 ? " tomorrow" :
+    " " + toDateOnly(s.date).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+  return `${s.shiftType}${when ? when : " starts"} ${s.startTime}`;
+}
+
+/**
+ * Where a watch stands at `now`, from its rota: on a shift, off between
+ * shifts, on a rest day or on leave — plus the next shift. Uses the
+ * watch's own rota, so every watch sees its own position. Null when the
+ * watch has no rota.
+ */
+export function getWatchShiftStatus(watch: string, now: Date = new Date()): WatchShiftStatus | null {
+  const refIso = REFERENCE_MONDAYS[watch];
+  if (!refIso) return null;
+  const refMonday = toDateOnly(refIso);
+  const dayAt = (offset: number) =>
+    computeShiftForDate(new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset), refMonday);
+
+  // Yesterday's night runs until 08:00 today; today's shift may be running.
+  const running = [dayAt(-1), dayAt(0)].find(
+    (s) => s.isWorking && shiftStart(s) <= now && now < shiftEnd(s)
+  );
+
+  // Next shift to start, looking far enough ahead to clear annual leave.
+  let next: ShiftDay | undefined;
+  for (let i = 0; i <= MEGA_CYCLE; i++) {
+    const s = dayAt(i);
+    if (s.isWorking && shiftStart(s) > now) { next = s; break; }
+  }
+  const nextLabel = next ? describeStart(next, now) : undefined;
+
+  if (running) {
+    return {
+      state: "on",
+      current: running,
+      next,
+      label: `${running.shiftType} · ${running.startTime}–${running.endTime}`,
+      nextLabel,
+    };
+  }
+  const today = dayAt(0);
+  if (today.isLeave) return { state: "leave", next, label: "Annual leave", nextLabel };
+  if (!today.isWorking) return { state: "rest", next, label: "Rest day", nextLabel };
+  return { state: "off", next, label: "Off now", nextLabel };
+}
+
+/**
+ * The crewing board that matters now for a watch: the shift running, or —
+ * between shifts on a working day — the next one (e.g. tonight's night
+ * shift in the afternoon). A night shift keeps its start date until 08:00
+ * next morning, matching how the board stores it. Null on rest days and
+ * leave, or when the watch has no rota.
+ */
+export function crewingShiftFor(
+  watch: string | undefined,
+  now: Date = new Date()
+): { shiftDate: string; shiftType: "1st Day" | "2nd Day" | "1st Night" | "2nd Night"; upcoming: boolean } | null {
+  const s = watch ? getWatchShiftStatus(watch, now) : null;
+  const shift = s?.current ?? (s?.state === "off" ? s.next : undefined);
+  if (!shift) return null;
+  return {
+    shiftDate: shift.date,
+    shiftType: shift.shiftType as "1st Day" | "2nd Day" | "1st Night" | "2nd Night",
+    upcoming: !s?.current,
+  };
+}
+
+/**
+ * Two-part shift text for headers and status strips, from the watch's rota:
+ *   on    → "2nd Night"    · "18:00–08:00"
+ *   off   → "Off now"      · "2nd Night starts 18:00"
+ *   rest  → "Rest day"     · "next 1st Day Thu 29 Oct 08:00"
+ *   leave → "Annual leave" · "back 1st Day Mon 9 Mar 08:00"
+ * Null when the watch has no rota (or no watch is set).
+ */
+export function shiftDisplay(watch: string | undefined, now: Date = new Date()): { main: string; sub: string } | null {
+  const s = watch ? getWatchShiftStatus(watch, now) : null;
+  if (!s) return null;
+  if (s.state === "on" && s.current) {
+    return { main: s.current.shiftType, sub: `${s.current.startTime}–${s.current.endTime}` };
+  }
+  const next = s.nextLabel ?? "";
+  if (s.state === "off") return { main: s.label, sub: next };
+  if (s.state === "leave") return { main: s.label, sub: next ? `back ${next}` : "" };
+  return { main: s.label, sub: next ? `next ${next}` : "" };
+}
+
 /**
  * Returns the ISO date string (YYYY-MM-DD) of the next working shift for the
  * given watch, searching from today up to 14 days ahead.

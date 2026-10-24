@@ -5,6 +5,7 @@ import backend from "@/lib/backend";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { latestAbsencePerPerson, useTodaysAbsences } from "@/lib/absences";
+import { shiftDisplay } from "@/lib/shiftRota";
 
 // ──────────────────────────────────────────────────────────────────────────────
 // OperationalStatusBar
@@ -21,16 +22,6 @@ import { latestAbsencePerPerson, useTodaysAbsences } from "@/lib/absences";
 // scannability.
 // ──────────────────────────────────────────────────────────────────────────────
 
-function getShiftSpan(): { label: string; time: string } {
-  // Pure time-of-day shift detection — matches TopBar / WCCommandStrip /
-  // WCShiftWidget. Day shift runs 08:00–18:00; everything else is night.
-  const h = new Date().getHours();
-  const isDay = h >= 8 && h < 18;
-  return {
-    label: isDay ? "Day Shift" : "Night Shift",
-    time: isDay ? "08:00–18:00" : "18:00–08:00",
-  };
-}
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Cell — single status item. Small uppercase label on top, value below.
@@ -116,7 +107,8 @@ export function OperationalStatusBar() {
     year: "numeric",
   });
 
-  const shift = getShiftSpan();
+  // From the watch's own rota: on a shift, off until the next, rest or leave.
+  const shift = shiftDisplay(watch);
 
   // Strength — mirrors WCStaffingWidget derivation exactly
   const total = statsQ.data?.total_watch_members ?? 0;
@@ -149,12 +141,16 @@ export function OperationalStatusBar() {
           label="Shift"
           href="/handover"
           value={
-            <>
-              {shift.label}{" "}
-              <span className="font-mono text-muted-foreground font-normal">
-                {shift.time}
-              </span>
-            </>
+            shift ? (
+              <>
+                {shift.main}{" "}
+                <span className="font-mono text-muted-foreground font-normal">
+                  {shift.sub}
+                </span>
+              </>
+            ) : (
+              "—"
+            )
           }
         />
 

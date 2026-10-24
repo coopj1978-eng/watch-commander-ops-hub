@@ -36,7 +36,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
 import backend from "@/lib/backend";
 import { useSickOn } from "@/lib/absences";
-import { getTodayShift, getShiftsForDateRange, hasRotaConfig } from "@/lib/shiftRota";
+import { getTodayShift, getShiftsForDateRange, hasRotaConfig, crewingShiftFor } from "@/lib/shiftRota";
 import type { crewing } from "@/client";
 import { useAuth } from "@/App";
 import { useToast } from "@/components/ui/use-toast";
@@ -156,6 +156,10 @@ function currentShiftDate(): string {
  * When before 08:00, the operative date is yesterday (night shift runs 18:00–08:00).
  */
 function getSmartDefaults(watchName: string): { shiftDate: string; shiftType: ShiftType } {
+  // The shift running now, or the next one today (same rule as the dashboard).
+  const live = crewingShiftFor(watchName);
+  if (live) return { shiftDate: live.shiftDate, shiftType: live.shiftType };
+
   const shiftDate = currentShiftDate();
   const h = new Date().getHours();
   const clockFallback: ShiftType = h >= 8 && h < 18 ? "2nd Day" : "2nd Night";

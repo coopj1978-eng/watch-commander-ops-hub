@@ -25,6 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import ThemeSwitcher from "./ThemeSwitcher";
 import type { notification } from "@/client";
 import { latestAbsencePerPerson, useTodaysAbsences } from "@/lib/absences";
+import { shiftDisplay } from "@/lib/shiftRota";
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Route registry for breadcrumb + jump-to-page search. Kept in sync with
@@ -119,16 +120,6 @@ function getBreadcrumbLabel(pathname: string): string {
   return match?.name ?? pathname;
 }
 
-function getShiftSpan(): { label: string; time: string } {
-  // Matches the app-wide pattern (TopBar / WCCommandStrip / WCShiftWidget).
-  const h = new Date().getHours();
-  const isDay = h >= 8 && h < 18;
-  return {
-    label: isDay ? "Day Shift" : "Night Shift",
-    time:  isDay ? "08:00–18:00" : "18:00–08:00",
-  };
-}
-
 // ──────────────────────────────────────────────────────────────────────────────
 // Watch / shift / duty pill — shown on every page except /dashboard where the
 // OperationalStatusBar already surfaces the same info in a bigger form.
@@ -154,7 +145,8 @@ function WatchShiftPill() {
   const off = watchAbsences.length;
   const on  = Math.max(0, total - off);
 
-  const shift = getShiftSpan();
+  // From the watch's own rota: on a shift, off until the next, rest or leave.
+  const shift = shiftDisplay(watch);
 
   if (!watch) return null;
 
@@ -163,8 +155,13 @@ function WatchShiftPill() {
       <span className="inline-block h-1.5 w-1.5 rounded-full bg-brand" aria-hidden />
       <span className="font-medium text-foreground">{watch} Watch</span>
       <span className="text-muted-foreground">·</span>
-      <span className="font-mono text-muted-foreground">{shift.time}</span>
-      <span className="text-muted-foreground">·</span>
+      {shift && (
+        <>
+          <span className="text-foreground">{shift.main}</span>
+          {shift.sub && <span className="font-mono text-muted-foreground">{shift.sub}</span>}
+          <span className="text-muted-foreground">·</span>
+        </>
+      )}
       <span className="font-mono text-foreground">
         {on}
         <span className="text-muted-foreground"> on / </span>

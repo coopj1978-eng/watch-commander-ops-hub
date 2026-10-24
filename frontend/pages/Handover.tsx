@@ -16,7 +16,7 @@ import { ClipboardList, Users, Plus, ChevronDown, ChevronUp, Trash2, Pencil, Shi
 import { formatDistanceToNow, parseISO, format, differenceInDays } from "date-fns";
 import { useUserRole } from "@/lib/rbac";
 import CrewingBoard from "@/components/CrewingBoard";
-import { getTodayShift, getShiftsForDateRange, hasRotaConfig } from "@/lib/shiftRota";
+import { shiftDisplay } from "@/lib/shiftRota";
 
 const WATCHES = ["Red", "White", "Green", "Blue", "Amber"] as const;
 type WatchName = typeof WATCHES[number];
@@ -431,31 +431,9 @@ export default function Handover() {
           weekday: "short", day: "numeric", month: "short", year: "numeric",
         });
 
-        // Derive shift label — rota is the source of truth for 1st/2nd designation.
-        // Clock (08:00–18:00) is used only as a fallback for day/night boundary.
-        const h2 = new Date().getHours();
-        const clockLabel = h2 >= 8 && h2 < 18 ? "Day Shift" : "Night Shift";
-        let shiftLabel: string = clockLabel;
-
-        if (watchName && hasRotaConfig(watchName)) {
-          const todayShift = getTodayShift(watchName);
-          if (todayShift?.isLeave) {
-            const from = new Date();
-            from.setDate(from.getDate() + 1);
-            const to = new Date();
-            to.setDate(to.getDate() + 90);
-            const upcoming = getShiftsForDateRange(watchName, from, to);
-            const next = upcoming.find(s => s.shiftType === "1st Day");
-            shiftLabel = next
-              ? `Annual Leave — next shift ${new Date(next.date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}`
-              : "Annual Leave";
-          } else if (!todayShift?.isWorking) {
-            shiftLabel = "Rest Day";
-          } else if (todayShift?.shiftType) {
-            // Rota knows if it's 1st or 2nd Day/Night — use it
-            shiftLabel = `${todayShift.shiftType} Shift`;
-          }
-        }
+        // Shift from the watch's rota — same wording as the dashboard and header.
+        const shift = shiftDisplay(watchName);
+        const shiftLabel = shift ? `${shift.main}${shift.sub ? ` · ${shift.sub}` : ""}` : "—";
 
         return (
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2.5 rounded-xl bg-muted/50 border border-border/60 text-sm -mt-2 print:hidden">
