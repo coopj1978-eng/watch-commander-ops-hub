@@ -18,6 +18,8 @@ interface EventFormProps {
   /** Strike the event through with a reason — it stays on the calendar. */
   onStrike?: (reason: string) => void;
   onReinstate?: () => void;
+  /** A new event's calendar was picked — remembered for the next new event. */
+  onCalendarPick?: (calendar: CalendarVisibility) => void;
 }
 
 export interface EventFormData {
@@ -64,6 +66,7 @@ export default function EventForm({
   onDelete,
   onStrike,
   onReinstate,
+  onCalendarPick,
 }: EventFormProps) {
   const titleRef = useRef<HTMLInputElement>(null);
   const isEditing = !!initialData;
@@ -264,7 +267,10 @@ export default function EventForm({
                 type="button"
                 role="radio"
                 aria-checked={on}
-                onClick={() => setCalendar(opt.value)}
+                onClick={() => {
+                  setCalendar(opt.value);
+                  if (!isEditing) onCalendarPick?.(opt.value);
+                }}
                 className="cal-focus"
                 style={{
                   height: 40, borderRadius: 10, font: "inherit", fontSize: 12.5, cursor: "pointer",

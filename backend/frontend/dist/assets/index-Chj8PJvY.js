@@ -52893,7 +52893,8 @@ function EventForm({
   onCancel,
   onDelete,
   onStrike,
-  onReinstate
+  onReinstate,
+  onCalendarPick
 }) {
   const titleRef = reactExports.useRef(null);
   const isEditing = !!initialData;
@@ -53089,7 +53090,10 @@ function EventForm({
                 type: "button",
                 role: "radio",
                 "aria-checked": on,
-                onClick: () => setCalendar(opt.value),
+                onClick: () => {
+                  setCalendar(opt.value);
+                  if (!isEditing) onCalendarPick == null ? void 0 : onCalendarPick(opt.value);
+                },
                 className: "cal-focus",
                 style: {
                   height: 40,
@@ -53788,6 +53792,21 @@ function UnifiedCalendar() {
   const [formAnchor, setFormAnchor] = reactExports.useState(null);
   const [pendingSlot, setPendingSlot] = reactExports.useState(null);
   const [defaultCalendar, setDefaultCalendar] = reactExports.useState("station");
+  const lastCalendarKey = `cal-last-calendar:${userId}`;
+  const lastCalendar = () => {
+    try {
+      const saved = localStorage.getItem(lastCalendarKey);
+      if (saved === "station" || saved === "watch" || saved === "personal") return saved;
+    } catch {
+    }
+    return "station";
+  };
+  const rememberCalendar = (calendar2) => {
+    try {
+      localStorage.setItem(lastCalendarKey, calendar2);
+    } catch {
+    }
+  };
   const [inspectionModalOpen, setInspectionModalOpen] = reactExports.useState(false);
   const [editingInspectionEvent, setEditingInspectionEvent] = reactExports.useState(null);
   const [shiftAdjModalOpen, setShiftAdjModalOpen] = reactExports.useState(false);
@@ -53986,7 +54005,7 @@ function UnifiedCalendar() {
   const handleSlotClick = (date, anchor) => {
     setFormDate(date);
     setEditingEvent(null);
-    setDefaultCalendar("station");
+    setDefaultCalendar(lastCalendar());
     setFormAnchor(anchor ?? null);
     setPendingSlot(view === "week" || view === "day" ? date : null);
     setFormOpen(true);
@@ -54191,7 +54210,8 @@ This cancels the whole booking (TOIL/H4H/Flexi): any TOIL hours are refunded and
           onCancel: closeForm,
           onDelete: editingEvent ? handleDelete : void 0,
           onStrike: editingEvent ? (reason) => cancelMutation.mutate({ id: editingEvent.id, reason }) : void 0,
-          onReinstate: editingEvent ? () => reinstateMutation.mutate(editingEvent.id) : void 0
+          onReinstate: editingEvent ? () => reinstateMutation.mutate(editingEvent.id) : void 0,
+          onCalendarPick: editingEvent ? void 0 : rememberCalendar
         },
         editingEvent ? `edit-${editingEvent.id}` : `new-${formDate.getTime()}`
       ) })

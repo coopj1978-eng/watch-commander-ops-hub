@@ -46,6 +46,19 @@ export default function UnifiedCalendar() {
   const [formAnchor, setFormAnchor] = useState<CalendarAnchor | null>(null);
   const [pendingSlot, setPendingSlot] = useState<Date | null>(null);
   const [defaultCalendar, setDefaultCalendar] = useState<CalendarVisibility>("station");
+  // New events start on the calendar this person last picked (kept on this
+  // device) until they pick another.
+  const lastCalendarKey = `cal-last-calendar:${userId}`;
+  const lastCalendar = (): CalendarVisibility => {
+    try {
+      const saved = localStorage.getItem(lastCalendarKey);
+      if (saved === "station" || saved === "watch" || saved === "personal") return saved;
+    } catch { /* storage unavailable */ }
+    return "station";
+  };
+  const rememberCalendar = (calendar: CalendarVisibility) => {
+    try { localStorage.setItem(lastCalendarKey, calendar); } catch { /* storage unavailable */ }
+  };
 
   // Inspection event modal
   const [inspectionModalOpen, setInspectionModalOpen] = useState(false);
@@ -284,7 +297,7 @@ export default function UnifiedCalendar() {
   const handleSlotClick = (date: Date, anchor?: CalendarAnchor) => {
     setFormDate(date);
     setEditingEvent(null);
-    setDefaultCalendar("station");
+    setDefaultCalendar(lastCalendar());
     setFormAnchor(anchor ?? null);
     setPendingSlot(view === "week" || view === "day" ? date : null);
     setFormOpen(true);
@@ -516,6 +529,7 @@ export default function UnifiedCalendar() {
               onDelete={editingEvent ? handleDelete : undefined}
               onStrike={editingEvent ? (reason) => cancelMutation.mutate({ id: editingEvent.id, reason }) : undefined}
               onReinstate={editingEvent ? () => reinstateMutation.mutate(editingEvent.id) : undefined}
+              onCalendarPick={editingEvent ? undefined : rememberCalendar}
             />
           </div>
         </div>
