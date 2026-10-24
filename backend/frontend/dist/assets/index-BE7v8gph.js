@@ -55567,478 +55567,481 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
   const currentRruleVal = showCustomRrule ? "__custom__" : rrule || "__none__";
   const coverStyle = getCoverStyle(coverColour);
   const statusCol = columns.find((c) => c.status_key === status);
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-black/40 z-40", onClick: onClose }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cal-ui fixed inset-0 z-50 flex items-end sm:items-start justify-center overflow-y-auto sm:py-8 sm:px-4", onClick: (e) => {
-      if (e.target === e.currentTarget) onClose();
-    }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "div",
-      {
-        role: "dialog",
-        "aria-modal": "true",
-        "aria-label": title || "Task",
-        className: "cal-panel relative w-full sm:max-w-2xl flex flex-col overflow-hidden overflow-y-auto rounded-t-[24px] sm:rounded-[22px] max-h-[92vh] sm:max-h-none",
-        style: { background: "var(--cal-surface)", border: "1px solid var(--cal-line)", boxShadow: "var(--cal-pop)", color: "var(--cal-ink)" },
-        children: [
-          coverStyle ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "relative w-full h-32 rounded-t-2xl", style: coverStyle, children: canEdit && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute bottom-2 right-2 flex gap-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "button",
-              {
-                onClick: () => setShowCoverPicker(!showCoverPicker),
-                className: "flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/40 hover:bg-black/60 text-white text-xs font-medium transition-colors",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Image$1, { className: "h-3.5 w-3.5" }),
-                  " Change Cover"
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "button",
-              {
-                onClick: () => handleCoverChange(""),
-                className: "flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/40 hover:bg-black/60 text-white text-xs font-medium transition-colors",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" }),
-                  " Remove"
-                ]
-              }
-            )
-          ] }) }) : null,
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `flex items-start justify-between px-6 pt-5 pb-0 ${!coverStyle ? "pt-5" : "pt-4"}`, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "var(--cal-muted)" }, children: "Task" }),
-                statusCol && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "inline-flex", alignItems: "center", gap: 6, padding: "3px 9px", borderRadius: 999, fontSize: 12, fontWeight: 600, background: "var(--cal-surface-2)", color: "var(--cal-ink)" }, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 8, height: 8, borderRadius: "50%", background: statusCol.color } }),
-                  statusCol.name
-                ] })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "textarea",
-                {
-                  "aria-label": "Task title",
-                  className: "w-full bg-transparent outline-none resize-none leading-snug px-0",
-                  style: { fontSize: 22, fontWeight: 600, color: "var(--cal-ink)", border: "none", borderBottom: canEdit ? "2px solid var(--cal-brand)" : "none", paddingBottom: 6 },
-                  value: title,
-                  onChange: (e) => setTitle(e.target.value),
-                  onBlur: handleTitleBlur,
-                  rows: 2,
-                  disabled: !canEdit,
-                  placeholder: "Task title"
-                }
-              )
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1 ml-4 shrink-0", children: [
-              saving && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 11, color: "var(--cal-muted)", marginRight: 4 }, children: "Saving…" }),
-              canEdit && !coverStyle && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "relative", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+  return reactDomExports.createPortal(
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-black/40 z-40", onClick: onClose }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cal-ui fixed inset-0 z-50 flex items-end sm:items-start justify-center overflow-y-auto sm:py-8 sm:px-4", onClick: (e) => {
+        if (e.target === e.currentTarget) onClose();
+      }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "div",
+        {
+          role: "dialog",
+          "aria-modal": "true",
+          "aria-label": title || "Task",
+          className: "cal-panel relative w-full sm:max-w-2xl flex flex-col overflow-hidden overflow-y-auto rounded-t-[24px] sm:rounded-[22px] max-h-[92vh] sm:max-h-none",
+          style: { background: "var(--cal-surface)", border: "1px solid var(--cal-line)", boxShadow: "var(--cal-pop)", color: "var(--cal-ink)" },
+          children: [
+            coverStyle ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "relative w-full h-32 rounded-t-2xl", style: coverStyle, children: canEdit && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute bottom-2 right-2 flex gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "button",
                 {
                   onClick: () => setShowCoverPicker(!showCoverPicker),
-                  className: "cal-focus",
-                  style: { width: 32, height: 32, borderRadius: 10, border: "none", background: "var(--cal-surface-2)", color: "var(--cal-ink-2)", display: "grid", placeItems: "center", cursor: "pointer" },
-                  title: "Add cover",
-                  "aria-label": "Add cover",
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(Image$1, { className: "h-4 w-4" })
+                  className: "flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/40 hover:bg-black/60 text-white text-xs font-medium transition-colors",
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Image$1, { className: "h-3.5 w-3.5" }),
+                    " Change Cover"
+                  ]
                 }
-              ) }),
-              canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleDelete, className: "cal-focus", style: { width: 32, height: 32, borderRadius: 10, border: "none", background: "var(--cal-station-bg)", color: "var(--cal-station-fg)", display: "grid", placeItems: "center", cursor: "pointer" }, title: "Delete task", "aria-label": "Delete task", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-4 w-4" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "cal-focus", style: { width: 32, height: 32, borderRadius: 10, border: "none", background: "var(--cal-surface-2)", color: "var(--cal-ink-2)", display: "grid", placeItems: "center", cursor: "pointer" }, "aria-label": "Close", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4" }) })
-            ] })
-          ] }),
-          showCoverPicker && canEdit && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mx-6 mt-3 rounded-xl border border-border bg-background shadow-lg overflow-hidden", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex border-b border-border", children: ["colours", "upload", "unsplash"].map((tab) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                onClick: () => setCoverTab(tab),
-                className: `flex-1 py-2 text-xs font-medium capitalize transition-colors ${coverTab === tab ? "text-brand border-b-2 border-brand bg-brand/10" : "text-muted-foreground hover:text-foreground"}`,
-                children: tab === "colours" ? "🎨 Colours" : tab === "upload" ? "⬆ Upload" : "📷 Unsplash"
-              },
-              tab
-            )) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3", children: [
-              coverTab === "colours" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-9 gap-1.5", children: CARD_COVERS.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "button",
                 {
-                  onClick: () => handleCoverChange(c.id),
-                  title: c.name,
-                  className: `h-8 rounded-lg border-2 transition-all hover:scale-110 ${coverColour === c.id ? "border-brand scale-110 shadow" : "border-transparent"}`,
-                  style: c.id ? { background: c.bg } : { background: "#f1f5f9", border: "2px dashed #cbd5e1" },
-                  children: !c.id && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-slate-400", children: "✕" })
-                },
-                c.id || "none"
-              )) }),
-              coverTab === "upload" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "Upload an image — it will be cropped to 800 × 300 px (Trello size)." }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("input", { ref: fileInputRef, type: "file", accept: "image/*", className: "hidden", onChange: handleFileUpload }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "button",
-                  {
-                    onClick: () => {
-                      var _a2;
-                      return (_a2 = fileInputRef.current) == null ? void 0 : _a2.click();
-                    },
-                    className: "w-full flex items-center justify-center gap-2 py-6 rounded-xl border-2 border-dashed border-border text-sm text-muted-foreground hover:text-foreground hover:border-brand hover:bg-brand/5 transition-all",
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { className: "h-5 w-5" }),
-                      "Click to choose an image"
-                    ]
-                  }
-                ),
-                coverColour.startsWith("data:") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative rounded-xl overflow-hidden h-20", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: coverColour, alt: "Current cover", className: "w-full h-full object-cover" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "button",
-                    {
-                      onClick: () => handleCoverChange(""),
-                      className: "absolute top-1 right-1 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 transition-colors",
-                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3 w-3" })
-                    }
-                  )
-                ] })
-              ] }),
-              coverTab === "unsplash" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3", children: !unsplashKey || showKeyInput ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground", children: [
-                  "Get a free API key at",
-                  " ",
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://unsplash.com/developers", target: "_blank", rel: "noopener noreferrer", className: "text-brand underline", children: "unsplash.com/developers" }),
-                  " ",
-                  "→ New Application → copy the ",
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Access Key" }),
-                  "."
+                  onClick: () => handleCoverChange(""),
+                  className: "flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/40 hover:bg-black/60 text-white text-xs font-medium transition-colors",
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" }),
+                    " Remove"
+                  ]
+                }
+              )
+            ] }) }) : null,
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `flex items-start justify-between px-6 pt-5 pb-0 ${!coverStyle ? "pt-5" : "pt-4"}`, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "var(--cal-muted)" }, children: "Task" }),
+                  statusCol && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "inline-flex", alignItems: "center", gap: 6, padding: "3px 9px", borderRadius: 999, fontSize: 12, fontWeight: 600, background: "var(--cal-surface-2)", color: "var(--cal-ink)" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 8, height: 8, borderRadius: "50%", background: statusCol.color } }),
+                    statusCol.name
+                  ] })
                 ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "input",
-                    {
-                      className: "flex-1 h-8 rounded-lg border border-border px-2 text-xs bg-background outline-none focus:border-brand font-mono",
-                      placeholder: "Paste your Unsplash Access Key…",
-                      value: keyDraft,
-                      onChange: (e) => setKeyDraft(e.target.value),
-                      onKeyDown: (e) => {
-                        if (e.key === "Enter") handleSaveUnsplashKey();
-                      },
-                      autoFocus: true
-                    }
-                  ),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "button",
-                    {
-                      onClick: handleSaveUnsplashKey,
-                      disabled: !keyDraft.trim(),
-                      className: "h-8 px-3 rounded-lg bg-brand text-brand-foreground text-xs font-medium hover:bg-brand/90 disabled:opacity-40 transition-colors",
-                      children: "Save"
-                    }
-                  )
-                ] })
-              ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 items-center", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative flex-1", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "input",
-                      {
-                        className: "w-full h-8 pl-7 pr-3 rounded-lg border border-border text-xs bg-background outline-none focus:border-brand",
-                        placeholder: "Search Unsplash…",
-                        value: unsplashQuery,
-                        onChange: (e) => setUnsplashQuery(e.target.value),
-                        onKeyDown: (e) => {
-                          if (e.key === "Enter") handleUnsplashSearch();
-                        },
-                        autoFocus: true
-                      }
-                    )
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "button",
-                    {
-                      onClick: handleUnsplashSearch,
-                      disabled: unsplashLoading || !unsplashQuery.trim(),
-                      className: "h-8 px-3 rounded-lg bg-brand text-brand-foreground text-xs font-medium hover:bg-brand/90 disabled:opacity-40 transition-colors",
-                      children: unsplashLoading ? "…" : "Search"
-                    }
-                  ),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "button",
-                    {
-                      onClick: () => {
-                        setShowKeyInput(true);
-                        setKeyDraft(unsplashKey);
-                      },
-                      className: "h-8 w-8 flex items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-foreground hover:border-brand transition-colors",
-                      title: "Change API key",
-                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(Key, { className: "h-3.5 w-3.5" })
-                    }
-                  )
-                ] }),
-                unsplashResults.length === 0 && !unsplashLoading && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1.5", children: ["fire station", "firefighter", "emergency", "training", "safety"].map((term) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "button",
-                  {
-                    onClick: () => {
-                      setUnsplashQuery(term);
-                      setTimeout(handleUnsplashSearch, 50);
-                    },
-                    className: "px-2.5 py-1 rounded-full text-xs bg-muted/60 text-muted-foreground hover:bg-brand/15 hover:text-brand transition-colors border border-border",
-                    children: term
-                  },
-                  term
-                )) }),
-                unsplashResults.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-3 gap-1.5 max-h-48 overflow-y-auto", children: unsplashResults.map((photo) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "button",
-                  {
-                    onClick: () => handleCoverChange(photo.full),
-                    className: `relative h-16 rounded-lg overflow-hidden hover:scale-105 transition-all border-2 ${coverColour === photo.full ? "border-brand scale-105" : "border-transparent"}`,
-                    title: photo.alt,
-                    children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: photo.thumb, alt: photo.alt, className: "w-full h-full object-cover" })
-                  },
-                  photo.id
-                )) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-[10px] text-muted-foreground/60 text-right", children: [
-                  "Photos from ",
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://unsplash.com", target: "_blank", rel: "noopener noreferrer", className: "underline", children: "Unsplash" })
-                ] })
-              ] }) })
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col lg:flex-row gap-6 lg:gap-0 px-4 sm:px-6 pb-6 pt-4 overflow-y-auto max-h-[70vh]", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0 space-y-5 lg:pr-6", children: [
-              (canEdit || tags.length > 0) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: Tag, children: "Labels" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1.5", children: TASK_LABELS.map((label2) => {
-                  const active = tags.includes(label2.id);
-                  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                    "button",
-                    {
-                      onClick: () => canEdit && handleTagToggle(label2.id),
-                      disabled: !canEdit,
-                      className: `flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all border ${active ? "text-white border-transparent shadow-sm" : "bg-muted/50 text-muted-foreground border-border"} ${canEdit ? "hover:scale-105 cursor-pointer" : "cursor-default"}`,
-                      style: active ? { backgroundColor: label2.colour } : {},
-                      onMouseEnter: (e) => {
-                        if (canEdit && !active) {
-                          e.currentTarget.style.backgroundColor = label2.colour;
-                          e.currentTarget.style.color = "white";
-                        }
-                      },
-                      onMouseLeave: (e) => {
-                        if (canEdit && !active) {
-                          e.currentTarget.style.backgroundColor = "";
-                          e.currentTarget.style.color = "";
-                        }
-                      },
-                      children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "h-2 w-2 rounded-full", style: { backgroundColor: active ? "rgba(255,255,255,0.7)" : label2.colour } }),
-                        label2.name
-                      ]
-                    },
-                    label2.id
-                  );
-                }) })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: AlignLeft, children: "Description" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "textarea",
                   {
-                    className: "w-full text-sm bg-muted/40 rounded-xl p-3 border border-transparent focus:border-brand outline-none resize-none text-foreground placeholder:text-muted-foreground",
-                    value: description,
-                    onChange: (e) => setDescription(e.target.value),
-                    onBlur: handleDescriptionBlur,
-                    rows: 3,
+                    "aria-label": "Task title",
+                    className: "w-full bg-transparent outline-none resize-none leading-snug px-0 border-0 border-b-2 border-b-transparent hover:border-b-[var(--cal-line-2)] focus:border-b-[var(--cal-brand)] disabled:border-b-transparent transition-colors",
+                    style: { fontSize: 22, fontWeight: 600, color: "var(--cal-ink)", paddingBottom: 6 },
+                    value: title,
+                    onChange: (e) => setTitle(e.target.value),
+                    onBlur: handleTitleBlur,
+                    rows: 2,
                     disabled: !canEdit,
-                    placeholder: "Add a description…"
+                    placeholder: "Task title"
                   }
                 )
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(SectionLabel, { icon: SquareCheckBig, children: [
-                  "Checklist",
-                  checklist.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ml-1 normal-case font-normal", children: [
-                    completedCount,
-                    "/",
-                    checklist.length
-                  ] })
-                ] }),
-                checklist.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-1.5 bg-muted rounded-full overflow-hidden mb-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "div",
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1 ml-4 shrink-0", children: [
+                saving && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 11, color: "var(--cal-muted)", marginRight: 4 }, children: "Saving…" }),
+                canEdit && !coverStyle && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "relative", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
                   {
-                    className: "h-full bg-brand transition-all duration-300",
-                    style: { width: `${checklistPct}%` }
+                    onClick: () => setShowCoverPicker(!showCoverPicker),
+                    className: "cal-focus",
+                    style: { width: 32, height: 32, borderRadius: 10, border: "none", background: "var(--cal-surface-2)", color: "var(--cal-ink-2)", display: "grid", placeItems: "center", cursor: "pointer" },
+                    title: "Add cover",
+                    "aria-label": "Add cover",
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(Image$1, { className: "h-4 w-4" })
                   }
                 ) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1", children: checklist.map((item, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-2.5 group py-1 px-2 rounded-lg hover:bg-muted/40 transition-colors", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    Checkbox,
-                    {
-                      checked: item.done,
-                      onCheckedChange: () => canEdit && handleChecklistToggle(idx),
-                      className: "mt-0.5",
-                      id: `modal-check-${task2.id}-${idx}`
-                    }
-                  ),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "label",
-                    {
-                      htmlFor: `modal-check-${task2.id}-${idx}`,
-                      className: `flex-1 text-sm cursor-pointer leading-snug select-none ${item.done ? "line-through text-muted-foreground" : "text-foreground"}`,
-                      children: item.label
-                    }
-                  ),
-                  canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleChecklistDelete(idx), className: "opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-500 transition-opacity p-0.5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3 w-3" }) })
-                ] }, idx)) }),
-                canEdit && (addingItem ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 mt-2", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "input",
-                    {
-                      ref: newItemInputRef,
-                      className: "flex-1 h-8 rounded-xl border border-border px-3 text-sm bg-background outline-none focus:border-brand",
-                      placeholder: "Add an item…",
-                      value: newChecklistItem,
-                      onChange: (e) => setNewChecklistItem(e.target.value),
-                      onKeyDown: (e) => {
-                        if (e.key === "Enter") handleAddChecklistItem();
-                        if (e.key === "Escape") {
-                          setAddingItem(false);
-                          setNewChecklistItem("");
-                        }
-                      },
-                      autoFocus: true
-                    }
-                  ),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", className: "h-8 bg-brand hover:bg-brand/90 text-brand-foreground text-xs rounded-xl", onClick: handleAddChecklistItem, children: "Add" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "ghost", className: "h-8 text-xs rounded-xl", onClick: () => {
-                    setAddingItem(false);
-                    setNewChecklistItem("");
-                  }, children: "Cancel" })
-                ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mt-2 py-1 px-2 rounded-lg hover:bg-muted/40 transition-colors w-full", onClick: () => setAddingItem(true), children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-3.5 w-3.5" }),
-                  " Add an item"
-                ] }))
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs text-muted-foreground flex items-center gap-4 pt-2 border-t border-border", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: "h-3 w-3" }),
-                  "Created ",
-                  new Date(task2.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
-                ] }),
-                task2.assigned_to_user_id && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(User, { className: "h-3 w-3" }),
-                  " Assigned"
-                ] })
+                canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleDelete, className: "cal-focus", style: { width: 32, height: 32, borderRadius: 10, border: "none", background: "var(--cal-station-bg)", color: "var(--cal-station-fg)", display: "grid", placeItems: "center", cursor: "pointer" }, title: "Delete task", "aria-label": "Delete task", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-4 w-4" }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "cal-focus", style: { width: 32, height: 32, borderRadius: 10, border: "none", background: "var(--cal-surface-2)", color: "var(--cal-ink-2)", display: "grid", placeItems: "center", cursor: "pointer" }, "aria-label": "Close", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4" }) })
               ] })
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full lg:w-44 lg:shrink-0 space-y-4 border-t lg:border-t-0 pt-4 lg:pt-0", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: GripVertical, children: "Column" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: status, onValueChange: handleStatusChange, disabled: !canEdit, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs rounded-xl", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: columns.map((col) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: col.status_key, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "h-2 w-2 rounded-full inline-block", style: { backgroundColor: col.color } }),
-                    col.name
-                  ] }) }, col.id)) })
-                ] })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: Flag, children: "Priority" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: priority, onValueChange: (v) => {
-                  setPriority(v);
-                  save({ priority: v });
-                }, disabled: !canEdit, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs rounded-xl", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: PRIORITY_OPTIONS$1.map((p) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: p.value, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: p.color, children: p.label }) }, p.value)) })
-                ] })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: Tag, children: "Category" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: category, onValueChange: (v) => {
-                  setCategory(v);
-                  save({ category: v });
-                }, disabled: !canEdit, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs rounded-xl", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: CATEGORY_OPTIONS$1.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: c, children: c }, c)) })
-                ] })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(SectionLabel, { icon: Calendar, children: [
-                  "Due Date",
-                  isOverdue && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-red-500 normal-case font-normal ml-1", children: "(overdue)" }),
-                  isDueToday && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-orange-500 normal-case font-normal ml-1", children: "(today)" })
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "input",
+            showCoverPicker && canEdit && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mx-6 mt-3 rounded-xl border border-border bg-background shadow-lg overflow-hidden", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex border-b border-border", children: ["colours", "upload", "unsplash"].map((tab) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  onClick: () => setCoverTab(tab),
+                  className: `flex-1 py-2 text-xs font-medium capitalize transition-colors ${coverTab === tab ? "text-brand border-b-2 border-brand bg-brand/10" : "text-muted-foreground hover:text-foreground"}`,
+                  children: tab === "colours" ? "🎨 Colours" : tab === "upload" ? "⬆ Upload" : "📷 Unsplash"
+                },
+                tab
+              )) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3", children: [
+                coverTab === "colours" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-9 gap-1.5", children: CARD_COVERS.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
                   {
-                    type: "date",
-                    className: `h-8 w-full rounded-xl border px-2 text-xs bg-background outline-none focus:border-brand ${isOverdue ? "border-red-400 text-red-500" : isDueToday ? "border-orange-400" : "border-input"}`,
-                    value: dueDate,
-                    onChange: (e) => {
-                      setDueDate(e.target.value);
-                      save({ due_date: e.target.value ? new Date(e.target.value) : void 0 });
-                    },
-                    disabled: !canEdit
-                  }
-                )
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: Repeat, children: "Recurrence" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: currentRruleVal, onValueChange: (val) => {
-                  if (val === "__custom__") {
-                    setShowCustomRrule(true);
-                    setRrule("__custom__");
-                    return;
-                  }
-                  setShowCustomRrule(false);
-                  setRrule(val);
-                  save({ rrule: val === "__none__" ? void 0 : val });
-                }, disabled: !canEdit, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs rounded-xl", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { children: parseRRuleLabel(showCustomRrule ? customRrule : rrule) }) }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: RRULE_PRESETS.map((p) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: p.value, children: p.label }, p.value)) })
-                ] }),
-                showCustomRrule && canEdit && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1 mt-1", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "input",
+                    onClick: () => handleCoverChange(c.id),
+                    title: c.name,
+                    className: `h-8 rounded-lg border-2 transition-all hover:scale-110 ${coverColour === c.id ? "border-brand scale-110 shadow" : "border-transparent"}`,
+                    style: c.id ? { background: c.bg } : { background: "#f1f5f9", border: "2px dashed #cbd5e1" },
+                    children: !c.id && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-slate-400", children: "✕" })
+                  },
+                  c.id || "none"
+                )) }),
+                coverTab === "upload" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "Upload an image — it will be cropped to 800 × 300 px (Trello size)." }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("input", { ref: fileInputRef, type: "file", accept: "image/*", className: "hidden", onChange: handleFileUpload }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "button",
                     {
-                      className: "flex-1 h-7 rounded-lg border border-input px-2 text-xs bg-background outline-none focus:border-brand",
-                      placeholder: "FREQ=WEEKLY;BYDAY=TU",
-                      value: customRrule,
-                      onChange: (e) => setCustomRrule(e.target.value)
+                      onClick: () => {
+                        var _a2;
+                        return (_a2 = fileInputRef.current) == null ? void 0 : _a2.click();
+                      },
+                      className: "w-full flex items-center justify-center gap-2 py-6 rounded-xl border-2 border-dashed border-border text-sm text-muted-foreground hover:text-foreground hover:border-brand hover:bg-brand/5 transition-all",
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { className: "h-5 w-5" }),
+                        "Click to choose an image"
+                      ]
                     }
                   ),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", className: "h-7 text-xs px-2 bg-brand hover:bg-brand/90 text-brand-foreground rounded-lg", onClick: () => save({ rrule: customRrule || void 0 }), children: "Save" })
-                ] })
-              ] }),
-              userRole === "WC" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: ArrowRightLeft, children: "Move to Watch" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watchUnit || "__none__", onValueChange: (v) => {
-                  const val = v === "__none__" ? "" : v;
-                  setWatchUnit(val);
-                  save({ watch_unit: val || null });
-                  toast2({ title: "Task moved", description: val ? `Moved to ${val} Watch` : "Watch cleared" });
-                }, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs rounded-xl", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Assign watch…" }) }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "__none__", children: "— None —" }),
-                    WATCHES$8.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
-                      w,
-                      " Watch"
-                    ] }, w))
+                  coverColour.startsWith("data:") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative rounded-xl overflow-hidden h-20", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: coverColour, alt: "Current cover", className: "w-full h-full object-cover" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        onClick: () => handleCoverChange(""),
+                        className: "absolute top-1 right-1 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 transition-colors",
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3 w-3" })
+                      }
+                    )
+                  ] })
+                ] }),
+                coverTab === "unsplash" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3", children: !unsplashKey || showKeyInput ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground", children: [
+                    "Get a free API key at",
+                    " ",
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://unsplash.com/developers", target: "_blank", rel: "noopener noreferrer", className: "text-brand underline", children: "unsplash.com/developers" }),
+                    " ",
+                    "→ New Application → copy the ",
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Access Key" }),
+                    "."
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "input",
+                      {
+                        className: "flex-1 h-8 rounded-lg border border-border px-2 text-xs bg-background outline-none focus:border-brand font-mono",
+                        placeholder: "Paste your Unsplash Access Key…",
+                        value: keyDraft,
+                        onChange: (e) => setKeyDraft(e.target.value),
+                        onKeyDown: (e) => {
+                          if (e.key === "Enter") handleSaveUnsplashKey();
+                        },
+                        autoFocus: true
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        onClick: handleSaveUnsplashKey,
+                        disabled: !keyDraft.trim(),
+                        className: "h-8 px-3 rounded-lg bg-brand text-brand-foreground text-xs font-medium hover:bg-brand/90 disabled:opacity-40 transition-colors",
+                        children: "Save"
+                      }
+                    )
+                  ] })
+                ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 items-center", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative flex-1", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "input",
+                        {
+                          className: "w-full h-8 pl-7 pr-3 rounded-lg border border-border text-xs bg-background outline-none focus:border-brand",
+                          placeholder: "Search Unsplash…",
+                          value: unsplashQuery,
+                          onChange: (e) => setUnsplashQuery(e.target.value),
+                          onKeyDown: (e) => {
+                            if (e.key === "Enter") handleUnsplashSearch();
+                          },
+                          autoFocus: true
+                        }
+                      )
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        onClick: handleUnsplashSearch,
+                        disabled: unsplashLoading || !unsplashQuery.trim(),
+                        className: "h-8 px-3 rounded-lg bg-brand text-brand-foreground text-xs font-medium hover:bg-brand/90 disabled:opacity-40 transition-colors",
+                        children: unsplashLoading ? "…" : "Search"
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        onClick: () => {
+                          setShowKeyInput(true);
+                          setKeyDraft(unsplashKey);
+                        },
+                        className: "h-8 w-8 flex items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-foreground hover:border-brand transition-colors",
+                        title: "Change API key",
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(Key, { className: "h-3.5 w-3.5" })
+                      }
+                    )
+                  ] }),
+                  unsplashResults.length === 0 && !unsplashLoading && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1.5", children: ["fire station", "firefighter", "emergency", "training", "safety"].map((term) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      onClick: () => {
+                        setUnsplashQuery(term);
+                        setTimeout(handleUnsplashSearch, 50);
+                      },
+                      className: "px-2.5 py-1 rounded-full text-xs bg-muted/60 text-muted-foreground hover:bg-brand/15 hover:text-brand transition-colors border border-border",
+                      children: term
+                    },
+                    term
+                  )) }),
+                  unsplashResults.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-3 gap-1.5 max-h-48 overflow-y-auto", children: unsplashResults.map((photo) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      onClick: () => handleCoverChange(photo.full),
+                      className: `relative h-16 rounded-lg overflow-hidden hover:scale-105 transition-all border-2 ${coverColour === photo.full ? "border-brand scale-105" : "border-transparent"}`,
+                      title: photo.alt,
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: photo.thumb, alt: photo.alt, className: "w-full h-full object-cover" })
+                    },
+                    photo.id
+                  )) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-[10px] text-muted-foreground/60 text-right", children: [
+                    "Photos from ",
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://unsplash.com", target: "_blank", rel: "noopener noreferrer", className: "underline", children: "Unsplash" })
+                  ] })
+                ] }) })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col lg:flex-row gap-6 lg:gap-0 px-4 sm:px-6 pb-6 pt-4 overflow-y-auto max-h-[70vh]", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0 space-y-5 lg:pr-6", children: [
+                (canEdit || tags.length > 0) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: Tag, children: "Labels" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1.5", children: TASK_LABELS.map((label2) => {
+                    const active = tags.includes(label2.id);
+                    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "button",
+                      {
+                        onClick: () => canEdit && handleTagToggle(label2.id),
+                        disabled: !canEdit,
+                        className: `flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all border ${active ? "text-white border-transparent shadow-sm" : "bg-muted/50 text-muted-foreground border-border"} ${canEdit ? "hover:scale-105 cursor-pointer" : "cursor-default"}`,
+                        style: active ? { backgroundColor: label2.colour } : {},
+                        onMouseEnter: (e) => {
+                          if (canEdit && !active) {
+                            e.currentTarget.style.backgroundColor = label2.colour;
+                            e.currentTarget.style.color = "white";
+                          }
+                        },
+                        onMouseLeave: (e) => {
+                          if (canEdit && !active) {
+                            e.currentTarget.style.backgroundColor = "";
+                            e.currentTarget.style.color = "";
+                          }
+                        },
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "h-2 w-2 rounded-full", style: { backgroundColor: active ? "rgba(255,255,255,0.7)" : label2.colour } }),
+                          label2.name
+                        ]
+                      },
+                      label2.id
+                    );
+                  }) })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: AlignLeft, children: "Description" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "textarea",
+                    {
+                      className: "w-full text-sm bg-muted/40 rounded-xl p-3 border border-transparent focus:border-brand outline-none resize-none text-foreground placeholder:text-muted-foreground",
+                      value: description,
+                      onChange: (e) => setDescription(e.target.value),
+                      onBlur: handleDescriptionBlur,
+                      rows: 3,
+                      disabled: !canEdit,
+                      placeholder: "Add a description…"
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(SectionLabel, { icon: SquareCheckBig, children: [
+                    "Checklist",
+                    checklist.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ml-1 normal-case font-normal", children: [
+                      completedCount,
+                      "/",
+                      checklist.length
+                    ] })
+                  ] }),
+                  checklist.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-1.5 bg-muted rounded-full overflow-hidden mb-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "div",
+                    {
+                      className: "h-full bg-brand transition-all duration-300",
+                      style: { width: `${checklistPct}%` }
+                    }
+                  ) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1", children: checklist.map((item, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-2.5 group py-1 px-2 rounded-lg hover:bg-muted/40 transition-colors", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      Checkbox,
+                      {
+                        checked: item.done,
+                        onCheckedChange: () => canEdit && handleChecklistToggle(idx),
+                        className: "mt-0.5",
+                        id: `modal-check-${task2.id}-${idx}`
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "label",
+                      {
+                        htmlFor: `modal-check-${task2.id}-${idx}`,
+                        className: `flex-1 text-sm cursor-pointer leading-snug select-none ${item.done ? "line-through text-muted-foreground" : "text-foreground"}`,
+                        children: item.label
+                      }
+                    ),
+                    canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleChecklistDelete(idx), className: "opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-500 transition-opacity p-0.5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3 w-3" }) })
+                  ] }, idx)) }),
+                  canEdit && (addingItem ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 mt-2", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "input",
+                      {
+                        ref: newItemInputRef,
+                        className: "flex-1 h-8 rounded-xl border border-border px-3 text-sm bg-background outline-none focus:border-brand",
+                        placeholder: "Add an item…",
+                        value: newChecklistItem,
+                        onChange: (e) => setNewChecklistItem(e.target.value),
+                        onKeyDown: (e) => {
+                          if (e.key === "Enter") handleAddChecklistItem();
+                          if (e.key === "Escape") {
+                            setAddingItem(false);
+                            setNewChecklistItem("");
+                          }
+                        },
+                        autoFocus: true
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", className: "h-8 bg-brand hover:bg-brand/90 text-brand-foreground text-xs rounded-xl", onClick: handleAddChecklistItem, children: "Add" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "ghost", className: "h-8 text-xs rounded-xl", onClick: () => {
+                      setAddingItem(false);
+                      setNewChecklistItem("");
+                    }, children: "Cancel" })
+                  ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mt-2 py-1 px-2 rounded-lg hover:bg-muted/40 transition-colors w-full", onClick: () => setAddingItem(true), children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-3.5 w-3.5" }),
+                    " Add an item"
+                  ] }))
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs text-muted-foreground flex items-center gap-4 pt-2 border-t border-border", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: "h-3 w-3" }),
+                    "Created ",
+                    new Date(task2.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+                  ] }),
+                  task2.assigned_to_user_id && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(User, { className: "h-3 w-3" }),
+                    " Assigned"
                   ] })
                 ] })
               ] }),
-              canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pt-2 border-t border-border", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "button",
-                {
-                  onClick: handleDelete,
-                  className: "w-full flex items-center gap-2 px-2 py-1.5 rounded-xl text-xs text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors",
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-3.5 w-3.5" }),
-                    " Delete task"
-                  ]
-                }
-              ) })
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full lg:w-44 lg:shrink-0 space-y-4 border-t lg:border-t-0 pt-4 lg:pt-0", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: GripVertical, children: "Column" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: status, onValueChange: handleStatusChange, disabled: !canEdit, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs rounded-xl", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: columns.map((col) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: col.status_key, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "h-2 w-2 rounded-full inline-block", style: { backgroundColor: col.color } }),
+                      col.name
+                    ] }) }, col.id)) })
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: Flag, children: "Priority" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: priority, onValueChange: (v) => {
+                    setPriority(v);
+                    save({ priority: v });
+                  }, disabled: !canEdit, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs rounded-xl", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: PRIORITY_OPTIONS$1.map((p) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: p.value, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: p.color, children: p.label }) }, p.value)) })
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: Tag, children: "Category" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: category, onValueChange: (v) => {
+                    setCategory(v);
+                    save({ category: v });
+                  }, disabled: !canEdit, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs rounded-xl", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: CATEGORY_OPTIONS$1.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: c, children: c }, c)) })
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(SectionLabel, { icon: Calendar, children: [
+                    "Due Date",
+                    isOverdue && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-red-500 normal-case font-normal ml-1", children: "(overdue)" }),
+                    isDueToday && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-orange-500 normal-case font-normal ml-1", children: "(today)" })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      type: "date",
+                      className: `h-8 w-full rounded-xl border px-2 text-xs bg-background outline-none focus:border-brand ${isOverdue ? "border-red-400 text-red-500" : isDueToday ? "border-orange-400" : "border-input"}`,
+                      value: dueDate,
+                      onChange: (e) => {
+                        setDueDate(e.target.value);
+                        save({ due_date: e.target.value ? new Date(e.target.value) : void 0 });
+                      },
+                      disabled: !canEdit
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: Repeat, children: "Recurrence" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: currentRruleVal, onValueChange: (val) => {
+                    if (val === "__custom__") {
+                      setShowCustomRrule(true);
+                      setRrule("__custom__");
+                      return;
+                    }
+                    setShowCustomRrule(false);
+                    setRrule(val);
+                    save({ rrule: val === "__none__" ? void 0 : val });
+                  }, disabled: !canEdit, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs rounded-xl", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { children: parseRRuleLabel(showCustomRrule ? customRrule : rrule) }) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: RRULE_PRESETS.map((p) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: p.value, children: p.label }, p.value)) })
+                  ] }),
+                  showCustomRrule && canEdit && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1 mt-1", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "input",
+                      {
+                        className: "flex-1 h-7 rounded-lg border border-input px-2 text-xs bg-background outline-none focus:border-brand",
+                        placeholder: "FREQ=WEEKLY;BYDAY=TU",
+                        value: customRrule,
+                        onChange: (e) => setCustomRrule(e.target.value)
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", className: "h-7 text-xs px-2 bg-brand hover:bg-brand/90 text-brand-foreground rounded-lg", onClick: () => save({ rrule: customRrule || void 0 }), children: "Save" })
+                  ] })
+                ] }),
+                userRole === "WC" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: ArrowRightLeft, children: "Move to Watch" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watchUnit || "__none__", onValueChange: (v) => {
+                    const val = v === "__none__" ? "" : v;
+                    setWatchUnit(val);
+                    save({ watch_unit: val || null });
+                    toast2({ title: "Task moved", description: val ? `Moved to ${val} Watch` : "Watch cleared" });
+                  }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs rounded-xl", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Assign watch…" }) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "__none__", children: "— None —" }),
+                      WATCHES$8.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+                        w,
+                        " Watch"
+                      ] }, w))
+                    ] })
+                  ] })
+                ] }),
+                canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pt-2 border-t border-border", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "button",
+                  {
+                    onClick: handleDelete,
+                    className: "w-full flex items-center gap-2 px-2 py-1.5 rounded-xl text-xs text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors",
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-3.5 w-3.5" }),
+                      " Delete task"
+                    ]
+                  }
+                ) })
+              ] })
             ] })
-          ] })
-        ]
-      }
-    ) })
-  ] });
+          ]
+        }
+      ) })
+    ] }),
+    document.body
+  );
 }
 const DAYS_OF_WEEK = [
   { key: "MO", label: "Mon" },
@@ -56715,15 +56718,14 @@ function Tasks() {
             )
           ] })
         ] }),
-        viewMode === "board" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }, children: stats.map((st) => {
+        viewMode === "board" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-3 gap-2 sm:gap-3 sm:[grid-template-columns:repeat(auto-fit,minmax(140px,1fr))]", children: stats.map((st) => {
           const Tag2 = st.onClick ? "button" : "div";
           return /* @__PURE__ */ jsxRuntimeExports.jsxs(
             Tag2,
             {
               ...st.onClick ? { type: "button", onClick: st.onClick, "aria-pressed": st.pressed, title: "Show only overdue tasks" } : {},
-              className: `cal-card${st.onClick ? " cal-focus" : ""}`,
+              className: `cal-card px-2.5 py-2 sm:px-3.5 sm:py-3${st.onClick ? " cal-focus" : ""}`,
               style: {
-                padding: "12px 14px",
                 display: "flex",
                 flexDirection: "column",
                 gap: 4,
@@ -56734,8 +56736,8 @@ function Tasks() {
                 ...st.pressed ? { boxShadow: "0 0 0 2px var(--cal-station-dot), var(--cal-shadow)" } : {}
               },
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 11, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", color: "var(--cal-muted)" }, children: st.label }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 28, fontWeight: 600, lineHeight: 1, color: st.k ? `var(--cal-${st.k}-fg)` : "var(--cal-ink)" }, children: st.value })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] sm:text-[11px]", style: { fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", color: "var(--cal-muted)" }, children: st.label }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono text-[22px] sm:text-[28px]", style: { fontWeight: 600, lineHeight: 1, color: st.k ? `var(--cal-${st.k}-fg)` : "var(--cal-ink)" }, children: st.value })
               ]
             },
             st.key

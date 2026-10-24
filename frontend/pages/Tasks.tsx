@@ -322,22 +322,22 @@ export default function Tasks() {
 
       {/* ── Stats ────────────────────────────────────────────────────────── */}
       {viewMode === "board" && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 sm:[grid-template-columns:repeat(auto-fit,minmax(140px,1fr))]">
           {stats.map((st) => {
             const Tag = st.onClick ? "button" : "div";
             return (
               <Tag
                 key={st.key}
                 {...(st.onClick ? { type: "button" as const, onClick: st.onClick, "aria-pressed": st.pressed, title: "Show only overdue tasks" } : {})}
-                className={`cal-card${st.onClick ? " cal-focus" : ""}`}
+                className={`cal-card px-2.5 py-2 sm:px-3.5 sm:py-3${st.onClick ? " cal-focus" : ""}`}
                 style={{
-                  padding: "12px 14px", display: "flex", flexDirection: "column", gap: 4, textAlign: "left", font: "inherit",
+                  display: "flex", flexDirection: "column", gap: 4, textAlign: "left", font: "inherit",
                   cursor: st.onClick ? "pointer" : undefined, color: "var(--cal-ink)",
                   ...(st.pressed ? { boxShadow: "0 0 0 2px var(--cal-station-dot), var(--cal-shadow)" } : {}),
                 }}
               >
-                <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", color: "var(--cal-muted)" }}>{st.label}</span>
-                <span className="cal-mono" style={{ fontSize: 28, fontWeight: 600, lineHeight: 1, color: st.k ? `var(--cal-${st.k}-fg)` : "var(--cal-ink)" }}>
+                <span className="text-[10px] sm:text-[11px]" style={{ fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", color: "var(--cal-muted)" }}>{st.label}</span>
+                <span className="cal-mono text-[22px] sm:text-[28px]" style={{ fontWeight: 600, lineHeight: 1, color: st.k ? `var(--cal-${st.k}-fg)` : "var(--cal-ink)" }}>
                   {st.value}
                 </span>
               </Tag>

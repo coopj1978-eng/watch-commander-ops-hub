@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/App";
 import { useUserRole } from "@/lib/rbac";
@@ -263,7 +264,8 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
   const coverStyle = getCoverStyle(coverColour);
   const statusCol = columns.find((c) => c.status_key === status);
 
-  return (
+  // Portalled to <body> so it sits above the phone bottom nav (same z-index).
+  return createPortal(
     <>
       {/* Backdrop */}
       <div className="fixed inset-0 bg-black/40 z-40" onClick={onClose} />
@@ -315,8 +317,8 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
               {/* Title */}
               <textarea
                 aria-label="Task title"
-                className="w-full bg-transparent outline-none resize-none leading-snug px-0"
-                style={{ fontSize: 22, fontWeight: 600, color: "var(--cal-ink)", border: "none", borderBottom: canEdit ? "2px solid var(--cal-brand)" : "none", paddingBottom: 6 }}
+                className="w-full bg-transparent outline-none resize-none leading-snug px-0 border-0 border-b-2 border-b-transparent hover:border-b-[var(--cal-line-2)] focus:border-b-[var(--cal-brand)] disabled:border-b-transparent transition-colors"
+                style={{ fontSize: 22, fontWeight: 600, color: "var(--cal-ink)", paddingBottom: 6 }}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 onBlur={handleTitleBlur}
@@ -775,6 +777,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
           </div>
         </div>
       </div>
-    </>
+    </>,
+    document.body
   );
 }

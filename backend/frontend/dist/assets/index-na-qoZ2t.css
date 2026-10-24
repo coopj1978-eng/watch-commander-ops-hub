@@ -2784,6 +2784,10 @@
     border-top-color: var(--color-teal-500);
   }
 
+  .border-b-transparent {
+    border-bottom-color: #0000;
+  }
+
   .border-l-amber-500 {
     border-left-color: var(--color-amber-500);
   }
@@ -4139,6 +4143,10 @@
     font-size: 13px;
   }
 
+  .text-\[22px\] {
+    font-size: 22px;
+  }
+
   .leading-none {
     --tw-leading: 1;
     line-height: 1;
@@ -5344,6 +5352,10 @@
       border-color: var(--color-red-400);
     }
 
+    .hover\:border-b-\[var\(--cal-line-2\)\]:hover {
+      border-bottom-color: var(--cal-line-2);
+    }
+
     .hover\:bg-\[var\(--cal-surface-2\)\]:hover {
       background-color: var(--cal-surface-2);
     }
@@ -5872,6 +5884,10 @@
     border-color: var(--color-red-500);
   }
 
+  .focus\:border-b-\[var\(--cal-brand\)\]:focus {
+    border-bottom-color: var(--cal-brand);
+  }
+
   .focus\:bg-accent:focus {
     background-color: var(--accent);
   }
@@ -6061,6 +6077,10 @@
 
   .disabled\:cursor-not-allowed:disabled {
     cursor: not-allowed;
+  }
+
+  .disabled\:border-b-transparent:disabled {
+    border-bottom-color: #0000;
   }
 
   .disabled\:opacity-20:disabled {
@@ -6455,6 +6475,10 @@
       max-width: var(--container-xl);
     }
 
+    .sm\:\[grid-template-columns\:repeat\(auto-fit\,minmax\(140px\,1fr\)\)\] {
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    }
+
     .sm\:grid-cols-2 {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -6495,6 +6519,10 @@
       gap: calc(var(--spacing) * 2);
     }
 
+    .sm\:gap-3 {
+      gap: calc(var(--spacing) * 3);
+    }
+
     .sm\:gap-4 {
       gap: calc(var(--spacing) * 4);
     }
@@ -6521,6 +6549,10 @@
       padding-inline: calc(var(--spacing) * 3);
     }
 
+    .sm\:px-3\.5 {
+      padding-inline: calc(var(--spacing) * 3.5);
+    }
+
     .sm\:px-4 {
       padding-inline: calc(var(--spacing) * 4);
     }
@@ -6535,6 +6567,14 @@
 
     .sm\:text-left {
       text-align: left;
+    }
+
+    .sm\:text-\[11px\] {
+      font-size: 11px;
+    }
+
+    .sm\:text-\[28px\] {
+      font-size: 28px;
     }
 
     .data-\[state\=open\]\:sm\:slide-in-from-bottom-full[data-state="open"] {
