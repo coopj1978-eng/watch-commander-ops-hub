@@ -463,7 +463,7 @@ export default function UnifiedCalendar() {
             </h1>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-            <button type="button" className="cal-btn md:hidden" style={{ height: 44, width: 44, padding: 0 }} onClick={() => setFiltersOpen(true)} aria-label="Calendars and filters">
+            <button type="button" className="cal-btn cal-phone-only" style={{ height: 44, width: 44, padding: 0 }} onClick={() => setFiltersOpen(true)} aria-label="Calendars and filters">
               <Filter className="h-[18px] w-[18px]" />
             </button>
             <button type="button" className="cal-btn" style={actionBtn} onClick={() => { setShiftAdjDate(undefined); setShiftAdjModalOpen(true); }} aria-label="Log Shift">

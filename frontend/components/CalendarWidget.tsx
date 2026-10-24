@@ -983,7 +983,7 @@ export default function CalendarWidget({
   return (
     <div className="cal-ui" style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }}>
       {/* ── Phone ── */}
-      <div className="md:hidden" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <div className="flex flex-col gap-3 md:hidden">
         <MobileMonth
           date={currentDate}
           items={items}
@@ -1008,7 +1008,7 @@ export default function CalendarWidget({
       </div>
 
       {/* ── Desktop ── */}
-      <div className="hidden md:flex" style={{ flexDirection: "column", gap: 16, minWidth: 0 }}>
+      <div className="hidden md:flex md:flex-col gap-4 min-w-0">
         <Toolbar
           view={view}
           currentDate={currentDate}

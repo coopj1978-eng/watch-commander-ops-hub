@@ -667,3 +667,5 @@ table.plain tbody tr:last-child td { border-bottom: none; }
 }
 .cal-ui .cal-field:focus { border-color: var(--cal-brand); }
 .dark .cal-ui .cal-field { color-scheme: dark; }
+/* .cal-btn sets display, so Tailwind's md:hidden can't hide it — use this. */
+@media (min-width: 768px) { .cal-ui .cal-phone-only { display: none; } }

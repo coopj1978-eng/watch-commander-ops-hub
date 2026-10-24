@@ -52457,7 +52457,7 @@ function CalendarWidget({
     onViewChange("day");
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cal-ui", style: { display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "md:hidden", style: { display: "flex", flexDirection: "column", gap: 12 }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-3 md:hidden", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         MobileMonth,
         {
@@ -52494,7 +52494,7 @@ function CalendarWidget({
         }
       )
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden md:flex", style: { flexDirection: "column", gap: 16, minWidth: 0 }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden md:flex md:flex-col gap-4 min-w-0", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         Toolbar,
         {
@@ -54136,7 +54136,7 @@ This cancels the whole booking (TOIL/H4H/Flexi): any TOIL hours are refunded and
           /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { style: { margin: 0, fontSize: "clamp(28px, 4vw, 40px)", lineHeight: 1.05, fontWeight: 600, letterSpacing: "-.02em" }, children: currentDate.toLocaleDateString("en-GB", { month: "long", year: "numeric" }) })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexWrap: "wrap", gap: 8 }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "cal-btn md:hidden", style: { height: 44, width: 44, padding: 0 }, onClick: () => setFiltersOpen(true), "aria-label": "Calendars and filters", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { className: "h-[18px] w-[18px]" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "cal-btn cal-phone-only", style: { height: 44, width: 44, padding: 0 }, onClick: () => setFiltersOpen(true), "aria-label": "Calendars and filters", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { className: "h-[18px] w-[18px]" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", className: "cal-btn", style: actionBtn, onClick: () => {
             setShiftAdjDate(void 0);
             setShiftAdjModalOpen(true);

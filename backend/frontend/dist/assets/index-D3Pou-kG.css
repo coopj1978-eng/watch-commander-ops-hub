@@ -6885,6 +6885,10 @@
       grid-template-columns: repeat(6, minmax(0, 1fr));
     }
 
+    .md\:flex-col {
+      flex-direction: column;
+    }
+
     .md\:gap-2 {
       gap: calc(var(--spacing) * 2);
     }
@@ -9353,6 +9357,12 @@ table.plain tbody tr:last-child td {
 
 .dark .cal-ui .cal-field {
   color-scheme: dark;
+}
+
+@media (min-width: 768px) {
+  .cal-ui .cal-phone-only {
+    display: none;
+  }
 }
 
 @property --tw-translate-x {
