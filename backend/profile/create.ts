@@ -106,7 +106,7 @@ export const create = api<CreateProfileRequest, FirefighterProfile>(
         ${req.user_id}, ${req.service_number}, ${req.station}, ${req.shift},
         ${req.rank}, ${req.hire_date}, ${req.phone}, ${req.emergency_contact_name},
         ${req.emergency_contact_phone}, ${req.certifications}, ${req.skills},
-        ${req.driver?.lgv || false}, ${req.driver?.erd || false}, ${req.prps || false}, ${req.ba || false}, ${req.notes},
+        ${req.driver?.lgv || false}, ${req.driver?.erd || false}, ${req.prps || false}, ${req.ba || false}, ${null},
         ${req.last_one_to_one_date}, ${req.next_one_to_one_date}
       )
       RETURNING *

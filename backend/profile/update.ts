@@ -211,10 +211,6 @@ export const update = api(
       setClauses.push(`hooklift_operator = $${paramIndex++}`);
       queryParams.push(updates.hooklift_operator);
     }
-    if (updates.notes !== undefined) {
-      setClauses.push(`notes = $${paramIndex++}`);
-      queryParams.push(updates.notes);
-    }
     if (updates.last_one_to_one_date !== undefined) {
       setClauses.push(`last_one_to_one_date = $${paramIndex++}`);
       queryParams.push(updates.last_one_to_one_date);
@@ -229,12 +225,8 @@ export const update = api(
       setClauses.push(`driver_pathway_lgv_passed_date = $${paramIndex++}`);
       queryParams.push(updates.driverPathway.lgvPassedDate ? new Date(updates.driverPathway.lgvPassedDate) : null);
     }
-    if (updates.lastConversation !== undefined) {
-      setClauses.push(`last_conversation_date = $${paramIndex++}`);
-      queryParams.push(updates.lastConversation.date ? new Date(updates.lastConversation.date) : null);
-      setClauses.push(`last_conversation_text = $${paramIndex++}`);
-      queryParams.push(updates.lastConversation.text);
-    }
+    // `notes` / `lastConversation` are ignored: they had no author, and
+    // notes now live in Notes & 1:1s, private to whoever wrote them.
     if (updates.customFields !== undefined) {
       setClauses.push(`custom_fields = $${paramIndex++}`);
       queryParams.push(JSON.stringify(updates.customFields));

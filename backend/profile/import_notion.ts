@@ -258,7 +258,7 @@ export const importNotionPersonnel = api<ImportRequest, ImportResult>(
             0,
             0,
             'None',
-            ${person.competent === "No" ? "Not yet competent — in development" : null}
+            ${null}
           )
         `;
 

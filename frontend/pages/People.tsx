@@ -227,9 +227,7 @@ export default function People() {
           user.name.toLowerCase().includes(search) ||
           user.email.toLowerCase().includes(search) ||
           profile?.service_number?.toLowerCase().includes(search) ||
-          profile?.skills?.some(s => s.toLowerCase().includes(search)) ||
-          profile?.notes?.toLowerCase().includes(search) ||
-          profile?.lastConversation?.text?.toLowerCase().includes(search);
+          profile?.skills?.some(s => s.toLowerCase().includes(search));
         
         if (!matchesSearch) return false;
       }
