@@ -5783,6 +5783,10 @@
       }
     }
 
+    .hover\:bg-emerald-50:hover {
+      background-color: var(--color-emerald-50);
+    }
+
     .hover\:bg-emerald-200:hover {
       background-color: var(--color-emerald-200);
     }
@@ -6083,6 +6087,10 @@
 
     .hover\:text-destructive:hover {
       color: var(--destructive);
+    }
+
+    .hover\:text-emerald-800:hover {
+      color: var(--color-emerald-800);
     }
 
     .hover\:text-foreground:hover {
@@ -8336,6 +8344,16 @@
     @supports (color: color-mix(in lab, red, red)) {
       .dark\:hover\:bg-cyan-900\/50:is(.dark *):hover {
         background-color: color-mix(in oklab, var(--color-cyan-900) 50%, transparent);
+      }
+    }
+
+    .dark\:hover\:bg-emerald-950\/20:is(.dark *):hover {
+      background-color: #002c2233;
+    }
+
+    @supports (color: color-mix(in lab, red, red)) {
+      .dark\:hover\:bg-emerald-950\/20:is(.dark *):hover {
+        background-color: color-mix(in oklab, var(--color-emerald-950) 20%, transparent);
       }
     }
 

@@ -32493,7 +32493,13 @@ function useSickOn(date, enabled = true) {
     queryKey: ["absences-today-sick", date],
     queryFn: async () => {
       const r2 = await backendClient.absence.todaySick({ date });
-      return new Set(r2.sick_staff.map((s) => s.user_id));
+      return {
+        ids: new Set(r2.sick_staff.map((s) => s.user_id)),
+        // Open sickness per person, for "Mark fit" by whichever WC/CC takes the call.
+        openAbsence: new Map(
+          r2.sick_staff.filter((s) => s.absence_id != null).map((s) => [s.user_id, s.absence_id])
+        )
+      };
     },
     enabled
   });
@@ -47615,7 +47621,8 @@ function People() {
   const canCreate = useCanCreatePerson();
   const isWC = useIsWatchCommander();
   const canLogSick = useIsCrewCommander();
-  useQueryClient();
+  const queryClient2 = useQueryClient();
+  const { toast: toast2 } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = reactExports.useState(searchParams.get("search") || "");
   const [debouncedSearch, setDebouncedSearch] = reactExports.useState(searchTerm);
@@ -47696,7 +47703,17 @@ function People() {
     queryKey: ["dictionaries", "skills"],
     queryFn: async () => backend.dictionary.list({ type: "skill" })
   });
-  const { data: sickToday } = useSickOn(localTodayIso());
+  const { data: sickOn } = useSickOn(localTodayIso());
+  const sickToday = sickOn == null ? void 0 : sickOn.ids;
+  const bookBackFit = useMutation({
+    mutationFn: async (absenceId) => backend.absence.bookBackFit({ absence_id: absenceId }),
+    onSuccess: () => invalidateAbsenceViews(queryClient2),
+    onError: (err) => toast2({
+      title: "Couldn't book back fit",
+      description: (err == null ? void 0 : err.message) ?? "Please try again.",
+      variant: "destructive"
+    })
+  });
   const people = (peopleData == null ? void 0 : peopleData.people) || [];
   reactExports.useEffect(() => {
     var _a3, _b3;
@@ -48083,9 +48100,26 @@ function People() {
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-medium", children: new Date(profile2.lastConversation.date).toLocaleDateString() }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-muted-foreground truncate", children: profile2.lastConversation.text })
                 ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "-" }) }),
-                canLogSick && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { onClick: (e) => e.stopPropagation(), children: (sickToday == null ? void 0 : sickToday.has(user2.id)) ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-xs text-red-600 border-red-500/30 gap-1", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Stethoscope, { className: "h-3 w-3" }),
-                  " Booked Off"
+                canLogSick && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { onClick: (e) => e.stopPropagation(), children: (sickToday == null ? void 0 : sickToday.has(user2.id)) ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-xs text-red-600 border-red-500/30 gap-1", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Stethoscope, { className: "h-3 w-3" }),
+                    " Booked Off"
+                  ] }),
+                  (sickOn == null ? void 0 : sickOn.openAbsence.has(user2.id)) && user2.id !== (authUser == null ? void 0 : authUser.id) && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    Button,
+                    {
+                      size: "sm",
+                      variant: "ghost",
+                      className: "h-7 px-2 text-xs text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/20",
+                      disabled: bookBackFit.isPending,
+                      onClick: () => {
+                        if (confirm(`Book ${user2.name} back fit for duty from today?`)) {
+                          bookBackFit.mutate(sickOn.openAbsence.get(user2.id));
+                        }
+                      },
+                      children: "Mark fit"
+                    }
+                  )
                 ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
                   Button,
                   {
@@ -66613,7 +66647,8 @@ function CrewingBoard() {
     });
     return map;
   }, [entries]);
-  const { data: sickIds } = useSickOn(shiftDate);
+  const { data: sickOn } = useSickOn(shiftDate);
+  const sickIds = sickOn == null ? void 0 : sickOn.ids;
   const absentIds = reactExports.useMemo(() => {
     const ids2 = new Set(sickIds ?? []);
     ((absenceData == null ? void 0 : absenceData.absences) ?? []).forEach((a) => {
