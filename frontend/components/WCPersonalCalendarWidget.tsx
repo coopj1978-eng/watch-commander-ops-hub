@@ -366,7 +366,9 @@ export function WCPersonalCalendarWidget() {
                         style={{ backgroundColor: dotColour }}
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="text-[11px] font-medium text-foreground truncate leading-tight">
+                        <p
+                          className={`text-[11px] font-medium text-foreground truncate leading-tight ${(ev as { cancelled_at?: string }).cancelled_at ? "line-through opacity-60" : ""}`}
+                        >
                           {ev.title}
                         </p>
                         <div className="flex items-center gap-2 mt-0.5">

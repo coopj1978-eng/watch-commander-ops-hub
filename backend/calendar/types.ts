@@ -22,6 +22,16 @@ export interface CalendarEvent {
   created_by: string;
   created_at: Date;
   updated_at: Date;
+  /** Struck through rather than deleted — with who and why. */
+  cancelled_at?: Date;
+  cancelled_by?: string;
+  cancelled_by_name?: string;
+  cancel_reason?: string;
+  /** Where a rescheduled event was originally due, and the note left with the change. */
+  rescheduled_from?: Date;
+  change_note?: string;
+  changed_by?: string;
+  changed_by_name?: string;
 }
 
 export interface CreateEventRequest {
@@ -54,4 +64,6 @@ export interface UpdateEventRequest {
   location?: string;
   attendees?: string[];
   color?: string;
+  /** Why it was changed (shown on the event, e.g. "Moved — appliance off the run"). */
+  change_note?: string;
 }

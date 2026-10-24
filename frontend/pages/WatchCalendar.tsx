@@ -40,6 +40,8 @@ const CALENDARS: { key: CalendarVisibility; label: string; sublabel: string; col
   },
 ];
 
+const WATCHES = ["Red", "White", "Green", "Blue", "Amber"] as const;
+
 const OTHER_CALENDARS = [
   { key: "tasks", label: "Tasks", color: "#0ea5e9" },
   { key: "inspections", label: "Inspections", color: "#f97316" },
@@ -82,6 +84,11 @@ export default function UnifiedCalendar() {
   // TOIL hours, cover and linked entries stay in step.
   const [bookingToEdit, setBookingToEdit] = useState<shift_adjustments.ShiftAdjustment | null>(null);
   const role = useUserRole();
+  const isManager = role === "WC" || role === "CC";
+  // A WC/CC can look at (and add to / change) another watch's calendar —
+  // things move while a watch is off shift.
+  const [viewWatch, setViewWatch] = useState("");
+  const watchShown = (isManager && viewWatch) || userWatch;
 
   // Schedule Training modal — opens from the calendar toolbar
   const [trainingModalOpen, setTrainingModalOpen] = useState(false);
@@ -131,11 +138,12 @@ export default function UnifiedCalendar() {
   });
 
   const { data: watchEvents = [] } = useQuery({
-    queryKey: ["cal-watch", userId, startISO, endISO],
+    queryKey: ["cal-watch", userId, watchShown, startISO, endISO],
     queryFn: async () => {
       const r = await backend.calendar.list({
         calendar_visibility: "watch" as any,
         user_id: userId,
+        watch: isManager ? watchShown : undefined,
         start_date: startISO,
         end_date: endISO,
       });
@@ -198,6 +206,8 @@ export default function UnifiedCalendar() {
         user_id: data.calendar_visibility === "personal" ? userId : undefined,
         is_watch_event: data.is_watch_event,
         location: data.location,
+        // Watch events go on the watch calendar being viewed.
+        watch: data.calendar_visibility === "watch" ? watchShown : undefined,
         created_by: userId,
       }),
     onSuccess: () => {
@@ -221,6 +231,7 @@ export default function UnifiedCalendar() {
           end_time: data.end_time instanceof Date ? data.end_time.toISOString() : data.end_time,
           all_day: data.all_day,
           location: data.location,
+          change_note: data.change_note,
         },
       }),
     onSuccess: () => {
@@ -241,6 +252,34 @@ export default function UnifiedCalendar() {
       setEditingEvent(null);
     },
     onError: () => toast({ title: "Failed to delete event", variant: "destructive" }),
+  });
+
+  // Strike through (kept on the calendar with the reason) / reinstate.
+  const cancelMutation = useMutation({
+    mutationFn: ({ id, reason }: { id: number; reason: string }) =>
+      backend.calendar.cancelEvent(id, { reason }),
+    onSuccess: () => {
+      invalidateCalendarQueries();
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      toast({ title: "Event struck through", description: "It stays on the calendar with your reason." });
+      setFormOpen(false);
+      setEditingEvent(null);
+    },
+    onError: (err: any) =>
+      toast({ title: "Couldn't cancel event", description: err?.message, variant: "destructive" }),
+  });
+
+  const reinstateMutation = useMutation({
+    mutationFn: (id: number) => backend.calendar.reinstateEvent(id),
+    onSuccess: () => {
+      invalidateCalendarQueries();
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      toast({ title: "Event reinstated" });
+      setFormOpen(false);
+      setEditingEvent(null);
+    },
+    onError: (err: any) =>
+      toast({ title: "Couldn't reinstate event", description: err?.message, variant: "destructive" }),
   });
 
   function invalidateCalendarQueries() {
@@ -374,12 +413,31 @@ export default function UnifiedCalendar() {
                     <div className={`text-xs font-medium truncate ${active ? "text-foreground" : "text-muted-foreground"}`}>
                       {label}
                     </div>
-                    <div className="text-[10px] text-muted-foreground truncate">{sublabel}</div>
+                    <div className="text-[10px] text-muted-foreground truncate">
+                      {key === "watch" && watchShown && watchShown !== userWatch ? `${watchShown} Watch` : sublabel}
+                    </div>
                   </div>
                 </button>
               );
             })}
           </div>
+          {isManager && (
+            <label className="flex items-center gap-2 mt-2 px-2 text-[11px] text-muted-foreground">
+              Watch calendar
+              <select
+                value={watchShown}
+                onChange={(e) => setViewWatch(e.target.value)}
+                className="flex-1 bg-muted/50 rounded-md px-1.5 py-1 text-xs text-foreground border border-border/60"
+                aria-label="Which watch's calendar to show"
+              >
+                {WATCHES.map((w) => (
+                  <option key={w} value={w}>
+                    {w}{w === userWatch ? " (yours)" : ""}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
         </div>
 
         {/* Other */}
@@ -604,9 +662,12 @@ export default function UnifiedCalendar() {
             date={formDate}
             initialData={editingEvent?.data as any}
             defaultCalendar={defaultCalendar}
+            watchName={watchShown}
             onSubmit={handleFormSubmit}
             onCancel={() => { setFormOpen(false); setEditingEvent(null); }}
             onDelete={editingEvent ? handleDelete : undefined}
+            onStrike={editingEvent ? (reason) => cancelMutation.mutate({ id: editingEvent.id, reason }) : undefined}
+            onReinstate={editingEvent ? () => reinstateMutation.mutate(editingEvent.id) : undefined}
           />
         </DialogContent>
       </Dialog>

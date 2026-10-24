@@ -6,6 +6,8 @@ import type { CalendarEvent } from "./types";
 
 interface ListEventsRequest {
   user_id?: Query<string>;
+  /** WC/CC only: show this watch's watch calendar instead of their own. */
+  watch?: Query<string>;
   is_watch_event?: Query<boolean>;
   calendar_visibility?: Query<string>;
   start_date?: Query<string>;
@@ -29,9 +31,12 @@ export const list = api<ListEventsRequest, ListEventsResponse>(
     // creator join: legacy watch events have no `watch` stored, so fall
     // back to the creator's watch when scoping them below.
     let query = `
-      SELECT ce.* FROM calendar_events ce
+      SELECT ce.*, canceller.name AS cancelled_by_name, changer.name AS changed_by_name
+      FROM calendar_events ce
       LEFT JOIN notes n ON ce.id = n.calendar_event_id
       LEFT JOIN users creator ON creator.id = ce.created_by
+      LEFT JOIN users canceller ON canceller.id = ce.cancelled_by
+      LEFT JOIN users changer ON changer.id = ce.changed_by
     `;
     let countQuery = `
       SELECT COUNT(*) as count FROM calendar_events ce
@@ -54,16 +59,28 @@ export const list = api<ListEventsRequest, ListEventsResponse>(
 
     // Watch-calendar events are only visible to that watch. Station-wide and
     // personal events are unaffected. Callers with no watch see all (admin).
+    // A WC/CC can look at another watch's calendar by passing `watch` (they
+    // can add to it and change it too — things move while a watch is off).
     const caller = await db.queryRow<{ watch_unit: string | null }>`
       SELECT watch_unit FROM users WHERE id = ${auth.userID}
     `;
-    if (caller?.watch_unit) {
+    const isManager = auth.role === "WC" || auth.role === "CC";
+    const showWatch = isManager && req.watch ? req.watch : caller?.watch_unit;
+    if (showWatch) {
       conditions.push(
         `(ce.calendar_visibility <> 'watch' OR LOWER(COALESCE(ce.watch, creator.watch_unit, '')) = LOWER($${paramIndex}))`
       );
-      params.push(caller.watch_unit);
+      params.push(showWatch);
       paramIndex++;
     }
+
+    // Personal calendars are private: only the owner (or whoever created
+    // the entry for them, e.g. a booking logged by their WC).
+    conditions.push(
+      `(ce.calendar_visibility <> 'personal' OR ce.user_id = $${paramIndex} OR ce.created_by = $${paramIndex})`
+    );
+    params.push(auth.userID);
+    paramIndex++;
 
     if (req.user_id !== undefined) {
       conditions.push(`(ce.user_id = $${paramIndex} OR ce.is_watch_event = true)`);

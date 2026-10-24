@@ -3,18 +3,7 @@ import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { logActivity } from "../logging/logger";
 import type { CreateEventRequest, CalendarEvent } from "./types";
-import { getWatchOnShift, getWatchOnShiftForDate } from "../lib/shiftRota";
-
-// Map calendar event_type → task category
-const EVENT_TYPE_TO_CATEGORY: Record<string, string> = {
-  inspection:  "Inspection",
-  training:    "Training",
-  meeting:     "Admin",
-  maintenance: "Other",
-  watch:       "Admin",
-  reminder:    "Admin",
-  personal:    "Other",
-};
+import { callerWatch, createLinkedTask, isManager, notifyIfOtherWatch, ukDay } from "./watchEvents";
 
 // Event source types that come from shift adjustments — never auto-create tasks for these
 const SHIFT_ADJUSTMENT_SOURCES = new Set(["shift_adjustment"]);
@@ -24,14 +13,12 @@ export const create = api<CreateEventRequest, CalendarEvent>(
   async (req) => {
     const auth = getAuthData()!;
 
-    // Watch events belong to the creator's watch so calendar/list can scope
-    // them; created_by comes from the token (it drives edit/delete rights).
+    // Watch events belong to a watch so calendar/list can scope them: the
+    // creator's own, or — for a WC/CC — whichever watch's calendar they're
+    // adding to. created_by comes from the token (it drives edit rights).
     let watch: string | null = null;
     if ((req.calendar_visibility || "station") === "watch") {
-      const creator = await db.queryRow<{ watch_unit: string | null }>`
-        SELECT watch_unit FROM users WHERE id = ${auth.userID}
-      `;
-      watch = creator?.watch_unit ?? null;
+      watch = (isManager() && req.watch) ? req.watch : await callerWatch();
     }
 
     const event = await db.queryRow<CalendarEvent>`
@@ -59,28 +46,12 @@ export const create = api<CreateEventRequest, CalendarEvent>(
     const isPersonalEvent = visibility === "personal";
 
     if (isSharedEvent && !isShiftAdjustment && !isPersonalEvent) {
-      const startTime = new Date(req.start_time);
+      await createLinkedTask(event, auth.userID);
+    }
 
-      // Determine which watch is on duty
-      const targetWatch = req.all_day
-        ? getWatchOnShiftForDate(startTime)
-        : getWatchOnShift(startTime);
-
-      if (targetWatch) {
-        const category = EVENT_TYPE_TO_CATEGORY[req.event_type] ?? "Other";
-
-        await db.rawQueryRow(
-          `INSERT INTO tasks (title, description, category, assigned_by, priority, due_at, watch_unit, source_type, calendar_event_id, status)
-           VALUES ($1, $2, $3, $4, 'Med', $5, $6, 'station_event', $7, 'NotStarted')`,
-          req.title,
-          req.description ?? null,
-          category,
-          auth.userID,
-          startTime,
-          targetWatch,
-          event.id,
-        );
-      }
+    if (watch) {
+      await notifyIfOtherWatch(watch, event.id, "Added to your watch calendar",
+        (by) => `${by} added "${event.title}" (${ukDay(event.start_time)}) to the ${watch} Watch calendar.`);
     }
 
     await logActivity({

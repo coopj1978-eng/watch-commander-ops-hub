@@ -4,6 +4,7 @@ import { logActivity } from "../logging/logger";
 import type { UpdateEventRequest, CalendarEvent } from "./types";
 import { getWatchOnShift, getWatchOnShiftForDate } from "../lib/shiftRota";
 import { assertCanModifyEvent } from "./permissions";
+import { eventWatch, notifyIfOtherWatch, ukDay } from "./watchEvents";
 
 interface UpdateEventParams {
   id: number;
@@ -16,6 +17,9 @@ export const update = api<UpdateEventParams, CalendarEvent>(
   { auth: true, expose: true, method: "PATCH", path: "/calendar/events/:id" },
   async ({ id, updates }) => {
     const user_id = await assertCanModifyEvent(id);
+    const before = await db.queryRow<{ start_time: Date; title: string }>`
+      SELECT start_time, title FROM calendar_events WHERE id = ${id}
+    `;
     const setClauses: string[] = [];
     const params: any[] = [];
     let paramIndex = 1;
@@ -64,6 +68,23 @@ export const update = api<UpdateEventParams, CalendarEvent>(
       params.push(updates.calendar_visibility === "station" || updates.calendar_visibility === "watch");
     }
 
+    // A reschedule keeps where it was first due, who moved it and why —
+    // the note shows on the event, like a note on the paper calendar.
+    const moved =
+      updates.start_time !== undefined &&
+      !!before &&
+      new Date(updates.start_time).getTime() !== new Date(before.start_time).getTime();
+    if (moved) {
+      setClauses.push(`rescheduled_from = COALESCE(rescheduled_from, $${paramIndex++})`);
+      params.push(before!.start_time);
+    }
+    if (moved || updates.change_note !== undefined) {
+      setClauses.push(`change_note = $${paramIndex++}`);
+      params.push(updates.change_note?.trim() || null);
+      setClauses.push(`changed_by = $${paramIndex++}`);
+      params.push(user_id);
+    }
+
     if (setClauses.length === 0) {
       throw APIError.invalidArgument("no updates provided");
     }
@@ -104,6 +125,12 @@ export const update = api<UpdateEventParams, CalendarEvent>(
           );
         }
       }
+    }
+
+    if (moved) {
+      const note = updates.change_note?.trim();
+      await notifyIfOtherWatch(await eventWatch(id), id, "Your watch calendar was changed",
+        (by) => `${by} moved "${event.title}" from ${ukDay(before!.start_time)} to ${ukDay(event.start_time)}${note ? ` — ${note}` : ""}.`);
     }
 
     await logActivity({

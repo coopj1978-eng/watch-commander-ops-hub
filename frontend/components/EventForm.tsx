@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { X, MapPin, FileText, Calendar, Clock } from "lucide-react";
+import { X, MapPin, FileText, Calendar, Clock, Ban, CalendarClock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { CalendarEvent, CalendarVisibility } from "~backend/calendar/types";
 
@@ -7,9 +7,14 @@ interface EventFormProps {
   date: Date;
   initialData?: CalendarEvent;
   defaultCalendar?: CalendarVisibility;
+  /** The watch whose calendar is being viewed (a WC/CC can pick another). */
+  watchName?: string;
   onSubmit: (data: EventFormData) => void;
   onCancel: () => void;
   onDelete?: () => void;
+  /** Strike the event through with a reason — it stays on the calendar. */
+  onStrike?: (reason: string) => void;
+  onReinstate?: () => void;
 }
 
 export interface EventFormData {
@@ -22,6 +27,8 @@ export interface EventFormData {
   end_time: Date;
   all_day: boolean;
   is_watch_event: boolean;
+  /** Why it was changed — asked for when the date moves. */
+  change_note?: string;
 }
 
 // ─── Calendar options ─────────────────────────────────────────────────────────
@@ -89,9 +96,12 @@ export default function EventForm({
   date,
   initialData,
   defaultCalendar = "station",
+  watchName,
   onSubmit,
   onCancel,
   onDelete,
+  onStrike,
+  onReinstate,
 }: EventFormProps) {
   const titleRef = useRef<HTMLInputElement>(null);
   const isEditing = !!initialData;
@@ -125,6 +135,12 @@ export default function EventForm({
   const [location, setLocation] = useState(initialData?.location ?? "");
   const [notes, setNotes] = useState(initialData?.description ?? "");
   const [showCalendarPicker, setShowCalendarPicker] = useState(false);
+  const [changeNote, setChangeNote] = useState("");
+  const [striking, setStriking] = useState(false);
+  const [strikeReason, setStrikeReason] = useState("");
+  const cancelled = !!initialData?.cancelled_at;
+  // Bookings (TOIL / H4H…) are changed from their booking form, not here.
+  const canStrike = isEditing && !!onStrike && !(initialData as { shift_adjustment_id?: number | null } | undefined)?.shift_adjustment_id;
 
   // Auto-focus title
   useEffect(() => {
@@ -169,6 +185,7 @@ export default function EventForm({
       : parseDateTimeInputs(endDate, endTime);
 
     onSubmit({
+      change_note: moved && changeNote.trim() ? changeNote.trim() : undefined,
       title: title.trim(),
       description: notes,
       location,
@@ -182,6 +199,16 @@ export default function EventForm({
   };
 
   const selectedCalendar = CALENDAR_OPTIONS.find((c) => c.value === calendar)!;
+  const calendarSublabel =
+    calendar === "watch" && watchName ? `${watchName} Watch` : selectedCalendar.sublabel;
+
+  // Has the start date moved from what's saved? Then ask why (optional).
+  const moved =
+    isEditing &&
+    !!initialData &&
+    toInputDate(new Date(initialData.start_time)) !== startDate;
+  const fmtDay = (d: string | Date) =>
+    new Date(d).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
 
   const startDisplayDate = formatDisplayDate(parseDateTimeInputs(startDate, startTime));
   const endDisplayDate = formatDisplayDate(parseDateTimeInputs(endDate, endTime));
@@ -212,6 +239,40 @@ export default function EventForm({
 
       {/* Divider */}
       <div className="h-px bg-border/60 mx-4 mb-1" />
+
+      {/* Struck through — the line through it on the paper calendar */}
+      {cancelled && (
+        <div className="mx-4 my-2 rounded-lg border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/30 px-3 py-2 text-xs">
+          <p className="font-semibold text-red-700 dark:text-red-400 flex items-center gap-1.5">
+            <Ban className="h-3.5 w-3.5" /> Cancelled
+            {initialData?.cancelled_by_name ? ` by ${initialData.cancelled_by_name}` : ""}
+            {initialData?.cancelled_at ? ` · ${fmtDay(initialData.cancelled_at)}` : ""}
+          </p>
+          {initialData?.cancel_reason && (
+            <p className="mt-0.5 text-foreground">{initialData.cancel_reason}</p>
+          )}
+          {onReinstate && (
+            <button
+              type="button"
+              onClick={onReinstate}
+              className="mt-1.5 text-xs font-medium text-indigo-600 hover:text-indigo-700"
+            >
+              Reinstate event
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Rescheduled — where it was first due and why */}
+      {isEditing && initialData?.rescheduled_from && (
+        <div className="mx-4 my-2 rounded-lg border border-amber-200 dark:border-amber-900/60 bg-amber-50 dark:bg-amber-950/30 px-3 py-2 text-xs">
+          <p className="font-semibold text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+            <CalendarClock className="h-3.5 w-3.5" /> Moved from {fmtDay(initialData.rescheduled_from)}
+            {initialData.changed_by_name ? ` by ${initialData.changed_by_name}` : ""}
+          </p>
+          {initialData.change_note && <p className="mt-0.5 text-foreground">{initialData.change_note}</p>}
+        </div>
+      )}
 
       {/* Date / Time */}
       <FormRow>
@@ -257,6 +318,17 @@ export default function EventForm({
             </div>
           </div>
 
+          {moved && (
+            <input
+              type="text"
+              value={changeNote}
+              onChange={(e) => setChangeNote(e.target.value)}
+              placeholder="Reason for moving it (shown on the event)"
+              aria-label="Reason for moving the event"
+              className="w-full text-xs bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/60 rounded-md px-2 py-1.5 outline-none text-foreground placeholder:text-muted-foreground/70"
+            />
+          )}
+
           {/* Ends */}
           <div className="flex items-center justify-between gap-2">
             <span className="text-sm text-muted-foreground w-12">Ends</span>
@@ -294,7 +366,7 @@ export default function EventForm({
             />
             <div>
               <div className="text-sm font-medium text-foreground">{selectedCalendar.label}</div>
-              <div className="text-xs text-muted-foreground">{selectedCalendar.sublabel}</div>
+              <div className="text-xs text-muted-foreground">{calendarSublabel}</div>
             </div>
             <span className="ml-auto text-muted-foreground text-xs">▾</span>
           </button>
@@ -353,22 +425,60 @@ export default function EventForm({
         />
       </FormRow>
 
+      {/* Strike through with a reason */}
+      {striking && (
+        <div className="mx-4 mb-3 space-y-2">
+          <textarea
+            value={strikeReason}
+            onChange={(e) => setStrikeReason(e.target.value)}
+            placeholder="Why is it cancelled? (shown on the event)"
+            aria-label="Reason for cancelling"
+            rows={2}
+            autoFocus
+            className="w-full text-sm bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/60 rounded-md px-2 py-1.5 outline-none text-foreground resize-none"
+          />
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="outline" size="sm" onClick={() => { setStriking(false); setStrikeReason(""); }}>
+              Back
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              disabled={!strikeReason.trim()}
+              onClick={() => onStrike?.(strikeReason.trim())}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Strike through
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Actions */}
       <div className="flex items-center justify-between px-4 py-3 bg-muted/20 border-t border-border/40 gap-2">
-        {isEditing && onDelete ? (
-          <button
-            type="button"
-            onClick={onDelete}
-            className="text-sm text-red-500 hover:text-red-600 transition-colors"
-          >
-            Delete Event
-          </button>
-        ) : (
-          <div />
-        )}
+        <div className="flex items-center gap-3">
+          {canStrike && !cancelled && !striking && (
+            <button
+              type="button"
+              onClick={() => setStriking(true)}
+              className="text-sm text-amber-600 hover:text-amber-700 transition-colors"
+            >
+              Cancel event…
+            </button>
+          )}
+          {isEditing && onDelete && (
+            <button
+              type="button"
+              onClick={onDelete}
+              className="text-sm text-red-500 hover:text-red-600 transition-colors"
+            >
+              Delete
+            </button>
+          )}
+        </div>
         <div className="flex gap-2">
           <Button type="button" variant="outline" size="sm" onClick={onCancel}>
-            Cancel
+            Close
           </Button>
           <Button
             type="submit"

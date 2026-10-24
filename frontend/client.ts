@@ -1259,6 +1259,14 @@ export namespace calendar {
         "created_by": string
         "created_at": string
         "updated_at": string
+        "cancelled_at"?: string
+        "cancelled_by"?: string
+        "cancelled_by_name"?: string
+        "cancel_reason"?: string
+        "rescheduled_from"?: string
+        "change_note"?: string
+        "changed_by"?: string
+        "changed_by_name"?: string
     }
 
     export type CalendarVisibility = "station" | "watch" | "personal"
@@ -1323,6 +1331,7 @@ export namespace calendar {
 
     export interface ListEventsRequest {
         "user_id"?: string
+        watch?: string
         "is_watch_event"?: boolean
         "calendar_visibility"?: string
         "start_date"?: string
@@ -1352,6 +1361,7 @@ export namespace calendar {
         location?: string
         attendees?: string[]
         color?: string
+        "change_note"?: string
     }
 
     export class ServiceClient {
@@ -1411,6 +1421,7 @@ export namespace calendar {
                 offset:                params.offset === undefined ? undefined : String(params.offset),
                 "start_date":          params["start_date"],
                 "user_id":             params["user_id"],
+                watch:                 params.watch,
             })
 
             // Now make the actual call to the API
@@ -1421,6 +1432,17 @@ export namespace calendar {
         public async update(id: number, params: UpdateEventParams): Promise<CalendarEvent> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("PATCH", `/calendar/events/${encodeURIComponent(id)}`, JSON.stringify(params))
+            return await resp.json() as CalendarEvent
+        }
+
+        /** Strike an event through (kept on the calendar with the reason). */
+        public async cancelEvent(id: number, params: { reason: string }): Promise<CalendarEvent> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/calendar/events/${encodeURIComponent(id)}/cancel`, JSON.stringify(params))
+            return await resp.json() as CalendarEvent
+        }
+
+        public async reinstateEvent(id: number): Promise<CalendarEvent> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/calendar/events/${encodeURIComponent(id)}/reinstate`)
             return await resp.json() as CalendarEvent
         }
     }

@@ -20,6 +20,25 @@ export interface CalendarItem {
   data: CalendarEvent | Task | Inspection;
 }
 
+/**
+ * Event title — struck through when cancelled. Cancelled events stay on the
+ * calendar (like a line through the paper one); hover shows the reason.
+ */
+function ItemTitle({ item }: { item: CalendarItem }) {
+  const ev = item.type === "event" ? (item.data as CalendarEvent) : null;
+  if (ev?.cancelled_at) {
+    return (
+      <span className="line-through opacity-60" title={`Cancelled${ev.cancel_reason ? `: ${ev.cancel_reason}` : ""}`}>
+        {item.title}
+      </span>
+    );
+  }
+  if (ev?.rescheduled_from) {
+    return <span title={`Moved${ev.change_note ? `: ${ev.change_note}` : ""}`}>{item.title}</span>;
+  }
+  return <>{item.title}</>;
+}
+
 interface CalendarWidgetProps {
   events?: CalendarEvent[];
   tasks?: Task[];
@@ -364,7 +383,7 @@ function EventBlock({
       }}
     >
       <div className="font-medium truncate" style={{ color: isDark ? "var(--foreground)" : color }}>
-        {item.title}
+        <ItemTitle item={item} />
       </div>
       {heightNum > 28 && (
         <div className="font-mono opacity-75 truncate" style={{ fontSize: 10 }}>
@@ -438,7 +457,7 @@ function DayView({
                   }}
                   onClick={() => onEventClick?.(it)}
                 >
-                  {it.title}
+                  <ItemTitle item={it} />
                 </div>
               );
             })}
@@ -597,7 +616,7 @@ function WeekView({
                     }}
                     onClick={() => onEventClick?.(it)}
                   >
-                    {it.title}
+                    <ItemTitle item={it} />
                   </div>
                 );
               })}
@@ -794,7 +813,7 @@ function MonthView({
                           {item.startTime.getMinutes().toString().padStart(2, "0")}
                         </span>
                       )}
-                      {item.title}
+                      <ItemTitle item={item} />
                     </div>
                   );
                 })}
@@ -1126,7 +1145,7 @@ function MobileAgendaPanel({
                 <div className="w-1 self-stretch rounded-full shrink-0" style={{ backgroundColor: color }} />
                 {/* Content */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground leading-tight truncate">{item.title}</p>
+                  <p className="text-sm font-medium text-foreground leading-tight truncate"><ItemTitle item={item} /></p>
                   {!item.allDay && (
                     <p className="text-xs text-muted-foreground mt-0.5">
                       {formatTime(item.startTime)} – {formatTime(item.endTime)}
