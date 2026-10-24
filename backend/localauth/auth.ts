@@ -56,31 +56,15 @@ export const signUp = api<SignUpRequest, AuthResponse>(
         SELECT * FROM users WHERE LOWER(email) = LOWER(${req.email})
       `;
 
-      // ── Invited user activating their pre-created account ─────────────────
-      // WC created their profile via "Create Person" — no password set yet.
-      // Allow them to set a password and activate the account.
+      // ── Account a WC already set up ───────────────────────────────────────
+      // The person is on the watch (counted, crewed, sickness recorded) before
+      // they ever sign in. They claim it through the invite link or a
+      // "Forgot password" email — both prove they own the email address.
+      // Knowing the email alone isn't enough, or anyone could take it over.
       if (existingUser && !existingUser.password_hash) {
-        const passwordHash = await bcrypt.hash(req.password, 10);
-        const activated = await db.queryRow<User>`
-          UPDATE users
-          SET password_hash = ${passwordHash},
-              is_active = true,
-              name = COALESCE(NULLIF(${req.name.trim()}, ''), name),
-              updated_at = NOW()
-          WHERE id = ${existingUser.id}
-          RETURNING *
-        `;
-        if (!activated) throw APIError.internal("Failed to activate account");
-
-        const token = jwt.sign(
-          { userId: activated.id, email: activated.email, role: activated.role },
-          getJwtSecret(),
-          { expiresIn: "7d" }
+        throw APIError.failedPrecondition(
+          "Your Watch Commander has already set up your account. Use the invite link they sent you, or choose 'Forgot password' on the sign-in page to get a set-up link by email."
         );
-        return {
-          user: { id: activated.id, email: activated.email, name: activated.name, role: activated.role },
-          token,
-        };
       }
 
       // ── Already fully registered ───────────────────────────────────────────

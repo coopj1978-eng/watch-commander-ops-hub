@@ -1533,7 +1533,7 @@ export default function ProfileDetail() {
           <DialogHeader>
             <DialogTitle>Invite {user?.name}</DialogTitle>
             <DialogDescription>
-              Send this link to {user?.name}. When they open it, their email will be pre-filled and they just need to set a password.
+              Send this link to {user?.name} only. It lets them choose a password and sign in, and works once, for 14 days. Making a new link cancels this one.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -1550,7 +1550,7 @@ export default function ProfileDetail() {
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              Share via WhatsApp, email or Teams. They'll be signed straight in once they set their password.
+              Share it privately (WhatsApp, email or Teams) — anyone with the link can set the password. If it expires, they can use "Forgot password" on the sign-in page instead.
             </p>
             <div className="flex justify-end">
               <Button variant="outline" onClick={() => setShowInviteDialog(false)}>Close</Button>

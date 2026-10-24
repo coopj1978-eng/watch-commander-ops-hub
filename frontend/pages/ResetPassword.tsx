@@ -11,6 +11,8 @@ import { useToast } from "@/components/ui/use-toast";
 export default function ResetPassword() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token") ?? "";
+  // Invite links from a WC use the same one-time code to set up a new account.
+  const isInvite = searchParams.get("invite") === "1";
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,7 +22,7 @@ export default function ResetPassword() {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!token) setError("Invalid or missing reset token. Please request a new reset link.");
+    if (!token) setError("Invalid or missing link. Please request a new one.");
   }, [token]);
 
   const handleReset = async (e: React.FormEvent) => {
@@ -42,9 +44,13 @@ export default function ResetPassword() {
     } catch (err: any) {
       const msg = err?.message || "Failed to reset password";
       if (msg.toLowerCase().includes("expired")) {
-        setError("This reset link has expired. Please go back and request a new one.");
+        setError(isInvite
+          ? "This invite has expired. Ask your Watch Commander for a new one, or use 'Forgot password' on the sign-in page."
+          : "This reset link has expired. Please go back and request a new one.");
       } else if (msg.toLowerCase().includes("invalid")) {
-        setError("This reset link is invalid or has already been used.");
+        setError(isInvite
+          ? "This invite is invalid or has already been used. If you've set your password, just sign in."
+          : "This reset link is invalid or has already been used.");
       } else {
         toast({ title: "Reset failed", description: msg, variant: "destructive" });
       }
@@ -63,11 +69,15 @@ export default function ResetPassword() {
             </div>
           </div>
           <CardTitle className="text-2xl font-bold">
-            {done ? "Password updated" : error ? "Link problem" : "Set new password"}
+            {done
+              ? isInvite ? "You're all set" : "Password updated"
+              : error ? "Link problem"
+              : isInvite ? "Set up your account" : "Set new password"}
           </CardTitle>
           <CardDescription>
             {done ? "You can now sign in with your new password."
-              : error ? "There was a problem with your reset link."
+              : error ? "There was a problem with your link."
+              : isInvite ? "Your Watch Commander has added you. Choose a password to sign in."
               : "Choose a strong password for your account."}
           </CardDescription>
         </CardHeader>
@@ -81,7 +91,9 @@ export default function ResetPassword() {
                   <CheckCircle className="h-8 w-8 text-green-600" />
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground">Your password has been changed successfully.</p>
+              <p className="text-sm text-muted-foreground">
+                {isInvite ? "Your account is ready." : "Your password has been changed successfully."}
+              </p>
               <Button
                 className="w-full bg-indigo-600 hover:bg-indigo-700 h-11"
                 onClick={() => navigate("/sign-in")}
@@ -145,7 +157,7 @@ export default function ResetPassword() {
                 className="w-full bg-indigo-600 hover:bg-indigo-700 h-11 text-base font-medium"
                 disabled={loading}
               >
-                {loading ? "Updating…" : "Set new password"}
+                {loading ? "Updating…" : isInvite ? "Set password" : "Set new password"}
               </Button>
             </form>
           )}

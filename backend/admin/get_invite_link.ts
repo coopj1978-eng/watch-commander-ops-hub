@@ -1,4 +1,5 @@
 import { api, APIError } from "encore.dev/api";
+import crypto from "crypto";
 import { getAuthData } from "~encore/auth";
 import { hasPermission, Permission } from "../auth/rbac";
 import db from "../db";
@@ -34,9 +35,26 @@ export const getInviteLink = api<GetInviteLinkRequest, GetInviteLinkResponse>(
 
     // Already has a password set — they've registered, just need to sign in
     const alreadyActive = !!existingUser.password_hash;
+    if (alreadyActive) {
+      return { invite_link: "", user_name: existingUser.name, user_email: existingUser.email, already_active: true };
+    }
 
-    const baseUrl = req.frontend_url || "http://localhost:5173";
-    const inviteLink = `${baseUrl}/sign-up?email=${encodeURIComponent(req.email)}`;
+    // The link carries a one-time code (the same kind a password reset uses),
+    // so only the person it's sent to can claim the account — knowing their
+    // email isn't enough. Valid for 14 days; a newer invite or reset
+    // request replaces it.
+    const token = crypto.randomBytes(32).toString("hex");
+    const expires = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
+    await db.exec`
+      UPDATE users
+      SET password_reset_token = ${token},
+          password_reset_expires = ${expires},
+          updated_at = NOW()
+      WHERE id = ${existingUser.id}
+    `;
+
+    const baseUrl = (req.frontend_url || "http://localhost:5173").trim().replace(/[./]+$/, "");
+    const inviteLink = `${baseUrl}/reset-password?token=${token}&invite=1`;
 
     return {
       invite_link: inviteLink,
