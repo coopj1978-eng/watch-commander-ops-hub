@@ -27391,7 +27391,6 @@ var admin;
       this.bootstrap = this.bootstrap.bind(this);
       this.changeRole = this.changeRole.bind(this);
       this.checkWC = this.checkWC.bind(this);
-      this.createAccount = this.createAccount.bind(this);
       this.createActivityLog = this.createActivityLog.bind(this);
       this.deactivateUser = this.deactivateUser.bind(this);
       this.getActivityLog = this.getActivityLog.bind(this);
@@ -27417,10 +27416,6 @@ var admin;
       const resp = await this.baseClient.callTypedAPI("GET", `/admin/check-wc`);
       return await resp.json();
     }
-    async createAccount(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/admin/create-account`, JSON.stringify(params));
-      return await resp.json();
-    }
     async createActivityLog(params) {
       const resp = await this.baseClient.callTypedAPI("POST", `/admin/activity-log`, JSON.stringify(params));
       return await resp.json();
@@ -27443,6 +27438,11 @@ var admin;
     }
     async getInviteLink(params) {
       const resp = await this.baseClient.callTypedAPI("POST", `/admin/get-invite-link`, JSON.stringify(params));
+      return await resp.json();
+    }
+    /** Admin: a one-time link for someone to choose a new password (24 hours). */
+    async getPasswordResetLink(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/admin/password-reset-link`, JSON.stringify(params));
       return await resp.json();
     }
     async getReassignmentPreview(userId) {
@@ -28087,7 +28087,6 @@ var localauth;
       this.changePassword = this.changePassword.bind(this);
       this.forgotPassword = this.forgotPassword.bind(this);
       this.resetPassword = this.resetPassword.bind(this);
-      this.resetUserPassword = this.resetUserPassword.bind(this);
       this.signIn = this.signIn.bind(this);
       this.signOut = this.signOut.bind(this);
       this.signUp = this.signUp.bind(this);
@@ -28102,10 +28101,6 @@ var localauth;
     }
     async resetPassword(params) {
       const resp = await this.baseClient.callTypedAPI("POST", `/auth/reset-password`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async resetUserPassword(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/auth/reset-user-password`, JSON.stringify(params));
       return await resp.json();
     }
     async signIn(params) {
@@ -32692,6 +32687,184 @@ function getNextShiftDate(watch) {
   const shifts = getShiftsForDateRange(watch, from, to);
   return ((_a2 = shifts.find((s) => s.isWorking)) == null ? void 0 : _a2.date) ?? todayIso;
 }
+function Input({ className, type, ...props }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "input",
+    {
+      type,
+      "data-slot": "input",
+      className: cn(
+        "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+        "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+        "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+        className
+      ),
+      ...props
+    }
+  );
+}
+var NODES = [
+  "a",
+  "button",
+  "div",
+  "form",
+  "h2",
+  "h3",
+  "img",
+  "input",
+  "label",
+  "li",
+  "nav",
+  "ol",
+  "p",
+  "select",
+  "span",
+  "svg",
+  "ul"
+];
+var Primitive = NODES.reduce((primitive, node) => {
+  const Slot2 = /* @__PURE__ */ createSlot(`Primitive.${node}`);
+  const Node2 = reactExports.forwardRef((props, forwardedRef) => {
+    const { asChild, ...primitiveProps } = props;
+    const Comp = asChild ? Slot2 : node;
+    if (typeof window !== "undefined") {
+      window[Symbol.for("radix-ui")] = true;
+    }
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(Comp, { ...primitiveProps, ref: forwardedRef });
+  });
+  Node2.displayName = `Primitive.${node}`;
+  return { ...primitive, [node]: Node2 };
+}, {});
+var NAME$1 = "Label";
+var Label$1 = reactExports.forwardRef((props, forwardedRef) => {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    Primitive.label,
+    {
+      ...props,
+      ref: forwardedRef,
+      onMouseDown: (event) => {
+        var _a2;
+        const target = event.target;
+        if (target.closest("button, input, select, textarea")) return;
+        (_a2 = props.onMouseDown) == null ? void 0 : _a2.call(props, event);
+        if (!event.defaultPrevented && event.detail > 1) event.preventDefault();
+      }
+    }
+  );
+});
+Label$1.displayName = NAME$1;
+var Root$3 = Label$1;
+function Label({
+  className,
+  ...props
+}) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    Root$3,
+    {
+      "data-slot": "label",
+      className: cn(
+        "flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
+        className
+      ),
+      ...props
+    }
+  );
+}
+function ChangePasswordDialog({ open, onOpenChange }) {
+  const { toast: toast2 } = useToast();
+  const [current, setCurrent] = reactExports.useState("");
+  const [next, setNext] = reactExports.useState("");
+  const [confirmNext, setConfirmNext] = reactExports.useState("");
+  const [saving, setSaving] = reactExports.useState(false);
+  const [error, setError] = reactExports.useState("");
+  const close = (o) => {
+    if (!o) {
+      setCurrent("");
+      setNext("");
+      setConfirmNext("");
+      setError("");
+    }
+    onOpenChange(o);
+  };
+  const submit = async (e) => {
+    e.preventDefault();
+    setError("");
+    if (next.length < 8) return setError("New password must be at least 8 characters.");
+    if (next !== confirmNext) return setError("The new passwords don't match.");
+    if (next === current) return setError("Choose a different password from your current one.");
+    setSaving(true);
+    try {
+      const res = await backendClient.localauth.changePassword({ current_password: current, new_password: next });
+      localStorage.setItem("auth_token", res.token);
+      toast2({ title: "Password changed", description: "Any other devices signed in as you have been signed out." });
+      close(false);
+    } catch (err) {
+      setError((err == null ? void 0 : err.message) || "Couldn't change your password. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: close, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-sm", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Change password" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: "You'll stay signed in here; any other phones or computers signed in as you will need the new password." })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: submit, className: "space-y-3", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "cp-current", children: "Current password" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Input,
+          {
+            id: "cp-current",
+            type: "password",
+            autoComplete: "current-password",
+            value: current,
+            onChange: (e) => setCurrent(e.target.value),
+            required: true,
+            disabled: saving
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "cp-new", children: "New password" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Input,
+          {
+            id: "cp-new",
+            type: "password",
+            autoComplete: "new-password",
+            value: next,
+            onChange: (e) => setNext(e.target.value),
+            required: true,
+            minLength: 8,
+            disabled: saving
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "At least 8 characters" })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "cp-confirm", children: "Confirm new password" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Input,
+          {
+            id: "cp-confirm",
+            type: "password",
+            autoComplete: "new-password",
+            value: confirmNext,
+            onChange: (e) => setConfirmNext(e.target.value),
+            required: true,
+            disabled: saving
+          }
+        )
+      ] }),
+      error && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-red-600", role: "alert", children: error }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end gap-2 pt-1", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "button", variant: "outline", onClick: () => close(false), disabled: saving, children: "Cancel" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "submit", disabled: saving || !current || !next || !confirmNext, children: saving ? "Saving…" : "Change password" })
+      ] })
+    ] })
+  ] }) });
+}
 const ROUTES = [
   { path: "/", name: "Dashboard", icon: LayoutDashboard },
   { path: "/people", name: "People", icon: Users },
@@ -32883,6 +33056,7 @@ function JumpSearch() {
 function TopBar({ onMenuClick }) {
   var _a2, _b2;
   const { user: user2, signOut } = useAuth();
+  const [changePasswordOpen, setChangePasswordOpen] = reactExports.useState(false);
   const queryClient2 = useQueryClient();
   const navigate = useNavigate();
   const location = useLocation();
@@ -33085,27 +33259,40 @@ function TopBar({ onMenuClick }) {
           }
         ) })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-2 pl-1.5 md:pl-2 border-l border-border", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenu, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuTrigger, { asChild: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Button,
-          {
-            variant: "ghost",
-            className: "h-9 px-1.5 md:px-2 rounded hover:bg-muted",
-            children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-7 w-7 rounded bg-brand text-brand-foreground flex items-center justify-center font-mono font-semibold text-xs shrink-0", children: ((_a2 = user2 == null ? void 0 : user2.name) == null ? void 0 : _a2.charAt(0).toUpperCase()) || "U" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:block text-sm font-medium", children: ((_b2 = user2 == null ? void 0 : user2.name) == null ? void 0 : _b2.split(" ")[0]) || "User" })
-            ] })
-          }
-        ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuContent, { align: "end", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
-          {
-            className: "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground w-full text-left",
-            onClick: signOut,
-            children: "Sign Out"
-          }
-        ) })
-      ] }) })
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 pl-1.5 md:pl-2 border-l border-border", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenu, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuTrigger, { asChild: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            Button,
+            {
+              variant: "ghost",
+              className: "h-9 px-1.5 md:px-2 rounded hover:bg-muted",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-7 w-7 rounded bg-brand text-brand-foreground flex items-center justify-center font-mono font-semibold text-xs shrink-0", children: ((_a2 = user2 == null ? void 0 : user2.name) == null ? void 0 : _a2.charAt(0).toUpperCase()) || "U" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:block text-sm font-medium", children: ((_b2 = user2 == null ? void 0 : user2.name) == null ? void 0 : _b2.split(" ")[0]) || "User" })
+              ] })
+            }
+          ) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuContent, { align: "end", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                className: "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground w-full text-left",
+                onClick: () => setChangePasswordOpen(true),
+                children: "Change password"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                className: "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground w-full text-left",
+                onClick: signOut,
+                children: "Sign Out"
+              }
+            )
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(ChangePasswordDialog, { open: changePasswordOpen, onOpenChange: setChangePasswordOpen })
+      ] })
     ] })
   ] });
 }
@@ -37592,11 +37779,15 @@ function useCanEditProfiles() {
   return role === "WC" || role === "CC";
 }
 function useCanCreatePerson() {
-  const role = useUserRole();
-  return role === "WC";
+  const { user: user2 } = useAuth();
+  return (user2 == null ? void 0 : user2.is_admin) === true;
 }
 function useIsWC() {
   return useIsWatchCommander();
+}
+function useIsAdmin() {
+  const { user: user2 } = useAuth();
+  return (user2 == null ? void 0 : user2.is_admin) === true;
 }
 function Card({ className, ...props }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -41988,89 +42179,6 @@ function DashboardKPIs() {
       }
     )
   ] });
-}
-function Input({ className, type, ...props }) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    "input",
-    {
-      type,
-      "data-slot": "input",
-      className: cn(
-        "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-        "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
-        "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
-        className
-      ),
-      ...props
-    }
-  );
-}
-var NODES = [
-  "a",
-  "button",
-  "div",
-  "form",
-  "h2",
-  "h3",
-  "img",
-  "input",
-  "label",
-  "li",
-  "nav",
-  "ol",
-  "p",
-  "select",
-  "span",
-  "svg",
-  "ul"
-];
-var Primitive = NODES.reduce((primitive, node) => {
-  const Slot2 = /* @__PURE__ */ createSlot(`Primitive.${node}`);
-  const Node2 = reactExports.forwardRef((props, forwardedRef) => {
-    const { asChild, ...primitiveProps } = props;
-    const Comp = asChild ? Slot2 : node;
-    if (typeof window !== "undefined") {
-      window[Symbol.for("radix-ui")] = true;
-    }
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(Comp, { ...primitiveProps, ref: forwardedRef });
-  });
-  Node2.displayName = `Primitive.${node}`;
-  return { ...primitive, [node]: Node2 };
-}, {});
-var NAME$1 = "Label";
-var Label$1 = reactExports.forwardRef((props, forwardedRef) => {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    Primitive.label,
-    {
-      ...props,
-      ref: forwardedRef,
-      onMouseDown: (event) => {
-        var _a2;
-        const target = event.target;
-        if (target.closest("button, input, select, textarea")) return;
-        (_a2 = props.onMouseDown) == null ? void 0 : _a2.call(props, event);
-        if (!event.defaultPrevented && event.detail > 1) event.preventDefault();
-      }
-    }
-  );
-});
-Label$1.displayName = NAME$1;
-var Root$3 = Label$1;
-function Label({
-  className,
-  ...props
-}) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    Root$3,
-    {
-      "data-slot": "label",
-      className: cn(
-        "flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
-        className
-      ),
-      ...props
-    }
-  );
 }
 function Textarea({ className, ...props }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -50271,8 +50379,8 @@ function ProfileDetail() {
   const [showInviteDialog, setShowInviteDialog] = reactExports.useState(false);
   const [inviteLink, setInviteLink] = reactExports.useState("");
   const [showResetDialog, setShowResetDialog] = reactExports.useState(false);
-  const [resetPassword, setResetPassword] = reactExports.useState("");
-  const [resetting, setResetting] = reactExports.useState(false);
+  const [resetLink, setResetLink] = reactExports.useState("");
+  const isAdmin = useIsAdmin();
   const { data: user2, isLoading: userLoading } = useQuery({
     queryKey: ["user", userId],
     queryFn: async () => backend.user.get(userId),
@@ -50582,7 +50690,7 @@ function ProfileDetail() {
         ] })
       ] }),
       (canEdit || userRole === "FF" && isViewingOwnProfile) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
-        !(user2 == null ? void 0 : user2.is_active) && isWC && user2 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        isAdmin && user2 && !isViewingOwnProfile && !user2.has_password && /* @__PURE__ */ jsxRuntimeExports.jsxs(
           Button,
           {
             variant: "outline",
@@ -50617,22 +50725,30 @@ function ProfileDetail() {
             ]
           }
         ),
-        isWC && user2 && !isViewingOwnProfile && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        isAdmin && user2 && !isViewingOwnProfile && user2.has_password && /* @__PURE__ */ jsxRuntimeExports.jsxs(
           Button,
           {
             variant: "outline",
-            onClick: () => {
-              const words = ["Fire", "Watch", "Shift", "Crew", "Engine", "Pump"];
-              const w = words[Math.floor(Math.random() * words.length)];
-              const n = Math.floor(Math.random() * 900) + 100;
-              const s = ["!", "@", "#", "$"][Math.floor(Math.random() * 4)];
-              setResetPassword(`${w}${n}${s}`);
-              setShowResetDialog(true);
+            onClick: async () => {
+              try {
+                const result = await backend.admin.getPasswordResetLink({
+                  user_id: user2.id,
+                  frontend_url: window.location.origin
+                });
+                setResetLink(result.reset_link);
+                setShowResetDialog(true);
+              } catch (error) {
+                toast2({
+                  title: "Couldn't create a reset link",
+                  description: (error == null ? void 0 : error.message) || "Please try again.",
+                  variant: "destructive"
+                });
+              }
             },
             className: "border-orange-400 text-orange-600 hover:bg-orange-50",
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(KeyRound, { className: "h-4 w-4 mr-2" }),
-              "Reset Password"
+              "Send Password Reset Link"
             ]
           }
         ),
@@ -51325,82 +51441,35 @@ function ProfileDetail() {
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", onClick: () => setShowInviteDialog(false), children: "Close" }) })
       ] })
     ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: showResetDialog, onOpenChange: setShowResetDialog, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-sm", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: showResetDialog, onOpenChange: setShowResetDialog, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-md", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { children: [
-          "Reset Password — ",
+          "Password reset link — ",
           user2 == null ? void 0 : user2.name
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogDescription, { children: [
-          "A new temporary password has been generated. Share it with ",
+          "Send this to ",
           user2 == null ? void 0 : user2.name,
-          " and ask them to change it after signing in."
+          " only. They open it, choose a new password, and sign in. It works once, for 24 hours; their old logins stop working once they've changed it."
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 flex items-center justify-between gap-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono text-lg font-semibold text-orange-800 tracking-wide", children: resetPassword }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1.5", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Button,
-              {
-                size: "icon",
-                variant: "ghost",
-                className: "h-8 w-8 text-orange-600 hover:text-orange-800 hover:bg-orange-100",
-                title: "Generate new password",
-                onClick: () => {
-                  const words = ["Fire", "Watch", "Shift", "Crew", "Engine", "Pump"];
-                  const w = words[Math.floor(Math.random() * words.length)];
-                  const n = Math.floor(Math.random() * 900) + 100;
-                  const s = ["!", "@", "#", "$"][Math.floor(Math.random() * 4)];
-                  setResetPassword(`${w}${n}${s}`);
-                },
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "h-4 w-4" })
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Button,
-              {
-                size: "icon",
-                variant: "ghost",
-                className: "h-8 w-8 text-orange-600 hover:text-orange-800 hover:bg-orange-100",
-                title: "Copy to clipboard",
-                onClick: () => {
-                  navigator.clipboard.writeText(resetPassword);
-                  toast2({ title: "Copied!", description: "Temporary password copied" });
-                },
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "h-4 w-4" })
-              }
-            )
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end gap-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", onClick: () => setShowResetDialog(false), children: "Cancel" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { readOnly: true, value: resetLink, className: "flex-1 text-xs font-mono" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Button,
             {
-              className: "bg-orange-500 hover:bg-orange-600 text-white",
-              disabled: resetting,
-              onClick: async () => {
-                if (!user2) return;
-                setResetting(true);
-                try {
-                  await backendClient.localauth.resetUserPassword({
-                    userId: user2.id,
-                    new_password: resetPassword
-                  });
-                  toast2({ title: "Password reset", description: `New password set for ${user2.name}. Share it with them now.` });
-                  setShowResetDialog(false);
-                } catch (err) {
-                  toast2({ title: "Error", description: (err == null ? void 0 : err.message) || "Failed to reset password", variant: "destructive" });
-                } finally {
-                  setResetting(false);
-                }
+              size: "sm",
+              onClick: () => {
+                navigator.clipboard.writeText(resetLink);
+                toast2({ title: "Copied!", description: "Reset link copied to clipboard" });
               },
-              children: resetting ? "Resetting…" : "Set this password"
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "h-4 w-4" })
             }
           )
-        ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "Share it privately (WhatsApp, Teams, email) — anyone with the link can set the password." }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", onClick: () => setShowResetDialog(false), children: "Close" }) })
       ] })
     ] }) })
   ] });
@@ -58638,6 +58707,7 @@ function ReportCard({ report: report2 }) {
 function Reports() {
   const { toast: toast2 } = useToast();
   const { user: user2 } = useAuth();
+  const isAdmin = (user2 == null ? void 0 : user2.is_admin) === true;
   const [showNewDialog, setShowNewDialog] = reactExports.useState(false);
   const [selectedTable, setSelectedTable] = reactExports.useState("");
   const [csvData, setCsvData] = reactExports.useState("");
@@ -58792,7 +58862,7 @@ function Reports() {
           )
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
+      isAdmin && /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(CardHeader, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs(CardTitle, { className: "flex items-center gap-2", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { className: "h-5 w-5 text-red-500" }),
@@ -59815,183 +59885,124 @@ function OffboardingWizard({ user: user2, open, onClose, onComplete }) {
 }
 const WATCHES$6 = ["Red", "White", "Blue", "Green", "Amber"];
 const RANKS = ["Firefighter", "Leading Firefighter", "Crew Commander", "Watch Commander"];
-function generatePassword() {
-  const words = ["Fire", "Station", "Watch", "Shift", "Engine", "Crew", "Pump", "Ladder"];
-  const w = words[Math.floor(Math.random() * words.length)];
-  const n = Math.floor(Math.random() * 900) + 100;
-  const sym = ["!", "@", "#", "$"][Math.floor(Math.random() * 4)];
-  return `${w}${n}${sym}`;
-}
 function InviteUserDialog({ open, onClose, onSuccess }) {
   const [name, setName] = reactExports.useState("");
   const [email, setEmail] = reactExports.useState("");
-  const [role, setRole] = reactExports.useState("FF");
+  const [rank, setRank] = reactExports.useState("Firefighter");
   const [watchUnit, setWatchUnit] = reactExports.useState("");
-  const [rank, setRank] = reactExports.useState("");
-  const [password, setPassword] = reactExports.useState(() => generatePassword());
-  const [showPassword, setShowPassword] = reactExports.useState(false);
   const [loading, setLoading] = reactExports.useState(false);
-  const [created, setCreated] = reactExports.useState(false);
+  const [inviteLink, setInviteLink] = reactExports.useState("");
   const { toast: toast2 } = useToast();
   const handleClose = () => {
     setName("");
     setEmail("");
-    setRole("FF");
+    setRank("Firefighter");
     setWatchUnit("");
-    setRank("");
-    setPassword(generatePassword());
-    setShowPassword(false);
-    setCreated(false);
+    setInviteLink("");
     onClose();
-  };
-  const copyToClipboard = (text, label) => {
-    navigator.clipboard.writeText(text).then(() => {
-      toast2({ title: `${label} copied` });
-    });
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name.trim() || !email.trim() || !password.trim()) {
-      toast2({ variant: "destructive", title: "Error", description: "Name, email and password are required" });
+    if (!name.trim() || !email.trim() || !watchUnit) {
+      toast2({ variant: "destructive", title: "Name, email and watch are required" });
       return;
     }
     setLoading(true);
     try {
-      await backendClient.admin.createAccount({
+      const cleanEmail = email.trim().toLowerCase();
+      await backendClient.profile.createPerson({
         name: name.trim(),
-        email: email.trim().toLowerCase(),
-        password,
-        role,
-        watch_unit: watchUnit || void 0,
-        rank: rank || void 0
+        email: cleanEmail,
+        rank,
+        watch_unit: watchUnit
       });
-      setCreated(true);
+      const invite = await backendClient.admin.getInviteLink({
+        email: cleanEmail,
+        frontend_url: window.location.origin
+      });
       onSuccess();
+      if (invite.already_active) {
+        toast2({ title: "Already set up", description: `${invite.user_name} already has a login.` });
+        handleClose();
+        return;
+      }
+      setInviteLink(invite.invite_link);
     } catch (error) {
       toast2({
         variant: "destructive",
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to create account"
+        title: "Couldn't add them",
+        description: error instanceof Error ? error.message : "Please try again."
       });
     } finally {
       setLoading(false);
     }
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: handleClose, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-md", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: created ? "Account Created" : "Add Staff Member" }) }),
-    created ? (
-      /* ── Success screen — show credentials to hand to new member ── */
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 py-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 text-green-600", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheckBig, { className: "h-5 w-5" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm font-medium", children: [
-            "Account created for ",
-            name
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "Share these login details with the new team member. They can change their password from Settings after first login." }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-xl border border-border bg-muted/40 divide-y divide-border", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-4 py-3", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground mb-0.5", children: "Email" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm font-mono font-medium", children: email })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => copyToClipboard(email, "Email"), className: "p-1.5 rounded-lg hover:bg-background transition-colors text-muted-foreground hover:text-foreground", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "h-4 w-4" }) })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-4 py-3", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground mb-0.5", children: "Temporary password" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm font-mono font-medium", children: password })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => copyToClipboard(password, "Password"), className: "p-1.5 rounded-lg hover:bg-background transition-colors text-muted-foreground hover:text-foreground", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "h-4 w-4" }) })
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DialogFooter, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: handleClose, className: "w-full bg-indigo-600 hover:bg-indigo-700", children: "Done" }) })
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: (o) => {
+    if (!o) handleClose();
+  }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-md", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: inviteLink ? `Invite ${name}` : "Add Staff Member" }),
+      inviteLink && /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogDescription, { children: [
+        name,
+        " is now on ",
+        watchUnit,
+        " Watch. Send them this link — they choose their own password. It works once, for 14 days."
       ] })
-    ) : (
-      /* ── Create form ── */
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSubmit, className: "space-y-4 py-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "col-span-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "name", children: "Full Name" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "name", value: name, onChange: (e) => setName(e.target.value), placeholder: "e.g. James Robertson", className: "mt-1", required: true })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "col-span-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "email", children: "Email Address" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "email", type: "email", value: email, onChange: (e) => setEmail(e.target.value), placeholder: "james@firescotland.gov.uk", className: "mt-1", required: true })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Role" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: role, onValueChange: (v) => setRole(v), children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "mt-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "WC", children: "Watch Commander" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "CC", children: "Crew Commander" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "FF", children: "Firefighter" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "RO", children: "Read Only" })
-              ] })
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Watch" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watchUnit, onValueChange: setWatchUnit, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "mt-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select…" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$6.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "col-span-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Rank" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: rank, onValueChange: setRank, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "mt-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select rank…" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: RANKS.map((r2) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: r2, children: r2 }, r2)) })
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "col-span-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "password", children: "Temporary Password" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 mt-1", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative flex-1", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  Input,
-                  {
-                    id: "password",
-                    type: showPassword ? "text" : "password",
-                    value: password,
-                    onChange: (e) => setPassword(e.target.value),
-                    className: "pr-9 font-mono",
-                    required: true
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "button",
-                  {
-                    type: "button",
-                    onClick: () => setShowPassword(!showPassword),
-                    className: "absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors",
-                    children: showPassword ? /* @__PURE__ */ jsxRuntimeExports.jsx(EyeOff, { className: "h-4 w-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Eye, { className: "h-4 w-4" })
-                  }
-                )
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                Button,
-                {
-                  type: "button",
-                  variant: "outline",
-                  size: "icon",
-                  onClick: () => setPassword(generatePassword()),
-                  title: "Generate new password",
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "h-4 w-4" })
-                }
-              )
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground mt-1", children: "You'll see the full credentials to share after creating the account." })
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogFooter, { className: "pt-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "button", variant: "outline", onClick: handleClose, children: "Cancel" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "submit", disabled: loading, className: "bg-indigo-600 hover:bg-indigo-700", children: loading ? "Creating…" : "Create Account" })
+    ] }),
+    inviteLink ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 py-1", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 text-green-600", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheckBig, { className: "h-5 w-5" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm font-medium", children: [
+          "Added ",
+          name
         ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { readOnly: true, value: inviteLink, className: "flex-1 text-xs font-mono" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Button,
+          {
+            size: "sm",
+            onClick: () => {
+              navigator.clipboard.writeText(inviteLink);
+              toast2({ title: "Invite link copied" });
+            },
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "h-4 w-4" })
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "Share it privately (WhatsApp, Teams, email) — anyone with the link can set the password." }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogFooter, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: handleClose, children: "Done" }) })
+    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSubmit, className: "space-y-4 py-1", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "iu-name", children: "Full name" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "iu-name", value: name, onChange: (e) => setName(e.target.value), required: true })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "iu-email", children: "Email" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "iu-email", type: "email", value: email, onChange: (e) => setEmail(e.target.value), required: true })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Rank" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: rank, onValueChange: setRank, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: RANKS.map((r2) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: r2, children: r2 }, r2)) })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Watch" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watchUnit, onValueChange: setWatchUnit, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Choose…" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$6.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
+          ] })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogFooter, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "button", variant: "outline", onClick: handleClose, disabled: loading, children: "Cancel" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "submit", disabled: loading, children: loading ? "Adding…" : "Add and get invite link" })
       ] })
-    )
+    ] })
   ] }) });
 }
 var ROOT_NAME = "AlertDialog";
@@ -60436,6 +60447,7 @@ const FEATURE_CONFIG = [
 ];
 function AdminPanel() {
   const [activeTab, setActiveTab] = reactExports.useState("features");
+  const isAdmin = useIsAdmin();
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 md:p-8 space-y-6", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3", children: [
@@ -60447,11 +60459,11 @@ function AdminPanel() {
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Tabs, { value: activeTab, onValueChange: setActiveTab, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(TabsList, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "features", children: "Feature Management" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "users", children: "Users" }),
+        isAdmin && /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "users", children: "Users" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "activity", children: "Activity Log" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "features", className: "mt-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(FeatureManagementTab, {}) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "users", className: "mt-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(AdminUsers, {}) }),
+      isAdmin && /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "users", className: "mt-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(AdminUsers, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "activity", className: "mt-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ActivityLogTab, {}) })
     ] })
   ] });

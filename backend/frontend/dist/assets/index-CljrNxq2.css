@@ -727,10 +727,6 @@
     right: calc(var(--spacing) * 2);
   }
 
-  .right-2\.5 {
-    right: calc(var(--spacing) * 2.5);
-  }
-
   .right-3 {
     right: calc(var(--spacing) * 3);
   }
@@ -805,10 +801,6 @@
 
   .col-span-1 {
     grid-column: span 1 / span 1;
-  }
-
-  .col-span-2 {
-    grid-column: span 2 / span 2;
   }
 
   .col-span-full {
@@ -5705,7 +5697,7 @@
       background-color: var(--color-amber-700);
     }
 
-    .hover\:bg-background:hover, .hover\:bg-background\/60:hover {
+    .hover\:bg-background\/60:hover {
       background-color: var(--background);
     }
 
@@ -5909,10 +5901,6 @@
 
     .hover\:bg-orange-100:hover {
       background-color: var(--color-orange-100);
-    }
-
-    .hover\:bg-orange-600:hover {
-      background-color: var(--color-orange-600);
     }
 
     .hover\:bg-primary\/90:hover {
@@ -6129,10 +6117,6 @@
 
     .hover\:text-indigo-700:hover {
       color: var(--color-indigo-700);
-    }
-
-    .hover\:text-orange-800:hover {
-      color: var(--color-orange-800);
     }
 
     .hover\:text-primary:hover {
