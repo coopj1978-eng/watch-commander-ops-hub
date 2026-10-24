@@ -31,10 +31,10 @@ export const create = api<CreateSkillRenewalRequest, SkillRenewal>(
     }
 
     const canEditAllProfiles = hasPermission(auth, Permission.EDIT_ALL_PROFILES);
-    const canEditOwnProfile = hasPermission(auth, Permission.EDIT_OWN_PROFILE) && profile.user_id === auth.userID;
+    // Qualifications are kept by a WC/CC, not by the person themself.
     const canEditAssignedFirefighters = hasPermission(auth, Permission.EDIT_ASSIGNED_FIREFIGHTERS);
 
-    if (!canEditAllProfiles && !canEditOwnProfile && !canEditAssignedFirefighters) {
+    if (!canEditAllProfiles && !canEditAssignedFirefighters) {
       throw APIError.permissionDenied("You don't have permission to add skills to this profile");
     }
 

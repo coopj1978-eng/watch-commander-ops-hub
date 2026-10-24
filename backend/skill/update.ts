@@ -39,10 +39,10 @@ export const update = api(
     }
 
     const canEditAllProfiles = hasPermission(auth, Permission.EDIT_ALL_PROFILES);
-    const canEditOwnProfile = hasPermission(auth, Permission.EDIT_OWN_PROFILE) && skill.user_id === auth.userID;
+    // Qualifications are kept by a WC/CC, not by the person themself.
     const canEditAssignedFirefighters = hasPermission(auth, Permission.EDIT_ASSIGNED_FIREFIGHTERS);
 
-    if (!canEditAllProfiles && !canEditOwnProfile && !canEditAssignedFirefighters) {
+    if (!canEditAllProfiles && !canEditAssignedFirefighters) {
       throw APIError.permissionDenied("You don't have permission to update this skill");
     }
 

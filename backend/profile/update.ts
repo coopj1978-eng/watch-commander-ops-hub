@@ -91,12 +91,25 @@ function transformProfile(dbProfile: DBProfile): FirefighterProfile {
   return profile;
 }
 
+const FF_EDITABLE = new Set<keyof UpdateProfileRequest>([
+  "phone",
+  "emergency_contact_name",
+  "emergency_contact_phone",
+]);
+const WC_ONLY = new Set<keyof UpdateProfileRequest>(["service_number", "station", "watch", "rank"]);
+
 export const update = api(
   { auth: true, expose: true, method: "PATCH", path: "/profiles/:id" },
   async (params: UpdateProfileParams & UpdateProfileRequest): Promise<FirefighterProfile> => {
     const { id, ...updates } = params;
     const auth = getAuthData()!;
 
+    // Same limits as the profile screen: a firefighter edits their own
+    // contact details only; a CC can't change service number, station,
+    // watch or rank; a WC can change anything.
+    const changed = (Object.keys(updates) as (keyof UpdateProfileRequest)[]).filter(
+      (k) => updates[k] !== undefined
+    );
     if (auth.role !== "WC" && auth.role !== "CC") {
       const owner = await db.queryRow<{ user_id: string }>`
         SELECT user_id FROM firefighter_profiles WHERE id = ${id}
@@ -104,6 +117,17 @@ export const update = api(
       if (!owner) throw APIError.notFound("profile not found");
       if (owner.user_id !== auth.userID) {
         throw APIError.permissionDenied("You can only edit your own profile");
+      }
+      const locked = changed.filter((k) => !FF_EDITABLE.has(k));
+      if (locked.length > 0) {
+        throw APIError.permissionDenied(
+          `You can only change your phone and emergency contact. Ask your Watch Commander to change: ${locked.join(", ")}.`
+        );
+      }
+    } else if (auth.role === "CC") {
+      const locked = changed.filter((k) => WC_ONLY.has(k));
+      if (locked.length > 0) {
+        throw APIError.permissionDenied(`Only a Watch Commander can change: ${locked.join(", ")}.`);
       }
     }
 
