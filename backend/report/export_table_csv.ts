@@ -1,6 +1,7 @@
 import { api } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
-import db from "../db";
+import db, { type SQLPrimitive } from "../db";
+import { absenceViewer, visibleAbsencesSql } from "../lib/absenceAccess";
 import { requirePermission, Permission } from "../auth/rbac";
 
 interface ExportTableCSVRequest {
@@ -42,6 +43,7 @@ export const exportTableCSV = api<ExportTableCSVRequest, ExportTableCSVResponse>
 
     let query: string;
     let filename: string;
+    const params: SQLPrimitive[] = [];
 
     switch (req.table) {
       case "users":
@@ -74,11 +76,13 @@ export const exportTableCSV = api<ExportTableCSVRequest, ExportTableCSVResponse>
         filename = "inspections.csv";
         break;
       case "absences":
-        query = `SELECT 
-          a.id, a.user_id, u.name as user_name, a.type, a.start_date, a.end_date,
-          a.days_count, a.reason, a.status, a.approved_by, a.created_at
+        // Only the caller's own watch (and themself).
+        query = `SELECT
+          a.id, a.firefighter_id, u.name as user_name, a.type, a.start_date, a.end_date,
+          a.returned_to_work_at, a.reason, a.status, a.approved_by, a.created_at
           FROM absences a
-          LEFT JOIN users u ON a.user_id = u.id
+          LEFT JOIN users u ON a.firefighter_id = u.id
+          WHERE ${visibleAbsencesSql(await absenceViewer(), "a.firefighter_id", params)}
           ORDER BY a.start_date DESC`;
         filename = "absences.csv";
         break;
@@ -103,7 +107,7 @@ export const exportTableCSV = api<ExportTableCSVRequest, ExportTableCSVResponse>
         throw new Error(`Invalid table: ${req.table}`);
     }
 
-    const rows = await db.rawQueryAll<any>(query);
+    const rows = await db.rawQueryAll<any>(query, ...params);
     const csv = rowsToCSV(rows);
 
     return { csv, filename };

@@ -124,6 +124,8 @@ export default function People() {
   });
 
   const { user: authUser } = useAuth();
+  const onMyWatch = (watch?: string | null) =>
+    !!authUser?.watch_unit && !!watch && watch.toLowerCase() === authUser.watch_unit.toLowerCase();
 
   const [logSickOpen, setLogSickOpen] = useState(false);
   const [logSickPerson, setLogSickPerson] = useState<{ id: string; name: string } | null>(null);
@@ -725,7 +727,10 @@ export default function People() {
                     )}
                     {canLogSick && (
                       <TableCell onClick={(e) => e.stopPropagation()}>
-                        {sickToday?.has(user.id) ? (
+                        {!onMyWatch(user.watch_unit || profile?.watch) ? (
+                          // Only the person's own watch WC/CC can record their sickness.
+                          <span className="text-muted-foreground">-</span>
+                        ) : sickToday?.has(user.id) ? (
                           <Badge variant="outline" className="text-xs text-red-600 border-red-500/30 gap-1">
                             <Stethoscope className="h-3 w-3" /> Booked Off
                           </Badge>

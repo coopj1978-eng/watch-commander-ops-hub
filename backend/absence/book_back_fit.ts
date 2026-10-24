@@ -1,5 +1,6 @@
 import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
+import { absenceViewer, assertCanManageAbsencesOf } from "../lib/absenceAccess";
 import db from "../db";
 import { logActivity } from "../logging/logger";
 import type { Absence } from "./types";
@@ -19,16 +20,12 @@ interface BookBackFitRequest {
 // returned — shorter or longer than expected — so trigger totals reflect
 // the real absence. Closes all of the person's open sickness rows.
 //
-// WC/CC only — same authorisation level as logging the sickness.
+// WC/CC on the person's watch only.
 // ──────────────────────────────────────────────────────────────────────────────
 export const bookBackFit = api<BookBackFitRequest, Absence>(
   { auth: true, expose: true, method: "POST", path: "/absences/:absence_id/book-back-fit" },
   async (req) => {
     const auth = getAuthData()!;
-
-    if (auth.role !== "WC" && auth.role !== "CC") {
-      throw APIError.permissionDenied("Only WC or CC can book a firefighter back fit");
-    }
 
     const existing = await db.queryRow<Absence>`
       SELECT * FROM absences WHERE id = ${req.absence_id}
@@ -36,6 +33,7 @@ export const bookBackFit = api<BookBackFitRequest, Absence>(
     if (!existing) {
       throw APIError.notFound(`Absence ${req.absence_id} not found`);
     }
+    await assertCanManageAbsencesOf(await absenceViewer(), existing.firefighter_id);
     if (existing.type !== "sickness") {
       throw APIError.invalidArgument("Only sickness absences can be booked back fit");
     }

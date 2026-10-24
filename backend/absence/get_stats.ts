@@ -1,6 +1,6 @@
-import { api, APIError } from "encore.dev/api";
-import { getAuthData } from "~encore/auth";
+import { api } from "encore.dev/api";
 import db from "../db";
+import { absenceViewer, assertCanViewAbsencesOf } from "../lib/absenceAccess";
 import { recalcTriggersForUser } from "../lib/sickness";
 import type { AbsenceStats } from "./types";
 
@@ -17,10 +17,7 @@ const STAGE_LABELS: Record<string, string | undefined> = {
 export const getStats = api<GetStatsRequest, AbsenceStats>(
   { auth: true, expose: true, method: "GET", path: "/absences/stats/:user_id" },
   async ({ user_id }) => {
-    const auth = getAuthData()!;
-    if (auth.userID !== user_id && auth.role !== "WC" && auth.role !== "CC") {
-      throw APIError.permissionDenied("You can only view your own absence stats");
-    }
+    await assertCanViewAbsencesOf(await absenceViewer(), user_id);
 
     const totals = await db.queryRow<{
       sick_days: number;

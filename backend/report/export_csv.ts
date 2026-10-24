@@ -1,6 +1,7 @@
 import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
-import db from "../db";
+import db, { type SQLPrimitive } from "../db";
+import { absenceViewer, visibleAbsencesSql } from "../lib/absenceAccess";
 import { logActivity } from "../logging/logger";
 
 interface ExportCsvRequest {
@@ -19,6 +20,10 @@ const SECRET_COLUMNS = new Set([
 interface ExportCsvResponse {
   csv: string;
 }
+
+// Sickness totals on profiles aren't exported station-wide; a watch's own
+// sickness comes out through the absences export.
+const SICKNESS_COLUMNS = new Set(["rolling_sick_episodes", "rolling_sick_days", "trigger_stage"]);
 
 const ALLOWED_TABLES = [
   "users",
@@ -43,13 +48,21 @@ export const exportCsv = api<ExportCsvRequest, ExportCsvResponse>(
       throw APIError.invalidArgument("invalid table name");
     }
 
-    const rows = await db.rawQueryAll(`SELECT * FROM ${table}`);
+    // Absence records only for the caller's own watch (and themself).
+    const params: SQLPrimitive[] = [];
+    const where =
+      table === "absences"
+        ? ` WHERE ${visibleAbsencesSql(await absenceViewer(), "firefighter_id", params)}`
+        : "";
+    const rows = await db.rawQueryAll(`SELECT * FROM ${table}${where}`, ...params);
 
     if (rows.length === 0) {
       return { csv: "" };
     }
 
-    const headers = Object.keys(rows[0]).filter((h) => !SECRET_COLUMNS.has(h));
+    const headers = Object.keys(rows[0]).filter(
+      (h) => !SECRET_COLUMNS.has(h) && !(table === "firefighter_profiles" && SICKNESS_COLUMNS.has(h))
+    );
     const csvRows = [headers.join(",")];
 
     for (const row of rows) {

@@ -3,6 +3,7 @@ import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { logActivity } from "../logging/logger";
 import { recalcTriggersSafely } from "../lib/sickness";
+import { absenceViewer, assertCanManageAbsencesOf } from "../lib/absenceAccess";
 
 interface DeleteAbsenceRequest {
   id: number;
@@ -15,7 +16,8 @@ interface DeleteAbsenceResponse {
 // ──────────────────────────────────────────────────────────────────────────────
 // deleteAbsence
 //
-// Permanent removal of an absence record. WC/CC only — used to undo a
+// Permanent removal of an absence record. WC/CC on the person's watch
+// only — used to undo a
 // mistakenly-logged sickness (wrong person, wrong date, duplicate entry,
 // etc.). The owner can NOT delete their own absences via this endpoint
 // because it would let an FF erase a record after the WC has booked them
@@ -28,10 +30,6 @@ export const deleteAbsence = api<DeleteAbsenceRequest, DeleteAbsenceResponse>(
   { auth: true, expose: true, method: "DELETE", path: "/absences/:id" },
   async ({ id }) => {
     const auth = getAuthData()!;
-
-    if (auth.role !== "WC" && auth.role !== "CC") {
-      throw APIError.permissionDenied("Only WC or CC can delete absence records");
-    }
 
     const existing = await db.queryRow<{
       id: number;
@@ -50,6 +48,7 @@ export const deleteAbsence = api<DeleteAbsenceRequest, DeleteAbsenceResponse>(
     if (!existing) {
       throw APIError.notFound(`Absence ${id} not found`);
     }
+    await assertCanManageAbsencesOf(await absenceViewer(), existing.firefighter_id);
 
     await db.exec`DELETE FROM absences WHERE id = ${id}`;
 

@@ -1,6 +1,6 @@
 import { api } from "encore.dev/api";
-import { getAuthData } from "~encore/auth";
 import db from "../db";
+import { absenceViewer, visibleAbsencesSql } from "../lib/absenceAccess";
 import { ukTodayIso } from "../lib/sickness";
 
 export interface TodaySickMember {
@@ -14,15 +14,15 @@ interface TodaySickResponse {
 }
 
 /**
- * Returns all staff with an approved sickness absence that covers today's date.
+ * Returns staff with an approved sickness absence that covers today's date —
+ * limited to the caller's own watch (or just themself for a firefighter).
  * Used by the WC dashboard to cross-reference against the crewing board.
  */
 export const todaySick = api<void, TodaySickResponse>(
   { auth: true, expose: true, method: "GET", path: "/absences/today-sick" },
   async () => {
-    getAuthData()!;
-
-    const today = ukTodayIso();
+    const params: (string | number)[] = [ukTodayIso()];
+    const visible = visibleAbsencesSql(await absenceViewer(), "a.firefighter_id", params);
 
     // Sickness counts as covering today when:
     //   • start_date is on or before today, AND
@@ -39,8 +39,9 @@ export const todaySick = api<void, TodaySickResponse>(
          AND a.start_date::date <= $1::date
          AND (a.end_date::date >= $1::date OR a.returned_to_work_at IS NULL)
          AND (a.returned_to_work_at IS NULL OR a.returned_to_work_at::date > $1::date)
+         AND ${visible}
        ORDER BY u.name`,
-      today
+      ...params
     );
 
     return { sick_staff: rows };

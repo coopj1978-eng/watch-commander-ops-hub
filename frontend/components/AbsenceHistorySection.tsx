@@ -30,7 +30,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
-import { useUserRole } from "@/lib/rbac";
 import { Heart, Pencil, Trash2 } from "lucide-react";
 import type { AbsenceType } from "~backend/absence/types";
 import { invalidateAbsenceViews, localTodayIso } from "@/lib/absences";
@@ -96,11 +95,16 @@ function toIsoDate(v: string | Date | null | undefined): string {
   return d.toISOString().slice(0, 10);
 }
 
-export function AbsenceHistorySection({ userId }: { userId: string }) {
+export function AbsenceHistorySection({
+  userId,
+  canManage,
+}: {
+  userId: string;
+  /** A WC/CC on this person's watch — the only people who can change records. */
+  canManage: boolean;
+}) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const role = useUserRole();
-  const canManage = role === "WC" || role === "CC";
 
   const { data, isLoading } = useQuery({
     queryKey: ["absences", userId],
@@ -111,7 +115,7 @@ export function AbsenceHistorySection({ userId }: { userId: string }) {
   const absences = data?.absences ?? [];
 
   // Rolling 6-month totals — the same calculation the backend uses for
-  // Bradford triggers, so this always agrees with the dashboard.
+  // sickness triggers, so this always agrees with the dashboard.
   const totals = useMemo(
     () =>
       rollingSickness(

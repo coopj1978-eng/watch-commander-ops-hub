@@ -1,6 +1,7 @@
 import { api } from "encore.dev/api";
 import { Query } from "encore.dev/api";
 import db from "../db";
+import { absenceViewer, visibleAbsencesSql } from "../lib/absenceAccess";
 import type { Absence, AbsenceStatus } from "./types";
 
 interface ListAbsencesRequest {
@@ -26,8 +27,9 @@ export const list = api<ListAbsencesRequest, ListAbsencesResponse>(
     let query = `SELECT * FROM absences`;
     let countQuery = `SELECT COUNT(*) as count FROM absences`;
     const params: any[] = [];
-    const conditions: string[] = [];
-    let paramIndex = 1;
+    // Only the person's own records, or their watch's if the caller is a WC/CC.
+    const conditions: string[] = [visibleAbsencesSql(await absenceViewer(), "firefighter_id", params)];
+    let paramIndex = params.length + 1;
 
     if (req.user_id) {
       conditions.push(`firefighter_id = $${paramIndex++}`);

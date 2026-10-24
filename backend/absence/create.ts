@@ -5,14 +5,15 @@ import { logActivity } from "../logging/logger";
 import { createNotification } from "../notification/helpers";
 import type { CreateAbsenceRequest, Absence } from "./types";
 import { assertNoOpenSickness, recalcTriggersSafely } from "../lib/sickness";
+import { absenceViewer, assertCanManageAbsencesOf } from "../lib/absenceAccess";
 
 export const create = api<CreateAbsenceRequest, Absence>(
   { auth: true, expose: true, method: "POST", path: "/absences" },
   async (req) => {
     const auth = getAuthData()!;
-    const isManager = auth.role === "WC" || auth.role === "CC";
-    if (!isManager && req.user_id !== auth.userID) {
-      throw APIError.permissionDenied("You can only request absences for yourself");
+    // Anyone can record their own; for someone else it's their watch's WC/CC.
+    if (req.user_id !== auth.userID) {
+      await assertCanManageAbsencesOf(await absenceViewer(), req.user_id);
     }
     if (req.type === "sickness") {
       await assertNoOpenSickness(req.user_id);

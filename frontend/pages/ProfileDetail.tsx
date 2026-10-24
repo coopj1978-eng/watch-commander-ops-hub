@@ -132,6 +132,17 @@ export default function ProfileDetail() {
 
   const absences = absencesData?.absences;
 
+  // Sickness: the person sees their own; only a WC/CC on their watch can see
+  // or change it (the backend enforces the same rule).
+  const personWatch = (user?.watch_unit || profile?.watch || "").toLowerCase();
+  const myWatch = (currentUser?.watch_unit || "").toLowerCase();
+  const isLineManager =
+    !isViewingOwnProfile &&
+    (userRole === "WC" || userRole === "CC") &&
+    !!myWatch &&
+    myWatch === personWatch;
+  const canSeeSickness = isViewingOwnProfile || isLineManager;
+
   const { data: settings } = useQuery({
     queryKey: ["settings"],
     queryFn: async () => backend.settings.get(),
@@ -610,7 +621,7 @@ export default function ProfileDetail() {
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="skills">Skills</TabsTrigger>
           <TabsTrigger value="notes">Notes & 1:1s</TabsTrigger>
-          <TabsTrigger value="absences">Absences</TabsTrigger>
+          {canSeeSickness && <TabsTrigger value="absences">Absences</TabsTrigger>}
           <TabsTrigger value="h4h">H4H Balance</TabsTrigger>
           {/* TOIL tab — visible only to the profile owner OR a WC/CC.
               FFs viewing someone else's profile shouldn't see it. */}
@@ -1302,7 +1313,7 @@ export default function ProfileDetail() {
         </TabsContent>
 
         <TabsContent value="absences" className="space-y-6">
-          {profile && profile.trigger_stage !== "None" && (
+          {canSeeSickness && profile && profile.trigger_stage !== "None" && (
             <div className={`p-4 rounded-lg border ${
               profile.trigger_stage === "Stage3"
                 ? "bg-red-500/10 border-red-500/20"
@@ -1341,7 +1352,9 @@ export default function ProfileDetail() {
             </div>
           )}
 
-          {userId && <AbsenceHistorySection userId={userId} />}
+          {userId && canSeeSickness && (
+            <AbsenceHistorySection userId={userId} canManage={isLineManager} />
+          )}
         </TabsContent>
 
         <TabsContent value="h4h" className="space-y-6">

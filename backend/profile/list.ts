@@ -1,6 +1,7 @@
 import { api } from "encore.dev/api";
 import { Query } from "encore.dev/api";
 import db from "../db";
+import { absenceViewer, redactSickness, visiblePersonIds } from "../lib/absenceAccess";
 import type { FirefighterProfile } from "./types";
 
 interface ListProfilesRequest {
@@ -146,7 +147,9 @@ export const list = api<ListProfilesRequest, ListProfilesResponse>(
     params.push(limit, offset);
 
     const dbProfiles = await db.rawQueryAll<DBProfile>(query, ...params);
-    const profiles = dbProfiles.map(transformProfile);
+    // Sickness totals only for the person and their watch's WC/CC.
+    const visible = await visiblePersonIds(await absenceViewer());
+    const profiles = dbProfiles.map((p) => redactSickness(transformProfile(p), visible));
     
     const countResult = await db.rawQueryRow<{ count: number }>(
       countQuery,

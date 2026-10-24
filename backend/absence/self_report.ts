@@ -4,6 +4,7 @@ import db from "../db";
 import { createNotification } from "../notification/helpers";
 import type { Absence } from "./types";
 import { assertNoOpenSickness, recalcTriggersSafely } from "../lib/sickness";
+import { absenceViewer, canManageAbsencesOf } from "../lib/absenceAccess";
 
 export interface SelfReportRequest {
   start_date: Date;
@@ -104,7 +105,8 @@ export interface UpdateAbsenceDatesRequest {
   sick_line_document?: string;
 }
 
-// FF can update dates/sick line on their own absence. WC can update anything.
+// The person can attach a sick line to their own absence; only a WC/CC on
+// their watch can change the dates.
 export const updateAbsence = api<UpdateAbsenceDatesRequest, Absence>(
   { auth: true, expose: true, method: "PATCH", path: "/absences/:id/update" },
   async (req) => {
@@ -124,12 +126,18 @@ export const updateAbsence = api<UpdateAbsenceDatesRequest, Absence>(
 
     if (!existing) throw APIError.notFound("Absence record not found");
 
-    // FF can only update their own absence. WC/CC can update any.
     const isOwn = existing.firefighter_id === auth.userID;
-    const isManager = auth.role === "WC" || auth.role === "CC";
-
-    if (!isOwn && !isManager) {
-      throw APIError.permissionDenied("You can only update your own absence records");
+    if (!(await canManageAbsencesOf(await absenceViewer(), existing.firefighter_id))) {
+      if (!isOwn) {
+        throw APIError.permissionDenied(
+          "Only a Watch Commander or Crew Commander on this person's watch can change their absence records."
+        );
+      }
+      if (req.start_date !== undefined || req.end_date !== undefined) {
+        throw APIError.permissionDenied(
+          "Only your Watch Commander or Crew Commander can change the dates. You can attach a sick line."
+        );
+      }
     }
 
     const updated = await db.queryRow<Absence>`
