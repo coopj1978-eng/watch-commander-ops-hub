@@ -4087,6 +4087,8 @@ export namespace shift_adjustments {
             const query = makeRecord<string, string | string[]>({
                 "covering_watch": params["covering_watch"],
                 "end_date":       params["end_date"],
+                id:               params.id === undefined ? undefined : String(params.id),
+                "involving_user_id": params["involving_user_id"],
                 "start_date":     params["start_date"],
                 "user_id":        params["user_id"],
                 "watch_unit":     params["watch_unit"],
@@ -5012,7 +5014,9 @@ export namespace shift_adjustments {
     }
 
     export interface ListShiftAdjustmentsRequest {
+        id?: number
         "user_id"?: string
+        "involving_user_id"?: string
         "watch_unit"?: string
         "covering_watch"?: string
         "start_date"?: string

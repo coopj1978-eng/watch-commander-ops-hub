@@ -4,6 +4,7 @@ import db, { type SQLPrimitive } from "../db";
 import { logActivity } from "../logging/logger";
 import type { ShiftAdjustment } from "./types";
 import {
+  canModifyAdjustment,
   deleteAdjustmentEvents,
   financialYearOf,
   insertAdjustmentEvents,
@@ -33,11 +34,10 @@ export const update = api<UpdateShiftAdjustmentRequest, ShiftAdjustment>(
     const existing = await loadAdjustment(req.id);
     if (!existing) throw APIError.notFound("Shift adjustment not found.");
 
-    // Only the owner or a WC/CC can edit
-    const isOwn = existing.user_id === auth.userID;
-    const isManager = auth.role === "WC" || auth.role === "CC";
-    if (!isOwn && !isManager) {
-      throw APIError.permissionDenied("You can only edit your own shift adjustments.");
+    if (!canModifyAdjustment(existing, auth)) {
+      throw APIError.permissionDenied(
+        "Only the person it belongs to, the person covering it, or a WC/CC can edit this."
+      );
     }
 
     const newStart = req.start_date !== undefined ? toDateOnly(req.start_date) : toDateOnly(existing.start_date);

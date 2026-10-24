@@ -255,6 +255,22 @@ export async function cascadeDeleteAdjustment(adj: AdjustmentRow): Promise<void>
   await db.exec`DELETE FROM shift_adjustments WHERE id = ${adj.id}`;
 }
 
+/**
+ * Who may edit or delete a booking: the person it belongs to, the person
+ * covering it (e.g. the other half of a Head for Head), or any WC/CC.
+ */
+export function canModifyAdjustment(
+  adj: { user_id: string; covering_user_id?: string | null },
+  caller: { userID: string; role: string }
+): boolean {
+  return (
+    adj.user_id === caller.userID ||
+    (!!adj.covering_user_id && adj.covering_user_id === caller.userID) ||
+    caller.role === "WC" ||
+    caller.role === "CC"
+  );
+}
+
 export async function loadAdjustment(id: number): Promise<(AdjustmentRow & { watch_unit: string }) | null> {
   return db.queryRow<AdjustmentRow & { watch_unit: string }>`
     SELECT id, user_id, type, start_date, end_date, covering_user_id, covering_name,

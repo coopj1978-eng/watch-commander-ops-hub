@@ -4,7 +4,10 @@ import db from "../db";
 import type { ShiftAdjustment } from "./types";
 
 interface ListShiftAdjustmentsRequest {
+  id?:            Query<number>;
   user_id?:       Query<string>;
+  /** Bookings that belong to this person OR that they're covering. */
+  involving_user_id?: Query<string>;
   watch_unit?:    Query<string>;
   covering_watch?: Query<string>;
   start_date?:    Query<string>;
@@ -28,9 +31,18 @@ export const list = api<ListShiftAdjustmentsRequest, ListShiftAdjustmentsRespons
     const params: any[] = [];
     let idx = 1;
 
+    if (req.id) {
+      query += ` AND sa.id = $${idx++}`;
+      params.push(req.id);
+    }
     if (req.user_id) {
       query += ` AND sa.user_id = $${idx++}`;
       params.push(req.user_id);
+    }
+    if (req.involving_user_id) {
+      query += ` AND (sa.user_id = $${idx} OR sa.covering_user_id = $${idx})`;
+      idx++;
+      params.push(req.involving_user_id);
     }
     if (req.watch_unit) {
       query += ` AND LOWER(sa.watch_unit) = LOWER($${idx++})`;

@@ -1,7 +1,9 @@
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/App";
+import { useUserRole } from "@/lib/rbac";
 import backend from "@/lib/backend";
+import type { shift_adjustments } from "@/client";
 import CalendarWidget, { type CalendarViewType, type CalendarItem } from "../components/CalendarWidget";
 import EventForm, { type EventFormData } from "../components/EventForm";
 import InspectionEventModal, { type ExistingInspectionEvent } from "../components/InspectionEventModal";
@@ -76,6 +78,10 @@ export default function UnifiedCalendar() {
   // Shift adjustment modal
   const [shiftAdjModalOpen, setShiftAdjModalOpen] = useState(false);
   const [shiftAdjDate, setShiftAdjDate] = useState<Date | undefined>(undefined);
+  // A booking clicked on the calendar opens in the booking form, so its
+  // TOIL hours, cover and linked entries stay in step.
+  const [bookingToEdit, setBookingToEdit] = useState<shift_adjustments.ShiftAdjustment | null>(null);
+  const role = useUserRole();
 
   // Schedule Training modal — opens from the calendar toolbar
   const [trainingModalOpen, setTrainingModalOpen] = useState(false);
@@ -251,11 +257,31 @@ export default function UnifiedCalendar() {
     setFormOpen(true);
   };
 
-  const handleEventClick = (item: CalendarItem) => {
+  const handleEventClick = async (item: CalendarItem) => {
     if (item.type === "task" || item.type === "inspection") return; // non-editable
 
-    // If this event has an inspection source, open the inspection edit modal
     const eventData = item.data as any;
+
+    // TOIL / H4H / Flexi etc. — the person it belongs to, the person
+    // covering, or a WC/CC edit it as a booking. Anyone else just sees it.
+    if (eventData?.shift_adjustment_id) {
+      const booking = await backend.shift_adjustments
+        .list({ id: eventData.shift_adjustment_id })
+        .then((r) => r.adjustments[0])
+        .catch(() => undefined);
+      const canEdit =
+        !!booking &&
+        (booking.user_id === user?.id ||
+          booking.covering_user_id === user?.id ||
+          role === "WC" ||
+          role === "CC");
+      if (canEdit) {
+        setBookingToEdit(booking);
+        return;
+      }
+    }
+
+    // If this event has an inspection source, open the inspection edit modal
     if (eventData?.source_type) {
       setEditingInspectionEvent({
         id: eventData.id,
@@ -598,6 +624,11 @@ export default function UnifiedCalendar() {
         open={shiftAdjModalOpen}
         onClose={() => setShiftAdjModalOpen(false)}
         defaultDate={shiftAdjDate}
+      />
+      <ShiftAdjustmentModal
+        open={!!bookingToEdit}
+        onClose={() => setBookingToEdit(null)}
+        editAdjustment={bookingToEdit}
       />
 
       {/* ── Schedule Training modal ──────────────────────────────────────────── */}

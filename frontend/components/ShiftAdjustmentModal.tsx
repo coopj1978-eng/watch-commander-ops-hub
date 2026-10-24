@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  CalendarDays, Users, GraduationCap, ArrowLeftRight, Loader2, X, RefreshCw, Sun, Pencil, Clock,
+  CalendarDays, Users, GraduationCap, ArrowLeftRight, Loader2, X, RefreshCw, Sun, Pencil, Clock, Trash2,
 } from "lucide-react";
 import type { shift_adjustments } from "@/client";
 
@@ -107,8 +107,10 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
   const [endDate, setEndDate] = useState(today);
   const [notes, setNotes] = useState("");
 
-  // Edit mode
+  // Edit mode — editingAdj is the booking being edited, which may be someone
+  // else's (a WC/CC, or the person covering it).
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingAdj, setEditingAdj] = useState<shift_adjustments.ShiftAdjustment | null>(null);
 
   // H4H fields
   const [coverMode, setCoverMode] = useState<"roster" | "freetext">("roster");
@@ -146,6 +148,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
       setType(null);
       setNotes("");
       setEditingId(null);
+      setEditingAdj(null);
       setCoverMode("roster");
       setCoverWatch("");
       setCoverUserId("");
@@ -181,7 +184,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
   // Fetch existing adjustments for this user in the selected date range
   const { data: existingData } = useQuery({
     queryKey: ["shift-adjustments-mine", user?.id, startDate],
-    queryFn: () => backend.shift_adjustments.list({ user_id: user!.id, start_date: startDate, end_date: endDate }),
+    queryFn: () => backend.shift_adjustments.list({ involving_user_id: user!.id, start_date: startDate, end_date: endDate }),
     enabled: !!user?.id && open && !editAdjustment,
   });
   // Editing from a profile is about that one entry, not the viewer's own list.
@@ -255,7 +258,8 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
       invalidateAdjustmentViews();
       toast({ title: "Shift adjustment removed" });
     },
-    onError: () => toast({ title: "Failed to remove", variant: "destructive" }),
+    onError: (err: any) =>
+      toast({ title: "Failed to remove", description: err?.message ?? String(err), variant: "destructive" }),
   });
 
   const updateMutation = useMutation({
@@ -296,11 +300,20 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
       return;
     }
     setEditingId(null);
+    setEditingAdj(null);
     setType(null);
+  };
+
+  const confirmDelete = (a: { id: number; type: AdjType }, onDone?: () => void) => {
+    if (!confirm(
+      `Delete this ${TYPE_CONFIG[a.type].label} booking? Its calendar entries are removed and any TOIL hours refunded.`
+    )) return;
+    deleteMutation.mutate(a.id, { onSuccess: () => onDone?.() });
   };
 
   const startEditing = (a: any) => {
     setEditingId(a.id);
+    setEditingAdj(a);
     setType(a.type);
     setStartDate(String(a.start_date).split("T")[0]);
     setEndDate(String(a.end_date).split("T")[0]);
@@ -357,8 +370,8 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
   })();
 
   // Whose booking this is: the person being edited, otherwise the viewer.
-  const userWatch = editAdjustment?.watch_unit ?? user?.watch_unit ?? "";
-  const subjectName = editAdjustment?.user_name ?? user?.name;
+  const userWatch = editingAdj?.watch_unit ?? user?.watch_unit ?? "";
+  const subjectName = editingAdj?.user_name ?? user?.name;
   const otherWatches = WATCHES.filter(w => w !== userWatch);
 
   const fmt = (d: string) => new Date(d + "T12:00:00").toLocaleDateString("en-GB", {
@@ -705,13 +718,25 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
 
               <div className="flex gap-2">
                 {editingId && (
-                  <Button
-                    variant="outline"
-                    className="flex-shrink-0"
-                    onClick={finishEditing}
-                  >
-                    Cancel
-                  </Button>
+                  <>
+                    <Button
+                      variant="outline"
+                      className="flex-shrink-0"
+                      onClick={finishEditing}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="flex-shrink-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
+                      disabled={deleteMutation.isPending}
+                      onClick={() => confirmDelete({ id: editingId, type: type! }, finishEditing)}
+                      aria-label="Delete booking"
+                      title="Delete booking"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </>
                 )}
                 <Button
                   className="w-full"
@@ -744,7 +769,12 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
                   <div key={a.id} className={`flex items-center gap-2 rounded-xl border px-3 py-2 ${cfg.border} ${cfg.bg}`}>
                     <Icon className={`h-4 w-4 shrink-0 ${cfg.color}`} />
                     <div className="flex-1 min-w-0">
-                      <p className={`text-xs font-semibold ${cfg.color}`}>{cfg.label}</p>
+                      <p className={`text-xs font-semibold ${cfg.color}`}>
+                        {cfg.label}
+                        {a.user_id !== user?.id && a.user_name && (
+                          <span className="font-normal text-muted-foreground"> · you're covering {a.user_name}</span>
+                        )}
+                      </p>
                       <p className="text-xs text-muted-foreground truncate">{dateStr}</p>
                       {(a as any).toil_hours ? (
                         <p className="text-xs text-muted-foreground truncate">{(a as any).toil_hours}hrs · Cover: {a.covering_name}</p>
@@ -762,7 +792,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
                       <Pencil className="h-3 w-3" />
                     </button>
                     <button
-                      onClick={() => deleteMutation.mutate(a.id)}
+                      onClick={() => confirmDelete(a)}
                       disabled={deleteMutation.isPending}
                       className="shrink-0 h-6 w-6 rounded flex items-center justify-center text-muted-foreground hover:text-red-500"
                       title="Delete"
