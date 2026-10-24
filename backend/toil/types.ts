@@ -24,11 +24,11 @@ export interface ToilEntry {
 export interface ToilBalance {
   user_id: string;
   user_name: string;
-  financial_year: number;
-  total_earned: number;      // approved hours earned
-  total_spent: number;       // hours used on shifts
+  year: number;              // calendar year the totals below cover
+  total_earned: number;      // approved hours earned this year (resets 1 Jan)
+  total_spent: number;       // hours used on shifts this year (resets 1 Jan)
   pending_earned: number;    // hours awaiting approval
-  balance: number;           // earned - spent
+  balance: number;           // all-time earned - spent: carried over until used
 }
 
 export interface EarnToilRequest {
@@ -54,7 +54,8 @@ export interface ListToilResponse {
 export interface ToilBalanceRequest {
   user_id?: Query<string>;
   watch_unit?: Query<string>;
-  financial_year?: Query<number>;
+  /** Calendar year for the earned/used totals; defaults to this year. */
+  year?: Query<number>;
 }
 
 export interface ToilBalanceResponse {

@@ -46,7 +46,7 @@ export const update = api<UpdateShiftAdjustmentRequest, ShiftAdjustment>(
       throw APIError.invalidArgument("End date must be on or after start date.");
     }
 
-    // ── TOIL hours / financial-year check ────────────────────────────────────
+    // ── TOIL hours / balance check ───────────────────────────────────────────
     const isToil = existing.type === "toil";
     if (req.toil_hours !== undefined && !isToil) {
       throw APIError.invalidArgument("Hours can only be changed on a TOIL adjustment.");
@@ -59,16 +59,15 @@ export const update = api<UpdateShiftAdjustmentRequest, ShiftAdjustment>(
       : null;
     const newFy = financialYearOf(newStart);
     if (isToil && newHours) {
-      // Balance in the (possibly new) financial year, excluding this
-      // adjustment's own spent row so it isn't double-counted.
+      // Carried-over balance across all years, excluding this adjustment's
+      // own spent row so it isn't double-counted.
       const balanceRow = await db.rawQueryRow<{ balance: string }>(
         `SELECT COALESCE(SUM(CASE WHEN type = 'earned' AND status = 'approved' THEN hours ELSE 0 END) -
                 SUM(CASE WHEN type = 'spent' THEN hours ELSE 0 END), 0) AS balance
          FROM toil_ledger
-         WHERE user_id = $1 AND financial_year = $2
-           AND NOT (type = 'spent' AND shift_adjustment_id = $3)`,
+         WHERE user_id = $1
+           AND NOT (type = 'spent' AND shift_adjustment_id = $2)`,
         existing.user_id,
-        newFy,
         req.id
       );
       const available = Number(balanceRow?.balance ?? 0);

@@ -21,18 +21,14 @@ import {
 
 const WATCHES = ["Red", "White", "Green", "Blue", "Amber"] as const;
 
-function currentFinancialYear(): number {
-  const now = new Date();
-  return now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
-}
-
 export default function ToilWidget() {
   const { user } = useAuth();
   const userRole = useUserRole();
   const isManager = ["WC", "CC"].includes(userRole);
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const fy = currentFinancialYear();
+  // Earned/Used reset on 1 January; Available carries over until used.
+  const year = new Date().getFullYear();
 
   const [earnOpen, setEarnOpen] = useState(false);
   const [earnHours, setEarnHours] = useState("1");
@@ -45,16 +41,16 @@ export default function ToilWidget() {
 
   // Balance query
   const { data: balanceData } = useQuery({
-    queryKey: ["toil-balance", user?.id, fy],
-    queryFn: () => backend.toil.balance({ user_id: user!.id, financial_year: fy }),
+    queryKey: ["toil-balance", user?.id, year],
+    queryFn: () => backend.toil.balance({ user_id: user!.id, year }),
     enabled: !!user?.id,
   });
   const myBalance = balanceData?.balances?.[0];
 
   // Recent entries
   const { data: entriesData } = useQuery({
-    queryKey: ["toil-entries", user?.id, fy],
-    queryFn: () => backend.toil.list({ user_id: user!.id, financial_year: fy }),
+    queryKey: ["toil-entries", user?.id],
+    queryFn: () => backend.toil.list({ user_id: user!.id }),
     enabled: !!user?.id,
   });
   const entries = entriesData?.entries ?? [];
@@ -62,16 +58,16 @@ export default function ToilWidget() {
 
   // Pending approvals (WC/CC only — for the whole watch)
   const { data: pendingData } = useQuery({
-    queryKey: ["toil-pending", user?.watch_unit, fy],
-    queryFn: () => backend.toil.list({ watch_unit: user!.watch_unit!, status: "pending", financial_year: fy }),
+    queryKey: ["toil-pending", user?.watch_unit],
+    queryFn: () => backend.toil.list({ watch_unit: user!.watch_unit!, status: "pending" }),
     enabled: !!user?.watch_unit && isManager,
   });
   const pending = pendingData?.entries ?? [];
 
   // Watch balances (WC/CC only)
   const { data: watchBalanceData } = useQuery({
-    queryKey: ["toil-watch-balance", user?.watch_unit, fy],
-    queryFn: () => backend.toil.balance({ watch_unit: user!.watch_unit!, financial_year: fy }),
+    queryKey: ["toil-watch-balance", user?.watch_unit, year],
+    queryFn: () => backend.toil.balance({ watch_unit: user!.watch_unit!, year }),
     enabled: !!user?.watch_unit && isManager,
   });
   const watchBalances = watchBalanceData?.balances ?? [];
@@ -157,14 +153,14 @@ export default function ToilWidget() {
               <p className="text-lg font-bold text-emerald-700 dark:text-emerald-300">
                 {myBalance?.total_earned ?? 0}
               </p>
-              <p className="text-[10px] text-muted-foreground">Earned</p>
+              <p className="text-[10px] text-muted-foreground">Earned {year}</p>
             </div>
             <div className="rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 p-2.5 text-center">
               <TrendingDown className="h-4 w-4 mx-auto text-blue-500 mb-1" />
               <p className="text-lg font-bold text-blue-700 dark:text-blue-300">
                 {myBalance?.total_spent ?? 0}
               </p>
-              <p className="text-[10px] text-muted-foreground">Used</p>
+              <p className="text-[10px] text-muted-foreground">Used {year}</p>
             </div>
             <div className="rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 p-2.5 text-center">
               <Clock className="h-4 w-4 mx-auto text-indigo-500 mb-1" />

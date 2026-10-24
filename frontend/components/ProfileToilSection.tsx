@@ -58,11 +58,6 @@ import {
 // WC back to the dashboard widget.
 // ──────────────────────────────────────────────────────────────────────────────
 
-function currentFinancialYear(): number {
-  const now = new Date();
-  return now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
-}
-
 export interface ProfileToilSectionProps {
   /** The user_id whose profile is being shown — NOT necessarily the caller. */
   profileUserId: string;
@@ -78,7 +73,8 @@ export function ProfileToilSection({
   const role = useUserRole();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const fy = currentFinancialYear();
+  // Available carries over until used; earned/used this year reset 1 January.
+  const year = new Date().getFullYear();
 
   const isOwn = user?.id === profileUserId;
   const isManager = role === "WC" || role === "CC";
@@ -88,17 +84,18 @@ export function ProfileToilSection({
   const canAdd = isOwn || isManager;
 
   const balanceQ = useQuery({
-    queryKey: ["toil-balance", profileUserId, fy],
+    queryKey: ["toil-balance", profileUserId, year],
     queryFn: () =>
-      backend.toil.balance({ user_id: profileUserId, financial_year: fy }),
+      backend.toil.balance({ user_id: profileUserId, year }),
     enabled: canView,
   });
   const balance = balanceQ.data?.balances?.[0];
 
   const entriesQ = useQuery({
-    queryKey: ["toil-entries", profileUserId, fy],
+    // Every year, so the ledger's running balance matches "Available".
+    queryKey: ["toil-entries", profileUserId],
     queryFn: () =>
-      backend.toil.list({ user_id: profileUserId, financial_year: fy }),
+      backend.toil.list({ user_id: profileUserId }),
     enabled: canView,
   });
   const entries = entriesQ.data?.entries ?? [];
@@ -249,7 +246,7 @@ export function ProfileToilSection({
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-emerald-500" />
             <CardTitle className="text-sm font-medium">
-              TOIL — FY {fy}/{String(fy + 1).slice(2)}
+              TOIL
             </CardTitle>
           </div>
           {canAdd && (
@@ -289,6 +286,9 @@ export function ProfileToilSection({
                     </span>
                   </p>
                 )}
+                <p className="text-[11px] text-muted-foreground">
+                  {year}: {balance?.total_earned ?? 0}hrs earned · {balance?.total_spent ?? 0}hrs used
+                </p>
               </div>
             </div>
             {(balance?.pending_earned ?? 0) > 0 && (
@@ -380,7 +380,7 @@ export function ProfileToilSection({
               </div>
             ) : ledgerRows.length === 0 ? (
               <p className="text-sm text-muted-foreground italic text-center py-4">
-                No TOIL recorded this financial year.
+                No TOIL recorded yet.
               </p>
             ) : (
               <div className="border rounded-lg overflow-hidden">

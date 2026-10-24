@@ -4600,7 +4600,7 @@ export namespace toil {
     export interface ToilBalance {
         "user_id": string
         "user_name": string
-        "financial_year": number
+        year: number
         "total_earned": number
         "total_spent": number
         "pending_earned": number
@@ -4610,7 +4610,7 @@ export namespace toil {
     export interface ToilBalanceRequest {
         "user_id"?: string
         "watch_unit"?: string
-        "financial_year"?: number
+        year?: number
     }
 
     export interface ToilBalanceResponse {
@@ -4676,9 +4676,9 @@ export namespace toil {
         public async balance(params: ToilBalanceRequest): Promise<ToilBalanceResponse> {
             // Convert our params into the objects we need for the request
             const query = makeRecord<string, string | string[]>({
-                "financial_year": params["financial_year"] === undefined ? undefined : String(params["financial_year"]),
                 "user_id":        params["user_id"],
                 "watch_unit":     params["watch_unit"],
+                year:             params.year === undefined ? undefined : String(params.year),
             })
 
             // Now make the actual call to the API

@@ -54,15 +54,13 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
       if (!req.covering_user_id && !req.covering_name) {
         throw APIError.invalidArgument("TOIL requires a covering person.");
       }
-      // Check TOIL balance
+      // Check TOIL balance — earned hours carry over until used, so this
+      // covers every year.
       const balanceRow = await db.rawQueryRow<{ balance: string }>(
         `SELECT COALESCE(SUM(CASE WHEN type = 'earned' AND status = 'approved' THEN hours ELSE 0 END) -
                 SUM(CASE WHEN type = 'spent' THEN hours ELSE 0 END), 0) as balance
-         FROM toil_ledger WHERE user_id = $1 AND financial_year = $2`,
-        targetUserId,
-        new Date(req.start_date).getMonth() >= 3
-          ? new Date(req.start_date).getFullYear()
-          : new Date(req.start_date).getFullYear() - 1
+         FROM toil_ledger WHERE user_id = $1`,
+        targetUserId
       );
       const available = Number(balanceRow?.balance ?? 0);
       if (available < req.toil_hours) {
