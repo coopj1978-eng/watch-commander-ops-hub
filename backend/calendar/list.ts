@@ -42,11 +42,11 @@ export const list = api<ListEventsRequest, ListEventsResponse>(
     const conditions: string[] = [];
     let paramIndex = 1;
 
+    // Reminders (e.g. a note's follow-up, which carries part of the note)
+    // are private to whoever wrote them.
     const visibilityCondition = `
-      (ce.event_type != 'reminder' OR 
-       n.created_by_user_id = $${paramIndex} OR 
-       n.reminder_recipient_user_id = $${paramIndex} OR
-       $${paramIndex} = ANY(ce.visible_to_user_ids))
+      (ce.event_type != 'reminder' OR
+       COALESCE(n.created_by_user_id, ce.created_by) = $${paramIndex})
     `;
     conditions.push(visibilityCondition);
     params.push(auth.userID);

@@ -92,6 +92,7 @@ export const exportTableCSV = api<ExportTableCSVRequest, ExportTableCSVResponse>
           ce.all_day, ce.created_by, u.name as created_by_name, ce.created_at
           FROM calendar_events ce
           LEFT JOIN users u ON ce.created_by = u.id
+          WHERE ce.event_type <> 'reminder' OR ce.created_by = $${params.push(auth.userID)}
           ORDER BY ce.start_time`;
         filename = "calendar_events.csv";
         break;

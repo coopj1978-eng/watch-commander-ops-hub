@@ -1,6 +1,6 @@
 import { api } from "encore.dev/api";
-import { getAuthData } from "~encore/auth";
 import { attachments } from "../storage";
+import { assertNoteAuthor } from "./access";
 import type { NoteAttachment } from "./types";
 
 interface UploadNoteAttachmentRequest {
@@ -17,8 +17,8 @@ interface UploadNoteAttachmentResponse {
 export const getUploadUrl = api<UploadNoteAttachmentRequest, UploadNoteAttachmentResponse>(
   { auth: true, expose: true, method: "POST", path: "/notes/:note_id/attachments/upload-url" },
   async ({ note_id, filename, content_type }) => {
-    const auth = getAuthData()!;
-    
+    await assertNoteAuthor(note_id);
+
     const fileKey = `notes/${note_id}/${Date.now()}-${filename}`;
     
     const { url } = await attachments.signedUploadUrl(fileKey, {
@@ -43,7 +43,7 @@ interface SaveAttachmentRequest {
 export const saveAttachment = api<SaveAttachmentRequest, { success: boolean }>(
   { auth: true, expose: true, method: "POST", path: "/notes/:note_id/attachments" },
   async ({ note_id, file_key, filename, file_type, file_size }) => {
-    const auth = getAuthData()!;
+    await assertNoteAuthor(note_id);
     const db = (await import("../db")).default;
 
     const publicUrl = attachments.publicUrl(file_key);

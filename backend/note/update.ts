@@ -57,15 +57,6 @@ export const update = api(
       throw APIError.permissionDenied("only the note creator can update it");
     }
 
-    if (updates.reminder_recipient_user_id) {
-      const recipientExists = await db.queryRow<{ id: string }>`
-        SELECT id FROM users WHERE id = ${updates.reminder_recipient_user_id}
-      `;
-      if (!recipientExists) {
-        throw APIError.invalidArgument("reminder recipient user not found");
-      }
-    }
-
     const setClauses: string[] = [];
     const queryParams: any[] = [];
     let paramIndex = 1;
@@ -85,10 +76,7 @@ export const update = api(
       queryParams.push(updates.reminder_enabled);
     }
 
-    if (updates.reminder_recipient_user_id !== undefined) {
-      setClauses.push(`reminder_recipient_user_id = $${paramIndex++}`);
-      queryParams.push(updates.reminder_recipient_user_id || null);
-    }
+    // Reminders are private to the writer — no recipient is ever stored.
 
     if (setClauses.length === 0) {
       return transformNote(existingNote);
@@ -128,9 +116,6 @@ export const update = api(
       endTime.setHours(23, 59, 59);
 
       const visibleToUserIds = [auth.userID];
-      if (dbNote.reminder_recipient_user_id && dbNote.reminder_recipient_user_id !== auth.userID) {
-        visibleToUserIds.push(dbNote.reminder_recipient_user_id);
-      }
 
       if (dbNote.calendar_event_id) {
         const updateQuery = `

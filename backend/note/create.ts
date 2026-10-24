@@ -1,6 +1,7 @@
 import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
+import { assertCanWriteNotes } from "./access";
 import { logActivity } from "../logging/logger";
 import type { CreateNoteRequest, Note } from "./types";
 
@@ -39,14 +40,7 @@ export const create = api<CreateNoteRequest, Note>(
   { auth: true, expose: true, method: "POST", path: "/notes" },
   async (req) => {
     const auth = getAuthData()!;
-
-    console.log("Backend received note creation request:", {
-      profile_id: req.profile_id,
-      note_text: req.note_text?.substring(0, 50),
-      next_follow_up_date: req.next_follow_up_date,
-      reminder_enabled: req.reminder_enabled,
-      reminder_recipient_user_id: req.reminder_recipient_user_id,
-    });
+    assertCanWriteNotes();
 
     if (req.reminder_enabled && !req.next_follow_up_date) {
       throw APIError.invalidArgument(
@@ -54,14 +48,6 @@ export const create = api<CreateNoteRequest, Note>(
       );
     }
 
-    if (req.reminder_recipient_user_id) {
-      const recipientExists = await db.queryRow<{ id: string }>`
-        SELECT id FROM users WHERE id = ${req.reminder_recipient_user_id}
-      `;
-      if (!recipientExists) {
-        throw APIError.invalidArgument("reminder recipient user not found");
-      }
-    }
 
     const profileExists = await db.queryRow<{ id: number }>`
       SELECT id FROM firefighter_profiles WHERE id = ${req.profile_id}
@@ -87,10 +73,8 @@ export const create = api<CreateNoteRequest, Note>(
       const endTime = new Date(req.next_follow_up_date);
       endTime.setHours(23, 59, 59);
 
+      // Reminders are private to the writer, like the note itself.
       const visibleToUserIds = [auth.userID];
-      if (req.reminder_recipient_user_id && req.reminder_recipient_user_id !== auth.userID) {
-        visibleToUserIds.push(req.reminder_recipient_user_id);
-      }
 
       const query = `
         INSERT INTO calendar_events (
@@ -128,7 +112,7 @@ export const create = api<CreateNoteRequest, Note>(
         ${req.note_text},
         ${req.next_follow_up_date ? new Date(req.next_follow_up_date) : null},
         ${req.reminder_enabled || false},
-        ${req.reminder_recipient_user_id || null},
+        ${null},
         ${calendarEventId || null}
       )
       RETURNING *

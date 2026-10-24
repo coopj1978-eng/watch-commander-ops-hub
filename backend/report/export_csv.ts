@@ -23,7 +23,12 @@ interface ExportCsvResponse {
 
 // Sickness totals on profiles aren't exported station-wide; a watch's own
 // sickness comes out through the absences export.
-const SICKNESS_COLUMNS = new Set(["rolling_sick_episodes", "rolling_sick_days", "trigger_stage"]);
+// Old unattributed note fields aren't exported either (notes are private to
+// their writer).
+const SICKNESS_COLUMNS = new Set([
+  "rolling_sick_episodes", "rolling_sick_days", "trigger_stage",
+  "notes", "last_conversation_date", "last_conversation_text",
+]);
 
 const ALLOWED_TABLES = [
   "users",
@@ -50,10 +55,15 @@ export const exportCsv = api<ExportCsvRequest, ExportCsvResponse>(
 
     // Absence records only for the caller's own watch (and themself).
     const params: SQLPrimitive[] = [];
-    const where =
-      table === "absences"
-        ? ` WHERE ${visibleAbsencesSql(await absenceViewer(), "firefighter_id", params)}`
-        : "";
+    // Private reminders (a note's follow-up carries part of the note) only
+    // for whoever wrote them.
+    let where = "";
+    if (table === "absences") {
+      where = ` WHERE ${visibleAbsencesSql(await absenceViewer(), "firefighter_id", params)}`;
+    } else if (table === "calendar_events") {
+      params.push(auth.userID);
+      where = ` WHERE event_type <> 'reminder' OR created_by = $${params.length}`;
+    }
     const rows = await db.rawQueryAll(`SELECT * FROM ${table}${where}`, ...params);
 
     if (rows.length === 0) {

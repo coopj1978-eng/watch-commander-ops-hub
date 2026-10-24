@@ -41,33 +41,19 @@ export const list = api<ListNotesRequest, ListNotesResponse>(
 
     let dbNotes: DBNote[];
 
+    // Only ever the caller's own notes — they're private to the writer.
+    // (user_id is ignored: nobody can list someone else's notes.)
     if (req.profile_id) {
-      const query = `
-        SELECT * FROM notes 
-        WHERE profile_id = $1
-        AND (
-          created_by_user_id = $2
-          OR reminder_recipient_user_id = $2
-        )
-        ORDER BY created_at DESC
-      `;
-      dbNotes = await db.rawQueryAll<DBNote>(query, req.profile_id, auth.userID);
-    } else if (req.user_id) {
-      const query = `
-        SELECT * FROM notes 
-        WHERE created_by_user_id = $1
-        OR reminder_recipient_user_id = $1
-        ORDER BY created_at DESC
-      `;
-      dbNotes = await db.rawQueryAll<DBNote>(query, req.user_id);
+      dbNotes = await db.rawQueryAll<DBNote>(
+        `SELECT * FROM notes WHERE profile_id = $1 AND created_by_user_id = $2 ORDER BY created_at DESC`,
+        req.profile_id,
+        auth.userID
+      );
     } else {
-      const query = `
-        SELECT * FROM notes 
-        WHERE created_by_user_id = $1
-        OR reminder_recipient_user_id = $1
-        ORDER BY created_at DESC
-      `;
-      dbNotes = await db.rawQueryAll<DBNote>(query, auth.userID);
+      dbNotes = await db.rawQueryAll<DBNote>(
+        `SELECT * FROM notes WHERE created_by_user_id = $1 ORDER BY created_at DESC`,
+        auth.userID
+      );
     }
 
     return {
