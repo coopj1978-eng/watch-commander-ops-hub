@@ -47732,11 +47732,11 @@ function People() {
   }, [skillsData]);
   const filteredAndSortedPeople = reactExports.useMemo(() => {
     let filtered = people.filter((person) => {
-      var _a3, _b3, _c3, _d2, _e2, _f2;
+      var _a3, _b3, _c3;
       const { user: user2, profile: profile2 } = person;
       if (debouncedSearch) {
         const search = debouncedSearch.toLowerCase();
-        const matchesSearch = user2.name.toLowerCase().includes(search) || user2.email.toLowerCase().includes(search) || ((_a3 = profile2 == null ? void 0 : profile2.service_number) == null ? void 0 : _a3.toLowerCase().includes(search)) || ((_b3 = profile2 == null ? void 0 : profile2.skills) == null ? void 0 : _b3.some((s) => s.toLowerCase().includes(search))) || ((_c3 = profile2 == null ? void 0 : profile2.notes) == null ? void 0 : _c3.toLowerCase().includes(search)) || ((_e2 = (_d2 = profile2 == null ? void 0 : profile2.lastConversation) == null ? void 0 : _d2.text) == null ? void 0 : _e2.toLowerCase().includes(search));
+        const matchesSearch = user2.name.toLowerCase().includes(search) || user2.email.toLowerCase().includes(search) || ((_a3 = profile2 == null ? void 0 : profile2.service_number) == null ? void 0 : _a3.toLowerCase().includes(search)) || ((_b3 = profile2 == null ? void 0 : profile2.skills) == null ? void 0 : _b3.some((s) => s.toLowerCase().includes(search)));
         if (!matchesSearch) return false;
       }
       const effectiveWatch = user2.watch_unit || (profile2 == null ? void 0 : profile2.watch) || "";
@@ -47748,7 +47748,7 @@ function People() {
         var _a4;
         return (_a4 = profile2 == null ? void 0 : profile2.skills) == null ? void 0 : _a4.includes(sf);
       })) return false;
-      if (driverPathwayFilter && ((_f2 = profile2 == null ? void 0 : profile2.driverPathway) == null ? void 0 : _f2.status) !== driverPathwayFilter) return false;
+      if (driverPathwayFilter && ((_c3 = profile2 == null ? void 0 : profile2.driverPathway) == null ? void 0 : _c3.status) !== driverPathwayFilter) return false;
       return true;
     });
     filtered.sort((a, b) => {
@@ -50416,7 +50416,6 @@ function ProfileDetail() {
     if (editedProfile.oic !== void 0) profileUpdates.oic = editedProfile.oic;
     if (editedProfile.mass_decon !== void 0) profileUpdates.mass_decon = editedProfile.mass_decon;
     if (editedProfile.hooklift_operator !== void 0) profileUpdates.hooklift_operator = editedProfile.hooklift_operator;
-    if (editedProfile.notes !== void 0) profileUpdates.notes = editedProfile.notes;
     if (editedProfile.watch !== void 0) profileUpdates.watch = editedProfile.watch === "_none" ? "" : editedProfile.watch;
     if (Object.keys(profileUpdates).length === 0) {
       toast2({
