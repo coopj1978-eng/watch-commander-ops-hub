@@ -28584,6 +28584,8 @@ var shift_adjustments;
       const query = makeRecord({
         "covering_watch": params["covering_watch"],
         "end_date": params["end_date"],
+        id: params.id === void 0 ? void 0 : String(params.id),
+        "involving_user_id": params["involving_user_id"],
         "start_date": params["start_date"],
         "user_id": params["user_id"],
         "watch_unit": params["watch_unit"]
@@ -28778,9 +28780,9 @@ var toil;
      */
     async balance(params) {
       const query = makeRecord({
-        "financial_year": params["financial_year"] === void 0 ? void 0 : String(params["financial_year"]),
         "user_id": params["user_id"],
-        "watch_unit": params["watch_unit"]
+        "watch_unit": params["watch_unit"],
+        year: params.year === void 0 ? void 0 : String(params.year)
       });
       const resp = await this.baseClient.callTypedAPI("GET", `/toil/balance`, void 0, { query });
       return await resp.json();
@@ -45253,6 +45255,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
   const [endDate, setEndDate] = reactExports.useState(today);
   const [notes, setNotes] = reactExports.useState("");
   const [editingId, setEditingId] = reactExports.useState(null);
+  const [editingAdj, setEditingAdj] = reactExports.useState(null);
   const [coverMode, setCoverMode] = reactExports.useState("roster");
   const [coverWatch, setCoverWatch] = reactExports.useState("");
   const [coverUserId, setCoverUserId] = reactExports.useState("");
@@ -45273,6 +45276,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
       setType(null);
       setNotes("");
       setEditingId(null);
+      setEditingAdj(null);
       setCoverMode("roster");
       setCoverWatch("");
       setCoverUserId("");
@@ -45302,7 +45306,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
   const forRoster = (forRosterData == null ? void 0 : forRosterData.members) ?? [];
   const { data: existingData } = useQuery({
     queryKey: ["shift-adjustments-mine", user2 == null ? void 0 : user2.id, startDate],
-    queryFn: () => backendClient.shift_adjustments.list({ user_id: user2.id, start_date: startDate, end_date: endDate }),
+    queryFn: () => backendClient.shift_adjustments.list({ involving_user_id: user2.id, start_date: startDate, end_date: endDate }),
     enabled: !!(user2 == null ? void 0 : user2.id) && open && !editAdjustment
   });
   const existing = editAdjustment ? [] : (existingData == null ? void 0 : existingData.adjustments) ?? [];
@@ -45368,7 +45372,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
       invalidateAdjustmentViews();
       toast2({ title: "Shift adjustment removed" });
     },
-    onError: () => toast2({ title: "Failed to remove", variant: "destructive" })
+    onError: (err) => toast2({ title: "Failed to remove", description: (err == null ? void 0 : err.message) ?? String(err), variant: "destructive" })
   });
   const updateMutation = useMutation({
     mutationFn: () => {
@@ -45399,10 +45403,18 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
       return;
     }
     setEditingId(null);
+    setEditingAdj(null);
     setType(null);
+  };
+  const confirmDelete = (a, onDone) => {
+    if (!confirm(
+      `Delete this ${TYPE_CONFIG[a.type].label} booking? Its calendar entries are removed and any TOIL hours refunded.`
+    )) return;
+    deleteMutation.mutate(a.id, { onSuccess: () => onDone == null ? void 0 : onDone() });
   };
   const startEditing = (a) => {
     setEditingId(a.id);
+    setEditingAdj(a);
     setType(a.type);
     setStartDate(String(a.start_date).split("T")[0]);
     setEndDate(String(a.end_date).split("T")[0]);
@@ -45453,8 +45465,8 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
     }
     return true;
   })();
-  const userWatch = (editAdjustment == null ? void 0 : editAdjustment.watch_unit) ?? (user2 == null ? void 0 : user2.watch_unit) ?? "";
-  const subjectName = (editAdjustment == null ? void 0 : editAdjustment.user_name) ?? (user2 == null ? void 0 : user2.name);
+  const userWatch = (editingAdj == null ? void 0 : editingAdj.watch_unit) ?? (user2 == null ? void 0 : user2.watch_unit) ?? "";
+  const subjectName = (editingAdj == null ? void 0 : editingAdj.user_name) ?? (user2 == null ? void 0 : user2.name);
   const otherWatches = WATCHES$a.filter((w) => w !== userWatch);
   const fmt2 = (d) => (/* @__PURE__ */ new Date(d + "T12:00:00")).toLocaleDateString("en-GB", {
     day: "numeric",
@@ -45766,15 +45778,29 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
-          editingId && /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Button,
-            {
-              variant: "outline",
-              className: "flex-shrink-0",
-              onClick: finishEditing,
-              children: "Cancel"
-            }
-          ),
+          editingId && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Button,
+              {
+                variant: "outline",
+                className: "flex-shrink-0",
+                onClick: finishEditing,
+                children: "Cancel"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Button,
+              {
+                variant: "outline",
+                className: "flex-shrink-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30",
+                disabled: deleteMutation.isPending,
+                onClick: () => confirmDelete({ id: editingId, type }, finishEditing),
+                "aria-label": "Delete booking",
+                title: "Delete booking",
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-4 w-4" })
+              }
+            )
+          ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Button,
             {
@@ -45800,7 +45826,13 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
           return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `flex items-center gap-2 rounded-xl border px-3 py-2 ${cfg.border} ${cfg.bg}`, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: `h-4 w-4 shrink-0 ${cfg.color}` }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: `text-xs font-semibold ${cfg.color}`, children: cfg.label }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: `text-xs font-semibold ${cfg.color}`, children: [
+                cfg.label,
+                a.user_id !== (user2 == null ? void 0 : user2.id) && a.user_name && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-normal text-muted-foreground", children: [
+                  " · you're covering ",
+                  a.user_name
+                ] })
+              ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground truncate", children: dateStr }),
               a.toil_hours ? /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground truncate", children: [
                 a.toil_hours,
@@ -45828,7 +45860,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
               {
-                onClick: () => deleteMutation.mutate(a.id),
+                onClick: () => confirmDelete(a),
                 disabled: deleteMutation.isPending,
                 className: "shrink-0 h-6 w-6 rounded flex items-center justify-center text-muted-foreground hover:text-red-500",
                 title: "Delete",
@@ -45959,10 +45991,6 @@ function FFShiftAdjustmentWidget() {
   ] });
 }
 const WATCHES$9 = ["Red", "White", "Green", "Blue", "Amber"];
-function currentFinancialYear$2() {
-  const now = /* @__PURE__ */ new Date();
-  return now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
-}
 function ToilWidget() {
   var _a2;
   const { user: user2 } = useAuth();
@@ -45970,7 +45998,7 @@ function ToilWidget() {
   const isManager = ["WC", "CC"].includes(userRole);
   const { toast: toast2 } = useToast();
   const queryClient2 = useQueryClient();
-  const fy = currentFinancialYear$2();
+  const year = (/* @__PURE__ */ new Date()).getFullYear();
   const [earnOpen, setEarnOpen] = reactExports.useState(false);
   const [earnHours, setEarnHours] = reactExports.useState("1");
   const [earnReason, setEarnReason] = reactExports.useState("");
@@ -45980,27 +46008,27 @@ function ToilWidget() {
   const [earnForWatch, setEarnForWatch] = reactExports.useState("");
   const [earnForUserId, setEarnForUserId] = reactExports.useState("");
   const { data: balanceData } = useQuery({
-    queryKey: ["toil-balance", user2 == null ? void 0 : user2.id, fy],
-    queryFn: () => backendClient.toil.balance({ user_id: user2.id, financial_year: fy }),
+    queryKey: ["toil-balance", user2 == null ? void 0 : user2.id, year],
+    queryFn: () => backendClient.toil.balance({ user_id: user2.id, year }),
     enabled: !!(user2 == null ? void 0 : user2.id)
   });
   const myBalance = (_a2 = balanceData == null ? void 0 : balanceData.balances) == null ? void 0 : _a2[0];
   const { data: entriesData } = useQuery({
-    queryKey: ["toil-entries", user2 == null ? void 0 : user2.id, fy],
-    queryFn: () => backendClient.toil.list({ user_id: user2.id, financial_year: fy }),
+    queryKey: ["toil-entries", user2 == null ? void 0 : user2.id],
+    queryFn: () => backendClient.toil.list({ user_id: user2.id }),
     enabled: !!(user2 == null ? void 0 : user2.id)
   });
   const entries = (entriesData == null ? void 0 : entriesData.entries) ?? [];
   const recentEntries = entries.slice(0, 5);
   const { data: pendingData } = useQuery({
-    queryKey: ["toil-pending", user2 == null ? void 0 : user2.watch_unit, fy],
-    queryFn: () => backendClient.toil.list({ watch_unit: user2.watch_unit, status: "pending", financial_year: fy }),
+    queryKey: ["toil-pending", user2 == null ? void 0 : user2.watch_unit],
+    queryFn: () => backendClient.toil.list({ watch_unit: user2.watch_unit, status: "pending" }),
     enabled: !!(user2 == null ? void 0 : user2.watch_unit) && isManager
   });
   const pending = (pendingData == null ? void 0 : pendingData.entries) ?? [];
   const { data: watchBalanceData } = useQuery({
-    queryKey: ["toil-watch-balance", user2 == null ? void 0 : user2.watch_unit, fy],
-    queryFn: () => backendClient.toil.balance({ watch_unit: user2.watch_unit, financial_year: fy }),
+    queryKey: ["toil-watch-balance", user2 == null ? void 0 : user2.watch_unit, year],
+    queryFn: () => backendClient.toil.balance({ watch_unit: user2.watch_unit, year }),
     enabled: !!(user2 == null ? void 0 : user2.watch_unit) && isManager
   });
   const watchBalances = (watchBalanceData == null ? void 0 : watchBalanceData.balances) ?? [];
@@ -46077,12 +46105,18 @@ function ToilWidget() {
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 p-2.5 text-center", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingUp, { className: "h-4 w-4 mx-auto text-emerald-500 mb-1" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-lg font-bold text-emerald-700 dark:text-emerald-300", children: (myBalance == null ? void 0 : myBalance.total_earned) ?? 0 }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[10px] text-muted-foreground", children: "Earned" })
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-[10px] text-muted-foreground", children: [
+              "Earned ",
+              year
+            ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 p-2.5 text-center", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingDown, { className: "h-4 w-4 mx-auto text-blue-500 mb-1" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-lg font-bold text-blue-700 dark:text-blue-300", children: (myBalance == null ? void 0 : myBalance.total_spent) ?? 0 }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[10px] text-muted-foreground", children: "Used" })
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-[10px] text-muted-foreground", children: [
+              "Used ",
+              year
+            ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 p-2.5 text-center", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: "h-4 w-4 mx-auto text-indigo-500 mb-1" }),
@@ -47611,6 +47645,7 @@ function People() {
     lastConversation: true
   });
   const { user: authUser } = useAuth();
+  const onMyWatch = (watch) => !!(authUser == null ? void 0 : authUser.watch_unit) && !!watch && watch.toLowerCase() === authUser.watch_unit.toLowerCase();
   const [logSickOpen, setLogSickOpen] = reactExports.useState(false);
   const [logSickPerson, setLogSickPerson] = reactExports.useState(null);
   if (!canView) {
@@ -48042,7 +48077,10 @@ function People() {
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-medium", children: new Date(profile2.lastConversation.date).toLocaleDateString() }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-muted-foreground truncate", children: profile2.lastConversation.text })
                 ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "-" }) }),
-                canLogSick && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { onClick: (e) => e.stopPropagation(), children: (sickToday == null ? void 0 : sickToday.has(user2.id)) ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-xs text-red-600 border-red-500/30 gap-1", children: [
+                canLogSick && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { onClick: (e) => e.stopPropagation(), children: !onMyWatch(user2.watch_unit || (profile2 == null ? void 0 : profile2.watch)) ? (
+                  // Only the person's own watch WC/CC can record their sickness.
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "-" })
+                ) : (sickToday == null ? void 0 : sickToday.has(user2.id)) ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-xs text-red-600 border-red-500/30 gap-1", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(Stethoscope, { className: "h-3 w-3" }),
                   " Booked Off"
                 ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -49004,10 +49042,6 @@ function H4HLedgerSection({ userId, canSettle = false }) {
     ] })
   ] });
 }
-function currentFinancialYear$1() {
-  const now = /* @__PURE__ */ new Date();
-  return now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
-}
 function ProfileToilSection({
   profileUserId,
   profileName
@@ -49017,20 +49051,21 @@ function ProfileToilSection({
   const role = useUserRole();
   const { toast: toast2 } = useToast();
   const queryClient2 = useQueryClient();
-  const fy = currentFinancialYear$1();
+  const year = (/* @__PURE__ */ new Date()).getFullYear();
   const isOwn = (user2 == null ? void 0 : user2.id) === profileUserId;
   const isManager = role === "WC" || role === "CC";
   const canView = isOwn || isManager;
   const canAdd = isOwn || isManager;
   const balanceQ = useQuery({
-    queryKey: ["toil-balance", profileUserId, fy],
-    queryFn: () => backendClient.toil.balance({ user_id: profileUserId, financial_year: fy }),
+    queryKey: ["toil-balance", profileUserId, year],
+    queryFn: () => backendClient.toil.balance({ user_id: profileUserId, year }),
     enabled: canView
   });
   const balance = (_b2 = (_a2 = balanceQ.data) == null ? void 0 : _a2.balances) == null ? void 0 : _b2[0];
   const entriesQ = useQuery({
-    queryKey: ["toil-entries", profileUserId, fy],
-    queryFn: () => backendClient.toil.list({ user_id: profileUserId, financial_year: fy }),
+    // Every year, so the ledger's running balance matches "Available".
+    queryKey: ["toil-entries", profileUserId],
+    queryFn: () => backendClient.toil.list({ user_id: profileUserId }),
     enabled: canView
   });
   const entries = ((_c2 = entriesQ.data) == null ? void 0 : _c2.entries) ?? [];
@@ -49132,12 +49167,7 @@ function ProfileToilSection({
       /* @__PURE__ */ jsxRuntimeExports.jsxs(CardHeader, { className: "flex flex-row items-center justify-between gap-2 space-y-0 pb-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: "h-4 w-4 text-emerald-500" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(CardTitle, { className: "text-sm font-medium", children: [
-            "TOIL — FY ",
-            fy,
-            "/",
-            String(fy + 1).slice(2)
-          ] })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { className: "text-sm font-medium", children: "TOIL" })
         ] }),
         canAdd && /* @__PURE__ */ jsxRuntimeExports.jsxs(
           Button,
@@ -49161,6 +49191,14 @@ function ProfileToilSection({
               balanceQ.isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-7 w-20 mt-0.5" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-2xl font-bold tabular-nums leading-tight", children: [
                 (balance == null ? void 0 : balance.balance) ?? 0,
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-normal text-muted-foreground ml-1", children: "hrs" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-[11px] text-muted-foreground", children: [
+                year,
+                ": ",
+                (balance == null ? void 0 : balance.total_earned) ?? 0,
+                "hrs earned · ",
+                (balance == null ? void 0 : balance.total_spent) ?? 0,
+                "hrs used"
               ] })
             ] })
           ] }),
@@ -49233,7 +49271,7 @@ function ProfileToilSection({
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2", children: "Ledger" }),
-          entriesQ.isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: [...Array(4)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-7 w-full" }, i)) }) : ledgerRows.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground italic text-center py-4", children: "No TOIL recorded this financial year." }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border rounded-lg overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full text-xs", children: [
+          entriesQ.isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: [...Array(4)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-7 w-full" }, i)) }) : ledgerRows.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground italic text-center py-4", children: "No TOIL recorded yet." }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border rounded-lg overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full text-xs", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "border-b bg-muted/50 text-[10px] uppercase tracking-widest text-muted-foreground", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-left font-semibold px-3 py-2", children: "Date" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-left font-semibold px-3 py-2", children: "Reason" }),
@@ -49881,11 +49919,12 @@ function toIsoDate(v) {
   if (Number.isNaN(d.getTime())) return "";
   return d.toISOString().slice(0, 10);
 }
-function AbsenceHistorySection({ userId }) {
+function AbsenceHistorySection({
+  userId,
+  canManage
+}) {
   const { toast: toast2 } = useToast();
   const queryClient2 = useQueryClient();
-  const role = useUserRole();
-  const canManage = role === "WC" || role === "CC";
   const { data, isLoading } = useQuery({
     queryKey: ["absences", userId],
     queryFn: async () => backendClient.absence.list({ user_id: userId, limit: 200 }),
@@ -50149,6 +50188,10 @@ function ProfileDetail() {
     enabled: !!userId
   });
   absencesData == null ? void 0 : absencesData.absences;
+  const personWatch = ((user2 == null ? void 0 : user2.watch_unit) || (profile2 == null ? void 0 : profile2.watch) || "").toLowerCase();
+  const myWatch = ((currentUser == null ? void 0 : currentUser.watch_unit) || "").toLowerCase();
+  const isLineManager = !isViewingOwnProfile && (userRole === "WC" || userRole === "CC") && !!myWatch && myWatch === personWatch;
+  const canSeeSickness = isViewingOwnProfile || isLineManager;
   const { data: settings2 } = useQuery({
     queryKey: ["settings"],
     queryFn: async () => backend.settings.get()
@@ -50537,7 +50580,7 @@ function ProfileDetail() {
         /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "overview", children: "Overview" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "skills", children: "Skills" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "notes", children: "Notes & 1:1s" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "absences", children: "Absences" }),
+        canSeeSickness && /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "absences", children: "Absences" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "h4h", children: "H4H Balance" }),
         (isViewingOwnProfile || userRole === "WC" || userRole === "CC") && /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "toil", children: "TOIL" }),
         (isViewingOwnProfile || userRole === "WC" || userRole === "CC") && /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "shift-adjustments", children: "Shift Adjustments" }),
@@ -51075,7 +51118,7 @@ function ProfileDetail() {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "skills", className: "space-y-6", children: profile2 && /* @__PURE__ */ jsxRuntimeExports.jsx(SkillsTab, { profileId: profile2.id, userId }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(TabsContent, { value: "absences", className: "space-y-6", children: [
-        profile2 && profile2.trigger_stage !== "None" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `p-4 rounded-lg border ${profile2.trigger_stage === "Stage3" ? "bg-red-500/10 border-red-500/20" : profile2.trigger_stage === "Stage2" ? "bg-yellow-500/10 border-yellow-500/20" : "bg-blue-500/10 border-blue-500/20"}`, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-3", children: [
+        canSeeSickness && profile2 && profile2.trigger_stage !== "None" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `p-4 rounded-lg border ${profile2.trigger_stage === "Stage3" ? "bg-red-500/10 border-red-500/20" : profile2.trigger_stage === "Stage2" ? "bg-yellow-500/10 border-yellow-500/20" : "bg-blue-500/10 border-blue-500/20"}`, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-3", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: `h-5 w-5 mt-0.5 ${profile2.trigger_stage === "Stage3" ? "text-red-600 dark:text-red-400" : profile2.trigger_stage === "Stage2" ? "text-yellow-600 dark:text-yellow-400" : "text-blue-600 dark:text-blue-400"}` }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("h4", { className: `font-semibold ${profile2.trigger_stage === "Stage3" ? "text-red-600 dark:text-red-400" : profile2.trigger_stage === "Stage2" ? "text-yellow-600 dark:text-yellow-400" : "text-blue-600 dark:text-blue-400"}`, children: [
@@ -51098,7 +51141,7 @@ function ProfileDetail() {
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground mt-1", children: "Action may be required according to absence management policy" })
           ] })
         ] }) }),
-        userId && /* @__PURE__ */ jsxRuntimeExports.jsx(AbsenceHistorySection, { userId })
+        userId && canSeeSickness && /* @__PURE__ */ jsxRuntimeExports.jsx(AbsenceHistorySection, { userId, canManage: isLineManager })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "h4h", className: "space-y-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { className: "pt-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
         H4HLedgerSection,
@@ -51227,7 +51270,7 @@ function ProfileDetail() {
         /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogDescription, { children: [
           "Send this link to ",
           user2 == null ? void 0 : user2.name,
-          ". When they open it, their email will be pre-filled and they just need to set a password."
+          " only. It lets them choose a password and sign in, and works once, for 14 days. Making a new link cancels this one."
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
@@ -51245,7 +51288,7 @@ function ProfileDetail() {
             }
           )
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "Share via WhatsApp, email or Teams. They'll be signed straight in once they set their password." }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: 'Share it privately (WhatsApp, email or Teams) — anyone with the link can set the password. If it expires, they can use "Forgot password" on the sign-in page instead.' }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", onClick: () => setShowInviteDialog(false), children: "Close" }) })
       ] })
     ] }) }),
@@ -53397,6 +53440,8 @@ function UnifiedCalendar() {
   const [editingInspectionEvent, setEditingInspectionEvent] = reactExports.useState(null);
   const [shiftAdjModalOpen, setShiftAdjModalOpen] = reactExports.useState(false);
   const [shiftAdjDate, setShiftAdjDate] = reactExports.useState(void 0);
+  const [bookingToEdit, setBookingToEdit] = reactExports.useState(null);
+  const role = useUserRole();
   const [trainingModalOpen, setTrainingModalOpen] = reactExports.useState(false);
   const [filtersOpen, setFiltersOpen] = reactExports.useState(false);
   const getDateRange = () => {
@@ -53548,10 +53593,18 @@ function UnifiedCalendar() {
     setDefaultCalendar("station");
     setFormOpen(true);
   };
-  const handleEventClick = (item) => {
+  const handleEventClick = async (item) => {
     var _a2, _b2;
     if (item.type === "task" || item.type === "inspection") return;
     const eventData = item.data;
+    if (eventData == null ? void 0 : eventData.shift_adjustment_id) {
+      const booking = await backendClient.shift_adjustments.list({ id: eventData.shift_adjustment_id }).then((r2) => r2.adjustments[0]).catch(() => void 0);
+      const canEdit = !!booking && (booking.user_id === (user2 == null ? void 0 : user2.id) || booking.covering_user_id === (user2 == null ? void 0 : user2.id) || role === "WC" || role === "CC");
+      if (canEdit) {
+        setBookingToEdit(booking);
+        return;
+      }
+    }
     if (eventData == null ? void 0 : eventData.source_type) {
       setEditingInspectionEvent({
         id: eventData.id,
@@ -53891,6 +53944,14 @@ This cancels the whole booking (TOIL/H4H/Flexi): any TOIL hours are refunded and
           open: shiftAdjModalOpen,
           onClose: () => setShiftAdjModalOpen(false),
           defaultDate: shiftAdjDate
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        ShiftAdjustmentModal,
+        {
+          open: !!bookingToEdit,
+          onClose: () => setBookingToEdit(null),
+          editAdjustment: bookingToEdit
         }
       ),
       /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -69653,6 +69714,7 @@ function SignUp() {
 function ResetPassword() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token") ?? "";
+  const isInvite = searchParams.get("invite") === "1";
   const [password, setPassword] = reactExports.useState("");
   const [confirmPassword, setConfirmPassword] = reactExports.useState("");
   const [loading, setLoading] = reactExports.useState(false);
@@ -69661,7 +69723,7 @@ function ResetPassword() {
   const navigate = useNavigate();
   const { toast: toast2 } = useToast();
   reactExports.useEffect(() => {
-    if (!token) setError("Invalid or missing reset token. Please request a new reset link.");
+    if (!token) setError("Invalid or missing link. Please request a new one.");
   }, [token]);
   const handleReset = async (e) => {
     e.preventDefault();
@@ -69680,9 +69742,9 @@ function ResetPassword() {
     } catch (err) {
       const msg = (err == null ? void 0 : err.message) || "Failed to reset password";
       if (msg.toLowerCase().includes("expired")) {
-        setError("This reset link has expired. Please go back and request a new one.");
+        setError(isInvite ? "This invite has expired. Ask your Watch Commander for a new one, or use 'Forgot password' on the sign-in page." : "This reset link has expired. Please go back and request a new one.");
       } else if (msg.toLowerCase().includes("invalid")) {
-        setError("This reset link is invalid or has already been used.");
+        setError(isInvite ? "This invite is invalid or has already been used. If you've set your password, just sign in." : "This reset link is invalid or has already been used.");
       } else {
         toast2({ title: "Reset failed", description: msg, variant: "destructive" });
       }
@@ -69693,13 +69755,13 @@ function ResetPassword() {
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { className: "w-full max-w-md shadow-xl", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(CardHeader, { className: "space-y-1 text-center pb-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center mb-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-16 w-16 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-700 flex items-center justify-center shadow-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { className: "h-9 w-9 text-white" }) }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { className: "text-2xl font-bold", children: done ? "Password updated" : error ? "Link problem" : "Set new password" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { children: done ? "You can now sign in with your new password." : error ? "There was a problem with your reset link." : "Choose a strong password for your account." })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { className: "text-2xl font-bold", children: done ? isInvite ? "You're all set" : "Password updated" : error ? "Link problem" : isInvite ? "Set up your account" : "Set new password" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { children: done ? "You can now sign in with your new password." : error ? "There was a problem with your link." : isInvite ? "Your Watch Commander has added you. Choose a password to sign in." : "Choose a strong password for your account." })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { children: [
       done && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5 text-center py-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-14 w-14 rounded-full bg-green-100 flex items-center justify-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheckBig, { className: "h-8 w-8 text-green-600" }) }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "Your password has been changed successfully." }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: isInvite ? "Your account is ready." : "Your password has been changed successfully." }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Button,
           {
@@ -69762,7 +69824,7 @@ function ResetPassword() {
             type: "submit",
             className: "w-full bg-indigo-600 hover:bg-indigo-700 h-11 text-base font-medium",
             disabled: loading,
-            children: loading ? "Updating…" : "Set new password"
+            children: loading ? "Updating…" : isInvite ? "Set password" : "Set new password"
           }
         )
       ] })
