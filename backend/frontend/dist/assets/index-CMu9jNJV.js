@@ -27270,8 +27270,11 @@ var absence;
      * Returns all staff with an approved sickness absence that covers today's date.
      * Used by the WC dashboard to cross-reference against the crewing board.
      */
-    async todaySick() {
-      const resp = await this.baseClient.callTypedAPI("GET", `/absences/today-sick`);
+    async todaySick(params = {}) {
+      const query = makeRecord({
+        date: params.date
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/absences/today-sick`, void 0, { query });
       return await resp.json();
     }
     /**
@@ -32484,6 +32487,16 @@ function latestAbsencePerPerson(absences) {
     if (new Date(a.start_date) > new Date(current.start_date)) byPerson.set(a.firefighter_id, a);
   }
   return byPerson;
+}
+function useSickOn(date, enabled = true) {
+  return useQuery({
+    queryKey: ["absences-today-sick", date],
+    queryFn: async () => {
+      const r2 = await backendClient.absence.todaySick({ date });
+      return new Set(r2.sick_staff.map((s) => s.user_id));
+    },
+    enabled
+  });
 }
 function useTodaysAbsences(enabled = true) {
   const today = localTodayIso();
@@ -40602,7 +40615,7 @@ function WCAlertBanner() {
     refetchInterval: 5 * 60 * 1e3
   });
   const { data: sickData } = useQuery({
-    queryKey: ["absences-today-sick"],
+    queryKey: ["absences-today-sick", "alert"],
     queryFn: () => backendClient.absence.todaySick(),
     refetchInterval: 5 * 60 * 1e3
   });
@@ -47645,7 +47658,6 @@ function People() {
     lastConversation: true
   });
   const { user: authUser } = useAuth();
-  const onMyWatch = (watch) => !!(authUser == null ? void 0 : authUser.watch_unit) && !!watch && watch.toLowerCase() === authUser.watch_unit.toLowerCase();
   const [logSickOpen, setLogSickOpen] = reactExports.useState(false);
   const [logSickPerson, setLogSickPerson] = reactExports.useState(null);
   if (!canView) {
@@ -47684,13 +47696,7 @@ function People() {
     queryKey: ["dictionaries", "skills"],
     queryFn: async () => backend.dictionary.list({ type: "skill" })
   });
-  const { data: todaysAbsences } = useTodaysAbsences();
-  const sickToday = reactExports.useMemo(
-    () => new Set(
-      ((todaysAbsences == null ? void 0 : todaysAbsences.absences) ?? []).filter((a) => a.type === "sickness").map((a) => a.firefighter_id)
-    ),
-    [todaysAbsences]
-  );
+  const { data: sickToday } = useSickOn(localTodayIso());
   const people = (peopleData == null ? void 0 : peopleData.people) || [];
   reactExports.useEffect(() => {
     var _a3, _b3;
@@ -48077,10 +48083,7 @@ function People() {
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-medium", children: new Date(profile2.lastConversation.date).toLocaleDateString() }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-muted-foreground truncate", children: profile2.lastConversation.text })
                 ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "-" }) }),
-                canLogSick && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { onClick: (e) => e.stopPropagation(), children: !onMyWatch(user2.watch_unit || (profile2 == null ? void 0 : profile2.watch)) ? (
-                  // Only the person's own watch WC/CC can record their sickness.
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "-" })
-                ) : (sickToday == null ? void 0 : sickToday.has(user2.id)) ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-xs text-red-600 border-red-500/30 gap-1", children: [
+                canLogSick && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { onClick: (e) => e.stopPropagation(), children: (sickToday == null ? void 0 : sickToday.has(user2.id)) ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-xs text-red-600 border-red-500/30 gap-1", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(Stethoscope, { className: "h-3 w-3" }),
                   " Booked Off"
                 ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -50167,7 +50170,6 @@ function ProfileDetail() {
   const [editMode, setEditMode] = reactExports.useState(false);
   const [editedProfile, setEditedProfile] = reactExports.useState({});
   const fileInputRef = reactExports.useRef(null);
-  const [userSearchQuery, setUserSearchQuery] = reactExports.useState("");
   const [showInviteDialog, setShowInviteDialog] = reactExports.useState(false);
   const [inviteLink, setInviteLink] = reactExports.useState("");
   const [showResetDialog, setShowResetDialog] = reactExports.useState(false);
@@ -50208,22 +50210,6 @@ function ProfileDetail() {
     queryKey: ["activity-log", userId],
     queryFn: async () => backend.admin.getActivityLog({ user_id: userId }),
     enabled: !!userId
-  });
-  const { data: allUsersData, isLoading: allUsersLoading, error: allUsersError } = useQuery({
-    queryKey: ["users-basic"],
-    queryFn: async () => {
-      var _a3;
-      try {
-        const result = await backend.user.listBasic();
-        console.log("✓ Users loaded:", ((_a3 = result.users) == null ? void 0 : _a3.length) || 0, "users");
-        return result;
-      } catch (error) {
-        console.error("✗ Failed to load users:", error);
-        throw error;
-      }
-    },
-    retry: 3,
-    staleTime: 5 * 60 * 1e3
   });
   const updateProfileMutation = useMutation({
     mutationFn: async (data) => {
@@ -50580,7 +50566,7 @@ function ProfileDetail() {
       /* @__PURE__ */ jsxRuntimeExports.jsxs(TabsList, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "overview", children: "Overview" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "skills", children: "Skills" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "notes", children: "Notes & 1:1s" }),
+        (userRole === "WC" || userRole === "CC") && /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "notes", children: "Notes & 1:1s" }),
         canSeeSickness && /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "absences", children: "Absences" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "h4h", children: "H4H Balance" }),
         (isViewingOwnProfile || userRole === "WC" || userRole === "CC") && /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "toil", children: "TOIL" }),
@@ -50982,54 +50968,7 @@ function ProfileDetail() {
                   /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "reminder", className: "cursor-pointer", children: "Set reminder" })
                 ] }) })
               ] }),
-              newNote.reminder_enabled && (() => {
-                try {
-                  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Reminder Recipient" }),
-                    allUsersLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-9 w-full mt-1" }) : allUsersError ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-1 p-2 border rounded-md border-yellow-500/20 bg-yellow-500/10", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-yellow-600", children: "Failed to load users. Creating personal reminder only." }) }) : !(allUsersData == null ? void 0 : allUsersData.users) || allUsersData.users.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-1 p-2 border rounded-md border-yellow-500/20 bg-yellow-500/10", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-yellow-600", children: "No users found. Creating personal reminder only." }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                      Select,
-                      {
-                        value: newNote.reminder_recipient_user_id || "__personal__",
-                        onValueChange: (value) => {
-                          setNewNote({
-                            ...newNote,
-                            reminder_recipient_user_id: value === "__personal__" ? "" : value
-                          });
-                          setUserSearchQuery("");
-                        },
-                        children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "mt-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Only me (personal reminder)" }) }),
-                          /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
-                            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-2 sticky top-0 bg-background border-b", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                              Input,
-                              {
-                                placeholder: "Search users...",
-                                value: userSearchQuery,
-                                onChange: (e) => setUserSearchQuery(e.target.value),
-                                className: "h-8",
-                                onClick: (e) => e.stopPropagation()
-                              }
-                            ) }),
-                            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "__personal__", children: "Only me (personal reminder)" }),
-                            Array.isArray(allUsersData.users) && allUsersData.users.filter(
-                              (u) => u && u.name && u.email && (!userSearchQuery || u.name.toLowerCase().includes(userSearchQuery.toLowerCase()) || u.email.toLowerCase().includes(userSearchQuery.toLowerCase()))
-                            ).map((u) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: u.id, children: [
-                              u.name,
-                              " (",
-                              u.email,
-                              ")"
-                            ] }, u.id))
-                          ] })
-                        ]
-                      }
-                    ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground mt-1", children: newNote.reminder_recipient_user_id ? "Reminder will appear in both calendars" : "Reminder will appear in your calendar" })
-                  ] });
-                } catch (err) {
-                  console.error("Error rendering reminder recipient:", err);
-                  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-1 p-2 border rounded-md border-red-500/20 bg-red-500/10", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-red-600", children: "Error loading recipient options. Creating personal reminder only." }) });
-                }
-              })()
+              newNote.reminder_enabled && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "The reminder goes in your calendar only — notes and their reminders are private to you." })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Attachments (optional)" }),
@@ -51084,11 +51023,7 @@ function ProfileDetail() {
                 /* @__PURE__ */ jsxRuntimeExports.jsx(Calendar, { className: "h-3 w-3 mr-1" }),
                 new Date(note2.next_follow_up_date).toLocaleDateString()
               ] }),
-              note2.reminder_enabled && note2.reminder_recipient_user_id && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-xs bg-blue-500/10 text-blue-600 border-blue-500/20", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(User, { className: "h-3 w-3 mr-1" }),
-                "Shared reminder"
-              ] }),
-              note2.reminder_enabled && !note2.reminder_recipient_user_id && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-xs", children: [
+              note2.reminder_enabled && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-xs", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(Bell, { className: "h-3 w-3 mr-1" }),
                 "Personal reminder"
               ] })
@@ -65389,6 +65324,8 @@ function CrewCommanderHome() {
   ] }) });
 }
 const WATCHES$4 = ["Red", "White", "Green", "Blue", "Amber"];
+const EMPTY_IDS = /* @__PURE__ */ new Set();
+const SickIdsContext = reactExports.createContext(EMPTY_IDS);
 const SHIFT_TYPES = [
   { value: "1st Day", label: "1st Day", day: true },
   { value: "2nd Day", label: "2nd Day", day: true },
@@ -65518,6 +65455,7 @@ const ADJ_BADGE = {
   toil: { label: "TOIL", cls: "text-emerald-600" }
 };
 function TileCard({ member, assignedEntry, isAbsent, adjustment, isDragging, isOverlay }) {
+  const sickIds = reactExports.useContext(SickIdsContext);
   member.system_role === "WC" ? "Watch Commander" : member.system_role === "CC" ? "Crew Commander" : "Firefighter";
   const isAssigned = !!assignedEntry;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -65542,7 +65480,7 @@ function TileCard({ member, assignedEntry, isAbsent, adjustment, isDragging, isO
           member.system_role
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(SkillBadges, { member }),
-        adjustment ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `text-[9px] font-bold uppercase tracking-wide ${ADJ_BADGE[adjustment].cls}`, children: ADJ_BADGE[adjustment].label }) : isAbsent ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[9px] font-bold text-red-500 uppercase tracking-wide", children: "Absent" }) : isAssigned ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `text-[9px] font-bold px-1 py-px rounded ${ROLE_BADGE[assignedEntry.crew_role]}`, children: assignedEntry.appliance.toUpperCase() }) : null
+        adjustment ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `text-[9px] font-bold uppercase tracking-wide ${ADJ_BADGE[adjustment].cls}`, children: ADJ_BADGE[adjustment].label }) : isAbsent ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[9px] font-bold text-red-500 uppercase tracking-wide", children: sickIds.has(member.id) ? "Off sick" : "Absent" }) : isAssigned ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `text-[9px] font-bold px-1 py-px rounded ${ROLE_BADGE[assignedEntry.crew_role]}`, children: assignedEntry.appliance.toUpperCase() }) : null
       ]
     }
   );
@@ -65674,6 +65612,8 @@ function DraggableFilledSlot({
   qualWarning
 }) {
   const name = entry.user_name ?? entry.external_name ?? "Unknown";
+  const sickIds = reactExports.useContext(SickIdsContext);
+  const isSick = !!entry.user_id && sickIds.has(entry.user_id);
   const { attributes, listeners: listeners2, setNodeRef, transform, isDragging } = useDraggable({
     id: `placed-${entry.id}`,
     data: { entry },
@@ -65698,6 +65638,10 @@ function DraggableFilledSlot({
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm font-medium truncate leading-tight", children: name }),
           entry.is_change_of_shift && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[9px] font-semibold text-amber-600 dark:text-amber-400", children: "External / CoS" }),
+          isSick && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-[10px] font-semibold text-red-600 dark:text-red-400 flex items-center gap-1 leading-tight mt-0.5", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "h-2.5 w-2.5 shrink-0" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate", children: "Off sick — needs replacing" })
+          ] }),
           qualWarning && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-[10px] font-semibold text-red-600 dark:text-red-400 flex items-center gap-1 leading-tight mt-0.5", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "h-2.5 w-2.5 shrink-0" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate", children: qualWarning })
@@ -66170,7 +66114,7 @@ function RosterPanel({
                   {
                     member: syntheticMember,
                     assignedEntry: assignedByUserId.get(cover.userId),
-                    isAbsent: false
+                    isAbsent: absentIds.has(cover.userId)
                   }
                 ),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[9px] font-bold text-purple-600 uppercase tracking-wide mt-0.5", children: "H4H Cover" })
@@ -66222,7 +66166,7 @@ function RosterPanel({
                 {
                   member: syntheticMember,
                   assignedEntry: assignedByUserId.get(cover.userId),
-                  isAbsent: false
+                  isAbsent: absentIds.has(cover.userId)
                 }
               ),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: `text-[9px] font-bold uppercase tracking-wide mt-0.5 ${textCls}`, children: [
@@ -66669,13 +66613,14 @@ function CrewingBoard() {
     });
     return map;
   }, [entries]);
+  const { data: sickIds } = useSickOn(shiftDate);
   const absentIds = reactExports.useMemo(() => {
-    const ids2 = /* @__PURE__ */ new Set();
+    const ids2 = new Set(sickIds ?? []);
     ((absenceData == null ? void 0 : absenceData.absences) ?? []).forEach((a) => {
       if (a.status === "approved") ids2.add(a.firefighter_id ?? a.user_id ?? "");
     });
     return ids2;
-  }, [absenceData]);
+  }, [absenceData, sickIds]);
   const currentShiftDN = shiftType.includes("Night") ? "Night" : "Day";
   const adjMatchesShift = (a) => !a.shift_day_night || a.shift_day_night === currentShiftDN;
   const adjustmentByUserId = reactExports.useMemo(() => {
@@ -66866,7 +66811,7 @@ function CrewingBoard() {
     setShowExtDialog(false);
   };
   const tapSelectedMember = tapSelectedId ? roster.find((m) => m.id === tapSelectedId) : null;
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(DndContext, { sensors, onDragStart: handleDragStart, onDragEnd: handleDragEnd, children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(SickIdsContext.Provider, { value: sickIds ?? EMPTY_IDS, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DndContext, { sensors, onDragStart: handleDragStart, onDragEnd: handleDragEnd, children: [
     tapSelectedMember && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "sticky top-16 z-20 md:top-20 mx-auto max-w-sm mb-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 rounded-full bg-indigo-600 text-white shadow-lg px-4 py-2.5", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-7 w-7 rounded-full bg-white/20 flex items-center justify-center text-[11px] font-bold shrink-0", children: initials(tapSelectedMember.name) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
@@ -67064,7 +67009,7 @@ function CrewingBoard() {
         onCancel: () => setPendingDetach(null)
       }
     )
-  ] });
+  ] }) });
 }
 const WATCHES$3 = ["Red", "White", "Green", "Blue", "Amber"];
 const emptyForm = {
