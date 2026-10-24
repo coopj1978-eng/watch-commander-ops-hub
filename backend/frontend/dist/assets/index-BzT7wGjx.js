@@ -52859,7 +52859,7 @@ function EventForm({
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-medium text-foreground", children: opt.label }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-muted-foreground", children: opt.sublabel })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-muted-foreground", children: opt.value === "watch" && watchName ? `${watchName} Watch` : opt.sublabel })
             ] }),
             calendar2 === opt.value && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-auto text-red-500 text-sm", children: "✓" })
           ]
@@ -53567,7 +53567,6 @@ function UnifiedCalendar() {
     /* @__PURE__ */ new Set(["station", "watch", "personal", "tasks", "inspections", "shifts"])
   );
   const userWatch = (user2 == null ? void 0 : user2.watch_unit) ?? "";
-  const rotaAvailable = hasRotaConfig(userWatch);
   const [formOpen, setFormOpen] = reactExports.useState(false);
   const [formDate, setFormDate] = reactExports.useState(/* @__PURE__ */ new Date());
   const [editingEvent, setEditingEvent] = reactExports.useState(null);
@@ -53815,9 +53814,9 @@ This cancels the whole booking (TOIL/H4H/Flexi): any TOIL hours are refunded and
     });
   };
   const shiftSchedule = reactExports.useMemo(() => {
-    if (!rotaAvailable || !visibleCalendars.has("shifts")) return [];
-    return getShiftsForDateRange(userWatch, new Date(startISO), new Date(endISO));
-  }, [userWatch, rotaAvailable, startISO, endISO, visibleCalendars]);
+    if (!hasRotaConfig(watchShown) || !visibleCalendars.has("shifts")) return [];
+    return getShiftsForDateRange(watchShown, new Date(startISO), new Date(endISO));
+  }, [watchShown, startISO, endISO, visibleCalendars]);
   const allEvents = [
     ...visibleCalendars.has("station") ? stationEvents : [],
     ...visibleCalendars.has("watch") ? watchEvents : [],
@@ -53899,7 +53898,7 @@ This cancels the whole booking (TOIL/H4H/Flexi): any TOIL hours are refunded and
         );
       }) })
     ] }),
-    rotaAvailable && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+    hasRotaConfig(watchShown) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eyebrow mb-2 px-1", children: "Shift Rota" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "button",
@@ -53920,7 +53919,7 @@ This cancels the whole booking (TOIL/H4H/Flexi): any TOIL hours are refunded and
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `text-xs font-medium truncate ${visibleCalendars.has("shifts") ? "text-foreground" : "text-muted-foreground"}`, children: [
-                userWatch,
+                watchShown,
                 " Watch Shifts"
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1.5 mt-0.5", children: [
@@ -54000,10 +53999,10 @@ This cancels the whole booking (TOIL/H4H/Flexi): any TOIL hours are refunded and
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "eyebrow whitespace-nowrap", children: [
               currentDate.toLocaleDateString("en-GB", { month: "long", year: "numeric" }),
-              userWatch && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+              watchShown && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "crumb-sep", children: "·" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-                  userWatch,
+                  watchShown,
                   " Watch"
                 ] })
               ] })
@@ -54075,7 +54074,7 @@ This cancels the whole booking (TOIL/H4H/Flexi): any TOIL hours are refunded and
             tasks: visibleCalendars.has("tasks") ? tasks : [],
             inspections: visibleCalendars.has("inspections") ? inspections : [],
             shiftSchedule,
-            userWatch: visibleCalendars.has("shifts") ? userWatch : void 0,
+            userWatch: visibleCalendars.has("shifts") ? watchShown : void 0,
             currentDate,
             onDateChange: setCurrentDate,
             view,
