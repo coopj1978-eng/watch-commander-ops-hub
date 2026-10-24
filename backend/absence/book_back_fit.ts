@@ -1,6 +1,6 @@
 import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
-import { absenceViewer, assertCanManageAbsencesOf } from "../lib/absenceAccess";
+import { notifyLineManagers } from "../lib/absenceAccess";
 import db from "../db";
 import { logActivity } from "../logging/logger";
 import type { Absence } from "./types";
@@ -20,7 +20,8 @@ interface BookBackFitRequest {
 // returned — shorter or longer than expected — so trigger totals reflect
 // the real absence. Closes all of the person's open sickness rows.
 //
-// WC/CC on the person's watch only.
+// Any WC/CC — whoever takes the call when they ring back in. The person's
+// own watch WC/CC are notified. Nobody books themself back.
 // ──────────────────────────────────────────────────────────────────────────────
 export const bookBackFit = api<BookBackFitRequest, Absence>(
   { auth: true, expose: true, method: "POST", path: "/absences/:absence_id/book-back-fit" },
@@ -33,7 +34,12 @@ export const bookBackFit = api<BookBackFitRequest, Absence>(
     if (!existing) {
       throw APIError.notFound(`Absence ${req.absence_id} not found`);
     }
-    await assertCanManageAbsencesOf(await absenceViewer(), existing.firefighter_id);
+    if (auth.role !== "WC" && auth.role !== "CC") {
+      throw APIError.permissionDenied("Only a Watch Commander or Crew Commander can book someone back fit.");
+    }
+    if (existing.firefighter_id === auth.userID) {
+      throw APIError.permissionDenied("Another WC/CC needs to book you back fit.");
+    }
     if (existing.type !== "sickness") {
       throw APIError.invalidArgument("Only sickness absences can be booked back fit");
     }
@@ -87,6 +93,17 @@ export const bookBackFit = api<BookBackFitRequest, Absence>(
         returned_on: returnedIso,
         closed_absence_ids: closedRows.map((r) => r.id),
       },
+    });
+
+    const names = await db.queryRow<{ person: string; actor: string }>`
+      SELECT (SELECT name FROM users WHERE id = ${updated.firefighter_id}) AS person,
+             (SELECT name FROM users WHERE id = ${auth.userID}) AS actor
+    `;
+    const backOn = new Date(returnedIso + "T12:00:00Z").toLocaleDateString("en-GB");
+    await notifyLineManagers(updated.firefighter_id, auth.userID, {
+      title: "Booked back fit",
+      message: `${names?.person ?? "A member of your watch"} has been booked back fit for duty from ${backOn}. Booked by ${names?.actor ?? "a WC/CC"}.`,
+      absenceId: updated.id,
     });
 
     await recalcTriggersSafely(updated.firefighter_id);

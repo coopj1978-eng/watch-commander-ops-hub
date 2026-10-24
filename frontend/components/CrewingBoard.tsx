@@ -1938,7 +1938,8 @@ export default function CrewingBoard() {
     return map;
   }, [entries]);
 
-  const { data: sickIds } = useSickOn(shiftDate);
+  const { data: sickOn } = useSickOn(shiftDate);
+  const sickIds = sickOn?.ids;
 
   const absentIds = useMemo(() => {
     const ids = new Set<string>(sickIds ?? []);

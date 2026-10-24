@@ -62,7 +62,13 @@ export function useSickOn(date: string, enabled = true) {
     queryKey: ["absences-today-sick", date],
     queryFn: async () => {
       const r = await backend.absence.todaySick({ date });
-      return new Set(r.sick_staff.map((s) => s.user_id));
+      return {
+        ids: new Set(r.sick_staff.map((s) => s.user_id)),
+        // Open sickness per person, for "Mark fit" by whichever WC/CC takes the call.
+        openAbsence: new Map(
+          r.sick_staff.filter((s) => s.absence_id != null).map((s) => [s.user_id, s.absence_id as number])
+        ),
+      };
     },
     enabled,
   });

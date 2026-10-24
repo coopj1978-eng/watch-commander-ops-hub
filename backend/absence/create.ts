@@ -2,10 +2,9 @@ import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { logActivity } from "../logging/logger";
-import { createNotification } from "../notification/helpers";
 import type { CreateAbsenceRequest, Absence } from "./types";
 import { assertNoOpenSickness, recalcTriggersSafely } from "../lib/sickness";
-import { absenceViewer, assertCanManageAbsencesOf } from "../lib/absenceAccess";
+import { absenceViewer, assertCanManageAbsencesOf, notifyLineManagers } from "../lib/absenceAccess";
 
 export const create = api<CreateAbsenceRequest, Absence>(
   { auth: true, expose: true, method: "POST", path: "/absences" },
@@ -60,46 +59,19 @@ export const create = api<CreateAbsenceRequest, Absence>(
       details: { start_date: req.start_date, end_date: req.end_date, type: req.type, auto_approved: autoApprove },
     });
 
-    // When a sick booking is logged, notify WC users on the same watch (except the logger)
+    // Booked off by whoever took the call — the person's own watch WC/CC
+    // are always told (minus the logger).
     if (req.type === "sickness") {
-      try {
-        const sickPerson = await db.queryRow<{ name: string; watch_unit: string | null }>`
-          SELECT name, watch_unit FROM users WHERE id = ${req.user_id}
-        `;
-        const logger = await db.queryRow<{ name: string }>`
-          SELECT name FROM users WHERE id = ${auth.userID}
-        `;
-
-        if (sickPerson && sickPerson.watch_unit) {
-          const watchUnit = sickPerson.watch_unit;
-          const loggerName = logger?.name ?? "Unknown";
-          const personName = sickPerson.name;
-
-          // Notify all WC users on the same watch, except whoever just logged it
-          const wcUsers = db.query<{ id: string }>`
-            SELECT id FROM users
-            WHERE role = 'WC'
-              AND is_active = TRUE
-              AND watch_unit = ${watchUnit}
-              AND id != ${auth.userID}
-          `;
-
-          for await (const wc of wcUsers) {
-            await createNotification({
-              user_id: wc.id,
-              type: "sick_booking",
-              title: "Sick Booking Logged",
-              message: `${personName} has been booked off sick (${watchUnit} Watch). eForm submitted. Logged by ${loggerName}.`,
-              entity_type: "absence",
-              entity_id: absence.id.toString(),
-              link: "/people",
-            });
-          }
-        }
-      } catch (err) {
-        // Non-fatal — don't fail the absence creation if notifications error
-        console.error("Failed to send sick booking notifications:", err);
-      }
+      const names = await db.queryRow<{ person: string; logger: string }>`
+        SELECT (SELECT name FROM users WHERE id = ${req.user_id}) AS person,
+               (SELECT name FROM users WHERE id = ${auth.userID}) AS logger
+      `;
+      const from = new Date(req.start_date).toLocaleDateString("en-GB");
+      await notifyLineManagers(req.user_id, auth.userID, {
+        title: "Booked off sick",
+        message: `${names?.person ?? "A member of your watch"} has been booked off sick from ${from}. Booked by ${names?.logger ?? "a WC/CC"}.`,
+        absenceId: absence.id,
+      });
     }
 
     await recalcTriggersSafely(absence.firefighter_id);

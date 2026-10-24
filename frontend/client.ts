@@ -221,6 +221,7 @@ export namespace absence {
         "user_id": string
         name: string
         "watch_unit": string | null
+        "absence_id": number | null
     }
 
     export interface TodaySickResponse {

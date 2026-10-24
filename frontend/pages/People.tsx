@@ -37,7 +37,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { localTodayIso, useSickOn } from "@/lib/absences";
+import { invalidateAbsenceViews, localTodayIso, useSickOn } from "@/lib/absences";
+import { useToast } from "@/components/ui/use-toast";
 
 type SortField = "name" | "watch" | "rank" | "email" | "phone" | "staffNumber" | "lastConversation";
 type SortDirection = "asc" | "desc";
@@ -79,6 +80,7 @@ export default function People() {
   const isWC = useIsWatchCommander();
   const canLogSick = useIsCrewCommander(); // WC or CC
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const [searchParams, setSearchParams] = useSearchParams();
   
@@ -177,7 +179,21 @@ export default function People() {
   // Off sick today across the station (names only for other watches), so
   // an open sickness shows here and can't be booked a second time — by any
   // WC/CC, not just the person's own.
-  const { data: sickToday } = useSickOn(localTodayIso());
+  const { data: sickOn } = useSickOn(localTodayIso());
+  const sickToday = sickOn?.ids;
+
+  // Any WC/CC who takes the call books them back fit; their own watch's
+  // WC/CC are notified by the backend.
+  const bookBackFit = useMutation({
+    mutationFn: async (absenceId: number) => backend.absence.bookBackFit({ absence_id: absenceId }),
+    onSuccess: () => invalidateAbsenceViews(queryClient),
+    onError: (err: any) =>
+      toast({
+        title: "Couldn't book back fit",
+        description: err?.message ?? "Please try again.",
+        variant: "destructive",
+      }),
+  });
 
   const people = peopleData?.people || [];
 
@@ -718,9 +734,26 @@ export default function People() {
                     {canLogSick && (
                       <TableCell onClick={(e) => e.stopPropagation()}>
                         {sickToday?.has(user.id) ? (
-                          <Badge variant="outline" className="text-xs text-red-600 border-red-500/30 gap-1">
-                            <Stethoscope className="h-3 w-3" /> Booked Off
-                          </Badge>
+                          <div className="flex items-center gap-1.5">
+                            <Badge variant="outline" className="text-xs text-red-600 border-red-500/30 gap-1">
+                              <Stethoscope className="h-3 w-3" /> Booked Off
+                            </Badge>
+                            {sickOn?.openAbsence.has(user.id) && user.id !== authUser?.id && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-7 px-2 text-xs text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/20"
+                                disabled={bookBackFit.isPending}
+                                onClick={() => {
+                                  if (confirm(`Book ${user.name} back fit for duty from today?`)) {
+                                    bookBackFit.mutate(sickOn.openAbsence.get(user.id)!);
+                                  }
+                                }}
+                              >
+                                Mark fit
+                              </Button>
+                            )}
+                          </div>
                         ) : (
                           <Button
                             size="sm"

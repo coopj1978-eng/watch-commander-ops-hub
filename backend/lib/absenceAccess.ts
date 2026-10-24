@@ -1,6 +1,7 @@
 import { APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db, { type SQLPrimitive } from "../db";
+import { createNotification } from "../notification/helpers";
 
 // Who may see and change absence (sickness) records.
 //
@@ -110,4 +111,45 @@ export function visibleAbsencesSql(viewer: AbsenceViewer, column: string, params
     LEFT JOIN firefighter_profiles fp ON fp.user_id = u.id
     WHERE LOWER(COALESCE(u.watch_unit, fp.watch)) = LOWER(${watch})
   ))`;
+}
+
+/**
+ * Tell the person's own watch WC/CC about a sickness change made by someone
+ * else — booking off or back fit can be taken by any WC/CC on duty, but the
+ * person's line managers must always hear about it. Never throws.
+ */
+export async function notifyLineManagers(
+  personId: string,
+  actorId: string,
+  note: { title: string; message: string; absenceId: number }
+): Promise<void> {
+  try {
+    const watch = await watchOf(personId);
+    if (!watch) return;
+    const managers = await db.rawQueryAll<{ id: string }>(
+      `SELECT u.id FROM users u
+       LEFT JOIN firefighter_profiles fp ON fp.user_id = u.id
+       WHERE u.role IN ('WC', 'CC')
+         AND u.left_at IS NULL
+         AND LOWER(COALESCE(u.watch_unit, fp.watch)) = LOWER($1)
+         AND u.id <> $2
+         AND u.id <> $3`,
+      watch,
+      actorId,
+      personId
+    );
+    for (const m of managers) {
+      await createNotification({
+        user_id: m.id,
+        type: "sick_booking",
+        title: note.title,
+        message: note.message,
+        entity_type: "absence",
+        entity_id: String(note.absenceId),
+        link: `/people/${personId}`,
+      });
+    }
+  } catch (err) {
+    console.error("Failed to notify line managers:", err);
+  }
 }

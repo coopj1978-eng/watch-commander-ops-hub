@@ -7,6 +7,11 @@ export interface TodaySickMember {
   user_id: string;
   name: string;
   watch_unit: string | null;
+  /**
+   * Their open sickness — lets any WC/CC who takes the call book them back
+   * fit. Null if a return date is already booked.
+   */
+  absence_id: number | null;
 }
 
 interface TodaySickRequest {
@@ -45,7 +50,7 @@ export const todaySick = api<TodaySickRequest, TodaySickResponse>(
     //     end_date is just the WC's expected return; the FF stays sick
     //     until explicitly closed out).
     const rows = await db.rawQueryAll<TodaySickMember>(
-      `SELECT DISTINCT u.id AS user_id, u.name, u.watch_unit
+      `SELECT u.id AS user_id, u.name, u.watch_unit, (MAX(a.id) FILTER (WHERE a.returned_to_work_at IS NULL))::int AS absence_id
        FROM absences a
        JOIN users u ON u.id = a.firefighter_id
        WHERE a.type = 'sickness'
@@ -54,6 +59,7 @@ export const todaySick = api<TodaySickRequest, TodaySickResponse>(
          AND (a.end_date::date >= $1::date OR a.returned_to_work_at IS NULL)
          AND (a.returned_to_work_at IS NULL OR a.returned_to_work_at::date > $1::date)
          AND ($2::boolean OR a.firefighter_id = $3)
+       GROUP BY u.id, u.name, u.watch_unit
        ORDER BY u.name`,
       day,
       isManager,
