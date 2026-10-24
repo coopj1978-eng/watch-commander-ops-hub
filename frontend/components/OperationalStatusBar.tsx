@@ -142,12 +142,13 @@ export function OperationalStatusBar() {
           href="/handover"
           value={
             shift ? (
-              <>
-                {shift.main}{" "}
-                <span className="font-mono text-muted-foreground font-normal">
+              // Times on their own line so they aren't cut off on a phone.
+              <span className="block whitespace-normal">
+                {shift.main}
+                <span className="block font-mono text-xs text-muted-foreground font-normal">
                   {shift.sub}
                 </span>
-              </>
+              </span>
             ) : (
               "—"
             )

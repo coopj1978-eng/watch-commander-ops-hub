@@ -41441,11 +41441,13 @@ function OperationalStatusBar() {
       {
         label: "Shift",
         href: "/handover",
-        value: shift2 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-          shift2.main,
-          " ",
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono text-muted-foreground font-normal", children: shift2.sub })
-        ] }) : "—"
+        value: shift2 ? (
+          // Times on their own line so they aren't cut off on a phone.
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "block whitespace-normal", children: [
+            shift2.main,
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block font-mono text-xs text-muted-foreground font-normal", children: shift2.sub })
+          ] })
+        ) : "—"
       }
     ),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
