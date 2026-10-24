@@ -32,8 +32,7 @@ export const balance = api<ToilBalanceRequest, ToilBalanceResponse>(
     const rows = await db.rawQueryAll<{
       user_id: string;
       user_name: string;
-      all_earned: string;
-      all_spent: string;
+      balance: string;
       year_earned: string;
       year_spent: string;
       pending_earned: string;
@@ -41,8 +40,8 @@ export const balance = api<ToilBalanceRequest, ToilBalanceResponse>(
       `SELECT
         t.user_id,
         u.name as user_name,
-        COALESCE(SUM(CASE WHEN t.type = 'earned' AND t.status = 'approved' THEN t.hours ELSE 0 END), 0) as all_earned,
-        COALESCE(SUM(CASE WHEN t.type = 'spent' THEN t.hours ELSE 0 END), 0) as all_spent,
+        COALESCE(SUM(CASE WHEN t.type = 'earned' AND t.status = 'approved' THEN t.hours
+                          WHEN t.type = 'spent' THEN -t.hours ELSE 0 END), 0) as balance,
         COALESCE(SUM(CASE WHEN t.type = 'earned' AND t.status = 'approved' AND ${inYear} THEN t.hours ELSE 0 END), 0) as year_earned,
         COALESCE(SUM(CASE WHEN t.type = 'spent' AND ${inYear} THEN t.hours ELSE 0 END), 0) as year_spent,
         COALESCE(SUM(CASE WHEN t.type = 'earned' AND t.status = 'pending' THEN t.hours ELSE 0 END), 0) as pending_earned
@@ -61,7 +60,8 @@ export const balance = api<ToilBalanceRequest, ToilBalanceResponse>(
       total_earned: Number(r.year_earned),
       total_spent: Number(r.year_spent),
       pending_earned: Number(r.pending_earned),
-      balance: Number(r.all_earned) - Number(r.all_spent),
+      // Subtracted in SQL (exact decimals) — in JS 16.15 - 8 = 8.149999…
+      balance: Number(r.balance),
     }));
 
     return { balances };

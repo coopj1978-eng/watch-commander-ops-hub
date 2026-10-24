@@ -49151,6 +49151,7 @@ function ProfileToilSection({
     } else if (e.type === "spent") {
       running -= Number(e.hours);
     }
+    running = Math.round(running * 100) / 100;
     balancesById.set(e.id, running);
   }
   const ledgerRows = [...entries].sort((a, b) => {

@@ -225,6 +225,8 @@ export function ProfileToilSection({
       // as a real movement. We sum all of them.
       running -= Number(e.hours);
     }
+    // Round away float drift (16.15 - 8 = 8.149999… in JS).
+    running = Math.round(running * 100) / 100;
     balancesById.set(e.id, running);
   }
 
