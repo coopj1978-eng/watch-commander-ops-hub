@@ -16,7 +16,7 @@
  */
 
 import {
-  useState, useMemo, useEffect, useRef,
+  useState, useMemo, useEffect, useRef, createContext, useContext,
 } from "react";
 import {
   DndContext,
@@ -35,6 +35,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
 import backend from "@/lib/backend";
+import { useSickOn } from "@/lib/absences";
 import { getTodayShift, getShiftsForDateRange, hasRotaConfig } from "@/lib/shiftRota";
 import type { crewing } from "@/client";
 import { useAuth } from "@/App";
@@ -77,6 +78,12 @@ interface ApplianceSlot {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const WATCHES = ["Red", "White", "Green", "Blue", "Amber"] as const;
+
+// Everyone off sick on the board's date — station-wide, so a Head for Head
+// or cover from another watch shows as sick here too. Read by the tiles and
+// filled slots instead of threading a prop through every layer.
+const EMPTY_IDS = new Set<string>();
+const SickIdsContext = createContext<Set<string>>(EMPTY_IDS);
 
 const SHIFT_TYPES: { value: ShiftType; label: string; day: boolean }[] = [
   { value: "1st Day",   label: "1st Day",   day: true  },
@@ -292,6 +299,7 @@ interface TileCardProps {
 }
 
 function TileCard({ member, assignedEntry, isAbsent, adjustment, isDragging, isOverlay }: TileCardProps) {
+  const sickIds = useContext(SickIdsContext);
   const systemLabel =
     member.system_role === "WC" ? "Watch Commander"
     : member.system_role === "CC" ? "Crew Commander"
@@ -348,7 +356,9 @@ function TileCard({ member, assignedEntry, isAbsent, adjustment, isDragging, isO
           {ADJ_BADGE[adjustment].label}
         </span>
       ) : isAbsent ? (
-        <span className="text-[9px] font-bold text-red-500 uppercase tracking-wide">Absent</span>
+        <span className="text-[9px] font-bold text-red-500 uppercase tracking-wide">
+          {sickIds.has(member.id) ? "Off sick" : "Absent"}
+        </span>
       ) : isAssigned ? (
         <span className={`text-[9px] font-bold px-1 py-px rounded ${ROLE_BADGE[assignedEntry!.crew_role]}`}>
           {assignedEntry!.appliance.toUpperCase()}
@@ -606,6 +616,8 @@ function DraggableFilledSlot({
   qualWarning?: string | null;
 }) {
   const name = entry.user_name ?? entry.external_name ?? "Unknown";
+  const sickIds = useContext(SickIdsContext);
+  const isSick = !!entry.user_id && sickIds.has(entry.user_id);
 
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `placed-${entry.id}`,
@@ -635,6 +647,12 @@ function DraggableFilledSlot({
         <p className="text-sm font-medium truncate leading-tight">{name}</p>
         {entry.is_change_of_shift && (
           <span className="text-[9px] font-semibold text-amber-600 dark:text-amber-400">External / CoS</span>
+        )}
+        {isSick && (
+          <p className="text-[10px] font-semibold text-red-600 dark:text-red-400 flex items-center gap-1 leading-tight mt-0.5">
+            <AlertTriangle className="h-2.5 w-2.5 shrink-0" />
+            <span className="truncate">Off sick — needs replacing</span>
+          </p>
         )}
         {/* Visible qualification warning — replaces the old tooltip-only
             AlertTriangle so the WC can't miss a misqualified placement.
@@ -1312,7 +1330,7 @@ function RosterPanel({
                           <DraggableTile
                             member={syntheticMember}
                             assignedEntry={assignedByUserId.get(cover.userId)}
-                            isAbsent={false}
+                            isAbsent={absentIds.has(cover.userId)}
                           />
                           <span className="text-[9px] font-bold text-purple-600 uppercase tracking-wide mt-0.5">
                             H4H Cover
@@ -1371,7 +1389,7 @@ function RosterPanel({
                         <DraggableTile
                           member={syntheticMember}
                           assignedEntry={assignedByUserId.get(cover.userId)}
-                          isAbsent={false}
+                          isAbsent={absentIds.has(cover.userId)}
                         />
                         <span className={`text-[9px] font-bold uppercase tracking-wide mt-0.5 ${textCls}`}>
                           {label} · {cover.watchUnit}
@@ -1920,13 +1938,15 @@ export default function CrewingBoard() {
     return map;
   }, [entries]);
 
+  const { data: sickIds } = useSickOn(shiftDate);
+
   const absentIds = useMemo(() => {
-    const ids = new Set<string>();
+    const ids = new Set<string>(sickIds ?? []);
     (absenceData?.absences ?? []).forEach((a: any) => {
       if (a.status === "approved") ids.add(a.firefighter_id ?? a.user_id ?? "");
     });
     return ids;
-  }, [absenceData]);
+  }, [absenceData, sickIds]);
 
   // Day vs Night for the currently-displayed shift. shiftType is one of
   // "1st Day" / "2nd Day" / "1st Night" / "2nd Night" — we only care
@@ -2187,6 +2207,7 @@ export default function CrewingBoard() {
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
+    <SickIdsContext.Provider value={sickIds ?? EMPTY_IDS}>
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       {/* Tap-to-assign banner — appears when a roster member has been tapped
           on mobile.  Sticks to the top of the viewport so the WC can scroll
@@ -2402,5 +2423,6 @@ export default function CrewingBoard() {
         onCancel={() => setPendingDetach(null)}
       />
     </DndContext>
+    </SickIdsContext.Provider>
   );
 }

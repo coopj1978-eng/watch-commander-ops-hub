@@ -1,6 +1,6 @@
-import { api } from "encore.dev/api";
+import { api, APIError, Query } from "encore.dev/api";
+import { getAuthData } from "~encore/auth";
 import db from "../db";
-import { absenceViewer, visibleAbsencesSql } from "../lib/absenceAccess";
 import { ukTodayIso } from "../lib/sickness";
 
 export interface TodaySickMember {
@@ -9,29 +9,43 @@ export interface TodaySickMember {
   watch_unit: string | null;
 }
 
+interface TodaySickRequest {
+  /** YYYY-MM-DD; defaults to today (UK). */
+  date?: Query<string>;
+}
+
 interface TodaySickResponse {
   sick_staff: TodaySickMember[];
 }
 
 /**
- * Returns staff with an approved sickness absence that covers today's date —
- * limited to the caller's own watch (or just themself for a firefighter).
- * Used by the WC dashboard to cross-reference against the crewing board.
+ * Who is off sick on a date — names only, no reason, dates or history.
+ *
+ * Any WC/CC gets the whole station, because someone from another watch can
+ * be on their board (Head for Head, cover) and must show as sick there too;
+ * the full record stays with the person's own watch (lib/absenceAccess).
+ * A firefighter only ever sees themself. Used by the crewing board, the
+ * People page and the dashboard's crewing-gap alert.
  */
-export const todaySick = api<void, TodaySickResponse>(
+export const todaySick = api<TodaySickRequest, TodaySickResponse>(
   { auth: true, expose: true, method: "GET", path: "/absences/today-sick" },
-  async () => {
-    const params: (string | number)[] = [ukTodayIso()];
-    const visible = visibleAbsencesSql(await absenceViewer(), "a.firefighter_id", params);
+  async (req) => {
+    const auth = getAuthData()!;
+    const isManager = auth.role === "WC" || auth.role === "CC";
 
-    // Sickness counts as covering today when:
-    //   • start_date is on or before today, AND
-    //   • either the original end_date covers today, OR the FF hasn't
+    const day = req.date ?? ukTodayIso();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) {
+      throw APIError.invalidArgument("date must be YYYY-MM-DD");
+    }
+
+    // Sickness counts as covering the day when:
+    //   • start_date is on or before it, AND
+    //   • either the original end_date covers it, OR the FF hasn't
     //     been booked back fit yet (returned_to_work_at IS NULL — the
     //     end_date is just the WC's expected return; the FF stays sick
     //     until explicitly closed out).
     const rows = await db.rawQueryAll<TodaySickMember>(
-      `SELECT u.id AS user_id, u.name, u.watch_unit
+      `SELECT DISTINCT u.id AS user_id, u.name, u.watch_unit
        FROM absences a
        JOIN users u ON u.id = a.firefighter_id
        WHERE a.type = 'sickness'
@@ -39,9 +53,11 @@ export const todaySick = api<void, TodaySickResponse>(
          AND a.start_date::date <= $1::date
          AND (a.end_date::date >= $1::date OR a.returned_to_work_at IS NULL)
          AND (a.returned_to_work_at IS NULL OR a.returned_to_work_at::date > $1::date)
-         AND ${visible}
+         AND ($2::boolean OR a.firefighter_id = $3)
        ORDER BY u.name`,
-      ...params
+      day,
+      isManager,
+      auth.userID
     );
 
     return { sick_staff: rows };

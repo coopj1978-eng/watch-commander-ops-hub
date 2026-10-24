@@ -9,7 +9,7 @@ export function localTodayIso(d = new Date()): string {
   return `${yyyy}-${mm}-${dd}`;
 }
 
-// Every cached view that shows who's sick, on leave, or their Bradford stage.
+// Every cached view that shows who's sick, on leave, or their trigger stage.
 const ABSENCE_VIEW_KEYS = new Set([
   "absences",
   "wc-absences-today",
@@ -50,6 +50,22 @@ export function latestAbsencePerPerson<
     if (new Date(a.start_date) > new Date(current.start_date)) byPerson.set(a.firefighter_id, a);
   }
   return byPerson;
+}
+
+/**
+ * Ids of everyone off sick on a date. For a WC/CC this is the whole station
+ * (names only — no reasons or history), so someone from another watch on
+ * your board for a Head for Head shows as sick there too.
+ */
+export function useSickOn(date: string, enabled = true) {
+  return useQuery({
+    queryKey: ["absences-today-sick", date],
+    queryFn: async () => {
+      const r = await backend.absence.todaySick({ date });
+      return new Set(r.sick_staff.map((s) => s.user_id));
+    },
+    enabled,
+  });
 }
 
 /** Approved absences covering today (open sicknesses included). Shared by every dashboard widget so they agree. */

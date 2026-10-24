@@ -11,9 +11,18 @@ export const create = api<CreateAbsenceRequest, Absence>(
   { auth: true, expose: true, method: "POST", path: "/absences" },
   async (req) => {
     const auth = getAuthData()!;
-    // Anyone can record their own; for someone else it's their watch's WC/CC.
+    // Anyone can record their own. Any WC/CC can book anyone off sick — the
+    // call may come to whoever is on duty, e.g. a Head for Head from
+    // another watch. Other absence types for someone else are their own
+    // watch's WC/CC.
     if (req.user_id !== auth.userID) {
-      await assertCanManageAbsencesOf(await absenceViewer(), req.user_id);
+      if (req.type === "sickness") {
+        if (auth.role !== "WC" && auth.role !== "CC") {
+          throw APIError.permissionDenied("Only a Watch Commander or Crew Commander can book someone off sick.");
+        }
+      } else {
+        await assertCanManageAbsencesOf(await absenceViewer(), req.user_id);
+      }
     }
     if (req.type === "sickness") {
       await assertNoOpenSickness(req.user_id);

@@ -315,9 +315,14 @@ export namespace absence {
          * Returns all staff with an approved sickness absence that covers today's date.
          * Used by the WC dashboard to cross-reference against the crewing board.
          */
-        public async todaySick(): Promise<TodaySickResponse> {
+        public async todaySick(params: { date?: string } = {}): Promise<TodaySickResponse> {
+            // Convert our params into the objects we need for the request
+            const query = makeRecord<string, string | string[]>({
+                date: params.date,
+            })
+
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/absences/today-sick`)
+            const resp = await this.baseClient.callTypedAPI("GET", `/absences/today-sick`, undefined, {query})
             return await resp.json() as TodaySickResponse
         }
 

@@ -106,7 +106,7 @@ export function WCAlertBanner() {
 
   // Who is off sick today?
   const { data: sickData } = useQuery({
-    queryKey: ["absences-today-sick"],
+    queryKey: ["absences-today-sick", "alert"],
     queryFn: () => backend.absence.todaySick(),
     refetchInterval: 5 * 60 * 1000,
   });

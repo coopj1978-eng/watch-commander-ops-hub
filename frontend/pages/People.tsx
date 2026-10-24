@@ -37,7 +37,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useTodaysAbsences } from "@/lib/absences";
+import { localTodayIso, useSickOn } from "@/lib/absences";
 
 type SortField = "name" | "watch" | "rank" | "email" | "phone" | "staffNumber" | "lastConversation";
 type SortDirection = "asc" | "desc";
@@ -124,8 +124,6 @@ export default function People() {
   });
 
   const { user: authUser } = useAuth();
-  const onMyWatch = (watch?: string | null) =>
-    !!authUser?.watch_unit && !!watch && watch.toLowerCase() === authUser.watch_unit.toLowerCase();
 
   const [logSickOpen, setLogSickOpen] = useState(false);
   const [logSickPerson, setLogSickPerson] = useState<{ id: string; name: string } | null>(null);
@@ -176,18 +174,10 @@ export default function People() {
     queryFn: async () => backend.dictionary.list({ type: "skill" }),
   });
 
-  // Same source as the dashboard, so an open sickness (not yet booked back
-  // fit) shows as sick here too and can't be booked a second time.
-  const { data: todaysAbsences } = useTodaysAbsences();
-  const sickToday = useMemo(
-    () =>
-      new Set(
-        (todaysAbsences?.absences ?? [])
-          .filter((a) => a.type === "sickness")
-          .map((a) => a.firefighter_id)
-      ),
-    [todaysAbsences]
-  );
+  // Off sick today across the station (names only for other watches), so
+  // an open sickness shows here and can't be booked a second time — by any
+  // WC/CC, not just the person's own.
+  const { data: sickToday } = useSickOn(localTodayIso());
 
   const people = peopleData?.people || [];
 
@@ -727,10 +717,7 @@ export default function People() {
                     )}
                     {canLogSick && (
                       <TableCell onClick={(e) => e.stopPropagation()}>
-                        {!onMyWatch(user.watch_unit || profile?.watch) ? (
-                          // Only the person's own watch WC/CC can record their sickness.
-                          <span className="text-muted-foreground">-</span>
-                        ) : sickToday?.has(user.id) ? (
+                        {sickToday?.has(user.id) ? (
                           <Badge variant="outline" className="text-xs text-red-600 border-red-500/30 gap-1">
                             <Stethoscope className="h-3 w-3" /> Booked Off
                           </Badge>
