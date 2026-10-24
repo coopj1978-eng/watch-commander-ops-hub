@@ -19601,12 +19601,36 @@ const createLucideIcon = (iconName, iconNode) => {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1V = [
+const __iconNode$1X = [
   ["path", { d: "M15 12H3", key: "6jk70r" }],
   ["path", { d: "M17 18H3", key: "1amg6g" }],
   ["path", { d: "M21 6H3", key: "1jwq7v" }]
 ];
-const AlignLeft = createLucideIcon("align-left", __iconNode$1V);
+const AlignLeft = createLucideIcon("align-left", __iconNode$1X);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1W = [
+  ["path", { d: "M8 3 4 7l4 4", key: "9rb6wj" }],
+  ["path", { d: "M4 7h16", key: "6tx8e3" }],
+  ["path", { d: "m16 21 4-4-4-4", key: "siv7j2" }],
+  ["path", { d: "M20 17H4", key: "h6l3hr" }]
+];
+const ArrowLeftRight = createLucideIcon("arrow-left-right", __iconNode$1W);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1V = [
+  ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
+  ["path", { d: "M19 12H5", key: "x3x0zl" }]
+];
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1V);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19614,12 +19638,12 @@ const AlignLeft = createLucideIcon("align-left", __iconNode$1V);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1U = [
-  ["path", { d: "M8 3 4 7l4 4", key: "9rb6wj" }],
-  ["path", { d: "M4 7h16", key: "6tx8e3" }],
-  ["path", { d: "m16 21 4-4-4-4", key: "siv7j2" }],
-  ["path", { d: "M20 17H4", key: "h6l3hr" }]
+  ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
+  ["path", { d: "M20 7H4", key: "zbl0bi" }],
+  ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
+  ["path", { d: "M4 17h16", key: "g4d7ey" }]
 ];
-const ArrowLeftRight = createLucideIcon("arrow-left-right", __iconNode$1U);
+const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1U);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19627,10 +19651,10 @@ const ArrowLeftRight = createLucideIcon("arrow-left-right", __iconNode$1U);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1T = [
-  ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
-  ["path", { d: "M19 12H5", key: "x3x0zl" }]
+  ["path", { d: "M5 12h14", key: "1ays0h" }],
+  ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1T);
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$1T);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19638,30 +19662,6 @@ const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1T);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1S = [
-  ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
-  ["path", { d: "M20 7H4", key: "zbl0bi" }],
-  ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
-  ["path", { d: "M4 17h16", key: "g4d7ey" }]
-];
-const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1S);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1R = [
-  ["path", { d: "M5 12h14", key: "1ays0h" }],
-  ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
-];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$1R);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1Q = [
   [
     "path",
     {
@@ -19671,14 +19671,25 @@ const __iconNode$1Q = [
   ],
   ["circle", { cx: "12", cy: "8", r: "6", key: "1vp47v" }]
 ];
-const Award = createLucideIcon("award", __iconNode$1Q);
+const Award = createLucideIcon("award", __iconNode$1S);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1P = [
+const __iconNode$1R = [
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["path", { d: "m4.9 4.9 14.2 14.2", key: "1m5liu" }]
+];
+const Ban = createLucideIcon("ban", __iconNode$1R);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1Q = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -19688,14 +19699,14 @@ const __iconNode$1P = [
     }
   ]
 ];
-const Bell = createLucideIcon("bell", __iconNode$1P);
+const Bell = createLucideIcon("bell", __iconNode$1Q);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1O = [
+const __iconNode$1P = [
   ["path", { d: "M12 7v14", key: "1akyts" }],
   [
     "path",
@@ -19705,7 +19716,18 @@ const __iconNode$1O = [
     }
   ]
 ];
-const BookOpen = createLucideIcon("book-open", __iconNode$1O);
+const BookOpen = createLucideIcon("book-open", __iconNode$1P);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1O = [
+  ["path", { d: "M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16", key: "jecpp" }],
+  ["rect", { width: "20", height: "14", x: "2", y: "6", rx: "2", key: "i6l2r4" }]
+];
+const Briefcase = createLucideIcon("briefcase", __iconNode$1O);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19713,17 +19735,6 @@ const BookOpen = createLucideIcon("book-open", __iconNode$1O);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1N = [
-  ["path", { d: "M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16", key: "jecpp" }],
-  ["rect", { width: "20", height: "14", x: "2", y: "6", rx: "2", key: "i6l2r4" }]
-];
-const Briefcase = createLucideIcon("briefcase", __iconNode$1N);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1M = [
   ["path", { d: "M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z", key: "1b4qmf" }],
   ["path", { d: "M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2", key: "i71pzd" }],
   ["path", { d: "M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2", key: "10jefs" }],
@@ -19732,7 +19743,21 @@ const __iconNode$1M = [
   ["path", { d: "M10 14h4", key: "kelpxr" }],
   ["path", { d: "M10 18h4", key: "1ulq68" }]
 ];
-const Building2 = createLucideIcon("building-2", __iconNode$1M);
+const Building2 = createLucideIcon("building-2", __iconNode$1N);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1M = [
+  ["path", { d: "M8 2v4", key: "1cmpym" }],
+  ["path", { d: "M16 2v4", key: "4m81vk" }],
+  ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
+  ["path", { d: "M3 10h18", key: "8toen8" }],
+  ["path", { d: "m9 16 2 2 4-4", key: "19s6y9" }]
+];
+const CalendarCheck = createLucideIcon("calendar-check", __iconNode$1M);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19740,13 +19765,14 @@ const Building2 = createLucideIcon("building-2", __iconNode$1M);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1L = [
-  ["path", { d: "M8 2v4", key: "1cmpym" }],
+  ["path", { d: "M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5", key: "1osxxc" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
-  ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
-  ["path", { d: "M3 10h18", key: "8toen8" }],
-  ["path", { d: "m9 16 2 2 4-4", key: "19s6y9" }]
+  ["path", { d: "M8 2v4", key: "1cmpym" }],
+  ["path", { d: "M3 10h5", key: "r794hk" }],
+  ["path", { d: "M17.5 17.5 16 16.3V14", key: "akvzfd" }],
+  ["circle", { cx: "16", cy: "16", r: "6", key: "qoo3c4" }]
 ];
-const CalendarCheck = createLucideIcon("calendar-check", __iconNode$1L);
+const CalendarClock = createLucideIcon("calendar-clock", __iconNode$1L);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -27628,13 +27654,23 @@ var calendar;
         limit: params.limit === void 0 ? void 0 : String(params.limit),
         offset: params.offset === void 0 ? void 0 : String(params.offset),
         "start_date": params["start_date"],
-        "user_id": params["user_id"]
+        "user_id": params["user_id"],
+        watch: params.watch
       });
       const resp = await this.baseClient.callTypedAPI("GET", `/calendar/events`, void 0, { query });
       return await resp.json();
     }
     async update(id, params) {
       const resp = await this.baseClient.callTypedAPI("PATCH", `/calendar/events/${encodeURIComponent(id)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+    /** Strike an event through (kept on the calendar with the reason). */
+    async cancelEvent(id, params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/calendar/events/${encodeURIComponent(id)}/cancel`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async reinstateEvent(id) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/calendar/events/${encodeURIComponent(id)}/reinstate`);
       return await resp.json();
     }
   }
@@ -32512,6 +32548,150 @@ function useTodaysAbsences(enabled = true) {
     enabled
   });
 }
+const MEGA_CYCLE = 70;
+const LEAVE_START = 52;
+const REFERENCE_MONDAYS = {
+  Amber: "2026-02-09",
+  Green: "2026-02-23",
+  Blue: "2026-03-09",
+  Red: "2026-03-23",
+  White: "2026-04-06"
+};
+function diffDays(date, base) {
+  const a = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+  const b = Date.UTC(base.getFullYear(), base.getMonth(), base.getDate());
+  return Math.round((a - b) / 864e5);
+}
+function toDateOnly(iso) {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+function isoString(date) {
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0")
+  ].join("-");
+}
+function computeShiftForDate(date, refMonday) {
+  const dateStr = isoString(date);
+  const diff = diffDays(date, refMonday);
+  const pos = (diff % MEGA_CYCLE + MEGA_CYCLE) % MEGA_CYCLE;
+  if (pos >= LEAVE_START) {
+    return { date: dateStr, shiftType: "Annual Leave", isWorking: false, isLeave: true };
+  }
+  const inRepeat = pos % 8;
+  if (inRepeat === 0) return { date: dateStr, shiftType: "1st Day", isWorking: true, isLeave: false, startTime: "08:00", endTime: "18:00" };
+  if (inRepeat === 1) return { date: dateStr, shiftType: "2nd Day", isWorking: true, isLeave: false, startTime: "08:00", endTime: "18:00" };
+  if (inRepeat === 2) return { date: dateStr, shiftType: "1st Night", isWorking: true, isLeave: false, startTime: "18:00", endTime: "08:00" };
+  if (inRepeat === 3) return { date: dateStr, shiftType: "2nd Night", isWorking: true, isLeave: false, startTime: "18:00", endTime: "08:00" };
+  return { date: dateStr, shiftType: "Rest", isWorking: false, isLeave: false };
+}
+function getShiftForDate(watch, date) {
+  const refIso = REFERENCE_MONDAYS[watch];
+  if (!refIso) return null;
+  const refMonday = toDateOnly(refIso);
+  const localMidnight = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  return computeShiftForDate(localMidnight, refMonday);
+}
+function getShiftsForDateRange(watch, from, to) {
+  const refIso = REFERENCE_MONDAYS[watch];
+  if (!refIso) return [];
+  const refMonday = toDateOnly(refIso);
+  const results = [];
+  const current = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+  const endDay = new Date(to.getFullYear(), to.getMonth(), to.getDate());
+  while (current <= endDay) {
+    const shift2 = computeShiftForDate(current, refMonday);
+    if (shift2.shiftType !== "Rest") {
+      results.push(shift2);
+    }
+    current.setDate(current.getDate() + 1);
+  }
+  return results;
+}
+function hasRotaConfig(watch) {
+  return watch in REFERENCE_MONDAYS;
+}
+function shiftStart(s) {
+  const [h, m] = (s.startTime ?? "08:00").split(":").map(Number);
+  const d = toDateOnly(s.date);
+  d.setHours(h, m, 0, 0);
+  return d;
+}
+function shiftEnd(s) {
+  const end = shiftStart(s);
+  end.setHours(end.getHours() + (s.startTime === "18:00" ? 14 : 10));
+  return end;
+}
+function describeStart(s, now) {
+  const days = diffDays(toDateOnly(s.date), now);
+  const when = days === 0 ? "" : days === 1 ? " tomorrow" : " " + toDateOnly(s.date).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+  return `${s.shiftType}${when ? when : " starts"} ${s.startTime}`;
+}
+function getWatchShiftStatus(watch, now = /* @__PURE__ */ new Date()) {
+  const refIso = REFERENCE_MONDAYS[watch];
+  if (!refIso) return null;
+  const refMonday = toDateOnly(refIso);
+  const dayAt = (offset2) => computeShiftForDate(new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset2), refMonday);
+  const running = [dayAt(-1), dayAt(0)].find(
+    (s) => s.isWorking && shiftStart(s) <= now && now < shiftEnd(s)
+  );
+  let next;
+  for (let i = 0; i <= MEGA_CYCLE; i++) {
+    const s = dayAt(i);
+    if (s.isWorking && shiftStart(s) > now) {
+      next = s;
+      break;
+    }
+  }
+  const nextLabel = next ? describeStart(next, now) : void 0;
+  if (running) {
+    return {
+      state: "on",
+      current: running,
+      next,
+      label: `${running.shiftType} · ${running.startTime}–${running.endTime}`,
+      nextLabel
+    };
+  }
+  const today = dayAt(0);
+  if (today.isLeave) return { state: "leave", next, label: "Annual leave", nextLabel };
+  if (!today.isWorking) return { state: "rest", next, label: "Rest day", nextLabel };
+  return { state: "off", next, label: "Off now", nextLabel };
+}
+function crewingShiftFor(watch, now = /* @__PURE__ */ new Date()) {
+  const s = watch ? getWatchShiftStatus(watch, now) : null;
+  const shift2 = (s == null ? void 0 : s.current) ?? ((s == null ? void 0 : s.state) === "off" ? s.next : void 0);
+  if (!shift2) return null;
+  return {
+    shiftDate: shift2.date,
+    shiftType: shift2.shiftType,
+    upcoming: !(s == null ? void 0 : s.current)
+  };
+}
+function shiftDisplay(watch, now = /* @__PURE__ */ new Date()) {
+  const s = watch ? getWatchShiftStatus(watch, now) : null;
+  if (!s) return null;
+  if (s.state === "on" && s.current) {
+    return { main: s.current.shiftType, sub: `${s.current.startTime}–${s.current.endTime}` };
+  }
+  const next = s.nextLabel ?? "";
+  if (s.state === "off") return { main: s.label, sub: next };
+  if (s.state === "leave") return { main: s.label, sub: next ? `back ${next}` : "" };
+  return { main: s.label, sub: next ? `next ${next}` : "" };
+}
+function getNextShiftDate(watch) {
+  var _a2;
+  const todayIso = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
+  if (!watch || !hasRotaConfig(watch)) return todayIso;
+  const now = /* @__PURE__ */ new Date();
+  const from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const to = new Date(from);
+  to.setDate(to.getDate() + 14);
+  const shifts = getShiftsForDateRange(watch, from, to);
+  return ((_a2 = shifts.find((s) => s.isWorking)) == null ? void 0 : _a2.date) ?? todayIso;
+}
 const ROUTES = [
   { path: "/", name: "Dashboard", icon: LayoutDashboard },
   { path: "/people", name: "People", icon: Users },
@@ -32577,14 +32757,6 @@ function getBreadcrumbLabel(pathname) {
   const match2 = ROUTES.filter((r2) => r2.path !== "/" && pathname.startsWith(r2.path)).sort((a, b) => b.path.length - a.path.length)[0];
   return (match2 == null ? void 0 : match2.name) ?? pathname;
 }
-function getShiftSpan$1() {
-  const h = (/* @__PURE__ */ new Date()).getHours();
-  const isDay = h >= 8 && h < 18;
-  return {
-    label: isDay ? "Day Shift" : "Night Shift",
-    time: isDay ? "08:00–18:00" : "18:00–08:00"
-  };
-}
 function WatchShiftPill() {
   var _a2, _b2, _c2;
   const { user: user2 } = useAuth();
@@ -32601,7 +32773,7 @@ function WatchShiftPill() {
   const watchAbsences = watch ? absences.filter((a) => watchUserIds.has(a.firefighter_id)) : absences;
   const off = watchAbsences.length;
   const on = Math.max(0, total - off);
-  const shift2 = getShiftSpan$1();
+  const shift2 = shiftDisplay(watch);
   if (!watch) return null;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden lg:flex items-center gap-2 px-2.5 py-1 rounded bg-muted/60 text-xs", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "inline-block h-1.5 w-1.5 rounded-full bg-brand", "aria-hidden": true }),
@@ -32610,8 +32782,11 @@ function WatchShiftPill() {
       " Watch"
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "·" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono text-muted-foreground", children: shift2.time }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "·" }),
+    shift2 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-foreground", children: shift2.main }),
+      shift2.sub && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono text-muted-foreground", children: shift2.sub }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "·" })
+    ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono text-foreground", children: [
       on,
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: " on / " }),
@@ -39720,103 +39895,6 @@ function WCSicknessAlertsWidget() {
     ] })
   ] });
 }
-const MEGA_CYCLE = 70;
-const LEAVE_START = 52;
-const REFERENCE_MONDAYS = {
-  Amber: "2026-02-09",
-  Green: "2026-02-23",
-  Blue: "2026-03-09",
-  Red: "2026-03-23",
-  White: "2026-04-06"
-};
-function diffDays(date, base) {
-  const a = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
-  const b = Date.UTC(base.getFullYear(), base.getMonth(), base.getDate());
-  return Math.round((a - b) / 864e5);
-}
-function toDateOnly(iso) {
-  const [y, m, d] = iso.split("-").map(Number);
-  return new Date(y, m - 1, d);
-}
-function isoString(date) {
-  return [
-    date.getFullYear(),
-    String(date.getMonth() + 1).padStart(2, "0"),
-    String(date.getDate()).padStart(2, "0")
-  ].join("-");
-}
-function computeShiftForDate(date, refMonday) {
-  const dateStr = isoString(date);
-  const diff = diffDays(date, refMonday);
-  const pos = (diff % MEGA_CYCLE + MEGA_CYCLE) % MEGA_CYCLE;
-  if (pos >= LEAVE_START) {
-    return { date: dateStr, shiftType: "Annual Leave", isWorking: false, isLeave: true };
-  }
-  const inRepeat = pos % 8;
-  if (inRepeat === 0) return { date: dateStr, shiftType: "1st Day", isWorking: true, isLeave: false, startTime: "08:00", endTime: "18:00" };
-  if (inRepeat === 1) return { date: dateStr, shiftType: "2nd Day", isWorking: true, isLeave: false, startTime: "08:00", endTime: "18:00" };
-  if (inRepeat === 2) return { date: dateStr, shiftType: "1st Night", isWorking: true, isLeave: false, startTime: "18:00", endTime: "08:00" };
-  if (inRepeat === 3) return { date: dateStr, shiftType: "2nd Night", isWorking: true, isLeave: false, startTime: "18:00", endTime: "08:00" };
-  return { date: dateStr, shiftType: "Rest", isWorking: false, isLeave: false };
-}
-function getShiftForDate(watch, date) {
-  const refIso = REFERENCE_MONDAYS[watch];
-  if (!refIso) return null;
-  const refMonday = toDateOnly(refIso);
-  const localMidnight = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  return computeShiftForDate(localMidnight, refMonday);
-}
-function getShiftsForDateRange(watch, from, to) {
-  const refIso = REFERENCE_MONDAYS[watch];
-  if (!refIso) return [];
-  const refMonday = toDateOnly(refIso);
-  const results = [];
-  const current = new Date(from.getFullYear(), from.getMonth(), from.getDate());
-  const endDay = new Date(to.getFullYear(), to.getMonth(), to.getDate());
-  while (current <= endDay) {
-    const shift2 = computeShiftForDate(current, refMonday);
-    if (shift2.shiftType !== "Rest") {
-      results.push(shift2);
-    }
-    current.setDate(current.getDate() + 1);
-  }
-  return results;
-}
-function getTodayShift(watch) {
-  const refIso = REFERENCE_MONDAYS[watch];
-  if (!refIso) return null;
-  const today = /* @__PURE__ */ new Date();
-  const refMonday = toDateOnly(refIso);
-  return computeShiftForDate(
-    new Date(today.getFullYear(), today.getMonth(), today.getDate()),
-    refMonday
-  );
-}
-function hasRotaConfig(watch) {
-  return watch in REFERENCE_MONDAYS;
-}
-function getNextShiftDate(watch) {
-  var _a2;
-  const todayIso = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
-  if (!watch || !hasRotaConfig(watch)) return todayIso;
-  const now = /* @__PURE__ */ new Date();
-  const from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const to = new Date(from);
-  to.setDate(to.getDate() + 14);
-  const shifts = getShiftsForDateRange(watch, from, to);
-  return ((_a2 = shifts.find((s) => s.isWorking)) == null ? void 0 : _a2.date) ?? todayIso;
-}
-function getShiftTypeForWatch$1(watchName) {
-  const h = (/* @__PURE__ */ new Date()).getHours();
-  const isDay = h >= 8 && h < 18;
-  if (watchName && hasRotaConfig(watchName)) {
-    const todayShift = getTodayShift(watchName);
-    if (todayShift == null ? void 0 : todayShift.isWorking) {
-      return todayShift.shiftType;
-    }
-  }
-  return isDay ? "2nd Day" : "2nd Night";
-}
 const MIN_CREW = { b10p1: 5, b10p2: 4 };
 function ApplianceBar({
   label,
@@ -39850,18 +39928,20 @@ function ApplianceBar({
   ] });
 }
 function WCShiftWidget() {
+  var _a2;
   const navigate = useNavigate();
   const { user: user2 } = useAuth();
   const watch = (user2 == null ? void 0 : user2.watch_unit) ?? "";
-  const today = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
-  const rotaShift = watch && hasRotaConfig(watch) ? getTodayShift(watch) : null;
-  const isOnLeave = (rotaShift == null ? void 0 : rotaShift.isLeave) ?? false;
-  const isOnRest = !isOnLeave && !((rotaShift == null ? void 0 : rotaShift.isWorking) ?? false);
-  const shiftType = getShiftTypeForWatch$1(watch);
+  const status = watch ? getWatchShiftStatus(watch) : null;
+  const crewShift = crewingShiftFor(watch);
+  const isOnLeave = (status == null ? void 0 : status.state) === "leave";
+  const isOnRest = (status == null ? void 0 : status.state) === "rest";
+  const shiftType = crewShift == null ? void 0 : crewShift.shiftType;
+  const shiftDate = (crewShift == null ? void 0 : crewShift.shiftDate) ?? "";
   const { data: crewingData, isLoading } = useQuery({
-    queryKey: ["wc-shift-crewing", watch, today, shiftType],
-    queryFn: () => backendClient.crewing.list({ watch, shift_date: today, shift_type: shiftType }),
-    enabled: !!watch,
+    queryKey: ["wc-shift-crewing", watch, shiftDate, shiftType],
+    queryFn: () => backendClient.crewing.list({ watch, shift_date: shiftDate, shift_type: shiftType }),
+    enabled: !!watch && !!crewShift,
     retry: false
   });
   if (isLoading) {
@@ -39894,7 +39974,7 @@ function WCShiftWidget() {
               variant: "outline",
               className: `text-xs ${isOnLeave ? "border-green-400 text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20" : isOnRest ? "border-slate-300 text-muted-foreground" : ""}`,
               children: [
-                isOnLeave ? "Annual Leave" : isOnRest ? "Rest Day" : `${shiftType} Shift`,
+                isOnLeave ? "Annual Leave" : isOnRest ? "Rest Day" : (crewShift == null ? void 0 : crewShift.upcoming) ? `Next: ${shiftType} · ${((_a2 = status == null ? void 0 : status.nextLabel) == null ? void 0 : _a2.replace(`${shiftType} `, "")) ?? ""}` : `${shiftType} Shift`,
                 watch ? ` · ${watch} Watch` : ""
               ]
             }
@@ -40571,17 +40651,6 @@ function WCHandoverWidget() {
     ] })
   ] });
 }
-function getShiftTypeForWatch(watchName) {
-  const h = (/* @__PURE__ */ new Date()).getHours();
-  const isDay = h >= 8 && h < 18;
-  if (watchName && hasRotaConfig(watchName)) {
-    const todayShift = getTodayShift(watchName);
-    if (todayShift == null ? void 0 : todayShift.isWorking) {
-      return todayShift.shiftType;
-    }
-  }
-  return isDay ? "2nd Day" : "2nd Night";
-}
 const dot = {
   critical: "bg-red-500",
   warning: "bg-amber-500",
@@ -40601,8 +40670,9 @@ function WCAlertBanner() {
   const [expanded, setExpanded] = reactExports.useState(true);
   const { user: user2 } = useAuth();
   const watch = (user2 == null ? void 0 : user2.watch_unit) ?? "";
-  const today = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
-  const shiftType = getShiftTypeForWatch(watch);
+  const crewShift = crewingShiftFor(watch);
+  const shiftDate = (crewShift == null ? void 0 : crewShift.shiftDate) ?? "";
+  const shiftType = crewShift == null ? void 0 : crewShift.shiftType;
   const { data: inspectionsData } = useQuery({
     queryKey: ["wc-inspections"],
     queryFn: () => backendClient.inspection.list({ limit: 200 })
@@ -40620,15 +40690,11 @@ function WCAlertBanner() {
     queryFn: () => backendClient.skill.listExpiring(),
     refetchInterval: 5 * 60 * 1e3
   });
-  const { data: sickData } = useQuery({
-    queryKey: ["absences-today-sick", "alert"],
-    queryFn: () => backendClient.absence.todaySick(),
-    refetchInterval: 5 * 60 * 1e3
-  });
+  const { data: sickOn } = useSickOn(shiftDate, !!crewShift);
   const { data: crewingData } = useQuery({
-    queryKey: ["wc-shift-crewing", watch, today, shiftType],
-    queryFn: () => backendClient.crewing.list({ watch, shift_date: today, shift_type: shiftType }),
-    enabled: !!watch
+    queryKey: ["wc-shift-crewing", watch, shiftDate, shiftType],
+    queryFn: () => backendClient.crewing.list({ watch, shift_date: shiftDate, shift_type: shiftType }),
+    enabled: !!watch && !!crewShift
   });
   const alerts = [];
   const now = startOfDay(/* @__PURE__ */ new Date());
@@ -40670,7 +40736,7 @@ function WCAlertBanner() {
       href: "/people"
     });
   }
-  const sickUserIds = new Set(((sickData == null ? void 0 : sickData.sick_staff) ?? []).map((s) => s.user_id));
+  const sickUserIds = (sickOn == null ? void 0 : sickOn.ids) ?? /* @__PURE__ */ new Set();
   const crewEntries = (crewingData == null ? void 0 : crewingData.entries) ?? [];
   const sickOnCrew = crewEntries.filter((e) => e.user_id && sickUserIds.has(e.user_id));
   if (sickOnCrew.length > 0) {
@@ -41087,7 +41153,13 @@ function WCPersonalCalendarWidget() {
                   }
                 ),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px] font-medium text-foreground truncate leading-tight", children: ev.title }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "p",
+                    {
+                      className: `text-[11px] font-medium text-foreground truncate leading-tight ${ev.cancelled_at ? "line-through opacity-60" : ""}`,
+                      children: ev.title
+                    }
+                  ),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 mt-0.5", children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center gap-0.5 text-[10px] text-muted-foreground", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: "h-2.5 w-2.5" }),
@@ -41118,14 +41190,6 @@ function WCPersonalCalendarWidget() {
       )
     ] })
   ] });
-}
-function getShiftSpan() {
-  const h = (/* @__PURE__ */ new Date()).getHours();
-  const isDay = h >= 8 && h < 18;
-  return {
-    label: isDay ? "Day Shift" : "Night Shift",
-    time: isDay ? "08:00–18:00" : "18:00–08:00"
-  };
 }
 function StatusCell({
   label,
@@ -41165,7 +41229,7 @@ function OperationalStatusBar() {
     month: "short",
     year: "numeric"
   });
-  const shift2 = getShiftSpan();
+  const shift2 = shiftDisplay(watch);
   const total = ((_a2 = statsQ.data) == null ? void 0 : _a2.total_watch_members) ?? 0;
   const absences = [...latestAbsencePerPerson(((_b2 = absencesQ.data) == null ? void 0 : _b2.absences) ?? []).values()];
   const watchUserIds = new Set(((_c2 = statsQ.data) == null ? void 0 : _c2.watch_member_ids) ?? []);
@@ -41186,11 +41250,11 @@ function OperationalStatusBar() {
       {
         label: "Shift",
         href: "/handover",
-        value: /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-          shift2.label,
+        value: shift2 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          shift2.main,
           " ",
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono text-muted-foreground font-normal", children: shift2.time })
-        ] })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono text-muted-foreground font-normal", children: shift2.sub })
+        ] }) : "—"
       }
     ),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -45261,7 +45325,7 @@ const TYPE_CONFIG = {
     description: "Use your banked TOIL hours for a shift off. Someone covers for you and receives payment (min 4hrs)."
   }
 };
-const WATCHES$a = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$b = ["Red", "White", "Green", "Blue", "Amber"];
 function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
   const { user: user2 } = useAuth();
   const userRole = useUserRole();
@@ -45486,7 +45550,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
   })();
   const userWatch = (editingAdj == null ? void 0 : editingAdj.watch_unit) ?? (user2 == null ? void 0 : user2.watch_unit) ?? "";
   const subjectName = (editingAdj == null ? void 0 : editingAdj.user_name) ?? (user2 == null ? void 0 : user2.name);
-  const otherWatches = WATCHES$a.filter((w) => w !== userWatch);
+  const otherWatches = WATCHES$b.filter((w) => w !== userWatch);
   const fmt2 = (d) => (/* @__PURE__ */ new Date(d + "T12:00:00")).toLocaleDateString("en-GB", {
     day: "numeric",
     month: "short",
@@ -45766,7 +45830,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
               setForUserId("");
             }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select their watch…" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$a.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$b.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
                 w,
                 " Watch"
               ] }, w)) })
@@ -46009,7 +46073,7 @@ function FFShiftAdjustmentWidget() {
     )
   ] });
 }
-const WATCHES$9 = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$a = ["Red", "White", "Green", "Blue", "Amber"];
 function ToilWidget() {
   var _a2;
   const { user: user2 } = useAuth();
@@ -46314,7 +46378,7 @@ function ToilWidget() {
               setEarnForUserId("");
             }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select watch…" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$9.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$a.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
                 w,
                 " Watch"
               ] }, w)) })
@@ -51341,6 +51405,16 @@ function ProfileDetail() {
     ] }) })
   ] });
 }
+function ItemTitle({ item }) {
+  const ev = item.type === "event" ? item.data : null;
+  if (ev == null ? void 0 : ev.cancelled_at) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "line-through opacity-60", title: `Cancelled${ev.cancel_reason ? `: ${ev.cancel_reason}` : ""}`, children: item.title });
+  }
+  if (ev == null ? void 0 : ev.rescheduled_from) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { title: `Moved${ev.change_note ? `: ${ev.change_note}` : ""}`, children: item.title });
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: item.title });
+}
 const SHIFT_COLORS = {
   "1st Day": "#ca8a04",
   // yellow-600
@@ -51605,7 +51679,7 @@ function EventBlock({
         onClick();
       },
       children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-medium truncate", style: { color: isDark ? "var(--foreground)" : color }, children: item.title }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-medium truncate", style: { color: isDark ? "var(--foreground)" : color }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ItemTitle, { item }) }),
         heightNum > 28 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "font-mono opacity-75 truncate", style: { fontSize: 10 }, children: [
           formatTime(item.startTime),
           " – ",
@@ -51661,7 +51735,7 @@ function DayView({
                 color: dark ? "var(--foreground)" : color
               },
               onClick: () => onEventClick == null ? void 0 : onEventClick(it),
-              children: it.title
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(ItemTitle, { item: it })
             },
             it.id
           );
@@ -51800,7 +51874,7 @@ function WeekView({
                     color: dark ? "var(--foreground)" : color
                   },
                   onClick: () => onEventClick == null ? void 0 : onEventClick(it),
-                  children: it.title
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(ItemTitle, { item: it })
                 },
                 it.id
               );
@@ -51955,7 +52029,7 @@ function MonthView({
                               ]
                             }
                           ),
-                          item.title
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(ItemTitle, { item })
                         ]
                       },
                       `${item.type}-${item.id}`
@@ -52248,7 +52322,7 @@ function MobileAgendaPanel({
             ] }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-1 self-stretch rounded-full shrink-0", style: { backgroundColor: color } }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm font-medium text-foreground leading-tight truncate", children: item.title }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm font-medium text-foreground leading-tight truncate", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ItemTitle, { item }) }),
               !item.allDay && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground mt-0.5", children: [
                 formatTime(item.startTime),
                 " – ",
@@ -52522,9 +52596,12 @@ function EventForm({
   date,
   initialData,
   defaultCalendar = "station",
+  watchName,
   onSubmit,
   onCancel,
-  onDelete
+  onDelete,
+  onStrike,
+  onReinstate
 }) {
   const titleRef = reactExports.useRef(null);
   const isEditing = !!initialData;
@@ -52555,6 +52632,11 @@ function EventForm({
   const [location, setLocation] = reactExports.useState((initialData == null ? void 0 : initialData.location) ?? "");
   const [notes, setNotes] = reactExports.useState((initialData == null ? void 0 : initialData.description) ?? "");
   const [showCalendarPicker, setShowCalendarPicker] = reactExports.useState(false);
+  const [changeNote, setChangeNote] = reactExports.useState("");
+  const [striking, setStriking] = reactExports.useState(false);
+  const [strikeReason, setStrikeReason] = reactExports.useState("");
+  const cancelled = !!(initialData == null ? void 0 : initialData.cancelled_at);
+  const canStrike = isEditing && !!onStrike && !(initialData == null ? void 0 : initialData.shift_adjustment_id);
   reactExports.useEffect(() => {
     var _a2;
     (_a2 = titleRef.current) == null ? void 0 : _a2.focus();
@@ -52585,6 +52667,7 @@ function EventForm({
     const start = allDay ? /* @__PURE__ */ new Date(`${startDate}T12:00:00.000Z`) : parseDateTimeInputs(startDate, startTime);
     const end = allDay ? /* @__PURE__ */ new Date(`${endDate}T12:00:00.000Z`) : parseDateTimeInputs(endDate, endTime);
     onSubmit({
+      change_note: moved && changeNote.trim() ? changeNote.trim() : void 0,
       title: title.trim(),
       description: notes,
       location,
@@ -52597,6 +52680,9 @@ function EventForm({
     });
   };
   const selectedCalendar = CALENDAR_OPTIONS.find((c) => c.value === calendar2);
+  const calendarSublabel = calendar2 === "watch" && watchName ? `${watchName} Watch` : selectedCalendar.sublabel;
+  const moved = isEditing && !!initialData && toInputDate(new Date(initialData.start_time)) !== startDate;
+  const fmtDay = (d) => new Date(d).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
   formatDisplayDate(parseDateTimeInputs(startDate, startTime));
   formatDisplayDate(parseDateTimeInputs(endDate, endTime));
   formatDisplayTime(parseDateTimeInputs(startDate, startTime));
@@ -52626,6 +52712,33 @@ function EventForm({
       )
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-px bg-border/60 mx-4 mb-1" }),
+    cancelled && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mx-4 my-2 rounded-lg border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/30 px-3 py-2 text-xs", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "font-semibold text-red-700 dark:text-red-400 flex items-center gap-1.5", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Ban, { className: "h-3.5 w-3.5" }),
+        " Cancelled",
+        (initialData == null ? void 0 : initialData.cancelled_by_name) ? ` by ${initialData.cancelled_by_name}` : "",
+        (initialData == null ? void 0 : initialData.cancelled_at) ? ` · ${fmtDay(initialData.cancelled_at)}` : ""
+      ] }),
+      (initialData == null ? void 0 : initialData.cancel_reason) && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-0.5 text-foreground", children: initialData.cancel_reason }),
+      onReinstate && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          type: "button",
+          onClick: onReinstate,
+          className: "mt-1.5 text-xs font-medium text-indigo-600 hover:text-indigo-700",
+          children: "Reinstate event"
+        }
+      )
+    ] }),
+    isEditing && (initialData == null ? void 0 : initialData.rescheduled_from) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mx-4 my-2 rounded-lg border border-amber-200 dark:border-amber-900/60 bg-amber-50 dark:bg-amber-950/30 px-3 py-2 text-xs", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "font-semibold text-amber-700 dark:text-amber-400 flex items-center gap-1.5", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarClock, { className: "h-3.5 w-3.5" }),
+        " Moved from ",
+        fmtDay(initialData.rescheduled_from),
+        initialData.changed_by_name ? ` by ${initialData.changed_by_name}` : ""
+      ] }),
+      initialData.change_note && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-0.5 text-foreground", children: initialData.change_note })
+    ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(FormRow, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-foreground", children: "All-day" }),
@@ -52669,6 +52782,17 @@ function EventForm({
           )
         ] })
       ] }),
+      moved && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "input",
+        {
+          type: "text",
+          value: changeNote,
+          onChange: (e) => setChangeNote(e.target.value),
+          placeholder: "Reason for moving it (shown on the event)",
+          "aria-label": "Reason for moving the event",
+          className: "w-full text-xs bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/60 rounded-md px-2 py-1.5 outline-none text-foreground placeholder:text-muted-foreground/70"
+        }
+      ),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-muted-foreground w-12", children: "Ends" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex items-center gap-1 justify-end flex-wrap", children: [
@@ -52710,7 +52834,7 @@ function EventForm({
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-medium text-foreground", children: selectedCalendar.label }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-muted-foreground", children: selectedCalendar.sublabel })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-muted-foreground", children: calendarSublabel })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-auto text-muted-foreground text-xs", children: "▾" })
           ]
@@ -52763,18 +52887,60 @@ function EventForm({
         className: "w-full text-sm bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground/60 resize-none"
       }
     ) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-4 py-3 bg-muted/20 border-t border-border/40 gap-2", children: [
-      isEditing && onDelete ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
+    striking && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mx-4 mb-3 space-y-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "textarea",
         {
-          type: "button",
-          onClick: onDelete,
-          className: "text-sm text-red-500 hover:text-red-600 transition-colors",
-          children: "Delete Event"
+          value: strikeReason,
+          onChange: (e) => setStrikeReason(e.target.value),
+          placeholder: "Why is it cancelled? (shown on the event)",
+          "aria-label": "Reason for cancelling",
+          rows: 2,
+          autoFocus: true,
+          className: "w-full text-sm bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/60 rounded-md px-2 py-1.5 outline-none text-foreground resize-none"
         }
-      ) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", {}),
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "button", variant: "outline", size: "sm", onClick: () => {
+          setStriking(false);
+          setStrikeReason("");
+        }, children: "Back" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Button,
+          {
+            type: "button",
+            size: "sm",
+            disabled: !strikeReason.trim(),
+            onClick: () => onStrike == null ? void 0 : onStrike(strikeReason.trim()),
+            className: "bg-red-600 hover:bg-red-700 text-white",
+            children: "Strike through"
+          }
+        )
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-4 py-3 bg-muted/20 border-t border-border/40 gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+        canStrike && !cancelled && !striking && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: () => setStriking(true),
+            className: "text-sm text-amber-600 hover:text-amber-700 transition-colors",
+            children: "Cancel event…"
+          }
+        ),
+        isEditing && onDelete && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: onDelete,
+            className: "text-sm text-red-500 hover:text-red-600 transition-colors",
+            children: "Delete"
+          }
+        )
+      ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "button", variant: "outline", size: "sm", onClick: onCancel, children: "Cancel" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "button", variant: "outline", size: "sm", onClick: onCancel, children: "Close" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Button,
           {
@@ -53385,6 +53551,7 @@ const CALENDARS = [
     color: "#8b5cf6"
   }
 ];
+const WATCHES$9 = ["Red", "White", "Green", "Blue", "Amber"];
 const OTHER_CALENDARS = [
   { key: "tasks", label: "Tasks", color: "#0ea5e9" },
   { key: "inspections", label: "Inspections", color: "#f97316" }
@@ -53411,6 +53578,9 @@ function UnifiedCalendar() {
   const [shiftAdjDate, setShiftAdjDate] = reactExports.useState(void 0);
   const [bookingToEdit, setBookingToEdit] = reactExports.useState(null);
   const role = useUserRole();
+  const isManager = role === "WC" || role === "CC";
+  const [viewWatch, setViewWatch] = reactExports.useState("");
+  const watchShown = isManager && viewWatch || userWatch;
   const [trainingModalOpen, setTrainingModalOpen] = reactExports.useState(false);
   const [filtersOpen, setFiltersOpen] = reactExports.useState(false);
   const getDateRange = () => {
@@ -53449,11 +53619,12 @@ function UnifiedCalendar() {
     enabled: visibleCalendars.has("station")
   });
   const { data: watchEvents = [] } = useQuery({
-    queryKey: ["cal-watch", userId, startISO, endISO],
+    queryKey: ["cal-watch", userId, watchShown, startISO, endISO],
     queryFn: async () => {
       const r2 = await backendClient.calendar.list({
         calendar_visibility: "watch",
         user_id: userId,
+        watch: isManager ? watchShown : void 0,
         start_date: startISO,
         end_date: endISO
       });
@@ -53510,6 +53681,8 @@ function UnifiedCalendar() {
       user_id: data.calendar_visibility === "personal" ? userId : void 0,
       is_watch_event: data.is_watch_event,
       location: data.location,
+      // Watch events go on the watch calendar being viewed.
+      watch: data.calendar_visibility === "watch" ? watchShown : void 0,
       created_by: userId
     }),
     onSuccess: () => {
@@ -53530,7 +53703,8 @@ function UnifiedCalendar() {
         start_time: data.start_time instanceof Date ? data.start_time.toISOString() : data.start_time,
         end_time: data.end_time instanceof Date ? data.end_time.toISOString() : data.end_time,
         all_day: data.all_day,
-        location: data.location
+        location: data.location,
+        change_note: data.change_note
       }
     }),
     onSuccess: () => {
@@ -53550,6 +53724,28 @@ function UnifiedCalendar() {
       setEditingEvent(null);
     },
     onError: () => toast2({ title: "Failed to delete event", variant: "destructive" })
+  });
+  const cancelMutation = useMutation({
+    mutationFn: ({ id, reason }) => backendClient.calendar.cancelEvent(id, { reason }),
+    onSuccess: () => {
+      invalidateCalendarQueries();
+      queryClient2.invalidateQueries({ queryKey: ["tasks"] });
+      toast2({ title: "Event struck through", description: "It stays on the calendar with your reason." });
+      setFormOpen(false);
+      setEditingEvent(null);
+    },
+    onError: (err) => toast2({ title: "Couldn't cancel event", description: err == null ? void 0 : err.message, variant: "destructive" })
+  });
+  const reinstateMutation = useMutation({
+    mutationFn: (id) => backendClient.calendar.reinstateEvent(id),
+    onSuccess: () => {
+      invalidateCalendarQueries();
+      queryClient2.invalidateQueries({ queryKey: ["tasks"] });
+      toast2({ title: "Event reinstated" });
+      setFormOpen(false);
+      setEditingEvent(null);
+    },
+    onError: (err) => toast2({ title: "Couldn't reinstate event", description: err == null ? void 0 : err.message, variant: "destructive" })
   });
   function invalidateCalendarQueries() {
     queryClient2.invalidateQueries({ queryKey: ["cal-station"] });
@@ -53651,13 +53847,29 @@ This cancels the whole booking (TOIL/H4H/Flexi): any TOIL hours are refunded and
               ),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `text-xs font-medium truncate ${active ? "text-foreground" : "text-muted-foreground"}`, children: label }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[10px] text-muted-foreground truncate", children: sublabel })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[10px] text-muted-foreground truncate", children: key2 === "watch" && watchShown && watchShown !== userWatch ? `${watchShown} Watch` : sublabel })
               ] })
             ]
           },
           key2
         );
-      }) })
+      }) }),
+      isManager && /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 mt-2 px-2 text-[11px] text-muted-foreground", children: [
+        "Watch calendar",
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "select",
+          {
+            value: watchShown,
+            onChange: (e) => setViewWatch(e.target.value),
+            className: "flex-1 bg-muted/50 rounded-md px-1.5 py-1 text-xs text-foreground border border-border/60",
+            "aria-label": "Which watch's calendar to show",
+            children: WATCHES$9.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: w, children: [
+              w,
+              w === userWatch ? " (yours)" : ""
+            ] }, w))
+          }
+        )
+      ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eyebrow mb-2 px-1", children: "Other" }),
@@ -53886,12 +54098,15 @@ This cancels the whole booking (TOIL/H4H/Flexi): any TOIL hours are refunded and
             date: formDate,
             initialData: editingEvent == null ? void 0 : editingEvent.data,
             defaultCalendar,
+            watchName: watchShown,
             onSubmit: handleFormSubmit,
             onCancel: () => {
               setFormOpen(false);
               setEditingEvent(null);
             },
-            onDelete: editingEvent ? handleDelete : void 0
+            onDelete: editingEvent ? handleDelete : void 0,
+            onStrike: editingEvent ? (reason) => cancelMutation.mutate({ id: editingEvent.id, reason }) : void 0,
+            onReinstate: editingEvent ? () => reinstateMutation.mutate(editingEvent.id) : void 0
           }
         )
       ] }) }),
@@ -65406,6 +65621,8 @@ function currentShiftDate() {
   return now.toISOString().split("T")[0];
 }
 function getSmartDefaults(watchName) {
+  const live = crewingShiftFor(watchName);
+  if (live) return { shiftDate: live.shiftDate, shiftType: live.shiftType };
   const shiftDate = currentShiftDate();
   const h = (/* @__PURE__ */ new Date()).getHours();
   const clockFallback = h >= 8 && h < 18 ? "2nd Day" : "2nd Night";
@@ -67381,25 +67598,8 @@ function Handover() {
         month: "short",
         year: "numeric"
       });
-      const h2 = (/* @__PURE__ */ new Date()).getHours();
-      const clockLabel = h2 >= 8 && h2 < 18 ? "Day Shift" : "Night Shift";
-      let shiftLabel = clockLabel;
-      if (watchName && hasRotaConfig(watchName)) {
-        const todayShift = getTodayShift(watchName);
-        if (todayShift == null ? void 0 : todayShift.isLeave) {
-          const from = /* @__PURE__ */ new Date();
-          from.setDate(from.getDate() + 1);
-          const to = /* @__PURE__ */ new Date();
-          to.setDate(to.getDate() + 90);
-          const upcoming = getShiftsForDateRange(watchName, from, to);
-          const next = upcoming.find((s) => s.shiftType === "1st Day");
-          shiftLabel = next ? `Annual Leave — next shift ${new Date(next.date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}` : "Annual Leave";
-        } else if (!(todayShift == null ? void 0 : todayShift.isWorking)) {
-          shiftLabel = "Rest Day";
-        } else if (todayShift == null ? void 0 : todayShift.shiftType) {
-          shiftLabel = `${todayShift.shiftType} Shift`;
-        }
-      }
+      const shift2 = shiftDisplay(watchName);
+      const shiftLabel = shift2 ? `${shift2.main}${shift2.sub ? ` · ${shift2.sub}` : ""}` : "—";
       return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2.5 rounded-xl bg-muted/50 border border-border/60 text-sm -mt-2 print:hidden", children: [
         (user2 == null ? void 0 : user2.watch_unit) && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 text-xs font-semibold", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { className: "h-3.5 w-3.5" }),
