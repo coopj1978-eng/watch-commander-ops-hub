@@ -54298,13 +54298,109 @@ function getCoverStyle(cover) {
   }
   return { background: cover };
 }
+function Chip({
+  k,
+  icon,
+  children,
+  title,
+  mono
+}) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "span",
+    {
+      title,
+      className: mono ? "cal-mono" : void 0,
+      style: {
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 4,
+        padding: "3px 8px",
+        borderRadius: 999,
+        fontSize: 11,
+        fontWeight: 600,
+        whiteSpace: "nowrap",
+        background: k === "muted" ? "var(--cal-surface-3)" : `var(--cal-${k}-bg)`,
+        color: k === "muted" ? "var(--cal-ink-2)" : `var(--cal-${k}-fg)`
+      },
+      children: [
+        icon,
+        children
+      ]
+    }
+  );
+}
+function DueChip({ task: task2 }) {
+  if (!task2.due_at) return null;
+  const due = new Date(task2.due_at);
+  const now = /* @__PURE__ */ new Date();
+  const diff = Math.round(
+    (new Date(due.getFullYear(), due.getMonth(), due.getDate()).getTime() - new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()) / 864e5
+  );
+  const ic = "h-3 w-3";
+  if (task2.status === "Done") return /* @__PURE__ */ jsxRuntimeExports.jsx(Chip, { k: "leave", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: ic }), children: "Completed" });
+  if (diff < 0) return /* @__PURE__ */ jsxRuntimeExports.jsxs(Chip, { k: "station", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { className: ic }), children: [
+    "Overdue ",
+    Math.abs(diff),
+    "d"
+  ] });
+  if (diff === 0) return /* @__PURE__ */ jsxRuntimeExports.jsx(Chip, { k: "insp", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: ic }), children: "Due today" });
+  if (diff <= 3) return /* @__PURE__ */ jsxRuntimeExports.jsxs(Chip, { k: "day", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: ic }), children: [
+    "Due in ",
+    diff,
+    "d"
+  ] });
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Chip, { k: "muted", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Calendar, { className: ic }), mono: true, children: due.toLocaleDateString("en-GB", { day: "numeric", month: "short" }) });
+}
+const priorityKey = (p) => p === "High" ? "station" : p === "Med" ? "day" : "tasks";
+const priorityLabel = (p) => p === "Med" ? "Medium" : p ?? "Medium";
+function PriorityChip({ priority }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Chip, { k: priorityKey(priority), children: priorityLabel(priority) });
+}
+function describeRRule(rrule) {
+  var _a2, _b2, _c2;
+  if (!rrule) return null;
+  try {
+    const freq = (_a2 = rrule.match(/FREQ=([^;]+)/)) == null ? void 0 : _a2[1];
+    const interval = parseInt(((_b2 = rrule.match(/INTERVAL=(\d+)/)) == null ? void 0 : _b2[1]) ?? "1");
+    const byDay = (_c2 = rrule.match(/BYDAY=([^;]+)/)) == null ? void 0 : _c2[1];
+    if (!freq) return "Recurring";
+    if (freq === "DAILY") return interval === 1 ? "Daily" : `Every ${interval} days`;
+    if (freq === "WEEKLY") {
+      const days = byDay ? byDay.split(",").map((d) => ({ MO: "Mon", TU: "Tue", WE: "Wed", TH: "Thu", FR: "Fri", SA: "Sat", SU: "Sun" })[d] ?? d).join(", ") : null;
+      if (days) return interval === 1 ? `Weekly on ${days}` : `Every ${interval} weeks on ${days}`;
+      return interval === 1 ? "Weekly" : `Every ${interval} weeks`;
+    }
+    if (freq === "MONTHLY") return interval === 1 ? "Monthly" : `Every ${interval} months`;
+    return "Recurring";
+  } catch {
+    return "Recurring";
+  }
+}
+function RecurChip({ rrule }) {
+  const text = describeRRule(rrule);
+  if (!text) return null;
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Chip, { k: "watch", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat, { className: "h-3 w-3" }), children: text });
+}
+function ChecklistBar({ task: task2 }) {
+  if (!task2.checklist || task2.checklist.length === 0) return null;
+  const done = task2.checklist.filter((i) => i.done).length;
+  const total = task2.checklist.length;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { flex: 1, height: 6, borderRadius: 999, background: "var(--cal-surface-3)", overflow: "hidden" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { height: "100%", width: `${Math.round(done / total * 100)}%`, background: done === total ? "var(--cal-leave-dot)" : "var(--cal-brand)", borderRadius: 999 } }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: { fontSize: 11, color: "var(--cal-muted)" }, children: [
+      done,
+      "/",
+      total
+    ] })
+  ] });
+}
 function avatarColour(userId) {
   const colours = ["#6366f1", "#8b5cf6", "#ec4899", "#f97316", "#14b8a6", "#0ea5e9", "#22c55e", "#eab308"];
   let hash = 0;
   for (let i = 0; i < userId.length; i++) hash = userId.charCodeAt(i) + ((hash << 5) - hash);
   return colours[Math.abs(hash) % colours.length];
 }
-function TaskCard({ task: task2, onChecklistToggle, onTitleEdit, onClick, compact = false, isDark, userMap }) {
+function TaskCard({ task: task2, onTitleEdit, onClick, userMap }) {
   const [editingTitle, setEditingTitle] = reactExports.useState(false);
   const [titleValue, setTitleValue] = reactExports.useState(task2.title);
   const titleInputRef = reactExports.useRef(null);
@@ -54324,162 +54420,108 @@ function TaskCard({ task: task2, onChecklistToggle, onTitleEdit, onClick, compac
     else setTitleValue(task2.title);
     setEditingTitle(false);
   };
-  const parseRRule = (rrule) => {
-    if (!rrule) return null;
-    try {
-      const freqMatch = rrule.match(/FREQ=([^;]+)/);
-      const intervalMatch = rrule.match(/INTERVAL=(\d+)/);
-      const byDayMatch = rrule.match(/BYDAY=([^;]+)/);
-      if (!freqMatch) return "Recurring";
-      const freq = freqMatch[1];
-      const interval = intervalMatch ? parseInt(intervalMatch[1]) : 1;
-      if (freq === "DAILY") return interval === 1 ? "Daily" : `Every ${interval} days`;
-      if (freq === "WEEKLY") {
-        if (byDayMatch) {
-          const days = byDayMatch[1].split(",").map((d) => ({ MO: "Mon", TU: "Tue", WE: "Wed", TH: "Thu", FR: "Fri", SA: "Sat", SU: "Sun" })[d] ?? d).join(", ");
-          return interval === 1 ? `Weekly on ${days}` : `Every ${interval} weeks on ${days}`;
-        }
-        return interval === 1 ? "Weekly" : `Every ${interval} weeks`;
-      }
-      if (freq === "MONTHLY") return interval === 1 ? "Monthly" : `Every ${interval} months`;
-      return "Recurring";
-    } catch {
-      return "Recurring";
-    }
-  };
-  const getDueBadge = () => {
-    if (!task2.due_at) return null;
-    const dueDate = new Date(task2.due_at);
-    const now = /* @__PURE__ */ new Date();
-    const dueDay = new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate());
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const diffDays2 = Math.round((dueDay.getTime() - today.getTime()) / 864e5);
-    if (task2.status === "Done") return /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { className: "bg-green-500/10 text-green-600 border-green-500/20 text-xs", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-3 w-3 mr-1" }),
-      "Completed"
-    ] });
-    if (diffDays2 < 0) return /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { className: "bg-red-500/10 text-red-500 border-red-500/20 text-xs", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { className: "h-3 w-3 mr-1" }),
-      "Overdue ",
-      Math.abs(diffDays2),
-      "d"
-    ] });
-    if (diffDays2 === 0) return /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { className: "bg-orange-500/10 text-orange-500 border-orange-500/20 text-xs", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: "h-3 w-3 mr-1" }),
-      "Due Today"
-    ] });
-    if (diffDays2 <= 3) return /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { className: "bg-yellow-500/10 text-yellow-600 border-yellow-500/20 text-xs", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: "h-3 w-3 mr-1" }),
-      "Due in ",
-      diffDays2,
-      "d"
-    ] });
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-xs", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Calendar, { className: "h-3 w-3 mr-1" }),
-      dueDate.toLocaleDateString("en-GB", { day: "numeric", month: "short" })
-    ] });
-  };
   const cardLabels = (task2.tags ?? []).map(getLabelById).filter(Boolean);
   const coverStyle = getCoverStyle(task2.cover_colour);
-  const rruleDisplay = parseRRule(task2.rrule);
-  const checklistProgress = task2.checklist && task2.checklist.length > 0 ? { completed: task2.checklist.filter((i) => i.done).length, total: task2.checklist.length } : null;
-  const assignee = task2.assigned_to_user_id ? (userMap == null ? void 0 : userMap[task2.assigned_to_user_id]) ?? { initials: task2.assigned_to_user_id.slice(0, 2).toUpperCase(), colour: avatarColour(task2.assigned_to_user_id) } : null;
-  const priorityKey = task2.priority === "High" ? "high" : task2.priority === "Med" ? "medium" : "low";
-  const cardBase = isDark ? "bg-white/95 border-white/20 hover:bg-white shadow-sm" : "bg-card border-border hover:border-foreground/20";
+  const recur = describeRRule(task2.rrule);
+  const assignee = task2.assigned_to_user_id ? (userMap == null ? void 0 : userMap[task2.assigned_to_user_id]) ?? {
+    initials: task2.assigned_to_user_id.slice(0, 2).toUpperCase(),
+    colour: avatarColour(task2.assigned_to_user_id)
+  } : null;
+  const done = task2.status === "Done";
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
-      "data-pri": priorityKey,
-      className: `kan-card rounded-md border border-l-2 transition-colors cursor-pointer ${cardBase}`,
+      role: "button",
+      tabIndex: 0,
       onClick,
+      onKeyDown: (e) => {
+        if (e.key === "Enter" && !editingTitle) onClick == null ? void 0 : onClick();
+      },
+      className: "cal-focus",
       style: {
-        borderLeftColor: priorityKey === "high" ? "oklch(0.55 0.18 27)" : priorityKey === "medium" ? "oklch(0.72 0.14 75)" : "oklch(0.55 0.12 240)"
+        background: "var(--cal-surface)",
+        border: "1px solid var(--cal-line)",
+        borderRadius: 14,
+        boxShadow: "var(--cal-shadow)",
+        cursor: "pointer",
+        overflow: "hidden",
+        color: "var(--cal-ink)"
       },
       children: [
-        coverStyle && /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "div",
-          {
-            className: "w-full rounded-t-md",
-            style: { ...coverStyle, height: 64 }
-          }
-        ),
-        cardLabels.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `flex gap-1 px-2.5 flex-wrap ${coverStyle ? "pt-2" : "pt-2.5"}`, children: cardLabels.map((label2) => label2 && /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "div",
-          {
-            className: "h-2 rounded-full flex-1 min-w-[2rem] max-w-[4rem]",
-            style: { backgroundColor: label2.colour },
-            title: label2.name
-          },
-          label2.id
-        )) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-1.5 mb-1.5", onClick: (e) => e.stopPropagation(), children: [
-            task2.rrule && // Lucide icons don't accept `title` directly — wrap in a span
-            // with title so the hover hint still works.
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { title: rruleDisplay ?? "Recurring", className: "inline-flex shrink-0 mt-0.5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat, { className: "h-3.5 w-3.5 text-blue-500" }) }),
+        coverStyle && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { ...coverStyle, height: 64 } }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: 12, display: "flex", flexDirection: "column", gap: 8 }, children: [
+          cardLabels.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", gap: 4, flexWrap: "wrap" }, children: cardLabels.map((label2) => label2 && /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "span",
+            {
+              title: label2.name,
+              style: { height: 6, borderRadius: 999, flex: "1 1 2rem", maxWidth: "4rem", minWidth: "2rem", background: label2.colour }
+            },
+            label2.id
+          )) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "flex-start", gap: 8 }, onClick: (e) => (onTitleEdit || editingTitle) && e.stopPropagation(), children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "span",
+              {
+                "aria-hidden": true,
+                title: `${task2.priority === "Med" ? "Medium" : task2.priority} priority`,
+                style: { width: 8, height: 8, borderRadius: "50%", marginTop: 6, flex: "none", background: `var(--cal-${priorityKey(task2.priority)}-dot)` }
+              }
+            ),
             editingTitle ? /* @__PURE__ */ jsxRuntimeExports.jsx(
               "input",
               {
                 ref: titleInputRef,
-                className: "flex-1 text-sm font-medium bg-transparent border-b border-indigo-500 outline-none",
+                "aria-label": "Task title",
                 value: titleValue,
                 onChange: (e) => setTitleValue(e.target.value),
                 onBlur: handleTitleSave,
+                onClick: (e) => e.stopPropagation(),
                 onKeyDown: (e) => {
+                  e.stopPropagation();
                   if (e.key === "Enter") handleTitleSave();
                   if (e.key === "Escape") {
                     setTitleValue(task2.title);
                     setEditingTitle(false);
                   }
                 },
-                autoFocus: true
+                autoFocus: true,
+                style: { flex: 1, font: "inherit", fontSize: 14, fontWeight: 600, background: "transparent", border: "none", borderBottom: "2px solid var(--cal-brand)", outline: "none", color: "var(--cal-ink)" }
               }
             ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
               "h4",
               {
-                className: "font-medium text-sm leading-snug line-clamp-2 flex-1",
                 onDoubleClick: handleTitleDoubleClick,
                 title: onTitleEdit ? "Double-click to edit" : task2.title,
+                style: {
+                  margin: 0,
+                  flex: 1,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  lineHeight: 1.3,
+                  display: "-webkit-box",
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                  ...done ? { color: "var(--cal-muted)" } : {}
+                },
                 children: task2.title
               }
-            )
+            ),
+            recur && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { title: recur, style: { display: "inline-flex", flex: "none", marginTop: 2, color: "var(--cal-watch-dot)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat, { className: "h-3.5 w-3.5" }) })
           ] }),
-          rruleDisplay && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-1.5", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-xs bg-blue-500/5 text-blue-600 border-blue-500/20", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat, { className: "h-3 w-3 mr-1" }),
-            rruleDisplay
-          ] }) }),
-          task2.due_at && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-1.5", children: getDueBadge() }),
-          checklistProgress && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 mb-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 h-1.5 bg-muted rounded-full overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "div",
-              {
-                className: "h-full bg-indigo-500 transition-all",
-                style: { width: `${Math.round(checklistProgress.completed / checklistProgress.total * 100)}%` }
-              }
-            ) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-muted-foreground", children: [
-              checklistProgress.completed,
-              "/",
-              checklistProgress.total
-            ] })
+          (task2.due_at || recur) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(DueChip, { task: task2 }),
+            recur && !task2.due_at && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 11, color: "var(--cal-muted)" }, children: recur })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-1 mt-1", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ChecklistBar, { task: task2 }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(PriorityChip, { priority: task2.priority }),
+            assignee && /* @__PURE__ */ jsxRuntimeExports.jsx(
               "span",
               {
-                className: "font-mono text-[10px] uppercase tracking-wider",
-                style: {
-                  color: priorityKey === "high" ? "oklch(0.55 0.18 27)" : priorityKey === "medium" ? "oklch(0.55 0.14 75)" : "var(--muted-foreground)"
-                },
-                children: task2.priority === "Med" ? "Medium" : task2.priority
-              }
-            ),
-            assignee && /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "div",
-              {
-                className: "h-6 w-6 rounded-full flex items-center justify-center text-white text-[10px] font-mono font-semibold shrink-0",
-                style: { backgroundColor: assignee.colour },
                 title: assignee.initials,
+                className: "cal-mono",
+                style: { width: 26, height: 26, borderRadius: 8, display: "grid", placeItems: "center", color: "#fff", fontSize: 10.5, fontWeight: 600, background: assignee.colour, flex: "none" },
                 children: assignee.initials
               }
             )
@@ -54520,8 +54562,24 @@ function QuickAddCard({ columnStatusKey, onAdd, isLoading }) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "button",
       {
-        className: "flex items-center gap-1.5 w-full px-2 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors",
+        type: "button",
         onClick: () => setOpen(true),
+        className: "cal-focus",
+        style: {
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+          width: "100%",
+          padding: "8px 10px",
+          borderRadius: 12,
+          border: "none",
+          background: "transparent",
+          color: "var(--cal-ink-2)",
+          font: "inherit",
+          fontSize: 13,
+          fontWeight: 500,
+          cursor: "pointer"
+        },
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4" }),
           "Add a card"
@@ -54529,38 +54587,58 @@ function QuickAddCard({ columnStatusKey, onAdd, isLoading }) {
       }
     );
   }
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 8 }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       "textarea",
       {
         ref: textareaRef,
-        className: "w-full rounded-md border border-red-500 bg-card p-2 text-sm outline-none resize-none shadow-sm text-foreground placeholder:text-muted-foreground",
+        "aria-label": "New card title",
         placeholder: "Enter a title…",
         value: title,
         onChange: (e) => setTitle(e.target.value),
         onKeyDown: handleKeyDown,
-        rows: 3
+        rows: 3,
+        style: {
+          width: "100%",
+          borderRadius: 14,
+          border: "2px solid var(--cal-brand)",
+          background: "var(--cal-surface)",
+          padding: 10,
+          font: "inherit",
+          fontSize: 14,
+          color: "var(--cal-ink)",
+          outline: "none",
+          resize: "none",
+          boxShadow: "var(--cal-shadow)",
+          boxSizing: "border-box"
+        }
       }
     ),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        Button,
-        {
-          size: "sm",
-          className: "h-7 text-xs bg-indigo-600 hover:bg-indigo-700",
-          onClick: handleSubmit,
-          disabled: !title.trim() || isLoading,
-          children: "Add card"
-        }
-      ),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         "button",
         {
-          className: "text-muted-foreground hover:text-foreground p-0.5",
-          onClick: handleCancel,
-          children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4" })
+          type: "button",
+          onClick: handleSubmit,
+          disabled: !title.trim() || isLoading,
+          className: "cal-focus",
+          style: {
+            height: 36,
+            padding: "0 14px",
+            borderRadius: 10,
+            border: "none",
+            background: "var(--cal-brand)",
+            color: "#fff",
+            font: "inherit",
+            fontSize: 13,
+            fontWeight: 600,
+            cursor: "pointer",
+            opacity: !title.trim() || isLoading ? 0.5 : 1
+          },
+          children: "Add card"
         }
-      )
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": "Cancel", className: "cal-btn", style: { width: 36, height: 36, padding: 0 }, onClick: handleCancel, children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4" }) })
     ] })
   ] });
 }
@@ -54584,18 +54662,31 @@ function EditableColumnHeader({
   const [editing, setEditing] = reactExports.useState(false);
   const [value, setValue] = reactExports.useState(column.name);
   const isOverWip = wipLimit !== void 0 && allCount > wipLimit;
-  const mutedText = isDark ? "text-white/50" : "text-muted-foreground";
+  const iconBtn = {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    border: "none",
+    background: "transparent",
+    color: "var(--cal-muted)",
+    display: "grid",
+    placeItems: "center",
+    cursor: "pointer",
+    padding: 0
+  };
   const handleSave = () => {
     const trimmed = value.trim();
     if (trimmed && trimmed !== column.name) onRename(column.id, trimmed);
     setEditing(false);
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-between gap-1 group", children: editing ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1 flex-1", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6 }, children: editing ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 6, flex: 1 }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         "input",
         {
-          className: "flex-1 text-sm font-semibold bg-transparent border-b border-foreground outline-none",
+          "aria-label": "Column name",
+          className: "cal-field",
+          style: { flex: 1, height: 32 },
           value,
           onChange: (e) => setValue(e.target.value),
           onKeyDown: (e) => {
@@ -54609,81 +54700,90 @@ function EditableColumnHeader({
           autoFocus: true
         }
       ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleSave, className: "text-green-500", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-3.5 w-3.5" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => {
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": "Save", onClick: handleSave, style: { ...iconBtn, color: "var(--cal-leave-dot)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-4 w-4" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": "Cancel", onClick: () => {
         setValue(column.name);
         setEditing(false);
-      }, className: mutedText, children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" }) })
+      }, style: iconBtn, children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4" }) })
     ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "div",
         {
-          className: `flex items-center gap-2 flex-1 min-w-0 ${canEdit ? "cursor-pointer" : ""}`,
+          style: { display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 0, cursor: canEdit ? "pointer" : void 0 },
           onDoubleClick: () => canEdit && setEditing(true),
           children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "h-2 w-2 rounded-full shrink-0", style: { backgroundColor: column.color } }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 10, height: 10, borderRadius: "50%", flex: "none", background: column.color } }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 15, fontWeight: 600, color: "var(--cal-ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: column.name }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "span",
               {
-                className: "font-mono text-[11px] font-medium uppercase tracking-wider truncate",
-                style: { color: column.color },
-                children: column.name
+                className: "cal-mono",
+                style: {
+                  fontSize: 11,
+                  fontWeight: 600,
+                  padding: "2px 7px",
+                  borderRadius: 999,
+                  flex: "none",
+                  ...isOverWip ? { background: "var(--cal-station-bg)", color: "var(--cal-station-fg)" } : { background: "var(--cal-surface)", color: "var(--cal-ink-2)", border: "1px solid var(--cal-line)" }
+                },
+                title: isOverWip ? "Over the WIP limit" : void 0,
+                children: [
+                  allCount,
+                  wipLimit ? `/${wipLimit}` : ""
+                ]
               }
             )
           ]
         }
       ),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
-        canEdit && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: `${mutedText} hover:text-foreground p-0.5 rounded`, onClick: () => setEditing(true), title: "Rename", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "h-3 w-3" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: `${mutedText} hover:text-red-500 p-0.5 rounded`, onClick: () => onDelete(column.id), title: "Delete", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-3 w-3" }) })
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 2 }, children: [
+        canEdit && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity", style: { display: "flex", gap: 2 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", style: iconBtn, onClick: () => setEditing(true), title: "Rename", "aria-label": `Rename ${column.name}`, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "h-3.5 w-3.5" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", style: iconBtn, onClick: () => onDelete(column.id), title: "Delete", "aria-label": `Delete ${column.name}`, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-3.5 w-3.5" }) })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
           {
+            type: "button",
             onClick: onToggleCollapse,
-            className: `${mutedText} hover:text-foreground p-0.5 rounded transition-colors`,
+            style: iconBtn,
             title: isCollapsed ? "Expand column" : "Collapse column",
-            children: isCollapsed ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-3.5 w-3.5" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "h-3.5 w-3.5" })
+            "aria-label": isCollapsed ? `Expand ${column.name}` : `Collapse ${column.name}`,
+            children: isCollapsed ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-4 w-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "h-4 w-4" })
           }
         )
       ] })
     ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mt-0.5", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: `text-xs ${isOverWip ? "text-red-500 font-semibold" : mutedText}`, children: [
-        allCount,
-        wipLimit ? `/${wipLimit}` : "",
-        " task",
-        allCount !== 1 ? "s" : "",
-        isOverWip && " ⚠"
-      ] }),
-      canEdit && (editingWip ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "input",
-          {
-            className: "w-12 h-5 text-xs rounded border border-border px-1 bg-background outline-none",
-            placeholder: "limit",
-            value: wipValue,
-            onChange: (e) => onChangeWip(e.target.value),
-            onKeyDown: (e) => {
-              if (e.key === "Enter") onSaveWip();
-              if (e.key === "Escape") onCancelWip();
-            },
-            autoFocus: true
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onSaveWip, className: "text-green-500", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-3 w-3" }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onCancelWip, className: mutedText, children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3 w-3" }) })
-      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
+    canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", justifyContent: "flex-end", minHeight: 18, marginTop: 2 }, children: editingWip ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 4 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "input",
         {
-          onClick: onStartEditWip,
-          className: `text-xs opacity-0 group-hover:opacity-60 hover:!opacity-100 transition-opacity ${mutedText}`,
-          title: "Set WIP limit",
-          children: wipLimit ? `WIP:${wipLimit}` : "set limit"
+          "aria-label": "WIP limit",
+          className: "cal-field cal-mono",
+          style: { width: 64, height: 28, fontSize: 12 },
+          placeholder: "limit",
+          value: wipValue,
+          onChange: (e) => onChangeWip(e.target.value),
+          onKeyDown: (e) => {
+            if (e.key === "Enter") onSaveWip();
+            if (e.key === "Escape") onCancelWip();
+          },
+          autoFocus: true
         }
-      ))
-    ] })
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": "Save limit", onClick: onSaveWip, style: { ...iconBtn, color: "var(--cal-leave-dot)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-3.5 w-3.5" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": "Cancel", onClick: onCancelWip, style: iconBtn, children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" }) })
+    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "button",
+      {
+        type: "button",
+        onClick: onStartEditWip,
+        className: "opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity cal-mono",
+        style: { border: "none", background: "transparent", color: "var(--cal-muted)", fontSize: 11, cursor: "pointer", padding: 0 },
+        title: "Set a work-in-progress limit",
+        children: wipLimit ? `WIP ${wipLimit}` : "Set limit"
+      }
+    ) })
   ] });
 }
 function TaskBoard({
@@ -54864,10 +54964,15 @@ function TaskBoard({
     setDragOverTaskId(null);
   };
   if (isLoading && columns.length === 0) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-3", children: [...Array(4)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-64 w-[66vw] sm:w-64 shrink-0 rounded-md" }, i)) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-4", children: [...Array(4)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-64 w-[80vw] sm:w-72 shrink-0", style: { borderRadius: 20 } }, i)) });
   }
-  const colCardClass = isDark ? "bg-black/30 backdrop-blur-sm border-white/10" : "bg-muted border-border";
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-3 overflow-x-auto pb-4 items-start", children: [
+  const colBox = {
+    background: "var(--cal-surface-2)",
+    border: "1px solid var(--cal-line)",
+    borderRadius: 20,
+    boxShadow: "var(--cal-shadow)"
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4 overflow-x-auto pb-4 items-start", children: [
     columns.map((col) => {
       const colTasks = tasksByColumn[col.status_key] ?? [];
       const allColTasks = allTasksByColumn[col.status_key] ?? [];
@@ -54876,22 +54981,17 @@ function TaskBoard({
       const wipLimit = wipLimits[col.status_key];
       if (isCollapsed) {
         return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "div",
+          "button",
           {
-            className: `shrink-0 w-10 flex flex-col items-center rounded-md border shadow-sm cursor-pointer hover:opacity-90 transition-all py-3 gap-2 ${colCardClass}`,
+            type: "button",
+            className: "shrink-0 cal-focus",
             onClick: () => toggleCollapse(col.status_key),
             title: `Expand ${col.name}`,
+            style: { ...colBox, width: 48, display: "flex", flexDirection: "column", alignItems: "center", gap: 8, padding: "14px 0", cursor: "pointer", font: "inherit", color: "var(--cal-ink-2)" },
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "h-2.5 w-2.5 rounded-full", style: { backgroundColor: col.color } }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "span",
-                {
-                  className: `text-xs font-semibold ${isDark ? "text-white/80" : "text-muted-foreground"}`,
-                  style: { writingMode: "vertical-rl", textOrientation: "mixed", transform: "rotate(180deg)" },
-                  children: col.name
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `text-xs font-mono ${isDark ? "text-white/50" : "text-muted-foreground"}`, children: allColTasks.length })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 10, height: 10, borderRadius: "50%", background: col.color } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 13, fontWeight: 600, writingMode: "vertical-rl", transform: "rotate(180deg)" }, children: col.name }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 12, color: "var(--cal-muted)" }, children: allColTasks.length })
             ]
           },
           col.id
@@ -54900,7 +55000,7 @@ function TaskBoard({
       return /* @__PURE__ */ jsxRuntimeExports.jsx(
         "div",
         {
-          className: "shrink-0 w-[66vw] sm:w-64 group",
+          className: "shrink-0 w-[80vw] sm:w-72 group",
           onDragOver: (e) => handleColDragOver(e, col.status_key),
           onDrop: (e) => handleDrop(e, col.status_key),
           onDragLeave: (e) => {
@@ -54909,13 +55009,18 @@ function TaskBoard({
               setDragOverTaskId(null);
             }
           },
-          children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { className: `flex flex-col transition-all rounded-md ${isDropTarget ? "ring-2 ring-indigo-400 ring-offset-1" : ""} ${colCardClass}`, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              CardHeader,
-              {
-                className: `px-3 py-2.5 border-b ${isDark ? "border-white/10" : "border-border"} rounded-t-xl`,
-                style: { backgroundColor: col.color + "18" },
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "section",
+            {
+              "aria-label": col.name,
+              style: {
+                ...colBox,
+                display: "flex",
+                flexDirection: "column",
+                ...isDropTarget ? { boxShadow: "0 0 0 2px var(--cal-brand), var(--cal-shadow)" } : {}
+              },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "14px 14px 10px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
                   EditableColumnHeader,
                   {
                     column: col,
@@ -54935,59 +55040,60 @@ function TaskBoard({
                     onCancelWip: () => setEditingWip(null),
                     isCollapsed: false,
                     onToggleCollapse: () => toggleCollapse(col.status_key),
-                    isDark
+                    isDark: false
                   }
-                )
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { className: "flex flex-col gap-2 p-2 flex-1 min-h-[60px]", children: isLoading ? [...Array(2)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-20 w-full rounded-md" }, i)) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-              colTasks.map((task2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "div",
-                {
-                  draggable: canEdit,
-                  onDragStart: (e) => handleDragStart(e, task2),
-                  onDragEnd: handleDragEnd,
-                  onDragOver: (e) => handleTaskDragOver(e, task2.id),
-                  className: [
-                    "transition-opacity",
-                    (draggedTask == null ? void 0 : draggedTask.id) === task2.id ? "opacity-30" : "opacity-100",
-                    dragOverTaskId === task2.id && (draggedTask == null ? void 0 : draggedTask.id) !== task2.id ? "ring-2 ring-indigo-400 rounded-md" : "",
-                    canEdit ? "cursor-move" : ""
-                  ].join(" "),
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    TaskCard,
+                ) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", flexDirection: "column", gap: 8, padding: "0 10px 12px", minHeight: 60 }, children: isLoading ? [...Array(2)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-20 w-full", style: { borderRadius: 14 } }, i)) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                  colTasks.map((task2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "div",
                     {
-                      task: task2,
-                      onClick: () => onTaskClick == null ? void 0 : onTaskClick(task2),
-                      onChecklistToggle,
-                      onTitleEdit: canEdit ? onTitleEdit : void 0,
-                      isDark,
-                      userMap
+                      draggable: canEdit,
+                      onDragStart: (e) => handleDragStart(e, task2),
+                      onDragEnd: handleDragEnd,
+                      onDragOver: (e) => handleTaskDragOver(e, task2.id),
+                      style: {
+                        opacity: (draggedTask == null ? void 0 : draggedTask.id) === task2.id ? 0.3 : 1,
+                        transition: "opacity .15s",
+                        borderRadius: 14,
+                        cursor: canEdit ? "grab" : void 0,
+                        ...dragOverTaskId === task2.id && (draggedTask == null ? void 0 : draggedTask.id) !== task2.id ? { boxShadow: "0 -3px 0 var(--cal-brand)" } : {}
+                      },
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        TaskCard,
+                        {
+                          task: task2,
+                          onClick: () => onTaskClick == null ? void 0 : onTaskClick(task2),
+                          onChecklistToggle,
+                          onTitleEdit: canEdit ? onTitleEdit : void 0,
+                          isDark,
+                          userMap
+                        }
+                      )
+                    },
+                    task2.id
+                  )),
+                  colTasks.length === 0 && !isDropTarget && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { textAlign: "center", padding: "22px 0", fontSize: 13, color: "var(--cal-muted)", border: "2px dashed var(--cal-line-2)", borderRadius: 14 }, children: "No tasks" }),
+                  isDropTarget && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { textAlign: "center", padding: "16px 0", fontSize: 13, fontWeight: 600, color: "var(--cal-brand-text)", border: "2px dashed var(--cal-brand)", background: "var(--cal-brand-soft)", borderRadius: 14 }, children: "Drop here" }),
+                  canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    QuickAddCard,
+                    {
+                      columnStatusKey: col.status_key,
+                      onAdd: (title, statusKey) => onTaskCreate == null ? void 0 : onTaskCreate(title, statusKey)
                     }
                   )
-                },
-                task2.id
-              )),
-              colTasks.length === 0 && !isDropTarget && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `text-center py-6 text-xs border-2 border-dashed rounded-md ${isDark ? "border-white/20 text-white/40" : "border-border text-muted-foreground"}`, children: "No tasks" }),
-              isDropTarget && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border-2 border-dashed border-indigo-400 rounded-md py-4 text-center text-sm text-indigo-400 font-medium bg-indigo-500/10", children: "Drop here" }),
-              canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-0.5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                QuickAddCard,
-                {
-                  columnStatusKey: col.status_key,
-                  onAdd: (title, statusKey) => onTaskCreate == null ? void 0 : onTaskCreate(title, statusKey)
-                }
-              ) })
-            ] }) })
-          ] })
+                ] }) })
+              ]
+            }
+          )
         },
         col.id
       );
     }),
-    canManageColumns && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "shrink-0 w-[66vw] sm:w-64", children: addingColumn ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { className: `p-3 space-y-2 rounded-md ${colCardClass}`, children: [
+    canManageColumns && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "shrink-0 w-[80vw] sm:w-72", children: addingColumn ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { ...colBox, padding: 14, display: "flex", flexDirection: "column", gap: 10 }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         "input",
         {
-          className: "w-full text-sm border-b border-foreground bg-transparent outline-none pb-1 placeholder:text-muted-foreground",
+          "aria-label": "Column name",
           placeholder: "Column name…",
           value: newColName,
           onChange: (e) => setNewColName(e.target.value),
@@ -54998,12 +55104,22 @@ function TaskBoard({
               setNewColName("");
             }
           },
-          autoFocus: true
+          autoFocus: true,
+          className: "cal-field"
         }
       ),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 items-center", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", className: "h-7 text-xs bg-indigo-600 hover:bg-indigo-700", onClick: handleAddColumn, children: "Add column" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "text-muted-foreground hover:text-foreground", onClick: () => {
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: 8, alignItems: "center" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: handleAddColumn,
+            className: "cal-focus",
+            style: { height: 36, padding: "0 14px", borderRadius: 10, border: "none", background: "var(--cal-brand)", color: "#fff", font: "inherit", fontSize: 13, fontWeight: 600, cursor: "pointer" },
+            children: "Add column"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": "Cancel", className: "cal-btn", style: { width: 36, height: 36, padding: 0 }, onClick: () => {
           setAddingColumn(false);
           setNewColName("");
         }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4" }) })
@@ -55011,8 +55127,24 @@ function TaskBoard({
     ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "button",
       {
-        className: `w-full flex items-center gap-2 px-3 py-2.5 rounded-md text-sm border-2 border-dashed transition-colors ${isDark ? "border-white/20 text-white/50 hover:text-white hover:border-white/40" : "border-border text-muted-foreground hover:text-foreground hover:bg-muted/50"}`,
+        type: "button",
         onClick: () => setAddingColumn(true),
+        className: "cal-focus",
+        style: {
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          padding: "12px 14px",
+          borderRadius: 20,
+          border: "2px dashed var(--cal-line-2)",
+          background: "transparent",
+          color: isDark ? "#fff" : "var(--cal-ink-2)",
+          font: "inherit",
+          fontSize: 14,
+          fontWeight: 500,
+          cursor: "pointer"
+        },
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4" }),
           " Add column"
@@ -55053,63 +55185,7 @@ function TaskList({ tasks, isLoading, onTaskClick }) {
     }
     return true;
   });
-  const getDueBadge = (task2) => {
-    if (!task2.due_at) return null;
-    const dueDate = new Date(task2.due_at);
-    const now = /* @__PURE__ */ new Date();
-    const dueDay = new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate());
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const diffDays2 = Math.round((dueDay.getTime() - today.getTime()) / 864e5);
-    if (task2.status === "Done") {
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { className: "bg-green-500/10 text-green-500 border-green-500/20 text-xs", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-3 w-3 mr-1" }),
-        "Completed"
-      ] });
-    }
-    if (diffDays2 < 0) {
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { className: "bg-red-500/10 text-red-500 border-red-500/20 text-xs", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { className: "h-3 w-3 mr-1" }),
-        "Overdue ",
-        Math.abs(diffDays2),
-        "d"
-      ] });
-    }
-    if (diffDays2 === 0) {
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { className: "bg-orange-500/10 text-orange-500 border-orange-500/20 text-xs", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: "h-3 w-3 mr-1" }),
-        "Due Today"
-      ] });
-    }
-    if (diffDays2 <= 3) {
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { className: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20 text-xs", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: "h-3 w-3 mr-1" }),
-        "Due in ",
-        diffDays2,
-        "d"
-      ] });
-    }
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-xs", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Calendar, { className: "h-3 w-3 mr-1" }),
-      dueDate.toLocaleDateString()
-    ] });
-  };
-  const getPriorityColor = (priority) => {
-    const colors = {
-      High: "bg-red-500/10 text-red-500 border-red-500/20",
-      Med: "bg-orange-500/10 text-orange-500 border-orange-500/20",
-      Low: "bg-blue-500/10 text-blue-500 border-blue-500/20"
-    };
-    return colors[priority] || colors.Med;
-  };
-  const getStatusColor = (status) => {
-    const colors = {
-      NotStarted: "bg-gray-500/10 text-gray-600 dark:text-gray-400 border-gray-500/20",
-      InProgress: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
-      Blocked: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20",
-      Done: "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20"
-    };
-    return colors[status] || colors.NotStarted;
-  };
+  const statusKey = (status) => ({ NotStarted: "muted", InProgress: "watch", Blocked: "insp", Done: "leave" })[status] ?? "muted";
   const statusLabels = {
     NotStarted: "Not Started",
     InProgress: "In Progress",
@@ -55124,28 +55200,37 @@ function TaskList({ tasks, isLoading, onTaskClick }) {
     setCategoryFilter("all");
     setDueFilter("all");
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid gap-4 md:grid-cols-6", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "md:col-span-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "search", className: "sr-only", children: "Search" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" }),
+  const th = {
+    textAlign: "left",
+    padding: "10px 14px",
+    fontSize: 11,
+    fontWeight: 600,
+    letterSpacing: ".06em",
+    textTransform: "uppercase",
+    color: "var(--cal-muted)",
+    borderBottom: "1px solid var(--cal-line)"
+  };
+  const td = { padding: "12px 14px", borderBottom: "1px solid var(--cal-line)", verticalAlign: "top" };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 12 }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cal-card", style: { padding: 10, display: "grid", gap: 8 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid gap-2 md:grid-cols-6", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "md:col-span-2", style: { position: "relative" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "h-4 w-4", style: { position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--cal-muted)" } }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Input,
+            "input",
             {
               id: "search",
-              placeholder: "Search tasks...",
+              "aria-label": "Search tasks",
+              placeholder: "Search tasks…",
               value: searchQuery,
               onChange: (e) => setSearchQuery(e.target.value),
-              className: "pl-9"
+              className: "cal-field",
+              style: { width: "100%", paddingLeft: 32, boxSizing: "border-box" }
             }
           )
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "status-filter", className: "sr-only", children: "Status" }),
+        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: statusFilter, onValueChange: (value) => setStatusFilter(value), children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "status-filter", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Status" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "status-filter", "aria-label": "Status", className: "h-10 rounded-[10px]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Status" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "all", children: "All Statuses" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "NotStarted", children: "Not Started" }),
@@ -55153,24 +55238,18 @@ function TaskList({ tasks, isLoading, onTaskClick }) {
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "Blocked", children: "Blocked" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "Done", children: "Done" })
           ] })
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "priority-filter", className: "sr-only", children: "Priority" }),
+        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: priorityFilter, onValueChange: (value) => setPriorityFilter(value), children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "priority-filter", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Priority" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "priority-filter", "aria-label": "Priority", className: "h-10 rounded-[10px]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Priority" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "all", children: "All Priorities" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "High", children: "High" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "Med", children: "Medium" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "Low", children: "Low" })
           ] })
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "category-filter", className: "sr-only", children: "Category" }),
+        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: categoryFilter, onValueChange: (value) => setCategoryFilter(value), children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "category-filter", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Category" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "category-filter", "aria-label": "Category", className: "h-10 rounded-[10px]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Category" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "all", children: "All Categories" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "Training", children: "Training" }),
@@ -55179,12 +55258,9 @@ function TaskList({ tasks, isLoading, onTaskClick }) {
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "Admin", children: "Admin" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "Other", children: "Other" })
           ] })
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "due-filter", className: "sr-only", children: "Due Date" }),
+        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: dueFilter, onValueChange: (value) => setDueFilter(value), children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "due-filter", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Due" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "due-filter", "aria-label": "Due date", className: "h-10 rounded-[10px]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Due" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "all", children: "All Due Dates" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "overdue", children: "Overdue" }),
@@ -55193,120 +55269,85 @@ function TaskList({ tasks, isLoading, onTaskClick }) {
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "month", children: "Due This Month" })
           ] })
         ] })
-      ] })
-    ] }),
-    hasActiveFilters && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-muted-foreground", children: [
-        "Showing ",
-        filteredTasks.length,
-        " of ",
-        tasks.length,
-        " tasks"
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "ghost", size: "sm", onClick: clearFilters, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4 mr-2" }),
-        "Clear Filters"
+      hasActiveFilters && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, padding: "0 4px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: 13, color: "var(--cal-muted)" }, children: [
+          "Showing ",
+          filteredTasks.length,
+          " of ",
+          tasks.length,
+          " tasks"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: clearFilters, className: "cal-btn", style: { height: 32, padding: "0 12px", fontSize: 13 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" }),
+          " Clear filters"
+        ] })
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "md:hidden space-y-2", children: isLoading ? [...Array(5)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-20 w-full rounded-xl" }, i)) : filteredTasks.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border border-dashed rounded-xl py-10 text-center text-sm text-muted-foreground", children: hasActiveFilters ? "No tasks match your filters" : "No tasks yet" }) : filteredTasks.map((task2) => {
-      const checklistProgress = task2.checklist ? {
-        completed: task2.checklist.filter((item) => item.done).length,
-        total: task2.checklist.length,
-        percentage: Math.round(
-          task2.checklist.filter((item) => item.done).length / task2.checklist.length * 100
-        )
-      } : null;
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "button",
-        {
-          onClick: () => onTaskClick == null ? void 0 : onTaskClick(task2),
-          className: "w-full text-left bg-card border border-border rounded-xl p-3 space-y-2 hover:bg-muted/40 active:bg-muted/60 transition-colors",
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-2", children: [
-              task2.rrule && /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat, { className: "h-4 w-4 text-blue-500 mt-0.5 shrink-0" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-semibold leading-snug", children: task2.title }),
-                task2.description && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground line-clamp-2 mt-0.5", children: task2.description })
-              ] })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-1.5", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: getStatusColor(task2.status), variant: "outline", children: statusLabels[task2.status] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: getPriorityColor(task2.priority), variant: "outline", children: task2.priority }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-xs", children: task2.category }),
-              getDueBadge(task2)
-            ] }),
-            checklistProgress && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 pt-1", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 h-1.5 bg-muted rounded-full overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "div",
-                {
-                  className: "h-full bg-brand transition-all",
-                  style: { width: `${checklistProgress.percentage}%` }
-                }
-              ) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-[11px] text-muted-foreground whitespace-nowrap", children: [
-                checklistProgress.completed,
-                "/",
-                checklistProgress.total
-              ] })
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid gap-2 md:hidden", children: isLoading ? [...Array(5)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-20 w-full", style: { borderRadius: 14 } }, i)) : filteredTasks.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { border: "2px dashed var(--cal-line-2)", borderRadius: 14, padding: "36px 0", textAlign: "center", fontSize: 13, color: "var(--cal-muted)" }, children: hasActiveFilters ? "No tasks match your filters" : "No tasks yet" }) : filteredTasks.map((task2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "button",
+      {
+        type: "button",
+        onClick: () => onTaskClick == null ? void 0 : onTaskClick(task2),
+        className: "cal-card cal-focus",
+        style: { textAlign: "left", font: "inherit", color: "var(--cal-ink)", padding: 12, display: "flex", flexDirection: "column", gap: 8, cursor: "pointer", borderRadius: 14 },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "flex", gap: 8, alignItems: "flex-start" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 8, height: 8, borderRadius: "50%", marginTop: 6, flex: "none", background: `var(--cal-${priorityKey(task2.priority)}-dot)` } }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { minWidth: 0 }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { display: "block", fontSize: 14, fontWeight: 600, lineHeight: 1.3 }, children: task2.title }),
+              task2.description && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", fontSize: 12.5, color: "var(--cal-muted)", marginTop: 2 }, children: task2.description })
             ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "flex", flexWrap: "wrap", gap: 6 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Chip, { k: statusKey(task2.status), children: statusLabels[task2.status] ?? task2.status }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(PriorityChip, { priority: task2.priority }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Chip, { k: "muted", children: task2.category }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(DueChip, { task: task2 }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(RecurChip, { rrule: task2.rrule })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ChecklistBar, { task: task2 })
+        ]
+      },
+      task2.id
+    )) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cal-card hidden md:block", style: { overflow: "hidden" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { overflowX: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { style: { width: "100%", borderCollapse: "collapse", fontSize: 13.5 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: th, children: "Title" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: th, children: "Status" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: th, children: "Priority" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: th, children: "Category" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: th, children: "Due" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: th, children: "Checklist" })
+      ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: isLoading ? [...Array(5)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: [...Array(6)].map((_2, j) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: td, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-5 w-full" }) }, j)) }, i)) : filteredTasks.length > 0 ? filteredTasks.map((task2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "tr",
+        {
+          tabIndex: 0,
+          onClick: () => onTaskClick == null ? void 0 : onTaskClick(task2),
+          onKeyDown: (e) => {
+            if (e.key === "Enter") onTaskClick == null ? void 0 : onTaskClick(task2);
+          },
+          className: "cal-focus hover:bg-[var(--cal-surface-2)]",
+          style: { cursor: "pointer" },
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { style: td, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 8, height: 8, borderRadius: "50%", flex: "none", background: `var(--cal-${priorityKey(task2.priority)}-dot)` } }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 600 }, children: task2.title }),
+                task2.rrule && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { title: describeRRule(task2.rrule) ?? "Recurring", style: { display: "inline-flex", color: "var(--cal-watch-dot)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat, { className: "h-3.5 w-3.5" }) })
+              ] }),
+              task2.description && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { display: "block", fontSize: 12.5, color: "var(--cal-muted)", marginTop: 2, maxWidth: 420, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: task2.description })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: td, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Chip, { k: statusKey(task2.status), children: statusLabels[task2.status] ?? task2.status }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: td, children: /* @__PURE__ */ jsxRuntimeExports.jsx(PriorityChip, { priority: task2.priority }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: td, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Chip, { k: "muted", children: task2.category }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: td, children: task2.due_at ? /* @__PURE__ */ jsxRuntimeExports.jsx(DueChip, { task: task2 }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--cal-muted)" }, children: "—" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { ...td, minWidth: 120 }, children: task2.checklist && task2.checklist.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChecklistBar, { task: task2 }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--cal-muted)" }, children: "—" }) })
           ]
         },
         task2.id
-      );
-    }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "card-flush hidden md:block", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { className: "plain", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TableHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Title" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Status" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Priority" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Category" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Due Date" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Progress" })
-      ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TableBody, { children: isLoading ? [...Array(5)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(TableRow, { children: [...Array(6)].map((_2, j) => /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-6 w-full" }) }, j)) }, i)) : filteredTasks.length > 0 ? filteredTasks.map((task2) => {
-        const checklistProgress = task2.checklist ? {
-          completed: task2.checklist.filter((item) => item.done).length,
-          total: task2.checklist.length,
-          percentage: Math.round(
-            task2.checklist.filter((item) => item.done).length / task2.checklist.length * 100
-          )
-        } : null;
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          TableRow,
-          {
-            className: "cursor-pointer hover:bg-muted/50",
-            onClick: () => onTaskClick == null ? void 0 : onTaskClick(task2),
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(TableCell, { className: "font-medium", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-                  task2.rrule && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { title: "Recurring task", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat, { className: "h-4 w-4 text-blue-500" }) }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: task2.title })
-                ] }),
-                task2.description && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground line-clamp-1 mt-1", children: task2.description })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: getStatusColor(task2.status), variant: "outline", children: statusLabels[task2.status] }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: getPriorityColor(task2.priority), variant: "outline", children: task2.priority }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-xs", children: task2.category }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: getDueBadge(task2) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: checklistProgress ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 h-2 bg-muted rounded-full overflow-hidden max-w-[100px]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "div",
-                  {
-                    className: "h-full bg-red-500 transition-all",
-                    style: { width: `${checklistProgress.percentage}%` }
-                  }
-                ) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-muted-foreground whitespace-nowrap", children: [
-                  checklistProgress.completed,
-                  "/",
-                  checklistProgress.total
-                ] })
-              ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-muted-foreground", children: "—" }) })
-            ]
-          },
-          task2.id
-        );
-      }) : /* @__PURE__ */ jsxRuntimeExports.jsx(TableRow, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { colSpan: 6, className: "text-center py-8 text-muted-foreground", children: hasActiveFilters ? "No tasks match your filters" : "No tasks yet" }) }) })
+      )) : /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 6, style: { ...td, textAlign: "center", padding: "32px 0", color: "var(--cal-muted)" }, children: hasActiveFilters ? "No tasks match your filters" : "No tasks yet" }) }) })
     ] }) }) })
   ] });
 }
@@ -55336,7 +55377,7 @@ function parseRRuleLabel(rrule) {
   return p ? p.label : "Custom";
 }
 function SectionLabel({ icon: Icon2, children }) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 6, fontSize: 11, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", color: "var(--cal-muted)", marginBottom: 6 }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "h-3.5 w-3.5" }),
     children
   ] });
@@ -55527,454 +55568,476 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
   const coverStyle = getCoverStyle(coverColour);
   const statusCol = columns.find((c) => c.status_key === status);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-black/50 backdrop-blur-sm z-40", onClick: onClose }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-50 flex items-start justify-center overflow-y-auto py-8 px-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative w-full max-w-2xl bg-card rounded-2xl shadow-2xl flex flex-col overflow-hidden", children: [
-      coverStyle ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "relative w-full h-32 rounded-t-2xl", style: coverStyle, children: canEdit && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute bottom-2 right-2 flex gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "button",
-          {
-            onClick: () => setShowCoverPicker(!showCoverPicker),
-            className: "flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/40 hover:bg-black/60 text-white text-xs font-medium transition-colors",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Image$1, { className: "h-3.5 w-3.5" }),
-              " Change Cover"
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "button",
-          {
-            onClick: () => handleCoverChange(""),
-            className: "flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/40 hover:bg-black/60 text-white text-xs font-medium transition-colors",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" }),
-              " Remove"
-            ]
-          }
-        )
-      ] }) }) : null,
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `flex items-start justify-between px-6 pt-5 pb-0 ${!coverStyle ? "pt-5" : "pt-4"}`, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
-          statusCol && /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "mb-2 text-xs", style: { borderColor: statusCol.color, color: statusCol.color }, children: statusCol.name }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "textarea",
-            {
-              className: "w-full text-xl font-bold bg-transparent border-none outline-none resize-none text-foreground leading-snug focus:ring-2 focus:ring-brand/40 rounded-lg px-0",
-              value: title,
-              onChange: (e) => setTitle(e.target.value),
-              onBlur: handleTitleBlur,
-              rows: 2,
-              disabled: !canEdit,
-              placeholder: "Task title"
-            }
-          )
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1 ml-4 shrink-0", children: [
-          saving && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-muted-foreground mr-1", children: "Saving…" }),
-          canEdit && !coverStyle && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "relative", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              onClick: () => setShowCoverPicker(!showCoverPicker),
-              className: "p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors",
-              title: "Add cover",
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx(Image$1, { className: "h-4 w-4" })
-            }
-          ) }),
-          canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleDelete, className: "p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors", title: "Delete task", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-4 w-4" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4" }) })
-        ] })
-      ] }),
-      showCoverPicker && canEdit && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mx-6 mt-3 rounded-xl border border-border bg-background shadow-lg overflow-hidden", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex border-b border-border", children: ["colours", "upload", "unsplash"].map((tab) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
-          {
-            onClick: () => setCoverTab(tab),
-            className: `flex-1 py-2 text-xs font-medium capitalize transition-colors ${coverTab === tab ? "text-brand border-b-2 border-brand bg-brand/10" : "text-muted-foreground hover:text-foreground"}`,
-            children: tab === "colours" ? "🎨 Colours" : tab === "upload" ? "⬆ Upload" : "📷 Unsplash"
-          },
-          tab
-        )) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3", children: [
-          coverTab === "colours" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-9 gap-1.5", children: CARD_COVERS.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              onClick: () => handleCoverChange(c.id),
-              title: c.name,
-              className: `h-8 rounded-lg border-2 transition-all hover:scale-110 ${coverColour === c.id ? "border-brand scale-110 shadow" : "border-transparent"}`,
-              style: c.id ? { background: c.bg } : { background: "#f1f5f9", border: "2px dashed #cbd5e1" },
-              children: !c.id && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-slate-400", children: "✕" })
-            },
-            c.id || "none"
-          )) }),
-          coverTab === "upload" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "Upload an image — it will be cropped to 800 × 300 px (Trello size)." }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("input", { ref: fileInputRef, type: "file", accept: "image/*", className: "hidden", onChange: handleFileUpload }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-black/40 z-40", onClick: onClose }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cal-ui fixed inset-0 z-50 flex items-end sm:items-start justify-center overflow-y-auto sm:py-8 sm:px-4", onClick: (e) => {
+      if (e.target === e.currentTarget) onClose();
+    }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        role: "dialog",
+        "aria-modal": "true",
+        "aria-label": title || "Task",
+        className: "cal-panel relative w-full sm:max-w-2xl flex flex-col overflow-hidden overflow-y-auto rounded-t-[24px] sm:rounded-[22px] max-h-[92vh] sm:max-h-none",
+        style: { background: "var(--cal-surface)", border: "1px solid var(--cal-line)", boxShadow: "var(--cal-pop)", color: "var(--cal-ink)" },
+        children: [
+          coverStyle ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "relative w-full h-32 rounded-t-2xl", style: coverStyle, children: canEdit && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute bottom-2 right-2 flex gap-2", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "button",
               {
-                onClick: () => {
-                  var _a2;
-                  return (_a2 = fileInputRef.current) == null ? void 0 : _a2.click();
-                },
-                className: "w-full flex items-center justify-center gap-2 py-6 rounded-xl border-2 border-dashed border-border text-sm text-muted-foreground hover:text-foreground hover:border-brand hover:bg-brand/5 transition-all",
+                onClick: () => setShowCoverPicker(!showCoverPicker),
+                className: "flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/40 hover:bg-black/60 text-white text-xs font-medium transition-colors",
                 children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { className: "h-5 w-5" }),
-                  "Click to choose an image"
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Image$1, { className: "h-3.5 w-3.5" }),
+                  " Change Cover"
                 ]
               }
             ),
-            coverColour.startsWith("data:") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative rounded-xl overflow-hidden h-20", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: coverColour, alt: "Current cover", className: "w-full h-full object-cover" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                onClick: () => handleCoverChange(""),
+                className: "flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/40 hover:bg-black/60 text-white text-xs font-medium transition-colors",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" }),
+                  " Remove"
+                ]
+              }
+            )
+          ] }) }) : null,
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `flex items-start justify-between px-6 pt-5 pb-0 ${!coverStyle ? "pt-5" : "pt-4"}`, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "var(--cal-muted)" }, children: "Task" }),
+                statusCol && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "inline-flex", alignItems: "center", gap: 6, padding: "3px 9px", borderRadius: 999, fontSize: 12, fontWeight: 600, background: "var(--cal-surface-2)", color: "var(--cal-ink)" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 8, height: 8, borderRadius: "50%", background: statusCol.color } }),
+                  statusCol.name
+                ] })
+              ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "button",
+                "textarea",
                 {
-                  onClick: () => handleCoverChange(""),
-                  className: "absolute top-1 right-1 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 transition-colors",
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3 w-3" })
+                  "aria-label": "Task title",
+                  className: "w-full bg-transparent outline-none resize-none leading-snug px-0",
+                  style: { fontSize: 22, fontWeight: 600, color: "var(--cal-ink)", border: "none", borderBottom: canEdit ? "2px solid var(--cal-brand)" : "none", paddingBottom: 6 },
+                  value: title,
+                  onChange: (e) => setTitle(e.target.value),
+                  onBlur: handleTitleBlur,
+                  rows: 2,
+                  disabled: !canEdit,
+                  placeholder: "Task title"
                 }
               )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1 ml-4 shrink-0", children: [
+              saving && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 11, color: "var(--cal-muted)", marginRight: 4 }, children: "Saving…" }),
+              canEdit && !coverStyle && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "relative", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  onClick: () => setShowCoverPicker(!showCoverPicker),
+                  className: "cal-focus",
+                  style: { width: 32, height: 32, borderRadius: 10, border: "none", background: "var(--cal-surface-2)", color: "var(--cal-ink-2)", display: "grid", placeItems: "center", cursor: "pointer" },
+                  title: "Add cover",
+                  "aria-label": "Add cover",
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(Image$1, { className: "h-4 w-4" })
+                }
+              ) }),
+              canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleDelete, className: "cal-focus", style: { width: 32, height: 32, borderRadius: 10, border: "none", background: "var(--cal-station-bg)", color: "var(--cal-station-fg)", display: "grid", placeItems: "center", cursor: "pointer" }, title: "Delete task", "aria-label": "Delete task", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-4 w-4" }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "cal-focus", style: { width: 32, height: 32, borderRadius: 10, border: "none", background: "var(--cal-surface-2)", color: "var(--cal-ink-2)", display: "grid", placeItems: "center", cursor: "pointer" }, "aria-label": "Close", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4" }) })
             ] })
           ] }),
-          coverTab === "unsplash" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3", children: !unsplashKey || showKeyInput ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground", children: [
-              "Get a free API key at",
-              " ",
-              /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://unsplash.com/developers", target: "_blank", rel: "noopener noreferrer", className: "text-brand underline", children: "unsplash.com/developers" }),
-              " ",
-              "→ New Application → copy the ",
-              /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Access Key" }),
-              "."
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
-                {
-                  className: "flex-1 h-8 rounded-lg border border-border px-2 text-xs bg-background outline-none focus:border-brand font-mono",
-                  placeholder: "Paste your Unsplash Access Key…",
-                  value: keyDraft,
-                  onChange: (e) => setKeyDraft(e.target.value),
-                  onKeyDown: (e) => {
-                    if (e.key === "Enter") handleSaveUnsplashKey();
-                  },
-                  autoFocus: true
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
+          showCoverPicker && canEdit && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mx-6 mt-3 rounded-xl border border-border bg-background shadow-lg overflow-hidden", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex border-b border-border", children: ["colours", "upload", "unsplash"].map((tab) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: () => setCoverTab(tab),
+                className: `flex-1 py-2 text-xs font-medium capitalize transition-colors ${coverTab === tab ? "text-brand border-b-2 border-brand bg-brand/10" : "text-muted-foreground hover:text-foreground"}`,
+                children: tab === "colours" ? "🎨 Colours" : tab === "upload" ? "⬆ Upload" : "📷 Unsplash"
+              },
+              tab
+            )) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3", children: [
+              coverTab === "colours" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-9 gap-1.5", children: CARD_COVERS.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "button",
                 {
-                  onClick: handleSaveUnsplashKey,
-                  disabled: !keyDraft.trim(),
-                  className: "h-8 px-3 rounded-lg bg-brand text-brand-foreground text-xs font-medium hover:bg-brand/90 disabled:opacity-40 transition-colors",
-                  children: "Save"
-                }
-              )
-            ] })
-          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 items-center", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative flex-1", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "input",
+                  onClick: () => handleCoverChange(c.id),
+                  title: c.name,
+                  className: `h-8 rounded-lg border-2 transition-all hover:scale-110 ${coverColour === c.id ? "border-brand scale-110 shadow" : "border-transparent"}`,
+                  style: c.id ? { background: c.bg } : { background: "#f1f5f9", border: "2px dashed #cbd5e1" },
+                  children: !c.id && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-slate-400", children: "✕" })
+                },
+                c.id || "none"
+              )) }),
+              coverTab === "upload" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "Upload an image — it will be cropped to 800 × 300 px (Trello size)." }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("input", { ref: fileInputRef, type: "file", accept: "image/*", className: "hidden", onChange: handleFileUpload }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "button",
                   {
-                    className: "w-full h-8 pl-7 pr-3 rounded-lg border border-border text-xs bg-background outline-none focus:border-brand",
-                    placeholder: "Search Unsplash…",
-                    value: unsplashQuery,
-                    onChange: (e) => setUnsplashQuery(e.target.value),
-                    onKeyDown: (e) => {
-                      if (e.key === "Enter") handleUnsplashSearch();
+                    onClick: () => {
+                      var _a2;
+                      return (_a2 = fileInputRef.current) == null ? void 0 : _a2.click();
                     },
-                    autoFocus: true
+                    className: "w-full flex items-center justify-center gap-2 py-6 rounded-xl border-2 border-dashed border-border text-sm text-muted-foreground hover:text-foreground hover:border-brand hover:bg-brand/5 transition-all",
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { className: "h-5 w-5" }),
+                      "Click to choose an image"
+                    ]
+                  }
+                ),
+                coverColour.startsWith("data:") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative rounded-xl overflow-hidden h-20", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: coverColour, alt: "Current cover", className: "w-full h-full object-cover" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      onClick: () => handleCoverChange(""),
+                      className: "absolute top-1 right-1 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 transition-colors",
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3 w-3" })
+                    }
+                  )
+                ] })
+              ] }),
+              coverTab === "unsplash" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3", children: !unsplashKey || showKeyInput ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground", children: [
+                  "Get a free API key at",
+                  " ",
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://unsplash.com/developers", target: "_blank", rel: "noopener noreferrer", className: "text-brand underline", children: "unsplash.com/developers" }),
+                  " ",
+                  "→ New Application → copy the ",
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Access Key" }),
+                  "."
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      className: "flex-1 h-8 rounded-lg border border-border px-2 text-xs bg-background outline-none focus:border-brand font-mono",
+                      placeholder: "Paste your Unsplash Access Key…",
+                      value: keyDraft,
+                      onChange: (e) => setKeyDraft(e.target.value),
+                      onKeyDown: (e) => {
+                        if (e.key === "Enter") handleSaveUnsplashKey();
+                      },
+                      autoFocus: true
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      onClick: handleSaveUnsplashKey,
+                      disabled: !keyDraft.trim(),
+                      className: "h-8 px-3 rounded-lg bg-brand text-brand-foreground text-xs font-medium hover:bg-brand/90 disabled:opacity-40 transition-colors",
+                      children: "Save"
+                    }
+                  )
+                ] })
+              ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 items-center", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative flex-1", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "input",
+                      {
+                        className: "w-full h-8 pl-7 pr-3 rounded-lg border border-border text-xs bg-background outline-none focus:border-brand",
+                        placeholder: "Search Unsplash…",
+                        value: unsplashQuery,
+                        onChange: (e) => setUnsplashQuery(e.target.value),
+                        onKeyDown: (e) => {
+                          if (e.key === "Enter") handleUnsplashSearch();
+                        },
+                        autoFocus: true
+                      }
+                    )
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      onClick: handleUnsplashSearch,
+                      disabled: unsplashLoading || !unsplashQuery.trim(),
+                      className: "h-8 px-3 rounded-lg bg-brand text-brand-foreground text-xs font-medium hover:bg-brand/90 disabled:opacity-40 transition-colors",
+                      children: unsplashLoading ? "…" : "Search"
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      onClick: () => {
+                        setShowKeyInput(true);
+                        setKeyDraft(unsplashKey);
+                      },
+                      className: "h-8 w-8 flex items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-foreground hover:border-brand transition-colors",
+                      title: "Change API key",
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(Key, { className: "h-3.5 w-3.5" })
+                    }
+                  )
+                ] }),
+                unsplashResults.length === 0 && !unsplashLoading && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1.5", children: ["fire station", "firefighter", "emergency", "training", "safety"].map((term) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    onClick: () => {
+                      setUnsplashQuery(term);
+                      setTimeout(handleUnsplashSearch, 50);
+                    },
+                    className: "px-2.5 py-1 rounded-full text-xs bg-muted/60 text-muted-foreground hover:bg-brand/15 hover:text-brand transition-colors border border-border",
+                    children: term
+                  },
+                  term
+                )) }),
+                unsplashResults.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-3 gap-1.5 max-h-48 overflow-y-auto", children: unsplashResults.map((photo) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    onClick: () => handleCoverChange(photo.full),
+                    className: `relative h-16 rounded-lg overflow-hidden hover:scale-105 transition-all border-2 ${coverColour === photo.full ? "border-brand scale-105" : "border-transparent"}`,
+                    title: photo.alt,
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: photo.thumb, alt: photo.alt, className: "w-full h-full object-cover" })
+                  },
+                  photo.id
+                )) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-[10px] text-muted-foreground/60 text-right", children: [
+                  "Photos from ",
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://unsplash.com", target: "_blank", rel: "noopener noreferrer", className: "underline", children: "Unsplash" })
+                ] })
+              ] }) })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col lg:flex-row gap-6 lg:gap-0 px-4 sm:px-6 pb-6 pt-4 overflow-y-auto max-h-[70vh]", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0 space-y-5 lg:pr-6", children: [
+              (canEdit || tags.length > 0) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: Tag, children: "Labels" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1.5", children: TASK_LABELS.map((label2) => {
+                  const active = tags.includes(label2.id);
+                  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "button",
+                    {
+                      onClick: () => canEdit && handleTagToggle(label2.id),
+                      disabled: !canEdit,
+                      className: `flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all border ${active ? "text-white border-transparent shadow-sm" : "bg-muted/50 text-muted-foreground border-border"} ${canEdit ? "hover:scale-105 cursor-pointer" : "cursor-default"}`,
+                      style: active ? { backgroundColor: label2.colour } : {},
+                      onMouseEnter: (e) => {
+                        if (canEdit && !active) {
+                          e.currentTarget.style.backgroundColor = label2.colour;
+                          e.currentTarget.style.color = "white";
+                        }
+                      },
+                      onMouseLeave: (e) => {
+                        if (canEdit && !active) {
+                          e.currentTarget.style.backgroundColor = "";
+                          e.currentTarget.style.color = "";
+                        }
+                      },
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "h-2 w-2 rounded-full", style: { backgroundColor: active ? "rgba(255,255,255,0.7)" : label2.colour } }),
+                        label2.name
+                      ]
+                    },
+                    label2.id
+                  );
+                }) })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: AlignLeft, children: "Description" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "textarea",
+                  {
+                    className: "w-full text-sm bg-muted/40 rounded-xl p-3 border border-transparent focus:border-brand outline-none resize-none text-foreground placeholder:text-muted-foreground",
+                    value: description,
+                    onChange: (e) => setDescription(e.target.value),
+                    onBlur: handleDescriptionBlur,
+                    rows: 3,
+                    disabled: !canEdit,
+                    placeholder: "Add a description…"
                   }
                 )
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "button",
-                {
-                  onClick: handleUnsplashSearch,
-                  disabled: unsplashLoading || !unsplashQuery.trim(),
-                  className: "h-8 px-3 rounded-lg bg-brand text-brand-foreground text-xs font-medium hover:bg-brand/90 disabled:opacity-40 transition-colors",
-                  children: unsplashLoading ? "…" : "Search"
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "button",
-                {
-                  onClick: () => {
-                    setShowKeyInput(true);
-                    setKeyDraft(unsplashKey);
-                  },
-                  className: "h-8 w-8 flex items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-foreground hover:border-brand transition-colors",
-                  title: "Change API key",
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(Key, { className: "h-3.5 w-3.5" })
-                }
-              )
-            ] }),
-            unsplashResults.length === 0 && !unsplashLoading && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1.5", children: ["fire station", "firefighter", "emergency", "training", "safety"].map((term) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                onClick: () => {
-                  setUnsplashQuery(term);
-                  setTimeout(handleUnsplashSearch, 50);
-                },
-                className: "px-2.5 py-1 rounded-full text-xs bg-muted/60 text-muted-foreground hover:bg-brand/15 hover:text-brand transition-colors border border-border",
-                children: term
-              },
-              term
-            )) }),
-            unsplashResults.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-3 gap-1.5 max-h-48 overflow-y-auto", children: unsplashResults.map((photo) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                onClick: () => handleCoverChange(photo.full),
-                className: `relative h-16 rounded-lg overflow-hidden hover:scale-105 transition-all border-2 ${coverColour === photo.full ? "border-brand scale-105" : "border-transparent"}`,
-                title: photo.alt,
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: photo.thumb, alt: photo.alt, className: "w-full h-full object-cover" })
-              },
-              photo.id
-            )) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-[10px] text-muted-foreground/60 text-right", children: [
-              "Photos from ",
-              /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://unsplash.com", target: "_blank", rel: "noopener noreferrer", className: "underline", children: "Unsplash" })
-            ] })
-          ] }) })
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col lg:flex-row gap-6 lg:gap-0 px-4 sm:px-6 pb-6 pt-4 overflow-y-auto max-h-[70vh]", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0 space-y-5 lg:pr-6", children: [
-          (canEdit || tags.length > 0) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: Tag, children: "Labels" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1.5", children: TASK_LABELS.map((label2) => {
-              const active = tags.includes(label2.id);
-              return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "button",
-                {
-                  onClick: () => canEdit && handleTagToggle(label2.id),
-                  disabled: !canEdit,
-                  className: `flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all border ${active ? "text-white border-transparent shadow-sm" : "bg-muted/50 text-muted-foreground border-border"} ${canEdit ? "hover:scale-105 cursor-pointer" : "cursor-default"}`,
-                  style: active ? { backgroundColor: label2.colour } : {},
-                  onMouseEnter: (e) => {
-                    if (canEdit && !active) {
-                      e.currentTarget.style.backgroundColor = label2.colour;
-                      e.currentTarget.style.color = "white";
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(SectionLabel, { icon: SquareCheckBig, children: [
+                  "Checklist",
+                  checklist.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ml-1 normal-case font-normal", children: [
+                    completedCount,
+                    "/",
+                    checklist.length
+                  ] })
+                ] }),
+                checklist.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-1.5 bg-muted rounded-full overflow-hidden mb-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "div",
+                  {
+                    className: "h-full bg-brand transition-all duration-300",
+                    style: { width: `${checklistPct}%` }
+                  }
+                ) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1", children: checklist.map((item, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-2.5 group py-1 px-2 rounded-lg hover:bg-muted/40 transition-colors", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    Checkbox,
+                    {
+                      checked: item.done,
+                      onCheckedChange: () => canEdit && handleChecklistToggle(idx),
+                      className: "mt-0.5",
+                      id: `modal-check-${task2.id}-${idx}`
                     }
-                  },
-                  onMouseLeave: (e) => {
-                    if (canEdit && !active) {
-                      e.currentTarget.style.backgroundColor = "";
-                      e.currentTarget.style.color = "";
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "label",
+                    {
+                      htmlFor: `modal-check-${task2.id}-${idx}`,
+                      className: `flex-1 text-sm cursor-pointer leading-snug select-none ${item.done ? "line-through text-muted-foreground" : "text-foreground"}`,
+                      children: item.label
                     }
-                  },
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "h-2 w-2 rounded-full", style: { backgroundColor: active ? "rgba(255,255,255,0.7)" : label2.colour } }),
-                    label2.name
-                  ]
-                },
-                label2.id
-              );
-            }) })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: AlignLeft, children: "Description" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "textarea",
-              {
-                className: "w-full text-sm bg-muted/40 rounded-xl p-3 border border-transparent focus:border-brand outline-none resize-none text-foreground placeholder:text-muted-foreground",
-                value: description,
-                onChange: (e) => setDescription(e.target.value),
-                onBlur: handleDescriptionBlur,
-                rows: 3,
-                disabled: !canEdit,
-                placeholder: "Add a description…"
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(SectionLabel, { icon: SquareCheckBig, children: [
-              "Checklist",
-              checklist.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ml-1 normal-case font-normal", children: [
-                completedCount,
-                "/",
-                checklist.length
+                  ),
+                  canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleChecklistDelete(idx), className: "opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-500 transition-opacity p-0.5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3 w-3" }) })
+                ] }, idx)) }),
+                canEdit && (addingItem ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 mt-2", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      ref: newItemInputRef,
+                      className: "flex-1 h-8 rounded-xl border border-border px-3 text-sm bg-background outline-none focus:border-brand",
+                      placeholder: "Add an item…",
+                      value: newChecklistItem,
+                      onChange: (e) => setNewChecklistItem(e.target.value),
+                      onKeyDown: (e) => {
+                        if (e.key === "Enter") handleAddChecklistItem();
+                        if (e.key === "Escape") {
+                          setAddingItem(false);
+                          setNewChecklistItem("");
+                        }
+                      },
+                      autoFocus: true
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", className: "h-8 bg-brand hover:bg-brand/90 text-brand-foreground text-xs rounded-xl", onClick: handleAddChecklistItem, children: "Add" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "ghost", className: "h-8 text-xs rounded-xl", onClick: () => {
+                    setAddingItem(false);
+                    setNewChecklistItem("");
+                  }, children: "Cancel" })
+                ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mt-2 py-1 px-2 rounded-lg hover:bg-muted/40 transition-colors w-full", onClick: () => setAddingItem(true), children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-3.5 w-3.5" }),
+                  " Add an item"
+                ] }))
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs text-muted-foreground flex items-center gap-4 pt-2 border-t border-border", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: "h-3 w-3" }),
+                  "Created ",
+                  new Date(task2.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+                ] }),
+                task2.assigned_to_user_id && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(User, { className: "h-3 w-3" }),
+                  " Assigned"
+                ] })
               ] })
             ] }),
-            checklist.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-1.5 bg-muted rounded-full overflow-hidden mb-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "div",
-              {
-                className: "h-full bg-brand transition-all duration-300",
-                style: { width: `${checklistPct}%` }
-              }
-            ) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1", children: checklist.map((item, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-2.5 group py-1 px-2 rounded-lg hover:bg-muted/40 transition-colors", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                Checkbox,
-                {
-                  checked: item.done,
-                  onCheckedChange: () => canEdit && handleChecklistToggle(idx),
-                  className: "mt-0.5",
-                  id: `modal-check-${task2.id}-${idx}`
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "label",
-                {
-                  htmlFor: `modal-check-${task2.id}-${idx}`,
-                  className: `flex-1 text-sm cursor-pointer leading-snug select-none ${item.done ? "line-through text-muted-foreground" : "text-foreground"}`,
-                  children: item.label
-                }
-              ),
-              canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleChecklistDelete(idx), className: "opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-500 transition-opacity p-0.5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3 w-3" }) })
-            ] }, idx)) }),
-            canEdit && (addingItem ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 mt-2", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
-                {
-                  ref: newItemInputRef,
-                  className: "flex-1 h-8 rounded-xl border border-border px-3 text-sm bg-background outline-none focus:border-brand",
-                  placeholder: "Add an item…",
-                  value: newChecklistItem,
-                  onChange: (e) => setNewChecklistItem(e.target.value),
-                  onKeyDown: (e) => {
-                    if (e.key === "Enter") handleAddChecklistItem();
-                    if (e.key === "Escape") {
-                      setAddingItem(false);
-                      setNewChecklistItem("");
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full lg:w-44 lg:shrink-0 space-y-4 border-t lg:border-t-0 pt-4 lg:pt-0", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: GripVertical, children: "Column" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: status, onValueChange: handleStatusChange, disabled: !canEdit, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs rounded-xl", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: columns.map((col) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: col.status_key, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "h-2 w-2 rounded-full inline-block", style: { backgroundColor: col.color } }),
+                    col.name
+                  ] }) }, col.id)) })
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: Flag, children: "Priority" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: priority, onValueChange: (v) => {
+                  setPriority(v);
+                  save({ priority: v });
+                }, disabled: !canEdit, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs rounded-xl", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: PRIORITY_OPTIONS$1.map((p) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: p.value, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: p.color, children: p.label }) }, p.value)) })
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: Tag, children: "Category" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: category, onValueChange: (v) => {
+                  setCategory(v);
+                  save({ category: v });
+                }, disabled: !canEdit, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs rounded-xl", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: CATEGORY_OPTIONS$1.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: c, children: c }, c)) })
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(SectionLabel, { icon: Calendar, children: [
+                  "Due Date",
+                  isOverdue && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-red-500 normal-case font-normal ml-1", children: "(overdue)" }),
+                  isDueToday && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-orange-500 normal-case font-normal ml-1", children: "(today)" })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "date",
+                    className: `h-8 w-full rounded-xl border px-2 text-xs bg-background outline-none focus:border-brand ${isOverdue ? "border-red-400 text-red-500" : isDueToday ? "border-orange-400" : "border-input"}`,
+                    value: dueDate,
+                    onChange: (e) => {
+                      setDueDate(e.target.value);
+                      save({ due_date: e.target.value ? new Date(e.target.value) : void 0 });
+                    },
+                    disabled: !canEdit
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: Repeat, children: "Recurrence" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: currentRruleVal, onValueChange: (val) => {
+                  if (val === "__custom__") {
+                    setShowCustomRrule(true);
+                    setRrule("__custom__");
+                    return;
+                  }
+                  setShowCustomRrule(false);
+                  setRrule(val);
+                  save({ rrule: val === "__none__" ? void 0 : val });
+                }, disabled: !canEdit, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs rounded-xl", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { children: parseRRuleLabel(showCustomRrule ? customRrule : rrule) }) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: RRULE_PRESETS.map((p) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: p.value, children: p.label }, p.value)) })
+                ] }),
+                showCustomRrule && canEdit && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1 mt-1", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      className: "flex-1 h-7 rounded-lg border border-input px-2 text-xs bg-background outline-none focus:border-brand",
+                      placeholder: "FREQ=WEEKLY;BYDAY=TU",
+                      value: customRrule,
+                      onChange: (e) => setCustomRrule(e.target.value)
                     }
-                  },
-                  autoFocus: true
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", className: "h-7 text-xs px-2 bg-brand hover:bg-brand/90 text-brand-foreground rounded-lg", onClick: () => save({ rrule: customRrule || void 0 }), children: "Save" })
+                ] })
+              ] }),
+              userRole === "WC" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: ArrowRightLeft, children: "Move to Watch" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watchUnit || "__none__", onValueChange: (v) => {
+                  const val = v === "__none__" ? "" : v;
+                  setWatchUnit(val);
+                  save({ watch_unit: val || null });
+                  toast2({ title: "Task moved", description: val ? `Moved to ${val} Watch` : "Watch cleared" });
+                }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs rounded-xl", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Assign watch…" }) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "__none__", children: "— None —" }),
+                    WATCHES$8.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+                      w,
+                      " Watch"
+                    ] }, w))
+                  ] })
+                ] })
+              ] }),
+              canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pt-2 border-t border-border", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  onClick: handleDelete,
+                  className: "w-full flex items-center gap-2 px-2 py-1.5 rounded-xl text-xs text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors",
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-3.5 w-3.5" }),
+                    " Delete task"
+                  ]
                 }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", className: "h-8 bg-brand hover:bg-brand/90 text-brand-foreground text-xs rounded-xl", onClick: handleAddChecklistItem, children: "Add" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "ghost", className: "h-8 text-xs rounded-xl", onClick: () => {
-                setAddingItem(false);
-                setNewChecklistItem("");
-              }, children: "Cancel" })
-            ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mt-2 py-1 px-2 rounded-lg hover:bg-muted/40 transition-colors w-full", onClick: () => setAddingItem(true), children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-3.5 w-3.5" }),
-              " Add an item"
-            ] }))
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs text-muted-foreground flex items-center gap-4 pt-2 border-t border-border", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: "h-3 w-3" }),
-              "Created ",
-              new Date(task2.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
-            ] }),
-            task2.assigned_to_user_id && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(User, { className: "h-3 w-3" }),
-              " Assigned"
+              ) })
             ] })
           ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full lg:w-44 lg:shrink-0 space-y-4 border-t lg:border-t-0 pt-4 lg:pt-0", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: GripVertical, children: "Column" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: status, onValueChange: handleStatusChange, disabled: !canEdit, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs rounded-xl", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: columns.map((col) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: col.status_key, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "h-2 w-2 rounded-full inline-block", style: { backgroundColor: col.color } }),
-                col.name
-              ] }) }, col.id)) })
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: Flag, children: "Priority" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: priority, onValueChange: (v) => {
-              setPriority(v);
-              save({ priority: v });
-            }, disabled: !canEdit, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs rounded-xl", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: PRIORITY_OPTIONS$1.map((p) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: p.value, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: p.color, children: p.label }) }, p.value)) })
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: Tag, children: "Category" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: category, onValueChange: (v) => {
-              setCategory(v);
-              save({ category: v });
-            }, disabled: !canEdit, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs rounded-xl", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: CATEGORY_OPTIONS$1.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: c, children: c }, c)) })
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(SectionLabel, { icon: Calendar, children: [
-              "Due Date",
-              isOverdue && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-red-500 normal-case font-normal ml-1", children: "(overdue)" }),
-              isDueToday && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-orange-500 normal-case font-normal ml-1", children: "(today)" })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                type: "date",
-                className: `h-8 w-full rounded-xl border px-2 text-xs bg-background outline-none focus:border-brand ${isOverdue ? "border-red-400 text-red-500" : isDueToday ? "border-orange-400" : "border-input"}`,
-                value: dueDate,
-                onChange: (e) => {
-                  setDueDate(e.target.value);
-                  save({ due_date: e.target.value ? new Date(e.target.value) : void 0 });
-                },
-                disabled: !canEdit
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: Repeat, children: "Recurrence" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: currentRruleVal, onValueChange: (val) => {
-              if (val === "__custom__") {
-                setShowCustomRrule(true);
-                setRrule("__custom__");
-                return;
-              }
-              setShowCustomRrule(false);
-              setRrule(val);
-              save({ rrule: val === "__none__" ? void 0 : val });
-            }, disabled: !canEdit, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs rounded-xl", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { children: parseRRuleLabel(showCustomRrule ? customRrule : rrule) }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: RRULE_PRESETS.map((p) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: p.value, children: p.label }, p.value)) })
-            ] }),
-            showCustomRrule && canEdit && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1 mt-1", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
-                {
-                  className: "flex-1 h-7 rounded-lg border border-input px-2 text-xs bg-background outline-none focus:border-brand",
-                  placeholder: "FREQ=WEEKLY;BYDAY=TU",
-                  value: customRrule,
-                  onChange: (e) => setCustomRrule(e.target.value)
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", className: "h-7 text-xs px-2 bg-brand hover:bg-brand/90 text-brand-foreground rounded-lg", onClick: () => save({ rrule: customRrule || void 0 }), children: "Save" })
-            ] })
-          ] }),
-          userRole === "WC" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: ArrowRightLeft, children: "Move to Watch" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watchUnit || "__none__", onValueChange: (v) => {
-              const val = v === "__none__" ? "" : v;
-              setWatchUnit(val);
-              save({ watch_unit: val || null });
-              toast2({ title: "Task moved", description: val ? `Moved to ${val} Watch` : "Watch cleared" });
-            }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs rounded-xl", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Assign watch…" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "__none__", children: "— None —" }),
-                WATCHES$8.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
-                  w,
-                  " Watch"
-                ] }, w))
-              ] })
-            ] })
-          ] }),
-          canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pt-2 border-t border-border", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "button",
-            {
-              onClick: handleDelete,
-              className: "w-full flex items-center gap-2 px-2 py-1.5 rounded-xl text-xs text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors",
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-3.5 w-3.5" }),
-                " Delete task"
-              ]
-            }
-          ) })
-        ] })
-      ] })
-    ] }) })
+        ]
+      }
+    ) })
   ] });
 }
 const DAYS_OF_WEEK = [
@@ -56513,171 +56576,200 @@ function Tasks() {
   };
   const syncedSelectedTask = selectedTask ? tasks.find((t) => t.id === selectedTask.id) ?? selectedTask : null;
   const boardFilters = { search: filterSearch, labels: filterLabels, overdueOnly: filterOverdue, assignee: filterAssignee };
-  const headingClass = isDark ? "text-white" : "text-foreground";
-  const btnOutlineClass = isDark ? "bg-white/15 text-white border-white/25 hover:bg-white/25" : "";
+  const headerInk = isDark ? "#fff" : "var(--cal-ink)";
+  const headerMuted = isDark ? "rgba(255,255,255,.7)" : "var(--cal-muted)";
+  const stats = [
+    { key: "open", label: "Open", value: taskStats.open },
+    { key: "week", label: "Due this week", value: taskStats.dueThisWeek, k: taskStats.dueThisWeek > 0 ? "day" : void 0 },
+    {
+      key: "overdue",
+      label: "Overdue",
+      value: taskStats.overdue,
+      k: taskStats.overdue > 0 ? "station" : void 0,
+      onClick: () => setFilterOverdue(!filterOverdue),
+      pressed: filterOverdue
+    },
+    { key: "blocked", label: "Blocked", value: taskStats.blocked, k: taskStats.blocked > 0 ? "insp" : void 0 },
+    { key: "progress", label: "In progress", value: taskStats.inProgress, k: taskStats.inProgress > 0 ? "watch" : void 0 },
+    { key: "done", label: "Completed (7d)", value: taskStats.completedRecent, k: taskStats.completedRecent > 0 ? "leave" : void 0 }
+  ];
+  const chip = (active, colour) => ({
+    height: 30,
+    padding: "0 12px",
+    borderRadius: 999,
+    font: "inherit",
+    fontSize: 12.5,
+    fontWeight: 600,
+    cursor: "pointer",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 6,
+    ...active ? { background: colour ?? "var(--cal-brand)", color: "#fff", border: "1px solid transparent" } : { background: "var(--cal-surface)", color: "var(--cal-ink-2)", border: "1px solid var(--cal-line-2)" }
+  });
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
-      className: "min-h-screen -m-4 md:-m-8 p-4 md:p-8 space-y-5 transition-all duration-500",
-      style: bgId !== "default" ? { background: bg.style.replace("background: ", "") } : {},
+      className: "cal-ui min-h-screen -m-4 md:-m-8 p-4 md:p-8 transition-all duration-500",
+      style: { display: "flex", flexDirection: "column", gap: 16, ...bgId !== "default" ? { background: bg.style.replace("background: ", "") } : {} },
       children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-baseline justify-between gap-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline flex-wrap gap-x-4 gap-y-1", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: `text-3xl font-bold flex items-center gap-3 ${headingClass}`, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SquareCheckBig, { className: `h-7 w-7 shrink-0 ${isDark ? "text-white/80" : "text-brand"}` }),
-              "Tasks"
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: `eyebrow whitespace-nowrap ${isDark ? "!text-white/60" : ""}`, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "space-between", gap: 16 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 4 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: { fontSize: 12, letterSpacing: ".12em", textTransform: "uppercase", color: headerMuted }, children: [
               watchName,
-              " Watch",
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "crumb-sep", children: "·" }),
+              " Watch · ",
               tasks.length,
               " total",
-              taskStats.overdue > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "crumb-sep", children: "·" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-red-600 dark:text-red-400", children: [
-                  taskStats.overdue,
-                  " overdue"
-                ] })
-              ] })
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Button,
-              {
-                variant: "outline",
-                size: "icon",
-                onClick: () => setViewMode("board"),
-                title: "Board view",
-                className: `${viewMode === "board" ? "bg-brand text-brand-foreground border-brand hover:bg-brand/90" : btnOutlineClass}`,
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(LayoutGrid, { className: "h-4 w-4" })
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Button,
-              {
-                variant: "outline",
-                size: "icon",
-                onClick: () => setViewMode("list"),
-                title: "List view",
-                className: `${viewMode === "list" ? "bg-brand text-brand-foreground border-brand hover:bg-brand/90" : btnOutlineClass}`,
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(List$1, { className: "h-4 w-4" })
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                Button,
-                {
-                  variant: "outline",
-                  size: "icon",
-                  onClick: () => setShowBgPicker(!showBgPicker),
-                  title: "Board background",
-                  className: `${showBgPicker ? "bg-brand text-brand-foreground border-brand" : btnOutlineClass}`,
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(Palette, { className: "h-4 w-4" })
-                }
-              ),
-              showBgPicker && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `absolute right-0 top-11 z-50 rounded-md shadow-2xl border p-4 w-72 ${isDark ? "bg-gray-900/95 border-white/10" : "bg-card border-border"}`, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-3", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `eyebrow ${isDark ? "!text-white" : ""}`, children: "Board Background" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowBgPicker(false), className: isDark ? "text-white/50 hover:text-white" : "text-muted-foreground hover:text-foreground", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4" }) })
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-4 gap-2", children: BOARD_BACKGROUNDS.map((b) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "button",
-                  {
-                    onClick: () => handleBgChange(b.id),
-                    className: `h-12 rounded-md transition-all hover:scale-105 border-2 ${bgId === b.id ? "border-brand scale-105 shadow-lg" : "border-transparent"}`,
-                    style: { background: b.style.replace("background: ", "") },
-                    title: b.name
-                  },
-                  b.id
-                )) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: `text-xs mt-3 text-center ${isDark ? "text-white/40" : "text-muted-foreground"}`, children: "Click to apply" })
+              taskStats.overdue > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: isDark ? "#fecaca" : "var(--cal-now)" }, children: [
+                " · ",
+                taskStats.overdue,
+                " overdue"
               ] })
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline", className: `ml-1 ${btnOutlineClass}`, onClick: () => setShowTemplateManager(true), "aria-label": "Templates", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat, { className: "h-4 w-4 sm:mr-2" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { style: { margin: 0, fontSize: "clamp(28px, 4vw, 40px)", lineHeight: 1.05, fontWeight: 600, letterSpacing: "-.02em", color: headerInk }, children: "Tasks" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { role: "group", "aria-label": "View", style: { display: "inline-flex", padding: 4, borderRadius: 14, background: "var(--cal-surface-3)", gap: 2 }, children: [["board", "Board", LayoutGrid], ["list", "List", List$1]].map(([mode, label2, Icon2]) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                "aria-pressed": viewMode === mode,
+                onClick: () => setViewMode(mode),
+                className: "cal-focus",
+                style: {
+                  height: 36,
+                  padding: "0 14px",
+                  borderRadius: 10,
+                  border: "none",
+                  font: "inherit",
+                  fontSize: 14,
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  ...viewMode === mode ? { background: "var(--cal-surface)", color: "var(--cal-ink)", fontWeight: 600, boxShadow: "var(--cal-shadow)" } : { background: "transparent", color: "var(--cal-ink-2)", fontWeight: 500 }
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "h-4 w-4" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: label2 })
+                ]
+              },
+              mode
+            )) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => setShowBgPicker(!showBgPicker),
+                  "aria-label": "Board background",
+                  "aria-expanded": showBgPicker,
+                  title: "Board background",
+                  className: "cal-btn",
+                  style: { width: 44, height: 44, padding: 0, ...showBgPicker ? { borderColor: "var(--cal-brand)", color: "var(--cal-brand)" } : {} },
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(Palette, { className: "h-[18px] w-[18px]" })
+                }
+              ),
+              showBgPicker && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cal-card", style: { position: "absolute", right: 0, top: 52, zIndex: 50, width: 288, padding: 16, boxShadow: "var(--cal-pop)" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 14, fontWeight: 600 }, children: "Board background" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": "Close", onClick: () => setShowBgPicker(false), className: "cal-btn", style: { width: 32, height: 32, padding: 0, borderRadius: 10 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4" }) })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }, children: BOARD_BACKGROUNDS.map((b) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: () => handleBgChange(b.id),
+                    title: b.name,
+                    "aria-label": b.name,
+                    "aria-pressed": bgId === b.id,
+                    className: "cal-focus",
+                    style: {
+                      height: 44,
+                      borderRadius: 12,
+                      cursor: "pointer",
+                      background: b.style.replace("background: ", ""),
+                      border: bgId === b.id ? "2px solid var(--cal-brand)" : "2px solid transparent"
+                    }
+                  },
+                  b.id
+                )) })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: () => setShowTemplateManager(true), "aria-label": "Templates", className: "cal-btn", style: { height: 44, padding: "0 16px", fontSize: 14 }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat, { className: "h-[18px] w-[18px]" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Templates" })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              Button,
+              "button",
               {
-                className: "bg-brand hover:bg-brand/90 text-brand-foreground",
+                type: "button",
                 onClick: handleNewTask,
                 "aria-label": "New Task",
+                className: "cal-focus",
+                style: { height: 44, padding: "0 18px", borderRadius: 12, border: "none", background: "var(--cal-brand)", color: "#fff", font: "inherit", fontSize: 14, fontWeight: 600, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8 },
                 children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4 sm:mr-2" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-[18px] w-[18px]" }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "New Task" })
                 ]
               }
             )
           ] })
         ] }),
-        viewMode === "board" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "today-strip", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "k", children: "Open" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "v mono", children: taskStats.open })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "k", children: "Due this week" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "v mono", children: taskStats.dueThisWeek })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "k", children: "Overdue" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "span",
-              {
-                className: "v mono",
-                style: { color: taskStats.overdue > 0 ? "var(--destructive)" : void 0 },
-                children: taskStats.overdue
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "k", children: "Blocked" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "v mono", children: taskStats.blocked })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "k", children: "In progress" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "v mono", children: taskStats.inProgress })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "k", children: "Completed (7d)" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "v mono", children: taskStats.completedRecent })
-          ] })
-        ] }),
-        viewMode === "board" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `flex flex-wrap items-center gap-2 p-2.5 rounded-md border ${isDark ? "bg-black/20 border-white/10 backdrop-blur-sm" : "bg-card border-border"}`, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative flex-1 min-w-[150px] max-w-xs", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: `absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 ${isDark ? "text-white/40" : "text-muted-foreground"}` }),
+        viewMode === "board" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }, children: stats.map((st) => {
+          const Tag2 = st.onClick ? "button" : "div";
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            Tag2,
+            {
+              ...st.onClick ? { type: "button", onClick: st.onClick, "aria-pressed": st.pressed, title: "Show only overdue tasks" } : {},
+              className: `cal-card${st.onClick ? " cal-focus" : ""}`,
+              style: {
+                padding: "12px 14px",
+                display: "flex",
+                flexDirection: "column",
+                gap: 4,
+                textAlign: "left",
+                font: "inherit",
+                cursor: st.onClick ? "pointer" : void 0,
+                color: "var(--cal-ink)",
+                ...st.pressed ? { boxShadow: "0 0 0 2px var(--cal-station-dot), var(--cal-shadow)" } : {}
+              },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 11, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", color: "var(--cal-muted)" }, children: st.label }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 28, fontWeight: 600, lineHeight: 1, color: st.k ? `var(--cal-${st.k}-fg)` : "var(--cal-ink)" }, children: st.value })
+              ]
+            },
+            st.key
+          );
+        }) }),
+        viewMode === "board" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cal-card", style: { padding: 10, display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { style: { position: "relative", flex: "1 1 180px", maxWidth: 320 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "h-4 w-4", style: { position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--cal-muted)" } }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "input",
               {
-                className: `w-full h-8 pl-7 pr-3 rounded-lg text-sm border outline-none ${isDark ? "bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-white/40" : "bg-background border-border focus:border-indigo-400"}`,
+                "aria-label": "Search tasks",
                 placeholder: "Search tasks…",
                 value: filterSearch,
-                onChange: (e) => setFilterSearch(e.target.value)
+                onChange: (e) => setFilterSearch(e.target.value),
+                className: "cal-field",
+                style: { width: "100%", paddingLeft: 32, boxSizing: "border-box" }
               }
             )
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hidden sm:flex items-center gap-1.5 flex-wrap", children: TASK_LABELS.map((label2) => {
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hidden sm:flex", style: { alignItems: "center", gap: 6, flexWrap: "wrap" }, children: TASK_LABELS.map((label2) => {
             const active = filterLabels.includes(label2.id);
-            return /* @__PURE__ */ jsxRuntimeExports.jsx(
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "button",
               {
+                type: "button",
+                "aria-pressed": active,
                 onClick: () => setFilterLabels(active ? filterLabels.filter((l) => l !== label2.id) : [...filterLabels, label2.id]),
-                className: `h-6 px-2.5 rounded-full text-xs font-medium border transition-all ${active ? "text-white border-transparent shadow-sm scale-105" : isDark ? "bg-white/10 text-white/60 border-white/20 hover:text-white" : "bg-muted/60 text-muted-foreground border-border hover:text-white"}`,
-                style: active ? { backgroundColor: label2.colour } : {},
-                onMouseEnter: (e) => {
-                  if (!active) e.currentTarget.style.backgroundColor = label2.colour;
-                  e.currentTarget.style.color = "white";
-                },
-                onMouseLeave: (e) => {
-                  if (!active) {
-                    e.currentTarget.style.backgroundColor = "";
-                    e.currentTarget.style.color = "";
-                  }
-                },
-                children: label2.name
+                className: "cal-focus",
+                style: chip(active, label2.colour),
+                children: [
+                  !active && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 8, height: 8, borderRadius: "50%", background: label2.colour } }),
+                  label2.name
+                ]
               },
               label2.id
             );
@@ -56685,23 +56777,31 @@ function Tasks() {
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
+              type: "button",
+              "aria-pressed": filterOverdue,
               onClick: () => setFilterOverdue(!filterOverdue),
-              className: `hidden sm:inline-flex h-7 px-3 rounded-full text-xs font-medium border transition-all ${filterOverdue ? "bg-red-500 text-white border-red-500" : isDark ? "bg-white/10 text-white/60 border-white/20 hover:bg-red-500/30 hover:text-red-300" : "bg-muted/60 text-muted-foreground border-border hover:bg-red-50 hover:text-red-500 hover:border-red-300"}`,
+              className: "cal-focus",
+              style: chip(filterOverdue, "var(--cal-station-dot)"),
               children: "Overdue only"
             }
           ),
-          hasActiveFilters && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          hasActiveFilters && /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "button",
             {
+              type: "button",
               onClick: () => {
                 setFilterSearch("");
                 setFilterLabels([]);
                 setFilterOverdue(false);
                 setFilterAssignee("");
               },
-              className: `h-7 w-7 flex items-center justify-center rounded-full transition-all ${isDark ? "text-white/40 hover:text-white hover:bg-white/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`,
               title: "Clear filters",
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" })
+              className: "cal-focus",
+              style: { ...chip(false), border: "none", background: "transparent", color: "var(--cal-muted)" },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" }),
+                " Clear"
+              ]
             }
           )
         ] }),

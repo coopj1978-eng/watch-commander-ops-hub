@@ -615,11 +615,12 @@ table.plain tbody tr:last-child td { border-bottom: none; }
   }
 }
 
-/* ── Calendar (redesign from Claude Design, Oct 2026) ───────────────────────
-   Tokens for the calendar page only, scoped to .cal-ui so the rest of the
-   app is untouched. Each calendar type has bg / fg / dot; shifts also have a
-   faint "shade" for the time grid. Dark values apply under html.dark. */
-.cal-ui {
+/* ── App design system v2 (from the Claude Design calendar, Oct 2026) ───────
+   Tokens are app-wide (:root, dark under html.dark) so any page can adopt
+   the new look; the Calendar and Tasks pages use them now. Each calendar
+   type has bg / fg / dot; shifts also have a faint "shade" for time grids.
+   .cal-ui sets the base text colour; the .cal-* helpers below are opt-in. */
+:root {
   --cal-bg: #f5f6fa; --cal-surface: #ffffff; --cal-surface-2: #f2f3f8; --cal-surface-3: #e7e9f1;
   --cal-ink: #111427; --cal-ink-2: #3f465e; --cal-muted: #5a6180; --cal-line: #e3e5ee; --cal-line-2: #cfd3e0;
   --cal-brand: #4338ca; --cal-brand-soft: #eceefe; --cal-brand-text: #3730a3; --cal-now: #dc2626;
@@ -634,9 +635,9 @@ table.plain tbody tr:last-child td { border-bottom: none; }
   --cal-day-bg: #fbf0d2; --cal-day-fg: #713f12; --cal-day-dot: #ca8a04; --cal-day-shade: rgba(202,138,4,.08);
   --cal-night-bg: #e9e8fb; --cal-night-fg: #312e81; --cal-night-dot: #4338ca; --cal-night-shade: rgba(67,56,202,.07);
   --cal-leave-bg: #e1f5e7; --cal-leave-fg: #14532d; --cal-leave-dot: #16a34a; --cal-leave-shade: rgba(22,163,74,.06);
-  color: var(--cal-ink);
 }
-.dark .cal-ui {
+.cal-ui { color: var(--cal-ink); }
+.dark {
   --cal-bg: #0b0d18; --cal-surface: #141728; --cal-surface-2: #1b1f35; --cal-surface-3: #242943;
   --cal-ink: #eceefa; --cal-ink-2: #c3c8de; --cal-muted: #989eb9; --cal-line: #262b45; --cal-line-2: #363c5e;
   --cal-brand: #5b5ff0; --cal-brand-soft: #22254a; --cal-brand-text: #c7cbff; --cal-now: #f87171;
@@ -652,20 +653,26 @@ table.plain tbody tr:last-child td { border-bottom: none; }
   --cal-night-bg: rgba(99,102,241,.26); --cal-night-fg: #d4dafe; --cal-night-dot: #818cf8; --cal-night-shade: rgba(99,102,241,.11);
   --cal-leave-bg: rgba(22,163,74,.22); --cal-leave-fg: #bbf7d0; --cal-leave-dot: #4ade80; --cal-leave-shade: rgba(22,163,74,.08);
 }
-.cal-ui .cal-mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
-.cal-ui .cal-card { background: var(--cal-surface); border: 1px solid var(--cal-line); border-radius: 20px; box-shadow: var(--cal-shadow); }
-.cal-ui .cal-btn {
+.cal-mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+.cal-card { background: var(--cal-surface); border: 1px solid var(--cal-line); border-radius: 20px; box-shadow: var(--cal-shadow); }
+.cal-btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   border-radius: 12px; border: 1px solid var(--cal-line-2); background: var(--cal-surface);
   color: var(--cal-ink); font-weight: 500; cursor: pointer; transition: background-color .15s;
 }
-.cal-ui .cal-btn:hover { background: var(--cal-surface-2); }
-.cal-ui .cal-btn:focus-visible, .cal-ui .cal-focus:focus-visible { outline: 2px solid var(--cal-brand); outline-offset: 2px; }
-.cal-ui .cal-field {
+.cal-btn:hover { background: var(--cal-surface-2); }
+.cal-btn:focus-visible, .cal-focus:focus-visible { outline: 2px solid var(--cal-brand); outline-offset: 2px; }
+.cal-field {
   height: 40px; border-radius: 10px; border: 1px solid var(--cal-line-2); background: var(--cal-surface-2);
   color: var(--cal-ink); font-size: 13px; padding: 0 10px; outline: none;
 }
-.cal-ui .cal-field:focus { border-color: var(--cal-brand); }
-.dark .cal-ui .cal-field { color-scheme: dark; }
+.cal-field:focus { border-color: var(--cal-brand); }
+.dark .cal-field { color-scheme: dark; }
+/* Inside v2 panels, the older shadcn colour names follow the v2 palette. */
+.cal-panel {
+  --background: var(--cal-surface); --foreground: var(--cal-ink); --card: var(--cal-surface);
+  --muted: var(--cal-surface-2); --muted-foreground: var(--cal-muted);
+  --border: var(--cal-line); --input: var(--cal-line-2);
+}
 /* .cal-btn sets display, so Tailwind's md:hidden can't hide it — use this. */
-@media (min-width: 768px) { .cal-ui .cal-phone-only { display: none; } }
+@media (min-width: 768px) { .cal-phone-only { display: none; } }

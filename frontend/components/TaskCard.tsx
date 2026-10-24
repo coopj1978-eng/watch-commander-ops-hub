@@ -1,8 +1,12 @@
 import { useState, useRef } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, AlertCircle, CheckCircle2, Clock, Repeat } from "lucide-react";
+import { Repeat } from "lucide-react";
 import type { Task } from "~backend/task/types";
 import { getLabelById, getCoverStyle } from "@/lib/taskLabels";
+import { ChecklistBar, DueChip, PriorityChip, describeRRule, priorityKey } from "@/lib/taskUi";
+
+// Board card in the v2 design (calendar tokens): soft rounded card with a
+// priority dot, label pills, due/recurrence chips, checklist bar and the
+// assignee's initials.
 
 interface TaskCardProps {
   task: Task;
@@ -15,13 +19,13 @@ interface TaskCardProps {
 }
 
 function avatarColour(userId: string): string {
-  const colours = ["#6366f1","#8b5cf6","#ec4899","#f97316","#14b8a6","#0ea5e9","#22c55e","#eab308"];
+  const colours = ["#6366f1", "#8b5cf6", "#ec4899", "#f97316", "#14b8a6", "#0ea5e9", "#22c55e", "#eab308"];
   let hash = 0;
   for (let i = 0; i < userId.length; i++) hash = userId.charCodeAt(i) + ((hash << 5) - hash);
   return colours[Math.abs(hash) % colours.length];
 }
 
-export default function TaskCard({ task, onChecklistToggle, onTitleEdit, onClick, compact = false, isDark, userMap }: TaskCardProps) {
+export default function TaskCard({ task, onTitleEdit, onClick, userMap }: TaskCardProps) {
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState(task.title);
   const titleInputRef = useRef<HTMLInputElement>(null);
@@ -41,205 +45,107 @@ export default function TaskCard({ task, onChecklistToggle, onTitleEdit, onClick
     setEditingTitle(false);
   };
 
-  const parseRRule = (rrule?: string): string | null => {
-    if (!rrule) return null;
-    try {
-      const freqMatch = rrule.match(/FREQ=([^;]+)/);
-      const intervalMatch = rrule.match(/INTERVAL=(\d+)/);
-      const byDayMatch = rrule.match(/BYDAY=([^;]+)/);
-      if (!freqMatch) return "Recurring";
-      const freq = freqMatch[1];
-      const interval = intervalMatch ? parseInt(intervalMatch[1]) : 1;
-      if (freq === "DAILY") return interval === 1 ? "Daily" : `Every ${interval} days`;
-      if (freq === "WEEKLY") {
-        if (byDayMatch) {
-          const days = byDayMatch[1].split(",").map((d) => (({ MO:"Mon",TU:"Tue",WE:"Wed",TH:"Thu",FR:"Fri",SA:"Sat",SU:"Sun" } as Record<string,string>)[d] ?? d)).join(", ");
-          return interval === 1 ? `Weekly on ${days}` : `Every ${interval} weeks on ${days}`;
-        }
-        return interval === 1 ? "Weekly" : `Every ${interval} weeks`;
-      }
-      if (freq === "MONTHLY") return interval === 1 ? "Monthly" : `Every ${interval} months`;
-      return "Recurring";
-    } catch { return "Recurring"; }
-  };
-
-  const getDueBadge = () => {
-    if (!task.due_at) return null;
-    const dueDate = new Date(task.due_at);
-    const now = new Date();
-    const dueDay = new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate());
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const diffDays = Math.round((dueDay.getTime() - today.getTime()) / 86400000);
-    if (task.status === "Done") return (
-      <Badge className="bg-green-500/10 text-green-600 border-green-500/20 text-xs">
-        <CheckCircle2 className="h-3 w-3 mr-1" />Completed
-      </Badge>
-    );
-    if (diffDays < 0) return (
-      <Badge className="bg-red-500/10 text-red-500 border-red-500/20 text-xs">
-        <AlertCircle className="h-3 w-3 mr-1" />Overdue {Math.abs(diffDays)}d
-      </Badge>
-    );
-    if (diffDays === 0) return (
-      <Badge className="bg-orange-500/10 text-orange-500 border-orange-500/20 text-xs">
-        <Clock className="h-3 w-3 mr-1" />Due Today
-      </Badge>
-    );
-    if (diffDays <= 3) return (
-      <Badge className="bg-yellow-500/10 text-yellow-600 border-yellow-500/20 text-xs">
-        <Clock className="h-3 w-3 mr-1" />Due in {diffDays}d
-      </Badge>
-    );
-    return (
-      <Badge variant="outline" className="text-xs">
-        <Calendar className="h-3 w-3 mr-1" />
-        {dueDate.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
-      </Badge>
-    );
-  };
-
   const cardLabels = (task.tags ?? []).map(getLabelById).filter(Boolean);
   const coverStyle = getCoverStyle((task as any).cover_colour);
-  const rruleDisplay = parseRRule(task.rrule);
-  const checklistProgress = task.checklist && task.checklist.length > 0
-    ? { completed: task.checklist.filter((i) => i.done).length, total: task.checklist.length }
-    : null;
+  const recur = describeRRule(task.rrule);
   const assignee = task.assigned_to_user_id
-    ? (userMap?.[task.assigned_to_user_id] ?? { initials: task.assigned_to_user_id.slice(0, 2).toUpperCase(), colour: avatarColour(task.assigned_to_user_id) })
+    ? (userMap?.[task.assigned_to_user_id] ?? {
+        initials: task.assigned_to_user_id.slice(0, 2).toUpperCase(),
+        colour: avatarColour(task.assigned_to_user_id),
+      })
     : null;
-
-  // Priority → left border colour (visual-refresh signature look). The
-  // border-l-2 here gives the card its priority colour without needing a
-  // separate badge in the footer; the badge underneath becomes a small
-  // mono caption instead.
-  const priorityKey =
-    task.priority === "High" ? "high" : task.priority === "Med" ? "medium" : "low";
-
-  const cardBase = isDark
-    ? "bg-white/95 border-white/20 hover:bg-white shadow-sm"
-    : "bg-card border-border hover:border-foreground/20";
+  const done = task.status === "Done";
 
   return (
     <div
-      data-pri={priorityKey}
-      className={`kan-card rounded-md border border-l-2 transition-colors cursor-pointer ${cardBase}`}
+      role="button"
+      tabIndex={0}
       onClick={onClick}
+      onKeyDown={(e) => { if (e.key === "Enter" && !editingTitle) onClick?.(); }}
+      className="cal-focus"
       style={{
-        borderLeftColor:
-          priorityKey === "high"
-            ? "oklch(0.55 0.18 27)"
-            : priorityKey === "medium"
-            ? "oklch(0.72 0.14 75)"
-            : "oklch(0.55 0.12 240)",
+        background: "var(--cal-surface)", border: "1px solid var(--cal-line)", borderRadius: 14,
+        boxShadow: "var(--cal-shadow)", cursor: "pointer", overflow: "hidden", color: "var(--cal-ink)",
       }}
     >
-      {/* Card cover */}
-      {coverStyle && (
-        <div
-          className="w-full rounded-t-md"
-          style={{ ...coverStyle, height: 64 }}
-        />
-      )}
+      {coverStyle && <div style={{ ...coverStyle, height: 64 }} />}
 
-      {/* Colour label strips (shown below cover, or at top if no cover) */}
-      {cardLabels.length > 0 && (
-        <div className={`flex gap-1 px-2.5 flex-wrap ${coverStyle ? "pt-2" : "pt-2.5"}`}>
-          {cardLabels.map((label) => label && (
-            <div
-              key={label.id}
-              className="h-2 rounded-full flex-1 min-w-[2rem] max-w-[4rem]"
-              style={{ backgroundColor: label.colour }}
-              title={label.name}
-            />
-          ))}
-        </div>
-      )}
+      <div style={{ padding: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+        {cardLabels.length > 0 && (
+          <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+            {cardLabels.map((label) => label && (
+              <span
+                key={label.id}
+                title={label.name}
+                style={{ height: 6, borderRadius: 999, flex: "1 1 2rem", maxWidth: "4rem", minWidth: "2rem", background: label.colour }}
+              />
+            ))}
+          </div>
+        )}
 
-      <div className="p-3">
-        {/* Title */}
-        <div className="flex items-start gap-1.5 mb-1.5" onClick={(e) => e.stopPropagation()}>
-          {task.rrule && (
-            // Lucide icons don't accept `title` directly — wrap in a span
-            // with title so the hover hint still works.
-            <span title={rruleDisplay ?? "Recurring"} className="inline-flex shrink-0 mt-0.5">
-              <Repeat className="h-3.5 w-3.5 text-blue-500" />
-            </span>
-          )}
+        {/* As before: clicks on the title don't open the task, so a
+            double-click can edit the title in place. */}
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }} onClick={(e) => (onTitleEdit || editingTitle) && e.stopPropagation()}>
+          <span
+            aria-hidden
+            title={`${task.priority === "Med" ? "Medium" : task.priority} priority`}
+            style={{ width: 8, height: 8, borderRadius: "50%", marginTop: 6, flex: "none", background: `var(--cal-${priorityKey(task.priority)}-dot)` }}
+          />
           {editingTitle ? (
             <input
               ref={titleInputRef}
-              className="flex-1 text-sm font-medium bg-transparent border-b border-indigo-500 outline-none"
+              aria-label="Task title"
               value={titleValue}
               onChange={(e) => setTitleValue(e.target.value)}
               onBlur={handleTitleSave}
+              onClick={(e) => e.stopPropagation()}
               onKeyDown={(e) => {
+                e.stopPropagation();
                 if (e.key === "Enter") handleTitleSave();
                 if (e.key === "Escape") { setTitleValue(task.title); setEditingTitle(false); }
               }}
               autoFocus
+              style={{ flex: 1, font: "inherit", fontSize: 14, fontWeight: 600, background: "transparent", border: "none", borderBottom: "2px solid var(--cal-brand)", outline: "none", color: "var(--cal-ink)" }}
             />
           ) : (
             <h4
-              className="font-medium text-sm leading-snug line-clamp-2 flex-1"
               onDoubleClick={handleTitleDoubleClick}
               title={onTitleEdit ? "Double-click to edit" : task.title}
+              style={{
+                margin: 0, flex: 1, fontSize: 14, fontWeight: 600, lineHeight: 1.3,
+                display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
+                ...(done ? { color: "var(--cal-muted)" } : {}),
+              }}
             >
               {task.title}
             </h4>
           )}
+          {recur && (
+            <span title={recur} style={{ display: "inline-flex", flex: "none", marginTop: 2, color: "var(--cal-watch-dot)" }}>
+              <Repeat className="h-3.5 w-3.5" />
+            </span>
+          )}
         </div>
 
-        {/* Recurrence badge */}
-        {rruleDisplay && (
-          <div className="mb-1.5">
-            <Badge variant="outline" className="text-xs bg-blue-500/5 text-blue-600 border-blue-500/20">
-              <Repeat className="h-3 w-3 mr-1" />{rruleDisplay}
-            </Badge>
+        {(task.due_at || recur) && (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            <DueChip task={task} />
+            {recur && !task.due_at && <span className="cal-mono" style={{ fontSize: 11, color: "var(--cal-muted)" }}>{recur}</span>}
           </div>
         )}
 
-        {/* Due badge */}
-        {task.due_at && <div className="mb-1.5">{getDueBadge()}</div>}
+        <ChecklistBar task={task} />
 
-        {/* Checklist progress */}
-        {checklistProgress && (
-          <div className="flex items-center gap-2 mb-2">
-            <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-              <div
-                className="h-full bg-indigo-500 transition-all"
-                style={{ width: `${Math.round((checklistProgress.completed / checklistProgress.total) * 100)}%` }}
-              />
-            </div>
-            <span className="text-xs text-muted-foreground">{checklistProgress.completed}/{checklistProgress.total}</span>
-          </div>
-        )}
-
-        {/* Footer: priority caption + avatar.
-            Priority colour now lives on the card's left border, so this
-            footer only needs the priority *name* in mono caps. The
-            avatar still anchors the right edge. */}
-        <div className="flex items-center justify-between gap-1 mt-1">
-          <span
-            className="font-mono text-[10px] uppercase tracking-wider"
-            style={{
-              color:
-                priorityKey === "high"
-                  ? "oklch(0.55 0.18 27)"
-                  : priorityKey === "medium"
-                  ? "oklch(0.55 0.14 75)"
-                  : "var(--muted-foreground)",
-            }}
-          >
-            {task.priority === "Med" ? "Medium" : task.priority}
-          </span>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6 }}>
+          <PriorityChip priority={task.priority} />
           {assignee && (
-            <div
-              className="h-6 w-6 rounded-full flex items-center justify-center text-white text-[10px] font-mono font-semibold shrink-0"
-              style={{ backgroundColor: assignee.colour }}
+            <span
               title={assignee.initials}
+              className="cal-mono"
+              style={{ width: 26, height: 26, borderRadius: 8, display: "grid", placeItems: "center", color: "#fff", fontSize: 10.5, fontWeight: 600, background: assignee.colour, flex: "none" }}
             >
               {assignee.initials}
-            </div>
+            </span>
           )}
         </div>
       </div>

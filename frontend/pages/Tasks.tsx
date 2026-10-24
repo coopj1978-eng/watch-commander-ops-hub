@@ -2,8 +2,7 @@ import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/App";
 import backend from "@/lib/backend";
-import { Button } from "@/components/ui/button";
-import { LayoutGrid, List, Plus, Repeat, Search, Palette, X as XIcon, CheckSquare } from "lucide-react";
+import { LayoutGrid, List, Plus, Repeat, Search, Palette, X as XIcon } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useUserRole } from "@/lib/rbac";
 import TaskBoard from "@/components/TaskBoard";
@@ -196,210 +195,210 @@ export default function Tasks() {
   const syncedSelectedTask = selectedTask ? (tasks.find((t) => t.id === selectedTask.id) ?? selectedTask) : null;
   const boardFilters = { search: filterSearch, labels: filterLabels, overdueOnly: filterOverdue, assignee: filterAssignee };
 
-  // Dynamic text colours for dark backgrounds
-  const headingClass = isDark ? "text-white" : "text-foreground";
-  const subtitleClass = isDark ? "text-white/60" : "text-muted-foreground";
-  const btnOutlineClass = isDark
-    ? "bg-white/15 text-white border-white/25 hover:bg-white/25"
-    : "";
+  // On a dark board background the page header text turns white; the
+  // cards and columns keep their own surfaces either way.
+  const headerInk = isDark ? "#fff" : "var(--cal-ink)";
+  const headerMuted = isDark ? "rgba(255,255,255,.7)" : "var(--cal-muted)";
+
+  const stats: { key: string; label: string; value: number; k?: string; onClick?: () => void; pressed?: boolean }[] = [
+    { key: "open", label: "Open", value: taskStats.open },
+    { key: "week", label: "Due this week", value: taskStats.dueThisWeek, k: taskStats.dueThisWeek > 0 ? "day" : undefined },
+    {
+      key: "overdue", label: "Overdue", value: taskStats.overdue, k: taskStats.overdue > 0 ? "station" : undefined,
+      onClick: () => setFilterOverdue(!filterOverdue), pressed: filterOverdue,
+    },
+    { key: "blocked", label: "Blocked", value: taskStats.blocked, k: taskStats.blocked > 0 ? "insp" : undefined },
+    { key: "progress", label: "In progress", value: taskStats.inProgress, k: taskStats.inProgress > 0 ? "watch" : undefined },
+    { key: "done", label: "Completed (7d)", value: taskStats.completedRecent, k: taskStats.completedRecent > 0 ? "leave" : undefined },
+  ];
+
+  const chip = (active: boolean, colour?: string): React.CSSProperties => ({
+    height: 30, padding: "0 12px", borderRadius: 999, font: "inherit", fontSize: 12.5, fontWeight: 600, cursor: "pointer",
+    display: "inline-flex", alignItems: "center", gap: 6,
+    ...(active
+      ? { background: colour ?? "var(--cal-brand)", color: "#fff", border: "1px solid transparent" }
+      : { background: "var(--cal-surface)", color: "var(--cal-ink-2)", border: "1px solid var(--cal-line-2)" }),
+  });
 
   return (
     <div
-      className="min-h-screen -m-4 md:-m-8 p-4 md:p-8 space-y-5 transition-all duration-500"
-      style={bgId !== "default" ? { background: bg.style.replace("background: ", "") } : {}}
+      className="cal-ui min-h-screen -m-4 md:-m-8 p-4 md:p-8 transition-all duration-500"
+      style={{ display: "flex", flexDirection: "column", gap: 16, ...(bgId !== "default" ? { background: bg.style.replace("background: ", "") } : {}) }}
     >
-      {/* ── Page header ──────────────────────────────────────────────────────
-          Visual-refresh pattern: heading + eyebrow context line that mirrors
-          what the design calls out (`This watch · 14 total · 3 overdue`)
-          + spacer + action buttons. Eyebrow uses the live taskStats so the
-          numbers never drift from the board / today-strip below. */}
-      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-3">
-        <div className="flex items-baseline flex-wrap gap-x-4 gap-y-1">
-          <h1 className={`text-3xl font-bold flex items-center gap-3 ${headingClass}`}>
-            <CheckSquare className={`h-7 w-7 shrink-0 ${isDark ? "text-white/80" : "text-brand"}`} />
+      {/* ── Header ───────────────────────────────────────────────────────── */}
+      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "space-between", gap: 16 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          <span className="cal-mono" style={{ fontSize: 12, letterSpacing: ".12em", textTransform: "uppercase", color: headerMuted }}>
+            {watchName} Watch · {tasks.length} total
+            {taskStats.overdue > 0 && <span style={{ color: isDark ? "#fecaca" : "var(--cal-now)" }}> · {taskStats.overdue} overdue</span>}
+          </span>
+          <h1 style={{ margin: 0, fontSize: "clamp(28px, 4vw, 40px)", lineHeight: 1.05, fontWeight: 600, letterSpacing: "-.02em", color: headerInk }}>
             Tasks
           </h1>
-          <span className={`eyebrow whitespace-nowrap ${isDark ? "!text-white/60" : ""}`}>
-            {watchName} Watch
-            <span className="crumb-sep">·</span>
-            {tasks.length} total
-            {taskStats.overdue > 0 && (
-              <>
-                <span className="crumb-sep">·</span>
-                <span className="text-red-600 dark:text-red-400">{taskStats.overdue} overdue</span>
-              </>
-            )}
-          </span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Board/List toggle */}
-          <Button variant="outline" size="icon" onClick={() => setViewMode("board")} title="Board view"
-            className={`${viewMode === "board" ? "bg-brand text-brand-foreground border-brand hover:bg-brand/90" : btnOutlineClass}`}>
-            <LayoutGrid className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="icon" onClick={() => setViewMode("list")} title="List view"
-            className={`${viewMode === "list" ? "bg-brand text-brand-foreground border-brand hover:bg-brand/90" : btnOutlineClass}`}>
-            <List className="h-4 w-4" />
-          </Button>
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
+          {/* Board / List */}
+          <div role="group" aria-label="View" style={{ display: "inline-flex", padding: 4, borderRadius: 14, background: "var(--cal-surface-3)", gap: 2 }}>
+            {([["board", "Board", LayoutGrid], ["list", "List", List]] as const).map(([mode, label, Icon]) => (
+              <button
+                key={mode}
+                type="button"
+                aria-pressed={viewMode === mode}
+                onClick={() => setViewMode(mode)}
+                className="cal-focus"
+                style={{
+                  height: 36, padding: "0 14px", borderRadius: 10, border: "none", font: "inherit", fontSize: 14, cursor: "pointer",
+                  display: "inline-flex", alignItems: "center", gap: 6,
+                  ...(viewMode === mode
+                    ? { background: "var(--cal-surface)", color: "var(--cal-ink)", fontWeight: 600, boxShadow: "var(--cal-shadow)" }
+                    : { background: "transparent", color: "var(--cal-ink-2)", fontWeight: 500 }),
+                }}
+              >
+                <Icon className="h-4 w-4" />
+                <span className="hidden sm:inline">{label}</span>
+              </button>
+            ))}
+          </div>
 
           {/* Background picker */}
-          <div className="relative">
-            <Button
-              variant="outline"
-              size="icon"
+          <div style={{ position: "relative" }}>
+            <button
+              type="button"
               onClick={() => setShowBgPicker(!showBgPicker)}
+              aria-label="Board background"
+              aria-expanded={showBgPicker}
               title="Board background"
-              className={`${showBgPicker ? "bg-brand text-brand-foreground border-brand" : btnOutlineClass}`}
+              className="cal-btn"
+              style={{ width: 44, height: 44, padding: 0, ...(showBgPicker ? { borderColor: "var(--cal-brand)", color: "var(--cal-brand)" } : {}) }}
             >
-              <Palette className="h-4 w-4" />
-            </Button>
+              <Palette className="h-[18px] w-[18px]" />
+            </button>
             {showBgPicker && (
-              <div className={`absolute right-0 top-11 z-50 rounded-md shadow-2xl border p-4 w-72 ${isDark ? "bg-gray-900/95 border-white/10" : "bg-card border-border"}`}>
-                <div className="flex items-center justify-between mb-3">
-                  <span className={`eyebrow ${isDark ? "!text-white" : ""}`}>Board Background</span>
-                  <button onClick={() => setShowBgPicker(false)} className={isDark ? "text-white/50 hover:text-white" : "text-muted-foreground hover:text-foreground"}>
+              <div className="cal-card" style={{ position: "absolute", right: 0, top: 52, zIndex: 50, width: 288, padding: 16, boxShadow: "var(--cal-pop)" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                  <span style={{ fontSize: 14, fontWeight: 600 }}>Board background</span>
+                  <button type="button" aria-label="Close" onClick={() => setShowBgPicker(false)} className="cal-btn" style={{ width: 32, height: 32, padding: 0, borderRadius: 10 }}>
                     <XIcon className="h-4 w-4" />
                   </button>
                 </div>
-                <div className="grid grid-cols-4 gap-2">
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
                   {BOARD_BACKGROUNDS.map((b) => (
                     <button
                       key={b.id}
+                      type="button"
                       onClick={() => handleBgChange(b.id)}
-                      className={`h-12 rounded-md transition-all hover:scale-105 border-2 ${bgId === b.id ? "border-brand scale-105 shadow-lg" : "border-transparent"}`}
-                      style={{ background: b.style.replace("background: ", "") }}
                       title={b.name}
+                      aria-label={b.name}
+                      aria-pressed={bgId === b.id}
+                      className="cal-focus"
+                      style={{
+                        height: 44, borderRadius: 12, cursor: "pointer", background: b.style.replace("background: ", ""),
+                        border: bgId === b.id ? "2px solid var(--cal-brand)" : "2px solid transparent",
+                      }}
                     />
                   ))}
                 </div>
-                <p className={`text-xs mt-3 text-center ${isDark ? "text-white/40" : "text-muted-foreground"}`}>Click to apply</p>
               </div>
             )}
           </div>
 
-          <Button variant="outline" className={`ml-1 ${btnOutlineClass}`} onClick={() => setShowTemplateManager(true)} aria-label="Templates">
-            <Repeat className="h-4 w-4 sm:mr-2" />
+          <button type="button" onClick={() => setShowTemplateManager(true)} aria-label="Templates" className="cal-btn" style={{ height: 44, padding: "0 16px", fontSize: 14 }}>
+            <Repeat className="h-[18px] w-[18px]" />
             <span className="hidden sm:inline">Templates</span>
-          </Button>
-          <Button
-            className="bg-brand hover:bg-brand/90 text-brand-foreground"
+          </button>
+          <button
+            type="button"
             onClick={handleNewTask}
             aria-label="New Task"
+            className="cal-focus"
+            style={{ height: 44, padding: "0 18px", borderRadius: 12, border: "none", background: "var(--cal-brand)", color: "#fff", font: "inherit", fontSize: 14, fontWeight: 600, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8 }}
           >
-            <Plus className="h-4 w-4 sm:mr-2" />
+            <Plus className="h-[18px] w-[18px]" />
             <span className="hidden sm:inline">New Task</span>
-          </Button>
+          </button>
         </div>
       </div>
 
-      {/* ── KPI strip ────────────────────────────────────────────────────────
-          The .today-strip primitive from the visual refresh — flat, mono-
-          numeric, no separate cards. Lives between the header and the
-          filter row so the numbers are always in view above the board. */}
+      {/* ── Stats ────────────────────────────────────────────────────────── */}
       {viewMode === "board" && (
-        <div className="today-strip">
-          <div>
-            <span className="k">Open</span>
-            <span className="v mono">{taskStats.open}</span>
-          </div>
-          <div>
-            <span className="k">Due this week</span>
-            <span className="v mono">{taskStats.dueThisWeek}</span>
-          </div>
-          <div>
-            <span className="k">Overdue</span>
-            <span
-              className="v mono"
-              style={{ color: taskStats.overdue > 0 ? "var(--destructive)" : undefined }}
-            >
-              {taskStats.overdue}
-            </span>
-          </div>
-          <div>
-            <span className="k">Blocked</span>
-            <span className="v mono">{taskStats.blocked}</span>
-          </div>
-          <div>
-            <span className="k">In progress</span>
-            <span className="v mono">{taskStats.inProgress}</span>
-          </div>
-          <div>
-            <span className="k">Completed (7d)</span>
-            <span className="v mono">{taskStats.completedRecent}</span>
-          </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
+          {stats.map((st) => {
+            const Tag = st.onClick ? "button" : "div";
+            return (
+              <Tag
+                key={st.key}
+                {...(st.onClick ? { type: "button" as const, onClick: st.onClick, "aria-pressed": st.pressed, title: "Show only overdue tasks" } : {})}
+                className={`cal-card${st.onClick ? " cal-focus" : ""}`}
+                style={{
+                  padding: "12px 14px", display: "flex", flexDirection: "column", gap: 4, textAlign: "left", font: "inherit",
+                  cursor: st.onClick ? "pointer" : undefined, color: "var(--cal-ink)",
+                  ...(st.pressed ? { boxShadow: "0 0 0 2px var(--cal-station-dot), var(--cal-shadow)" } : {}),
+                }}
+              >
+                <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", color: "var(--cal-muted)" }}>{st.label}</span>
+                <span className="cal-mono" style={{ fontSize: 28, fontWeight: 600, lineHeight: 1, color: st.k ? `var(--cal-${st.k}-fg)` : "var(--cal-ink)" }}>
+                  {st.value}
+                </span>
+              </Tag>
+            );
+          })}
         </div>
       )}
 
-      {/* ── Filter Bar (board only) ─────────────────────────────────────────── */}
+      {/* ── Filters (board) ──────────────────────────────────────────────── */}
       {viewMode === "board" && (
-        <div className={`flex flex-wrap items-center gap-2 p-2.5 rounded-md border ${
-          isDark ? "bg-black/20 border-white/10 backdrop-blur-sm" : "bg-card border-border"
-        }`}>
-          {/* Search */}
-          <div className="relative flex-1 min-w-[150px] max-w-xs">
-            <Search className={`absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 ${isDark ? "text-white/40" : "text-muted-foreground"}`} />
+        <div className="cal-card" style={{ padding: 10, display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
+          <label style={{ position: "relative", flex: "1 1 180px", maxWidth: 320 }}>
+            <Search className="h-4 w-4" style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--cal-muted)" }} />
             <input
-              className={`w-full h-8 pl-7 pr-3 rounded-lg text-sm border outline-none ${
-                isDark
-                  ? "bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-white/40"
-                  : "bg-background border-border focus:border-indigo-400"
-              }`}
+              aria-label="Search tasks"
               placeholder="Search tasks…"
               value={filterSearch}
               onChange={(e) => setFilterSearch(e.target.value)}
+              className="cal-field"
+              style={{ width: "100%", paddingLeft: 32, boxSizing: "border-box" }}
             />
-          </div>
+          </label>
 
-          {/* Label filters — hidden on mobile to save space */}
-          <div className="hidden sm:flex items-center gap-1.5 flex-wrap">
+          <div className="hidden sm:flex" style={{ alignItems: "center", gap: 6, flexWrap: "wrap" }}>
             {TASK_LABELS.map((label) => {
               const active = filterLabels.includes(label.id);
               return (
                 <button
                   key={label.id}
+                  type="button"
+                  aria-pressed={active}
                   onClick={() => setFilterLabels(active ? filterLabels.filter((l) => l !== label.id) : [...filterLabels, label.id])}
-                  className={`h-6 px-2.5 rounded-full text-xs font-medium border transition-all ${
-                    active
-                      ? "text-white border-transparent shadow-sm scale-105"
-                      : isDark
-                        ? "bg-white/10 text-white/60 border-white/20 hover:text-white"
-                        : "bg-muted/60 text-muted-foreground border-border hover:text-white"
-                  }`}
-                  style={active ? { backgroundColor: label.colour } : {}}
-                  onMouseEnter={(e) => { if (!active) (e.currentTarget as HTMLButtonElement).style.backgroundColor = label.colour; (e.currentTarget as HTMLButtonElement).style.color = "white"; }}
-                  onMouseLeave={(e) => { if (!active) { (e.currentTarget as HTMLButtonElement).style.backgroundColor = ""; (e.currentTarget as HTMLButtonElement).style.color = ""; } }}
+                  className="cal-focus"
+                  style={chip(active, label.colour)}
                 >
+                  {!active && <span style={{ width: 8, height: 8, borderRadius: "50%", background: label.colour }} />}
                   {label.name}
                 </button>
               );
             })}
           </div>
 
-          {/* Overdue toggle — hidden on mobile */}
           <button
+            type="button"
+            aria-pressed={filterOverdue}
             onClick={() => setFilterOverdue(!filterOverdue)}
-            className={`hidden sm:inline-flex h-7 px-3 rounded-full text-xs font-medium border transition-all ${
-              filterOverdue
-                ? "bg-red-500 text-white border-red-500"
-                : isDark
-                  ? "bg-white/10 text-white/60 border-white/20 hover:bg-red-500/30 hover:text-red-300"
-                  : "bg-muted/60 text-muted-foreground border-border hover:bg-red-50 hover:text-red-500 hover:border-red-300"
-            }`}
+            className="cal-focus"
+            style={chip(filterOverdue, "var(--cal-station-dot)")}
           >
             Overdue only
           </button>
 
-          {/* Clear */}
           {hasActiveFilters && (
             <button
+              type="button"
               onClick={() => { setFilterSearch(""); setFilterLabels([]); setFilterOverdue(false); setFilterAssignee(""); }}
-              className={`h-7 w-7 flex items-center justify-center rounded-full transition-all ${
-                isDark ? "text-white/40 hover:text-white hover:bg-white/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"
-              }`}
               title="Clear filters"
+              className="cal-focus"
+              style={{ ...chip(false), border: "none", background: "transparent", color: "var(--cal-muted)" }}
             >
-              <XIcon className="h-3.5 w-3.5" />
+              <XIcon className="h-3.5 w-3.5" /> Clear
             </button>
           )}
         </div>

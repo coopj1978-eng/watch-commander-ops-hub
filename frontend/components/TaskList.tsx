@@ -1,19 +1,8 @@
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, X, Calendar, AlertCircle, CheckCircle2, Clock, Repeat } from "lucide-react";
+import { Search, X, Repeat } from "lucide-react";
+import { Chip, ChecklistBar, DueChip, PriorityChip, RecurChip, describeRRule, priorityKey } from "@/lib/taskUi";
 import type { Task, TaskStatus, TaskPriority, TaskCategory } from "~backend/task/types";
 
 interface TaskListProps {
@@ -64,77 +53,9 @@ export default function TaskList({ tasks, isLoading, onTaskClick }: TaskListProp
     return true;
   });
 
-  const getDueBadge = (task: Task) => {
-    if (!task.due_at) return null;
-
-    const dueDate = new Date(task.due_at);
-    const now = new Date();
-    const dueDay = new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate());
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const diffDays = Math.round((dueDay.getTime() - today.getTime()) / 86400000);
-
-    if (task.status === "Done") {
-      return (
-        <Badge className="bg-green-500/10 text-green-500 border-green-500/20 text-xs">
-          <CheckCircle2 className="h-3 w-3 mr-1" />
-          Completed
-        </Badge>
-      );
-    }
-
-    if (diffDays < 0) {
-      return (
-        <Badge className="bg-red-500/10 text-red-500 border-red-500/20 text-xs">
-          <AlertCircle className="h-3 w-3 mr-1" />
-          Overdue {Math.abs(diffDays)}d
-        </Badge>
-      );
-    }
-
-    if (diffDays === 0) {
-      return (
-        <Badge className="bg-orange-500/10 text-orange-500 border-orange-500/20 text-xs">
-          <Clock className="h-3 w-3 mr-1" />
-          Due Today
-        </Badge>
-      );
-    }
-
-    if (diffDays <= 3) {
-      return (
-        <Badge className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20 text-xs">
-          <Clock className="h-3 w-3 mr-1" />
-          Due in {diffDays}d
-        </Badge>
-      );
-    }
-
-    return (
-      <Badge variant="outline" className="text-xs">
-        <Calendar className="h-3 w-3 mr-1" />
-        {dueDate.toLocaleDateString()}
-      </Badge>
-    );
-  };
-
-  const getPriorityColor = (priority: string) => {
-    const colors: Record<string, string> = {
-      High: "bg-red-500/10 text-red-500 border-red-500/20",
-      Med: "bg-orange-500/10 text-orange-500 border-orange-500/20",
-      Low: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-    };
-    return colors[priority] || colors.Med;
-  };
-
-  const getStatusColor = (status: string) => {
-    const colors: Record<string, string> = {
-      NotStarted: "bg-gray-500/10 text-gray-600 dark:text-gray-400 border-gray-500/20",
-      InProgress: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
-      Blocked: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20",
-      Done: "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20",
-    };
-    return colors[status] || colors.NotStarted;
-  };
+  // Status → token family (custom board columns fall back to muted).
+  const statusKey = (status: string) =>
+    ({ NotStarted: "muted", InProgress: "watch", Blocked: "insp", Done: "leave" } as Record<string, string>)[status] ?? "muted";
 
   const statusLabels: Record<TaskStatus, string> = {
     NotStarted: "Not Started",
@@ -153,27 +74,31 @@ export default function TaskList({ tasks, isLoading, onTaskClick }: TaskListProp
     setDueFilter("all");
   };
 
+  const th: React.CSSProperties = {
+    textAlign: "left", padding: "10px 14px", fontSize: 11, fontWeight: 600, letterSpacing: ".06em",
+    textTransform: "uppercase", color: "var(--cal-muted)", borderBottom: "1px solid var(--cal-line)",
+  };
+  const td: React.CSSProperties = { padding: "12px 14px", borderBottom: "1px solid var(--cal-line)", verticalAlign: "top" };
+
   return (
-    <div className="space-y-4">
-      <div className="grid gap-4 md:grid-cols-6">
-        <div className="md:col-span-2">
-          <Label htmlFor="search" className="sr-only">Search</Label>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <div className="cal-card" style={{ padding: 10, display: "grid", gap: 8 }}>
+        <div className="grid gap-2 md:grid-cols-6">
+          <label className="md:col-span-2" style={{ position: "relative" }}>
+            <Search className="h-4 w-4" style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--cal-muted)" }} />
+            <input
               id="search"
-              placeholder="Search tasks..."
+              aria-label="Search tasks"
+              placeholder="Search tasks…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
+              className="cal-field"
+              style={{ width: "100%", paddingLeft: 32, boxSizing: "border-box" }}
             />
-          </div>
-        </div>
+          </label>
 
-        <div>
-          <Label htmlFor="status-filter" className="sr-only">Status</Label>
           <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as TaskStatus | "all")}>
-            <SelectTrigger id="status-filter">
+            <SelectTrigger id="status-filter" aria-label="Status" className="h-10 rounded-[10px]">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -184,12 +109,9 @@ export default function TaskList({ tasks, isLoading, onTaskClick }: TaskListProp
               <SelectItem value="Done">Done</SelectItem>
             </SelectContent>
           </Select>
-        </div>
 
-        <div>
-          <Label htmlFor="priority-filter" className="sr-only">Priority</Label>
           <Select value={priorityFilter} onValueChange={(value) => setPriorityFilter(value as TaskPriority | "all")}>
-            <SelectTrigger id="priority-filter">
+            <SelectTrigger id="priority-filter" aria-label="Priority" className="h-10 rounded-[10px]">
               <SelectValue placeholder="Priority" />
             </SelectTrigger>
             <SelectContent>
@@ -199,12 +121,9 @@ export default function TaskList({ tasks, isLoading, onTaskClick }: TaskListProp
               <SelectItem value="Low">Low</SelectItem>
             </SelectContent>
           </Select>
-        </div>
 
-        <div>
-          <Label htmlFor="category-filter" className="sr-only">Category</Label>
           <Select value={categoryFilter} onValueChange={(value) => setCategoryFilter(value as TaskCategory | "all")}>
-            <SelectTrigger id="category-filter">
+            <SelectTrigger id="category-filter" aria-label="Category" className="h-10 rounded-[10px]">
               <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
@@ -216,12 +135,9 @@ export default function TaskList({ tasks, isLoading, onTaskClick }: TaskListProp
               <SelectItem value="Other">Other</SelectItem>
             </SelectContent>
           </Select>
-        </div>
 
-        <div>
-          <Label htmlFor="due-filter" className="sr-only">Due Date</Label>
           <Select value={dueFilter} onValueChange={(value) => setDueFilter(value as DueFilter)}>
-            <SelectTrigger id="due-filter">
+            <SelectTrigger id="due-filter" aria-label="Due date" className="h-10 rounded-[10px]">
               <SelectValue placeholder="Due" />
             </SelectTrigger>
             <SelectContent>
@@ -233,188 +149,121 @@ export default function TaskList({ tasks, isLoading, onTaskClick }: TaskListProp
             </SelectContent>
           </Select>
         </div>
-      </div>
 
-      {hasActiveFilters && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            Showing {filteredTasks.length} of {tasks.length} tasks
-          </p>
-          <Button variant="ghost" size="sm" onClick={clearFilters}>
-            <X className="h-4 w-4 mr-2" />
-            Clear Filters
-          </Button>
-        </div>
-      )}
-
-      {/* ── MOBILE: card list (hidden on md+) ────────────────────────────── */}
-      <div className="md:hidden space-y-2">
-        {isLoading ? (
-          [...Array(5)].map((_, i) => <Skeleton key={i} className="h-20 w-full rounded-xl" />)
-        ) : filteredTasks.length === 0 ? (
-          <div className="border border-dashed rounded-xl py-10 text-center text-sm text-muted-foreground">
-            {hasActiveFilters ? "No tasks match your filters" : "No tasks yet"}
+        {hasActiveFilters && (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, padding: "0 4px" }}>
+            <span style={{ fontSize: 13, color: "var(--cal-muted)" }}>Showing {filteredTasks.length} of {tasks.length} tasks</span>
+            <button type="button" onClick={clearFilters} className="cal-btn" style={{ height: 32, padding: "0 12px", fontSize: 13 }}>
+              <X className="h-3.5 w-3.5" /> Clear filters
+            </button>
           </div>
-        ) : (
-          filteredTasks.map((task) => {
-            const checklistProgress = task.checklist
-              ? {
-                  completed: task.checklist.filter((item) => item.done).length,
-                  total: task.checklist.length,
-                  percentage: Math.round(
-                    (task.checklist.filter((item) => item.done).length / task.checklist.length) * 100
-                  ),
-                }
-              : null;
-            return (
-              <button
-                key={task.id}
-                onClick={() => onTaskClick?.(task)}
-                className="w-full text-left bg-card border border-border rounded-xl p-3 space-y-2 hover:bg-muted/40 active:bg-muted/60 transition-colors"
-              >
-                <div className="flex items-start gap-2">
-                  {task.rrule && <Repeat className="h-4 w-4 text-blue-500 mt-0.5 shrink-0" />}
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold leading-snug">{task.title}</p>
-                    {task.description && (
-                      <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{task.description}</p>
-                    )}
-                  </div>
-                </div>
-                <div className="flex flex-wrap items-center gap-1.5">
-                  <Badge className={getStatusColor(task.status)} variant="outline">
-                    {statusLabels[task.status]}
-                  </Badge>
-                  <Badge className={getPriorityColor(task.priority)} variant="outline">
-                    {task.priority}
-                  </Badge>
-                  <Badge variant="outline" className="text-xs">{task.category}</Badge>
-                  {getDueBadge(task)}
-                </div>
-                {checklistProgress && (
-                  <div className="flex items-center gap-2 pt-1">
-                    <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-brand transition-all"
-                        style={{ width: `${checklistProgress.percentage}%` }}
-                      />
-                    </div>
-                    <span className="text-[11px] text-muted-foreground whitespace-nowrap">
-                      {checklistProgress.completed}/{checklistProgress.total}
-                    </span>
-                  </div>
-                )}
-              </button>
-            );
-          })
         )}
       </div>
 
-      {/* ── DESKTOP: table (hidden on mobile) ──────────────────────────────
-          Uses the visual-refresh `plain` table style: mono uppercase
-          headers, hairline borders, hover wash. */}
-      <div className="card-flush hidden md:block">
-        <div className="overflow-x-auto">
-        <Table className="plain">
-          <TableHeader>
-            <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Priority</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Due Date</TableHead>
-              <TableHead>Progress</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              [...Array(5)].map((_, i) => (
-                <TableRow key={i}>
-                  {[...Array(6)].map((_, j) => (
-                    <TableCell key={j}>
-                      <Skeleton className="h-6 w-full" />
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : filteredTasks.length > 0 ? (
-              filteredTasks.map((task) => {
-                const checklistProgress = task.checklist
-                  ? {
-                      completed: task.checklist.filter((item) => item.done).length,
-                      total: task.checklist.length,
-                      percentage: Math.round(
-                        (task.checklist.filter((item) => item.done).length / task.checklist.length) * 100
-                      ),
-                    }
-                  : null;
+      {/* ── Phone: cards ── */}
+      <div className="grid gap-2 md:hidden">
+        {isLoading ? (
+          [...Array(5)].map((_, i) => <Skeleton key={i} className="h-20 w-full" style={{ borderRadius: 14 }} />)
+        ) : filteredTasks.length === 0 ? (
+          <div style={{ border: "2px dashed var(--cal-line-2)", borderRadius: 14, padding: "36px 0", textAlign: "center", fontSize: 13, color: "var(--cal-muted)" }}>
+            {hasActiveFilters ? "No tasks match your filters" : "No tasks yet"}
+          </div>
+        ) : (
+          filteredTasks.map((task) => (
+            <button
+              key={task.id}
+              type="button"
+              onClick={() => onTaskClick?.(task)}
+              className="cal-card cal-focus"
+              style={{ textAlign: "left", font: "inherit", color: "var(--cal-ink)", padding: 12, display: "flex", flexDirection: "column", gap: 8, cursor: "pointer", borderRadius: 14 }}
+            >
+              <span style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+                <span style={{ width: 8, height: 8, borderRadius: "50%", marginTop: 6, flex: "none", background: `var(--cal-${priorityKey(task.priority)}-dot)` }} />
+                <span style={{ minWidth: 0 }}>
+                  <span style={{ display: "block", fontSize: 14, fontWeight: 600, lineHeight: 1.3 }}>{task.title}</span>
+                  {task.description && (
+                    <span style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", fontSize: 12.5, color: "var(--cal-muted)", marginTop: 2 }}>
+                      {task.description}
+                    </span>
+                  )}
+                </span>
+              </span>
+              <span style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                <Chip k={statusKey(task.status)}>{statusLabels[task.status] ?? task.status}</Chip>
+                <PriorityChip priority={task.priority} />
+                <Chip k="muted">{task.category}</Chip>
+                <DueChip task={task} />
+                <RecurChip rrule={task.rrule} />
+              </span>
+              <ChecklistBar task={task} />
+            </button>
+          ))
+        )}
+      </div>
 
-                return (
-                  <TableRow
+      {/* ── Desktop: table ── */}
+      <div className="cal-card hidden md:block" style={{ overflow: "hidden" }}>
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13.5 }}>
+            <thead>
+              <tr>
+                <th style={th}>Title</th>
+                <th style={th}>Status</th>
+                <th style={th}>Priority</th>
+                <th style={th}>Category</th>
+                <th style={th}>Due</th>
+                <th style={th}>Checklist</th>
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading ? (
+                [...Array(5)].map((_, i) => (
+                  <tr key={i}>
+                    {[...Array(6)].map((_, j) => (
+                      <td key={j} style={td}><Skeleton className="h-5 w-full" /></td>
+                    ))}
+                  </tr>
+                ))
+              ) : filteredTasks.length > 0 ? (
+                filteredTasks.map((task) => (
+                  <tr
                     key={task.id}
-                    className="cursor-pointer hover:bg-muted/50"
+                    tabIndex={0}
                     onClick={() => onTaskClick?.(task)}
+                    onKeyDown={(e) => { if (e.key === "Enter") onTaskClick?.(task); }}
+                    className="cal-focus hover:bg-[var(--cal-surface-2)]"
+                    style={{ cursor: "pointer" }}
                   >
-                    <TableCell className="font-medium">
-                      <div className="flex items-center gap-2">
-                        {task.rrule && (
-                          <div title="Recurring task">
-                            <Repeat className="h-4 w-4 text-blue-500" />
-                          </div>
-                        )}
-                        <span>{task.title}</span>
-                      </div>
+                    <td style={td}>
+                      <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span style={{ width: 8, height: 8, borderRadius: "50%", flex: "none", background: `var(--cal-${priorityKey(task.priority)}-dot)` }} />
+                        <span style={{ fontWeight: 600 }}>{task.title}</span>
+                        {task.rrule && <span title={describeRRule(task.rrule) ?? "Recurring"} style={{ display: "inline-flex", color: "var(--cal-watch-dot)" }}><Repeat className="h-3.5 w-3.5" /></span>}
+                      </span>
                       {task.description && (
-                        <p className="text-xs text-muted-foreground line-clamp-1 mt-1">
+                        <span style={{ display: "block", fontSize: 12.5, color: "var(--cal-muted)", marginTop: 2, maxWidth: 420, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                           {task.description}
-                        </p>
+                        </span>
                       )}
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getStatusColor(task.status)} variant="outline">
-                        {statusLabels[task.status]}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getPriorityColor(task.priority)} variant="outline">
-                        {task.priority}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="text-xs">
-                        {task.category}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{getDueBadge(task)}</TableCell>
-                    <TableCell>
-                      {checklistProgress ? (
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden max-w-[100px]">
-                            <div
-                              className="h-full bg-red-500 transition-all"
-                              style={{ width: `${checklistProgress.percentage}%` }}
-                            />
-                          </div>
-                          <span className="text-xs text-muted-foreground whitespace-nowrap">
-                            {checklistProgress.completed}/{checklistProgress.total}
-                          </span>
-                        </div>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">—</span>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                );
-              })
-            ) : (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                  {hasActiveFilters ? "No tasks match your filters" : "No tasks yet"}
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+                    </td>
+                    <td style={td}><Chip k={statusKey(task.status)}>{statusLabels[task.status] ?? task.status}</Chip></td>
+                    <td style={td}><PriorityChip priority={task.priority} /></td>
+                    <td style={td}><Chip k="muted">{task.category}</Chip></td>
+                    <td style={td}>{task.due_at ? <DueChip task={task} /> : <span style={{ color: "var(--cal-muted)" }}>—</span>}</td>
+                    <td style={{ ...td, minWidth: 120 }}>
+                      {task.checklist && task.checklist.length > 0 ? <ChecklistBar task={task} /> : <span style={{ color: "var(--cal-muted)" }}>—</span>}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={6} style={{ ...td, textAlign: "center", padding: "32px 0", color: "var(--cal-muted)" }}>
+                    {hasActiveFilters ? "No tasks match your filters" : "No tasks yet"}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

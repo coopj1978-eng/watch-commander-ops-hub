@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
 import { Plus, Check, X, Pencil, Trash2, ChevronDown, ChevronRight } from "lucide-react";
 import TaskCard from "./TaskCard";
 import QuickAddCard from "./QuickAddCard";
@@ -68,7 +66,10 @@ function EditableColumnHeader({
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(column.name);
   const isOverWip = wipLimit !== undefined && allCount > wipLimit;
-  const mutedText = isDark ? "text-white/50" : "text-muted-foreground";
+  const iconBtn: React.CSSProperties = {
+    width: 28, height: 28, borderRadius: 8, border: "none", background: "transparent", color: "var(--cal-muted)",
+    display: "grid", placeItems: "center", cursor: "pointer", padding: 0,
+  };
 
   const handleSave = () => {
     const trimmed = value.trim();
@@ -78,88 +79,100 @@ function EditableColumnHeader({
 
   return (
     <div>
-      <div className="flex items-center justify-between gap-1 group">
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6 }}>
         {editing ? (
-          <div className="flex items-center gap-1 flex-1">
+          <div style={{ display: "flex", alignItems: "center", gap: 6, flex: 1 }}>
             <input
-              className="flex-1 text-sm font-semibold bg-transparent border-b border-foreground outline-none"
+              aria-label="Column name"
+              className="cal-field"
+              style={{ flex: 1, height: 32 }}
               value={value}
               onChange={(e) => setValue(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") handleSave(); if (e.key === "Escape") { setValue(column.name); setEditing(false); } }}
               onBlur={handleSave}
               autoFocus
             />
-            <button onClick={handleSave} className="text-green-500"><Check className="h-3.5 w-3.5" /></button>
-            <button onClick={() => { setValue(column.name); setEditing(false); }} className={mutedText}><X className="h-3.5 w-3.5" /></button>
+            <button type="button" aria-label="Save" onClick={handleSave} style={{ ...iconBtn, color: "var(--cal-leave-dot)" }}><Check className="h-4 w-4" /></button>
+            <button type="button" aria-label="Cancel" onClick={() => { setValue(column.name); setEditing(false); }} style={iconBtn}><X className="h-4 w-4" /></button>
           </div>
         ) : (
           <>
             <div
-              className={`flex items-center gap-2 flex-1 min-w-0 ${canEdit ? "cursor-pointer" : ""}`}
+              style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 0, cursor: canEdit ? "pointer" : undefined }}
               onDoubleClick={() => canEdit && setEditing(true)}
             >
-              <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: column.color }} />
-              <span
-                className="font-mono text-[11px] font-medium uppercase tracking-wider truncate"
-                style={{ color: column.color }}
-              >
+              <span style={{ width: 10, height: 10, borderRadius: "50%", flex: "none", background: column.color }} />
+              <span style={{ fontSize: 15, fontWeight: 600, color: "var(--cal-ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {column.name}
               </span>
+              <span
+                className="cal-mono"
+                style={{
+                  fontSize: 11, fontWeight: 600, padding: "2px 7px", borderRadius: 999, flex: "none",
+                  ...(isOverWip
+                    ? { background: "var(--cal-station-bg)", color: "var(--cal-station-fg)" }
+                    : { background: "var(--cal-surface)", color: "var(--cal-ink-2)", border: "1px solid var(--cal-line)" }),
+                }}
+                title={isOverWip ? "Over the WIP limit" : undefined}
+              >
+                {allCount}{wipLimit ? `/${wipLimit}` : ""}
+              </span>
             </div>
-            <div className="flex items-center gap-1">
+            <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
               {canEdit && (
-                <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button className={`${mutedText} hover:text-foreground p-0.5 rounded`} onClick={() => setEditing(true)} title="Rename">
-                    <Pencil className="h-3 w-3" />
+                <div className="opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity" style={{ display: "flex", gap: 2 }}>
+                  <button type="button" style={iconBtn} onClick={() => setEditing(true)} title="Rename" aria-label={`Rename ${column.name}`}>
+                    <Pencil className="h-3.5 w-3.5" />
                   </button>
-                  <button className={`${mutedText} hover:text-red-500 p-0.5 rounded`} onClick={() => onDelete(column.id)} title="Delete">
-                    <Trash2 className="h-3 w-3" />
+                  <button type="button" style={iconBtn} onClick={() => onDelete(column.id)} title="Delete" aria-label={`Delete ${column.name}`}>
+                    <Trash2 className="h-3.5 w-3.5" />
                   </button>
                 </div>
               )}
               <button
+                type="button"
                 onClick={onToggleCollapse}
-                className={`${mutedText} hover:text-foreground p-0.5 rounded transition-colors`}
+                style={iconBtn}
                 title={isCollapsed ? "Expand column" : "Collapse column"}
+                aria-label={isCollapsed ? `Expand ${column.name}` : `Collapse ${column.name}`}
               >
-                {isCollapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               </button>
             </div>
           </>
         )}
       </div>
 
-      {/* Count + WIP row */}
-      <div className="flex items-center justify-between mt-0.5">
-        <p className={`text-xs ${isOverWip ? "text-red-500 font-semibold" : mutedText}`}>
-          {allCount}{wipLimit ? `/${wipLimit}` : ""} task{allCount !== 1 ? "s" : ""}
-          {isOverWip && " ⚠"}
-        </p>
-        {canEdit && (
-          editingWip ? (
-            <div className="flex items-center gap-1">
+      {canEdit && (
+        <div style={{ display: "flex", justifyContent: "flex-end", minHeight: 18, marginTop: 2 }}>
+          {editingWip ? (
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
               <input
-                className="w-12 h-5 text-xs rounded border border-border px-1 bg-background outline-none"
+                aria-label="WIP limit"
+                className="cal-field cal-mono"
+                style={{ width: 64, height: 28, fontSize: 12 }}
                 placeholder="limit"
                 value={wipValue}
                 onChange={(e) => onChangeWip(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") onSaveWip(); if (e.key === "Escape") onCancelWip(); }}
                 autoFocus
               />
-              <button onClick={onSaveWip} className="text-green-500"><Check className="h-3 w-3" /></button>
-              <button onClick={onCancelWip} className={mutedText}><X className="h-3 w-3" /></button>
+              <button type="button" aria-label="Save limit" onClick={onSaveWip} style={{ ...iconBtn, color: "var(--cal-leave-dot)" }}><Check className="h-3.5 w-3.5" /></button>
+              <button type="button" aria-label="Cancel" onClick={onCancelWip} style={iconBtn}><X className="h-3.5 w-3.5" /></button>
             </div>
           ) : (
             <button
+              type="button"
               onClick={onStartEditWip}
-              className={`text-xs opacity-0 group-hover:opacity-60 hover:!opacity-100 transition-opacity ${mutedText}`}
-              title="Set WIP limit"
+              className="opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity cal-mono"
+              style={{ border: "none", background: "transparent", color: "var(--cal-muted)", fontSize: 11, cursor: "pointer", padding: 0 }}
+              title="Set a work-in-progress limit"
             >
-              {wipLimit ? `WIP:${wipLimit}` : "set limit"}
+              {wipLimit ? `WIP ${wipLimit}` : "Set limit"}
             </button>
-          )
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -346,21 +359,21 @@ export default function TaskBoard({
 
   if (isLoading && columns.length === 0) {
     return (
-      <div className="flex gap-3">
-        {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-64 w-[66vw] sm:w-64 shrink-0 rounded-md" />)}
+      <div className="flex gap-4">
+        {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-64 w-[80vw] sm:w-72 shrink-0" style={{ borderRadius: 20 }} />)}
       </div>
     );
   }
 
-  // Column wash — design's `.kan-col` uses a muted-grey container so the
-  // cards (lighter background) pop against it. The dark-mode equivalent
-  // keeps the existing translucent panel.
-  const colCardClass = isDark
-    ? "bg-black/30 backdrop-blur-sm border-white/10"
-    : "bg-muted border-border";
+  // v2 design: each column is a soft card (surface-2) holding white task
+  // cards; the column's own colour shows as a dot + count pill.
+  const colBox: React.CSSProperties = {
+    background: "var(--cal-surface-2)", border: "1px solid var(--cal-line)", borderRadius: 20,
+    boxShadow: "var(--cal-shadow)",
+  };
 
   return (
-    <div className="flex gap-3 overflow-x-auto pb-4 items-start">
+    <div className="flex gap-4 overflow-x-auto pb-4 items-start">
       {columns.map((col) => {
         const colTasks = tasksByColumn[col.status_key] ?? [];
         const allColTasks = allTasksByColumn[col.status_key] ?? [];
@@ -371,41 +384,39 @@ export default function TaskBoard({
         // ── Collapsed column — slim vertical strip ──────────────────────────
         if (isCollapsed) {
           return (
-            <div
+            <button
               key={col.id}
-              className={`shrink-0 w-10 flex flex-col items-center rounded-md border shadow-sm cursor-pointer hover:opacity-90 transition-all py-3 gap-2 ${colCardClass}`}
+              type="button"
+              className="shrink-0 cal-focus"
               onClick={() => toggleCollapse(col.status_key)}
               title={`Expand ${col.name}`}
+              style={{ ...colBox, width: 48, display: "flex", flexDirection: "column", alignItems: "center", gap: 8, padding: "14px 0", cursor: "pointer", font: "inherit", color: "var(--cal-ink-2)" }}
             >
-              <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: col.color }} />
-              <span
-                className={`text-xs font-semibold ${isDark ? "text-white/80" : "text-muted-foreground"}`}
-                style={{ writingMode: "vertical-rl", textOrientation: "mixed", transform: "rotate(180deg)" }}
-              >
-                {col.name}
-              </span>
-              <span className={`text-xs font-mono ${isDark ? "text-white/50" : "text-muted-foreground"}`}>
-                {allColTasks.length}
-              </span>
-            </div>
+              <span style={{ width: 10, height: 10, borderRadius: "50%", background: col.color }} />
+              <span style={{ fontSize: 13, fontWeight: 600, writingMode: "vertical-rl", transform: "rotate(180deg)" }}>{col.name}</span>
+              <span className="cal-mono" style={{ fontSize: 12, color: "var(--cal-muted)" }}>{allColTasks.length}</span>
+            </button>
           );
         }
 
         return (
           <div
             key={col.id}
-            className="shrink-0 w-[66vw] sm:w-64 group"
+            className="shrink-0 w-[80vw] sm:w-72 group"
             onDragOver={(e) => handleColDragOver(e, col.status_key)}
             onDrop={(e) => handleDrop(e, col.status_key)}
             onDragLeave={(e) => {
               if (!e.currentTarget.contains(e.relatedTarget as Node)) { setDragOverColKey(null); setDragOverTaskId(null); }
             }}
           >
-            <Card className={`flex flex-col transition-all rounded-md ${isDropTarget ? "ring-2 ring-indigo-400 ring-offset-1" : ""} ${colCardClass}`}>
-              <CardHeader
-                className={`px-3 py-2.5 border-b ${isDark ? "border-white/10" : "border-border"} rounded-t-xl`}
-                style={{ backgroundColor: col.color + "18" }}
-              >
+            <section
+              aria-label={col.name}
+              style={{
+                ...colBox, display: "flex", flexDirection: "column",
+                ...(isDropTarget ? { boxShadow: "0 0 0 2px var(--cal-brand), var(--cal-shadow)" } : {}),
+              }}
+            >
+              <div style={{ padding: "14px 14px 10px" }}>
                 <EditableColumnHeader
                   column={col}
                   canEdit={canManageColumns}
@@ -421,13 +432,13 @@ export default function TaskBoard({
                   onCancelWip={() => setEditingWip(null)}
                   isCollapsed={false}
                   onToggleCollapse={() => toggleCollapse(col.status_key)}
-                  isDark={isDark}
+                  isDark={false}
                 />
-              </CardHeader>
+              </div>
 
-              <CardContent className="flex flex-col gap-2 p-2 flex-1 min-h-[60px]">
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: "0 10px 12px", minHeight: 60 }}>
                 {isLoading ? (
-                  [...Array(2)].map((_, i) => <Skeleton key={i} className="h-20 w-full rounded-md" />)
+                  [...Array(2)].map((_, i) => <Skeleton key={i} className="h-20 w-full" style={{ borderRadius: 14 }} />)
                 ) : (
                   <>
                     {colTasks.map((task) => (
@@ -437,12 +448,13 @@ export default function TaskBoard({
                         onDragStart={(e) => handleDragStart(e, task)}
                         onDragEnd={handleDragEnd}
                         onDragOver={(e) => handleTaskDragOver(e, task.id)}
-                        className={[
-                          "transition-opacity",
-                          draggedTask?.id === task.id ? "opacity-30" : "opacity-100",
-                          dragOverTaskId === task.id && draggedTask?.id !== task.id ? "ring-2 ring-indigo-400 rounded-md" : "",
-                          canEdit ? "cursor-move" : "",
-                        ].join(" ")}
+                        style={{
+                          opacity: draggedTask?.id === task.id ? 0.3 : 1,
+                          transition: "opacity .15s",
+                          borderRadius: 14,
+                          cursor: canEdit ? "grab" : undefined,
+                          ...(dragOverTaskId === task.id && draggedTask?.id !== task.id ? { boxShadow: "0 -3px 0 var(--cal-brand)" } : {}),
+                        }}
                       >
                         <TaskCard
                           task={task}
@@ -456,61 +468,69 @@ export default function TaskBoard({
                     ))}
 
                     {colTasks.length === 0 && !isDropTarget && (
-                      <div className={`text-center py-6 text-xs border-2 border-dashed rounded-md ${isDark ? "border-white/20 text-white/40" : "border-border text-muted-foreground"}`}>
+                      <div style={{ textAlign: "center", padding: "22px 0", fontSize: 13, color: "var(--cal-muted)", border: "2px dashed var(--cal-line-2)", borderRadius: 14 }}>
                         No tasks
                       </div>
                     )}
 
                     {isDropTarget && (
-                      <div className="border-2 border-dashed border-indigo-400 rounded-md py-4 text-center text-sm text-indigo-400 font-medium bg-indigo-500/10">
+                      <div style={{ textAlign: "center", padding: "16px 0", fontSize: 13, fontWeight: 600, color: "var(--cal-brand-text)", border: "2px dashed var(--cal-brand)", background: "var(--cal-brand-soft)", borderRadius: 14 }}>
                         Drop here
                       </div>
                     )}
 
                     {canEdit && (
-                      <div className="mt-0.5">
-                        <QuickAddCard
-                          columnStatusKey={col.status_key}
-                          onAdd={(title, statusKey) => onTaskCreate?.(title, statusKey)}
-                        />
-                      </div>
+                      <QuickAddCard
+                        columnStatusKey={col.status_key}
+                        onAdd={(title, statusKey) => onTaskCreate?.(title, statusKey)}
+                      />
                     )}
                   </>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </section>
           </div>
         );
       })}
 
       {/* Add Column */}
       {canManageColumns && (
-        <div className="shrink-0 w-[66vw] sm:w-64">
+        <div className="shrink-0 w-[80vw] sm:w-72">
           {addingColumn ? (
-            <Card className={`p-3 space-y-2 rounded-md ${colCardClass}`}>
+            <div style={{ ...colBox, padding: 14, display: "flex", flexDirection: "column", gap: 10 }}>
               <input
-                className="w-full text-sm border-b border-foreground bg-transparent outline-none pb-1 placeholder:text-muted-foreground"
+                aria-label="Column name"
                 placeholder="Column name…"
                 value={newColName}
                 onChange={(e) => setNewColName(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") handleAddColumn(); if (e.key === "Escape") { setAddingColumn(false); setNewColName(""); } }}
                 autoFocus
+                className="cal-field"
               />
-              <div className="flex gap-2 items-center">
-                <Button size="sm" className="h-7 text-xs bg-indigo-600 hover:bg-indigo-700" onClick={handleAddColumn}>Add column</Button>
-                <button className="text-muted-foreground hover:text-foreground" onClick={() => { setAddingColumn(false); setNewColName(""); }}>
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <button
+                  type="button"
+                  onClick={handleAddColumn}
+                  className="cal-focus"
+                  style={{ height: 36, padding: "0 14px", borderRadius: 10, border: "none", background: "var(--cal-brand)", color: "#fff", font: "inherit", fontSize: 13, fontWeight: 600, cursor: "pointer" }}
+                >
+                  Add column
+                </button>
+                <button type="button" aria-label="Cancel" className="cal-btn" style={{ width: 36, height: 36, padding: 0 }} onClick={() => { setAddingColumn(false); setNewColName(""); }}>
                   <X className="h-4 w-4" />
                 </button>
               </div>
-            </Card>
+            </div>
           ) : (
             <button
-              className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-md text-sm border-2 border-dashed transition-colors ${
-                isDark
-                  ? "border-white/20 text-white/50 hover:text-white hover:border-white/40"
-                  : "border-border text-muted-foreground hover:text-foreground hover:bg-muted/50"
-              }`}
+              type="button"
               onClick={() => setAddingColumn(true)}
+              className="cal-focus"
+              style={{
+                width: "100%", display: "flex", alignItems: "center", gap: 8, padding: "12px 14px", borderRadius: 20,
+                border: "2px dashed var(--cal-line-2)", background: "transparent", color: isDark ? "#fff" : "var(--cal-ink-2)",
+                font: "inherit", fontSize: 14, fontWeight: 500, cursor: "pointer",
+              }}
             >
               <Plus className="h-4 w-4" /> Add column
             </button>

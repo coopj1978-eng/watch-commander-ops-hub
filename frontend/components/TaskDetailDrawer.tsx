@@ -57,7 +57,7 @@ function parseRRuleLabel(rrule?: string): string {
 
 function SectionLabel({ icon: Icon, children }: { icon: React.ElementType; children: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
+    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", color: "var(--cal-muted)", marginBottom: 6 }}>
       <Icon className="h-3.5 w-3.5" />
       {children}
     </div>
@@ -266,11 +266,17 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40" onClick={onClose} />
+      <div className="fixed inset-0 bg-black/40 z-40" onClick={onClose} />
 
-      {/* Centered modal */}
-      <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto py-8 px-4">
-        <div className="relative w-full max-w-2xl bg-card rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+      {/* Panel — centred on desktop, a bottom sheet on phones (v2 design). */}
+      <div className="cal-ui fixed inset-0 z-50 flex items-end sm:items-start justify-center overflow-y-auto sm:py-8 sm:px-4" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={title || "Task"}
+          className="cal-panel relative w-full sm:max-w-2xl flex flex-col overflow-hidden overflow-y-auto rounded-t-[24px] sm:rounded-[22px] max-h-[92vh] sm:max-h-none"
+          style={{ background: "var(--cal-surface)", border: "1px solid var(--cal-line)", boxShadow: "var(--cal-pop)", color: "var(--cal-ink)" }}
+        >
 
           {/* ── Cover area ──────────────────────────────────────────────── */}
           {coverStyle ? (
@@ -297,15 +303,20 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
           {/* ── Modal header ─────────────────────────────────────────────── */}
           <div className={`flex items-start justify-between px-6 pt-5 pb-0 ${!coverStyle ? "pt-5" : "pt-4"}`}>
             <div className="flex-1 min-w-0">
-              {/* Status badge */}
-              {statusCol && (
-                <Badge variant="outline" className="mb-2 text-xs" style={{ borderColor: statusCol.color, color: statusCol.color }}>
-                  {statusCol.name}
-                </Badge>
-              )}
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                <span className="cal-mono" style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "var(--cal-muted)" }}>Task</span>
+                {statusCol && (
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "3px 9px", borderRadius: 999, fontSize: 12, fontWeight: 600, background: "var(--cal-surface-2)", color: "var(--cal-ink)" }}>
+                    <span style={{ width: 8, height: 8, borderRadius: "50%", background: statusCol.color }} />
+                    {statusCol.name}
+                  </span>
+                )}
+              </div>
               {/* Title */}
               <textarea
-                className="w-full text-xl font-bold bg-transparent border-none outline-none resize-none text-foreground leading-snug focus:ring-2 focus:ring-brand/40 rounded-lg px-0"
+                aria-label="Task title"
+                className="w-full bg-transparent outline-none resize-none leading-snug px-0"
+                style={{ fontSize: 22, fontWeight: 600, color: "var(--cal-ink)", border: "none", borderBottom: canEdit ? "2px solid var(--cal-brand)" : "none", paddingBottom: 6 }}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 onBlur={handleTitleBlur}
@@ -315,24 +326,26 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
               />
             </div>
             <div className="flex items-center gap-1 ml-4 shrink-0">
-              {saving && <span className="text-xs text-muted-foreground mr-1">Saving…</span>}
+              {saving && <span className="cal-mono" style={{ fontSize: 11, color: "var(--cal-muted)", marginRight: 4 }}>Saving…</span>}
               {canEdit && !coverStyle && (
                 <div className="relative">
                   <button
                     onClick={() => setShowCoverPicker(!showCoverPicker)}
-                    className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                    className="cal-focus"
+                    style={{ width: 32, height: 32, borderRadius: 10, border: "none", background: "var(--cal-surface-2)", color: "var(--cal-ink-2)", display: "grid", placeItems: "center", cursor: "pointer" }}
                     title="Add cover"
+                    aria-label="Add cover"
                   >
                     <ImageIcon className="h-4 w-4" />
                   </button>
                 </div>
               )}
               {canEdit && (
-                <button onClick={handleDelete} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors" title="Delete task">
+                <button onClick={handleDelete} className="cal-focus" style={{ width: 32, height: 32, borderRadius: 10, border: "none", background: "var(--cal-station-bg)", color: "var(--cal-station-fg)", display: "grid", placeItems: "center", cursor: "pointer" }} title="Delete task" aria-label="Delete task">
                   <Trash2 className="h-4 w-4" />
                 </button>
               )}
-              <button onClick={onClose} className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+              <button onClick={onClose} className="cal-focus" style={{ width: 32, height: 32, borderRadius: 10, border: "none", background: "var(--cal-surface-2)", color: "var(--cal-ink-2)", display: "grid", placeItems: "center", cursor: "pointer" }} aria-label="Close">
                 <X className="h-4 w-4" />
               </button>
             </div>
