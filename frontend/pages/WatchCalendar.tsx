@@ -65,7 +65,7 @@ export default function UnifiedCalendar() {
 
   // Shift rota
   const userWatch = user?.watch_unit ?? "";
-  const rotaAvailable = hasRotaConfig(userWatch);
+
 
   // Event form dialog
   const [formOpen, setFormOpen] = useState(false);
@@ -372,9 +372,10 @@ export default function UnifiedCalendar() {
 
   // ─── Shift schedule (computed, no network call needed) ───────────────────────
   const shiftSchedule = useMemo(() => {
-    if (!rotaAvailable || !visibleCalendars.has("shifts")) return [];
-    return getShiftsForDateRange(userWatch, new Date(startISO), new Date(endISO));
-  }, [userWatch, rotaAvailable, startISO, endISO, visibleCalendars]);
+    // The shift pattern of the watch whose calendar is being viewed.
+    if (!hasRotaConfig(watchShown) || !visibleCalendars.has("shifts")) return [];
+    return getShiftsForDateRange(watchShown, new Date(startISO), new Date(endISO));
+  }, [watchShown, startISO, endISO, visibleCalendars]);
 
   // ─── Render ──────────────────────────────────────────────────────────────────
   const allEvents = [
@@ -472,7 +473,7 @@ export default function UnifiedCalendar() {
         </div>
 
         {/* Shift Rota */}
-        {rotaAvailable && (
+        {hasRotaConfig(watchShown) && (
           <div>
             <p className="eyebrow mb-2 px-1">
               Shift Rota
@@ -492,7 +493,7 @@ export default function UnifiedCalendar() {
                 />
                 <div className="min-w-0">
                   <div className={`text-xs font-medium truncate ${visibleCalendars.has("shifts") ? "text-foreground" : "text-muted-foreground"}`}>
-                    {userWatch} Watch Shifts
+                    {watchShown} Watch Shifts
                   </div>
                   <div className="flex gap-1.5 mt-0.5">
                     <span className="text-[9px] px-1 rounded text-white font-medium" style={{ backgroundColor: "#ca8a04" }}>☀️ Day</span>
@@ -586,10 +587,10 @@ export default function UnifiedCalendar() {
             </h1>
             <span className="eyebrow whitespace-nowrap">
               {currentDate.toLocaleDateString("en-GB", { month: "long", year: "numeric" })}
-              {userWatch && (
+              {watchShown && (
                 <>
                   <span className="crumb-sep">·</span>
-                  <span>{userWatch} Watch</span>
+                  <span>{watchShown} Watch</span>
                 </>
               )}
             </span>
@@ -644,7 +645,7 @@ export default function UnifiedCalendar() {
           tasks={(visibleCalendars.has("tasks") ? tasks : []) as any}
           inspections={(visibleCalendars.has("inspections") ? inspections : []) as any}
           shiftSchedule={shiftSchedule}
-          userWatch={visibleCalendars.has("shifts") ? userWatch : undefined}
+          userWatch={visibleCalendars.has("shifts") ? watchShown : undefined}
           currentDate={currentDate}
           onDateChange={setCurrentDate}
           view={view}

@@ -391,7 +391,9 @@ export default function EventForm({
                   />
                   <div>
                     <div className="text-sm font-medium text-foreground">{opt.label}</div>
-                    <div className="text-xs text-muted-foreground">{opt.sublabel}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {opt.value === "watch" && watchName ? `${watchName} Watch` : opt.sublabel}
+                    </div>
                   </div>
                   {calendar === opt.value && (
                     <span className="ml-auto text-red-500 text-sm">✓</span>

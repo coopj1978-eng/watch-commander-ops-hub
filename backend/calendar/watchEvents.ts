@@ -74,7 +74,22 @@ const EVENT_TYPE_TO_CATEGORY: Record<string, string> = {
 };
 
 /**
- * Station/watch events get a task for the watch on duty at that time.
+ * Which watch an event's task belongs to: a watch-calendar event is that
+ * watch's job; a station event goes to whichever watch is on duty then.
+ */
+export function taskWatchFor(event: {
+  calendar_visibility?: string;
+  watch?: string | null;
+  start_time: Date;
+  all_day: boolean;
+}): string | null {
+  if (event.calendar_visibility === "watch" && event.watch) return event.watch;
+  const start = new Date(event.start_time);
+  return event.all_day ? getWatchOnShiftForDate(start) : getWatchOnShift(start);
+}
+
+/**
+ * Station/watch events get a task for the right watch (taskWatchFor).
  * Used on create and when a struck-through event is reinstated.
  */
 export async function createLinkedTask(event: {
@@ -82,11 +97,13 @@ export async function createLinkedTask(event: {
   title: string;
   description?: string | null;
   event_type: string;
+  calendar_visibility?: string;
+  watch?: string | null;
   start_time: Date;
   all_day: boolean;
 }, assignedBy: string): Promise<void> {
   const startTime = new Date(event.start_time);
-  const targetWatch = event.all_day ? getWatchOnShiftForDate(startTime) : getWatchOnShift(startTime);
+  const targetWatch = taskWatchFor(event);
   if (!targetWatch) return;
   await db.rawQueryRow(
     `INSERT INTO tasks (title, description, category, assigned_by, priority, due_at, watch_unit, source_type, calendar_event_id, status)
