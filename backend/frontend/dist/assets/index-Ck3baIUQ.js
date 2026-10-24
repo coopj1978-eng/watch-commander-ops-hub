@@ -18843,7 +18843,7 @@ var [ToastProviderProvider, useToastProviderContext] = createToastContext(PROVID
 var ToastProvider$1 = (props) => {
   const {
     __scopeToast,
-    label = "Notification",
+    label: label2 = "Notification",
     duration = 5e3,
     swipeDirection = "right",
     swipeThreshold = 50,
@@ -18853,7 +18853,7 @@ var ToastProvider$1 = (props) => {
   const [toastCount, setToastCount] = reactExports.useState(0);
   const isFocusedToastEscapeKeyDownRef = reactExports.useRef(false);
   const isClosePausedRef = reactExports.useRef(false);
-  if (!label.trim()) {
+  if (!label2.trim()) {
     console.error(
       `Invalid prop \`label\` supplied to \`${PROVIDER_NAME$1}\`. Expected non-empty \`string\`.`
     );
@@ -18862,7 +18862,7 @@ var ToastProvider$1 = (props) => {
     ToastProviderProvider,
     {
       scope: __scopeToast,
-      label,
+      label: label2,
       duration,
       swipeDirection,
       swipeThreshold,
@@ -18887,7 +18887,7 @@ var ToastViewport$1 = reactExports.forwardRef(
     const {
       __scopeToast,
       hotkey = VIEWPORT_DEFAULT_HOTKEY,
-      label = "Notifications ({hotkey})",
+      label: label2 = "Notifications ({hotkey})",
       ...viewportProps
     } = props;
     const context = useToastProviderContext(VIEWPORT_NAME$1, __scopeToast);
@@ -18996,7 +18996,7 @@ var ToastViewport$1 = reactExports.forwardRef(
       {
         ref: wrapperRef,
         role: "region",
-        "aria-label": label.replace("{hotkey}", hotkeyLabel),
+        "aria-label": label2.replace("{hotkey}", hotkeyLabel),
         tabIndex: -1,
         style: { pointerEvents: hasToasts ? void 0 : "none" },
         children: [
@@ -21808,13 +21808,13 @@ const getIsArbitraryVariable = (value, testLabel, shouldMatchNoLabel = false) =>
   }
   return false;
 };
-const isLabelPosition = (label) => label === "position" || label === "percentage";
-const isLabelImage = (label) => label === "image" || label === "url";
-const isLabelSize = (label) => label === "length" || label === "size" || label === "bg-size";
-const isLabelLength = (label) => label === "length";
-const isLabelNumber = (label) => label === "number";
-const isLabelFamilyName = (label) => label === "family-name";
-const isLabelShadow = (label) => label === "shadow";
+const isLabelPosition = (label2) => label2 === "position" || label2 === "percentage";
+const isLabelImage = (label2) => label2 === "image" || label2 === "url";
+const isLabelSize = (label2) => label2 === "length" || label2 === "size" || label2 === "bg-size";
+const isLabelLength = (label2) => label2 === "length";
+const isLabelNumber = (label2) => label2 === "number";
+const isLabelFamilyName = (label2) => label2 === "family-name";
+const isLabelShadow = (label2) => label2 === "shadow";
 const getDefaultConfig = () => {
   const themeColor = fromTheme("color");
   const themeFont = fromTheme("font");
@@ -33140,8 +33140,8 @@ function TopBar({ onMenuClick }) {
       { label: "This week", items: thisWeek },
       { label: "Older", items: older }
     ].map(
-      ({ label, items }) => items.length === 0 ? null : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 bg-muted/20 border-b border-border/40", children: label }),
+      ({ label: label2, items }) => items.length === 0 ? null : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 bg-muted/20 border-b border-border/40", children: label2 }),
         items.map((n) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
@@ -33162,7 +33162,7 @@ function TopBar({ onMenuClick }) {
           },
           n.id
         ))
-      ] }, label)
+      ] }, label2)
     ) }) }),
     notifications.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "px-4 py-2.5 border-t bg-muted/20 flex items-center justify-between shrink-0", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-muted-foreground", children: [
@@ -38016,7 +38016,7 @@ function constructFrom(date, value) {
 function toDate(argument, context) {
   return constructFrom(context || argument, argument);
 }
-function addDays(date, amount, options) {
+function addDays$1(date, amount, options) {
   const _date = toDate(date, options == null ? void 0 : options.in);
   if (isNaN(amount)) return constructFrom(date, NaN);
   if (!amount) return _date;
@@ -38083,7 +38083,7 @@ function normalizeDates(context, ...dates) {
   );
   return dates.map(normalize);
 }
-function startOfDay(date, options) {
+function startOfDay$2(date, options) {
   const _date = toDate(date, options == null ? void 0 : options.in);
   _date.setHours(0, 0, 0, 0);
   return _date;
@@ -38094,8 +38094,8 @@ function differenceInCalendarDays(laterDate, earlierDate, options) {
     laterDate,
     earlierDate
   );
-  const laterStartOfDay = startOfDay(laterDate_);
-  const earlierStartOfDay = startOfDay(earlierDate_);
+  const laterStartOfDay = startOfDay$2(laterDate_);
+  const earlierStartOfDay = startOfDay$2(earlierDate_);
   const laterTimestamp = +laterStartOfDay - getTimezoneOffsetInMilliseconds(laterStartOfDay);
   const earlierTimestamp = +earlierStartOfDay - getTimezoneOffsetInMilliseconds(earlierStartOfDay);
   return Math.round((laterTimestamp - earlierTimestamp) / millisecondsInDay);
@@ -38122,7 +38122,7 @@ function isSameDay(laterDate, earlierDate, options) {
     laterDate,
     earlierDate
   );
-  return +startOfDay(dateLeft_) === +startOfDay(dateRight_);
+  return +startOfDay$2(dateLeft_) === +startOfDay$2(dateRight_);
 }
 function isDate(value) {
   return value instanceof Date || typeof value === "object" && Object.prototype.toString.call(value) === "[object Date]";
@@ -39754,7 +39754,7 @@ function isToday(date, options) {
 function isTomorrow(date, options) {
   return isSameDay(
     date,
-    addDays(constructNow(date), 1),
+    addDays$1(constructNow(date), 1),
     options
   );
 }
@@ -39937,8 +39937,8 @@ function WCInspectionsWidget() {
     queryFn: async () => backendClient.inspection.list({ limit: 200 })
   });
   const inspections = (data == null ? void 0 : data.inspections) ?? [];
-  const now = startOfDay(/* @__PURE__ */ new Date());
-  const in14Days = addDays(now, 14);
+  const now = startOfDay$2(/* @__PURE__ */ new Date());
+  const in14Days = addDays$1(now, 14);
   const upcoming = inspections.filter((i) => {
     if (i.status === "Complete") return false;
     if (!i.scheduled_for) return false;
@@ -40088,7 +40088,7 @@ function WCSicknessAlertsWidget() {
 }
 const MIN_CREW = { b10p1: 5, b10p2: 4 };
 function ApplianceBar({
-  label,
+  label: label2,
   count: count2,
   target
 }) {
@@ -40101,7 +40101,7 @@ function ApplianceBar({
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between text-xs", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Truck, { className: "h-3 w-3 text-muted-foreground" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium text-foreground", children: label })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium text-foreground", children: label2 })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: `font-semibold tabular-nums ${textColor}`, children: [
         count2,
@@ -40367,15 +40367,15 @@ function windAlert(mph) {
   if (mph >= 25) return { text: "ℹ️ Moderate wind — monitor conditions", red: false };
   return null;
 }
-function dayLabel$1(isoDate, idx) {
+function dayLabel$1(isoDate2, idx) {
   if (idx === 0) return "Today";
   if (idx === 1) return "Tmrw";
-  return (/* @__PURE__ */ new Date(isoDate + "T12:00:00")).toLocaleDateString("en-GB", { weekday: "short" });
+  return (/* @__PURE__ */ new Date(isoDate2 + "T12:00:00")).toLocaleDateString("en-GB", { weekday: "short" });
 }
-function dayFull(isoDate, idx) {
+function dayFull(isoDate2, idx) {
   if (idx === 0) return "Today";
   if (idx === 1) return "Tomorrow";
-  return (/* @__PURE__ */ new Date(isoDate + "T12:00:00")).toLocaleDateString("en-GB", {
+  return (/* @__PURE__ */ new Date(isoDate2 + "T12:00:00")).toLocaleDateString("en-GB", {
     weekday: "long",
     day: "numeric",
     month: "short"
@@ -40888,7 +40888,7 @@ function WCAlertBanner() {
     enabled: !!watch && !!crewShift
   });
   const alerts = [];
-  const now = startOfDay(/* @__PURE__ */ new Date());
+  const now = startOfDay$2(/* @__PURE__ */ new Date());
   const overdueCount = ((inspectionsData == null ? void 0 : inspectionsData.inspections) ?? []).filter((i) => {
     if (i.status === "Complete") return false;
     if (!i.scheduled_for) return false;
@@ -40937,12 +40937,12 @@ function WCAlertBanner() {
     const firstName = first.user_name ?? "Unknown";
     const firstSlot = `${roleLabel(first.crew_role)}, ${applianceLabel(first.appliance)}`;
     const rest = sickOnCrew.length - 1;
-    const label = rest === 0 ? `crew gap — ${firstName} (${firstSlot}) is off sick` : `crew gaps — ${firstName} (${firstSlot}) and ${rest} other${rest > 1 ? "s" : ""} off sick`;
+    const label2 = rest === 0 ? `crew gap — ${firstName} (${firstSlot}) is off sick` : `crew gaps — ${firstName} (${firstSlot}) and ${rest} other${rest > 1 ? "s" : ""} off sick`;
     alerts.push({
       id: "sick-crew-gap",
       severity: "critical",
       Icon: UserX,
-      label,
+      label: label2,
       count: sickOnCrew.length,
       href: "/handover"
     });
@@ -41083,7 +41083,7 @@ function WCAlertBanner() {
     }
   );
 }
-const SHIFT_CELL_BG_LIGHT$1 = {
+const SHIFT_CELL_BG_LIGHT = {
   "1st Day": "rgba(234, 179,   8, 0.18)",
   "2nd Day": "rgba(234, 179,   8, 0.18)",
   "1st Night": "rgba( 67,  56, 202, 0.16)",
@@ -41091,7 +41091,7 @@ const SHIFT_CELL_BG_LIGHT$1 = {
   "Annual Leave": "rgba( 22, 163,  74, 0.13)"
 };
 const DAY_LABELS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
-function sameDay$1(a, b) {
+function sameDay$2(a, b) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
 function toDateKey(d) {
@@ -41195,7 +41195,7 @@ function WCPersonalCalendarWidget() {
     setSelectedDay(null);
   };
   const handleDayClick = (day) => {
-    if (selectedDay && sameDay$1(selectedDay, day)) {
+    if (selectedDay && sameDay$2(selectedDay, day)) {
       setSelectedDay(null);
     } else {
       setSelectedDay(day);
@@ -41253,11 +41253,11 @@ function WCPersonalCalendarWidget() {
         if (!day) {
           return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "py-1" }, `empty-${idx}`);
         }
-        const isToday2 = sameDay$1(day, today);
-        const isSelected = selectedDay ? sameDay$1(day, selectedDay) : false;
+        const isToday2 = sameDay$2(day, today);
+        const isSelected = selectedDay ? sameDay$2(day, selectedDay) : false;
         const dots = getDotsForDay(day, events2);
         const shift2 = shiftMap.get(toDateKey(day));
-        const shiftBg = shift2 ? SHIFT_CELL_BG_LIGHT$1[shift2.shiftType] : void 0;
+        const shiftBg = shift2 ? SHIFT_CELL_BG_LIGHT[shift2.shiftType] : void 0;
         return /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "div",
           {
@@ -41383,13 +41383,13 @@ function WCPersonalCalendarWidget() {
   ] });
 }
 function StatusCell({
-  label,
+  label: label2,
   value,
   loading,
   href
 }) {
   const body = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[10px] uppercase tracking-widest text-muted-foreground font-medium", children: label }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[10px] uppercase tracking-widest text-muted-foreground font-medium", children: label2 }),
     loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-5 w-20 mt-1.5" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-foreground mt-1 truncate", children: value })
   ] });
   if (href) {
@@ -41768,7 +41768,7 @@ function timeLabel(iso) {
 function ScheduledTodayTomorrow() {
   var _a2;
   const { from, to } = reactExports.useMemo(() => {
-    const now = startOfDay(/* @__PURE__ */ new Date());
+    const now = startOfDay$2(/* @__PURE__ */ new Date());
     const fromStr = format(now, "yyyy-MM-dd");
     const toDate2 = new Date(now);
     toDate2.setDate(toDate2.getDate() + 1);
@@ -42014,12 +42014,12 @@ function getCurrentFinancialPeriod(date = /* @__PURE__ */ new Date()) {
     financial_year = y - 1;
     quarter = 4;
   }
-  const label = `Q${quarter} ${financial_year}/${String(financial_year + 1).slice(2)}`;
-  return { financial_year, quarter, label };
+  const label2 = `Q${quarter} ${financial_year}/${String(financial_year + 1).slice(2)}`;
+  return { financial_year, quarter, label: label2 };
 }
 const HFSV_TARGET = 36;
 function KPITile({
-  label,
+  label: label2,
   value,
   unit,
   detail,
@@ -42034,7 +42034,7 @@ function KPITile({
       className: "px-4 space-y-1",
       style: { paddingBlock: "var(--pad-block)" },
       children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[10px] uppercase tracking-widest text-muted-foreground font-medium", children: label }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[10px] uppercase tracking-widest text-muted-foreground font-medium", children: label2 }),
         loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-9 w-20 mt-1" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline gap-1.5 mt-0.5", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-3xl font-bold font-mono tabular-nums leading-none", children: value }),
           unit && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-muted-foreground font-normal", children: unit })
@@ -42716,9 +42716,9 @@ function Avatar({ name }) {
     }
   );
 }
-function Qual({ label, tone = "default" }) {
+function Qual({ label: label2, tone = "default" }) {
   const cls = tone === "orange" ? "bg-orange-100 text-orange-700 dark:bg-orange-950/40 dark:text-orange-300" : tone === "blue" ? "bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300" : tone === "purple" ? "bg-purple-100 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300" : tone === "amber" ? "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300" : "bg-muted text-muted-foreground";
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `inline-flex px-1.5 py-px rounded text-[9px] font-mono font-semibold tracking-wide ${cls}`, children: label });
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `inline-flex px-1.5 py-px rounded text-[9px] font-mono font-semibold tracking-wide ${cls}`, children: label2 });
 }
 function shortRank(m) {
   if (m.rank) return m.rank;
@@ -42967,9 +42967,9 @@ function pctCss(tone) {
       return "bg-muted-foreground/40";
   }
 }
-function pacePill(tone, label) {
+function pacePill(tone, label2) {
   const cls = tone === "green" ? "text-green-700 bg-green-100 dark:bg-green-950/40 dark:text-green-300" : tone === "amber" ? "text-amber-700 bg-amber-100 dark:bg-amber-950/40 dark:text-amber-300" : tone === "red" ? "text-red-700 bg-red-100 dark:bg-red-950/40 dark:text-red-300" : "text-muted-foreground bg-muted";
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `inline-flex shrink-0 px-1.5 py-0.5 rounded text-[10px] font-medium whitespace-nowrap ${cls}`, children: label });
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `inline-flex shrink-0 px-1.5 py-0.5 rounded text-[10px] font-medium whitespace-nowrap ${cls}`, children: label2 });
 }
 function computePace(actual, target, timePct) {
   if (target <= 0) return { tone: "muted", label: "No target" };
@@ -42980,7 +42980,7 @@ function computePace(actual, target, timePct) {
   return { tone: "red", label: "Behind" };
 }
 function TargetRow({
-  label,
+  label: label2,
   actual,
   target,
   timePct,
@@ -43010,7 +43010,7 @@ function TargetRow({
       className: "px-4 hover:bg-muted/30 transition-colors flex flex-wrap items-center gap-x-3 gap-y-1.5",
       style: { paddingBlock: "var(--pad-block)" },
       children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium text-foreground flex-1 min-w-0 truncate", children: label }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium text-foreground flex-1 min-w-0 truncate", children: label2 }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono text-xs text-muted-foreground tabular-nums shrink-0", children: [
           actual,
           " / ",
@@ -48148,7 +48148,7 @@ function People() {
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "All" }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: " ", children: "All" }),
-              Object.entries(DRIVER_PATHWAY_STATUS_LABELS).map(([value, label]) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value, children: label }, value))
+              Object.entries(DRIVER_PATHWAY_STATUS_LABELS).map(([value, label2]) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value, children: label2 }, value))
             ] })
           ] })
         ] })
@@ -50633,7 +50633,7 @@ function ProfileDetail() {
   const handleDownloadDocument = async (documentId) => {
     console.log("Download document:", documentId);
   };
-  const renderFieldWithLock = (fieldName, label, renderInput, renderDisplay) => {
+  const renderFieldWithLock = (fieldName, label2, renderInput, renderDisplay) => {
     const locked = isFieldLocked(fieldName);
     if (!editMode) {
       return renderDisplay();
@@ -51476,57 +51476,31 @@ function ProfileDetail() {
     ] }) })
   ] });
 }
-function ItemTitle({ item }) {
-  const ev = item.type === "event" ? item.data : null;
-  if (ev == null ? void 0 : ev.cancelled_at) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "line-through opacity-60", title: `Cancelled${ev.cancel_reason ? `: ${ev.cancel_reason}` : ""}`, children: item.title });
-  }
-  if (ev == null ? void 0 : ev.rescheduled_from) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { title: `Moved${ev.change_note ? `: ${ev.change_note}` : ""}`, children: item.title });
-  }
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: item.title });
+function calKey(item) {
+  if (item.type === "task") return "tasks";
+  if (item.type === "inspection") return "insp";
+  if (item.type === "training") return "training";
+  if (item.calendarType === "station") return "station";
+  if (item.calendarType === "watch") return "watch";
+  return "personal";
 }
-const SHIFT_COLORS = {
-  "1st Day": "#ca8a04",
-  // yellow-600
-  "2nd Day": "#ca8a04",
-  "1st Night": "#4338ca",
-  // indigo-700
-  "2nd Night": "#4338ca",
-  "Annual Leave": "#16a34a"
-  // green-600
+const tok = (k, part) => `var(--cal-${k}-${part})`;
+function eventData(item) {
+  return item.type === "event" || item.type === "training" ? item.data : null;
+}
+const isReadOnly = (item) => item.type === "task" || item.type === "inspection";
+const isPrivate = (item) => {
+  var _a2;
+  return ((_a2 = eventData(item)) == null ? void 0 : _a2.event_type) === "reminder";
 };
-const SHIFT_ICONS = {
-  "1st Day": "☀️",
-  "2nd Day": "☀️",
-  "1st Night": "🌙",
-  "2nd Night": "🌙",
-  "Annual Leave": "🌿"
-};
-const SHIFT_CELL_BG_LIGHT = {
-  "1st Day": "rgba(234, 179,   8, 0.18)",
-  // yellow-500
-  "2nd Day": "rgba(234, 179,   8, 0.18)",
-  "1st Night": "rgba( 67,  56, 202, 0.16)",
-  // indigo-700
-  "2nd Night": "rgba( 67,  56, 202, 0.16)",
-  "Annual Leave": "rgba( 22, 163,  74, 0.13)"
-  // green-600
-};
-const SHIFT_CELL_BG_DARK = {
-  "1st Day": "rgba(234, 179,   8, 0.30)",
-  // yellow – stronger on dark
-  "2nd Day": "rgba(234, 179,   8, 0.30)",
-  "1st Night": "rgba( 99,  102, 241, 0.32)",
-  // indigo-500 – brighter base
-  "2nd Night": "rgba( 99,  102, 241, 0.32)",
-  "Annual Leave": "rgba( 34, 197,  94, 0.22)"
-  // green-500 – brighter base
-};
-function getShiftCellBg(shifts, isDark = false) {
-  if (!shifts.length) return void 0;
-  const map = isDark ? SHIFT_CELL_BG_DARK : SHIFT_CELL_BG_LIGHT;
-  return map[shifts[0].shiftType];
+function itemTooltip(item) {
+  const ev = eventData(item);
+  const parts = [item.title];
+  if (ev == null ? void 0 : ev.cancelled_at) parts.push(`Cancelled${ev.cancelled_by_name ? ` by ${ev.cancelled_by_name}` : ""}${ev.cancel_reason ? ` — ${ev.cancel_reason}` : ""}`);
+  if (ev == null ? void 0 : ev.rescheduled_from) parts.push(`Moved${ev.change_note ? ` — ${ev.change_note}` : ""}`);
+  if (isReadOnly(item)) parts.push("Read-only here");
+  if (isPrivate(item)) parts.push("Private reminder from Notes");
+  return parts.join("\n");
 }
 function getShiftsForDay(shiftSchedule, date, userWatch) {
   if (userWatch) {
@@ -51534,604 +51508,39 @@ function getShiftsForDay(shiftSchedule, date, userWatch) {
     if (shift2 && shift2.shiftType !== "Rest") return [shift2];
     return [];
   }
-  const dateStr = [
-    date.getFullYear(),
-    String(date.getMonth() + 1).padStart(2, "0"),
-    String(date.getDate()).padStart(2, "0")
-  ].join("-");
+  const dateStr = isoDate(date);
   return shiftSchedule.filter((s) => s.date === dateStr);
 }
-function ShiftBanner({ shift: shift2 }) {
-  const color = SHIFT_COLORS[shift2.shiftType] ?? "#6b7280";
-  const icon = SHIFT_ICONS[shift2.shiftType] ?? "";
-  const label = shift2.startTime ? `${icon} ${shift2.shiftType} (${shift2.startTime}–${shift2.endTime})` : `${icon} ${shift2.shiftType}`;
+function shiftKind$1(s) {
+  if (!s) return null;
+  if (s.isLeave) return "leave";
+  if (s.shiftType.includes("Night")) return "night";
+  if (s.shiftType.includes("Day")) return "day";
+  return null;
+}
+const shiftLabel = (s) => !s ? "Rest" : s.isLeave ? "Leave" : s.shiftType;
+function ShiftChip({ shift: shift2, onBrand }) {
+  const k = shiftKind$1(shift2);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    "div",
+    "span",
     {
-      className: "rounded px-1.5 py-0.5 text-white text-[11px] truncate font-medium select-none",
-      style: { backgroundColor: `${color}d9` },
-      title: label,
-      children: label
-    }
-  );
-}
-function ShiftCellLabel({ shift: shift2 }) {
-  const color = SHIFT_COLORS[shift2.shiftType] ?? "#6b7280";
-  const icon = SHIFT_ICONS[shift2.shiftType] ?? "";
-  const short = shift2.shiftType.replace(/^(1st|2nd)\s+/, "");
-  const label = shift2.startTime ? `${icon} ${short}` : `${icon} ${short}`;
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    "div",
-    {
-      className: "text-[11px] font-semibold truncate leading-tight select-none",
-      style: { color },
-      title: shift2.startTime ? `${shift2.shiftType} (${shift2.startTime}–${shift2.endTime})` : shift2.shiftType,
-      children: label
-    }
-  );
-}
-const HOUR_HEIGHT = 64;
-const TOTAL_HEIGHT = HOUR_HEIGHT * 24;
-const TIME_COL_WIDTH = 56;
-function getItemColor(item) {
-  if (item.type === "task") return "#0ea5e9";
-  if (item.type === "inspection") return "#f97316";
-  if (item.type === "training") return "#22c55e";
-  if (item.calendarType === "station") return "#ef4444";
-  if (item.calendarType === "watch") return "#3b82f6";
-  if (item.calendarType === "personal") return "#8b5cf6";
-  return "#6b7280";
-}
-function hexToRgba(hex, alpha) {
-  const r2 = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return `rgba(${r2},${g},${b},${alpha})`;
-}
-function sameDay(a, b) {
-  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
-}
-function spansDay(item, day) {
-  const start = new Date(item.startTime);
-  start.setHours(0, 0, 0, 0);
-  const end = new Date(item.endTime);
-  end.setHours(23, 59, 59, 999);
-  const d = new Date(day);
-  d.setHours(12, 0, 0, 0);
-  return d >= start && d <= end;
-}
-function formatHour(hour) {
-  if (hour === 0) return "12 AM";
-  if (hour === 12) return "12 PM";
-  if (hour < 12) return `${hour} AM`;
-  return `${hour - 12} PM`;
-}
-function formatTime(date) {
-  const h = date.getHours();
-  const m = date.getMinutes();
-  const period = h >= 12 ? "PM" : "AM";
-  const displayH = h === 0 ? 12 : h > 12 ? h - 12 : h;
-  const displayM = m.toString().padStart(2, "0");
-  return `${displayH}:${displayM} ${period}`;
-}
-function getWeekDays(date) {
-  const day = date.getDay();
-  const offset2 = day === 0 ? -6 : 1 - day;
-  const monday = new Date(date);
-  monday.setDate(date.getDate() + offset2);
-  return Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(monday);
-    d.setDate(monday.getDate() + i);
-    return d;
-  });
-}
-const WEEK_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const MONTH_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-function getDaysInMonthGrid(date) {
-  const year = date.getFullYear();
-  const month = date.getMonth();
-  const firstDayOfWeek = (new Date(year, month, 1).getDay() + 6) % 7;
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const cells = [];
-  for (let i = 0; i < firstDayOfWeek; i++) cells.push(null);
-  for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(year, month, d));
-  return cells;
-}
-function getYearMonths(year) {
-  return Array.from({ length: 12 }, (_, i) => new Date(year, i, 1));
-}
-function buildItems(events2, tasks, inspections) {
-  const items = [];
-  events2.forEach((e) => {
-    const start = new Date(e.start_time);
-    const end = new Date(e.end_time);
-    const calType = e.calendar_visibility ?? (e.is_watch_event ? "station" : "personal");
-    items.push({
-      id: e.id,
-      title: e.title,
-      startTime: start,
-      endTime: end,
-      allDay: e.all_day,
-      type: e.event_type === "training" ? "training" : "event",
-      calendarType: calType,
-      data: e
-    });
-  });
-  tasks.forEach((t) => {
-    if (t.due_at) {
-      const due = new Date(t.due_at);
-      const end = new Date(due.getTime() + 36e5);
-      items.push({
-        id: t.id,
-        title: t.title,
-        startTime: due,
-        endTime: end,
-        allDay: false,
-        type: "task",
-        calendarType: "other",
-        data: t
-      });
-    }
-  });
-  inspections.forEach((ins) => {
-    const start = new Date(ins.scheduled_for);
-    const end = new Date(start.getTime() + 72e5);
-    items.push({
-      id: ins.id,
-      title: `${ins.type} – ${ins.address}`,
-      startTime: start,
-      endTime: end,
-      allDay: false,
-      type: "inspection",
-      calendarType: "other",
-      data: ins
-    });
-  });
-  return items;
-}
-function CurrentTimeLine() {
-  const now = /* @__PURE__ */ new Date();
-  const top = now.getHours() * HOUR_HEIGHT + now.getMinutes() / 60 * HOUR_HEIGHT;
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-    "div",
-    {
-      className: "absolute left-0 right-0 z-20 flex items-center pointer-events-none",
-      style: { top },
-      children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: TIME_COL_WIDTH }, className: "flex justify-end pr-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-2 h-2 rounded-full bg-red-500" }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 border-t-2 border-red-500" })
-      ]
-    }
-  );
-}
-function TimeLabels() {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: Array.from({ length: 24 }, (_, h) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-    "div",
-    {
-      className: "absolute flex items-start justify-end pr-2",
-      style: { top: h * HOUR_HEIGHT - 9, width: TIME_COL_WIDTH, height: HOUR_HEIGHT },
-      children: h > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px] text-muted-foreground leading-none", children: formatHour(h) })
-    },
-    h
-  )) });
-}
-function HourLines({ leftOffset }) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: Array.from({ length: 24 }, (_, h) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-    "div",
-    {
-      className: "absolute right-0 border-t border-border/40",
-      style: { top: h * HOUR_HEIGHT, left: leftOffset }
-    },
-    h
-  )) });
-}
-function EventBlock({
-  item,
-  style,
-  onClick
-}) {
-  const color = getItemColor(item);
-  const heightNum = typeof style.height === "number" ? style.height : 30;
-  const isDark = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-    "div",
-    {
-      className: "absolute rounded-sm px-1.5 py-0.5 cursor-pointer overflow-hidden select-none",
+      className: "whitespace-nowrap",
       style: {
-        ...style,
-        backgroundColor: hexToRgba(color, isDark ? 0.22 : 0.14),
-        borderLeft: `3px solid ${color}`,
-        color: isDark ? "var(--foreground)" : color,
         fontSize: 11,
-        lineHeight: "1.3"
+        fontWeight: 600,
+        padding: "3px 8px",
+        borderRadius: 999,
+        minHeight: 14,
+        ...onBrand ? { background: "rgba(255,255,255,.2)", color: "#fff" } : k ? { background: tok(k, "bg"), color: tok(k, "fg") } : { background: "transparent", color: "var(--cal-muted)" }
       },
-      onClick: (e) => {
-        e.stopPropagation();
-        onClick();
-      },
-      children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-medium truncate", style: { color: isDark ? "var(--foreground)" : color }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ItemTitle, { item }) }),
-        heightNum > 28 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "font-mono opacity-75 truncate", style: { fontSize: 10 }, children: [
-          formatTime(item.startTime),
-          " – ",
-          formatTime(item.endTime)
-        ] })
-      ]
+      children: shiftLabel(shift2)
     }
   );
 }
-function DayView({
-  date,
-  items,
-  shiftSchedule = [],
-  userWatch,
-  scrollRef,
-  onSlotClick,
-  onEventClick
-}) {
-  const dayItems = items.filter((it) => !it.allDay && sameDay(it.startTime, date));
-  const allDayItems = items.filter((it) => it.allDay && spansDay(it, date));
-  const dayShifts = getShiftsForDay(shiftSchedule, date, userWatch);
-  const handleSlotClick = (e) => {
-    var _a2;
-    if (e.target.closest("[data-event]")) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const scrollTop = ((_a2 = scrollRef.current) == null ? void 0 : _a2.scrollTop) ?? 0;
-    const y = e.clientY - rect.top + scrollTop;
-    const rawMinutes = y / HOUR_HEIGHT * 60;
-    const roundedMinutes = Math.round(rawMinutes / 30) * 30;
-    const clickDate = new Date(date);
-    clickDate.setHours(Math.floor(roundedMinutes / 60), roundedMinutes % 60, 0, 0);
-    onSlotClick == null ? void 0 : onSlotClick(clickDate);
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col h-full overflow-hidden", children: [
-    (allDayItems.length > 0 || dayShifts.length > 0) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex border-b border-border bg-muted/30 shrink-0", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: TIME_COL_WIDTH }, className: "text-[11px] text-muted-foreground text-right pr-2 py-1 shrink-0", children: "all-day" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-wrap gap-1 p-1", children: [
-        dayShifts.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftBanner, { shift: s }, `shift-${s.date}-${s.shiftType}`)),
-        allDayItems.map((it) => {
-          const color = getItemColor(it);
-          const dark = document.documentElement.classList.contains("dark");
-          return /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "div",
-            {
-              "data-event": true,
-              className: "cursor-pointer",
-              style: {
-                fontSize: 11,
-                padding: "2px 6px",
-                borderRadius: 2,
-                background: hexToRgba(color, dark ? 0.18 : 0.12),
-                borderLeft: `2px solid ${color}`,
-                color: dark ? "var(--foreground)" : color
-              },
-              onClick: () => onEventClick == null ? void 0 : onEventClick(it),
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx(ItemTitle, { item: it })
-            },
-            it.id
-          );
-        })
-      ] })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { ref: scrollRef, className: "flex-1 overflow-y-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", style: { height: TOTAL_HEIGHT }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TimeLabels, {}),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(HourLines, { leftOffset: TIME_COL_WIDTH }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(CurrentTimeLine, {}),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "div",
-        {
-          className: "absolute top-0 bottom-0 cursor-pointer",
-          style: { left: TIME_COL_WIDTH, right: 0 },
-          onClick: handleSlotClick,
-          children: dayItems.map((item) => {
-            const top = item.startTime.getHours() * HOUR_HEIGHT + item.startTime.getMinutes() / 60 * HOUR_HEIGHT;
-            const durationMs = item.endTime.getTime() - item.startTime.getTime();
-            const height = Math.max(durationMs / 36e5 * HOUR_HEIGHT, 20);
-            return /* @__PURE__ */ jsxRuntimeExports.jsx(
-              EventBlock,
-              {
-                item,
-                style: { top, height, left: 4, right: 4 },
-                onClick: () => onEventClick == null ? void 0 : onEventClick(item)
-              },
-              `${item.type}-${item.id}`
-            );
-          })
-        }
-      )
-    ] }) })
-  ] });
-}
-function WeekView({
-  weekDays,
-  items,
-  shiftSchedule = [],
-  userWatch,
-  scrollRef,
-  onSlotClick,
-  onEventClick,
-  onDayClick
-}) {
-  const today = /* @__PURE__ */ new Date();
-  const allDayCols = weekDays.map((d) => items.filter((it) => it.allDay && spansDay(it, d)));
-  const shiftCols = weekDays.map((d) => getShiftsForDay(shiftSchedule, d, userWatch));
-  const hasAllDay = allDayCols.some((col) => col.length > 0) || shiftCols.some((col) => col.length > 0);
-  const handleColClick = (day, e) => {
-    var _a2;
-    if (e.target.closest("[data-event]")) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const scrollTop = ((_a2 = scrollRef.current) == null ? void 0 : _a2.scrollTop) ?? 0;
-    const y = e.clientY - rect.top + scrollTop;
-    const rawMinutes = y / HOUR_HEIGHT * 60;
-    const roundedMinutes = Math.round(rawMinutes / 30) * 30;
-    const clickDate = new Date(day);
-    clickDate.setHours(Math.floor(roundedMinutes / 60), roundedMinutes % 60, 0, 0);
-    onSlotClick == null ? void 0 : onSlotClick(clickDate);
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col h-full overflow-hidden", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex border-b border-border bg-card shrink-0", style: { paddingLeft: TIME_COL_WIDTH }, children: weekDays.map((day, i) => {
-      const isToday2 = sameDay(day, today);
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "div",
-        {
-          className: "flex-1 text-center py-2 cursor-pointer hover:bg-muted/40 transition-colors",
-          onClick: () => onDayClick == null ? void 0 : onDayClick(day),
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "div",
-              {
-                className: "font-mono",
-                style: {
-                  fontSize: 10,
-                  letterSpacing: "0.12em",
-                  textTransform: "uppercase",
-                  color: "var(--muted-foreground)"
-                },
-                children: WEEK_LABELS[i]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "div",
-              {
-                className: "text-sm font-mono mx-auto w-7 h-7 flex items-center justify-center rounded-full mt-0.5",
-                style: isToday2 ? {
-                  boxShadow: "inset 0 0 0 1.5px var(--brand)",
-                  color: "var(--brand)",
-                  fontWeight: 600
-                } : { color: "var(--foreground)" },
-                children: day.getDate()
-              }
-            )
-          ]
-        },
-        i
-      );
-    }) }),
-    hasAllDay && // NOTE: uses the same paddingLeft-based layout as the header row above
-    // so the 7 day columns line up pixel-perfectly. A fixed-width first
-    // child instead of paddingLeft was causing events and shift banners to
-    // render one column to the left of their header date.
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "div",
-      {
-        className: "relative flex border-b border-border bg-muted/20 shrink-0",
-        style: { paddingLeft: TIME_COL_WIDTH },
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "span",
-            {
-              className: "absolute left-0 top-0 text-[11px] text-muted-foreground text-right pr-2 py-1",
-              style: { width: TIME_COL_WIDTH },
-              children: "all-day"
-            }
-          ),
-          allDayCols.map((col, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col gap-0.5 p-0.5 min-w-0", children: [
-            shiftCols[i].map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftBanner, { shift: s }, `shift-${s.date}-${s.shiftType}`)),
-            col.map((it) => {
-              const color = getItemColor(it);
-              const dark = document.documentElement.classList.contains("dark");
-              return /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "div",
-                {
-                  "data-event": true,
-                  className: "cursor-pointer truncate",
-                  style: {
-                    fontSize: 10.5,
-                    padding: "1px 5px",
-                    borderRadius: 2,
-                    lineHeight: 1.3,
-                    background: hexToRgba(color, dark ? 0.18 : 0.12),
-                    borderLeft: `2px solid ${color}`,
-                    color: dark ? "var(--foreground)" : color
-                  },
-                  onClick: () => onEventClick == null ? void 0 : onEventClick(it),
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(ItemTitle, { item: it })
-                },
-                it.id
-              );
-            })
-          ] }, i))
-        ]
-      }
-    ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { ref: scrollRef, className: "flex-1 overflow-y-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex", style: { height: TOTAL_HEIGHT }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "relative shrink-0", style: { width: TIME_COL_WIDTH, height: TOTAL_HEIGHT }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(TimeLabels, {}) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-1 relative", style: { height: TOTAL_HEIGHT }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(HourLines, { leftOffset: 0 }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(CurrentTimeLine, {}),
-        weekDays.map((day, i) => {
-          const colItems = items.filter((it) => !it.allDay && sameDay(it.startTime, day));
-          return /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "div",
-            {
-              className: "flex-1 relative border-l border-border/30 cursor-pointer",
-              onClick: (e) => handleColClick(day, e),
-              children: colItems.map((item) => {
-                const top = item.startTime.getHours() * HOUR_HEIGHT + item.startTime.getMinutes() / 60 * HOUR_HEIGHT;
-                const durationMs = item.endTime.getTime() - item.startTime.getTime();
-                const height = Math.max(durationMs / 36e5 * HOUR_HEIGHT, 20);
-                return /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  EventBlock,
-                  {
-                    item,
-                    style: { top, height, left: 2, right: 2 },
-                    onClick: () => onEventClick == null ? void 0 : onEventClick(item)
-                  },
-                  `${item.type}-${item.id}`
-                );
-              })
-            },
-            i
-          );
-        })
-      ] })
-    ] }) })
-  ] });
-}
-function MonthView({
-  date,
-  items,
-  shiftSchedule = [],
-  userWatch,
-  onSlotClick,
-  onEventClick,
-  onDayNavigate
-}) {
-  const today = /* @__PURE__ */ new Date();
-  const cells = getDaysInMonthGrid(date);
-  const isDark = document.documentElement.classList.contains("dark");
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col h-full overflow-hidden", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-7 shrink-0 border-l border-t border-border rounded-t-md overflow-hidden", children: MONTH_LABELS.map((d) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "div",
-      {
-        className: "border-r border-b border-border bg-muted text-muted-foreground",
-        style: {
-          padding: "8px 10px",
-          fontFamily: "var(--font-mono)",
-          fontSize: 10,
-          letterSpacing: "0.12em",
-          textTransform: "uppercase"
-        },
-        children: d
-      },
-      d
-    )) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "div",
-      {
-        className: "grid grid-cols-7 flex-1 overflow-y-auto border-l border-border",
-        style: { gridAutoRows: "minmax(60px, 1fr)" },
-        children: cells.map((day, idx) => {
-          if (!day) {
-            return /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "div",
-              {
-                className: "border-r border-b border-border bg-muted"
-              },
-              `empty-${idx}`
-            );
-          }
-          const isToday2 = sameDay(day, today);
-          const isCurrentMonth = day.getMonth() === date.getMonth();
-          const dayShifts = getShiftsForDay(shiftSchedule, day, userWatch);
-          const dayItems = items.filter((it) => spansDay(it, day));
-          const visibleItems = dayItems.slice(0, Math.max(0, 3 - dayShifts.length));
-          const overflow = dayItems.length - visibleItems.length;
-          const shiftBg = getShiftCellBg(dayShifts, isDark);
-          return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "div",
-            {
-              "data-today": isToday2 ? "true" : void 0,
-              "data-muted": !isCurrentMonth ? "true" : void 0,
-              className: "border-r border-b border-border bg-card cursor-pointer relative transition-colors hover:bg-muted/40 overflow-hidden",
-              style: {
-                padding: "6px 8px",
-                ...shiftBg ? { backgroundColor: shiftBg } : {},
-                ...isToday2 ? { boxShadow: "inset 0 0 0 1px var(--brand)", zIndex: 1 } : {},
-                ...!isCurrentMonth ? { background: "var(--muted)", color: "var(--muted-foreground)" } : {}
-              },
-              onClick: () => onSlotClick == null ? void 0 : onSlotClick(day),
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "div",
-                  {
-                    className: "font-mono mb-1",
-                    style: {
-                      fontSize: 11,
-                      fontWeight: isToday2 ? 600 : 400,
-                      color: isToday2 ? "var(--brand)" : isCurrentMonth ? "var(--foreground)" : "var(--muted-foreground)",
-                      lineHeight: 1.2
-                    },
-                    children: String(day.getDate()).padStart(2, "0")
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-[3px]", children: [
-                  dayShifts.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { onClick: (e) => e.stopPropagation(), children: /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftCellLabel, { shift: s }) }, `shift-${s.date}-${s.shiftType}`)),
-                  visibleItems.map((item) => {
-                    const color = getItemColor(item);
-                    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                      "div",
-                      {
-                        "data-event": true,
-                        className: "cursor-pointer overflow-hidden whitespace-nowrap text-ellipsis",
-                        style: {
-                          fontSize: 10.5,
-                          padding: "1px 5px",
-                          borderRadius: 2,
-                          lineHeight: 1.3,
-                          background: hexToRgba(color, isDark ? 0.18 : 0.12),
-                          borderLeft: `2px solid ${color}`,
-                          color: isDark ? "var(--foreground)" : color
-                        },
-                        onClick: (e) => {
-                          e.stopPropagation();
-                          onEventClick == null ? void 0 : onEventClick(item);
-                        },
-                        children: [
-                          !item.allDay && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                            "span",
-                            {
-                              className: "font-mono opacity-70 mr-1",
-                              style: { fontSize: 9.5 },
-                              children: [
-                                item.startTime.getHours().toString().padStart(2, "0"),
-                                ":",
-                                item.startTime.getMinutes().toString().padStart(2, "0")
-                              ]
-                            }
-                          ),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(ItemTitle, { item })
-                        ]
-                      },
-                      `${item.type}-${item.id}`
-                    );
-                  }),
-                  overflow > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                    "div",
-                    {
-                      className: "font-mono text-muted-foreground hover:text-foreground cursor-pointer",
-                      style: { fontSize: 10, paddingLeft: 2 },
-                      onClick: (e) => {
-                        e.stopPropagation();
-                        onDayNavigate == null ? void 0 : onDayNavigate(day);
-                      },
-                      children: [
-                        "+",
-                        overflow,
-                        " more"
-                      ]
-                    }
-                  )
-                ] })
-              ]
-            },
-            day.toISOString()
-          );
-        })
-      }
-    )
-  ] });
-}
+const HOUR_PX = 48;
+const DAY_PX = HOUR_PX * 24;
+const TIME_COL = 56;
+const DOW = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const MONTH_NAMES = [
   "January",
   "February",
@@ -52146,159 +51555,614 @@ const MONTH_NAMES = [
   "November",
   "December"
 ];
-function YearView({
-  year,
-  items,
-  onMonthClick
+const pad = (n) => String(n).padStart(2, "0");
+const hhmm = (d) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+function isoDate(d) {
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+function sameDay$1(a, b) {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
+function startOfDay$1(d) {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  return x;
+}
+function addDays(d, n) {
+  const x = new Date(d);
+  x.setDate(x.getDate() + n);
+  return x;
+}
+function spansDay(item, day) {
+  const start = startOfDay$1(item.startTime);
+  const end = new Date(item.endTime);
+  end.setHours(23, 59, 59, 999);
+  const d = new Date(day);
+  d.setHours(12, 0, 0, 0);
+  return d >= start && d <= end;
+}
+function getWeekDays(date) {
+  const day = date.getDay();
+  const monday = addDays(startOfDay$1(date), day === 0 ? -6 : 1 - day);
+  return Array.from({ length: 7 }, (_, i) => addDays(monday, i));
+}
+function getDaysInMonthGrid(date) {
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const first = (new Date(year, month, 1).getDay() + 6) % 7;
+  const n = new Date(year, month + 1, 0).getDate();
+  const cells = [];
+  for (let i = 0; i < first; i++) cells.push(null);
+  for (let d = 1; d <= n; d++) cells.push(new Date(year, month, d));
+  return cells;
+}
+function buildItems(events2, tasks, inspections) {
+  const items = [];
+  events2.forEach((e) => {
+    const calType = e.calendar_visibility ?? (e.is_watch_event ? "station" : "personal");
+    items.push({
+      id: e.id,
+      title: e.title,
+      startTime: new Date(e.start_time),
+      endTime: new Date(e.end_time),
+      allDay: e.all_day,
+      type: e.event_type === "training" ? "training" : "event",
+      calendarType: calType,
+      data: e
+    });
+  });
+  tasks.forEach((t) => {
+    if (!t.due_at) return;
+    const due = new Date(t.due_at);
+    items.push({
+      id: t.id,
+      title: `Task: ${t.title}`,
+      startTime: due,
+      endTime: new Date(due.getTime() + 36e5),
+      allDay: false,
+      type: "task",
+      calendarType: "other",
+      data: t
+    });
+  });
+  inspections.forEach((ins) => {
+    const start = new Date(ins.scheduled_for);
+    items.push({
+      id: ins.id,
+      title: `${ins.type} · ${ins.address}`,
+      startTime: start,
+      endTime: new Date(start.getTime() + 72e5),
+      allDay: false,
+      type: "inspection",
+      calendarType: "other",
+      data: ins
+    });
+  });
+  return items;
+}
+const anchorOf = (e) => ({ x: e.clientX, y: e.clientY });
+function Dot({ k, size: size2 = 7 }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: size2, height: size2, borderRadius: "50%", background: tok(k, "dot"), flex: "none" } });
+}
+function ItemIcons({ item }) {
+  if (isReadOnly(item)) return /* @__PURE__ */ jsxRuntimeExports.jsx(Lock, { className: "h-3 w-3 shrink-0 ml-auto", "aria-label": "Read-only" });
+  if (isPrivate(item)) return /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "h-3 w-3 shrink-0 ml-auto", "aria-label": "Private reminder from Notes" });
+  return null;
+}
+function StateBadges({ item }) {
+  const ev = eventData(item);
+  if (!(ev == null ? void 0 : ev.cancelled_at) && !(ev == null ? void 0 : ev.rescheduled_from)) return null;
+  const badge = {
+    alignSelf: "flex-start",
+    marginTop: 2,
+    fontSize: 10.5,
+    fontWeight: 600,
+    padding: "2px 7px",
+    borderRadius: 999,
+    background: "var(--cal-surface)",
+    color: "var(--cal-ink-2)",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 4,
+    textDecoration: "none"
+  };
+  return ev.cancelled_at ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: badge, children: "Cancelled" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: badge, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { className: "h-2.5 w-2.5" }),
+    "Moved"
+  ] });
+}
+function titleStyle(item) {
+  var _a2;
+  return {
+    fontSize: 12.5,
+    fontWeight: 600,
+    lineHeight: 1.25,
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    minWidth: 0,
+    ...((_a2 = eventData(item)) == null ? void 0 : _a2.cancelled_at) ? { textDecoration: "line-through" } : {}
+  };
+}
+function blockBg(item) {
+  var _a2;
+  const k = calKey(item);
+  return ((_a2 = eventData(item)) == null ? void 0 : _a2.cancelled_at) ? `repeating-linear-gradient(135deg, ${tok(k, "bg")} 0 7px, var(--cal-surface-2) 7px 11px)` : tok(k, "bg");
+}
+function EventPill({
+  item,
+  onClick,
+  showTime,
+  extra,
+  style
 }) {
-  const today = /* @__PURE__ */ new Date();
-  const months = getYearMonths(year);
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-4 gap-4 p-4 overflow-y-auto h-full", children: months.map((monthDate, mi) => {
-    const cells = getDaysInMonthGrid(monthDate);
-    const monthItems = items.filter(
-      (it) => it.startTime.getFullYear() === year && it.startTime.getMonth() === mi
-    );
-    const itemDays = new Set(monthItems.map((it) => it.startTime.getDate()));
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "div",
+  const k = calKey(item);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "button",
+    {
+      type: "button",
+      "data-event": true,
+      title: itemTooltip(item),
+      onClick: (e) => {
+        e.stopPropagation();
+        onClick == null ? void 0 : onClick(e);
+      },
+      className: "cal-focus",
+      style: {
+        height: 26,
+        borderRadius: 8,
+        border: "none",
+        background: blockBg(item),
+        color: tok(k, "fg"),
+        font: "inherit",
+        fontSize: 12,
+        fontWeight: 600,
+        textAlign: "left",
+        padding: "0 8px",
+        display: "flex",
+        alignItems: "center",
+        gap: 6,
+        cursor: isReadOnly(item) ? "default" : "pointer",
+        minWidth: 0,
+        width: "100%",
+        ...style
+      },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Dot, { k }),
+        showTime && !item.allDay && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontWeight: 400, fontSize: 11, opacity: 0.85 }, children: hhmm(item.startTime) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { ...titleStyle(item), fontSize: 12 }, children: item.title }),
+        extra && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontWeight: 400, opacity: 0.8, marginLeft: "auto", fontSize: 11 }, children: extra }),
+        !extra && /* @__PURE__ */ jsxRuntimeExports.jsx(ItemIcons, { item })
+      ]
+    }
+  );
+}
+function layoutDay(items, day) {
+  const dayStart = startOfDay$1(day).getTime();
+  const dayEnd = dayStart + 864e5;
+  const timed = items.filter((it) => !it.allDay && it.startTime.getTime() < dayEnd && Math.max(it.endTime.getTime(), it.startTime.getTime() + 1) > dayStart).map((it) => {
+    const s = Math.max(it.startTime.getTime(), dayStart);
+    const e = Math.min(Math.max(it.endTime.getTime(), it.startTime.getTime() + 30 * 6e4), dayEnd);
+    return { item: it, s, e };
+  }).sort((a, b) => a.s - b.s || b.e - a.e);
+  const placed = [];
+  let group = [];
+  let groupEnd = -Infinity;
+  const colEnds = [];
+  const flush = () => {
+    const lanes = Math.max(1, colEnds.length);
+    group.forEach((g) => g.p.lanes = lanes);
+    group = [];
+    colEnds.length = 0;
+  };
+  for (const t of timed) {
+    if (t.s >= groupEnd) {
+      flush();
+      groupEnd = -Infinity;
+    }
+    let lane = colEnds.findIndex((end) => end <= t.s);
+    if (lane === -1) {
+      lane = colEnds.length;
+      colEnds.push(t.e);
+    } else colEnds[lane] = t.e;
+    const p = {
+      item: t.item,
+      top: (t.s - dayStart) / 36e5 * HOUR_PX,
+      height: Math.max((t.e - t.s) / 36e5 * HOUR_PX, 22),
+      lane,
+      lanes: 1
+    };
+    group.push({ p, e: t.e });
+    placed.push(p);
+    groupEnd = Math.max(groupEnd, t.e);
+  }
+  flush();
+  return placed;
+}
+function EventBlock({ placed, onClick }) {
+  const { item, top, height, lane, lanes } = placed;
+  const k = calKey(item);
+  const compact = height < 40;
+  const ev = eventData(item);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "button",
+    {
+      type: "button",
+      "data-event": true,
+      title: itemTooltip(item),
+      "aria-label": `${item.title}, ${hhmm(item.startTime)} to ${hhmm(item.endTime)}${(ev == null ? void 0 : ev.cancelled_at) ? ", cancelled" : ""}${(ev == null ? void 0 : ev.rescheduled_from) ? ", moved" : ""}`,
+      onClick: (e) => {
+        e.stopPropagation();
+        onClick(e);
+      },
+      className: "cal-focus",
+      style: {
+        position: "absolute",
+        top: top + 1,
+        height: height - 2,
+        left: `calc(${lane / lanes * 100}% + 3px)`,
+        width: `calc(${100 / lanes}% - 6px)`,
+        borderRadius: 10,
+        border: "none",
+        background: blockBg(item),
+        color: tok(k, "fg"),
+        font: "inherit",
+        textAlign: "left",
+        padding: compact ? "3px 8px" : "7px 9px",
+        display: "flex",
+        flexDirection: compact ? "row" : "column",
+        alignItems: compact ? "center" : "stretch",
+        gap: compact ? 8 : 2,
+        overflow: "hidden",
+        cursor: isReadOnly(item) ? "default" : "pointer",
+        boxSizing: "border-box",
+        zIndex: 1
+      },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "flex", alignItems: "center", gap: 6, minWidth: 0, width: compact ? "auto" : "100%", flex: compact ? "1 1 auto" : void 0 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Dot, { k }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: titleStyle(item), children: item.title }),
+          !compact && /* @__PURE__ */ jsxRuntimeExports.jsx(ItemIcons, { item })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: { fontSize: 11, opacity: 0.85, whiteSpace: "nowrap" }, children: [
+          hhmm(item.startTime),
+          compact ? "" : ` – ${hhmm(item.endTime)}`
+        ] }),
+        !compact && height >= 64 && /* @__PURE__ */ jsxRuntimeExports.jsx(StateBadges, { item })
+      ]
+    }
+  );
+}
+function HourLabels() {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { position: "relative", height: DAY_PX }, children: Array.from(
+    { length: 24 },
+    (_, h) => h === 0 ? null : /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "span",
       {
-        className: "rounded-md border border-border bg-card p-3 cursor-pointer hover:border-brand transition-colors",
-        onClick: () => onMonthClick(monthDate),
+        className: "cal-mono",
+        style: { position: "absolute", right: 8, top: h * HOUR_PX - 7, fontSize: 11, color: "var(--cal-muted)" },
         children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "div",
-            {
-              className: "font-mono mb-2",
-              style: {
-                fontSize: 11,
-                fontWeight: 500,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                color: "var(--foreground)"
-              },
-              children: MONTH_NAMES[mi]
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-7 gap-px text-center", children: [
-            MONTH_LABELS.map((d) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "div",
-              {
-                className: "font-mono pb-0.5",
-                style: {
-                  fontSize: 9,
-                  color: "var(--muted-foreground)"
-                },
-                children: d.slice(0, 1)
-              },
-              d
-            )),
-            cells.map((day, di) => {
-              if (!day) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", {}, `e-${di}`);
-              const isToday2 = sameDay(day, today);
-              const hasEvents = itemDays.has(day.getDate());
-              return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "span",
-                  {
-                    className: "font-mono w-5 h-5 flex items-center justify-center rounded-full",
-                    style: isToday2 ? {
-                      fontSize: 10,
-                      boxShadow: "inset 0 0 0 1.5px var(--brand)",
-                      color: "var(--brand)",
-                      fontWeight: 600
-                    } : { fontSize: 10, color: "var(--foreground)" },
-                    children: day.getDate()
-                  }
-                ),
-                hasEvents && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "div",
-                  {
-                    className: "w-1 h-1 rounded-full mt-px",
-                    style: { background: "var(--brand)" }
-                  }
-                )
-              ] }, di);
-            })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "div",
-            {
-              className: "font-mono mt-2",
-              style: {
-                fontSize: 10,
-                letterSpacing: "0.06em",
-                color: "var(--muted-foreground)"
-              },
-              children: [
-                monthItems.length,
-                " event",
-                monthItems.length !== 1 ? "s" : ""
-              ]
-            }
-          )
+          pad(h),
+          ":00"
         ]
       },
-      mi
-    );
-  }) });
+      h
+    )
+  ) });
 }
-function MobileMonthView({
+function DayColumn({
+  day,
+  items,
+  shiftSchedule,
+  userWatch,
+  pendingSlot,
+  onSlotClick,
+  onEventClick
+}) {
+  const today = /* @__PURE__ */ new Date();
+  const isToday2 = sameDay$1(day, today);
+  const kind = shiftKind$1(getShiftsForDay(shiftSchedule, day, userWatch)[0]);
+  const prevNight = shiftKind$1(getShiftsForDay(shiftSchedule, addDays(day, -1), userWatch)[0]) === "night";
+  const shades = [];
+  if (prevNight) shades.push({ k: "night", from: 0, to: 8 });
+  if (kind === "day") shades.push({ k: "day", from: 8, to: 18 });
+  if (kind === "night") shades.push({ k: "night", from: 18, to: 24 });
+  if (kind === "leave") shades.push({ k: "leave", from: 0, to: 24 });
+  const placed = layoutDay(items, day);
+  const nowTop = (today.getHours() + today.getMinutes() / 60) * HOUR_PX;
+  const handleClick = (e) => {
+    if (e.target.closest("[data-event]")) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const minutes = Math.round((e.clientY - rect.top) / HOUR_PX * 60 / 30) * 30;
+    const at = new Date(day);
+    at.setHours(Math.floor(minutes / 60), minutes % 60, 0, 0);
+    onSlotClick == null ? void 0 : onSlotClick(at, anchorOf(e));
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      onClick: handleClick,
+      style: {
+        position: "relative",
+        height: DAY_PX,
+        borderRadius: 12,
+        cursor: "pointer",
+        backgroundImage: "repeating-linear-gradient(to bottom, var(--cal-line) 0 1px, transparent 1px 48px)"
+      },
+      children: [
+        shades.map((s, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            "aria-hidden": true,
+            style: {
+              position: "absolute",
+              left: 0,
+              right: 0,
+              top: s.from * HOUR_PX,
+              height: (s.to - s.from) * HOUR_PX,
+              background: tok(s.k, "shade"),
+              borderRadius: 8
+            }
+          },
+          i
+        )),
+        placed.map((p) => /* @__PURE__ */ jsxRuntimeExports.jsx(EventBlock, { placed: p, onClick: (e) => onEventClick == null ? void 0 : onEventClick(p.item, anchorOf(e)) }, `${p.item.type}-${p.item.id}`)),
+        isToday2 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { "aria-hidden": true, style: { position: "absolute", left: -4, right: 0, top: nowTop, height: 2, background: "var(--cal-now)", zIndex: 3 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { position: "absolute", left: -4, top: -4, width: 10, height: 10, borderRadius: "50%", background: "var(--cal-now)" } }) }),
+        pendingSlot && sameDay$1(pendingSlot, day) && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            style: {
+              position: "absolute",
+              left: 4,
+              right: 4,
+              top: (pendingSlot.getHours() + pendingSlot.getMinutes() / 60) * HOUR_PX,
+              height: HOUR_PX - 2,
+              borderRadius: 10,
+              border: "2px dashed var(--cal-brand)",
+              background: "var(--cal-brand-soft)",
+              color: "var(--cal-brand-text)",
+              boxSizing: "border-box",
+              padding: "6px 8px",
+              zIndex: 2,
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+              pointerEvents: "none"
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 12, fontWeight: 600 }, children: "New event" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: { fontSize: 11 }, children: [
+                hhmm(pendingSlot),
+                " – ",
+                hhmm(new Date(pendingSlot.getTime() + 36e5))
+              ] })
+            ]
+          }
+        )
+      ]
+    }
+  );
+}
+function DayTile({ day, shift: shift2, showShift, onClick }) {
+  const today = sameDay$1(day, /* @__PURE__ */ new Date());
+  const name = DOW[(day.getDay() + 6) % 7];
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "button",
+    {
+      type: "button",
+      onClick,
+      className: "cal-focus",
+      "aria-label": `${name} ${day.getDate()} ${MONTH_NAMES[day.getMonth()]}${showShift ? `, ${shift2 ? shiftLabel(shift2) : "rest day"}` : ""}${today ? ", today" : ""}`,
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 6,
+        padding: "12px 6px 10px",
+        borderRadius: 16,
+        border: "none",
+        font: "inherit",
+        cursor: "pointer",
+        minWidth: 0,
+        ...today ? { background: "var(--cal-brand)", color: "#fff", boxShadow: "0 8px 20px rgba(67,56,202,.35)" } : { background: "var(--cal-surface-2)", color: "var(--cal-ink)" }
+      },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 12, fontWeight: 500, opacity: 0.85 }, children: name }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 26, fontWeight: 600, lineHeight: 1 }, children: day.getDate() }),
+        showShift ? /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftChip, { shift: shift2, onBrand: today }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { height: 20 } })
+      ]
+    }
+  );
+}
+function AllDayLane({
+  days,
+  items,
+  onEventClick
+}) {
+  const first = startOfDay$1(days[0]).getTime();
+  const last = startOfDay$1(days[days.length - 1]).getTime();
+  const idx = (d) => Math.round((startOfDay$1(d).getTime() - first) / 864e5);
+  const rows = [];
+  const placed = items.filter((it) => it.allDay && startOfDay$1(it.startTime).getTime() <= last && startOfDay$1(it.endTime).getTime() >= first).sort((a, b) => a.startTime.getTime() - b.startTime.getTime()).map((it) => {
+    const c0 = Math.max(0, idx(it.startTime));
+    const c1 = Math.min(days.length - 1, idx(it.endTime));
+    let lane = rows.findIndex((cols) => cols.every((c) => c < c0 || c > c1));
+    if (lane === -1) {
+      lane = rows.length;
+      rows.push([]);
+    }
+    for (let c = c0; c <= c1; c++) rows[lane].push(c);
+    const span = c1 - c0 + 1;
+    const extra = span > 1 ? `${DOW[(days[c0].getDay() + 6) % 7]}–${DOW[(days[c1].getDay() + 6) % 7]}` : void 0;
+    return { it, c0, span, lane, extra };
+  });
+  if (placed.length === 0) return null;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      style: {
+        display: "grid",
+        gridTemplateColumns: `${TIME_COL}px repeat(${days.length}, minmax(0, 1fr))`,
+        columnGap: 8,
+        rowGap: 4,
+        marginTop: 12,
+        padding: "8px 0",
+        borderTop: "1px solid var(--cal-line)",
+        borderBottom: "1px solid var(--cal-line)",
+        alignItems: "center"
+      },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { gridColumn: 1, gridRow: `1 / span ${rows.length}`, fontSize: 11, color: "var(--cal-muted)", textAlign: "right", paddingRight: 4 }, children: "All-day" }),
+        placed.map(({ it, c0, span, lane, extra }) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          EventPill,
+          {
+            item: it,
+            extra,
+            onClick: (e) => onEventClick == null ? void 0 : onEventClick(it, anchorOf(e)),
+            style: { gridColumn: `${c0 + 2} / span ${span}`, gridRow: lane + 1, height: 28 }
+          },
+          `${it.type}-${it.id}`
+        ))
+      ]
+    }
+  );
+}
+function TimeGridCard({
+  days,
+  items,
+  shiftSchedule,
+  userWatch,
+  scrollRef,
+  pendingSlot,
+  onSlotClick,
+  onEventClick,
+  onDayClick
+}) {
+  const showShift = !!userWatch || shiftSchedule.length > 0;
+  const cols = `${TIME_COL}px repeat(${days.length}, minmax(0, 1fr))`;
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("section", { className: "cal-card", style: { borderRadius: 24, overflowX: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { minWidth: days.length > 1 ? 820 : 0, padding: "12px 12px 16px 0" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: cols, gap: "0 8px" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", {}),
+      days.map((d) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        DayTile,
+        {
+          day: d,
+          shift: getShiftsForDay(shiftSchedule, d, userWatch)[0],
+          showShift,
+          onClick: days.length > 1 ? () => onDayClick == null ? void 0 : onDayClick(d) : void 0
+        },
+        d.toISOString()
+      ))
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(AllDayLane, { days, items, onEventClick }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        ref: scrollRef,
+        style: { marginTop: 4, overflowY: "auto", height: "clamp(440px, calc(100vh - 360px), 900px)" },
+        children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: cols, columnGap: 8 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(HourLabels, {}),
+          days.map((d) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            DayColumn,
+            {
+              day: d,
+              items,
+              shiftSchedule,
+              userWatch,
+              pendingSlot,
+              onSlotClick,
+              onEventClick
+            },
+            d.toISOString()
+          ))
+        ] })
+      }
+    )
+  ] }) });
+}
+function MonthView({
   date,
   items,
-  shiftSchedule = [],
+  shiftSchedule,
   userWatch,
-  selectedDay,
-  onDaySelect
+  onSlotClick,
+  onEventClick,
+  onDayNavigate
 }) {
   const today = /* @__PURE__ */ new Date();
   const cells = getDaysInMonthGrid(date);
-  const isDark = document.documentElement.classList.contains("dark");
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-7 mb-1", children: MONTH_LABELS.map((d) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center text-[11px] font-medium text-muted-foreground py-1", children: d.slice(0, 2) }, d)) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-7", children: cells.map((day, idx) => {
-      if (!day) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", {}, `e-${idx}`);
-      const isToday2 = sameDay(day, today);
-      const isSelected = sameDay(day, selectedDay);
-      const inMonth = day.getMonth() === date.getMonth();
-      const dayItems = items.filter((it) => spansDay(it, day));
-      const dayShifts = getShiftsForDay(shiftSchedule, day, userWatch);
-      const shiftBg = getShiftCellBg(dayShifts, isDark);
-      const eventDotColors = [];
-      dayItems.forEach((it) => {
-        const c = getItemColor(it);
-        if (!eventDotColors.includes(c)) eventDotColors.push(c);
-      });
-      const dots = eventDotColors.slice(0, 3);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "cal-card", style: { borderRadius: 24, padding: 16 }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: 6, marginBottom: 6 }, children: DOW.map((d) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 12, fontWeight: 600, color: "var(--cal-muted)", padding: "2px 8px" }, children: d }, d)) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: 6 }, children: cells.map((day, i) => {
+      if (!day) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", {}, `b-${i}`);
+      const isToday2 = sameDay$1(day, today);
+      const shift2 = getShiftsForDay(shiftSchedule, day, userWatch)[0];
+      const k = shiftKind$1(shift2);
+      const dayItems = items.filter((it) => spansDay(it, day)).sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.startTime.getTime() - b.startTime.getTime());
+      const visible = dayItems.slice(0, 3);
+      const more = dayItems.length - visible.length;
       return /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "div",
         {
-          className: `flex flex-col items-center py-1 cursor-pointer select-none rounded-lg transition-colors ${!inMonth ? "opacity-30" : ""}`,
-          style: shiftBg ? { backgroundColor: shiftBg } : void 0,
-          onClick: () => onDaySelect(day),
+          role: "button",
+          tabIndex: 0,
+          onClick: (e) => onSlotClick == null ? void 0 : onSlotClick(day, anchorOf(e)),
+          onKeyDown: (e) => {
+            if (e.key === "Enter") onSlotClick == null ? void 0 : onSlotClick(day);
+          },
+          className: "cal-focus",
+          style: {
+            minHeight: 112,
+            borderRadius: 14,
+            padding: 8,
+            cursor: "pointer",
+            display: "flex",
+            flexDirection: "column",
+            gap: 4,
+            background: k ? tok(k, "shade") : "var(--cal-surface-2)",
+            boxShadow: isToday2 ? "inset 0 0 0 2px var(--cal-brand)" : void 0,
+            minWidth: 0
+          },
           children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "span",
-              {
-                className: `
-                  w-8 h-8 flex items-center justify-center rounded-full text-sm font-mono transition-colors
-                  ${isToday2 && !isSelected ? "text-brand font-semibold" : ""}
-                  ${isSelected ? "bg-brand text-brand-foreground font-semibold shadow-sm" : ""}
-                  ${!isSelected && !isToday2 && inMonth ? "text-foreground" : ""}
-                `,
-                children: day.getDate()
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-[3px] mt-0.5 h-1.5", children: [
-              dots.map((color, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 4 }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "span",
                 {
-                  className: "w-1.5 h-1.5 rounded-full",
-                  style: { backgroundColor: color }
+                  className: "cal-mono",
+                  style: {
+                    fontSize: 13,
+                    fontWeight: isToday2 ? 700 : 500,
+                    width: 26,
+                    height: 26,
+                    borderRadius: 8,
+                    display: "grid",
+                    placeItems: "center",
+                    ...isToday2 ? { background: "var(--cal-brand)", color: "#fff" } : { color: "var(--cal-ink)" }
+                  },
+                  children: day.getDate()
+                }
+              ),
+              k && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 10.5, fontWeight: 600, padding: "2px 6px", borderRadius: 999, background: tok(k, "bg"), color: tok(k, "fg"), whiteSpace: "nowrap" }, children: k === "leave" ? "Leave" : k === "day" ? "Day" : "Night" })
+            ] }),
+            visible.map((it) => /* @__PURE__ */ jsxRuntimeExports.jsx(EventPill, { item: it, showTime: true, onClick: (e) => onEventClick == null ? void 0 : onEventClick(it, anchorOf(e)), style: { height: 22, fontSize: 11.5 } }, `${it.type}-${it.id}`)),
+            more > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                "data-event": true,
+                onClick: (e) => {
+                  e.stopPropagation();
+                  onDayNavigate == null ? void 0 : onDayNavigate(day);
                 },
-                i
-              )),
-              dots.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-1.5 h-1.5" })
-            ] })
+                className: "cal-mono",
+                style: { border: "none", background: "transparent", color: "var(--cal-muted)", fontSize: 11, textAlign: "left", padding: "0 4px", cursor: "pointer" },
+                children: [
+                  "+",
+                  more,
+                  " more"
+                ]
+              }
+            )
           ]
         },
         day.toISOString()
@@ -52306,108 +52170,219 @@ function MobileMonthView({
     }) })
   ] });
 }
-const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-const MONTH_NAMES_FULL = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December"
-];
-function MobileAgendaPanel({
+function YearView({ year, items, onMonthClick }) {
+  const today = /* @__PURE__ */ new Date();
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 16 }, children: Array.from({ length: 12 }, (_, mi) => {
+    const monthDate = new Date(year, mi, 1);
+    const monthItems = items.filter((it) => it.startTime.getFullYear() === year && it.startTime.getMonth() === mi);
+    const busy = new Set(monthItems.map((it) => it.startTime.getDate()));
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "button",
+      {
+        type: "button",
+        onClick: () => onMonthClick(monthDate),
+        className: "cal-card cal-focus",
+        style: { padding: 16, textAlign: "left", font: "inherit", color: "var(--cal-ink)", cursor: "pointer" },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 15, fontWeight: 600 }, children: MONTH_NAMES[mi] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: { fontSize: 11, color: "var(--cal-muted)" }, children: [
+              monthItems.length,
+              " event",
+              monthItems.length === 1 ? "" : "s"
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", textAlign: "center", rowGap: 2 }, children: [
+            ["M", "T", "W", "T", "F", "S", "S"].map((d, i) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 10, fontWeight: 600, color: "var(--cal-muted)" }, children: d }, i)),
+            getDaysInMonthGrid(monthDate).map(
+              (day, i) => !day ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", {}, i) : /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "flex", flexDirection: "column", alignItems: "center" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "span",
+                  {
+                    className: "cal-mono",
+                    style: {
+                      fontSize: 11,
+                      width: 22,
+                      height: 22,
+                      borderRadius: 7,
+                      display: "grid",
+                      placeItems: "center",
+                      ...sameDay$1(day, today) ? { background: "var(--cal-brand)", color: "#fff", fontWeight: 600 } : {}
+                    },
+                    children: day.getDate()
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 4, height: 4, borderRadius: "50%", background: busy.has(day.getDate()) ? "var(--cal-brand)" : "transparent" } })
+              ] }, i)
+            )
+          ] })
+        ]
+      },
+      mi
+    );
+  }) });
+}
+function MobileMonth({
   date,
   items,
-  shiftSchedule = [],
+  shiftSchedule,
+  userWatch,
+  selectedDay,
+  onDaySelect,
+  onPrev,
+  onNext
+}) {
+  const today = /* @__PURE__ */ new Date();
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "cal-card", style: { padding: 14 }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": "Previous month", onClick: onPrev, className: "cal-btn", style: { width: 40, height: 40, padding: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronLeft, { className: "h-4 w-4" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { style: { margin: 0, fontSize: 17, fontWeight: 600 }, children: [
+        MONTH_NAMES[date.getMonth()],
+        " ",
+        date.getFullYear()
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": "Next month", onClick: onNext, className: "cal-btn", style: { width: 40, height: 40, padding: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-4 w-4" }) })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", textAlign: "center", rowGap: 4 }, children: [
+      ["M", "T", "W", "T", "F", "S", "S"].map((d, i) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 11, fontWeight: 600, color: "var(--cal-muted)", padding: "2px 0" }, children: d }, i)),
+      getDaysInMonthGrid(date).map((day, i) => {
+        if (!day) return /* @__PURE__ */ jsxRuntimeExports.jsx("span", {}, i);
+        const isToday2 = sameDay$1(day, today);
+        const selected = sameDay$1(day, selectedDay);
+        const k = shiftKind$1(getShiftsForDay(shiftSchedule, day, userWatch)[0]);
+        const dots = Array.from(new Set(items.filter((it) => spansDay(it, day)).map((it) => calKey(it)))).slice(0, 3);
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: () => onDaySelect(day),
+            className: "cal-focus",
+            "aria-label": `${day.getDate()} ${MONTH_NAMES[day.getMonth()]}${k ? `, ${k} shift` : ""}${dots.length ? `, ${dots.length} calendar${dots.length > 1 ? "s" : ""} with events` : ""}`,
+            style: {
+              height: 50,
+              border: "none",
+              borderRadius: 12,
+              padding: 0,
+              cursor: "pointer",
+              font: "inherit",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 3,
+              background: selected ? "var(--cal-brand)" : "transparent",
+              color: selected ? "#fff" : isToday2 ? "var(--cal-brand)" : "var(--cal-ink)",
+              boxShadow: isToday2 && !selected ? "inset 0 0 0 2px var(--cal-brand)" : void 0
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 14, fontWeight: isToday2 || selected ? 700 : 500 }, children: day.getDate() }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 14, height: 3, borderRadius: 2, background: k ? selected ? "#fff" : tok(k, "dot") : "transparent" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { display: "flex", gap: 3, height: 5 }, children: dots.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 5, height: 5, borderRadius: "50%", background: selected ? "#fff" : tok(c, "dot") } }, c)) })
+            ]
+          },
+          i
+        );
+      })
+    ] })
+  ] });
+}
+function MobileAgenda({
+  date,
+  items,
+  shiftSchedule,
   userWatch,
   onNewEvent,
   onEventClick
 }) {
-  const dayLabel2 = `${DAY_NAMES[date.getDay()]}, ${date.getDate()} ${MONTH_NAMES_FULL[date.getMonth()]}`;
-  const dayShifts = getShiftsForDay(shiftSchedule, date, userWatch);
-  const dayItems = items.filter((it) => spansDay(it, date)).sort((a, b) => {
-    if (a.allDay && !b.allDay) return -1;
-    if (!a.allDay && b.allDay) return 1;
-    return a.startTime.getTime() - b.startTime.getTime();
-  });
-  const isEmpty = dayShifts.length === 0 && dayItems.length === 0;
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "border-t border-border bg-background", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-4 py-2.5 border-b border-border/50", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-semibold text-foreground", children: dayLabel2 }),
+  const shift2 = getShiftsForDay(shiftSchedule, date, userWatch)[0];
+  const dayItems = items.filter((it) => spansDay(it, date)).sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.startTime.getTime() - b.startTime.getTime());
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "cal-card", style: { padding: 14, display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 4, minWidth: 0 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 15, fontWeight: 600 }, children: date.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }) }),
+        (!!userWatch || shiftSchedule.length > 0) && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftChip, { shift: shift2 }),
+          (shift2 == null ? void 0 : shift2.startTime) && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: { fontSize: 11, color: "var(--cal-muted)", marginLeft: 6 }, children: [
+            shift2.startTime,
+            "–",
+            shift2.endTime
+          ] })
+        ] })
+      ] }),
       onNewEvent && /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "button",
         {
-          onClick: () => onNewEvent(date),
-          className: "text-xs text-indigo-600 dark:text-indigo-400 font-medium flex items-center gap-1",
+          type: "button",
+          onClick: () => {
+            const at = new Date(date);
+            at.setHours(9, 0, 0, 0);
+            onNewEvent(at);
+          },
+          className: "cal-focus",
+          style: { height: 40, padding: "0 14px", borderRadius: 12, border: "none", background: "var(--cal-brand)", color: "#fff", font: "inherit", fontSize: 14, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer", flex: "none" },
           children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-base leading-none", children: "+" }),
-            " New Event"
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4" }),
+            " New event"
           ]
         }
       )
     ] }),
-    dayShifts.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-4 py-2 flex flex-wrap gap-1.5 border-b border-border/30 bg-muted/20", children: dayShifts.map((s) => {
-      const color = SHIFT_COLORS[s.shiftType] ?? "#6b7280";
-      const icon = SHIFT_ICONS[s.shiftType] ?? "";
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "span",
-        {
-          className: "inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-white text-xs font-medium",
-          style: { backgroundColor: color },
-          children: [
-            icon,
-            " ",
-            s.shiftType,
-            s.startTime && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "opacity-80", children: [
-              "· ",
-              s.startTime,
-              "–",
-              s.endTime
-            ] })
-          ]
-        },
-        `${s.date}-${s.shiftType}`
-      );
-    }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "divide-y divide-border/30 pb-8", children: isEmpty ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-4 py-6 text-center text-sm text-muted-foreground", children: "No events" }) : dayItems.map((item) => {
-      const color = getItemColor(item);
-      const clickable = !!onEventClick;
+    dayItems.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: 0, padding: "18px 0", textAlign: "center", fontSize: 13, color: "var(--cal-muted)" }, children: "Nothing on this day" }) : dayItems.map((it) => {
+      const k = calKey(it);
       return /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "button",
         {
           type: "button",
-          onClick: () => onEventClick == null ? void 0 : onEventClick(item),
-          disabled: !clickable,
-          className: `w-full flex items-start gap-3 px-4 py-3 text-left transition-colors ${clickable ? "active:bg-muted hover:bg-muted/40 cursor-pointer" : "cursor-default"}`,
+          title: itemTooltip(it),
+          onClick: (e) => onEventClick == null ? void 0 : onEventClick(it, anchorOf(e)),
+          className: "cal-focus",
+          style: {
+            display: "flex",
+            gap: 10,
+            alignItems: "flex-start",
+            textAlign: "left",
+            font: "inherit",
+            border: "none",
+            borderRadius: 12,
+            padding: "10px 12px",
+            background: blockBg(it),
+            color: tok(k, "fg"),
+            cursor: isReadOnly(it) ? "default" : "pointer"
+          },
           children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-14 shrink-0 text-right", children: item.allDay ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px] text-muted-foreground", children: "all day" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-medium text-muted-foreground", children: [
-              item.startTime.getHours().toString().padStart(2, "0"),
-              ":",
-              item.startTime.getMinutes().toString().padStart(2, "0")
-            ] }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-1 self-stretch rounded-full shrink-0", style: { backgroundColor: color } }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm font-medium text-foreground leading-tight truncate", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ItemTitle, { item }) }),
-              !item.allDay && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground mt-0.5", children: [
-                formatTime(item.startTime),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 12, width: 44, flex: "none", paddingTop: 1 }, children: it.allDay ? "All day" : hhmm(it.startTime) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "flex", flexDirection: "column", gap: 2, minWidth: 0, flex: 1 }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "flex", alignItems: "center", gap: 6, minWidth: 0 }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Dot, { k }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { ...titleStyle(it), fontSize: 14 }, children: it.title }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ItemIcons, { item: it })
+              ] }),
+              !it.allDay && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: { fontSize: 11.5, opacity: 0.85 }, children: [
+                hhmm(it.startTime),
                 " – ",
-                formatTime(item.endTime)
-              ] })
+                hhmm(it.endTime)
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(StateBadges, { item: it })
             ] })
           ]
         },
-        `${item.type}-${item.id}`
+        `${it.type}-${it.id}`
       );
-    }) })
+    })
   ] });
 }
-function CalendarHeader({
+function rangeLabel(view, d) {
+  if (view === "day") return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+  if (view === "week") {
+    const days = getWeekDays(d);
+    const a = days[0], b = days[6];
+    const sameMonth = a.getMonth() === b.getMonth();
+    return sameMonth ? `${a.getDate()} – ${b.getDate()} ${MONTH_NAMES[b.getMonth()].slice(0, 3)}` : `${a.getDate()} ${MONTH_NAMES[a.getMonth()].slice(0, 3)} – ${b.getDate()} ${MONTH_NAMES[b.getMonth()].slice(0, 3)}`;
+  }
+  if (view === "month") return `${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}`;
+  return String(d.getFullYear());
+}
+function Toolbar({
   view,
   currentDate,
   onViewChange,
@@ -52415,52 +52390,36 @@ function CalendarHeader({
   onNext,
   onToday
 }) {
-  const title = (() => {
-    if (view === "day") {
-      return currentDate.toLocaleDateString("en-GB", {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-        year: "numeric"
-      });
-    }
-    if (view === "week") {
-      const days = getWeekDays(currentDate);
-      const start = days[0].toLocaleDateString("en-GB", { day: "numeric", month: "short" });
-      const end = days[6].toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
-      return `${start} – ${end}`;
-    }
-    if (view === "month") {
-      return currentDate.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
-    }
-    return currentDate.getFullYear().toString();
-  })();
-  const views = ["day", "week", "month", "year"];
-  return (
-    // Internal calendar toolbar — kept tight (py-1, h-7 controls) so the
-    // grid below gets the most room. Page header already shows the month
-    // + watch in eyebrow form, so the title here only needs to reflect
-    // the visible range (week-spans, year). Active view button uses
-    // --brand instead of bg-red-500 so it stays consistent with the
-    // rest of the app's accent system.
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-3 py-1 border-b border-border bg-card shrink-0", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", size: "sm", onClick: onToday, className: "text-xs h-7 px-3", children: "Today" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "ghost", size: "icon", onClick: onPrev, className: "h-7 w-7", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronLeft, { className: "h-4 w-4" }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "ghost", size: "icon", onClick: onNext, className: "h-7 w-7", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-4 w-4" }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-sm font-medium text-muted-foreground ml-1", children: title })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center rounded-md border border-border overflow-hidden h-7", children: views.map((v) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          onClick: () => onViewChange(v),
-          className: `px-3 text-xs font-medium transition-colors capitalize h-full ${view === v ? "bg-brand text-brand-foreground" : "bg-card text-muted-foreground hover:bg-muted"}`,
-          children: v
+  const unit = view === "day" ? "day" : view === "week" ? "week" : view === "month" ? "month" : "year";
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 12 }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: onToday, className: "cal-btn", style: { height: 40, padding: "0 16px", fontWeight: 600, fontSize: 14 }, children: "Today" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": `Previous ${unit}`, onClick: onPrev, className: "cal-btn", style: { width: 40, height: 40, padding: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronLeft, { className: "h-[18px] w-[18px]" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": `Next ${unit}`, onClick: onNext, className: "cal-btn", style: { width: 40, height: 40, padding: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-[18px] w-[18px]" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 14, color: "var(--cal-ink-2)", marginLeft: 6 }, children: rangeLabel(view, currentDate) })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { role: "group", "aria-label": "View", style: { display: "inline-flex", padding: 4, borderRadius: 14, background: "var(--cal-surface-3)", gap: 2 }, children: ["day", "week", "month", "year"].map((v) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "button",
+      {
+        type: "button",
+        "aria-pressed": view === v,
+        onClick: () => onViewChange(v),
+        className: "cal-focus capitalize",
+        style: {
+          height: 36,
+          padding: "0 16px",
+          borderRadius: 10,
+          border: "none",
+          font: "inherit",
+          fontSize: 14,
+          cursor: "pointer",
+          ...view === v ? { background: "var(--cal-surface)", color: "var(--cal-ink)", fontWeight: 600, boxShadow: "var(--cal-shadow)" } : { background: "transparent", color: "var(--cal-ink-2)", fontWeight: 500 }
         },
-        v
-      )) })
-    ] })
-  );
+        children: v
+      },
+      v
+    )) })
+  ] });
 }
 function CalendarWidget({
   events: events2 = [],
@@ -52473,169 +52432,446 @@ function CalendarWidget({
   view,
   onViewChange,
   onSlotClick,
-  onEventClick
+  onEventClick,
+  pendingSlot
 }) {
   const scrollRef = reactExports.useRef(null);
   const items = buildItems(events2, tasks, inspections);
   const [selectedDay, setSelectedDay] = reactExports.useState(/* @__PURE__ */ new Date());
   reactExports.useEffect(() => {
     if ((view === "day" || view === "week") && scrollRef.current) {
-      const now = /* @__PURE__ */ new Date();
-      scrollRef.current.scrollTop = Math.max(now.getHours() * HOUR_HEIGHT - HOUR_HEIGHT * 2, 0);
+      const h = (/* @__PURE__ */ new Date()).getHours();
+      scrollRef.current.scrollTop = (h > 14 ? h - 6 : 7) * HOUR_PX;
     }
   }, [view]);
   const navigate = (dir) => {
     const d = new Date(currentDate);
     if (view === "day") d.setDate(d.getDate() + dir);
     else if (view === "week") d.setDate(d.getDate() + 7 * dir);
-    else if (view === "month") d.setMonth(d.getMonth() + dir);
+    else if (view === "month") d.setMonth(d.getMonth() + dir, 1);
     else d.setFullYear(d.getFullYear() + dir);
     onDateChange(d);
   };
-  const handleDayNavigate = (date) => {
-    onDateChange(date);
+  const toDay = (d) => {
+    onDateChange(d);
     onViewChange("day");
   };
-  const mobileTitle = currentDate.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
-  return (
-    // Mobile: natural height so month grid + day agenda flow down the page
-    // and the browser scrolls the whole view; Desktop: still h-full with
-    // overflow-hidden so month grid + time grid behave like a fixed-height
-    // calendar inside the page layout.
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col bg-background rounded-xl border border-border md:overflow-hidden md:h-full md:min-h-[500px]", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "md:hidden flex flex-col", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-4 py-2.5 border-b border-border shrink-0", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              onClick: () => navigate(-1),
-              className: "p-1.5 rounded-lg hover:bg-muted transition-colors",
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronLeft, { className: "h-5 w-5 text-muted-foreground" })
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-base font-semibold text-foreground", children: mobileTitle }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              onClick: () => navigate(1),
-              className: "p-1.5 rounded-lg hover:bg-muted transition-colors",
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-5 w-5 text-muted-foreground" })
-            }
-          )
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-3 pt-2 pb-1 shrink-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          MobileMonthView,
-          {
-            date: currentDate,
-            items,
-            shiftSchedule,
-            userWatch,
-            selectedDay,
-            onDaySelect: (d) => {
-              setSelectedDay(d);
-              if (d.getMonth() !== currentDate.getMonth() || d.getFullYear() !== currentDate.getFullYear()) {
-                onDateChange(d);
-              }
-            }
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cal-ui", style: { display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "md:hidden", style: { display: "flex", flexDirection: "column", gap: 12 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        MobileMonth,
+        {
+          date: currentDate,
+          items,
+          shiftSchedule,
+          userWatch,
+          selectedDay,
+          onPrev: () => {
+            const d = new Date(currentDate);
+            d.setMonth(d.getMonth() - 1, 1);
+            onDateChange(d);
+          },
+          onNext: () => {
+            const d = new Date(currentDate);
+            d.setMonth(d.getMonth() + 1, 1);
+            onDateChange(d);
+          },
+          onDaySelect: (d) => {
+            setSelectedDay(d);
+            if (d.getMonth() !== currentDate.getMonth() || d.getFullYear() !== currentDate.getFullYear()) onDateChange(d);
           }
-        ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          MobileAgendaPanel,
-          {
-            date: selectedDay,
-            items,
-            shiftSchedule,
-            userWatch,
-            onNewEvent: onSlotClick,
-            onEventClick
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        MobileAgenda,
+        {
+          date: selectedDay,
+          items,
+          shiftSchedule,
+          userWatch,
+          onNewEvent: onSlotClick,
+          onEventClick
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden md:flex", style: { flexDirection: "column", gap: 16, minWidth: 0 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        Toolbar,
+        {
+          view,
+          currentDate,
+          onViewChange,
+          onPrev: () => navigate(-1),
+          onNext: () => navigate(1),
+          onToday: () => onDateChange(/* @__PURE__ */ new Date())
+        }
+      ),
+      (view === "week" || view === "day") && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        TimeGridCard,
+        {
+          days: view === "week" ? getWeekDays(currentDate) : [startOfDay$1(currentDate)],
+          items,
+          shiftSchedule,
+          userWatch,
+          scrollRef,
+          pendingSlot,
+          onSlotClick,
+          onEventClick,
+          onDayClick: toDay
+        }
+      ),
+      view === "month" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        MonthView,
+        {
+          date: currentDate,
+          items,
+          shiftSchedule,
+          userWatch,
+          onSlotClick,
+          onEventClick,
+          onDayNavigate: toDay
+        }
+      ),
+      view === "year" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        YearView,
+        {
+          year: currentDate.getFullYear(),
+          items,
+          onMonthClick: (d) => {
+            onDateChange(d);
+            onViewChange("month");
           }
-        )
+        }
+      )
+    ] })
+  ] });
+}
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const WATCHES$9 = ["Red", "White", "Green", "Blue", "Amber"];
+const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+const startOfDay = (d) => {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  return x;
+};
+const shiftKind = (s) => !s || s.shiftType === "Rest" ? null : s.isLeave ? "leave" : s.shiftType.includes("Night") ? "night" : "day";
+const sectionTitle = { margin: 0, fontSize: 15, fontWeight: 600 };
+const eyebrow = { fontSize: 11, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase" };
+function MiniMonth({
+  currentDate,
+  view,
+  rotaWatch,
+  onPickDay
+}) {
+  const [cursor, setCursor] = reactExports.useState(new Date(currentDate.getFullYear(), currentDate.getMonth(), 1));
+  reactExports.useEffect(() => {
+    setCursor(new Date(currentDate.getFullYear(), currentDate.getMonth(), 1));
+  }, [currentDate.getFullYear(), currentDate.getMonth()]);
+  const today = /* @__PURE__ */ new Date();
+  const y = cursor.getFullYear(), m = cursor.getMonth();
+  const blanks = (new Date(y, m, 1).getDay() + 6) % 7;
+  const n = new Date(y, m + 1, 0).getDate();
+  const dow = (currentDate.getDay() + 6) % 7;
+  const weekStart = startOfDay(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - dow));
+  const inView = (d) => {
+    if (view === "week") {
+      const diff = (startOfDay(d).getTime() - weekStart.getTime()) / 864e5;
+      return diff >= 0 && diff < 7;
+    }
+    if (view === "day") return sameDay(d, currentDate);
+    return false;
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "cal-card", style: { padding: 18 }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { style: sectionTitle, children: [
+        MONTHS[m],
+        " ",
+        y
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden md:flex md:flex-col md:h-full md:overflow-hidden", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          CalendarHeader,
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: 4 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": "Previous month", onClick: () => setCursor(new Date(y, m - 1, 1)), className: "cal-btn", style: { width: 32, height: 32, padding: 0, borderRadius: 10, color: "var(--cal-ink-2)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronLeft, { className: "h-4 w-4" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": "Next month", onClick: () => setCursor(new Date(y, m + 1, 1)), className: "cal-btn", style: { width: 32, height: 32, padding: 0, borderRadius: 10, color: "var(--cal-ink-2)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-4 w-4" }) })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", rowGap: 2, textAlign: "center" }, children: [
+      ["M", "T", "W", "T", "F", "S", "S"].map((w, i) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 11, fontWeight: 600, color: "var(--cal-muted)", padding: "4px 0" }, children: w }, i)),
+      Array.from({ length: blanks }, (_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", {}, `b${i}`)),
+      Array.from({ length: n }, (_, i) => {
+        const d = new Date(y, m, i + 1);
+        const isToday2 = sameDay(d, today);
+        const band = inView(d);
+        const prevBand = band && inView(new Date(y, m, i));
+        const nextBand = band && inView(new Date(y, m, i + 2));
+        const k = rotaWatch ? shiftKind(getShiftForDate(rotaWatch, d)) : null;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
           {
-            view,
-            currentDate,
-            onViewChange,
-            onPrev: () => navigate(-1),
-            onNext: () => navigate(1),
-            onToday: () => onDateChange(/* @__PURE__ */ new Date())
+            type: "button",
+            onClick: () => onPickDay(d),
+            className: "cal-focus cal-mono",
+            "aria-label": `${d.getDate()} ${MONTHS[m]}${k ? `, ${k === "leave" ? "annual leave" : `${k} shift`}` : ""}${isToday2 ? ", today" : ""}`,
+            style: {
+              height: 38,
+              border: "none",
+              padding: 0,
+              cursor: "pointer",
+              fontSize: 13,
+              fontWeight: isToday2 ? 600 : 500,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 3,
+              borderRadius: isToday2 ? 10 : band ? `${prevBand ? 0 : 10}px ${nextBand ? 0 : 10}px ${nextBand ? 0 : 10}px ${prevBand ? 0 : 10}px` : 10,
+              background: isToday2 ? "var(--cal-brand)" : band ? "var(--cal-brand-soft)" : "transparent",
+              color: isToday2 ? "#fff" : "var(--cal-ink)"
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: d.getDate() }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 14, height: 3, borderRadius: 2, background: k ? isToday2 ? "#fff" : `var(--cal-${k}-dot)` : "transparent" } })
+            ]
+          },
+          i
+        );
+      })
+    ] })
+  ] });
+}
+function whenLabel(d, allDay) {
+  const today = startOfDay(/* @__PURE__ */ new Date());
+  const diff = Math.round((startOfDay(d).getTime() - today.getTime()) / 864e5);
+  const day = diff === 0 ? "Today" : diff === 1 ? "Tomorrow" : d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+  if (allDay) return `${day} · All day`;
+  return `${day} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
+const CAL_NAME = { station: "Station", watch: "Watch", personal: "Personal" };
+function NextUp({ myWatch, upcoming }) {
+  var _a2, _b2;
+  const status = myWatch ? getWatchShiftStatus(myWatch) : null;
+  const now = Date.now();
+  const todayStart = startOfDay(/* @__PURE__ */ new Date()).getTime();
+  const nextEvent = upcoming.filter((e) => !e.cancelled_at && (e.all_day ? new Date(e.end_time).getTime() >= todayStart : new Date(e.start_time).getTime() >= now)).sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime())[0];
+  if (!status && !nextEvent) return null;
+  const cur = status == null ? void 0 : status.current;
+  const curKind = cur ? shiftKind(cur) : (status == null ? void 0 : status.state) === "leave" ? "leave" : null;
+  const endsNextDay = (cur == null ? void 0 : cur.startTime) === "18:00";
+  const endDay = cur ? new Date((/* @__PURE__ */ new Date(cur.date + "T12:00:00")).getTime() + 864e5).toLocaleDateString("en-GB", { weekday: "short" }) : "";
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { "aria-label": "Next up", className: "cal-card", style: { padding: 18, display: "flex", flexDirection: "column", gap: 12 }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: sectionTitle, children: "Next up" }),
+    status && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        style: {
+          borderRadius: 14,
+          padding: "12px 14px",
+          display: "flex",
+          gap: 12,
+          alignItems: "center",
+          background: curKind ? `var(--cal-${curKind}-bg)` : "var(--cal-surface-2)",
+          color: curKind ? `var(--cal-${curKind}-fg)` : "var(--cal-ink)"
+        },
+        children: [
+          curKind === "night" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Moon, { className: "h-5 w-5 shrink-0" }) : curKind === "day" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Sun, { className: "h-5 w-5 shrink-0" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: "h-5 w-5 shrink-0" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: eyebrow, children: status.state === "on" ? "On shift now" : status.state === "off" ? "Off now" : status.state === "rest" ? "Rest day" : "Annual leave" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 14, fontWeight: 600 }, children: cur ? cur.shiftType : status.next ? `Next: ${status.next.shiftType}` : `${myWatch} Watch` }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 12 }, children: cur ? `${cur.startTime} → ${cur.endTime}${endsNextDay ? ` ${endDay}` : ""}` : ((_b2 = status.nextLabel) == null ? void 0 : _b2.replace(`${(_a2 = status.next) == null ? void 0 : _a2.shiftType} `, "")) ?? "" })
+          ] })
+        ]
+      }
+    ),
+    (status == null ? void 0 : status.state) === "on" && status.next && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Row,
+      {
+        icon: shiftKind(status.next) === "night" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Moon, { className: "h-[18px] w-[18px]" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Sun, { className: "h-[18px] w-[18px]" }),
+        k: shiftKind(status.next) ?? "day",
+        title: "Next shift",
+        main: `${status.next.shiftType} · ${(/* @__PURE__ */ new Date(status.next.date + "T12:00:00")).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}`,
+        sub: `${status.next.startTime} – ${status.next.endTime}`
+      }
+    ),
+    nextEvent && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Row,
+      {
+        icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: "h-[18px] w-[18px]" }),
+        k: nextEvent.calendar_visibility ?? "station",
+        title: "Next event",
+        main: nextEvent.title,
+        sub: `${whenLabel(new Date(nextEvent.start_time), nextEvent.all_day)} · ${CAL_NAME[nextEvent.calendar_visibility] ?? "Calendar"}`
+      }
+    )
+  ] });
+}
+function Row({ icon, k, title, main, sub }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: 12, alignItems: "center", padding: "0 4px" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 36, height: 36, borderRadius: 10, background: `var(--cal-${k}-bg)`, color: `var(--cal-${k}-fg)`, display: "grid", placeItems: "center", flex: "none" }, children: icon }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 1, minWidth: 0 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { ...eyebrow, color: "var(--cal-muted)" }, children: title }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 14, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: main }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 12, color: "var(--cal-ink-2)" }, children: sub })
+    ] })
+  ] });
+}
+function Toggle({
+  on,
+  colour,
+  label: label2,
+  sub,
+  lock,
+  onClick,
+  tall = true
+}) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "button",
+    {
+      type: "button",
+      "aria-pressed": on,
+      onClick,
+      className: "cal-focus",
+      style: {
+        display: "flex",
+        alignItems: "center",
+        gap: 12,
+        minHeight: tall ? 48 : 44,
+        padding: "4px 8px",
+        margin: "0 -8px",
+        border: "none",
+        background: "transparent",
+        borderRadius: 12,
+        color: "var(--cal-ink)",
+        textAlign: "left",
+        font: "inherit",
+        cursor: "pointer"
+      },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "span",
+          {
+            style: {
+              width: 20,
+              height: 20,
+              borderRadius: 6,
+              flex: "none",
+              display: "grid",
+              placeItems: "center",
+              background: on ? colour : "transparent",
+              border: on ? "none" : `2px solid ${colour}`
+            },
+            children: on && /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-3 w-3", strokeWidth: 3.5, color: "#fff" })
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 overflow-hidden", children: [
-          view === "day" && /* @__PURE__ */ jsxRuntimeExports.jsx(
-            DayView,
-            {
-              date: currentDate,
-              items,
-              shiftSchedule,
-              userWatch,
-              scrollRef,
-              onSlotClick,
-              onEventClick
-            }
-          ),
-          view === "week" && /* @__PURE__ */ jsxRuntimeExports.jsx(
-            WeekView,
-            {
-              weekDays: getWeekDays(currentDate),
-              items,
-              shiftSchedule,
-              userWatch,
-              scrollRef,
-              onSlotClick,
-              onEventClick,
-              onDayClick: handleDayNavigate
-            }
-          ),
-          view === "month" && /* @__PURE__ */ jsxRuntimeExports.jsx(
-            MonthView,
-            {
-              date: currentDate,
-              items,
-              shiftSchedule,
-              userWatch,
-              onSlotClick,
-              onEventClick,
-              onDayNavigate: handleDayNavigate
-            }
-          ),
-          view === "year" && /* @__PURE__ */ jsxRuntimeExports.jsx(
-            YearView,
-            {
-              year: currentDate.getFullYear(),
-              items,
-              onMonthClick: (d) => {
-                onDateChange(d);
-                onViewChange("month");
-              }
-            }
-          )
-        ] })
-      ] })
-    ] })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 14, fontWeight: 500, color: on ? "var(--cal-ink)" : "var(--cal-muted)" }, children: label2 }),
+          sub && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 12, color: "var(--cal-muted)" }, children: sub })
+        ] }),
+        lock && /* @__PURE__ */ jsxRuntimeExports.jsx(Lock, { className: "h-3.5 w-3.5 shrink-0", style: { color: "var(--cal-muted)" } })
+      ]
+    }
   );
 }
+function Calendars({
+  visible,
+  onToggle,
+  watchShown,
+  userWatch,
+  isManager,
+  onWatchChange
+}) {
+  const chip = (k) => ({
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 5,
+    padding: "4px 9px",
+    borderRadius: 999,
+    background: `var(--cal-${k}-bg)`,
+    color: `var(--cal-${k}-fg)`,
+    fontSize: 12,
+    fontWeight: 500
+  });
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { "aria-label": "Calendars", className: "cal-card", style: { padding: 18, display: "flex", flexDirection: "column", gap: 6 }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { ...sectionTitle, marginBottom: 4 }, children: "My calendars" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Toggle, { on: visible.has("station"), colour: "var(--cal-station-dot)", label: "Springburn Station", sub: "Everyone", onClick: () => onToggle("station") }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Toggle,
+      {
+        on: visible.has("watch"),
+        colour: "var(--cal-watch-dot)",
+        label: "Watch Calendar",
+        sub: watchShown ? `${watchShown} Watch` : "Your watch",
+        onClick: () => onToggle("watch")
+      }
+    ),
+    isManager && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, padding: "4px 0 8px 32px" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "watchPick", style: { fontSize: 12, color: "var(--cal-muted)" }, children: "Viewing watch" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "select",
+        {
+          id: "watchPick",
+          value: watchShown,
+          onChange: (e) => onWatchChange(e.target.value),
+          "aria-label": "Which watch's calendar to show",
+          className: "cal-field",
+          style: { height: 36, fontSize: 13 },
+          children: WATCHES$9.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: w, children: [
+            w,
+            w === userWatch ? " (yours)" : ""
+          ] }, w))
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Toggle, { on: visible.has("personal"), colour: "var(--cal-personal-dot)", label: "Personal", sub: "Only you", onClick: () => onToggle("personal") }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { height: 1, background: "var(--cal-line)", margin: "4px 0 6px" } }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { margin: "0 0 2px", fontSize: 13, fontWeight: 600, color: "var(--cal-muted)", letterSpacing: ".04em", textTransform: "uppercase" }, children: "Overlays · read-only" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Toggle, { tall: false, on: visible.has("tasks"), colour: "var(--cal-tasks-dot)", label: "Tasks", lock: true, onClick: () => onToggle("tasks") }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Toggle, { tall: false, on: visible.has("inspections"), colour: "var(--cal-insp-dot)", label: "Inspections", lock: true, onClick: () => onToggle("inspections") }),
+    watchShown && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Toggle, { tall: false, on: visible.has("shifts"), colour: "var(--cal-ink-2)", label: `Shift rota · ${watchShown} Watch`, onClick: () => onToggle("shifts") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexWrap: "wrap", gap: 6, paddingLeft: 32 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: chip("day"), children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Sun, { className: "h-3 w-3" }),
+          "Day ",
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", children: "08–18" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: chip("night"), children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Moon, { className: "h-3 w-3" }),
+          "Night ",
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", children: "18–08" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: chip("leave"), children: "Leave" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { display: "inline-flex", padding: "3px 8px", borderRadius: 999, border: "1px dashed var(--cal-line-2)", color: "var(--cal-muted)", fontSize: 12, fontWeight: 500 }, children: "Rest" })
+      ] })
+    ] })
+  ] });
+}
+function CalendarSidePanel(props) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 16 }, children: [
+    props.showMiniMonth !== false && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      MiniMonth,
+      {
+        currentDate: props.currentDate,
+        view: props.view,
+        rotaWatch: props.visible.has("shifts") ? props.watchShown : void 0,
+        onPickDay: props.onPickDay
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(NextUp, { myWatch: props.userWatch || void 0, upcoming: props.upcoming }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Calendars,
+      {
+        visible: props.visible,
+        onToggle: props.onToggle,
+        watchShown: props.watchShown,
+        userWatch: props.userWatch,
+        isManager: props.isManager,
+        onWatchChange: props.onWatchChange
+      }
+    )
+  ] });
+}
 const CALENDAR_OPTIONS = [
-  {
-    value: "station",
-    label: "Springburn Station",
-    sublabel: "Visible to all Springburn staff",
-    color: "#ef4444"
-  },
-  {
-    value: "watch",
-    label: "Watch Calendar",
-    sublabel: "Visible to your watch only",
-    color: "#3b82f6"
-  },
-  {
-    value: "personal",
-    label: "Personal Calendar",
-    sublabel: "Only visible to you",
-    color: "#8b5cf6"
-  }
+  { value: "station", label: "Station", key: "station" },
+  { value: "watch", label: "Watch", key: "watch" },
+  { value: "personal", label: "Personal", key: "personal" }
 ];
 function toInputDate(d) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -52646,23 +52882,8 @@ function toInputTime(d) {
 function parseDateTimeInputs(date, time) {
   return /* @__PURE__ */ new Date(`${date}T${time}:00`);
 }
-function formatDisplayDate(d) {
-  return d.toLocaleDateString("en-GB", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric"
-  });
-}
-function formatDisplayTime(d) {
-  return d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: true });
-}
-function FormRow({ icon: Icon2, children }) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-3 px-4 py-2.5 border-b border-border/40 last:border-0", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-5 shrink-0 mt-0.5", children: Icon2 && /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "h-4 w-4 text-muted-foreground" }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 min-w-0", children })
-  ] });
-}
+const fmtDay = (d) => new Date(d).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+const label = { fontSize: 12, color: "var(--cal-muted)" };
 function EventForm({
   date,
   initialData,
@@ -52684,25 +52905,14 @@ function EventForm({
   })();
   const defaultEnd = new Date(defaultStart.getTime() + 36e5);
   const [title, setTitle] = reactExports.useState((initialData == null ? void 0 : initialData.title) ?? "");
-  const [startDate, setStartDate] = reactExports.useState(
-    toInputDate(initialData ? new Date(initialData.start_time) : defaultStart)
-  );
-  const [startTime, setStartTime] = reactExports.useState(
-    toInputTime(initialData ? new Date(initialData.start_time) : defaultStart)
-  );
-  const [endDate, setEndDate] = reactExports.useState(
-    toInputDate(initialData ? new Date(initialData.end_time) : defaultEnd)
-  );
-  const [endTime, setEndTime] = reactExports.useState(
-    toInputTime(initialData ? new Date(initialData.end_time) : defaultEnd)
-  );
+  const [startDate, setStartDate] = reactExports.useState(toInputDate(initialData ? new Date(initialData.start_time) : defaultStart));
+  const [startTime, setStartTime] = reactExports.useState(toInputTime(initialData ? new Date(initialData.start_time) : defaultStart));
+  const [endDate, setEndDate] = reactExports.useState(toInputDate(initialData ? new Date(initialData.end_time) : defaultEnd));
+  const [endTime, setEndTime] = reactExports.useState(toInputTime(initialData ? new Date(initialData.end_time) : defaultEnd));
   const [allDay, setAllDay] = reactExports.useState((initialData == null ? void 0 : initialData.all_day) ?? false);
-  const [calendar2, setCalendar] = reactExports.useState(
-    (initialData == null ? void 0 : initialData.calendar_visibility) ?? defaultCalendar
-  );
+  const [calendar2, setCalendar] = reactExports.useState((initialData == null ? void 0 : initialData.calendar_visibility) ?? defaultCalendar);
   const [location, setLocation] = reactExports.useState((initialData == null ? void 0 : initialData.location) ?? "");
   const [notes, setNotes] = reactExports.useState((initialData == null ? void 0 : initialData.description) ?? "");
-  const [showCalendarPicker, setShowCalendarPicker] = reactExports.useState(false);
   const [changeNote, setChangeNote] = reactExports.useState("");
   const [striking, setStriking] = reactExports.useState(false);
   const [strikeReason, setStrikeReason] = reactExports.useState("");
@@ -52712,26 +52922,14 @@ function EventForm({
     var _a2;
     (_a2 = titleRef.current) == null ? void 0 : _a2.focus();
   }, []);
-  const handleStartDateChange = (val) => {
-    setStartDate(val);
-    const newStart = parseDateTimeInputs(val, startTime);
-    const newEnd = parseDateTimeInputs(endDate, endTime);
-    if (newEnd <= newStart) {
+  const keepEndAfter = (newStart) => {
+    if (parseDateTimeInputs(endDate, endTime) <= newStart) {
       const adjusted = new Date(newStart.getTime() + 36e5);
       setEndDate(toInputDate(adjusted));
       setEndTime(toInputTime(adjusted));
     }
   };
-  const handleStartTimeChange = (val) => {
-    setStartTime(val);
-    const newStart = parseDateTimeInputs(startDate, val);
-    const newEnd = parseDateTimeInputs(endDate, endTime);
-    if (newEnd <= newStart) {
-      const adjusted = new Date(newStart.getTime() + 36e5);
-      setEndDate(toInputDate(adjusted));
-      setEndTime(toInputTime(adjusted));
-    }
-  };
+  const moved = isEditing && !!initialData && toInputDate(new Date(initialData.start_time)) !== startDate;
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!title.trim()) return;
@@ -52750,281 +52948,252 @@ function EventForm({
       is_watch_event: calendar2 === "station" || calendar2 === "watch"
     });
   };
-  const selectedCalendar = CALENDAR_OPTIONS.find((c) => c.value === calendar2);
-  const calendarSublabel = calendar2 === "watch" && watchName ? `${watchName} Watch` : selectedCalendar.sublabel;
-  const moved = isEditing && !!initialData && toInputDate(new Date(initialData.start_time)) !== startDate;
-  const fmtDay = (d) => new Date(d).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
-  formatDisplayDate(parseDateTimeInputs(startDate, startTime));
-  formatDisplayDate(parseDateTimeInputs(endDate, endTime));
-  formatDisplayTime(parseDateTimeInputs(startDate, startTime));
-  formatDisplayTime(parseDateTimeInputs(endDate, endTime));
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSubmit, className: "flex flex-col bg-card rounded-2xl shadow-2xl overflow-hidden w-full max-w-md", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-4 pt-4 pb-2", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "input",
-        {
-          ref: titleRef,
-          type: "text",
-          value: title,
-          onChange: (e) => setTitle(e.target.value),
-          placeholder: "New Event",
-          className: "flex-1 text-xl font-semibold bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground/50 mr-2",
-          required: true
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          type: "button",
-          onClick: onCancel,
-          className: "rounded-full w-6 h-6 flex items-center justify-center bg-muted hover:bg-muted/80 transition-colors",
-          children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5 text-muted-foreground" })
-        }
-      )
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-px bg-border/60 mx-4 mb-1" }),
-    cancelled && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mx-4 my-2 rounded-lg border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/30 px-3 py-2 text-xs", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "font-semibold text-red-700 dark:text-red-400 flex items-center gap-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Ban, { className: "h-3.5 w-3.5" }),
-        " Cancelled",
-        (initialData == null ? void 0 : initialData.cancelled_by_name) ? ` by ${initialData.cancelled_by_name}` : "",
-        (initialData == null ? void 0 : initialData.cancelled_at) ? ` · ${fmtDay(initialData.cancelled_at)}` : ""
-      ] }),
-      (initialData == null ? void 0 : initialData.cancel_reason) && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-0.5 text-foreground", children: initialData.cancel_reason }),
-      onReinstate && /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          type: "button",
-          onClick: onReinstate,
-          className: "mt-1.5 text-xs font-medium text-indigo-600 hover:text-indigo-700",
-          children: "Reinstate event"
-        }
-      )
-    ] }),
-    isEditing && (initialData == null ? void 0 : initialData.rescheduled_from) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mx-4 my-2 rounded-lg border border-amber-200 dark:border-amber-900/60 bg-amber-50 dark:bg-amber-950/30 px-3 py-2 text-xs", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "font-semibold text-amber-700 dark:text-amber-400 flex items-center gap-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarClock, { className: "h-3.5 w-3.5" }),
-        " Moved from ",
-        fmtDay(initialData.rescheduled_from),
-        initialData.changed_by_name ? ` by ${initialData.changed_by_name}` : ""
-      ] }),
-      initialData.change_note && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-0.5 text-foreground", children: initialData.change_note })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(FormRow, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-foreground", children: "All-day" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
-          {
-            type: "button",
-            role: "switch",
-            "aria-checked": allDay,
-            onClick: () => setAllDay((v) => !v),
-            className: `relative w-10 h-5 rounded-full transition-colors ${allDay ? "bg-red-500" : "bg-muted"}`,
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "span",
-              {
-                className: `absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${allDay ? "translate-x-5" : "translate-x-0"}`
-              }
-            )
-          }
-        )
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-muted-foreground w-12", children: "Starts" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex items-center gap-1 justify-end flex-wrap", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "form",
+    {
+      onSubmit: handleSubmit,
+      style: { display: "flex", flexDirection: "column", gap: 14, padding: 20, color: "var(--cal-ink)" },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "var(--cal-muted)" }, children: isEditing ? "Edit event" : "New event" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "input",
+            "button",
             {
-              type: "date",
-              value: startDate,
-              onChange: (e) => handleStartDateChange(e.target.value),
-              className: "text-sm bg-muted/40 rounded-md px-2 py-1 border-none outline-none text-foreground cursor-pointer hover:bg-muted transition-colors"
-            }
-          ),
-          !allDay && /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "input",
-            {
-              type: "time",
-              value: startTime,
-              onChange: (e) => handleStartTimeChange(e.target.value),
-              className: "text-sm bg-muted/40 rounded-md px-2 py-1 border-none outline-none text-foreground cursor-pointer hover:bg-muted transition-colors"
+              type: "button",
+              "aria-label": "Close",
+              onClick: onCancel,
+              className: "cal-focus",
+              style: { width: 32, height: 32, borderRadius: 10, border: "none", background: "var(--cal-surface-2)", color: "var(--cal-ink-2)", display: "grid", placeItems: "center", cursor: "pointer" },
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4" })
             }
           )
-        ] })
-      ] }),
-      moved && /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "input",
-        {
-          type: "text",
-          value: changeNote,
-          onChange: (e) => setChangeNote(e.target.value),
-          placeholder: "Reason for moving it (shown on the event)",
-          "aria-label": "Reason for moving the event",
-          className: "w-full text-xs bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/60 rounded-md px-2 py-1.5 outline-none text-foreground placeholder:text-muted-foreground/70"
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-muted-foreground w-12", children: "Ends" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex items-center gap-1 justify-end flex-wrap", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "input",
-            {
-              type: "date",
-              value: endDate,
-              onChange: (e) => setEndDate(e.target.value),
-              className: "text-sm bg-muted/40 rounded-md px-2 py-1 border-none outline-none text-foreground cursor-pointer hover:bg-muted transition-colors"
-            }
-          ),
-          !allDay && /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "input",
-            {
-              type: "time",
-              value: endTime,
-              onChange: (e) => setEndTime(e.target.value),
-              className: "text-sm bg-muted/40 rounded-md px-2 py-1 border-none outline-none text-foreground cursor-pointer hover:bg-muted transition-colors"
-            }
-          )
-        ] })
-      ] })
-    ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(FormRow, { icon: Calendar, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "button",
-        {
-          type: "button",
-          className: "flex items-center gap-2 w-full text-left hover:bg-muted/30 rounded-lg transition-colors py-0.5",
-          onClick: () => setShowCalendarPicker((v) => !v),
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "div",
-              {
-                className: "w-3 h-3 rounded-full shrink-0",
-                style: { backgroundColor: selectedCalendar.color }
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-medium text-foreground", children: selectedCalendar.label }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-muted-foreground", children: calendarSublabel })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-auto text-muted-foreground text-xs", children: "▾" })
-          ]
-        }
-      ),
-      showCalendarPicker && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute left-0 top-full mt-1 w-72 bg-popover border border-border rounded-xl shadow-lg z-50 overflow-hidden", children: CALENDAR_OPTIONS.map((opt) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "button",
-        {
-          type: "button",
-          className: `flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-muted/40 transition-colors ${calendar2 === opt.value ? "bg-muted/60" : ""}`,
-          onClick: () => {
-            setCalendar(opt.value);
-            setShowCalendarPicker(false);
-          },
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "div",
-              {
-                className: "w-4 h-4 rounded-full shrink-0",
-                style: { backgroundColor: opt.color }
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-medium text-foreground", children: opt.label }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-muted-foreground", children: opt.value === "watch" && watchName ? `${watchName} Watch` : opt.sublabel })
-            ] }),
-            calendar2 === opt.value && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-auto text-red-500 text-sm", children: "✓" })
-          ]
-        },
-        opt.value
-      )) })
-    ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(FormRow, { icon: MapPin, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "input",
-      {
-        type: "text",
-        value: location,
-        onChange: (e) => setLocation(e.target.value),
-        placeholder: "Add location or video call",
-        className: "w-full text-sm bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground/60"
-      }
-    ) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(FormRow, { icon: FileText, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "textarea",
-      {
-        value: notes,
-        onChange: (e) => setNotes(e.target.value),
-        placeholder: "Add notes",
-        rows: 3,
-        className: "w-full text-sm bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground/60 resize-none"
-      }
-    ) }),
-    striking && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mx-4 mb-3 space-y-2", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "textarea",
-        {
-          value: strikeReason,
-          onChange: (e) => setStrikeReason(e.target.value),
-          placeholder: "Why is it cancelled? (shown on the event)",
-          "aria-label": "Reason for cancelling",
-          rows: 2,
-          autoFocus: true,
-          className: "w-full text-sm bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/60 rounded-md px-2 py-1.5 outline-none text-foreground resize-none"
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "button", variant: "outline", size: "sm", onClick: () => {
-          setStriking(false);
-          setStrikeReason("");
-        }, children: "Back" }),
+        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Button,
+          "input",
           {
-            type: "button",
-            size: "sm",
-            disabled: !strikeReason.trim(),
-            onClick: () => onStrike == null ? void 0 : onStrike(strikeReason.trim()),
-            className: "bg-red-600 hover:bg-red-700 text-white",
-            children: "Strike through"
-          }
-        )
-      ] })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-4 py-3 bg-muted/20 border-t border-border/40 gap-2", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
-        canStrike && !cancelled && !striking && /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
-          {
-            type: "button",
-            onClick: () => setStriking(true),
-            className: "text-sm text-amber-600 hover:text-amber-700 transition-colors",
-            children: "Cancel event…"
+            ref: titleRef,
+            "aria-label": "Title",
+            value: title,
+            onChange: (e) => setTitle(e.target.value),
+            placeholder: "Event title",
+            required: true,
+            style: {
+              font: "inherit",
+              fontSize: 22,
+              fontWeight: 600,
+              color: "var(--cal-ink)",
+              background: "transparent",
+              border: "none",
+              borderBottom: "2px solid var(--cal-brand)",
+              padding: "2px 0 8px",
+              outline: "none",
+              ...cancelled ? { textDecoration: "line-through" } : {}
+            }
           }
         ),
-        isEditing && onDelete && /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
+        cancelled && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { borderRadius: 12, background: "var(--cal-station-bg)", color: "var(--cal-station-fg)", padding: "10px 12px", fontSize: 12.5 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { margin: 0, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Ban, { className: "h-3.5 w-3.5" }),
+            " Cancelled",
+            (initialData == null ? void 0 : initialData.cancelled_by_name) ? ` by ${initialData.cancelled_by_name}` : "",
+            (initialData == null ? void 0 : initialData.cancelled_at) ? ` · ${fmtDay(initialData.cancelled_at)}` : ""
+          ] }),
+          (initialData == null ? void 0 : initialData.cancel_reason) && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: "3px 0 0", color: "var(--cal-ink)" }, children: initialData.cancel_reason }),
+          onReinstate && /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              onClick: onReinstate,
+              className: "cal-focus",
+              style: { marginTop: 8, height: 32, padding: "0 12px", borderRadius: 10, border: "none", background: "var(--cal-surface)", color: "var(--cal-brand-text)", font: "inherit", fontSize: 13, fontWeight: 600, cursor: "pointer" },
+              children: "Reinstate event"
+            }
+          )
+        ] }),
+        isEditing && (initialData == null ? void 0 : initialData.rescheduled_from) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { borderRadius: 12, background: "var(--cal-day-bg)", color: "var(--cal-day-fg)", padding: "10px 12px", fontSize: 12.5 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { margin: 0, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarClock, { className: "h-3.5 w-3.5" }),
+            " Moved from ",
+            fmtDay(initialData.rescheduled_from),
+            initialData.changed_by_name ? ` by ${initialData.changed_by_name}` : ""
+          ] }),
+          initialData.change_note && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: "3px 0 0", color: "var(--cal-ink)" }, children: initialData.change_note })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 13, color: "var(--cal-ink-2)" }, children: "All-day" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              role: "switch",
+              "aria-checked": allDay,
+              "aria-label": "All-day",
+              onClick: () => setAllDay((v) => !v),
+              className: "cal-focus",
+              style: { width: 44, height: 26, borderRadius: 999, border: "none", background: allDay ? "var(--cal-brand)" : "var(--cal-surface-3)", position: "relative", cursor: "pointer", padding: 0, transition: "background .15s" },
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { position: "absolute", left: allDay ? 21 : 3, top: 3, width: 20, height: 20, borderRadius: "50%", background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,.25)", transition: "left .15s" } })
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: allDay ? "48px minmax(0,1fr)" : "48px minmax(0,1fr) 92px", gap: 8, alignItems: "center" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: label, children: "Starts" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "date",
+              "aria-label": "Start date",
+              value: startDate,
+              onChange: (e) => {
+                setStartDate(e.target.value);
+                keepEndAfter(parseDateTimeInputs(e.target.value, startTime));
+              },
+              className: "cal-field"
+            }
+          ),
+          !allDay && /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "time",
+              "aria-label": "Start time",
+              value: startTime,
+              onChange: (e) => {
+                setStartTime(e.target.value);
+                keepEndAfter(parseDateTimeInputs(startDate, e.target.value));
+              },
+              className: "cal-field cal-mono"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: label, children: "Ends" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "date", "aria-label": "End date", value: endDate, min: startDate, onChange: (e) => setEndDate(e.target.value), className: "cal-field" }),
+          !allDay && /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "time", "aria-label": "End time", value: endTime, onChange: (e) => setEndTime(e.target.value), className: "cal-field cal-mono" })
+        ] }),
+        moved && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
           {
-            type: "button",
-            onClick: onDelete,
-            className: "text-sm text-red-500 hover:text-red-600 transition-colors",
-            children: "Delete"
+            type: "text",
+            value: changeNote,
+            onChange: (e) => setChangeNote(e.target.value),
+            placeholder: "Reason for moving it (shown on the event)",
+            "aria-label": "Reason for moving the event",
+            className: "cal-field",
+            style: { background: "var(--cal-day-bg)", borderColor: "transparent" }
           }
-        )
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "button", variant: "outline", size: "sm", onClick: onCancel, children: "Close" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Button,
-          {
-            type: "submit",
-            size: "sm",
-            disabled: !title.trim(),
-            className: "bg-red-500 hover:bg-red-600 text-white",
-            children: isEditing ? "Save" : "Add Event"
-          }
-        )
-      ] })
-    ] })
-  ] });
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 6 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: label, children: "Calendar" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { role: "radiogroup", "aria-label": "Calendar", style: { display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 6 }, children: CALENDAR_OPTIONS.map((opt) => {
+            const on = calendar2 === opt.value;
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                role: "radio",
+                "aria-checked": on,
+                onClick: () => setCalendar(opt.value),
+                className: "cal-focus",
+                style: {
+                  height: 40,
+                  borderRadius: 10,
+                  font: "inherit",
+                  fontSize: 12.5,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 6,
+                  minWidth: 0,
+                  padding: "0 6px",
+                  ...on ? { border: `2px solid var(--cal-${opt.key}-dot)`, background: `var(--cal-${opt.key}-bg)`, color: `var(--cal-${opt.key}-fg)`, fontWeight: 600 } : { border: "1px solid var(--cal-line-2)", background: "var(--cal-surface)", color: "var(--cal-ink-2)", fontWeight: 500 }
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 8, height: 8, borderRadius: "50%", background: `var(--cal-${opt.key}-dot)`, flex: "none" } }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: opt.value === "watch" && watchName ? `Watch · ${watchName}` : opt.label })
+                ]
+              },
+              opt.value
+            );
+          }) })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { style: { display: "flex", alignItems: "center", gap: 10, height: 40, padding: "0 10px", borderRadius: 10, background: "var(--cal-surface-2)", color: "var(--cal-muted)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(MapPin, { className: "h-4 w-4 shrink-0" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              value: location,
+              onChange: (e) => setLocation(e.target.value),
+              placeholder: "Add location",
+              "aria-label": "Location",
+              style: { flex: 1, minWidth: 0, border: "none", background: "transparent", font: "inherit", fontSize: 13, color: "var(--cal-ink)", outline: "none" }
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { style: { display: "flex", alignItems: "flex-start", gap: 10, padding: 10, borderRadius: 10, background: "var(--cal-surface-2)", color: "var(--cal-muted)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(AlignLeft, { className: "h-4 w-4 shrink-0", style: { marginTop: 2 } }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "textarea",
+            {
+              value: notes,
+              onChange: (e) => setNotes(e.target.value),
+              placeholder: "Add notes",
+              "aria-label": "Notes",
+              rows: 2,
+              style: { flex: 1, minWidth: 0, border: "none", background: "transparent", font: "inherit", fontSize: 13, color: "var(--cal-ink)", outline: "none", resize: "none" }
+            }
+          )
+        ] }),
+        striking && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 8 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "textarea",
+            {
+              value: strikeReason,
+              onChange: (e) => setStrikeReason(e.target.value),
+              placeholder: "Why is it cancelled? (shown on the event)",
+              "aria-label": "Reason for cancelling",
+              rows: 2,
+              autoFocus: true,
+              style: { font: "inherit", fontSize: 13, borderRadius: 10, padding: 10, border: "1px solid var(--cal-station-dot)", background: "var(--cal-station-bg)", color: "var(--cal-ink)", outline: "none", resize: "none" }
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "flex-end", gap: 8 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "cal-btn", style: { height: 36, padding: "0 14px", fontSize: 13 }, onClick: () => {
+              setStriking(false);
+              setStrikeReason("");
+            }, children: "Back" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                type: "button",
+                disabled: !strikeReason.trim(),
+                onClick: () => onStrike == null ? void 0 : onStrike(strikeReason.trim()),
+                className: "cal-focus",
+                style: { height: 36, padding: "0 14px", borderRadius: 12, border: "none", background: "var(--cal-station-dot)", color: "#fff", font: "inherit", fontSize: 13, fontWeight: 600, cursor: "pointer", opacity: strikeReason.trim() ? 1 : 0.5 },
+                children: "Strike through"
+              }
+            )
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, paddingTop: 2, flexWrap: "wrap" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 12 }, children: [
+            canStrike && !cancelled && !striking && /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setStriking(true), className: "cal-focus", style: { border: "none", background: "transparent", color: "var(--cal-day-dot)", font: "inherit", fontSize: 13, fontWeight: 600, cursor: "pointer", padding: 0 }, children: "Cancel event…" }),
+            isEditing && onDelete && /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: onDelete, className: "cal-focus", style: { border: "none", background: "transparent", color: "var(--cal-station-dot)", font: "inherit", fontSize: 13, fontWeight: 600, cursor: "pointer", padding: 0 }, children: "Delete" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: 8, marginLeft: "auto" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: onCancel, className: "cal-btn", style: { height: 44, padding: "0 18px", fontSize: 14 }, children: "Close" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                type: "submit",
+                disabled: !title.trim(),
+                className: "cal-focus",
+                style: { height: 44, padding: "0 20px", borderRadius: 12, border: "none", background: "var(--cal-brand)", color: "#fff", font: "inherit", fontSize: 14, fontWeight: 600, cursor: "pointer", opacity: title.trim() ? 1 : 0.5 },
+                children: isEditing ? "Save" : "Add Event"
+              }
+            )
+          ] })
+        ] })
+      ]
+    }
+  );
 }
 function currentFinancialYear() {
   const now = /* @__PURE__ */ new Date();
@@ -53567,7 +53736,7 @@ function ScheduleTrainingDialog({
             onValueChange: (v) => setForm((f) => ({ ...f, training_type: v })),
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select type" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: Object.entries(TRAINING_TYPE_LABELS$1).map(([key2, label]) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: key2, children: label }, key2)) })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: Object.entries(TRAINING_TYPE_LABELS$1).map(([key2, label2]) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: key2, children: label2 }, key2)) })
             ]
           }
         )
@@ -53602,31 +53771,6 @@ function ScheduleTrainingDialog({
     ] })
   ] }) });
 }
-const CALENDARS = [
-  {
-    key: "station",
-    label: "Springburn Station",
-    sublabel: "All station staff",
-    color: "#ef4444"
-  },
-  {
-    key: "watch",
-    label: "Watch Calendar",
-    sublabel: "Your watch only",
-    color: "#3b82f6"
-  },
-  {
-    key: "personal",
-    label: "Personal",
-    sublabel: "Only you",
-    color: "#8b5cf6"
-  }
-];
-const WATCHES$9 = ["Red", "White", "Green", "Blue", "Amber"];
-const OTHER_CALENDARS = [
-  { key: "tasks", label: "Tasks", color: "#0ea5e9" },
-  { key: "inspections", label: "Inspections", color: "#f97316" }
-];
 function UnifiedCalendar() {
   const { user: user2 } = useAuth();
   const { toast: toast2 } = useToast();
@@ -53641,6 +53785,8 @@ function UnifiedCalendar() {
   const [formOpen, setFormOpen] = reactExports.useState(false);
   const [formDate, setFormDate] = reactExports.useState(/* @__PURE__ */ new Date());
   const [editingEvent, setEditingEvent] = reactExports.useState(null);
+  const [formAnchor, setFormAnchor] = reactExports.useState(null);
+  const [pendingSlot, setPendingSlot] = reactExports.useState(null);
   const [defaultCalendar, setDefaultCalendar] = reactExports.useState("station");
   const [inspectionModalOpen, setInspectionModalOpen] = reactExports.useState(false);
   const [editingInspectionEvent, setEditingInspectionEvent] = reactExports.useState(null);
@@ -53758,7 +53904,7 @@ function UnifiedCalendar() {
     onSuccess: () => {
       invalidateCalendarQueries();
       toast2({ title: "Event created" });
-      setFormOpen(false);
+      closeForm();
     },
     onError: () => toast2({ title: "Failed to create event", variant: "destructive" })
   });
@@ -53780,8 +53926,7 @@ function UnifiedCalendar() {
     onSuccess: () => {
       invalidateCalendarQueries();
       toast2({ title: "Event updated" });
-      setFormOpen(false);
-      setEditingEvent(null);
+      closeForm();
     },
     onError: () => toast2({ title: "Failed to update event", variant: "destructive" })
   });
@@ -53790,8 +53935,7 @@ function UnifiedCalendar() {
     onSuccess: () => {
       invalidateCalendarQueries();
       toast2({ title: "Event deleted" });
-      setFormOpen(false);
-      setEditingEvent(null);
+      closeForm();
     },
     onError: () => toast2({ title: "Failed to delete event", variant: "destructive" })
   });
@@ -53801,8 +53945,7 @@ function UnifiedCalendar() {
       invalidateCalendarQueries();
       queryClient2.invalidateQueries({ queryKey: ["tasks"] });
       toast2({ title: "Event struck through", description: "It stays on the calendar with your reason." });
-      setFormOpen(false);
-      setEditingEvent(null);
+      closeForm();
     },
     onError: (err) => toast2({ title: "Couldn't cancel event", description: err == null ? void 0 : err.message, variant: "destructive" })
   });
@@ -53812,8 +53955,7 @@ function UnifiedCalendar() {
       invalidateCalendarQueries();
       queryClient2.invalidateQueries({ queryKey: ["tasks"] });
       toast2({ title: "Event reinstated" });
-      setFormOpen(false);
-      setEditingEvent(null);
+      closeForm();
     },
     onError: (err) => toast2({ title: "Couldn't reinstate event", description: err == null ? void 0 : err.message, variant: "destructive" })
   });
@@ -53821,41 +53963,70 @@ function UnifiedCalendar() {
     queryClient2.invalidateQueries({ queryKey: ["cal-station"] });
     queryClient2.invalidateQueries({ queryKey: ["cal-watch"] });
     queryClient2.invalidateQueries({ queryKey: ["cal-personal"] });
+    queryClient2.invalidateQueries({ queryKey: ["cal-upcoming"] });
   }
-  const handleSlotClick = (date) => {
+  const { data: upcoming = [] } = useQuery({
+    queryKey: ["cal-upcoming", userId],
+    queryFn: async () => {
+      const from = /* @__PURE__ */ new Date();
+      from.setHours(0, 0, 0, 0);
+      const to = new Date(from.getTime() + 60 * 864e5);
+      const r2 = await backendClient.calendar.list({ start_date: from.toISOString(), end_date: to.toISOString(), limit: 100 });
+      return r2.events;
+    }
+  });
+  reactExports.useEffect(() => {
+    if (!formOpen) return;
+    const onKey = (e) => {
+      if (e.key === "Escape") closeForm();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [formOpen]);
+  const handleSlotClick = (date, anchor) => {
     setFormDate(date);
     setEditingEvent(null);
     setDefaultCalendar("station");
+    setFormAnchor(anchor ?? null);
+    setPendingSlot(view === "week" || view === "day" ? date : null);
     setFormOpen(true);
   };
-  const handleEventClick = async (item) => {
+  const closeForm = () => {
+    setFormOpen(false);
+    setEditingEvent(null);
+    setFormAnchor(null);
+    setPendingSlot(null);
+  };
+  const handleEventClick = async (item, anchor) => {
     var _a2, _b2;
     if (item.type === "task" || item.type === "inspection") return;
-    const eventData = item.data;
-    if (eventData == null ? void 0 : eventData.shift_adjustment_id) {
-      const booking = await backendClient.shift_adjustments.list({ id: eventData.shift_adjustment_id }).then((r2) => r2.adjustments[0]).catch(() => void 0);
+    const eventData2 = item.data;
+    if (eventData2 == null ? void 0 : eventData2.shift_adjustment_id) {
+      const booking = await backendClient.shift_adjustments.list({ id: eventData2.shift_adjustment_id }).then((r2) => r2.adjustments[0]).catch(() => void 0);
       const canEdit = !!booking && (booking.user_id === (user2 == null ? void 0 : user2.id) || booking.covering_user_id === (user2 == null ? void 0 : user2.id) || role === "WC" || role === "CC");
       if (canEdit) {
         setBookingToEdit(booking);
         return;
       }
     }
-    if (eventData == null ? void 0 : eventData.source_type) {
+    if (eventData2 == null ? void 0 : eventData2.source_type) {
       setEditingInspectionEvent({
-        id: eventData.id,
-        title: eventData.title,
-        source_type: eventData.source_type,
-        source_id: eventData.source_id ?? null,
-        location: eventData.location ?? null,
-        start_time: typeof eventData.start_time === "string" ? eventData.start_time : (_a2 = eventData.start_time) == null ? void 0 : _a2.toISOString(),
-        end_time: typeof eventData.end_time === "string" ? eventData.end_time : (_b2 = eventData.end_time) == null ? void 0 : _b2.toISOString(),
-        calendar_visibility: eventData.calendar_visibility ?? "watch",
-        color: eventData.color ?? null
+        id: eventData2.id,
+        title: eventData2.title,
+        source_type: eventData2.source_type,
+        source_id: eventData2.source_id ?? null,
+        location: eventData2.location ?? null,
+        start_time: typeof eventData2.start_time === "string" ? eventData2.start_time : (_a2 = eventData2.start_time) == null ? void 0 : _a2.toISOString(),
+        end_time: typeof eventData2.end_time === "string" ? eventData2.end_time : (_b2 = eventData2.end_time) == null ? void 0 : _b2.toISOString(),
+        calendar_visibility: eventData2.calendar_visibility ?? "watch",
+        color: eventData2.color ?? null
       });
       setInspectionModalOpen(true);
       return;
     }
     setFormDate(item.startTime);
+    setFormAnchor(anchor ?? null);
+    setPendingSlot(null);
     setEditingEvent(item);
     setDefaultCalendar(item.calendarType);
     setFormOpen(true);
@@ -53893,331 +54064,175 @@ This cancels the whole booking (TOIL/H4H/Flexi): any TOIL hours are refunded and
     ...visibleCalendars.has("watch") ? watchEvents : [],
     ...visibleCalendars.has("personal") ? personalEvents : []
   ];
-  const filterContent = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eyebrow mb-2 px-1", children: "My Calendars" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1", children: CALENDARS.map(({ key: key2, label, sublabel, color }) => {
-        const active = visibleCalendars.has(key2);
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "button",
-          {
-            type: "button",
-            className: "flex items-center gap-2.5 w-full px-2 py-1.5 rounded-lg hover:bg-muted/50 transition-colors text-left",
-            onClick: () => toggleCalendar(key2),
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "span",
-                {
-                  className: "w-3 h-3 rounded-full shrink-0 border-2 transition-colors",
-                  style: {
-                    backgroundColor: active ? color : "transparent",
-                    borderColor: color
-                  }
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `text-xs font-medium truncate ${active ? "text-foreground" : "text-muted-foreground"}`, children: label }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[10px] text-muted-foreground truncate", children: key2 === "watch" && watchShown && watchShown !== userWatch ? `${watchShown} Watch` : sublabel })
-              ] })
-            ]
-          },
-          key2
-        );
-      }) }),
-      isManager && /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 mt-2 px-2 text-[11px] text-muted-foreground", children: [
-        "Watch calendar",
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "select",
-          {
-            value: watchShown,
-            onChange: (e) => setViewWatch(e.target.value),
-            className: "flex-1 bg-muted/50 rounded-md px-1.5 py-1 text-xs text-foreground border border-border/60",
-            "aria-label": "Which watch's calendar to show",
-            children: WATCHES$9.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: w, children: [
-              w,
-              w === userWatch ? " (yours)" : ""
-            ] }, w))
-          }
-        )
-      ] })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eyebrow mb-2 px-1", children: "Other" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1", children: OTHER_CALENDARS.map(({ key: key2, label, color }) => {
-        const active = visibleCalendars.has(key2);
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "button",
-          {
-            type: "button",
-            className: "flex items-center gap-2.5 w-full px-2 py-1.5 rounded-lg hover:bg-muted/50 transition-colors text-left",
-            onClick: () => toggleCalendar(key2),
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "span",
-                {
-                  className: "w-3 h-3 rounded-full shrink-0 border-2 transition-colors",
-                  style: {
-                    backgroundColor: active ? color : "transparent",
-                    borderColor: color
-                  }
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `text-xs font-medium ${active ? "text-foreground" : "text-muted-foreground"}`, children: label })
-            ]
-          },
-          key2
-        );
-      }) })
-    ] }),
-    hasRotaConfig(watchShown) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eyebrow mb-2 px-1", children: "Shift Rota" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "button",
-        {
-          type: "button",
-          className: "flex items-center gap-2.5 w-full px-2 py-1.5 rounded-lg hover:bg-muted/50 transition-colors text-left",
-          onClick: () => toggleCalendar("shifts"),
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "span",
-              {
-                className: "w-3 h-3 rounded-full shrink-0 border-2 transition-colors",
-                style: {
-                  backgroundColor: visibleCalendars.has("shifts") ? "#ca8a04" : "transparent",
-                  borderColor: "#ca8a04"
-                }
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `text-xs font-medium truncate ${visibleCalendars.has("shifts") ? "text-foreground" : "text-muted-foreground"}`, children: [
-                watchShown,
-                " Watch Shifts"
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1.5 mt-0.5", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[9px] px-1 rounded text-white font-medium", style: { backgroundColor: "#ca8a04" }, children: "☀️ Day" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[9px] px-1 rounded text-white font-medium", style: { backgroundColor: "#4338ca" }, children: "🌙 Night" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[9px] px-1 rounded text-white font-medium", style: { backgroundColor: "#16a34a" }, children: "🌿 Leave" })
-              ] })
-            ] })
-          ]
-        }
-      ) })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[10px] text-muted-foreground px-1 leading-relaxed", children: "Click a calendar to show/hide its events" }) })
-  ] });
-  return (
-    // Desktop: size to exactly the remaining viewport so the page never
-    // scrolls.
-    //
-    // Chrome math (PageContainer wraps every page):
-    //   p-8 top  (32px)  + TopBar (~56px, sticky) +
-    //   space-y-6 (24px) gap between TopBar and Outlet → 112px total
-    //   above this wrapper.
-    //
-    // We escape the parent's horizontal padding (md:-mx-8) so the
-    // calendar runs edge-to-edge under the sidebar, and the parent's
-    // pb-8 (md:-mb-8) so the wrapper can extend to the very bottom of
-    // the viewport. Height is then 100vh − 112px = the remaining space
-    // under TopBar.
-    //
-    // Mobile keeps natural height + page scroll because narrow viewports
-    // genuinely benefit from scrolling the day-spans-day events.
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex md:overflow-hidden md:h-[calc(100vh-112px)] md:-mx-8 md:-mb-8", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("aside", { className: "hidden md:flex w-52 shrink-0 border-r border-border bg-card flex-col py-4 px-3 gap-6 h-full overflow-y-auto", children: filterContent }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "div",
-        {
-          className: `md:hidden fixed inset-0 z-40 transition-opacity ${filtersOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`,
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "div",
-              {
-                className: "absolute inset-0 bg-black/40",
-                onClick: () => setFiltersOpen(false)
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "aside",
-              {
-                className: `absolute left-0 top-0 bottom-0 w-72 max-w-[85vw] bg-card border-r border-border flex flex-col py-4 px-3 gap-6 overflow-y-auto transition-transform shadow-xl ${filtersOpen ? "translate-x-0" : "-translate-x-full"}`,
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between pb-2 border-b border-border/50", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-sm font-semibold", children: "Calendars" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "button",
-                      {
-                        type: "button",
-                        className: "h-8 w-8 rounded-lg hover:bg-muted flex items-center justify-center",
-                        onClick: () => setFiltersOpen(false),
-                        "aria-label": "Close filters",
-                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4" })
-                      }
-                    )
-                  ] }),
-                  filterContent
-                ]
-              }
-            )
-          ]
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col md:overflow-hidden p-2 md:px-4 md:py-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2 shrink-0", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline flex-wrap gap-x-3 gap-y-0.5", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-xl md:text-2xl font-bold flex items-center gap-2 text-foreground", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarDays, { className: "h-5 w-5 md:h-6 md:w-6 shrink-0 text-brand" }),
-              "Calendar"
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "eyebrow whitespace-nowrap", children: [
-              currentDate.toLocaleDateString("en-GB", { month: "long", year: "numeric" }),
-              watchShown && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "crumb-sep", children: "·" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-                  watchShown,
-                  " Watch"
-                ] })
-              ] })
-            ] })
+  const sidePanelProps = {
+    currentDate,
+    view,
+    onPickDay: (d) => setCurrentDate(d),
+    visible: visibleCalendars,
+    onToggle: toggleCalendar,
+    watchShown,
+    userWatch,
+    isManager,
+    onWatchChange: setViewWatch,
+    upcoming
+  };
+  const isPhone = typeof window !== "undefined" && window.innerWidth < 768;
+  const PANEL_W = 380;
+  const panelStyle = (() => {
+    const base = {
+      position: "absolute",
+      background: "var(--cal-surface)",
+      border: "1px solid var(--cal-line)",
+      boxShadow: "var(--cal-pop)",
+      overflowY: "auto",
+      boxSizing: "border-box"
+    };
+    if (isPhone) {
+      return { ...base, left: 0, right: 0, bottom: 0, maxHeight: "92vh", borderRadius: "24px 24px 0 0" };
+    }
+    if (!formAnchor) {
+      return { ...base, left: "50%", top: "50%", transform: "translate(-50%, -50%)", width: PANEL_W, maxHeight: "calc(100vh - 32px)", borderRadius: 22 };
+    }
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const right = formAnchor.x + 16;
+    const left = right + PANEL_W <= vw - 16 ? right : Math.max(16, formAnchor.x - 16 - PANEL_W);
+    const top = Math.max(16, Math.min(formAnchor.y - 160, vh - 16 - 620));
+    return { ...base, left, top, width: PANEL_W, maxHeight: vh - top - 16, borderRadius: 22 };
+  })();
+  const actionBtn = { height: 44, padding: isPhone ? 0 : "0 16px", width: isPhone ? 44 : void 0, fontSize: 14 };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cal-ui", style: { display: "flex", gap: 24, alignItems: "flex-start" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("aside", { className: "hidden md:block", "aria-label": "Calendar panel", style: { width: 300, flex: "none" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarSidePanel, { ...sidePanelProps }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        className: `md:hidden fixed inset-0 z-40 transition-opacity ${filtersOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`,
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-0 bg-black/40", onClick: () => setFiltersOpen(false) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "aside",
+            {
+              "aria-label": "Calendars",
+              className: `absolute left-0 top-0 bottom-0 w-80 max-w-[88vw] overflow-y-auto transition-transform ${filtersOpen ? "translate-x-0" : "-translate-x-full"}`,
+              style: { background: "var(--cal-bg)", padding: 16, boxShadow: "var(--cal-pop)" },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { margin: 0, fontSize: 17, fontWeight: 600 }, children: "Calendars" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "cal-btn", style: { width: 40, height: 40, padding: 0 }, onClick: () => setFiltersOpen(false), "aria-label": "Close calendars", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4" }) })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarSidePanel, { ...sidePanelProps, showMiniMonth: false })
+              ]
+            }
+          )
+        ]
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("main", { style: { flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 16 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "space-between", gap: 16 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 4 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: { fontSize: 12, letterSpacing: ".12em", color: "var(--cal-muted)", textTransform: "uppercase" }, children: [
+            watchShown ? `${watchShown} Watch · ` : "",
+            "Calendar"
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5 md:gap-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Button,
-              {
-                variant: "outline",
-                size: "sm",
-                onClick: () => setFiltersOpen(true),
-                className: "md:hidden h-10 w-10 px-0 flex items-center justify-center",
-                "aria-label": "Filters",
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { className: "h-4 w-4" })
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              Button,
-              {
-                variant: "outline",
-                size: "sm",
-                onClick: () => {
-                  setShiftAdjDate(void 0);
-                  setShiftAdjModalOpen(true);
-                },
-                className: "h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5",
-                "aria-label": "Log Shift",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarDays, { className: "h-4 w-4" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Log Shift" })
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              Button,
-              {
-                variant: "outline",
-                size: "sm",
-                onClick: () => setInspectionModalOpen(true),
-                className: "h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5",
-                "aria-label": "New Inspection",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(ClipboardPlus, { className: "h-4 w-4" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "New Inspection" })
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              Button,
-              {
-                variant: "outline",
-                size: "sm",
-                onClick: () => setTrainingModalOpen(true),
-                className: "h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5",
-                "aria-label": "Schedule Training",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(GraduationCap, { className: "h-4 w-4" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Schedule Training" })
-                ]
-              }
-            )
-          ] })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { style: { margin: 0, fontSize: "clamp(28px, 4vw, 40px)", lineHeight: 1.05, fontWeight: 600, letterSpacing: "-.02em" }, children: currentDate.toLocaleDateString("en-GB", { month: "long", year: "numeric" }) })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          CalendarWidget,
-          {
-            events: allEvents,
-            tasks: visibleCalendars.has("tasks") ? tasks : [],
-            inspections: visibleCalendars.has("inspections") ? inspections : [],
-            shiftSchedule,
-            userWatch: visibleCalendars.has("shifts") ? watchShown : void 0,
-            currentDate,
-            onDateChange: setCurrentDate,
-            view,
-            onViewChange: setView,
-            onSlotClick: handleSlotClick,
-            onEventClick: handleEventClick
-          }
-        )
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexWrap: "wrap", gap: 8 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "cal-btn md:hidden", style: { height: 44, width: 44, padding: 0 }, onClick: () => setFiltersOpen(true), "aria-label": "Calendars and filters", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { className: "h-[18px] w-[18px]" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", className: "cal-btn", style: actionBtn, onClick: () => {
+            setShiftAdjDate(void 0);
+            setShiftAdjModalOpen(true);
+          }, "aria-label": "Log Shift", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarDays, { className: "h-[18px] w-[18px]" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Log Shift" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", className: "cal-btn", style: actionBtn, onClick: () => setInspectionModalOpen(true), "aria-label": "New Inspection", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(ClipboardPlus, { className: "h-[18px] w-[18px]" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "New Inspection" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", className: "cal-btn", style: actionBtn, onClick: () => setTrainingModalOpen(true), "aria-label": "Schedule Training", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(GraduationCap, { className: "h-[18px] w-[18px]" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Schedule Training" })
+          ] })
+        ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: formOpen, onOpenChange: (open) => {
-        if (!open) {
-          setFormOpen(false);
-          setEditingEvent(null);
-        }
-      }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "p-0 bg-transparent border-none shadow-none max-w-md w-full", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { className: "sr-only", children: editingEvent ? "Edit Event" : "New Event" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          EventForm,
-          {
-            date: formDate,
-            initialData: editingEvent == null ? void 0 : editingEvent.data,
-            defaultCalendar,
-            watchName: watchShown,
-            onSubmit: handleFormSubmit,
-            onCancel: () => {
-              setFormOpen(false);
-              setEditingEvent(null);
-            },
-            onDelete: editingEvent ? handleDelete : void 0,
-            onStrike: editingEvent ? (reason) => cancelMutation.mutate({ id: editingEvent.id, reason }) : void 0,
-            onReinstate: editingEvent ? () => reinstateMutation.mutate(editingEvent.id) : void 0
-          }
-        )
-      ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(
-        InspectionEventModal,
+        CalendarWidget,
         {
-          open: inspectionModalOpen,
-          onClose: () => {
-            setInspectionModalOpen(false);
-            setEditingInspectionEvent(null);
-          },
-          defaultDate: formDate,
-          editingEvent: editingInspectionEvent
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        ShiftAdjustmentModal,
-        {
-          open: shiftAdjModalOpen,
-          onClose: () => setShiftAdjModalOpen(false),
-          defaultDate: shiftAdjDate
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        ShiftAdjustmentModal,
-        {
-          open: !!bookingToEdit,
-          onClose: () => setBookingToEdit(null),
-          editAdjustment: bookingToEdit
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        ScheduleTrainingDialog,
-        {
-          open: trainingModalOpen,
-          onOpenChange: setTrainingModalOpen,
-          watch: userWatch
+          events: allEvents,
+          tasks: visibleCalendars.has("tasks") ? tasks : [],
+          inspections: visibleCalendars.has("inspections") ? inspections : [],
+          shiftSchedule,
+          userWatch: visibleCalendars.has("shifts") ? watchShown : void 0,
+          currentDate,
+          onDateChange: setCurrentDate,
+          view,
+          onViewChange: setView,
+          onSlotClick: handleSlotClick,
+          onEventClick: handleEventClick,
+          pendingSlot: formOpen && !editingEvent ? pendingSlot : null
         }
       )
-    ] })
-  );
+    ] }),
+    formOpen && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "fixed", inset: 0, zIndex: 50 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "div",
+        {
+          onClick: closeForm,
+          style: { position: "absolute", inset: 0, background: isPhone || !formAnchor ? "rgba(0,0,0,.4)" : "rgba(17,20,39,.06)" }
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { role: "dialog", "aria-modal": "true", "aria-label": editingEvent ? "Edit event" : "New event", style: panelStyle, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        EventForm,
+        {
+          date: formDate,
+          initialData: editingEvent == null ? void 0 : editingEvent.data,
+          defaultCalendar,
+          watchName: watchShown,
+          onSubmit: handleFormSubmit,
+          onCancel: closeForm,
+          onDelete: editingEvent ? handleDelete : void 0,
+          onStrike: editingEvent ? (reason) => cancelMutation.mutate({ id: editingEvent.id, reason }) : void 0,
+          onReinstate: editingEvent ? () => reinstateMutation.mutate(editingEvent.id) : void 0
+        },
+        editingEvent ? `edit-${editingEvent.id}` : `new-${formDate.getTime()}`
+      ) })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      InspectionEventModal,
+      {
+        open: inspectionModalOpen,
+        onClose: () => {
+          setInspectionModalOpen(false);
+          setEditingInspectionEvent(null);
+        },
+        defaultDate: formDate,
+        editingEvent: editingInspectionEvent
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ShiftAdjustmentModal,
+      {
+        open: shiftAdjModalOpen,
+        onClose: () => setShiftAdjModalOpen(false),
+        defaultDate: shiftAdjDate
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ShiftAdjustmentModal,
+      {
+        open: !!bookingToEdit,
+        onClose: () => setBookingToEdit(null),
+        editAdjustment: bookingToEdit
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ScheduleTrainingDialog,
+      {
+        open: trainingModalOpen,
+        onOpenChange: setTrainingModalOpen,
+        watch: userWatch
+      }
+    )
+  ] });
 }
 const TASK_LABELS = [
   { id: "urgent", name: "Urgent", colour: "#ef4444" },
@@ -54388,14 +54403,14 @@ function TaskCard({ task: task2, onChecklistToggle, onTitleEdit, onClick, compac
             style: { ...coverStyle, height: 64 }
           }
         ),
-        cardLabels.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `flex gap-1 px-2.5 flex-wrap ${coverStyle ? "pt-2" : "pt-2.5"}`, children: cardLabels.map((label) => label && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        cardLabels.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `flex gap-1 px-2.5 flex-wrap ${coverStyle ? "pt-2" : "pt-2.5"}`, children: cardLabels.map((label2) => label2 && /* @__PURE__ */ jsxRuntimeExports.jsx(
           "div",
           {
             className: "h-2 rounded-full flex-1 min-w-[2rem] max-w-[4rem]",
-            style: { backgroundColor: label.colour },
-            title: label.name
+            style: { backgroundColor: label2.colour },
+            title: label2.name
           },
-          label.id
+          label2.id
         )) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-1.5 mb-1.5", onClick: (e) => e.stopPropagation(), children: [
@@ -55727,18 +55742,18 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0 space-y-5 lg:pr-6", children: [
           (canEdit || tags.length > 0) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(SectionLabel, { icon: Tag, children: "Labels" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1.5", children: TASK_LABELS.map((label) => {
-              const active = tags.includes(label.id);
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1.5", children: TASK_LABELS.map((label2) => {
+              const active = tags.includes(label2.id);
               return /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "button",
                 {
-                  onClick: () => canEdit && handleTagToggle(label.id),
+                  onClick: () => canEdit && handleTagToggle(label2.id),
                   disabled: !canEdit,
                   className: `flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all border ${active ? "text-white border-transparent shadow-sm" : "bg-muted/50 text-muted-foreground border-border"} ${canEdit ? "hover:scale-105 cursor-pointer" : "cursor-default"}`,
-                  style: active ? { backgroundColor: label.colour } : {},
+                  style: active ? { backgroundColor: label2.colour } : {},
                   onMouseEnter: (e) => {
                     if (canEdit && !active) {
-                      e.currentTarget.style.backgroundColor = label.colour;
+                      e.currentTarget.style.backgroundColor = label2.colour;
                       e.currentTarget.style.color = "white";
                     }
                   },
@@ -55749,11 +55764,11 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
                     }
                   },
                   children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "h-2 w-2 rounded-full", style: { backgroundColor: active ? "rgba(255,255,255,0.7)" : label.colour } }),
-                    label.name
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "h-2 w-2 rounded-full", style: { backgroundColor: active ? "rgba(255,255,255,0.7)" : label2.colour } }),
+                    label2.name
                   ]
                 },
-                label.id
+                label2.id
               );
             }) })
           ] }),
@@ -56644,16 +56659,16 @@ function Tasks() {
               }
             )
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hidden sm:flex items-center gap-1.5 flex-wrap", children: TASK_LABELS.map((label) => {
-            const active = filterLabels.includes(label.id);
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hidden sm:flex items-center gap-1.5 flex-wrap", children: TASK_LABELS.map((label2) => {
+            const active = filterLabels.includes(label2.id);
             return /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
               {
-                onClick: () => setFilterLabels(active ? filterLabels.filter((l) => l !== label.id) : [...filterLabels, label.id]),
+                onClick: () => setFilterLabels(active ? filterLabels.filter((l) => l !== label2.id) : [...filterLabels, label2.id]),
                 className: `h-6 px-2.5 rounded-full text-xs font-medium border transition-all ${active ? "text-white border-transparent shadow-sm scale-105" : isDark ? "bg-white/10 text-white/60 border-white/20 hover:text-white" : "bg-muted/60 text-muted-foreground border-border hover:text-white"}`,
-                style: active ? { backgroundColor: label.colour } : {},
+                style: active ? { backgroundColor: label2.colour } : {},
                 onMouseEnter: (e) => {
-                  if (!active) e.currentTarget.style.backgroundColor = label.colour;
+                  if (!active) e.currentTarget.style.backgroundColor = label2.colour;
                   e.currentTarget.style.color = "white";
                 },
                 onMouseLeave: (e) => {
@@ -56662,9 +56677,9 @@ function Tasks() {
                     e.currentTarget.style.color = "";
                   }
                 },
-                children: label.name
+                children: label2.name
               },
-              label.id
+              label2.id
             );
           }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -57557,7 +57572,7 @@ function QuarterlyOverview({ watch }) {
     /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { children: isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-muted-foreground animate-pulse", children: "Loading quarterly data…" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full text-sm", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-left font-medium text-muted-foreground pb-2 pr-4 w-24", children: "Metric" }),
-        QUARTER_LABELS.map((label, idx) => {
+        QUARTER_LABELS.map((label2, idx) => {
           const q = idx + 1;
           const isCurrent = q === currentQ;
           return /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -57565,7 +57580,7 @@ function QuarterlyOverview({ watch }) {
             {
               className: `text-center font-medium pb-2 px-2 ${isCurrent ? "text-indigo-600 dark:text-indigo-400" : "text-muted-foreground"}`,
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block text-xs", children: label }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block text-xs", children: label2 }),
                 isCurrent && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "inline-block mt-0.5 text-[10px] font-semibold bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 px-1.5 py-0.5 rounded-full leading-none", children: "current" })
               ]
             },
@@ -58776,14 +58791,14 @@ function Reports() {
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-1 border-b", children: [
       { key: "quarterly", label: "Quarterly Checklist", icon: ClipboardList },
       { key: "data", label: "Data Export", icon: FileSpreadsheet }
-    ].map(({ key: key2, label, icon: Icon2 }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    ].map(({ key: key2, label: label2, icon: Icon2 }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "button",
       {
         onClick: () => setActiveTab(key2),
         className: `px-4 py-2 text-sm font-medium border-b-2 transition-colors flex items-center gap-1.5 ${activeTab === key2 ? "border-brand text-brand" : "border-transparent text-muted-foreground hover:text-foreground"}`,
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "h-4 w-4" }),
-          label
+          label2
         ]
       },
       key2
@@ -63691,7 +63706,7 @@ function ReportDefectDialog({
 }
 function TypePill({
   active,
-  label,
+  label: label2,
   icon,
   onClick
 }) {
@@ -63703,7 +63718,7 @@ function TypePill({
       className: `flex flex-col items-center justify-center gap-1 py-3 rounded-lg border-2 transition-colors ${active ? "bg-amber-50 border-amber-500 text-amber-700 dark:bg-amber-950/30 dark:text-amber-300" : "bg-muted/30 border-border text-muted-foreground hover:border-muted-foreground/40"}`,
       children: [
         icon,
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", children: label })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", children: label2 })
       ]
     }
   );
@@ -66421,7 +66436,7 @@ function RosterPanel({
               hooklift_operator: false
             };
             const isOrange = cover.type === "orange_day";
-            const label = isOrange ? "Orange Day" : "Flexi PB";
+            const label2 = isOrange ? "Orange Day" : "Flexi PB";
             const textCls = isOrange ? "text-orange-600" : "text-teal-600";
             return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -66433,7 +66448,7 @@ function RosterPanel({
                 }
               ),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: `text-[9px] font-bold uppercase tracking-wide mt-0.5 ${textCls}`, children: [
-                label,
+                label2,
                 " · ",
                 cover.watchUnit
               ] })
@@ -67612,7 +67627,7 @@ function Handover() {
         year: "numeric"
       });
       const shift2 = shiftDisplay(watchName);
-      const shiftLabel = shift2 ? `${shift2.main}${shift2.sub ? ` · ${shift2.sub}` : ""}` : "—";
+      const shiftLabel2 = shift2 ? `${shift2.main}${shift2.sub ? ` · ${shift2.sub}` : ""}` : "—";
       return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2.5 rounded-xl bg-muted/50 border border-border/60 text-sm -mt-2 print:hidden", children: [
         (user2 == null ? void 0 : user2.watch_unit) && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 text-xs font-semibold", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { className: "h-3.5 w-3.5" }),
@@ -67627,7 +67642,7 @@ function Handover() {
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "h-4 w-px bg-border hidden sm:block" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1.5 text-xs text-muted-foreground", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: "h-3.5 w-3.5 shrink-0" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium text-foreground", children: shiftLabel })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium text-foreground", children: shiftLabel2 })
         ] })
       ] });
     })(),
@@ -68029,7 +68044,7 @@ function TabButton$2({
   active,
   onClick,
   icon,
-  label
+  label: label2
 }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "button",
@@ -68041,16 +68056,16 @@ function TabButton$2({
       `,
       children: [
         icon,
-        label
+        label2
       ]
     }
   );
 }
-function EditField({ label, value, colour, onChange }) {
+function EditField({ label: label2, value, colour, onChange }) {
   const borderClass = colour === "orange" ? "border-orange-300 dark:border-orange-800" : colour === "blue" ? "border-blue-300 dark:border-blue-800" : colour === "yellow" ? "border-yellow-300 dark:border-yellow-800" : colour === "purple" ? "border-purple-300 dark:border-purple-800" : "border-border";
   const labelClass = colour === "orange" ? "text-orange-600 dark:text-orange-400" : colour === "blue" ? "text-blue-600 dark:text-blue-400" : colour === "yellow" ? "text-yellow-600 dark:text-yellow-400" : colour === "purple" ? "text-purple-600 dark:text-purple-400" : "text-muted-foreground";
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `pl-3 border-l-2 ${borderClass}`, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: `text-xs font-semibold uppercase tracking-wide mb-1.5 ${labelClass}`, children: label }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: `text-xs font-semibold uppercase tracking-wide mb-1.5 ${labelClass}`, children: label2 }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       Textarea,
       {
@@ -68063,11 +68078,11 @@ function EditField({ label, value, colour, onChange }) {
     )
   ] });
 }
-function Section({ label, value, colour }) {
+function Section({ label: label2, value, colour }) {
   const borderClass = colour === "orange" ? "border-orange-300 dark:border-orange-800" : colour === "blue" ? "border-blue-300 dark:border-blue-800" : colour === "yellow" ? "border-yellow-300 dark:border-yellow-800" : colour === "purple" ? "border-purple-300 dark:border-purple-800" : "border-border";
   const labelClass = colour === "orange" ? "text-orange-600 dark:text-orange-400" : colour === "blue" ? "text-blue-600 dark:text-blue-400" : colour === "yellow" ? "text-yellow-600 dark:text-yellow-400" : colour === "purple" ? "text-purple-600 dark:text-purple-400" : "text-muted-foreground";
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `pl-3 border-l-2 ${borderClass} mt-3`, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: `text-xs font-semibold uppercase tracking-wide mb-1 ${labelClass}`, children: label }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: `text-xs font-semibold uppercase tracking-wide mb-1 ${labelClass}`, children: label2 }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-foreground whitespace-pre-wrap", children: value })
   ] });
 }
@@ -68941,7 +68956,7 @@ function HistoryCard({ record: r2, isExpanded, onToggle }) {
     ] }) })
   ] });
 }
-function TabButton$1({ active, onClick, icon, label }) {
+function TabButton$1({ active, onClick, icon, label: label2 }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "button",
     {
@@ -68952,14 +68967,14 @@ function TabButton$1({ active, onClick, icon, label }) {
       `,
       children: [
         icon,
-        label
+        label2
       ]
     }
   );
 }
 function TypeBadge({ type }) {
-  const label = TRAINING_TYPE_LABELS[type] ?? type;
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: "text-xs bg-teal-100 text-teal-700 border-teal-300 hover:bg-teal-100 dark:bg-teal-900/40 dark:text-teal-300 dark:border-teal-700", children: label });
+  const label2 = TRAINING_TYPE_LABELS[type] ?? type;
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: "text-xs bg-teal-100 text-teal-700 border-teal-300 hover:bg-teal-100 dark:bg-teal-900/40 dark:text-teal-300 dark:border-teal-700", children: label2 });
 }
 function StatusBadge({ status }) {
   if (status === "completed") {

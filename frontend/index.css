@@ -614,3 +614,56 @@ table.plain tbody tr:last-child td { border-bottom: none; }
     display: none !important;
   }
 }
+
+/* ── Calendar (redesign from Claude Design, Oct 2026) ───────────────────────
+   Tokens for the calendar page only, scoped to .cal-ui so the rest of the
+   app is untouched. Each calendar type has bg / fg / dot; shifts also have a
+   faint "shade" for the time grid. Dark values apply under html.dark. */
+.cal-ui {
+  --cal-bg: #f5f6fa; --cal-surface: #ffffff; --cal-surface-2: #f2f3f8; --cal-surface-3: #e7e9f1;
+  --cal-ink: #111427; --cal-ink-2: #3f465e; --cal-muted: #5a6180; --cal-line: #e3e5ee; --cal-line-2: #cfd3e0;
+  --cal-brand: #4338ca; --cal-brand-soft: #eceefe; --cal-brand-text: #3730a3; --cal-now: #dc2626;
+  --cal-shadow: 0 1px 2px rgba(17,20,39,.04), 0 6px 20px rgba(17,20,39,.05);
+  --cal-pop: 0 28px 64px rgba(17,20,39,.22), 0 2px 6px rgba(17,20,39,.08);
+  --cal-station-bg: #fde4e4; --cal-station-fg: #861b1b; --cal-station-dot: #ef4444;
+  --cal-watch-bg: #dde9fe; --cal-watch-fg: #1e3a8a; --cal-watch-dot: #3b82f6;
+  --cal-personal-bg: #ece8fe; --cal-personal-fg: #4c1d95; --cal-personal-dot: #8b5cf6;
+  --cal-tasks-bg: #daf0fc; --cal-tasks-fg: #0c4a6e; --cal-tasks-dot: #0ea5e9;
+  --cal-insp-bg: #ffe8d5; --cal-insp-fg: #86290c; --cal-insp-dot: #f97316;
+  --cal-training-bg: #dcfce7; --cal-training-fg: #14532d; --cal-training-dot: #22c55e;
+  --cal-day-bg: #fbf0d2; --cal-day-fg: #713f12; --cal-day-dot: #ca8a04; --cal-day-shade: rgba(202,138,4,.08);
+  --cal-night-bg: #e9e8fb; --cal-night-fg: #312e81; --cal-night-dot: #4338ca; --cal-night-shade: rgba(67,56,202,.07);
+  --cal-leave-bg: #e1f5e7; --cal-leave-fg: #14532d; --cal-leave-dot: #16a34a; --cal-leave-shade: rgba(22,163,74,.06);
+  color: var(--cal-ink);
+}
+.dark .cal-ui {
+  --cal-bg: #0b0d18; --cal-surface: #141728; --cal-surface-2: #1b1f35; --cal-surface-3: #242943;
+  --cal-ink: #eceefa; --cal-ink-2: #c3c8de; --cal-muted: #989eb9; --cal-line: #262b45; --cal-line-2: #363c5e;
+  --cal-brand: #5b5ff0; --cal-brand-soft: #22254a; --cal-brand-text: #c7cbff; --cal-now: #f87171;
+  --cal-shadow: 0 1px 2px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.30);
+  --cal-pop: 0 28px 64px rgba(0,0,0,.65), 0 0 0 1px rgba(255,255,255,.04);
+  --cal-station-bg: rgba(239,68,68,.20); --cal-station-fg: #fecaca; --cal-station-dot: #f87171;
+  --cal-watch-bg: rgba(59,130,246,.22); --cal-watch-fg: #cfe0ff; --cal-watch-dot: #60a5fa;
+  --cal-personal-bg: rgba(139,92,246,.24); --cal-personal-fg: #e2dbff; --cal-personal-dot: #a78bfa;
+  --cal-tasks-bg: rgba(14,165,233,.20); --cal-tasks-fg: #c4ecfd; --cal-tasks-dot: #38bdf8;
+  --cal-insp-bg: rgba(249,115,22,.20); --cal-insp-fg: #fed7b0; --cal-insp-dot: #fb923c;
+  --cal-training-bg: rgba(34,197,94,.20); --cal-training-fg: #bbf7d0; --cal-training-dot: #4ade80;
+  --cal-day-bg: rgba(202,138,4,.20); --cal-day-fg: #fde68a; --cal-day-dot: #eab308; --cal-day-shade: rgba(234,179,8,.06);
+  --cal-night-bg: rgba(99,102,241,.26); --cal-night-fg: #d4dafe; --cal-night-dot: #818cf8; --cal-night-shade: rgba(99,102,241,.11);
+  --cal-leave-bg: rgba(22,163,74,.22); --cal-leave-fg: #bbf7d0; --cal-leave-dot: #4ade80; --cal-leave-shade: rgba(22,163,74,.08);
+}
+.cal-ui .cal-mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+.cal-ui .cal-card { background: var(--cal-surface); border: 1px solid var(--cal-line); border-radius: 20px; box-shadow: var(--cal-shadow); }
+.cal-ui .cal-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  border-radius: 12px; border: 1px solid var(--cal-line-2); background: var(--cal-surface);
+  color: var(--cal-ink); font-weight: 500; cursor: pointer; transition: background-color .15s;
+}
+.cal-ui .cal-btn:hover { background: var(--cal-surface-2); }
+.cal-ui .cal-btn:focus-visible, .cal-ui .cal-focus:focus-visible { outline: 2px solid var(--cal-brand); outline-offset: 2px; }
+.cal-ui .cal-field {
+  height: 40px; border-radius: 10px; border: 1px solid var(--cal-line-2); background: var(--cal-surface-2);
+  color: var(--cal-ink); font-size: 13px; padding: 0 10px; outline: none;
+}
+.cal-ui .cal-field:focus { border-color: var(--cal-brand); }
+.dark .cal-ui .cal-field { color-scheme: dark; }

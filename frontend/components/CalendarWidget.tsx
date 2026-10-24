@@ -1,11 +1,13 @@
 import { useRef, useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight, Lock, FileText, ArrowRight, Plus } from "lucide-react";
 import type { CalendarEvent } from "~backend/calendar/types";
 import type { Task } from "~backend/task/types";
 import type { Inspection } from "~backend/inspection/types";
 import type { ShiftDay } from "@/lib/shiftRota";
 import { getShiftForDate } from "@/lib/shiftRota";
+
+// Calendar views — redesigned from the Claude Design week view (Oct 2026).
+// Colours come from the .cal-ui tokens in index.css (light + dark).
 
 export type CalendarViewType = "day" | "week" | "month" | "year";
 
@@ -20,23 +22,10 @@ export interface CalendarItem {
   data: CalendarEvent | Task | Inspection;
 }
 
-/**
- * Event title — struck through when cancelled. Cancelled events stay on the
- * calendar (like a line through the paper one); hover shows the reason.
- */
-function ItemTitle({ item }: { item: CalendarItem }) {
-  const ev = item.type === "event" ? (item.data as CalendarEvent) : null;
-  if (ev?.cancelled_at) {
-    return (
-      <span className="line-through opacity-60" title={`Cancelled${ev.cancel_reason ? `: ${ev.cancel_reason}` : ""}`}>
-        {item.title}
-      </span>
-    );
-  }
-  if (ev?.rescheduled_from) {
-    return <span title={`Moved${ev.change_note ? `: ${ev.change_note}` : ""}`}>{item.title}</span>;
-  }
-  return <>{item.title}</>;
+/** Where the user clicked — the event form opens beside it on desktop. */
+export interface CalendarAnchor {
+  x: number;
+  y: number;
 }
 
 interface CalendarWidgetProps {
@@ -52,1123 +41,864 @@ interface CalendarWidgetProps {
   onDateChange: (date: Date) => void;
   view: CalendarViewType;
   onViewChange: (view: CalendarViewType) => void;
-  onSlotClick?: (date: Date) => void;
-  onEventClick?: (item: CalendarItem) => void;
+  onSlotClick?: (date: Date, anchor?: CalendarAnchor) => void;
+  onEventClick?: (item: CalendarItem, anchor?: CalendarAnchor) => void;
+  /** A new event being added — shown as a dashed placeholder in Day/Week. */
+  pendingSlot?: Date | null;
 }
 
-// ─── Shift helpers ───────────────────────────────────────────────────────────
-const SHIFT_COLORS: Record<string, string> = {
-  "1st Day":      "#ca8a04", // yellow-600
-  "2nd Day":      "#ca8a04",
-  "1st Night":    "#4338ca", // indigo-700
-  "2nd Night":    "#4338ca",
-  "Annual Leave": "#16a34a", // green-600
-};
+// ─── Colours ──────────────────────────────────────────────────────────────────
+type CalKey = "station" | "watch" | "personal" | "tasks" | "insp" | "training";
 
-const SHIFT_ICONS: Record<string, string> = {
-  "1st Day":      "☀️",
-  "2nd Day":      "☀️",
-  "1st Night":    "🌙",
-  "2nd Night":    "🌙",
-  "Annual Leave": "🌿",
-};
-
-/** Background tint for the entire calendar cell, keyed by shift type. */
-const SHIFT_CELL_BG_LIGHT: Record<string, string> = {
-  "1st Day":      "rgba(234, 179,   8, 0.18)",  // yellow-500
-  "2nd Day":      "rgba(234, 179,   8, 0.18)",
-  "1st Night":    "rgba( 67,  56, 202, 0.16)",  // indigo-700
-  "2nd Night":    "rgba( 67,  56, 202, 0.16)",
-  "Annual Leave": "rgba( 22, 163,  74, 0.13)",  // green-600
-};
-
-const SHIFT_CELL_BG_DARK: Record<string, string> = {
-  "1st Day":      "rgba(234, 179,   8, 0.30)",  // yellow – stronger on dark
-  "2nd Day":      "rgba(234, 179,   8, 0.30)",
-  "1st Night":    "rgba( 99,  102, 241, 0.32)", // indigo-500 – brighter base
-  "2nd Night":    "rgba( 99,  102, 241, 0.32)",
-  "Annual Leave": "rgba( 34, 197,  94, 0.22)",  // green-500 – brighter base
-};
-
-/** Given the shifts on a day, return the cell background colour (first shift wins). */
-function getShiftCellBg(shifts: ShiftDay[], isDark = false): string | undefined {
-  if (!shifts.length) return undefined;
-  const map = isDark ? SHIFT_CELL_BG_DARK : SHIFT_CELL_BG_LIGHT;
-  return map[shifts[0].shiftType];
+function calKey(item: CalendarItem): CalKey {
+  if (item.type === "task") return "tasks";
+  if (item.type === "inspection") return "insp";
+  if (item.type === "training") return "training";
+  if (item.calendarType === "station") return "station";
+  if (item.calendarType === "watch") return "watch";
+  return "personal";
 }
+const tok = (k: string, part: "bg" | "fg" | "dot" | "shade") => `var(--cal-${k}-${part})`;
+
+function eventData(item: CalendarItem): CalendarEvent | null {
+  return item.type === "event" || item.type === "training" ? (item.data as CalendarEvent) : null;
+}
+/** Tasks and inspections show on the calendar but are changed elsewhere. */
+const isReadOnly = (item: CalendarItem) => item.type === "task" || item.type === "inspection";
+/** Private reminders from Notes (only the writer sees them). */
+const isPrivate = (item: CalendarItem) => eventData(item)?.event_type === "reminder";
+
+/** Hover text: what it is, plus why it was cancelled or moved. */
+function itemTooltip(item: CalendarItem): string {
+  const ev = eventData(item);
+  const parts = [item.title];
+  if (ev?.cancelled_at) parts.push(`Cancelled${ev.cancelled_by_name ? ` by ${ev.cancelled_by_name}` : ""}${ev.cancel_reason ? ` — ${ev.cancel_reason}` : ""}`);
+  if (ev?.rescheduled_from) parts.push(`Moved${ev.change_note ? ` — ${ev.change_note}` : ""}`);
+  if (isReadOnly(item)) parts.push("Read-only here");
+  if (isPrivate(item)) parts.push("Private reminder from Notes");
+  return parts.join("\n");
+}
+
+// ─── Shifts ───────────────────────────────────────────────────────────────────
+type ShiftKind = "day" | "night" | "leave";
 
 function getShiftsForDay(shiftSchedule: ShiftDay[], date: Date, userWatch?: string): ShiftDay[] {
-  // If we know the user's watch, compute the shift directly for this date.
-  // This is more robust than filtering a pre-built array — the array can get
-  // out of sync with the displayed week/month if its date range drifts.
+  // With a watch, compute straight from the rota — a pre-built array can drift
+  // out of the displayed range.
   if (userWatch) {
     const shift = getShiftForDate(userWatch, date);
     if (shift && shift.shiftType !== "Rest") return [shift];
     return [];
   }
-  const dateStr = [
-    date.getFullYear(),
-    String(date.getMonth() + 1).padStart(2, "0"),
-    String(date.getDate()).padStart(2, "0"),
-  ].join("-");
+  const dateStr = isoDate(date);
   return shiftSchedule.filter((s) => s.date === dateStr);
 }
 
-/** Full opaque banner — used in Day/Week all-day rows and the mobile agenda panel. */
-function ShiftBanner({ shift }: { shift: ShiftDay }) {
-  const color = SHIFT_COLORS[shift.shiftType] ?? "#6b7280";
-  const icon  = SHIFT_ICONS[shift.shiftType] ?? "";
-  const label = shift.startTime
-    ? `${icon} ${shift.shiftType} (${shift.startTime}–${shift.endTime})`
-    : `${icon} ${shift.shiftType}`;
+function shiftKind(s?: ShiftDay): ShiftKind | null {
+  if (!s) return null;
+  if (s.isLeave) return "leave";
+  if (s.shiftType.includes("Night")) return "night";
+  if (s.shiftType.includes("Day")) return "day";
+  return null;
+}
+const shiftLabel = (s?: ShiftDay) => (!s ? "Rest" : s.isLeave ? "Leave" : s.shiftType);
+
+function ShiftChip({ shift, onBrand }: { shift?: ShiftDay; onBrand?: boolean }) {
+  const k = shiftKind(shift);
   return (
-    <div
-      className="rounded px-1.5 py-0.5 text-white text-[11px] truncate font-medium select-none"
-      style={{ backgroundColor: `${color}d9` }}
-      title={label}
+    <span
+      className="whitespace-nowrap"
+      style={{
+        fontSize: 11,
+        fontWeight: 600,
+        padding: "3px 8px",
+        borderRadius: 999,
+        minHeight: 14,
+        ...(onBrand
+          ? { background: "rgba(255,255,255,.2)", color: "#fff" }
+          : k
+          ? { background: tok(k, "bg"), color: tok(k, "fg") }
+          : { background: "transparent", color: "var(--cal-muted)" }),
+      }}
     >
-      {label}
-    </div>
+      {shiftLabel(shift)}
+    </span>
   );
 }
 
-/** Slim label for month cells — no background (the cell itself is already tinted). */
-function ShiftCellLabel({ shift }: { shift: ShiftDay }) {
-  const color = SHIFT_COLORS[shift.shiftType] ?? "#6b7280";
-  const icon  = SHIFT_ICONS[shift.shiftType] ?? "";
-  // Abbreviate: "1st Day" → "Day", "2nd Night" → "Night", "Annual Leave" → "Leave"
-  const short = shift.shiftType.replace(/^(1st|2nd)\s+/, "");
-  const label = shift.startTime ? `${icon} ${short}` : `${icon} ${short}`;
-  return (
-    <div
-      className="text-[11px] font-semibold truncate leading-tight select-none"
-      style={{ color }}
-      title={shift.startTime ? `${shift.shiftType} (${shift.startTime}–${shift.endTime})` : shift.shiftType}
-    >
-      {label}
-    </div>
-  );
+// ─── Constants & dates ────────────────────────────────────────────────────────
+const HOUR_PX = 48;
+const DAY_PX = HOUR_PX * 24;
+const TIME_COL = 56;
+const DOW = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const MONTH_NAMES = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+const pad = (n: number) => String(n).padStart(2, "0");
+const hhmm = (d: Date) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+function isoDate(d: Date) {
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
-
-// ─── Constants ───────────────────────────────────────────────────────────────
-const HOUR_HEIGHT = 64;
-const TOTAL_HEIGHT = HOUR_HEIGHT * 24;
-const TIME_COL_WIDTH = 56;
-
-// ─── Colour helpers ──────────────────────────────────────────────────────────
-function getItemColor(item: CalendarItem): string {
-  if (item.type === "task") return "#0ea5e9";
-  if (item.type === "inspection") return "#f97316";
-  if (item.type === "training") return "#22c55e";
-  if (item.calendarType === "station") return "#ef4444";
-  if (item.calendarType === "watch") return "#3b82f6";
-  if (item.calendarType === "personal") return "#8b5cf6";
-  return "#6b7280";
-}
-
-function hexToRgba(hex: string, alpha: number): string {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return `rgba(${r},${g},${b},${alpha})`;
-}
-
-// ─── Date utilities ───────────────────────────────────────────────────────────
 function sameDay(a: Date, b: Date) {
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  );
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
-
-/** True if a multi-day (or single-day) event covers the given calendar day. */
+function startOfDay(d: Date) {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  return x;
+}
+function addDays(d: Date, n: number) {
+  const x = new Date(d);
+  x.setDate(x.getDate() + n);
+  return x;
+}
+/** True if an event (single or multi-day) covers the given calendar day. */
 function spansDay(item: CalendarItem, day: Date): boolean {
-  const start = new Date(item.startTime); start.setHours(0, 0, 0, 0);
-  const end   = new Date(item.endTime);   end.setHours(23, 59, 59, 999);
-  const d     = new Date(day);            d.setHours(12, 0, 0, 0);
+  const start = startOfDay(item.startTime);
+  const end = new Date(item.endTime);
+  end.setHours(23, 59, 59, 999);
+  const d = new Date(day);
+  d.setHours(12, 0, 0, 0);
   return d >= start && d <= end;
 }
-
-function formatHour(hour: number): string {
-  if (hour === 0) return "12 AM";
-  if (hour === 12) return "12 PM";
-  if (hour < 12) return `${hour} AM`;
-  return `${hour - 12} PM`;
-}
-
-function formatTime(date: Date): string {
-  const h = date.getHours();
-  const m = date.getMinutes();
-  const period = h >= 12 ? "PM" : "AM";
-  const displayH = h === 0 ? 12 : h > 12 ? h - 12 : h;
-  const displayM = m.toString().padStart(2, "0");
-  return `${displayH}:${displayM} ${period}`;
-}
-
 // Monday-first week
 function getWeekDays(date: Date): Date[] {
   const day = date.getDay();
-  const offset = day === 0 ? -6 : 1 - day;
-  const monday = new Date(date);
-  monday.setDate(date.getDate() + offset);
-  return Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(monday);
-    d.setDate(monday.getDate() + i);
-    return d;
-  });
+  const monday = addDays(startOfDay(date), day === 0 ? -6 : 1 - day);
+  return Array.from({ length: 7 }, (_, i) => addDays(monday, i));
 }
-
-const WEEK_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const MONTH_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
 function getDaysInMonthGrid(date: Date): (Date | null)[] {
   const year = date.getFullYear();
   const month = date.getMonth();
-  // Monday-first: convert getDay() (0=Sun) to Mon=0..Sun=6
-  const firstDayOfWeek = (new Date(year, month, 1).getDay() + 6) % 7;
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const first = (new Date(year, month, 1).getDay() + 6) % 7;
+  const n = new Date(year, month + 1, 0).getDate();
   const cells: (Date | null)[] = [];
-  for (let i = 0; i < firstDayOfWeek; i++) cells.push(null);
-  for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(year, month, d));
+  for (let i = 0; i < first; i++) cells.push(null);
+  for (let d = 1; d <= n; d++) cells.push(new Date(year, month, d));
   return cells;
 }
 
-function getYearMonths(year: number): Date[] {
-  return Array.from({ length: 12 }, (_, i) => new Date(year, i, 1));
-}
-
 // ─── Map data → CalendarItem ─────────────────────────────────────────────────
-function buildItems(
-  events: CalendarEvent[],
-  tasks: Task[],
-  inspections: Inspection[]
-): CalendarItem[] {
+function buildItems(events: CalendarEvent[], tasks: Task[], inspections: Inspection[]): CalendarItem[] {
   const items: CalendarItem[] = [];
-
   events.forEach((e) => {
-    const start = new Date(e.start_time);
-    const end = new Date(e.end_time);
     const calType = e.calendar_visibility ?? (e.is_watch_event ? "station" : "personal");
     items.push({
       id: e.id,
       title: e.title,
-      startTime: start,
-      endTime: end,
+      startTime: new Date(e.start_time),
+      endTime: new Date(e.end_time),
       allDay: e.all_day,
       type: e.event_type === "training" ? "training" : "event",
       calendarType: calType as CalendarItem["calendarType"],
       data: e,
     });
   });
-
   tasks.forEach((t) => {
-    if (t.due_at) {
-      const due = new Date(t.due_at);
-      const end = new Date(due.getTime() + 3600000);
-      items.push({
-        id: t.id,
-        title: t.title,
-        startTime: due,
-        endTime: end,
-        allDay: false,
-        type: "task",
-        calendarType: "other",
-        data: t,
-      });
-    }
-  });
-
-  inspections.forEach((ins) => {
-    const start = new Date(ins.scheduled_for);
-    const end = new Date(start.getTime() + 7200000);
+    if (!t.due_at) return;
+    const due = new Date(t.due_at);
     items.push({
-      id: ins.id,
-      title: `${ins.type} – ${ins.address}`,
-      startTime: start,
-      endTime: end,
-      allDay: false,
-      type: "inspection",
-      calendarType: "other",
-      data: ins,
+      id: t.id, title: `Task: ${t.title}`, startTime: due, endTime: new Date(due.getTime() + 3600000),
+      allDay: false, type: "task", calendarType: "other", data: t,
     });
   });
-
+  inspections.forEach((ins) => {
+    const start = new Date(ins.scheduled_for);
+    items.push({
+      id: ins.id, title: `${ins.type} · ${ins.address}`, startTime: start, endTime: new Date(start.getTime() + 7200000),
+      allDay: false, type: "inspection", calendarType: "other", data: ins,
+    });
+  });
   return items;
 }
 
-// ─── Shared primitives ────────────────────────────────────────────────────────
+const anchorOf = (e: React.MouseEvent): CalendarAnchor => ({ x: e.clientX, y: e.clientY });
 
-function CurrentTimeLine() {
-  const now = new Date();
-  const top = now.getHours() * HOUR_HEIGHT + (now.getMinutes() / 60) * HOUR_HEIGHT;
-  return (
-    <div
-      className="absolute left-0 right-0 z-20 flex items-center pointer-events-none"
-      style={{ top }}
-    >
-      <div style={{ width: TIME_COL_WIDTH }} className="flex justify-end pr-1">
-        <div className="w-2 h-2 rounded-full bg-red-500" />
-      </div>
-      <div className="flex-1 border-t-2 border-red-500" />
-    </div>
+// ─── Small pieces ─────────────────────────────────────────────────────────────
+function Dot({ k, size = 7 }: { k: string; size?: number }) {
+  return <span style={{ width: size, height: size, borderRadius: "50%", background: tok(k, "dot"), flex: "none" }} />;
+}
+
+function ItemIcons({ item }: { item: CalendarItem }) {
+  if (isReadOnly(item)) return <Lock className="h-3 w-3 shrink-0 ml-auto" aria-label="Read-only" />;
+  if (isPrivate(item)) return <FileText className="h-3 w-3 shrink-0 ml-auto" aria-label="Private reminder from Notes" />;
+  return null;
+}
+
+/** "Cancelled" / "Moved" badges — the reason shows on hover or when opened. */
+function StateBadges({ item }: { item: CalendarItem }) {
+  const ev = eventData(item);
+  if (!ev?.cancelled_at && !ev?.rescheduled_from) return null;
+  const badge: React.CSSProperties = {
+    alignSelf: "flex-start", marginTop: 2, fontSize: 10.5, fontWeight: 600, padding: "2px 7px",
+    borderRadius: 999, background: "var(--cal-surface)", color: "var(--cal-ink-2)",
+    display: "inline-flex", alignItems: "center", gap: 4, textDecoration: "none",
+  };
+  return ev.cancelled_at ? (
+    <span style={badge}>Cancelled</span>
+  ) : (
+    <span style={badge}><ArrowRight className="h-2.5 w-2.5" />Moved</span>
   );
 }
 
-function TimeLabels() {
-  return (
-    <>
-      {Array.from({ length: 24 }, (_, h) => (
-        <div
-          key={h}
-          className="absolute flex items-start justify-end pr-2"
-          style={{ top: h * HOUR_HEIGHT - 9, width: TIME_COL_WIDTH, height: HOUR_HEIGHT }}
-        >
-          {h > 0 && (
-            <span className="text-[11px] text-muted-foreground leading-none">
-              {formatHour(h)}
-            </span>
-          )}
-        </div>
-      ))}
-    </>
-  );
+function titleStyle(item: CalendarItem): React.CSSProperties {
+  return {
+    fontSize: 12.5, fontWeight: 600, lineHeight: 1.25, whiteSpace: "nowrap", overflow: "hidden",
+    textOverflow: "ellipsis", minWidth: 0,
+    ...(eventData(item)?.cancelled_at ? { textDecoration: "line-through" } : {}),
+  };
 }
 
-function HourLines({ leftOffset }: { leftOffset: number }) {
-  return (
-    <>
-      {Array.from({ length: 24 }, (_, h) => (
-        <div
-          key={h}
-          className="absolute right-0 border-t border-border/40"
-          style={{ top: h * HOUR_HEIGHT, left: leftOffset }}
-        />
-      ))}
-    </>
-  );
+function blockBg(item: CalendarItem): string {
+  const k = calKey(item);
+  return eventData(item)?.cancelled_at
+    ? `repeating-linear-gradient(135deg, ${tok(k, "bg")} 0 7px, var(--cal-surface-2) 7px 11px)`
+    : tok(k, "bg");
 }
 
-function EventBlock({
-  item,
-  style,
-  onClick,
+/** A pill used in all-day lanes, month cells and the phone agenda. */
+function EventPill({
+  item, onClick, showTime, extra, style,
 }: {
   item: CalendarItem;
-  style: React.CSSProperties;
-  onClick: () => void;
+  onClick?: (e: React.MouseEvent) => void;
+  showTime?: boolean;
+  extra?: string;
+  style?: React.CSSProperties;
 }) {
-  // Visual-refresh `.ev` style — soft tint background + 3px coloured
-  // left border + text in the event's own colour. Replaces the saturated
-  // white-on-filled-colour pills the time grid was using before; this
-  // way the colour stays meaningful at small sizes and the title doesn't
-  // disappear into a dark fill at low contrast.
-  const color = getItemColor(item);
-  const heightNum = typeof style.height === "number" ? style.height : 30;
-  const isDark = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
+  const k = calKey(item);
   return (
-    <div
-      className="absolute rounded-sm px-1.5 py-0.5 cursor-pointer overflow-hidden select-none"
+    <button
+      type="button"
+      data-event
+      title={itemTooltip(item)}
+      onClick={(e) => { e.stopPropagation(); onClick?.(e); }}
+      className="cal-focus"
       style={{
-        ...style,
-        backgroundColor: hexToRgba(color, isDark ? 0.22 : 0.14),
-        borderLeft: `3px solid ${color}`,
-        color: isDark ? "var(--foreground)" : color,
-        fontSize: 11,
-        lineHeight: "1.3",
-      }}
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick();
+        height: 26, borderRadius: 8, border: "none", background: blockBg(item), color: tok(k, "fg"),
+        font: "inherit", fontSize: 12, fontWeight: 600, textAlign: "left", padding: "0 8px",
+        display: "flex", alignItems: "center", gap: 6, cursor: isReadOnly(item) ? "default" : "pointer",
+        minWidth: 0, width: "100%", ...style,
       }}
     >
-      <div className="font-medium truncate" style={{ color: isDark ? "var(--foreground)" : color }}>
-        <ItemTitle item={item} />
-      </div>
-      {heightNum > 28 && (
-        <div className="font-mono opacity-75 truncate" style={{ fontSize: 10 }}>
-          {formatTime(item.startTime)} – {formatTime(item.endTime)}
-        </div>
+      <Dot k={k} />
+      {showTime && !item.allDay && (
+        <span className="cal-mono" style={{ fontWeight: 400, fontSize: 11, opacity: 0.85 }}>{hhmm(item.startTime)}</span>
       )}
-    </div>
+      <span style={{ ...titleStyle(item), fontSize: 12 }}>{item.title}</span>
+      {extra && <span className="cal-mono" style={{ fontWeight: 400, opacity: 0.8, marginLeft: "auto", fontSize: 11 }}>{extra}</span>}
+      {!extra && <ItemIcons item={item} />}
+    </button>
   );
 }
 
-// ─── Day View ─────────────────────────────────────────────────────────────────
-function DayView({
-  date,
-  items,
-  shiftSchedule = [],
-  userWatch,
-  scrollRef,
-  onSlotClick,
-  onEventClick,
-}: {
-  date: Date;
-  items: CalendarItem[];
-  shiftSchedule?: ShiftDay[];
-  userWatch?: string;
-  scrollRef: React.RefObject<HTMLDivElement | null>;
-  onSlotClick?: (date: Date) => void;
-  onEventClick?: (item: CalendarItem) => void;
-}) {
-  const dayItems = items.filter((it) => !it.allDay && sameDay(it.startTime, date));
-  const allDayItems = items.filter((it) => it.allDay && spansDay(it, date));
-  const dayShifts = getShiftsForDay(shiftSchedule, date, userWatch);
+// ─── Time grid (Day + Week) ───────────────────────────────────────────────────
+interface Placed { item: CalendarItem; top: number; height: number; lane: number; lanes: number; }
 
-  const handleSlotClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if ((e.target as HTMLElement).closest("[data-event]")) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const scrollTop = scrollRef.current?.scrollTop ?? 0;
-    const y = e.clientY - rect.top + scrollTop;
-    const rawMinutes = (y / HOUR_HEIGHT) * 60;
-    const roundedMinutes = Math.round(rawMinutes / 30) * 30;
-    const clickDate = new Date(date);
-    clickDate.setHours(Math.floor(roundedMinutes / 60), roundedMinutes % 60, 0, 0);
-    onSlotClick?.(clickDate);
+/** Timed events on a day, clipped to the day and laid side by side when they overlap. */
+function layoutDay(items: CalendarItem[], day: Date): Placed[] {
+  const dayStart = startOfDay(day).getTime();
+  const dayEnd = dayStart + 86400000;
+  const timed = items
+    .filter((it) => !it.allDay && it.startTime.getTime() < dayEnd && Math.max(it.endTime.getTime(), it.startTime.getTime() + 1) > dayStart)
+    .map((it) => {
+      const s = Math.max(it.startTime.getTime(), dayStart);
+      const e = Math.min(Math.max(it.endTime.getTime(), it.startTime.getTime() + 30 * 60000), dayEnd);
+      return { item: it, s, e };
+    })
+    .sort((a, b) => a.s - b.s || b.e - a.e);
+
+  const placed: Placed[] = [];
+  let group: { p: Placed; e: number }[] = [];
+  let groupEnd = -Infinity;
+  const colEnds: number[] = [];
+  const flush = () => {
+    const lanes = Math.max(1, colEnds.length);
+    group.forEach((g) => (g.p.lanes = lanes));
+    group = [];
+    colEnds.length = 0;
   };
+  for (const t of timed) {
+    if (t.s >= groupEnd) { flush(); groupEnd = -Infinity; }
+    let lane = colEnds.findIndex((end) => end <= t.s);
+    if (lane === -1) { lane = colEnds.length; colEnds.push(t.e); } else colEnds[lane] = t.e;
+    const p: Placed = {
+      item: t.item,
+      top: ((t.s - dayStart) / 3600000) * HOUR_PX,
+      height: Math.max(((t.e - t.s) / 3600000) * HOUR_PX, 22),
+      lane,
+      lanes: 1,
+    };
+    group.push({ p, e: t.e });
+    placed.push(p);
+    groupEnd = Math.max(groupEnd, t.e);
+  }
+  flush();
+  return placed;
+}
 
+function EventBlock({ placed, onClick }: { placed: Placed; onClick: (e: React.MouseEvent) => void }) {
+  const { item, top, height, lane, lanes } = placed;
+  const k = calKey(item);
+  const compact = height < 40;
+  const ev = eventData(item);
   return (
-    <div className="flex flex-col h-full overflow-hidden">
-      {(allDayItems.length > 0 || dayShifts.length > 0) && (
-        <div className="flex border-b border-border bg-muted/30 shrink-0">
-          <div style={{ width: TIME_COL_WIDTH }} className="text-[11px] text-muted-foreground text-right pr-2 py-1 shrink-0">
-            all-day
-          </div>
-          <div className="flex-1 flex flex-wrap gap-1 p-1">
-            {dayShifts.map((s) => (
-              <ShiftBanner key={`shift-${s.date}-${s.shiftType}`} shift={s} />
-            ))}
-            {allDayItems.map((it) => {
-              const color = getItemColor(it);
-              const dark = document.documentElement.classList.contains("dark");
-              return (
-                <div
-                  key={it.id}
-                  data-event
-                  className="cursor-pointer"
-                  style={{
-                    fontSize: 11,
-                    padding: "2px 6px",
-                    borderRadius: 2,
-                    background: hexToRgba(color, dark ? 0.18 : 0.12),
-                    borderLeft: `2px solid ${color}`,
-                    color: dark ? "var(--foreground)" : color,
-                  }}
-                  onClick={() => onEventClick?.(it)}
-                >
-                  <ItemTitle item={it} />
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
+    <button
+      type="button"
+      data-event
+      title={itemTooltip(item)}
+      aria-label={`${item.title}, ${hhmm(item.startTime)} to ${hhmm(item.endTime)}${ev?.cancelled_at ? ", cancelled" : ""}${ev?.rescheduled_from ? ", moved" : ""}`}
+      onClick={(e) => { e.stopPropagation(); onClick(e); }}
+      className="cal-focus"
+      style={{
+        position: "absolute",
+        top: top + 1,
+        height: height - 2,
+        left: `calc(${(lane / lanes) * 100}% + 3px)`,
+        width: `calc(${100 / lanes}% - 6px)`,
+        borderRadius: 10, border: "none", background: blockBg(item), color: tok(k, "fg"),
+        font: "inherit", textAlign: "left", padding: compact ? "3px 8px" : "7px 9px",
+        display: "flex", flexDirection: compact ? "row" : "column", alignItems: compact ? "center" : "stretch",
+        gap: compact ? 8 : 2, overflow: "hidden", cursor: isReadOnly(item) ? "default" : "pointer",
+        boxSizing: "border-box", zIndex: 1,
+      }}
+    >
+      <span style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0, width: compact ? "auto" : "100%", flex: compact ? "1 1 auto" : undefined }}>
+        <Dot k={k} />
+        <span style={titleStyle(item)}>{item.title}</span>
+        {!compact && <ItemIcons item={item} />}
+      </span>
+      <span className="cal-mono" style={{ fontSize: 11, opacity: 0.85, whiteSpace: "nowrap" }}>
+        {hhmm(item.startTime)}{compact ? "" : ` – ${hhmm(item.endTime)}`}
+      </span>
+      {!compact && height >= 64 && <StateBadges item={item} />}
+    </button>
+  );
+}
 
-      <div ref={scrollRef} className="flex-1 overflow-y-auto">
-        <div className="relative" style={{ height: TOTAL_HEIGHT }}>
-          <TimeLabels />
-          <HourLines leftOffset={TIME_COL_WIDTH} />
-          <CurrentTimeLine />
-          <div
-            className="absolute top-0 bottom-0 cursor-pointer"
-            style={{ left: TIME_COL_WIDTH, right: 0 }}
-            onClick={handleSlotClick}
+function HourLabels() {
+  return (
+    <div style={{ position: "relative", height: DAY_PX }}>
+      {Array.from({ length: 24 }, (_, h) =>
+        h === 0 ? null : (
+          <span
+            key={h}
+            className="cal-mono"
+            style={{ position: "absolute", right: 8, top: h * HOUR_PX - 7, fontSize: 11, color: "var(--cal-muted)" }}
           >
-            {dayItems.map((item) => {
-              const top = item.startTime.getHours() * HOUR_HEIGHT + (item.startTime.getMinutes() / 60) * HOUR_HEIGHT;
-              const durationMs = item.endTime.getTime() - item.startTime.getTime();
-              const height = Math.max((durationMs / 3600000) * HOUR_HEIGHT, 20);
-              return (
-                <EventBlock
-                  key={`${item.type}-${item.id}`}
-                  item={item}
-                  style={{ top, height, left: 4, right: 4 }}
-                  onClick={() => onEventClick?.(item)}
-                />
-              );
-            })}
-          </div>
-        </div>
-      </div>
+            {pad(h)}:00
+          </span>
+        )
+      )}
     </div>
   );
 }
 
-// ─── Week View ────────────────────────────────────────────────────────────────
-function WeekView({
-  weekDays,
-  items,
-  shiftSchedule = [],
-  userWatch,
-  scrollRef,
-  onSlotClick,
-  onEventClick,
-  onDayClick,
+/** One day's column: hour lines, shift shading, events, now line, pending slot. */
+function DayColumn({
+  day, items, shiftSchedule, userWatch, pendingSlot, onSlotClick, onEventClick,
 }: {
-  weekDays: Date[];
+  day: Date;
   items: CalendarItem[];
-  shiftSchedule?: ShiftDay[];
+  shiftSchedule: ShiftDay[];
   userWatch?: string;
-  scrollRef: React.RefObject<HTMLDivElement | null>;
-  onSlotClick?: (date: Date) => void;
-  onEventClick?: (item: CalendarItem) => void;
-  onDayClick?: (date: Date) => void;
+  pendingSlot?: Date | null;
+  onSlotClick?: (date: Date, anchor?: CalendarAnchor) => void;
+  onEventClick?: (item: CalendarItem, anchor?: CalendarAnchor) => void;
 }) {
   const today = new Date();
-  const allDayCols = weekDays.map((d) => items.filter((it) => it.allDay && spansDay(it, d)));
-  const shiftCols  = weekDays.map((d) => getShiftsForDay(shiftSchedule, d, userWatch));
-  const hasAllDay  = allDayCols.some((col) => col.length > 0) || shiftCols.some((col) => col.length > 0);
+  const isToday = sameDay(day, today);
+  const kind = shiftKind(getShiftsForDay(shiftSchedule, day, userWatch)[0]);
+  const prevNight = shiftKind(getShiftsForDay(shiftSchedule, addDays(day, -1), userWatch)[0]) === "night";
+  const shades: { k: ShiftKind; from: number; to: number }[] = [];
+  if (prevNight) shades.push({ k: "night", from: 0, to: 8 });
+  if (kind === "day") shades.push({ k: "day", from: 8, to: 18 });
+  if (kind === "night") shades.push({ k: "night", from: 18, to: 24 });
+  if (kind === "leave") shades.push({ k: "leave", from: 0, to: 24 });
 
-  const handleColClick = (day: Date, e: React.MouseEvent<HTMLDivElement>) => {
+  const placed = layoutDay(items, day);
+  const nowTop = (today.getHours() + today.getMinutes() / 60) * HOUR_PX;
+
+  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if ((e.target as HTMLElement).closest("[data-event]")) return;
     const rect = e.currentTarget.getBoundingClientRect();
-    const scrollTop = scrollRef.current?.scrollTop ?? 0;
-    const y = e.clientY - rect.top + scrollTop;
-    const rawMinutes = (y / HOUR_HEIGHT) * 60;
-    const roundedMinutes = Math.round(rawMinutes / 30) * 30;
-    const clickDate = new Date(day);
-    clickDate.setHours(Math.floor(roundedMinutes / 60), roundedMinutes % 60, 0, 0);
-    onSlotClick?.(clickDate);
+    const minutes = Math.round((((e.clientY - rect.top) / HOUR_PX) * 60) / 30) * 30;
+    const at = new Date(day);
+    at.setHours(Math.floor(minutes / 60), minutes % 60, 0, 0);
+    onSlotClick?.(at, anchorOf(e));
   };
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
-      {/* Day headers */}
-      <div className="flex border-b border-border bg-card shrink-0" style={{ paddingLeft: TIME_COL_WIDTH }}>
-        {weekDays.map((day, i) => {
-          const isToday = sameDay(day, today);
-          return (
-            <div
-              key={i}
-              className="flex-1 text-center py-2 cursor-pointer hover:bg-muted/40 transition-colors"
-              onClick={() => onDayClick?.(day)}
-            >
-              <div
-                className="font-mono"
-                style={{
-                  fontSize: 10,
-                  letterSpacing: "0.12em",
-                  textTransform: "uppercase",
-                  color: "var(--muted-foreground)",
-                }}
-              >
-                {WEEK_LABELS[i]}
-              </div>
-              {/* Today indicator: brand-coloured outline ring instead of a
-                  red filled circle — matches the Month view's design and
-                  keeps red reserved for genuine alerts. */}
-              <div
-                className="text-sm font-mono mx-auto w-7 h-7 flex items-center justify-center rounded-full mt-0.5"
-                style={
-                  isToday
-                    ? {
-                        boxShadow: "inset 0 0 0 1.5px var(--brand)",
-                        color: "var(--brand)",
-                        fontWeight: 600,
-                      }
-                    : { color: "var(--foreground)" }
-                }
-              >
-                {day.getDate()}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {hasAllDay && (
-        // NOTE: uses the same paddingLeft-based layout as the header row above
-        // so the 7 day columns line up pixel-perfectly. A fixed-width first
-        // child instead of paddingLeft was causing events and shift banners to
-        // render one column to the left of their header date.
+    <div
+      onClick={handleClick}
+      style={{
+        position: "relative", height: DAY_PX, borderRadius: 12, cursor: "pointer",
+        backgroundImage: "repeating-linear-gradient(to bottom, var(--cal-line) 0 1px, transparent 1px 48px)",
+      }}
+    >
+      {shades.map((s, i) => (
         <div
-          className="relative flex border-b border-border bg-muted/20 shrink-0"
-          style={{ paddingLeft: TIME_COL_WIDTH }}
-        >
-          <span
-            className="absolute left-0 top-0 text-[11px] text-muted-foreground text-right pr-2 py-1"
-            style={{ width: TIME_COL_WIDTH }}
-          >
-            all-day
-          </span>
-          {allDayCols.map((col, i) => (
-            <div key={i} className="flex-1 flex flex-col gap-0.5 p-0.5 min-w-0">
-              {shiftCols[i].map((s) => (
-                <ShiftBanner key={`shift-${s.date}-${s.shiftType}`} shift={s} />
-              ))}
-              {col.map((it) => {
-                const color = getItemColor(it);
-                const dark = document.documentElement.classList.contains("dark");
-                return (
-                  <div
-                    key={it.id}
-                    data-event
-                    className="cursor-pointer truncate"
-                    style={{
-                      fontSize: 10.5,
-                      padding: "1px 5px",
-                      borderRadius: 2,
-                      lineHeight: 1.3,
-                      background: hexToRgba(color, dark ? 0.18 : 0.12),
-                      borderLeft: `2px solid ${color}`,
-                      color: dark ? "var(--foreground)" : color,
-                    }}
-                    onClick={() => onEventClick?.(it)}
-                  >
-                    <ItemTitle item={it} />
-                  </div>
-                );
-              })}
-            </div>
-          ))}
+          key={i}
+          aria-hidden
+          style={{
+            position: "absolute", left: 0, right: 0, top: s.from * HOUR_PX, height: (s.to - s.from) * HOUR_PX,
+            background: tok(s.k, "shade"), borderRadius: 8,
+          }}
+        />
+      ))}
+      {placed.map((p) => (
+        <EventBlock key={`${p.item.type}-${p.item.id}`} placed={p} onClick={(e) => onEventClick?.(p.item, anchorOf(e))} />
+      ))}
+      {isToday && (
+        <div aria-hidden style={{ position: "absolute", left: -4, right: 0, top: nowTop, height: 2, background: "var(--cal-now)", zIndex: 3 }}>
+          <span style={{ position: "absolute", left: -4, top: -4, width: 10, height: 10, borderRadius: "50%", background: "var(--cal-now)" }} />
         </div>
       )}
-
-      <div ref={scrollRef} className="flex-1 overflow-y-auto">
-        <div className="flex" style={{ height: TOTAL_HEIGHT }}>
-          <div className="relative shrink-0" style={{ width: TIME_COL_WIDTH, height: TOTAL_HEIGHT }}>
-            <TimeLabels />
-          </div>
-          <div className="flex flex-1 relative" style={{ height: TOTAL_HEIGHT }}>
-            <HourLines leftOffset={0} />
-            <CurrentTimeLine />
-            {weekDays.map((day, i) => {
-              const colItems = items.filter((it) => !it.allDay && sameDay(it.startTime, day));
-              return (
-                <div
-                  key={i}
-                  className="flex-1 relative border-l border-border/30 cursor-pointer"
-                  onClick={(e) => handleColClick(day, e)}
-                >
-                  {colItems.map((item) => {
-                    const top = item.startTime.getHours() * HOUR_HEIGHT + (item.startTime.getMinutes() / 60) * HOUR_HEIGHT;
-                    const durationMs = item.endTime.getTime() - item.startTime.getTime();
-                    const height = Math.max((durationMs / 3600000) * HOUR_HEIGHT, 20);
-                    return (
-                      <EventBlock
-                        key={`${item.type}-${item.id}`}
-                        item={item}
-                        style={{ top, height, left: 2, right: 2 }}
-                        onClick={() => onEventClick?.(item)}
-                      />
-                    );
-                  })}
-                </div>
-              );
-            })}
-          </div>
+      {pendingSlot && sameDay(pendingSlot, day) && (
+        <div
+          style={{
+            position: "absolute", left: 4, right: 4,
+            top: (pendingSlot.getHours() + pendingSlot.getMinutes() / 60) * HOUR_PX, height: HOUR_PX - 2,
+            borderRadius: 10, border: "2px dashed var(--cal-brand)", background: "var(--cal-brand-soft)",
+            color: "var(--cal-brand-text)", boxSizing: "border-box", padding: "6px 8px", zIndex: 2,
+            display: "flex", flexDirection: "column", gap: 2, pointerEvents: "none",
+          }}
+        >
+          <span style={{ fontSize: 12, fontWeight: 600 }}>New event</span>
+          <span className="cal-mono" style={{ fontSize: 11 }}>{hhmm(pendingSlot)} – {hhmm(new Date(pendingSlot.getTime() + 3600000))}</span>
         </div>
-      </div>
+      )}
     </div>
   );
 }
 
-// ─── Month View ───────────────────────────────────────────────────────────────
+/** Week strip tile (and the Day view's single tile). */
+function DayTile({ day, shift, showShift, onClick }: { day: Date; shift?: ShiftDay; showShift: boolean; onClick?: () => void }) {
+  const today = sameDay(day, new Date());
+  const name = DOW[(day.getDay() + 6) % 7];
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="cal-focus"
+      aria-label={`${name} ${day.getDate()} ${MONTH_NAMES[day.getMonth()]}${showShift ? `, ${shift ? shiftLabel(shift) : "rest day"}` : ""}${today ? ", today" : ""}`}
+      style={{
+        display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "12px 6px 10px",
+        borderRadius: 16, border: "none", font: "inherit", cursor: "pointer", minWidth: 0,
+        ...(today
+          ? { background: "var(--cal-brand)", color: "#fff", boxShadow: "0 8px 20px rgba(67,56,202,.35)" }
+          : { background: "var(--cal-surface-2)", color: "var(--cal-ink)" }),
+      }}
+    >
+      <span style={{ fontSize: 12, fontWeight: 500, opacity: 0.85 }}>{name}</span>
+      <span className="cal-mono" style={{ fontSize: 26, fontWeight: 600, lineHeight: 1 }}>{day.getDate()}</span>
+      {showShift ? <ShiftChip shift={shift} onBrand={today} /> : <span style={{ height: 20 }} />}
+    </button>
+  );
+}
+
+/** All-day events across the visible days, stacked in lanes. */
+function AllDayLane({
+  days, items, onEventClick,
+}: {
+  days: Date[];
+  items: CalendarItem[];
+  onEventClick?: (item: CalendarItem, anchor?: CalendarAnchor) => void;
+}) {
+  const first = startOfDay(days[0]).getTime();
+  const last = startOfDay(days[days.length - 1]).getTime();
+  const idx = (d: Date) => Math.round((startOfDay(d).getTime() - first) / 86400000);
+  const rows: number[][] = []; // per lane: occupied column indexes
+  const placed = items
+    .filter((it) => it.allDay && startOfDay(it.startTime).getTime() <= last && startOfDay(it.endTime).getTime() >= first)
+    .sort((a, b) => a.startTime.getTime() - b.startTime.getTime())
+    .map((it) => {
+      const c0 = Math.max(0, idx(it.startTime));
+      const c1 = Math.min(days.length - 1, idx(it.endTime));
+      let lane = rows.findIndex((cols) => cols.every((c) => c < c0 || c > c1));
+      if (lane === -1) { lane = rows.length; rows.push([]); }
+      for (let c = c0; c <= c1; c++) rows[lane].push(c);
+      const span = c1 - c0 + 1;
+      const extra = span > 1 ? `${DOW[(days[c0].getDay() + 6) % 7]}–${DOW[(days[c1].getDay() + 6) % 7]}` : undefined;
+      return { it, c0, span, lane, extra };
+    });
+  if (placed.length === 0) return null;
+  return (
+    <div
+      style={{
+        display: "grid", gridTemplateColumns: `${TIME_COL}px repeat(${days.length}, minmax(0, 1fr))`,
+        columnGap: 8, rowGap: 4, marginTop: 12, padding: "8px 0", borderTop: "1px solid var(--cal-line)",
+        borderBottom: "1px solid var(--cal-line)", alignItems: "center",
+      }}
+    >
+      <span style={{ gridColumn: 1, gridRow: `1 / span ${rows.length}`, fontSize: 11, color: "var(--cal-muted)", textAlign: "right", paddingRight: 4 }}>
+        All-day
+      </span>
+      {placed.map(({ it, c0, span, lane, extra }) => (
+        <EventPill
+          key={`${it.type}-${it.id}`}
+          item={it}
+          extra={extra}
+          onClick={(e) => onEventClick?.(it, anchorOf(e))}
+          style={{ gridColumn: `${c0 + 2} / span ${span}`, gridRow: lane + 1, height: 28 }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function TimeGridCard({
+  days, items, shiftSchedule, userWatch, scrollRef, pendingSlot, onSlotClick, onEventClick, onDayClick,
+}: {
+  days: Date[];
+  items: CalendarItem[];
+  shiftSchedule: ShiftDay[];
+  userWatch?: string;
+  scrollRef: React.RefObject<HTMLDivElement | null>;
+  pendingSlot?: Date | null;
+  onSlotClick?: (date: Date, anchor?: CalendarAnchor) => void;
+  onEventClick?: (item: CalendarItem, anchor?: CalendarAnchor) => void;
+  onDayClick?: (date: Date) => void;
+}) {
+  const showShift = !!userWatch || shiftSchedule.length > 0;
+  const cols = `${TIME_COL}px repeat(${days.length}, minmax(0, 1fr))`;
+  return (
+    <section className="cal-card" style={{ borderRadius: 24, overflowX: "auto" }}>
+      <div style={{ minWidth: days.length > 1 ? 820 : 0, padding: "12px 12px 16px 0" }}>
+        <div style={{ display: "grid", gridTemplateColumns: cols, gap: "0 8px" }}>
+          <span />
+          {days.map((d) => (
+            <DayTile
+              key={d.toISOString()}
+              day={d}
+              shift={getShiftsForDay(shiftSchedule, d, userWatch)[0]}
+              showShift={showShift}
+              onClick={days.length > 1 ? () => onDayClick?.(d) : undefined}
+            />
+          ))}
+        </div>
+        <AllDayLane days={days} items={items} onEventClick={onEventClick} />
+        <div
+          ref={scrollRef}
+          style={{ marginTop: 4, overflowY: "auto", height: "clamp(440px, calc(100vh - 360px), 900px)" }}
+        >
+          <div style={{ display: "grid", gridTemplateColumns: cols, columnGap: 8 }}>
+            <HourLabels />
+            {days.map((d) => (
+              <DayColumn
+                key={d.toISOString()}
+                day={d}
+                items={items}
+                shiftSchedule={shiftSchedule}
+                userWatch={userWatch}
+                pendingSlot={pendingSlot}
+                onSlotClick={onSlotClick}
+                onEventClick={onEventClick}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Month ────────────────────────────────────────────────────────────────────
 function MonthView({
-  date,
-  items,
-  shiftSchedule = [],
-  userWatch,
-  onSlotClick,
-  onEventClick,
-  onDayNavigate,
+  date, items, shiftSchedule, userWatch, onSlotClick, onEventClick, onDayNavigate,
 }: {
   date: Date;
   items: CalendarItem[];
-  shiftSchedule?: ShiftDay[];
+  shiftSchedule: ShiftDay[];
   userWatch?: string;
-  onSlotClick?: (date: Date) => void;
-  onEventClick?: (item: CalendarItem) => void;
+  onSlotClick?: (date: Date, anchor?: CalendarAnchor) => void;
+  onEventClick?: (item: CalendarItem, anchor?: CalendarAnchor) => void;
   onDayNavigate?: (date: Date) => void;
 }) {
   const today = new Date();
   const cells = getDaysInMonthGrid(date);
-  const isDark = document.documentElement.classList.contains("dark");
-
-  // Visual-refresh month grid: 7-col cal with mono uppercase DOW headers,
-  // mono top-left date numbers, hairline borders, and coloured-left-border
-  // event pills. Today is marked with an inset brand-coloured outline
-  // instead of a red filled circle (the old look reads as "alert" in
-  // glyph terms; the new pattern reads as "current cursor").
   return (
-    <div className="flex flex-col h-full overflow-hidden">
-      <div className="grid grid-cols-7 shrink-0 border-l border-t border-border rounded-t-md overflow-hidden">
-        {MONTH_LABELS.map((d) => (
-          <div
-            key={d}
-            className="border-r border-b border-border bg-muted text-muted-foreground"
-            style={{
-              padding: "8px 10px",
-              fontFamily: "var(--font-mono)",
-              fontSize: 10,
-              letterSpacing: "0.12em",
-              textTransform: "uppercase",
-            }}
-          >
-            {d}
-          </div>
+    <section className="cal-card" style={{ borderRadius: 24, padding: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: 6, marginBottom: 6 }}>
+        {DOW.map((d) => (
+          <span key={d} style={{ fontSize: 12, fontWeight: 600, color: "var(--cal-muted)", padding: "2px 8px" }}>{d}</span>
         ))}
       </div>
-
-      {/* Grid uses auto-rows so the six rows share the available container
-          height equally instead of each cell forcing min-height:86px. The
-          old min-height was the root cause of the last row clipping —
-          6×86 = 516px overflows shorter viewports. minmax(60px, 1fr)
-          keeps cells legible at small screens while letting them grow
-          to fill the calendar area on a normal monitor. */}
-      <div
-        className="grid grid-cols-7 flex-1 overflow-y-auto border-l border-border"
-        style={{ gridAutoRows: "minmax(60px, 1fr)" }}
-      >
-        {cells.map((day, idx) => {
-          if (!day) {
-            return (
-              <div
-                key={`empty-${idx}`}
-                className="border-r border-b border-border bg-muted"
-              />
-            );
-          }
-
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: 6 }}>
+        {cells.map((day, i) => {
+          if (!day) return <div key={`b-${i}`} />;
           const isToday = sameDay(day, today);
-          const isCurrentMonth = day.getMonth() === date.getMonth();
-          const dayShifts = getShiftsForDay(shiftSchedule, day, userWatch);
-          const dayItems = items.filter((it) => spansDay(it, day));
-          const visibleItems = dayItems.slice(0, Math.max(0, 3 - dayShifts.length));
-          const overflow = dayItems.length - visibleItems.length;
-
-          const shiftBg = getShiftCellBg(dayShifts, isDark);
-
+          const shift = getShiftsForDay(shiftSchedule, day, userWatch)[0];
+          const k = shiftKind(shift);
+          const dayItems = items
+            .filter((it) => spansDay(it, day))
+            .sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.startTime.getTime() - b.startTime.getTime());
+          const visible = dayItems.slice(0, 3);
+          const more = dayItems.length - visible.length;
           return (
             <div
               key={day.toISOString()}
-              data-today={isToday ? "true" : undefined}
-              data-muted={!isCurrentMonth ? "true" : undefined}
-              className="border-r border-b border-border bg-card cursor-pointer relative transition-colors hover:bg-muted/40 overflow-hidden"
+              role="button"
+              tabIndex={0}
+              onClick={(e) => onSlotClick?.(day, anchorOf(e))}
+              onKeyDown={(e) => { if (e.key === "Enter") onSlotClick?.(day); }}
+              className="cal-focus"
               style={{
-                padding: "6px 8px",
-                ...(shiftBg ? { backgroundColor: shiftBg } : {}),
-                ...(isToday
-                  ? { boxShadow: "inset 0 0 0 1px var(--brand)", zIndex: 1 }
-                  : {}),
-                ...(!isCurrentMonth
-                  ? { background: "var(--muted)", color: "var(--muted-foreground)" }
-                  : {}),
+                minHeight: 112, borderRadius: 14, padding: 8, cursor: "pointer", display: "flex", flexDirection: "column", gap: 4,
+                background: k ? tok(k, "shade") : "var(--cal-surface-2)",
+                boxShadow: isToday ? "inset 0 0 0 2px var(--cal-brand)" : undefined,
+                minWidth: 0,
               }}
-              onClick={() => onSlotClick?.(day)}
             >
-              {/* Date number — mono top-left, brand-coloured on today.
-                  Replaces the centred red circle with a typographic cue
-                  so the cell stays usable for events. */}
-              <div
-                className="font-mono mb-1"
-                style={{
-                  fontSize: 11,
-                  fontWeight: isToday ? 600 : 400,
-                  color: isToday
-                    ? "var(--brand)"
-                    : isCurrentMonth
-                    ? "var(--foreground)"
-                    : "var(--muted-foreground)",
-                  lineHeight: 1.2,
-                }}
-              >
-                {String(day.getDate()).padStart(2, "0")}
-              </div>
-
-              <div className="flex flex-col gap-[3px]">
-                {dayShifts.map((s) => (
-                  <div key={`shift-${s.date}-${s.shiftType}`} onClick={(e) => e.stopPropagation()}>
-                    <ShiftCellLabel shift={s} />
-                  </div>
-                ))}
-                {visibleItems.map((item) => {
-                  const color = getItemColor(item);
-                  return (
-                    <div
-                      key={`${item.type}-${item.id}`}
-                      data-event
-                      className="cursor-pointer overflow-hidden whitespace-nowrap text-ellipsis"
-                      style={{
-                        fontSize: 10.5,
-                        padding: "1px 5px",
-                        borderRadius: 2,
-                        lineHeight: 1.3,
-                        background: hexToRgba(color, isDark ? 0.18 : 0.12),
-                        borderLeft: `2px solid ${color}`,
-                        color: isDark ? "var(--foreground)" : color,
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onEventClick?.(item);
-                      }}
-                    >
-                      {!item.allDay && (
-                        <span
-                          className="font-mono opacity-70 mr-1"
-                          style={{ fontSize: 9.5 }}
-                        >
-                          {item.startTime.getHours().toString().padStart(2, "0")}:
-                          {item.startTime.getMinutes().toString().padStart(2, "0")}
-                        </span>
-                      )}
-                      <ItemTitle item={item} />
-                    </div>
-                  );
-                })}
-                {overflow > 0 && (
-                  <div
-                    className="font-mono text-muted-foreground hover:text-foreground cursor-pointer"
-                    style={{ fontSize: 10, paddingLeft: 2 }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDayNavigate?.(day);
-                    }}
-                  >
-                    +{overflow} more
-                  </div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 4 }}>
+                <span
+                  className="cal-mono"
+                  style={{
+                    fontSize: 13, fontWeight: isToday ? 700 : 500, width: 26, height: 26, borderRadius: 8,
+                    display: "grid", placeItems: "center",
+                    ...(isToday ? { background: "var(--cal-brand)", color: "#fff" } : { color: "var(--cal-ink)" }),
+                  }}
+                >
+                  {day.getDate()}
+                </span>
+                {k && (
+                  <span style={{ fontSize: 10.5, fontWeight: 600, padding: "2px 6px", borderRadius: 999, background: tok(k, "bg"), color: tok(k, "fg"), whiteSpace: "nowrap" }}>
+                    {k === "leave" ? "Leave" : k === "day" ? "Day" : "Night"}
+                  </span>
                 )}
               </div>
+              {visible.map((it) => (
+                <EventPill key={`${it.type}-${it.id}`} item={it} showTime onClick={(e) => onEventClick?.(it, anchorOf(e))} style={{ height: 22, fontSize: 11.5 }} />
+              ))}
+              {more > 0 && (
+                <button
+                  type="button"
+                  data-event
+                  onClick={(e) => { e.stopPropagation(); onDayNavigate?.(day); }}
+                  className="cal-mono"
+                  style={{ border: "none", background: "transparent", color: "var(--cal-muted)", fontSize: 11, textAlign: "left", padding: "0 4px", cursor: "pointer" }}
+                >
+                  +{more} more
+                </button>
+              )}
             </div>
           );
         })}
       </div>
-    </div>
+    </section>
   );
 }
 
-// ─── Year View ────────────────────────────────────────────────────────────────
-const MONTH_NAMES = [
-  "January", "February", "March", "April",
-  "May", "June", "July", "August",
-  "September", "October", "November", "December",
-];
-
-function YearView({
-  year,
-  items,
-  onMonthClick,
-}: {
-  year: number;
-  items: CalendarItem[];
-  onMonthClick: (date: Date) => void;
-}) {
+// ─── Year ─────────────────────────────────────────────────────────────────────
+function YearView({ year, items, onMonthClick }: { year: number; items: CalendarItem[]; onMonthClick: (d: Date) => void }) {
   const today = new Date();
-  const months = getYearMonths(year);
-
   return (
-    <div className="grid grid-cols-4 gap-4 p-4 overflow-y-auto h-full">
-      {months.map((monthDate, mi) => {
-        const cells = getDaysInMonthGrid(monthDate);
-        const monthItems = items.filter(
-          (it) => it.startTime.getFullYear() === year && it.startTime.getMonth() === mi
-        );
-        const itemDays = new Set(monthItems.map((it) => it.startTime.getDate()));
-
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 16 }}>
+      {Array.from({ length: 12 }, (_, mi) => {
+        const monthDate = new Date(year, mi, 1);
+        const monthItems = items.filter((it) => it.startTime.getFullYear() === year && it.startTime.getMonth() === mi);
+        const busy = new Set(monthItems.map((it) => it.startTime.getDate()));
         return (
-          <div
+          <button
             key={mi}
-            className="rounded-md border border-border bg-card p-3 cursor-pointer hover:border-brand transition-colors"
+            type="button"
             onClick={() => onMonthClick(monthDate)}
+            className="cal-card cal-focus"
+            style={{ padding: 16, textAlign: "left", font: "inherit", color: "var(--cal-ink)", cursor: "pointer" }}
           >
-            <div
-              className="font-mono mb-2"
-              style={{
-                fontSize: 11,
-                fontWeight: 500,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                color: "var(--foreground)",
-              }}
-            >
-              {MONTH_NAMES[mi]}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
+              <span style={{ fontSize: 15, fontWeight: 600 }}>{MONTH_NAMES[mi]}</span>
+              <span className="cal-mono" style={{ fontSize: 11, color: "var(--cal-muted)" }}>
+                {monthItems.length} event{monthItems.length === 1 ? "" : "s"}
+              </span>
             </div>
-            <div className="grid grid-cols-7 gap-px text-center">
-              {MONTH_LABELS.map((d) => (
-                <div
-                  key={d}
-                  className="font-mono pb-0.5"
-                  style={{
-                    fontSize: 9,
-                    color: "var(--muted-foreground)",
-                  }}
-                >
-                  {d.slice(0, 1)}
-                </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", textAlign: "center", rowGap: 2 }}>
+              {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
+                <span key={i} style={{ fontSize: 10, fontWeight: 600, color: "var(--cal-muted)" }}>{d}</span>
               ))}
-              {cells.map((day, di) => {
-                if (!day) return <div key={`e-${di}`} />;
-                const isToday = sameDay(day, today);
-                const hasEvents = itemDays.has(day.getDate());
-                // Today indicator + event marker both use --brand instead
-                // of red, matching the Month/Week view treatment.
-                return (
-                  <div key={di} className="flex flex-col items-center">
+              {getDaysInMonthGrid(monthDate).map((day, i) =>
+                !day ? <span key={i} /> : (
+                  <span key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                     <span
-                      className="font-mono w-5 h-5 flex items-center justify-center rounded-full"
-                      style={
-                        isToday
-                          ? {
-                              fontSize: 10,
-                              boxShadow: "inset 0 0 0 1.5px var(--brand)",
-                              color: "var(--brand)",
-                              fontWeight: 600,
-                            }
-                          : { fontSize: 10, color: "var(--foreground)" }
-                      }
+                      className="cal-mono"
+                      style={{
+                        fontSize: 11, width: 22, height: 22, borderRadius: 7, display: "grid", placeItems: "center",
+                        ...(sameDay(day, today) ? { background: "var(--cal-brand)", color: "#fff", fontWeight: 600 } : {}),
+                      }}
                     >
                       {day.getDate()}
                     </span>
-                    {hasEvents && (
-                      <div
-                        className="w-1 h-1 rounded-full mt-px"
-                        style={{ background: "var(--brand)" }}
-                      />
-                    )}
-                  </div>
-                );
-              })}
+                    <span style={{ width: 4, height: 4, borderRadius: "50%", background: busy.has(day.getDate()) ? "var(--cal-brand)" : "transparent" }} />
+                  </span>
+                )
+              )}
             </div>
-            <div
-              className="font-mono mt-2"
-              style={{
-                fontSize: 10,
-                letterSpacing: "0.06em",
-                color: "var(--muted-foreground)",
-              }}
-            >
-              {monthItems.length} event{monthItems.length !== 1 ? "s" : ""}
-            </div>
-          </div>
+          </button>
         );
       })}
     </div>
   );
 }
 
-// ─── Mobile Month View (compact dots) ────────────────────────────────────────
-function MobileMonthView({
-  date,
-  items,
-  shiftSchedule = [],
-  userWatch,
-  selectedDay,
-  onDaySelect,
+// ─── Phone: month grid + day agenda ───────────────────────────────────────────
+function MobileMonth({
+  date, items, shiftSchedule, userWatch, selectedDay, onDaySelect, onPrev, onNext,
 }: {
   date: Date;
   items: CalendarItem[];
-  shiftSchedule?: ShiftDay[];
+  shiftSchedule: ShiftDay[];
   userWatch?: string;
   selectedDay: Date;
   onDaySelect: (d: Date) => void;
+  onPrev: () => void;
+  onNext: () => void;
 }) {
   const today = new Date();
-  const cells = getDaysInMonthGrid(date);
-  const isDark = document.documentElement.classList.contains("dark");
-
   return (
-    <div>
-      {/* Day-of-week labels */}
-      <div className="grid grid-cols-7 mb-1">
-        {MONTH_LABELS.map((d) => (
-          <div key={d} className="text-center text-[11px] font-medium text-muted-foreground py-1">
-            {d.slice(0, 2)}
-          </div>
-        ))}
+    <section className="cal-card" style={{ padding: 14 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+        <button type="button" aria-label="Previous month" onClick={onPrev} className="cal-btn" style={{ width: 40, height: 40, padding: 0 }}>
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+        <h2 style={{ margin: 0, fontSize: 17, fontWeight: 600 }}>{MONTH_NAMES[date.getMonth()]} {date.getFullYear()}</h2>
+        <button type="button" aria-label="Next month" onClick={onNext} className="cal-btn" style={{ width: 40, height: 40, padding: 0 }}>
+          <ChevronRight className="h-4 w-4" />
+        </button>
       </div>
-
-      {/* Date cells */}
-      <div className="grid grid-cols-7">
-        {cells.map((day, idx) => {
-          if (!day) return <div key={`e-${idx}`} />;
-
-          const isToday      = sameDay(day, today);
-          const isSelected   = sameDay(day, selectedDay);
-          const inMonth      = day.getMonth() === date.getMonth();
-          const dayItems     = items.filter((it) => spansDay(it, day));
-          const dayShifts    = getShiftsForDay(shiftSchedule, day, userWatch);
-          const shiftBg      = getShiftCellBg(dayShifts, isDark);
-
-          // Dots for non-shift events only (shift colour already shown via background)
-          const eventDotColors: string[] = [];
-          dayItems.forEach((it) => {
-            const c = getItemColor(it);
-            if (!eventDotColors.includes(c)) eventDotColors.push(c);
-          });
-          const dots = eventDotColors.slice(0, 3);
-
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", textAlign: "center", rowGap: 4 }}>
+        {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
+          <span key={i} style={{ fontSize: 11, fontWeight: 600, color: "var(--cal-muted)", padding: "2px 0" }}>{d}</span>
+        ))}
+        {getDaysInMonthGrid(date).map((day, i) => {
+          if (!day) return <span key={i} />;
+          const isToday = sameDay(day, today);
+          const selected = sameDay(day, selectedDay);
+          const k = shiftKind(getShiftsForDay(shiftSchedule, day, userWatch)[0]);
+          const dots = Array.from(new Set(items.filter((it) => spansDay(it, day)).map((it) => calKey(it)))).slice(0, 3);
           return (
-            <div
-              key={day.toISOString()}
-              className={`flex flex-col items-center py-1 cursor-pointer select-none rounded-lg transition-colors ${
-                !inMonth ? "opacity-30" : ""
-              }`}
-              style={shiftBg ? { backgroundColor: shiftBg } : undefined}
+            <button
+              key={i}
+              type="button"
               onClick={() => onDaySelect(day)}
+              className="cal-focus"
+              aria-label={`${day.getDate()} ${MONTH_NAMES[day.getMonth()]}${k ? `, ${k} shift` : ""}${dots.length ? `, ${dots.length} calendar${dots.length > 1 ? "s" : ""} with events` : ""}`}
+              style={{
+                height: 50, border: "none", borderRadius: 12, padding: 0, cursor: "pointer", font: "inherit",
+                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
+                background: selected ? "var(--cal-brand)" : "transparent",
+                color: selected ? "#fff" : isToday ? "var(--cal-brand)" : "var(--cal-ink)",
+                boxShadow: isToday && !selected ? "inset 0 0 0 2px var(--cal-brand)" : undefined,
+              }}
             >
-              {/* Mobile day cell: brand-coloured today + selected states
-                  so the user's accent flows through (was hard-coded
-                  indigo-600 — broke colour consistency on other accents). */}
-              <span
-                className={`
-                  w-8 h-8 flex items-center justify-center rounded-full text-sm font-mono transition-colors
-                  ${isToday && !isSelected ? "text-brand font-semibold" : ""}
-                  ${isSelected ? "bg-brand text-brand-foreground font-semibold shadow-sm" : ""}
-                  ${!isSelected && !isToday && inMonth ? "text-foreground" : ""}
-                `}
-              >
-                {day.getDate()}
-              </span>
-              {/* Event dots (non-shift events only) */}
-              <div className="flex gap-[3px] mt-0.5 h-1.5">
-                {dots.map((color, i) => (
-                  <span
-                    key={i}
-                    className="w-1.5 h-1.5 rounded-full"
-                    style={{ backgroundColor: color }}
-                  />
+              <span className="cal-mono" style={{ fontSize: 14, fontWeight: isToday || selected ? 700 : 500 }}>{day.getDate()}</span>
+              <span style={{ width: 14, height: 3, borderRadius: 2, background: k ? (selected ? "#fff" : tok(k, "dot")) : "transparent" }} />
+              <span style={{ display: "flex", gap: 3, height: 5 }}>
+                {dots.map((c) => (
+                  <span key={c} style={{ width: 5, height: 5, borderRadius: "50%", background: selected ? "#fff" : tok(c, "dot") }} />
                 ))}
-                {dots.length === 0 && <span className="w-1.5 h-1.5" />}
-              </div>
-            </div>
+              </span>
+            </button>
           );
         })}
       </div>
-    </div>
+    </section>
   );
 }
 
-// ─── Mobile Agenda Panel ──────────────────────────────────────────────────────
-const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-const MONTH_NAMES_FULL = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
-
-function MobileAgendaPanel({
-  date,
-  items,
-  shiftSchedule = [],
-  userWatch,
-  onNewEvent,
-  onEventClick,
+function MobileAgenda({
+  date, items, shiftSchedule, userWatch, onNewEvent, onEventClick,
 }: {
   date: Date;
   items: CalendarItem[];
-  shiftSchedule?: ShiftDay[];
+  shiftSchedule: ShiftDay[];
   userWatch?: string;
-  onNewEvent?: (date: Date) => void;
-  onEventClick?: (item: CalendarItem) => void;
+  onNewEvent?: (date: Date, anchor?: CalendarAnchor) => void;
+  onEventClick?: (item: CalendarItem, anchor?: CalendarAnchor) => void;
 }) {
-  const dayLabel = `${DAY_NAMES[date.getDay()]}, ${date.getDate()} ${MONTH_NAMES_FULL[date.getMonth()]}`;
-  const dayShifts = getShiftsForDay(shiftSchedule, date, userWatch);
-  const dayItems  = items
+  const shift = getShiftsForDay(shiftSchedule, date, userWatch)[0];
+  const dayItems = items
     .filter((it) => spansDay(it, date))
-    .sort((a, b) => {
-      if (a.allDay && !b.allDay) return -1;
-      if (!a.allDay && b.allDay) return 1;
-      return a.startTime.getTime() - b.startTime.getTime();
-    });
-
-  const isEmpty = dayShifts.length === 0 && dayItems.length === 0;
-
+    .sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.startTime.getTime() - b.startTime.getTime());
   return (
-    <div className="border-t border-border bg-background">
-      {/* Date header */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/50">
-        <span className="text-sm font-semibold text-foreground">{dayLabel}</span>
+    <section className="cal-card" style={{ padding: 14, display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 0 }}>
+          <span style={{ fontSize: 15, fontWeight: 600 }}>
+            {date.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })}
+          </span>
+          {(!!userWatch || shiftSchedule.length > 0) && (
+            <span><ShiftChip shift={shift} />{shift?.startTime && <span className="cal-mono" style={{ fontSize: 11, color: "var(--cal-muted)", marginLeft: 6 }}>{shift.startTime}–{shift.endTime}</span>}</span>
+          )}
+        </div>
         {onNewEvent && (
           <button
-            onClick={() => onNewEvent(date)}
-            className="text-xs text-indigo-600 dark:text-indigo-400 font-medium flex items-center gap-1"
+            type="button"
+            onClick={() => { const at = new Date(date); at.setHours(9, 0, 0, 0); onNewEvent(at); }}
+            className="cal-focus"
+            style={{ height: 40, padding: "0 14px", borderRadius: 12, border: "none", background: "var(--cal-brand)", color: "#fff", font: "inherit", fontSize: 14, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer", flex: "none" }}
           >
-            <span className="text-base leading-none">+</span> New Event
+            <Plus className="h-4 w-4" /> New event
           </button>
         )}
       </div>
-
-      {/* Shift banners */}
-      {dayShifts.length > 0 && (
-        <div className="px-4 py-2 flex flex-wrap gap-1.5 border-b border-border/30 bg-muted/20">
-          {dayShifts.map((s) => {
-            const color = SHIFT_COLORS[s.shiftType] ?? "#6b7280";
-            const icon  = SHIFT_ICONS[s.shiftType] ?? "";
-            return (
-              <span
-                key={`${s.date}-${s.shiftType}`}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-white text-xs font-medium"
-                style={{ backgroundColor: color }}
-              >
-                {icon} {s.shiftType}
-                {s.startTime && <span className="opacity-80">· {s.startTime}–{s.endTime}</span>}
+      {dayItems.length === 0 ? (
+        <p style={{ margin: 0, padding: "18px 0", textAlign: "center", fontSize: 13, color: "var(--cal-muted)" }}>Nothing on this day</p>
+      ) : (
+        dayItems.map((it) => {
+          const k = calKey(it);
+          return (
+            <button
+              key={`${it.type}-${it.id}`}
+              type="button"
+              title={itemTooltip(it)}
+              onClick={(e) => onEventClick?.(it, anchorOf(e))}
+              className="cal-focus"
+              style={{
+                display: "flex", gap: 10, alignItems: "flex-start", textAlign: "left", font: "inherit", border: "none",
+                borderRadius: 12, padding: "10px 12px", background: blockBg(it), color: tok(k, "fg"), cursor: isReadOnly(it) ? "default" : "pointer",
+              }}
+            >
+              <span className="cal-mono" style={{ fontSize: 12, width: 44, flex: "none", paddingTop: 1 }}>
+                {it.allDay ? "All day" : hhmm(it.startTime)}
               </span>
-            );
-          })}
-        </div>
+              <span style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0, flex: 1 }}>
+                <span style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
+                  <Dot k={k} />
+                  <span style={{ ...titleStyle(it), fontSize: 14 }}>{it.title}</span>
+                  <ItemIcons item={it} />
+                </span>
+                {!it.allDay && (
+                  <span className="cal-mono" style={{ fontSize: 11.5, opacity: 0.85 }}>{hhmm(it.startTime)} – {hhmm(it.endTime)}</span>
+                )}
+                <StateBadges item={it} />
+              </span>
+            </button>
+          );
+        })
       )}
-
-      {/* Events list — natural height so every event is visible; the whole
-          mobile page scrolls rather than this panel scrolling internally.
-          pb-8 leaves breathing room above the bottom nav bar. */}
-      <div className="divide-y divide-border/30 pb-8">
-        {isEmpty ? (
-          <div className="px-4 py-6 text-center text-sm text-muted-foreground">
-            No events
-          </div>
-        ) : (
-          dayItems.map((item) => {
-            const color = getItemColor(item);
-            const clickable = !!onEventClick;
-            return (
-              <button
-                key={`${item.type}-${item.id}`}
-                type="button"
-                onClick={() => onEventClick?.(item)}
-                disabled={!clickable}
-                className={`w-full flex items-start gap-3 px-4 py-3 text-left transition-colors ${
-                  clickable ? "active:bg-muted hover:bg-muted/40 cursor-pointer" : "cursor-default"
-                }`}
-              >
-                {/* Time column */}
-                <div className="w-14 shrink-0 text-right">
-                  {item.allDay ? (
-                    <span className="text-[11px] text-muted-foreground">all day</span>
-                  ) : (
-                    <span className="text-xs font-medium text-muted-foreground">
-                      {item.startTime.getHours().toString().padStart(2, "0")}:
-                      {item.startTime.getMinutes().toString().padStart(2, "0")}
-                    </span>
-                  )}
-                </div>
-                {/* Colour bar */}
-                <div className="w-1 self-stretch rounded-full shrink-0" style={{ backgroundColor: color }} />
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground leading-tight truncate"><ItemTitle item={item} /></p>
-                  {!item.allDay && (
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {formatTime(item.startTime)} – {formatTime(item.endTime)}
-                    </p>
-                  )}
-                </div>
-              </button>
-            );
-          })
-        )}
-      </div>
-    </div>
+    </section>
   );
 }
 
-// ─── Header ───────────────────────────────────────────────────────────────────
-function CalendarHeader({
-  view,
-  currentDate,
-  onViewChange,
-  onPrev,
-  onNext,
-  onToday,
+// ─── Toolbar ──────────────────────────────────────────────────────────────────
+function rangeLabel(view: CalendarViewType, d: Date): string {
+  if (view === "day") return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+  if (view === "week") {
+    const days = getWeekDays(d);
+    const a = days[0], b = days[6];
+    const sameMonth = a.getMonth() === b.getMonth();
+    return sameMonth
+      ? `${a.getDate()} – ${b.getDate()} ${MONTH_NAMES[b.getMonth()].slice(0, 3)}`
+      : `${a.getDate()} ${MONTH_NAMES[a.getMonth()].slice(0, 3)} – ${b.getDate()} ${MONTH_NAMES[b.getMonth()].slice(0, 3)}`;
+  }
+  if (view === "month") return `${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}`;
+  return String(d.getFullYear());
+}
+
+function Toolbar({
+  view, currentDate, onViewChange, onPrev, onNext, onToday,
 }: {
   view: CalendarViewType;
   currentDate: Date;
@@ -1177,56 +907,33 @@ function CalendarHeader({
   onNext: () => void;
   onToday: () => void;
 }) {
-  const title = (() => {
-    if (view === "day") {
-      return currentDate.toLocaleDateString("en-GB", {
-        weekday: "long", day: "numeric", month: "long", year: "numeric",
-      });
-    }
-    if (view === "week") {
-      const days = getWeekDays(currentDate);
-      const start = days[0].toLocaleDateString("en-GB", { day: "numeric", month: "short" });
-      const end = days[6].toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
-      return `${start} – ${end}`;
-    }
-    if (view === "month") {
-      return currentDate.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
-    }
-    return currentDate.getFullYear().toString();
-  })();
-
-  const views: CalendarViewType[] = ["day", "week", "month", "year"];
-
+  const unit = view === "day" ? "day" : view === "week" ? "week" : view === "month" ? "month" : "year";
   return (
-    // Internal calendar toolbar — kept tight (py-1, h-7 controls) so the
-    // grid below gets the most room. Page header already shows the month
-    // + watch in eyebrow form, so the title here only needs to reflect
-    // the visible range (week-spans, year). Active view button uses
-    // --brand instead of bg-red-500 so it stays consistent with the
-    // rest of the app's accent system.
-    <div className="flex items-center justify-between px-3 py-1 border-b border-border bg-card shrink-0">
-      <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" onClick={onToday} className="text-xs h-7 px-3">
-          Today
-        </Button>
-        <Button variant="ghost" size="icon" onClick={onPrev} className="h-7 w-7">
-          <ChevronLeft className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="icon" onClick={onNext} className="h-7 w-7">
-          <ChevronRight className="h-4 w-4" />
-        </Button>
-        <h2 className="text-sm font-medium text-muted-foreground ml-1">{title}</h2>
+    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <button type="button" onClick={onToday} className="cal-btn" style={{ height: 40, padding: "0 16px", fontWeight: 600, fontSize: 14 }}>Today</button>
+        <button type="button" aria-label={`Previous ${unit}`} onClick={onPrev} className="cal-btn" style={{ width: 40, height: 40, padding: 0 }}>
+          <ChevronLeft className="h-[18px] w-[18px]" />
+        </button>
+        <button type="button" aria-label={`Next ${unit}`} onClick={onNext} className="cal-btn" style={{ width: 40, height: 40, padding: 0 }}>
+          <ChevronRight className="h-[18px] w-[18px]" />
+        </button>
+        <span className="cal-mono" style={{ fontSize: 14, color: "var(--cal-ink-2)", marginLeft: 6 }}>{rangeLabel(view, currentDate)}</span>
       </div>
-      <div className="flex items-center rounded-md border border-border overflow-hidden h-7">
-        {views.map((v) => (
+      <div role="group" aria-label="View" style={{ display: "inline-flex", padding: 4, borderRadius: 14, background: "var(--cal-surface-3)", gap: 2 }}>
+        {(["day", "week", "month", "year"] as CalendarViewType[]).map((v) => (
           <button
             key={v}
+            type="button"
+            aria-pressed={view === v}
             onClick={() => onViewChange(v)}
-            className={`px-3 text-xs font-medium transition-colors capitalize h-full ${
-              view === v
-                ? "bg-brand text-brand-foreground"
-                : "bg-card text-muted-foreground hover:bg-muted"
-            }`}
+            className="cal-focus capitalize"
+            style={{
+              height: 36, padding: "0 16px", borderRadius: 10, border: "none", font: "inherit", fontSize: 14, cursor: "pointer",
+              ...(view === v
+                ? { background: "var(--cal-surface)", color: "var(--cal-ink)", fontWeight: 600, boxShadow: "var(--cal-shadow)" }
+                : { background: "transparent", color: "var(--cal-ink-2)", fontWeight: 500 }),
+            }}
           >
             {v}
           </button>
@@ -1249,15 +956,17 @@ export default function CalendarWidget({
   onViewChange,
   onSlotClick,
   onEventClick,
+  pendingSlot,
 }: CalendarWidgetProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const items = buildItems(events, tasks, inspections);
   const [selectedDay, setSelectedDay] = useState<Date>(new Date());
 
+  // Open Day/Week at 07:00, or around now later in the day.
   useEffect(() => {
     if ((view === "day" || view === "week") && scrollRef.current) {
-      const now = new Date();
-      scrollRef.current.scrollTop = Math.max(now.getHours() * HOUR_HEIGHT - HOUR_HEIGHT * 2, 0);
+      const h = new Date().getHours();
+      scrollRef.current.scrollTop = (h > 14 ? h - 6 : 7) * HOUR_PX;
     }
   }, [view]);
 
@@ -1265,67 +974,30 @@ export default function CalendarWidget({
     const d = new Date(currentDate);
     if (view === "day") d.setDate(d.getDate() + dir);
     else if (view === "week") d.setDate(d.getDate() + 7 * dir);
-    else if (view === "month") d.setMonth(d.getMonth() + dir);
+    else if (view === "month") d.setMonth(d.getMonth() + dir, 1);
     else d.setFullYear(d.getFullYear() + dir);
     onDateChange(d);
   };
-
-  const handleDayNavigate = (date: Date) => {
-    onDateChange(date);
-    onViewChange("day");
-  };
-
-  // Mobile month title
-  const mobileTitle = currentDate.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+  const toDay = (d: Date) => { onDateChange(d); onViewChange("day"); };
 
   return (
-    // Mobile: natural height so month grid + day agenda flow down the page
-    // and the browser scrolls the whole view; Desktop: still h-full with
-    // overflow-hidden so month grid + time grid behave like a fixed-height
-    // calendar inside the page layout.
-    <div className="flex flex-col bg-background rounded-xl border border-border md:overflow-hidden md:h-full md:min-h-[500px]">
-
-      {/* ── MOBILE layout (hidden on md+) ── */}
-      <div className="md:hidden flex flex-col">
-        {/* Mobile header: month nav only */}
-        <div className="flex items-center justify-between px-4 py-2.5 border-b border-border shrink-0">
-          <button
-            onClick={() => navigate(-1)}
-            className="p-1.5 rounded-lg hover:bg-muted transition-colors"
-          >
-            <ChevronLeft className="h-5 w-5 text-muted-foreground" />
-          </button>
-          <div className="text-center">
-            <h2 className="text-base font-semibold text-foreground">{mobileTitle}</h2>
-          </div>
-          <button
-            onClick={() => navigate(1)}
-            className="p-1.5 rounded-lg hover:bg-muted transition-colors"
-          >
-            <ChevronRight className="h-5 w-5 text-muted-foreground" />
-          </button>
-        </div>
-
-        {/* Mobile month grid */}
-        <div className="px-3 pt-2 pb-1 shrink-0">
-          <MobileMonthView
-            date={currentDate}
-            items={items}
-            shiftSchedule={shiftSchedule}
-            userWatch={userWatch}
-            selectedDay={selectedDay}
-            onDaySelect={(d) => {
-              setSelectedDay(d);
-              // If switching months, navigate the calendar too
-              if (d.getMonth() !== currentDate.getMonth() || d.getFullYear() !== currentDate.getFullYear()) {
-                onDateChange(d);
-              }
-            }}
-          />
-        </div>
-
-        {/* Mobile agenda panel — natural height; whole page scrolls. */}
-        <MobileAgendaPanel
+    <div className="cal-ui" style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }}>
+      {/* ── Phone ── */}
+      <div className="md:hidden" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <MobileMonth
+          date={currentDate}
+          items={items}
+          shiftSchedule={shiftSchedule}
+          userWatch={userWatch}
+          selectedDay={selectedDay}
+          onPrev={() => { const d = new Date(currentDate); d.setMonth(d.getMonth() - 1, 1); onDateChange(d); }}
+          onNext={() => { const d = new Date(currentDate); d.setMonth(d.getMonth() + 1, 1); onDateChange(d); }}
+          onDaySelect={(d) => {
+            setSelectedDay(d);
+            if (d.getMonth() !== currentDate.getMonth() || d.getFullYear() !== currentDate.getFullYear()) onDateChange(d);
+          }}
+        />
+        <MobileAgenda
           date={selectedDay}
           items={items}
           shiftSchedule={shiftSchedule}
@@ -1335,9 +1007,9 @@ export default function CalendarWidget({
         />
       </div>
 
-      {/* ── DESKTOP layout (hidden below md) ── */}
-      <div className="hidden md:flex md:flex-col md:h-full md:overflow-hidden">
-        <CalendarHeader
+      {/* ── Desktop ── */}
+      <div className="hidden md:flex" style={{ flexDirection: "column", gap: 16, minWidth: 0 }}>
+        <Toolbar
           view={view}
           currentDate={currentDate}
           onViewChange={onViewChange}
@@ -1345,52 +1017,37 @@ export default function CalendarWidget({
           onNext={() => navigate(1)}
           onToday={() => onDateChange(new Date())}
         />
-        <div className="flex-1 overflow-hidden">
-          {view === "day" && (
-            <DayView
-              date={currentDate}
-              items={items}
-              shiftSchedule={shiftSchedule}
-              userWatch={userWatch}
-              scrollRef={scrollRef}
-              onSlotClick={onSlotClick}
-              onEventClick={onEventClick}
-            />
-          )}
-          {view === "week" && (
-            <WeekView
-              weekDays={getWeekDays(currentDate)}
-              items={items}
-              shiftSchedule={shiftSchedule}
-              userWatch={userWatch}
-              scrollRef={scrollRef}
-              onSlotClick={onSlotClick}
-              onEventClick={onEventClick}
-              onDayClick={handleDayNavigate}
-            />
-          )}
-          {view === "month" && (
-            <MonthView
-              date={currentDate}
-              items={items}
-              shiftSchedule={shiftSchedule}
-              userWatch={userWatch}
-              onSlotClick={onSlotClick}
-              onEventClick={onEventClick}
-              onDayNavigate={handleDayNavigate}
-            />
-          )}
-          {view === "year" && (
-            <YearView
-              year={currentDate.getFullYear()}
-              items={items}
-              onMonthClick={(d) => {
-                onDateChange(d);
-                onViewChange("month");
-              }}
-            />
-          )}
-        </div>
+        {(view === "week" || view === "day") && (
+          <TimeGridCard
+            days={view === "week" ? getWeekDays(currentDate) : [startOfDay(currentDate)]}
+            items={items}
+            shiftSchedule={shiftSchedule}
+            userWatch={userWatch}
+            scrollRef={scrollRef}
+            pendingSlot={pendingSlot}
+            onSlotClick={onSlotClick}
+            onEventClick={onEventClick}
+            onDayClick={toDay}
+          />
+        )}
+        {view === "month" && (
+          <MonthView
+            date={currentDate}
+            items={items}
+            shiftSchedule={shiftSchedule}
+            userWatch={userWatch}
+            onSlotClick={onSlotClick}
+            onEventClick={onEventClick}
+            onDayNavigate={toDay}
+          />
+        )}
+        {view === "year" && (
+          <YearView
+            year={currentDate.getFullYear()}
+            items={items}
+            onMonthClick={(d) => { onDateChange(d); onViewChange("month"); }}
+          />
+        )}
       </div>
     </div>
   );

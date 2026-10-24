@@ -1,15 +1,14 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/App";
 import { useUserRole } from "@/lib/rbac";
 import backend from "@/lib/backend";
 import type { shift_adjustments } from "@/client";
-import CalendarWidget, { type CalendarViewType, type CalendarItem } from "../components/CalendarWidget";
+import CalendarWidget, { type CalendarViewType, type CalendarItem, type CalendarAnchor } from "../components/CalendarWidget";
+import CalendarSidePanel from "../components/CalendarSidePanel";
 import EventForm, { type EventFormData } from "../components/EventForm";
 import InspectionEventModal, { type ExistingInspectionEvent } from "../components/InspectionEventModal";
 import ShiftAdjustmentModal from "@/components/ShiftAdjustmentModal";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import type { CalendarVisibility } from "~backend/calendar/types";
 import type { Task } from "~backend/task/types";
@@ -17,35 +16,6 @@ import type { Inspection } from "~backend/inspection/types";
 import { getShiftsForDateRange, hasRotaConfig } from "@/lib/shiftRota";
 import { ClipboardPlus, CalendarDays, GraduationCap, Filter, X } from "lucide-react";
 import ScheduleTrainingDialog from "@/components/ScheduleTrainingDialog";
-
-// ─── Calendar sidebar config ──────────────────────────────────────────────────
-const CALENDARS: { key: CalendarVisibility; label: string; sublabel: string; color: string }[] = [
-  {
-    key: "station",
-    label: "Springburn Station",
-    sublabel: "All station staff",
-    color: "#ef4444",
-  },
-  {
-    key: "watch",
-    label: "Watch Calendar",
-    sublabel: "Your watch only",
-    color: "#3b82f6",
-  },
-  {
-    key: "personal",
-    label: "Personal",
-    sublabel: "Only you",
-    color: "#8b5cf6",
-  },
-];
-
-const WATCHES = ["Red", "White", "Green", "Blue", "Amber"] as const;
-
-const OTHER_CALENDARS = [
-  { key: "tasks", label: "Tasks", color: "#0ea5e9" },
-  { key: "inspections", label: "Inspections", color: "#f97316" },
-];
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function UnifiedCalendar() {
@@ -71,6 +41,10 @@ export default function UnifiedCalendar() {
   const [formOpen, setFormOpen] = useState(false);
   const [formDate, setFormDate] = useState<Date>(new Date());
   const [editingEvent, setEditingEvent] = useState<CalendarItem | null>(null);
+  // Where the form pops up (beside the click on desktop; a sheet on phones),
+  // and the dashed "new event" slot shown in Day/Week while adding.
+  const [formAnchor, setFormAnchor] = useState<CalendarAnchor | null>(null);
+  const [pendingSlot, setPendingSlot] = useState<Date | null>(null);
   const [defaultCalendar, setDefaultCalendar] = useState<CalendarVisibility>("station");
 
   // Inspection event modal
@@ -213,7 +187,7 @@ export default function UnifiedCalendar() {
     onSuccess: () => {
       invalidateCalendarQueries();
       toast({ title: "Event created" });
-      setFormOpen(false);
+      closeForm();
     },
     onError: () => toast({ title: "Failed to create event", variant: "destructive" }),
   });
@@ -237,8 +211,7 @@ export default function UnifiedCalendar() {
     onSuccess: () => {
       invalidateCalendarQueries();
       toast({ title: "Event updated" });
-      setFormOpen(false);
-      setEditingEvent(null);
+      closeForm();
     },
     onError: () => toast({ title: "Failed to update event", variant: "destructive" }),
   });
@@ -248,8 +221,7 @@ export default function UnifiedCalendar() {
     onSuccess: () => {
       invalidateCalendarQueries();
       toast({ title: "Event deleted" });
-      setFormOpen(false);
-      setEditingEvent(null);
+      closeForm();
     },
     onError: () => toast({ title: "Failed to delete event", variant: "destructive" }),
   });
@@ -262,8 +234,7 @@ export default function UnifiedCalendar() {
       invalidateCalendarQueries();
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       toast({ title: "Event struck through", description: "It stays on the calendar with your reason." });
-      setFormOpen(false);
-      setEditingEvent(null);
+      closeForm();
     },
     onError: (err: any) =>
       toast({ title: "Couldn't cancel event", description: err?.message, variant: "destructive" }),
@@ -275,8 +246,7 @@ export default function UnifiedCalendar() {
       invalidateCalendarQueries();
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       toast({ title: "Event reinstated" });
-      setFormOpen(false);
-      setEditingEvent(null);
+      closeForm();
     },
     onError: (err: any) =>
       toast({ title: "Couldn't reinstate event", description: err?.message, variant: "destructive" }),
@@ -286,17 +256,48 @@ export default function UnifiedCalendar() {
     queryClient.invalidateQueries({ queryKey: ["cal-station"] });
     queryClient.invalidateQueries({ queryKey: ["cal-watch"] });
     queryClient.invalidateQueries({ queryKey: ["cal-personal"] });
+    queryClient.invalidateQueries({ queryKey: ["cal-upcoming"] });
   }
 
+  // "Next up" in the side panel: your upcoming events (station, your watch,
+  // personal, private reminders) over the next 60 days.
+  const { data: upcoming = [] } = useQuery({
+    queryKey: ["cal-upcoming", userId],
+    queryFn: async () => {
+      const from = new Date();
+      from.setHours(0, 0, 0, 0);
+      const to = new Date(from.getTime() + 60 * 86400000);
+      const r = await backend.calendar.list({ start_date: from.toISOString(), end_date: to.toISOString(), limit: 100 });
+      return r.events;
+    },
+  });
+
+  // Escape closes the add/edit panel.
+  useEffect(() => {
+    if (!formOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") closeForm(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [formOpen]);
+
   // ─── Handlers ────────────────────────────────────────────────────────────────
-  const handleSlotClick = (date: Date) => {
+  const handleSlotClick = (date: Date, anchor?: CalendarAnchor) => {
     setFormDate(date);
     setEditingEvent(null);
     setDefaultCalendar("station");
+    setFormAnchor(anchor ?? null);
+    setPendingSlot(view === "week" || view === "day" ? date : null);
     setFormOpen(true);
   };
 
-  const handleEventClick = async (item: CalendarItem) => {
+  const closeForm = () => {
+    setFormOpen(false);
+    setEditingEvent(null);
+    setFormAnchor(null);
+    setPendingSlot(null);
+  };
+
+  const handleEventClick = async (item: CalendarItem, anchor?: CalendarAnchor) => {
     if (item.type === "task" || item.type === "inspection") return; // non-editable
 
     const eventData = item.data as any;
@@ -339,6 +340,8 @@ export default function UnifiedCalendar() {
 
     // Standard calendar event form
     setFormDate(item.startTime);
+    setFormAnchor(anchor ?? null);
+    setPendingSlot(null);
     setEditingEvent(item);
     setDefaultCalendar(item.calendarType as CalendarVisibility);
     setFormOpen(true);
@@ -384,262 +387,100 @@ export default function UnifiedCalendar() {
     ...(visibleCalendars.has("personal") ? personalEvents : []),
   ];
 
-  // Shared filter content — rendered in the permanent desktop sidebar AND
-  // in the mobile drawer so both stay in sync without code duplication.
-  const filterContent = (
-    <>
-      <div>
-          <p className="eyebrow mb-2 px-1">
-            My Calendars
-          </p>
-          <div className="space-y-1">
-            {CALENDARS.map(({ key, label, sublabel, color }) => {
-              const active = visibleCalendars.has(key);
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  className="flex items-center gap-2.5 w-full px-2 py-1.5 rounded-lg hover:bg-muted/50 transition-colors text-left"
-                  onClick={() => toggleCalendar(key)}
-                >
-                  {/* Checkbox dot */}
-                  <span
-                    className="w-3 h-3 rounded-full shrink-0 border-2 transition-colors"
-                    style={{
-                      backgroundColor: active ? color : "transparent",
-                      borderColor: color,
-                    }}
-                  />
-                  <div className="min-w-0">
-                    <div className={`text-xs font-medium truncate ${active ? "text-foreground" : "text-muted-foreground"}`}>
-                      {label}
-                    </div>
-                    <div className="text-[10px] text-muted-foreground truncate">
-                      {key === "watch" && watchShown && watchShown !== userWatch ? `${watchShown} Watch` : sublabel}
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-          {isManager && (
-            <label className="flex items-center gap-2 mt-2 px-2 text-[11px] text-muted-foreground">
-              Watch calendar
-              <select
-                value={watchShown}
-                onChange={(e) => setViewWatch(e.target.value)}
-                className="flex-1 bg-muted/50 rounded-md px-1.5 py-1 text-xs text-foreground border border-border/60"
-                aria-label="Which watch's calendar to show"
-              >
-                {WATCHES.map((w) => (
-                  <option key={w} value={w}>
-                    {w}{w === userWatch ? " (yours)" : ""}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
-        </div>
+  const sidePanelProps = {
+    currentDate,
+    view,
+    onPickDay: (d: Date) => setCurrentDate(d),
+    visible: visibleCalendars,
+    onToggle: toggleCalendar,
+    watchShown,
+    userWatch,
+    isManager,
+    onWatchChange: setViewWatch,
+    upcoming: upcoming as any[],
+  };
 
-        {/* Other */}
-        <div>
-          <p className="eyebrow mb-2 px-1">
-            Other
-          </p>
-          <div className="space-y-1">
-            {OTHER_CALENDARS.map(({ key, label, color }) => {
-              const active = visibleCalendars.has(key);
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  className="flex items-center gap-2.5 w-full px-2 py-1.5 rounded-lg hover:bg-muted/50 transition-colors text-left"
-                  onClick={() => toggleCalendar(key)}
-                >
-                  <span
-                    className="w-3 h-3 rounded-full shrink-0 border-2 transition-colors"
-                    style={{
-                      backgroundColor: active ? color : "transparent",
-                      borderColor: color,
-                    }}
-                  />
-                  <span className={`text-xs font-medium ${active ? "text-foreground" : "text-muted-foreground"}`}>
-                    {label}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+  // Where the add/edit panel sits: beside the click on desktop, a bottom
+  // sheet on phones (or centred if there's no click position).
+  const isPhone = typeof window !== "undefined" && window.innerWidth < 768;
+  const PANEL_W = 380;
+  const panelStyle: React.CSSProperties = (() => {
+    const base: React.CSSProperties = {
+      position: "absolute", background: "var(--cal-surface)", border: "1px solid var(--cal-line)",
+      boxShadow: "var(--cal-pop)", overflowY: "auto", boxSizing: "border-box",
+    };
+    if (isPhone) {
+      return { ...base, left: 0, right: 0, bottom: 0, maxHeight: "92vh", borderRadius: "24px 24px 0 0" };
+    }
+    if (!formAnchor) {
+      return { ...base, left: "50%", top: "50%", transform: "translate(-50%, -50%)", width: PANEL_W, maxHeight: "calc(100vh - 32px)", borderRadius: 22 };
+    }
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const right = formAnchor.x + 16;
+    const left = right + PANEL_W <= vw - 16 ? right : Math.max(16, formAnchor.x - 16 - PANEL_W);
+    const top = Math.max(16, Math.min(formAnchor.y - 160, vh - 16 - 620));
+    return { ...base, left, top, width: PANEL_W, maxHeight: vh - top - 16, borderRadius: 22 };
+  })();
 
-        {/* Shift Rota */}
-        {hasRotaConfig(watchShown) && (
-          <div>
-            <p className="eyebrow mb-2 px-1">
-              Shift Rota
-            </p>
-            <div className="space-y-1">
-              <button
-                type="button"
-                className="flex items-center gap-2.5 w-full px-2 py-1.5 rounded-lg hover:bg-muted/50 transition-colors text-left"
-                onClick={() => toggleCalendar("shifts")}
-              >
-                <span
-                  className="w-3 h-3 rounded-full shrink-0 border-2 transition-colors"
-                  style={{
-                    backgroundColor: visibleCalendars.has("shifts") ? "#ca8a04" : "transparent",
-                    borderColor: "#ca8a04",
-                  }}
-                />
-                <div className="min-w-0">
-                  <div className={`text-xs font-medium truncate ${visibleCalendars.has("shifts") ? "text-foreground" : "text-muted-foreground"}`}>
-                    {watchShown} Watch Shifts
-                  </div>
-                  <div className="flex gap-1.5 mt-0.5">
-                    <span className="text-[9px] px-1 rounded text-white font-medium" style={{ backgroundColor: "#ca8a04" }}>☀️ Day</span>
-                    <span className="text-[9px] px-1 rounded text-white font-medium" style={{ backgroundColor: "#4338ca" }}>🌙 Night</span>
-                    <span className="text-[9px] px-1 rounded text-white font-medium" style={{ backgroundColor: "#16a34a" }}>🌿 Leave</span>
-                  </div>
-                </div>
-              </button>
-            </div>
-          </div>
-        )}
-
-      {/* Legend */}
-      <div className="mt-auto">
-        <p className="text-[10px] text-muted-foreground px-1 leading-relaxed">
-          Click a calendar to show/hide its events
-        </p>
-      </div>
-    </>
-  );
+  const actionBtn: React.CSSProperties = { height: 44, padding: isPhone ? 0 : "0 16px", width: isPhone ? 44 : undefined, fontSize: 14 };
 
   return (
-    // Desktop: size to exactly the remaining viewport so the page never
-    // scrolls.
-    //
-    // Chrome math (PageContainer wraps every page):
-    //   p-8 top  (32px)  + TopBar (~56px, sticky) +
-    //   space-y-6 (24px) gap between TopBar and Outlet → 112px total
-    //   above this wrapper.
-    //
-    // We escape the parent's horizontal padding (md:-mx-8) so the
-    // calendar runs edge-to-edge under the sidebar, and the parent's
-    // pb-8 (md:-mb-8) so the wrapper can extend to the very bottom of
-    // the viewport. Height is then 100vh − 112px = the remaining space
-    // under TopBar.
-    //
-    // Mobile keeps natural height + page scroll because narrow viewports
-    // genuinely benefit from scrolling the day-spans-day events.
-    <div className="flex md:overflow-hidden md:h-[calc(100vh-112px)] md:-mx-8 md:-mb-8">
-      {/* ── Desktop sidebar — permanent ────────────────────────────────────── */}
-      <aside className="hidden md:flex w-52 shrink-0 border-r border-border bg-card flex-col py-4 px-3 gap-6 h-full overflow-y-auto">
-        {filterContent}
+    <div className="cal-ui" style={{ display: "flex", gap: 24, alignItems: "flex-start" }}>
+      {/* ── Left panel (desktop) ──────────────────────────────────────────── */}
+      <aside className="hidden md:block" aria-label="Calendar panel" style={{ width: 300, flex: "none" }}>
+        <CalendarSidePanel {...sidePanelProps} />
       </aside>
 
-      {/* ── Mobile filters drawer — slides in from the left ───────────────── */}
+      {/* ── Phone: calendars drawer ───────────────────────────────────────── */}
       <div
-        className={`md:hidden fixed inset-0 z-40 transition-opacity ${
-          filtersOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-        }`}
+        className={`md:hidden fixed inset-0 z-40 transition-opacity ${filtersOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
       >
-        {/* Backdrop */}
-        <div
-          className="absolute inset-0 bg-black/40"
-          onClick={() => setFiltersOpen(false)}
-        />
-        {/* Panel */}
+        <div className="absolute inset-0 bg-black/40" onClick={() => setFiltersOpen(false)} />
         <aside
-          className={`absolute left-0 top-0 bottom-0 w-72 max-w-[85vw] bg-card border-r border-border flex flex-col py-4 px-3 gap-6 overflow-y-auto transition-transform shadow-xl ${
-            filtersOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+          aria-label="Calendars"
+          className={`absolute left-0 top-0 bottom-0 w-80 max-w-[88vw] overflow-y-auto transition-transform ${filtersOpen ? "translate-x-0" : "-translate-x-full"}`}
+          style={{ background: "var(--cal-bg)", padding: 16, boxShadow: "var(--cal-pop)" }}
         >
-          <div className="flex items-center justify-between pb-2 border-b border-border/50">
-            <h2 className="text-sm font-semibold">Calendars</h2>
-            <button
-              type="button"
-              className="h-8 w-8 rounded-lg hover:bg-muted flex items-center justify-center"
-              onClick={() => setFiltersOpen(false)}
-              aria-label="Close filters"
-            >
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+            <h2 style={{ margin: 0, fontSize: 17, fontWeight: 600 }}>Calendars</h2>
+            <button type="button" className="cal-btn" style={{ width: 40, height: 40, padding: 0 }} onClick={() => setFiltersOpen(false)} aria-label="Close calendars">
               <X className="h-4 w-4" />
             </button>
           </div>
-          {filterContent}
+          <CalendarSidePanel {...sidePanelProps} showMiniMonth={false} />
         </aside>
       </div>
 
-      {/* ── Main calendar area ──────────────────────────────────────────────── */}
-      {/* Desktop keeps overflow-hidden so the fixed-height calendar owns its
-          own scroll; mobile lets the content flow and the page scrolls. */}
-      <div className="flex-1 flex flex-col md:overflow-hidden p-2 md:px-4 md:py-2">
-        {/* ── Page header — tight ────────────────────────────────────────
-            Compact single-row pattern so the calendar grid below gets the
-            most vertical space possible. h1 sits on the same line as the
-            eyebrow context (April 2026 · White Watch) and the action
-            buttons; nothing wraps unless the viewport forces it. */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2 shrink-0">
-          <div className="flex items-baseline flex-wrap gap-x-3 gap-y-0.5">
-            <h1 className="text-xl md:text-2xl font-bold flex items-center gap-2 text-foreground">
-              <CalendarDays className="h-5 w-5 md:h-6 md:w-6 shrink-0 text-brand" />
-              Calendar
-            </h1>
-            <span className="eyebrow whitespace-nowrap">
-              {currentDate.toLocaleDateString("en-GB", { month: "long", year: "numeric" })}
-              {watchShown && (
-                <>
-                  <span className="crumb-sep">·</span>
-                  <span>{watchShown} Watch</span>
-                </>
-              )}
+      {/* ── Main ──────────────────────────────────────────────────────────── */}
+      <main style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "space-between", gap: 16 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <span className="cal-mono" style={{ fontSize: 12, letterSpacing: ".12em", color: "var(--cal-muted)", textTransform: "uppercase" }}>
+              {watchShown ? `${watchShown} Watch · ` : ""}Calendar
             </span>
+            <h1 style={{ margin: 0, fontSize: "clamp(28px, 4vw, 40px)", lineHeight: 1.05, fontWeight: 600, letterSpacing: "-.02em" }}>
+              {currentDate.toLocaleDateString("en-GB", { month: "long", year: "numeric" })}
+            </h1>
           </div>
-
-          <div className="flex items-center gap-1.5 md:gap-2">
-            {/* Mobile-only: open the calendar filters drawer */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setFiltersOpen(true)}
-              className="md:hidden h-10 w-10 px-0 flex items-center justify-center"
-              aria-label="Filters"
-            >
-              <Filter className="h-4 w-4" />
-            </Button>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => { setShiftAdjDate(undefined); setShiftAdjModalOpen(true); }}
-              className="h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5"
-              aria-label="Log Shift"
-            >
-              <CalendarDays className="h-4 w-4" />
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            <button type="button" className="cal-btn md:hidden" style={{ height: 44, width: 44, padding: 0 }} onClick={() => setFiltersOpen(true)} aria-label="Calendars and filters">
+              <Filter className="h-[18px] w-[18px]" />
+            </button>
+            <button type="button" className="cal-btn" style={actionBtn} onClick={() => { setShiftAdjDate(undefined); setShiftAdjModalOpen(true); }} aria-label="Log Shift">
+              <CalendarDays className="h-[18px] w-[18px]" />
               <span className="hidden sm:inline">Log Shift</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setInspectionModalOpen(true)}
-              className="h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5"
-              aria-label="New Inspection"
-            >
-              <ClipboardPlus className="h-4 w-4" />
+            </button>
+            <button type="button" className="cal-btn" style={actionBtn} onClick={() => setInspectionModalOpen(true)} aria-label="New Inspection">
+              <ClipboardPlus className="h-[18px] w-[18px]" />
               <span className="hidden sm:inline">New Inspection</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setTrainingModalOpen(true)}
-              className="h-10 sm:h-9 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:gap-1.5"
-              aria-label="Schedule Training"
-            >
-              <GraduationCap className="h-4 w-4" />
+            </button>
+            <button type="button" className="cal-btn" style={actionBtn} onClick={() => setTrainingModalOpen(true)} aria-label="Schedule Training">
+              <GraduationCap className="h-[18px] w-[18px]" />
               <span className="hidden sm:inline">Schedule Training</span>
-            </Button>
+            </button>
           </div>
         </div>
+
         <CalendarWidget
           events={allEvents as any}
           tasks={(visibleCalendars.has("tasks") ? tasks : []) as any}
@@ -652,26 +493,33 @@ export default function UnifiedCalendar() {
           onViewChange={setView}
           onSlotClick={handleSlotClick}
           onEventClick={handleEventClick}
+          pendingSlot={formOpen && !editingEvent ? pendingSlot : null}
         />
-      </div>
+      </main>
 
-      {/* ── Event form dialog ───────────────────────────────────────────────── */}
-      <Dialog open={formOpen} onOpenChange={(open) => { if (!open) { setFormOpen(false); setEditingEvent(null); } }}>
-        <DialogContent className="p-0 bg-transparent border-none shadow-none max-w-md w-full">
-          <DialogTitle className="sr-only">{editingEvent ? "Edit Event" : "New Event"}</DialogTitle>
-          <EventForm
-            date={formDate}
-            initialData={editingEvent?.data as any}
-            defaultCalendar={defaultCalendar}
-            watchName={watchShown}
-            onSubmit={handleFormSubmit}
-            onCancel={() => { setFormOpen(false); setEditingEvent(null); }}
-            onDelete={editingEvent ? handleDelete : undefined}
-            onStrike={editingEvent ? (reason) => cancelMutation.mutate({ id: editingEvent.id, reason }) : undefined}
-            onReinstate={editingEvent ? () => reinstateMutation.mutate(editingEvent.id) : undefined}
+      {/* ── Add / edit event panel ────────────────────────────────────────── */}
+      {formOpen && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 50 }}>
+          <div
+            onClick={closeForm}
+            style={{ position: "absolute", inset: 0, background: isPhone || !formAnchor ? "rgba(0,0,0,.4)" : "rgba(17,20,39,.06)" }}
           />
-        </DialogContent>
-      </Dialog>
+          <div role="dialog" aria-modal="true" aria-label={editingEvent ? "Edit event" : "New event"} style={panelStyle}>
+            <EventForm
+              key={editingEvent ? `edit-${editingEvent.id}` : `new-${formDate.getTime()}`}
+              date={formDate}
+              initialData={editingEvent?.data as any}
+              defaultCalendar={defaultCalendar}
+              watchName={watchShown}
+              onSubmit={handleFormSubmit}
+              onCancel={closeForm}
+              onDelete={editingEvent ? handleDelete : undefined}
+              onStrike={editingEvent ? (reason) => cancelMutation.mutate({ id: editingEvent.id, reason }) : undefined}
+              onReinstate={editingEvent ? () => reinstateMutation.mutate(editingEvent.id) : undefined}
+            />
+          </div>
+        </div>
+      )}
 
       {/* ── Inspection event modal (create + edit) ──────────────────────────── */}
       <InspectionEventModal
