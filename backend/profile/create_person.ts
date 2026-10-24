@@ -1,6 +1,7 @@
 import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
+import { requireAdmin } from "../auth/admin";
 import { logActivity } from "../logging/logger";
 import { syncSkillsToDictionary } from "../dictionary/sync_skills";
 import type { FirefighterProfile } from "./types";
@@ -141,7 +142,9 @@ export const createPerson = api<CreatePersonRequest, CreatePersonResponse>(
   { auth: true, expose: true, method: "POST", path: "/api/people" },
   async (req) => {
     const auth = getAuthData()!;
-    
+    // Adding people is the admin's job (it had no check at all).
+    requireAdmin(auth);
+
     if (req.service_number) {
       await syncSkillsToDictionary([]);
     }

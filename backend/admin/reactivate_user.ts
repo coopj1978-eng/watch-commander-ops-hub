@@ -1,7 +1,7 @@
 import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
-import { requireRole } from "../auth/rbac";
 import db from "../db";
+import { requireAdmin } from "../auth/admin";
 import { createActivityLog } from "./create_activity_log";
 
 export interface ReactivateUserRequest {
@@ -12,7 +12,7 @@ export const reactivateUser = api(
   { method: "POST", path: "/api/admin/users/:userId/reactivate", expose: true, auth: true },
   async ({ userId }: ReactivateUserRequest): Promise<void> => {
     const auth = getAuthData()!;
-    requireRole(auth, "WC");
+    requireAdmin(auth);
 
     const userRow = await db.rawQueryRow<{ id: string; is_active: boolean }>(
       `SELECT id, is_active FROM users WHERE id = $1`,

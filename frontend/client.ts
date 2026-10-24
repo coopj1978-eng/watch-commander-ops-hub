@@ -549,21 +549,6 @@ export namespace admin {
         hasWC: boolean
     }
 
-    export interface CreateAccountRequest {
-        name: string
-        email: string
-        password: string
-        role: user.UserRole
-        "watch_unit"?: string
-        rank?: string
-    }
-
-    export interface CreateAccountResponse {
-        success: boolean
-        userId: string
-        email: string
-    }
-
     export interface CreateActivityLogRequest {
         "actor_user_id": string
         action: string
@@ -654,7 +639,6 @@ export namespace admin {
             this.bootstrap = this.bootstrap.bind(this)
             this.changeRole = this.changeRole.bind(this)
             this.checkWC = this.checkWC.bind(this)
-            this.createAccount = this.createAccount.bind(this)
             this.createActivityLog = this.createActivityLog.bind(this)
             this.deactivateUser = this.deactivateUser.bind(this)
             this.getActivityLog = this.getActivityLog.bind(this)
@@ -688,12 +672,6 @@ export namespace admin {
             return await resp.json() as CheckWCResponse
         }
 
-        public async createAccount(params: CreateAccountRequest): Promise<CreateAccountResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/admin/create-account`, JSON.stringify(params))
-            return await resp.json() as CreateAccountResponse
-        }
-
         public async createActivityLog(params: CreateActivityLogRequest): Promise<ActivityLog> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("POST", `/admin/activity-log`, JSON.stringify(params))
@@ -725,6 +703,12 @@ export namespace admin {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("POST", `/admin/get-invite-link`, JSON.stringify(params))
             return await resp.json() as GetInviteLinkResponse
+        }
+
+        /** Admin: a one-time link for someone to choose a new password (24 hours). */
+        public async getPasswordResetLink(params: { user_id: string; frontend_url?: string }): Promise<{ reset_link: string; user_name: string }> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/admin/password-reset-link`, JSON.stringify(params))
+            return await resp.json() as { reset_link: string; user_name: string }
         }
 
         public async getReassignmentPreview(userId: string): Promise<ReassignmentPreview> {
@@ -2468,6 +2452,7 @@ export namespace localauth {
 
     export interface ChangePasswordResponse {
         success: boolean
+        token: string
     }
 
     export interface ForgotPasswordRequest {
@@ -2485,15 +2470,6 @@ export namespace localauth {
     }
 
     export interface ResetPasswordResponse {
-        success: boolean
-    }
-
-    export interface ResetUserPasswordRequest {
-        userId: string
-        "new_password": string
-    }
-
-    export interface ResetUserPasswordResponse {
         success: boolean
     }
 
@@ -2516,7 +2492,6 @@ export namespace localauth {
             this.changePassword = this.changePassword.bind(this)
             this.forgotPassword = this.forgotPassword.bind(this)
             this.resetPassword = this.resetPassword.bind(this)
-            this.resetUserPassword = this.resetUserPassword.bind(this)
             this.signIn = this.signIn.bind(this)
             this.signOut = this.signOut.bind(this)
             this.signUp = this.signUp.bind(this)
@@ -2538,12 +2513,6 @@ export namespace localauth {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("POST", `/auth/reset-password`, JSON.stringify(params))
             return await resp.json() as ResetPasswordResponse
-        }
-
-        public async resetUserPassword(params: ResetUserPasswordRequest): Promise<ResetUserPasswordResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/auth/reset-user-password`, JSON.stringify(params))
-            return await resp.json() as ResetUserPasswordResponse
         }
 
         public async signIn(params: SignInRequest): Promise<AuthResponse> {
@@ -4965,6 +4934,7 @@ export namespace user {
         "password_hash"?: string
         "password_reset_token"?: string
         "password_reset_expires"?: string
+        "has_password"?: boolean
         "created_at": string
         "updated_at": string
     }

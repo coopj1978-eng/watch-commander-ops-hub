@@ -1,7 +1,9 @@
 import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import * as bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import db from "../db";
+import { getJwtSecret } from "./auth";
 import type { User } from "../user/types";
 import { rateLimit, resetRateLimit, CHANGE_PASSWORD_LIMIT } from "./rate_limit";
 
@@ -13,6 +15,8 @@ interface ChangePasswordRequest {
 
 interface ChangePasswordResponse {
   success: boolean;
+  /** A fresh login for this device — logins on other devices stop working. */
+  token: string;
 }
 
 export const changePassword = api<ChangePasswordRequest, ChangePasswordResponse>(
@@ -41,61 +45,27 @@ export const changePassword = api<ChangePasswordRequest, ChangePasswordResponse>
       throw APIError.unauthenticated("Current password is incorrect");
     }
 
+    if (req.new_password === req.current_password) {
+      throw APIError.invalidArgument("Choose a different password from your current one");
+    }
+
     const newHash = await bcrypt.hash(req.new_password, 10);
     await db.exec`
-      UPDATE users SET password_hash = ${newHash}, updated_at = NOW()
+      UPDATE users
+      SET password_hash = ${newHash}, password_changed_at = NOW(), updated_at = NOW()
       WHERE id = ${auth.userID}
     `;
 
     // Successful change — clear counter so the user isn't penalised for typos.
     resetRateLimit(limitKey);
 
-    return { success: true };
-  }
-);
-
-// ── WC resets another user's password ────────────────────────────────────────
-interface ResetUserPasswordRequest {
-  userId: string;
-  new_password: string;
-}
-
-interface ResetUserPasswordResponse {
-  success: boolean;
-}
-
-export const resetUserPassword = api<ResetUserPasswordRequest, ResetUserPasswordResponse>(
-  { expose: true, method: "POST", path: "/auth/reset-user-password", auth: true },
-  async (req) => {
-    const auth = getAuthData()!;
-
-    if (auth.role !== "WC") {
-      throw APIError.permissionDenied("Only Watch Commanders can reset passwords");
-    }
-
-    // Rate limit per acting WC — caps how fast a compromised WC token can churn
-    // through resetting other users' passwords. Same limits as change-password.
-    rateLimit(`reset-user-password:wc:${auth.userID}`, CHANGE_PASSWORD_LIMIT);
-
-    if (req.new_password.length < 8) {
-      throw APIError.invalidArgument("Password must be at least 8 characters");
-    }
-
-    const user = await db.queryRow<{ id: string }>`
-      SELECT id FROM users WHERE id = ${req.userId}
-    `;
-
-    if (!user) {
-      throw APIError.notFound("User not found");
-    }
-
-    const newHash = await bcrypt.hash(req.new_password, 10);
-    await db.exec`
-      UPDATE users
-      SET password_hash = ${newHash}, is_active = true, updated_at = NOW()
-      WHERE id = ${req.userId}
-    `;
-
-    return { success: true };
+    // Logins issued before the change stop working (other devices are signed
+    // out); this device gets a fresh one.
+    const token = jwt.sign(
+      { userId: user.id, email: user.email, role: user.role },
+      getJwtSecret(),
+      { expiresIn: "7d" }
+    );
+    return { success: true, token };
   }
 );

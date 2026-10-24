@@ -48,14 +48,24 @@ export const auth = authHandler<AuthParams, AuthData>(async (data) => {
       userId: string;
       email: string;
       role: string;
+      iat?: number;
     };
 
-    let dbUser = await db.queryRow<User>`
+    let dbUser = await db.queryRow<User & { password_changed_at: Date | null }>`
       SELECT * FROM users WHERE id = ${decoded.userId}
     `;
 
     if (!dbUser) {
       throw APIError.unauthenticated("user not found");
+    }
+
+    // A password change or reset signs out logins issued before it.
+    if (
+      dbUser.password_changed_at &&
+      decoded.iat !== undefined &&
+      decoded.iat < Math.floor(new Date(dbUser.password_changed_at).getTime() / 1000)
+    ) {
+      throw APIError.unauthenticated("Your password was changed — please sign in again.");
     }
 
     if (!dbUser.is_active) {

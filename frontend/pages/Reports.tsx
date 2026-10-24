@@ -258,6 +258,8 @@ function ReportCard({ report }: { report: quarterly_report.QuarterlyReportSummar
 export default function Reports() {
   const { toast } = useToast();
   const { user } = useAuth();
+  // Importing staff is user management — the admin only.
+  const isAdmin = user?.is_admin === true;
   const [showNewDialog, setShowNewDialog] = useState(false);
   const [selectedTable, setSelectedTable] = useState("");
   const [csvData, setCsvData] = useState("");
@@ -460,6 +462,7 @@ export default function Reports() {
             </CardContent>
           </Card>
 
+          {isAdmin && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -491,6 +494,7 @@ export default function Reports() {
               </Button>
             </CardContent>
           </Card>
+          )}
         </div>
       )}
 

@@ -15,6 +15,9 @@ export interface User {
   password_hash?: string;
   password_reset_token?: string;
   password_reset_expires?: Date;
+  password_changed_at?: Date;
+  /** Has set up their login (chosen a password). Derived — never the hash. */
+  has_password?: boolean;
   created_at: Date;
   updated_at: Date;
 }
@@ -22,7 +25,7 @@ export interface User {
 /** Strip credential columns before a user row leaves the API. */
 export function toPublicUser<T extends User>(user: T): T {
   const { password_hash, password_reset_token, password_reset_expires, ...rest } = user;
-  return rest as T;
+  return { ...rest, has_password: !!password_hash } as T;
 }
 
 export interface CreateUserRequest {

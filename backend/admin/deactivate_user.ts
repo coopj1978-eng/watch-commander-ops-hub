@@ -1,7 +1,7 @@
 import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
-import { requireRole } from "../auth/rbac";
 import db from "../db";
+import { requireAdmin } from "../auth/admin";
 import { createActivityLog } from "./create_activity_log";
 
 export interface DeactivateUserRequest {
@@ -14,7 +14,7 @@ export const deactivateUser = api(
   { method: "POST", path: "/api/admin/users/:userId/deactivate", expose: true, auth: true },
   async ({ userId, deactivationDate, reason }: DeactivateUserRequest): Promise<void> => {
     const auth = getAuthData()!;
-    requireRole(auth, "WC");
+    requireAdmin(auth);
 
     if (userId === auth.userID) {
       throw APIError.invalidArgument("Cannot deactivate your own account");

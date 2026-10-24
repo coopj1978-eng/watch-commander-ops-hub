@@ -16,10 +16,10 @@ export const update = api<UpdateUserParams, User>(
     const isWC = auth.role === "WC";
     const isSelf = auth.userID === id;
 
-    // Role or email changes enable account takeover, so they're WC-only,
-    // and a WC can't change their own role (avoids locking the watch out).
-    if ((updates.role !== undefined || updates.email !== undefined) && !isWC) {
-      throw APIError.permissionDenied("Only a Watch Commander can change role or email");
+    // Role or email changes enable account takeover, so they're admin-only,
+    // and nobody can change their own role (avoids locking everyone out).
+    if ((updates.role !== undefined || updates.email !== undefined) && !auth.isAdmin) {
+      throw APIError.permissionDenied("Only the admin can change someone's role or email");
     }
     if (updates.role !== undefined && isSelf) {
       throw APIError.permissionDenied("You can't change your own role");

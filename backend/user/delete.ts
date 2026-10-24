@@ -2,7 +2,7 @@ import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { logActivity } from "../logging/logger";
-import { requirePermission, Permission } from "../auth/rbac";
+import { requireAdmin } from "../auth/admin";
 
 interface DeleteUserRequest {
   id: string;
@@ -12,7 +12,7 @@ export const deleteUser = api<DeleteUserRequest, void>(
   { auth: true, expose: true, method: "DELETE", path: "/users/:id" },
   async ({ id }) => {
     const auth = getAuthData()!;
-    requirePermission(auth, Permission.MANAGE_ALL_USERS);
+    requireAdmin(auth);
 
     // Prevent deleting yourself
     if (id === auth.userID) {

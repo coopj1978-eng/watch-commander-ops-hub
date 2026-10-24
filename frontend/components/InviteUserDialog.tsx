@@ -1,9 +1,9 @@
 import { useState } from "react";
 import backend from "@/lib/backend";
-import type { UserRole } from "~backend/user/types";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -19,18 +19,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
-import { CheckCircle, Copy, Eye, EyeOff, RefreshCw } from "lucide-react";
+import { CheckCircle, Copy } from "lucide-react";
 
 const WATCHES = ["Red", "White", "Blue", "Green", "Amber"];
 const RANKS = ["Firefighter", "Leading Firefighter", "Crew Commander", "Watch Commander"];
-
-function generatePassword(): string {
-  const words = ["Fire", "Station", "Watch", "Shift", "Engine", "Crew", "Pump", "Ladder"];
-  const w = words[Math.floor(Math.random() * words.length)];
-  const n = Math.floor(Math.random() * 900) + 100;
-  const sym = ["!", "@", "#", "$"][Math.floor(Math.random() * 4)];
-  return `${w}${n}${sym}`;
-}
 
 interface InviteUserDialogProps {
   open: boolean;
@@ -38,57 +30,55 @@ interface InviteUserDialogProps {
   onSuccess: () => void;
 }
 
+// Admin: add someone and get their invite link. They count on their watch
+// straight away; the link (one-time, 14 days) lets them choose their own
+// password — the admin never sets or sees it.
 export function InviteUserDialog({ open, onClose, onSuccess }: InviteUserDialogProps) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState<UserRole>("FF");
+  const [rank, setRank] = useState("Firefighter");
   const [watchUnit, setWatchUnit] = useState("");
-  const [rank, setRank] = useState("");
-  const [password, setPassword] = useState(() => generatePassword());
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [created, setCreated] = useState(false);
+  const [inviteLink, setInviteLink] = useState("");
   const { toast } = useToast();
 
   const handleClose = () => {
-    setName(""); setEmail(""); setRole("FF"); setWatchUnit("");
-    setRank(""); setPassword(generatePassword());
-    setShowPassword(false); setCreated(false);
+    setName(""); setEmail(""); setRank("Firefighter"); setWatchUnit("");
+    setInviteLink("");
     onClose();
-  };
-
-  const copyToClipboard = (text: string, label: string) => {
-    navigator.clipboard.writeText(text).then(() => {
-      toast({ title: `${label} copied` });
-    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!name.trim() || !email.trim() || !password.trim()) {
-      toast({ variant: "destructive", title: "Error", description: "Name, email and password are required" });
+    if (!name.trim() || !email.trim() || !watchUnit) {
+      toast({ variant: "destructive", title: "Name, email and watch are required" });
       return;
     }
-
     setLoading(true);
     try {
-      await (backend.admin as any).createAccount({
+      const cleanEmail = email.trim().toLowerCase();
+      await backend.profile.createPerson({
         name: name.trim(),
-        email: email.trim().toLowerCase(),
-        password,
-        role,
-        watch_unit: watchUnit || undefined,
-        rank: rank || undefined,
+        email: cleanEmail,
+        rank,
+        watch_unit: watchUnit,
       });
-
-      setCreated(true);
+      const invite = await backend.admin.getInviteLink({
+        email: cleanEmail,
+        frontend_url: window.location.origin,
+      });
       onSuccess();
+      if (invite.already_active) {
+        toast({ title: "Already set up", description: `${invite.user_name} already has a login.` });
+        handleClose();
+        return;
+      }
+      setInviteLink(invite.invite_link);
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to create account",
+        title: "Couldn't add them",
+        description: error instanceof Error ? error.message : "Please try again.",
       });
     } finally {
       setLoading(false);
@@ -96,155 +86,75 @@ export function InviteUserDialog({ open, onClose, onSuccess }: InviteUserDialogP
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); }}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>
-            {created ? "Account Created" : "Add Staff Member"}
-          </DialogTitle>
+          <DialogTitle>{inviteLink ? `Invite ${name}` : "Add Staff Member"}</DialogTitle>
+          {inviteLink && (
+            <DialogDescription>
+              {name} is now on {watchUnit} Watch. Send them this link — they choose their own password. It works once, for 14 days.
+            </DialogDescription>
+          )}
         </DialogHeader>
 
-        {created ? (
-          /* ── Success screen — show credentials to hand to new member ── */
-          <div className="space-y-4 py-2">
+        {inviteLink ? (
+          <div className="space-y-4 py-1">
             <div className="flex items-center gap-2 text-green-600">
               <CheckCircle className="h-5 w-5" />
-              <p className="text-sm font-medium">Account created for {name}</p>
+              <p className="text-sm font-medium">Added {name}</p>
             </div>
-
-            <p className="text-sm text-muted-foreground">
-              Share these login details with the new team member. They can change their password from Settings after first login.
+            <div className="flex items-center gap-2">
+              <Input readOnly value={inviteLink} className="flex-1 text-xs font-mono" />
+              <Button
+                size="sm"
+                onClick={() => {
+                  navigator.clipboard.writeText(inviteLink);
+                  toast({ title: "Invite link copied" });
+                }}
+              >
+                <Copy className="h-4 w-4" />
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Share it privately (WhatsApp, Teams, email) — anyone with the link can set the password.
             </p>
-
-            <div className="rounded-xl border border-border bg-muted/40 divide-y divide-border">
-              <div className="flex items-center justify-between px-4 py-3">
-                <div>
-                  <p className="text-xs text-muted-foreground mb-0.5">Email</p>
-                  <p className="text-sm font-mono font-medium">{email}</p>
-                </div>
-                <button onClick={() => copyToClipboard(email, "Email")} className="p-1.5 rounded-lg hover:bg-background transition-colors text-muted-foreground hover:text-foreground">
-                  <Copy className="h-4 w-4" />
-                </button>
-              </div>
-              <div className="flex items-center justify-between px-4 py-3">
-                <div>
-                  <p className="text-xs text-muted-foreground mb-0.5">Temporary password</p>
-                  <p className="text-sm font-mono font-medium">{password}</p>
-                </div>
-                <button onClick={() => copyToClipboard(password, "Password")} className="p-1.5 rounded-lg hover:bg-background transition-colors text-muted-foreground hover:text-foreground">
-                  <Copy className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-
             <DialogFooter>
-              <Button onClick={handleClose} className="w-full bg-indigo-600 hover:bg-indigo-700">Done</Button>
+              <Button onClick={handleClose}>Done</Button>
             </DialogFooter>
           </div>
         ) : (
-          /* ── Create form ── */
-          <form onSubmit={handleSubmit} className="space-y-4 py-2">
+          <form onSubmit={handleSubmit} className="space-y-4 py-1">
+            <div className="space-y-1.5">
+              <Label htmlFor="iu-name">Full name</Label>
+              <Input id="iu-name" value={name} onChange={(e) => setName(e.target.value)} required />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="iu-email">Email</Label>
+              <Input id="iu-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            </div>
             <div className="grid grid-cols-2 gap-3">
-              {/* Name */}
-              <div className="col-span-2">
-                <Label htmlFor="name">Full Name</Label>
-                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. James Robertson" className="mt-1" required />
-              </div>
-
-              {/* Email */}
-              <div className="col-span-2">
-                <Label htmlFor="email">Email Address</Label>
-                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="james@firescotland.gov.uk" className="mt-1" required />
-              </div>
-
-              {/* Role */}
-              <div>
-                <Label>Role</Label>
-                <Select value={role} onValueChange={(v) => setRole(v as UserRole)}>
-                  <SelectTrigger className="mt-1">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="WC">Watch Commander</SelectItem>
-                    <SelectItem value="CC">Crew Commander</SelectItem>
-                    <SelectItem value="FF">Firefighter</SelectItem>
-                    <SelectItem value="RO">Read Only</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Watch */}
-              <div>
-                <Label>Watch</Label>
-                <Select value={watchUnit} onValueChange={setWatchUnit}>
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select…" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {WATCHES.map((w) => (
-                      <SelectItem key={w} value={w}>{w}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Rank */}
-              <div className="col-span-2">
+              <div className="space-y-1.5">
                 <Label>Rank</Label>
                 <Select value={rank} onValueChange={setRank}>
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select rank…" />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {RANKS.map((r) => (
-                      <SelectItem key={r} value={r}>{r}</SelectItem>
-                    ))}
+                    {RANKS.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
-
-              {/* Temporary password */}
-              <div className="col-span-2">
-                <Label htmlFor="password">Temporary Password</Label>
-                <div className="flex gap-2 mt-1">
-                  <div className="relative flex-1">
-                    <Input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="pr-9 font-mono"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setPassword(generatePassword())}
-                    title="Generate new password"
-                  >
-                    <RefreshCw className="h-4 w-4" />
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  You'll see the full credentials to share after creating the account.
-                </p>
+              <div className="space-y-1.5">
+                <Label>Watch</Label>
+                <Select value={watchUnit} onValueChange={setWatchUnit}>
+                  <SelectTrigger><SelectValue placeholder="Choose…" /></SelectTrigger>
+                  <SelectContent>
+                    {WATCHES.map((w) => <SelectItem key={w} value={w}>{w}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-
-            <DialogFooter className="pt-2">
-              <Button type="button" variant="outline" onClick={handleClose}>Cancel</Button>
-              <Button type="submit" disabled={loading} className="bg-indigo-600 hover:bg-indigo-700">
-                {loading ? "Creating…" : "Create Account"}
-              </Button>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={handleClose} disabled={loading}>Cancel</Button>
+              <Button type="submit" disabled={loading}>{loading ? "Adding…" : "Add and get invite link"}</Button>
             </DialogFooter>
           </form>
         )}

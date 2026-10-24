@@ -31,9 +31,10 @@ export function useCanEditProfiles() {
   return role === "WC" || role === "CC";
 }
 
+/** Adding people (and other user management) is the admin's job. */
 export function useCanCreatePerson() {
-  const role = useUserRole();
-  return role === "WC";
+  const { user } = useAuth();
+  return user?.is_admin === true;
 }
 
 export function useIsWC() {

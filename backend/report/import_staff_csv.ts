@@ -1,6 +1,7 @@
 import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
+import { requireAdmin } from "../auth/admin";
 import { logActivity } from "../logging/logger";
 
 interface ImportStaffCsvRequest {
@@ -18,9 +19,7 @@ export const importStaffCsv = api<ImportStaffCsvRequest, ImportStaffCsvResponse>
   { auth: true, expose: true, method: "POST", path: "/reports/import-staff" },
   async ({ csv_data }) => {
     const auth = getAuthData()!;
-    if (auth.role !== "WC") {
-      throw APIError.permissionDenied("Only a Watch Commander can import staff");
-    }
+    requireAdmin(auth);
     const lines = csv_data.trim().split("\n");
     if (lines.length < 2) {
       throw APIError.invalidArgument("CSV must have at least a header and one data row");

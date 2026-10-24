@@ -1,7 +1,7 @@
 import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
-import { requireRole } from "../auth/rbac";
 import db from "../db";
+import { requireAdmin } from "../auth/admin";
 import { createActivityLog } from "./create_activity_log";
 
 export interface AssetReassignment {
@@ -26,7 +26,7 @@ export const getReassignmentPreview = api(
   { method: "GET", path: "/api/admin/reassign/:userId/preview", expose: true, auth: true },
   async ({ userId }: { userId: string }): Promise<ReassignmentPreview> => {
     const auth = getAuthData()!;
-    requireRole(auth, "WC");
+    requireAdmin(auth);
 
     const taskCount = await db.rawQueryRow<{ count: number }>(
       `SELECT COUNT(*) as count FROM tasks WHERE assigned_to_user_id = $1 AND status != 'Done'`,
@@ -55,7 +55,7 @@ export const reassignAssets = api(
   { method: "POST", path: "/api/admin/reassign", expose: true, auth: true },
   async ({ userId, replacementUserId, assets }: ReassignAssetsRequest): Promise<void> => {
     const auth = getAuthData()!;
-    requireRole(auth, "WC");
+    requireAdmin(auth);
 
     const userRow = await db.rawQueryRow<{ id: string }>(
       `SELECT id FROM users WHERE id = $1`,

@@ -1,6 +1,7 @@
 import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
+import { requireAdmin } from "../auth/admin";
 import { logActivity } from "../logging/logger";
 import { toPublicUser, type CreateUserRequest, type User } from "./types";
 
@@ -10,9 +11,7 @@ export const create = api<CreateUserRequest, User>(
     const auth = getAuthData()!;
 
     // Only Watch Commanders can create user accounts
-    if (auth.role !== "WC") {
-      throw APIError.permissionDenied("Only Watch Commanders can create user accounts");
-    }
+    requireAdmin(auth);
     
     const existingUser = await db.queryRow<User>`
       SELECT * FROM users WHERE LOWER(email) = LOWER(${req.email})

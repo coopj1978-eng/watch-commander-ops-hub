@@ -1,6 +1,7 @@
 import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
+import { requireAdmin } from "../auth/admin";
 import { logActivity } from "../logging/logger";
 
 /**
@@ -129,9 +130,7 @@ export const importNotionPersonnel = api<ImportRequest, ImportResult>(
     const auth = getAuthData()!;
 
     // Only WC can import
-    if (auth.role !== "WC") {
-      throw APIError.permissionDenied("Only Watch Commanders can import personnel");
-    }
+    requireAdmin(auth);
 
     const result: ImportResult = {
       total: req.personnel.length,

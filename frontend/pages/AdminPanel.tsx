@@ -23,6 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AdminUsers } from "./AdminUsers";
+import { useIsAdmin } from "@/lib/rbac";
 import { useFeatureFlags, type FeatureFlags } from "@/lib/feature-flags";
 import { useToast } from "@/components/ui/use-toast";
 import {
@@ -65,6 +66,7 @@ const FEATURE_CONFIG: {
 
 export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState("features");
+  const isAdmin = useIsAdmin();
 
   return (
     <div className="p-4 md:p-8 space-y-6">
@@ -79,7 +81,8 @@ export default function AdminPanel() {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="features">Feature Management</TabsTrigger>
-          <TabsTrigger value="users">Users</TabsTrigger>
+          {/* Adding, removing and inviting people is the admin's job. */}
+          {isAdmin && <TabsTrigger value="users">Users</TabsTrigger>}
           <TabsTrigger value="activity">Activity Log</TabsTrigger>
         </TabsList>
 
@@ -87,9 +90,11 @@ export default function AdminPanel() {
           <FeatureManagementTab />
         </TabsContent>
 
-        <TabsContent value="users" className="mt-6">
-          <AdminUsers />
-        </TabsContent>
+        {isAdmin && (
+          <TabsContent value="users" className="mt-6">
+            <AdminUsers />
+          </TabsContent>
+        )}
 
         <TabsContent value="activity" className="mt-6">
           <ActivityLogTab />

@@ -1,7 +1,7 @@
 import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
-import { requireRole } from "../auth/rbac";
 import db from "../db";
+import { requireAdmin } from "../auth/admin";
 import type { UserRole } from "../user/types";
 import { createActivityLog } from "./create_activity_log";
 
@@ -14,7 +14,7 @@ export const changeRole = api(
   { method: "PUT", path: "/api/admin/users/:userId/role", expose: true, auth: true },
   async ({ userId, newRole }: ChangeRoleRequest): Promise<void> => {
     const auth = getAuthData()!;
-    requireRole(auth, "WC");
+    requireAdmin(auth);
 
     const userRow = await db.rawQueryRow<{ id: string; role: string; is_active: boolean }>(
       `SELECT id, role, is_active FROM users WHERE id = $1`,

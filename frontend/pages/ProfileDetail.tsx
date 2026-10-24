@@ -83,7 +83,7 @@ import {
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
-import { useCanEditProfiles, useIsWC, useUserRole } from "@/lib/rbac";
+import { useCanEditProfiles, useIsAdmin, useIsWC, useUserRole } from "@/lib/rbac";
 import { useAuth } from "@/App";
 import H4HLedgerSection from "@/components/H4HLedgerSection";
 import { ProfileToilSection } from "@/components/ProfileToilSection";
@@ -108,8 +108,9 @@ export default function ProfileDetail() {
   const [showInviteDialog, setShowInviteDialog] = useState(false);
   const [inviteLink, setInviteLink] = useState("");
   const [showResetDialog, setShowResetDialog] = useState(false);
-  const [resetPassword, setResetPassword] = useState("");
-  const [resetting, setResetting] = useState(false);
+  const [resetLink, setResetLink] = useState("");
+  // Inviting people and sending reset links is the admin's job.
+  const isAdmin = useIsAdmin();
 
   const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ["user", userId],
@@ -522,7 +523,7 @@ export default function ProfileDetail() {
         </div>
         {(canEdit || (userRole === "FF" && isViewingOwnProfile)) && (
           <div className="flex gap-2">
-            {!user?.is_active && isWC && user && (
+            {isAdmin && user && !isViewingOwnProfile && !user.has_password && (
               <Button 
                 variant="outline"
                 onClick={async () => {
@@ -555,22 +556,31 @@ export default function ProfileDetail() {
                 Send Invite Link
               </Button>
             )}
-            {/* Reset password — WC only, for any other user */}
-            {isWC && user && !isViewingOwnProfile && (
+            {/* Forgotten password — the admin sends a one-time link; they
+                choose the new password themselves (the admin never sees it). */}
+            {isAdmin && user && !isViewingOwnProfile && user.has_password && (
               <Button
                 variant="outline"
-                onClick={() => {
-                  const words = ["Fire","Watch","Shift","Crew","Engine","Pump"];
-                  const w = words[Math.floor(Math.random() * words.length)];
-                  const n = Math.floor(Math.random() * 900) + 100;
-                  const s = ["!","@","#","$"][Math.floor(Math.random() * 4)];
-                  setResetPassword(`${w}${n}${s}`);
-                  setShowResetDialog(true);
+                onClick={async () => {
+                  try {
+                    const result = await backend.admin.getPasswordResetLink({
+                      user_id: user.id,
+                      frontend_url: window.location.origin,
+                    });
+                    setResetLink(result.reset_link);
+                    setShowResetDialog(true);
+                  } catch (error: any) {
+                    toast({
+                      title: "Couldn't create a reset link",
+                      description: error?.message || "Please try again.",
+                      variant: "destructive",
+                    });
+                  }
                 }}
                 className="border-orange-400 text-orange-600 hover:bg-orange-50"
               >
                 <KeyRound className="h-4 w-4 mr-2" />
-                Reset Password
+                Send Password Reset Link
               </Button>
             )}
             {editMode ? (
@@ -1471,74 +1481,33 @@ export default function ProfileDetail() {
         </DialogContent>
       </Dialog>
 
-      {/* ── Reset Password Dialog ───────────────────────────────────────── */}
+      {/* ── Password reset link dialog ──────────────────────────────────── */}
       <Dialog open={showResetDialog} onOpenChange={setShowResetDialog}>
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Reset Password — {user?.name}</DialogTitle>
+            <DialogTitle>Password reset link — {user?.name}</DialogTitle>
             <DialogDescription>
-              A new temporary password has been generated. Share it with {user?.name} and ask them to change it after signing in.
+              Send this to {user?.name} only. They open it, choose a new password, and sign in. It works once, for 24 hours; their old logins stop working once they've changed it.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            {/* Temp password display */}
-            <div className="rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 flex items-center justify-between gap-3">
-              <span className="font-mono text-lg font-semibold text-orange-800 tracking-wide">{resetPassword}</span>
-              <div className="flex gap-1.5">
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="h-8 w-8 text-orange-600 hover:text-orange-800 hover:bg-orange-100"
-                  title="Generate new password"
-                  onClick={() => {
-                    const words = ["Fire","Watch","Shift","Crew","Engine","Pump"];
-                    const w = words[Math.floor(Math.random() * words.length)];
-                    const n = Math.floor(Math.random() * 900) + 100;
-                    const s = ["!","@","#","$"][Math.floor(Math.random() * 4)];
-                    setResetPassword(`${w}${n}${s}`);
-                  }}
-                >
-                  <RefreshCw className="h-4 w-4" />
-                </Button>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="h-8 w-8 text-orange-600 hover:text-orange-800 hover:bg-orange-100"
-                  title="Copy to clipboard"
-                  onClick={() => {
-                    navigator.clipboard.writeText(resetPassword);
-                    toast({ title: "Copied!", description: "Temporary password copied" });
-                  }}
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowResetDialog(false)}>Cancel</Button>
+            <div className="flex items-center gap-2">
+              <Input readOnly value={resetLink} className="flex-1 text-xs font-mono" />
               <Button
-                className="bg-orange-500 hover:bg-orange-600 text-white"
-                disabled={resetting}
-                onClick={async () => {
-                  if (!user) return;
-                  setResetting(true);
-                  try {
-                    await backendClient.localauth.resetUserPassword({
-                      userId: user.id,
-                      new_password: resetPassword,
-                    });
-                    toast({ title: "Password reset", description: `New password set for ${user.name}. Share it with them now.` });
-                    setShowResetDialog(false);
-                  } catch (err: any) {
-                    toast({ title: "Error", description: err?.message || "Failed to reset password", variant: "destructive" });
-                  } finally {
-                    setResetting(false);
-                  }
+                size="sm"
+                onClick={() => {
+                  navigator.clipboard.writeText(resetLink);
+                  toast({ title: "Copied!", description: "Reset link copied to clipboard" });
                 }}
               >
-                {resetting ? "Resetting…" : "Set this password"}
+                <Copy className="h-4 w-4" />
               </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Share it privately (WhatsApp, Teams, email) — anyone with the link can set the password.
+            </p>
+            <div className="flex justify-end">
+              <Button variant="outline" onClick={() => setShowResetDialog(false)}>Close</Button>
             </div>
           </div>
         </DialogContent>

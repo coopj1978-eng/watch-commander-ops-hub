@@ -49,6 +49,7 @@ export const resetPassword = api<ResetPasswordRequest, ResetPasswordResponse>(
       UPDATE users
       SET password_hash = ${passwordHash},
           is_active = true,
+          password_changed_at = NOW(),
           password_reset_token = NULL,
           password_reset_expires = NULL,
           updated_at = NOW()

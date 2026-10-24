@@ -1,6 +1,6 @@
+import { requireAdmin } from "../auth/admin";
 import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
-import { requireRole } from "../auth/rbac";
 import { createClerkClient } from "@clerk/backend";
 import { secret } from "encore.dev/config";
 import type { UserRole } from "../user/types";
@@ -25,7 +25,7 @@ export const inviteUser = api(
   { method: "POST", path: "/api/admin/invite", expose: true, auth: true },
   async ({ email, role, name }: InviteUserRequest): Promise<InviteUserResponse> => {
     const auth = getAuthData()!;
-    requireRole(auth, "WC");
+    requireAdmin(auth);
 
     try {
       const invitation = await clerkClient.invitations.createInvitation({

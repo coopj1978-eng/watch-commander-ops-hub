@@ -14,7 +14,7 @@ import {
 
 const jwtSecretRef = secret("JWTSecret");
 
-function getJwtSecret(): string {
+export function getJwtSecret(): string {
   try {
     const val = jwtSecretRef();
     if (val) return val;

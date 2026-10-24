@@ -26,6 +26,7 @@ import ThemeSwitcher from "./ThemeSwitcher";
 import type { notification } from "@/client";
 import { latestAbsencePerPerson, useTodaysAbsences } from "@/lib/absences";
 import { shiftDisplay } from "@/lib/shiftRota";
+import { ChangePasswordDialog } from "@/components/ChangePasswordDialog";
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Route registry for breadcrumb + jump-to-page search. Kept in sync with
@@ -279,6 +280,7 @@ function JumpSearch() {
 
 export default function TopBar({ onMenuClick }: TopBarProps) {
   const { user, signOut } = useAuth();
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const location = useLocation();
@@ -576,12 +578,19 @@ export default function TopBar({ onMenuClick }: TopBarProps) {
             <DropdownMenuContent align="end">
               <button
                 className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground w-full text-left"
+                onClick={() => setChangePasswordOpen(true)}
+              >
+                Change password
+              </button>
+              <button
+                className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground w-full text-left"
                 onClick={signOut}
               >
                 Sign Out
               </button>
             </DropdownMenuContent>
           </DropdownMenu>
+          <ChangePasswordDialog open={changePasswordOpen} onOpenChange={setChangePasswordOpen} />
         </div>
       </div>
     </header>
