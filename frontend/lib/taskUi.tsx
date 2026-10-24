@@ -1,5 +1,6 @@
 import { AlertCircle, Calendar, CheckCircle2, Clock, Repeat } from "lucide-react";
 import type { Task } from "~backend/task/types";
+import { getLabelById } from "@/lib/taskLabels";
 
 // Shared bits for the Tasks pages in the v2 design (the --cal-* tokens in
 // index.css): token-coloured chips for due date, priority and recurrence.
@@ -19,9 +20,9 @@ export function Chip({
       title={title}
       className={mono ? "cal-mono" : undefined}
       style={{
-        display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 8px", borderRadius: 999,
+        display: "inline-flex", alignItems: "center", gap: 4, height: 22, padding: "0 8px", borderRadius: 7,
         fontSize: 11, fontWeight: 600, whiteSpace: "nowrap",
-        background: k === "muted" ? "var(--cal-surface-3)" : `var(--cal-${k}-bg)`,
+        background: k === "muted" ? "var(--cal-surface-2)" : `var(--cal-${k}-bg)`,
         color: k === "muted" ? "var(--cal-ink-2)" : `var(--cal-${k}-fg)`,
       }}
     >
@@ -43,7 +44,7 @@ export function DueChip({ task }: { task: Task }) {
   const ic = "h-3 w-3";
   if (task.status === "Done") return <Chip k="leave" icon={<CheckCircle2 className={ic} />}>Completed</Chip>;
   if (diff < 0) return <Chip k="station" icon={<AlertCircle className={ic} />}>Overdue {Math.abs(diff)}d</Chip>;
-  if (diff === 0) return <Chip k="insp" icon={<Clock className={ic} />}>Due today</Chip>;
+  if (diff === 0) return <Chip k="day" icon={<Clock className={ic} />}>Due today</Chip>;
   if (diff <= 3) return <Chip k="day" icon={<Clock className={ic} />}>Due in {diff}d</Chip>;
   return (
     <Chip k="muted" icon={<Calendar className={ic} />} mono>
@@ -53,7 +54,7 @@ export function DueChip({ task }: { task: Task }) {
 }
 
 /** Priority → token family: High red, Medium amber, Low blue. */
-export const priorityKey = (p?: string) => (p === "High" ? "station" : p === "Med" ? "day" : "tasks");
+export const priorityKey = (p?: string) => (p === "High" ? "station" : p === "Med" ? "day" : "watch");
 export const priorityLabel = (p?: string) => (p === "Med" ? "Medium" : p ?? "Medium");
 
 export function PriorityChip({ priority }: { priority?: string }) {
@@ -96,10 +97,50 @@ export function ChecklistBar({ task }: { task: Task }) {
   const total = task.checklist.length;
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-      <div style={{ flex: 1, height: 6, borderRadius: 999, background: "var(--cal-surface-3)", overflow: "hidden" }}>
-        <div style={{ height: "100%", width: `${Math.round((done / total) * 100)}%`, background: done === total ? "var(--cal-leave-dot)" : "var(--cal-brand)", borderRadius: 999 }} />
+      <div style={{ flex: 1, height: 6, borderRadius: 3, background: "var(--cal-surface-3)", overflow: "hidden" }}>
+        <div style={{ height: "100%", width: `${Math.round((done / total) * 100)}%`, background: done === total ? "var(--cal-leave-dot)" : "var(--cal-brand)", borderRadius: 3 }} />
       </div>
-      <span className="cal-mono" style={{ fontSize: 11, color: "var(--cal-muted)" }}>{done}/{total}</span>
+      <span className="cal-mono" style={{ fontSize: 11, color: "var(--cal-ink-2)" }}>{done}/{total}</span>
     </div>
+  );
+}
+
+/** A label as a tinted tag with its colour dot (Urgent, Routine…). */
+export function LabelTag({ id }: { id: string }) {
+  const label = getLabelById(id);
+  if (!label) return null;
+  return (
+    <span
+      style={{
+        display: "inline-flex", alignItems: "center", gap: 5, height: 22, padding: "0 8px", borderRadius: 7,
+        fontSize: 11, fontWeight: 600, whiteSpace: "nowrap",
+        background: `var(--lb-${label.id}-bg)`, color: `var(--lb-${label.id}-fg)`,
+      }}
+    >
+      <span style={{ width: 6, height: 6, borderRadius: "50%", background: label.colour }} />
+      {label.name}
+    </span>
+  );
+}
+
+const PEOPLE = ["indigo", "teal", "rose", "amber", "slate"];
+
+/** Someone's initials in a tinted rounded square; the tint is fixed per person. */
+export function Initials({ userId, initials, size = 26 }: { userId: string; initials: string; size?: number }) {
+  let hash = 0;
+  for (let i = 0; i < userId.length; i++) hash = userId.charCodeAt(i) + ((hash << 5) - hash);
+  const k = PEOPLE[Math.abs(hash) % PEOPLE.length];
+  return (
+    <span
+      title={initials}
+      aria-label={`Assigned to ${initials}`}
+      className="cal-mono"
+      style={{
+        width: size, height: size, borderRadius: 8, flex: "none", display: "grid", placeItems: "center",
+        fontSize: 10.5, fontWeight: 600, background: `var(--pp-${k}-bg)`, color: `var(--pp-${k}-fg)`,
+      }}
+    >
+      {initials}
+    </span>
   );
 }

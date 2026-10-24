@@ -275,28 +275,31 @@ export default function Tasks() {
               <Palette className="h-[18px] w-[18px]" />
             </button>
             {showBgPicker && (
-              <div className="cal-card" style={{ position: "absolute", right: 0, top: 52, zIndex: 50, width: 288, padding: 16, boxShadow: "var(--cal-pop)" }}>
+              <div role="dialog" aria-label="Board background" className="cal-card" style={{ position: "absolute", right: 0, top: 52, zIndex: 50, width: 340, maxWidth: "calc(100vw - 32px)", padding: 16, boxShadow: "var(--cal-pop)" }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
                   <span style={{ fontSize: 14, fontWeight: 600 }}>Board background</span>
                   <button type="button" aria-label="Close" onClick={() => setShowBgPicker(false)} className="cal-btn" style={{ width: 32, height: 32, padding: 0, borderRadius: 10 }}>
                     <XIcon className="h-4 w-4" />
                   </button>
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 10 }}>
                   {BOARD_BACKGROUNDS.map((b) => (
                     <button
                       key={b.id}
                       type="button"
                       onClick={() => handleBgChange(b.id)}
-                      title={b.name}
-                      aria-label={b.name}
                       aria-pressed={bgId === b.id}
                       className="cal-focus"
-                      style={{
-                        height: 44, borderRadius: 12, cursor: "pointer", background: b.style.replace("background: ", ""),
-                        border: bgId === b.id ? "2px solid var(--cal-brand)" : "2px solid transparent",
-                      }}
-                    />
+                      style={{ border: "none", background: "transparent", padding: 0, font: "inherit", display: "flex", flexDirection: "column", gap: 4, cursor: "pointer", borderRadius: 12 }}
+                    >
+                      <span
+                        style={{
+                          display: "block", height: 44, borderRadius: 12, background: b.style.replace("background: ", ""),
+                          boxShadow: bgId === b.id ? "0 0 0 2px var(--cal-surface), 0 0 0 4px var(--cal-brand)" : "inset 0 0 0 1px rgba(0,0,0,.06)",
+                        }}
+                      />
+                      <span style={{ fontSize: 11, color: "var(--cal-ink-2)", textAlign: "center", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{b.name}</span>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -407,6 +410,7 @@ export default function Tasks() {
       {/* ── Board / List ────────────────────────────────────────────────────── */}
       {viewMode === "board" ? (
         <TaskBoard
+          tinted={bgId === "default"}
           tasks={filteredTasks}
           isLoading={isLoading}
           onTaskClick={setSelectedTask}

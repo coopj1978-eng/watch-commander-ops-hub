@@ -635,6 +635,17 @@ table.plain tbody tr:last-child td { border-bottom: none; }
   --cal-day-bg: #fbf0d2; --cal-day-fg: #713f12; --cal-day-dot: #ca8a04; --cal-day-shade: rgba(202,138,4,.08);
   --cal-night-bg: #e9e8fb; --cal-night-fg: #312e81; --cal-night-dot: #4338ca; --cal-night-shade: rgba(67,56,202,.07);
   --cal-leave-bg: #e1f5e7; --cal-leave-fg: #14532d; --cal-leave-dot: #16a34a; --cal-leave-shade: rgba(22,163,74,.06);
+  /* Tasks (Claude Design, Oct 2026): board tint, card shadow, label tints
+     (--lb-<label id>) and the five initials colours (--pp-*). */
+  --cal-board: #eceffa; --cal-todo-dot: #64748b;
+  --cal-card-shadow: 0 1px 2px rgba(17,20,39,.05), 0 4px 14px rgba(17,20,39,.05);
+  --lb-urgent-bg: #fde4e4; --lb-urgent-fg: #991b1b; --lb-operational-bg: #ffead6; --lb-operational-fg: #9a3412;
+  --lb-training-bg: #fdf3c4; --lb-training-fg: #713f12; --lb-routine-bg: #dcf7e4; --lb-routine-fg: #166534;
+  --lb-admin-bg: #dde9fe; --lb-admin-fg: #1e40af; --lb-inspection-bg: #f1e4fe; --lb-inspection-fg: #6b21a8;
+  --lb-crewing-bg: #fce3f0; --lb-crewing-fg: #9d174d; --lb-welfare-bg: #d6f5fa; --lb-welfare-fg: #155e75;
+  --pp-indigo-bg: #e0e3fd; --pp-indigo-fg: #3730a3; --pp-teal-bg: #d3f2ee; --pp-teal-fg: #115e59;
+  --pp-rose-bg: #fde2e8; --pp-rose-fg: #9f1239; --pp-amber-bg: #fcedc8; --pp-amber-fg: #7c4a03;
+  --pp-slate-bg: #e3e7ee; --pp-slate-fg: #334155;
 }
 .cal-ui { color: var(--cal-ink); }
 .dark {
@@ -652,6 +663,15 @@ table.plain tbody tr:last-child td { border-bottom: none; }
   --cal-day-bg: rgba(202,138,4,.20); --cal-day-fg: #fde68a; --cal-day-dot: #eab308; --cal-day-shade: rgba(234,179,8,.06);
   --cal-night-bg: rgba(99,102,241,.26); --cal-night-fg: #d4dafe; --cal-night-dot: #818cf8; --cal-night-shade: rgba(99,102,241,.11);
   --cal-leave-bg: rgba(22,163,74,.22); --cal-leave-fg: #bbf7d0; --cal-leave-dot: #4ade80; --cal-leave-shade: rgba(22,163,74,.08);
+  --cal-board: #10132a; --cal-todo-dot: #94a3b8;
+  --cal-card-shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.25);
+  --lb-urgent-bg: rgba(239,68,68,.22); --lb-urgent-fg: #fecaca; --lb-operational-bg: rgba(249,115,22,.22); --lb-operational-fg: #fed7aa;
+  --lb-training-bg: rgba(234,179,8,.22); --lb-training-fg: #fef08a; --lb-routine-bg: rgba(34,197,94,.20); --lb-routine-fg: #bbf7d0;
+  --lb-admin-bg: rgba(59,130,246,.22); --lb-admin-fg: #bfdbfe; --lb-inspection-bg: rgba(168,85,247,.24); --lb-inspection-fg: #e9d5ff;
+  --lb-crewing-bg: rgba(236,72,153,.22); --lb-crewing-fg: #fbcfe8; --lb-welfare-bg: rgba(6,182,212,.20); --lb-welfare-fg: #a5f3fc;
+  --pp-indigo-bg: #2b2f63; --pp-indigo-fg: #d4d8ff; --pp-teal-bg: #123a39; --pp-teal-fg: #a7f3eb;
+  --pp-rose-bg: #43192a; --pp-rose-fg: #fecdd8; --pp-amber-bg: #3d2e10; --pp-amber-fg: #fde3a7;
+  --pp-slate-bg: #2a3142; --pp-slate-fg: #d5dbe6;
 }
 .cal-mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
 .cal-card { background: var(--cal-surface); border: 1px solid var(--cal-line); border-radius: 20px; box-shadow: var(--cal-shadow); }
@@ -674,5 +694,19 @@ table.plain tbody tr:last-child td { border-bottom: none; }
   --muted: var(--cal-surface-2); --muted-foreground: var(--cal-muted);
   --border: var(--cal-line); --input: var(--cal-line-2);
 }
+/* Drop-down menus (Radix) in the v2 style — e.g. the task card ⋯ menu. */
+.cal-menu {
+  min-width: 230px; background: var(--cal-surface); border: 1px solid var(--cal-line); border-radius: 16px;
+  box-shadow: var(--cal-pop); padding: 6px; z-index: 50; color: var(--cal-ink); font-family: var(--font-sans);
+}
+.cal-menu-item {
+  display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 10px;
+  font-size: 14px; cursor: pointer; outline: none; user-select: none;
+}
+.cal-menu-item[data-highlighted], .cal-menu-item[aria-expanded="true"] { background: var(--cal-surface-2); }
+.cal-menu-sub { height: 34px; margin-left: 14px; padding: 0 10px; font-size: 13px; color: var(--cal-ink-2); }
+.cal-menu-sub[data-state="checked"] { color: var(--cal-ink); font-weight: 600; }
+.cal-menu-danger { color: var(--cal-station-fg); font-weight: 600; }
+.cal-menu-sep { height: 1px; background: var(--cal-line); margin: 4px 6px; }
 /* .cal-btn sets display, so Tailwind's md:hidden can't hide it — use this. */
 @media (min-width: 768px) { .cal-phone-only { display: none; } }

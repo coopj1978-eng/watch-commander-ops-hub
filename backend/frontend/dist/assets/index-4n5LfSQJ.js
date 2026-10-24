@@ -19601,12 +19601,25 @@ const createLucideIcon = (iconName, iconNode) => {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1X = [
+const __iconNode$1Y = [
   ["path", { d: "M15 12H3", key: "6jk70r" }],
   ["path", { d: "M17 18H3", key: "1amg6g" }],
   ["path", { d: "M21 6H3", key: "1jwq7v" }]
 ];
-const AlignLeft = createLucideIcon("align-left", __iconNode$1X);
+const AlignLeft = createLucideIcon("align-left", __iconNode$1Y);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1X = [
+  ["path", { d: "M8 3 4 7l4 4", key: "9rb6wj" }],
+  ["path", { d: "M4 7h16", key: "6tx8e3" }],
+  ["path", { d: "m16 21 4-4-4-4", key: "siv7j2" }],
+  ["path", { d: "M20 17H4", key: "h6l3hr" }]
+];
+const ArrowLeftRight = createLucideIcon("arrow-left-right", __iconNode$1X);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19614,12 +19627,10 @@ const AlignLeft = createLucideIcon("align-left", __iconNode$1X);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1W = [
-  ["path", { d: "M8 3 4 7l4 4", key: "9rb6wj" }],
-  ["path", { d: "M4 7h16", key: "6tx8e3" }],
-  ["path", { d: "m16 21 4-4-4-4", key: "siv7j2" }],
-  ["path", { d: "M20 17H4", key: "h6l3hr" }]
+  ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
+  ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowLeftRight = createLucideIcon("arrow-left-right", __iconNode$1W);
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1W);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19627,10 +19638,12 @@ const ArrowLeftRight = createLucideIcon("arrow-left-right", __iconNode$1W);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1V = [
-  ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
-  ["path", { d: "M19 12H5", key: "x3x0zl" }]
+  ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
+  ["path", { d: "M20 7H4", key: "zbl0bi" }],
+  ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
+  ["path", { d: "M4 17h16", key: "g4d7ey" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1V);
+const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1V);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19638,12 +19651,10 @@ const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1V);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1U = [
-  ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
-  ["path", { d: "M20 7H4", key: "zbl0bi" }],
-  ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
-  ["path", { d: "M4 17h16", key: "g4d7ey" }]
+  ["path", { d: "M5 12h14", key: "1ays0h" }],
+  ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1U);
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$1U);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19651,17 +19662,6 @@ const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1U);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1T = [
-  ["path", { d: "M5 12h14", key: "1ays0h" }],
-  ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
-];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$1T);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1S = [
   [
     "path",
     {
@@ -19671,7 +19671,18 @@ const __iconNode$1S = [
   ],
   ["circle", { cx: "12", cy: "8", r: "6", key: "1vp47v" }]
 ];
-const Award = createLucideIcon("award", __iconNode$1S);
+const Award = createLucideIcon("award", __iconNode$1T);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1S = [
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["path", { d: "m4.9 4.9 14.2 14.2", key: "1m5liu" }]
+];
+const Ban = createLucideIcon("ban", __iconNode$1S);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19679,17 +19690,6 @@ const Award = createLucideIcon("award", __iconNode$1S);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1R = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["path", { d: "m4.9 4.9 14.2 14.2", key: "1m5liu" }]
-];
-const Ban = createLucideIcon("ban", __iconNode$1R);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1Q = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -19699,14 +19699,14 @@ const __iconNode$1Q = [
     }
   ]
 ];
-const Bell = createLucideIcon("bell", __iconNode$1Q);
+const Bell = createLucideIcon("bell", __iconNode$1R);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1P = [
+const __iconNode$1Q = [
   ["path", { d: "M12 7v14", key: "1akyts" }],
   [
     "path",
@@ -19716,7 +19716,18 @@ const __iconNode$1P = [
     }
   ]
 ];
-const BookOpen = createLucideIcon("book-open", __iconNode$1P);
+const BookOpen = createLucideIcon("book-open", __iconNode$1Q);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1P = [
+  ["path", { d: "M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16", key: "jecpp" }],
+  ["rect", { width: "20", height: "14", x: "2", y: "6", rx: "2", key: "i6l2r4" }]
+];
+const Briefcase = createLucideIcon("briefcase", __iconNode$1P);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19724,17 +19735,6 @@ const BookOpen = createLucideIcon("book-open", __iconNode$1P);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1O = [
-  ["path", { d: "M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16", key: "jecpp" }],
-  ["rect", { width: "20", height: "14", x: "2", y: "6", rx: "2", key: "i6l2r4" }]
-];
-const Briefcase = createLucideIcon("briefcase", __iconNode$1O);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1N = [
   ["path", { d: "M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z", key: "1b4qmf" }],
   ["path", { d: "M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2", key: "i71pzd" }],
   ["path", { d: "M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2", key: "10jefs" }],
@@ -19743,7 +19743,21 @@ const __iconNode$1N = [
   ["path", { d: "M10 14h4", key: "kelpxr" }],
   ["path", { d: "M10 18h4", key: "1ulq68" }]
 ];
-const Building2 = createLucideIcon("building-2", __iconNode$1N);
+const Building2 = createLucideIcon("building-2", __iconNode$1O);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1N = [
+  ["path", { d: "M8 2v4", key: "1cmpym" }],
+  ["path", { d: "M16 2v4", key: "4m81vk" }],
+  ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
+  ["path", { d: "M3 10h18", key: "8toen8" }],
+  ["path", { d: "m9 16 2 2 4-4", key: "19s6y9" }]
+];
+const CalendarCheck = createLucideIcon("calendar-check", __iconNode$1N);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19751,20 +19765,6 @@ const Building2 = createLucideIcon("building-2", __iconNode$1N);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1M = [
-  ["path", { d: "M8 2v4", key: "1cmpym" }],
-  ["path", { d: "M16 2v4", key: "4m81vk" }],
-  ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
-  ["path", { d: "M3 10h18", key: "8toen8" }],
-  ["path", { d: "m9 16 2 2 4-4", key: "19s6y9" }]
-];
-const CalendarCheck = createLucideIcon("calendar-check", __iconNode$1M);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1L = [
   ["path", { d: "M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5", key: "1osxxc" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["path", { d: "M8 2v4", key: "1cmpym" }],
@@ -19772,14 +19772,14 @@ const __iconNode$1L = [
   ["path", { d: "M17.5 17.5 16 16.3V14", key: "akvzfd" }],
   ["circle", { cx: "16", cy: "16", r: "6", key: "qoo3c4" }]
 ];
-const CalendarClock = createLucideIcon("calendar-clock", __iconNode$1L);
+const CalendarClock = createLucideIcon("calendar-clock", __iconNode$1M);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1K = [
+const __iconNode$1L = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
@@ -19791,7 +19791,22 @@ const __iconNode$1K = [
   ["path", { d: "M12 18h.01", key: "mhygvu" }],
   ["path", { d: "M16 18h.01", key: "kzsmim" }]
 ];
-const CalendarDays = createLucideIcon("calendar-days", __iconNode$1K);
+const CalendarDays = createLucideIcon("calendar-days", __iconNode$1L);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1K = [
+  ["path", { d: "M8 2v4", key: "1cmpym" }],
+  ["path", { d: "M16 2v4", key: "4m81vk" }],
+  ["path", { d: "M21 13V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8", key: "3spt84" }],
+  ["path", { d: "M3 10h18", key: "8toen8" }],
+  ["path", { d: "M16 19h6", key: "xwg31i" }],
+  ["path", { d: "M19 16v6", key: "tddt3s" }]
+];
+const CalendarPlus = createLucideIcon("calendar-plus", __iconNode$1K);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19801,12 +19816,10 @@ const CalendarDays = createLucideIcon("calendar-days", __iconNode$1K);
 const __iconNode$1J = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
-  ["path", { d: "M21 13V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8", key: "3spt84" }],
-  ["path", { d: "M3 10h18", key: "8toen8" }],
-  ["path", { d: "M16 19h6", key: "xwg31i" }],
-  ["path", { d: "M19 16v6", key: "tddt3s" }]
+  ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
+  ["path", { d: "M3 10h18", key: "8toen8" }]
 ];
-const CalendarPlus = createLucideIcon("calendar-plus", __iconNode$1J);
+const Calendar = createLucideIcon("calendar", __iconNode$1J);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19814,19 +19827,6 @@ const CalendarPlus = createLucideIcon("calendar-plus", __iconNode$1J);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1I = [
-  ["path", { d: "M8 2v4", key: "1cmpym" }],
-  ["path", { d: "M16 2v4", key: "4m81vk" }],
-  ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
-  ["path", { d: "M3 10h18", key: "8toen8" }]
-];
-const Calendar = createLucideIcon("calendar", __iconNode$1I);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1H = [
   [
     "path",
     {
@@ -19836,7 +19836,20 @@ const __iconNode$1H = [
   ],
   ["circle", { cx: "12", cy: "13", r: "3", key: "1vg3eu" }]
 ];
-const Camera = createLucideIcon("camera", __iconNode$1H);
+const Camera = createLucideIcon("camera", __iconNode$1I);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1H = [
+  ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
+  ["path", { d: "M18 17V9", key: "2bz60n" }],
+  ["path", { d: "M13 17V5", key: "1frdt8" }],
+  ["path", { d: "M8 17v-3", key: "17ska0" }]
+];
+const ChartColumn = createLucideIcon("chart-column", __iconNode$1H);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19844,12 +19857,11 @@ const Camera = createLucideIcon("camera", __iconNode$1H);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1G = [
-  ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
-  ["path", { d: "M18 17V9", key: "2bz60n" }],
-  ["path", { d: "M13 17V5", key: "1frdt8" }],
-  ["path", { d: "M8 17v-3", key: "17ska0" }]
+  ["line", { x1: "18", x2: "18", y1: "20", y2: "10", key: "1xfpm4" }],
+  ["line", { x1: "12", x2: "12", y1: "20", y2: "4", key: "be30l9" }],
+  ["line", { x1: "6", x2: "6", y1: "20", y2: "14", key: "1r4le6" }]
 ];
-const ChartColumn = createLucideIcon("chart-column", __iconNode$1G);
+const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1G);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19857,62 +19869,61 @@ const ChartColumn = createLucideIcon("chart-column", __iconNode$1G);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1F = [
-  ["line", { x1: "18", x2: "18", y1: "20", y2: "10", key: "1xfpm4" }],
-  ["line", { x1: "12", x2: "12", y1: "20", y2: "4", key: "be30l9" }],
-  ["line", { x1: "6", x2: "6", y1: "20", y2: "14", key: "1r4le6" }]
-];
-const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1F);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1E = [
   ["path", { d: "M18 6 7 17l-5-5", key: "116fxf" }],
   ["path", { d: "m22 10-7.5 7.5L13 16", key: "ke71qq" }]
 ];
-const CheckCheck = createLucideIcon("check-check", __iconNode$1E);
+const CheckCheck = createLucideIcon("check-check", __iconNode$1F);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1D = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$1D);
+const __iconNode$1E = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$1E);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1C = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-const ChevronDown = createLucideIcon("chevron-down", __iconNode$1C);
+const __iconNode$1D = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+const ChevronDown = createLucideIcon("chevron-down", __iconNode$1D);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1B = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
-const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1B);
+const __iconNode$1C = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
+const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1C);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1A = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$1A);
+const __iconNode$1B = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$1B);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1z = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
-const ChevronUp = createLucideIcon("chevron-up", __iconNode$1z);
+const __iconNode$1A = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
+const ChevronUp = createLucideIcon("chevron-up", __iconNode$1A);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1z = [
+  ["path", { d: "m11 17-5-5 5-5", key: "13zhaf" }],
+  ["path", { d: "m18 17-5-5 5-5", key: "h8a8et" }]
+];
+const ChevronsLeft = createLucideIcon("chevrons-left", __iconNode$1z);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19920,10 +19931,10 @@ const ChevronUp = createLucideIcon("chevron-up", __iconNode$1z);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1y = [
-  ["path", { d: "m11 17-5-5 5-5", key: "13zhaf" }],
-  ["path", { d: "m18 17-5-5 5-5", key: "h8a8et" }]
+  ["path", { d: "m6 17 5-5-5-5", key: "xnjwq" }],
+  ["path", { d: "m13 17 5-5-5-5", key: "17xmmf" }]
 ];
-const ChevronsLeft = createLucideIcon("chevrons-left", __iconNode$1y);
+const ChevronsRight = createLucideIcon("chevrons-right", __iconNode$1y);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19931,10 +19942,11 @@ const ChevronsLeft = createLucideIcon("chevrons-left", __iconNode$1y);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1x = [
-  ["path", { d: "m6 17 5-5-5-5", key: "xnjwq" }],
-  ["path", { d: "m13 17 5-5-5-5", key: "17xmmf" }]
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
+  ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
 ];
-const ChevronsRight = createLucideIcon("chevrons-right", __iconNode$1x);
+const CircleAlert = createLucideIcon("circle-alert", __iconNode$1x);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19943,10 +19955,9 @@ const ChevronsRight = createLucideIcon("chevrons-right", __iconNode$1x);
  */
 const __iconNode$1w = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
-  ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
+  ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const CircleAlert = createLucideIcon("circle-alert", __iconNode$1w);
+const CircleCheck = createLucideIcon("circle-check", __iconNode$1w);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19954,10 +19965,10 @@ const CircleAlert = createLucideIcon("circle-alert", __iconNode$1w);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1v = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
+  ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
+  ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
 ];
-const CircleCheck = createLucideIcon("circle-check", __iconNode$1v);
+const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1v);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19965,17 +19976,6 @@ const CircleCheck = createLucideIcon("circle-check", __iconNode$1v);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1u = [
-  ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
-  ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
-];
-const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1u);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1t = [
   ["path", { d: "M10.1 2.182a10 10 0 0 1 3.8 0", key: "5ilxe3" }],
   ["path", { d: "M13.9 21.818a10 10 0 0 1-3.8 0", key: "11zvb9" }],
   ["path", { d: "M17.609 3.721a10 10 0 0 1 2.69 2.7", key: "1iw5b2" }],
@@ -19985,7 +19985,19 @@ const __iconNode$1t = [
   ["path", { d: "M3.721 6.391a10 10 0 0 1 2.7-2.69", key: "1mcia2" }],
   ["path", { d: "M6.391 20.279a10 10 0 0 1-2.69-2.7", key: "1fvljs" }]
 ];
-const CircleDashed = createLucideIcon("circle-dashed", __iconNode$1t);
+const CircleDashed = createLucideIcon("circle-dashed", __iconNode$1u);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1t = [
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["circle", { cx: "12", cy: "10", r: "3", key: "ilqhr7" }],
+  ["path", { d: "M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662", key: "154egf" }]
+];
+const CircleUser = createLucideIcon("circle-user", __iconNode$1t);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19994,30 +20006,36 @@ const CircleDashed = createLucideIcon("circle-dashed", __iconNode$1t);
  */
 const __iconNode$1s = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["circle", { cx: "12", cy: "10", r: "3", key: "ilqhr7" }],
-  ["path", { d: "M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662", key: "154egf" }]
-];
-const CircleUser = createLucideIcon("circle-user", __iconNode$1s);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1r = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
   ["path", { d: "m9 9 6 6", key: "z0biqf" }]
 ];
-const CircleX = createLucideIcon("circle-x", __iconNode$1r);
+const CircleX = createLucideIcon("circle-x", __iconNode$1s);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1q = [["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]];
-const Circle = createLucideIcon("circle", __iconNode$1q);
+const __iconNode$1r = [["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]];
+const Circle = createLucideIcon("circle", __iconNode$1r);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1q = [
+  ["rect", { width: "8", height: "4", x: "8", y: "2", rx: "1", ry: "1", key: "tgr4d6" }],
+  [
+    "path",
+    {
+      d: "M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2",
+      key: "116196"
+    }
+  ],
+  ["path", { d: "m9 14 2 2 4-4", key: "df797q" }]
+];
+const ClipboardCheck = createLucideIcon("clipboard-check", __iconNode$1q);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20033,9 +20051,12 @@ const __iconNode$1p = [
       key: "116196"
     }
   ],
-  ["path", { d: "m9 14 2 2 4-4", key: "df797q" }]
+  ["path", { d: "M12 11h4", key: "1jrz19" }],
+  ["path", { d: "M12 16h4", key: "n85exb" }],
+  ["path", { d: "M8 11h.01", key: "1dfujw" }],
+  ["path", { d: "M8 16h.01", key: "18s6g9" }]
 ];
-const ClipboardCheck = createLucideIcon("clipboard-check", __iconNode$1p);
+const ClipboardList = createLucideIcon("clipboard-list", __iconNode$1p);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20051,12 +20072,10 @@ const __iconNode$1o = [
       key: "116196"
     }
   ],
-  ["path", { d: "M12 11h4", key: "1jrz19" }],
-  ["path", { d: "M12 16h4", key: "n85exb" }],
-  ["path", { d: "M8 11h.01", key: "1dfujw" }],
-  ["path", { d: "M8 16h.01", key: "18s6g9" }]
+  ["path", { d: "M9 14h6", key: "159ibu" }],
+  ["path", { d: "M12 17v-6", key: "1y8rbf" }]
 ];
-const ClipboardList = createLucideIcon("clipboard-list", __iconNode$1o);
+const ClipboardPlus = createLucideIcon("clipboard-plus", __iconNode$1o);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20064,18 +20083,10 @@ const ClipboardList = createLucideIcon("clipboard-list", __iconNode$1o);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1n = [
-  ["rect", { width: "8", height: "4", x: "8", y: "2", rx: "1", ry: "1", key: "tgr4d6" }],
-  [
-    "path",
-    {
-      d: "M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2",
-      key: "116196"
-    }
-  ],
-  ["path", { d: "M9 14h6", key: "159ibu" }],
-  ["path", { d: "M12 17v-6", key: "1y8rbf" }]
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["polyline", { points: "12 6 12 12 16 14", key: "68esgv" }]
 ];
-const ClipboardPlus = createLucideIcon("clipboard-plus", __iconNode$1n);
+const Clock = createLucideIcon("clock", __iconNode$1n);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20083,10 +20094,10 @@ const ClipboardPlus = createLucideIcon("clipboard-plus", __iconNode$1n);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1m = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["polyline", { points: "12 6 12 12 16 14", key: "68esgv" }]
+  ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
+  ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
 ];
-const Clock = createLucideIcon("clock", __iconNode$1m);
+const Copy = createLucideIcon("copy", __iconNode$1m);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20094,10 +20105,11 @@ const Clock = createLucideIcon("clock", __iconNode$1m);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1l = [
-  ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
-  ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
+  ["ellipse", { cx: "12", cy: "5", rx: "9", ry: "3", key: "msslwz" }],
+  ["path", { d: "M3 5V19A9 3 0 0 0 21 19V5", key: "1wlel7" }],
+  ["path", { d: "M3 12A9 3 0 0 0 21 12", key: "mv7ke4" }]
 ];
-const Copy = createLucideIcon("copy", __iconNode$1l);
+const Database = createLucideIcon("database", __iconNode$1l);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20105,11 +20117,11 @@ const Copy = createLucideIcon("copy", __iconNode$1l);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1k = [
-  ["ellipse", { cx: "12", cy: "5", rx: "9", ry: "3", key: "msslwz" }],
-  ["path", { d: "M3 5V19A9 3 0 0 0 21 19V5", key: "1wlel7" }],
-  ["path", { d: "M3 12A9 3 0 0 0 21 12", key: "mv7ke4" }]
+  ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
+  ["polyline", { points: "7 10 12 15 17 10", key: "2ggqvy" }],
+  ["line", { x1: "12", x2: "12", y1: "15", y2: "3", key: "1vk2je" }]
 ];
-const Database = createLucideIcon("database", __iconNode$1k);
+const Download = createLucideIcon("download", __iconNode$1k);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20117,18 +20129,6 @@ const Database = createLucideIcon("database", __iconNode$1k);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1j = [
-  ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
-  ["polyline", { points: "7 10 12 15 17 10", key: "2ggqvy" }],
-  ["line", { x1: "12", x2: "12", y1: "15", y2: "3", key: "1vk2je" }]
-];
-const Download = createLucideIcon("download", __iconNode$1j);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1i = [
   [
     "path",
     {
@@ -20144,7 +20144,19 @@ const __iconNode$1i = [
     }
   ]
 ];
-const Droplets = createLucideIcon("droplets", __iconNode$1i);
+const Droplets = createLucideIcon("droplets", __iconNode$1j);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1i = [
+  ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }],
+  ["circle", { cx: "19", cy: "12", r: "1", key: "1wjl8i" }],
+  ["circle", { cx: "5", cy: "12", r: "1", key: "1pcz8c" }]
+];
+const Ellipsis = createLucideIcon("ellipsis", __iconNode$1i);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -31669,7 +31681,7 @@ var Portal$2 = MenuPortal;
 var Content2$3 = MenuContent;
 var Group = MenuGroup;
 var Label$2 = MenuLabel;
-var Item2 = MenuItem;
+var Item2$1 = MenuItem;
 var CheckboxItem = MenuCheckboxItem;
 var RadioGroup = MenuRadioGroup;
 var RadioItem = MenuRadioItem;
@@ -31828,7 +31840,7 @@ var DropdownMenuItem = reactExports.forwardRef(
   (props, forwardedRef) => {
     const { __scopeDropdownMenu, ...itemProps } = props;
     const menuScope = useMenuScope(__scopeDropdownMenu);
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(Item2, { ...menuScope, ...itemProps, ref: forwardedRef });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(Item2$1, { ...menuScope, ...itemProps, ref: forwardedRef });
   }
 );
 DropdownMenuItem.displayName = ITEM_NAME$1;
@@ -31912,6 +31924,11 @@ var Root2$3 = DropdownMenu$1;
 var Trigger$3 = DropdownMenuTrigger$1;
 var Portal2$1 = DropdownMenuPortal;
 var Content2$2 = DropdownMenuContent$1;
+var Item2 = DropdownMenuItem;
+var RadioGroup2 = DropdownMenuRadioGroup;
+var RadioItem2 = DropdownMenuRadioItem;
+var ItemIndicator2 = DropdownMenuItemIndicator;
+var Separator2 = DropdownMenuSeparator;
 function DropdownMenu({
   ...props
 }) {
@@ -54334,12 +54351,13 @@ function Chip({
         display: "inline-flex",
         alignItems: "center",
         gap: 4,
-        padding: "3px 8px",
-        borderRadius: 999,
+        height: 22,
+        padding: "0 8px",
+        borderRadius: 7,
         fontSize: 11,
         fontWeight: 600,
         whiteSpace: "nowrap",
-        background: k === "muted" ? "var(--cal-surface-3)" : `var(--cal-${k}-bg)`,
+        background: k === "muted" ? "var(--cal-surface-2)" : `var(--cal-${k}-bg)`,
         color: k === "muted" ? "var(--cal-ink-2)" : `var(--cal-${k}-fg)`
       },
       children: [
@@ -54363,7 +54381,7 @@ function DueChip({ task: task2 }) {
     Math.abs(diff),
     "d"
   ] });
-  if (diff === 0) return /* @__PURE__ */ jsxRuntimeExports.jsx(Chip, { k: "insp", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: ic }), children: "Due today" });
+  if (diff === 0) return /* @__PURE__ */ jsxRuntimeExports.jsx(Chip, { k: "day", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: ic }), children: "Due today" });
   if (diff <= 3) return /* @__PURE__ */ jsxRuntimeExports.jsxs(Chip, { k: "day", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: ic }), children: [
     "Due in ",
     diff,
@@ -54371,7 +54389,7 @@ function DueChip({ task: task2 }) {
   ] });
   return /* @__PURE__ */ jsxRuntimeExports.jsx(Chip, { k: "muted", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Calendar, { className: ic }), mono: true, children: due.toLocaleDateString("en-GB", { day: "numeric", month: "short" }) });
 }
-const priorityKey = (p) => p === "High" ? "station" : p === "Med" ? "day" : "tasks";
+const priorityKey = (p) => p === "High" ? "station" : p === "Med" ? "day" : "watch";
 const priorityLabel = (p) => p === "Med" ? "Medium" : p ?? "Medium";
 function PriorityChip({ priority }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(Chip, { k: priorityKey(priority), children: priorityLabel(priority) });
@@ -54406,21 +54424,156 @@ function ChecklistBar({ task: task2 }) {
   const done = task2.checklist.filter((i) => i.done).length;
   const total = task2.checklist.length;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { flex: 1, height: 6, borderRadius: 999, background: "var(--cal-surface-3)", overflow: "hidden" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { height: "100%", width: `${Math.round(done / total * 100)}%`, background: done === total ? "var(--cal-leave-dot)" : "var(--cal-brand)", borderRadius: 999 } }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: { fontSize: 11, color: "var(--cal-muted)" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { flex: 1, height: 6, borderRadius: 3, background: "var(--cal-surface-3)", overflow: "hidden" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { height: "100%", width: `${Math.round(done / total * 100)}%`, background: done === total ? "var(--cal-leave-dot)" : "var(--cal-brand)", borderRadius: 3 } }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: { fontSize: 11, color: "var(--cal-ink-2)" }, children: [
       done,
       "/",
       total
     ] })
   ] });
 }
-function avatarColour(userId) {
-  const colours = ["#6366f1", "#8b5cf6", "#ec4899", "#f97316", "#14b8a6", "#0ea5e9", "#22c55e", "#eab308"];
+function LabelTag({ id }) {
+  const label2 = getLabelById(id);
+  if (!label2) return null;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "span",
+    {
+      style: {
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 5,
+        height: 22,
+        padding: "0 8px",
+        borderRadius: 7,
+        fontSize: 11,
+        fontWeight: 600,
+        whiteSpace: "nowrap",
+        background: `var(--lb-${label2.id}-bg)`,
+        color: `var(--lb-${label2.id}-fg)`
+      },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 6, height: 6, borderRadius: "50%", background: label2.colour } }),
+        label2.name
+      ]
+    }
+  );
+}
+const PEOPLE = ["indigo", "teal", "rose", "amber", "slate"];
+function Initials({ userId, initials: initials2, size: size2 = 26 }) {
   let hash = 0;
   for (let i = 0; i < userId.length; i++) hash = userId.charCodeAt(i) + ((hash << 5) - hash);
-  return colours[Math.abs(hash) % colours.length];
+  const k = PEOPLE[Math.abs(hash) % PEOPLE.length];
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "span",
+    {
+      title: initials2,
+      "aria-label": `Assigned to ${initials2}`,
+      className: "cal-mono",
+      style: {
+        width: size2,
+        height: size2,
+        borderRadius: 8,
+        flex: "none",
+        display: "grid",
+        placeItems: "center",
+        fontSize: 10.5,
+        fontWeight: 600,
+        background: `var(--pp-${k}-bg)`,
+        color: `var(--pp-${k}-fg)`
+      },
+      children: initials2
+    }
+  );
 }
-function TaskCard({ task: task2, onTitleEdit, onClick, userMap }) {
+const PRIORITIES$1 = [
+  { value: "High", label: "High" },
+  { value: "Med", label: "Medium" },
+  { value: "Low", label: "Low" }
+];
+function CardMenu({
+  task: task2,
+  columns,
+  onOpen,
+  onMove,
+  onSetPriority,
+  onDelete
+}) {
+  const [section, setSection] = reactExports.useState(null);
+  const toggle = (e, s) => {
+    e.preventDefault();
+    setSection(section === s ? null : s);
+  };
+  const chevron = (open) => /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-3.5 w-3.5", style: { marginLeft: "auto", transform: open ? "rotate(90deg)" : void 0, transition: "transform .15s" } });
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Root2$3, { onOpenChange: (open) => {
+    if (!open) setSection(null);
+  }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Trigger$3, { asChild: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "button",
+      {
+        type: "button",
+        "aria-label": "Card actions",
+        className: "cal-focus",
+        onClick: (e) => e.stopPropagation(),
+        onKeyDown: (e) => e.stopPropagation(),
+        style: {
+          marginLeft: "auto",
+          width: 28,
+          height: 28,
+          borderRadius: 8,
+          border: "none",
+          background: "transparent",
+          color: "var(--cal-muted)",
+          display: "grid",
+          placeItems: "center",
+          cursor: "pointer",
+          flex: "none",
+          padding: 0
+        },
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx(Ellipsis, { className: "h-4 w-4" })
+      }
+    ) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Portal2$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      Content2$2,
+      {
+        align: "end",
+        sideOffset: 4,
+        collisionPadding: 12,
+        className: "cal-menu",
+        onClick: (e) => e.stopPropagation(),
+        onKeyDown: (e) => e.stopPropagation(),
+        children: [
+          onOpen && /* @__PURE__ */ jsxRuntimeExports.jsx(Item2, { className: "cal-menu-item", onSelect: onOpen, children: "Open" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Item2, { className: "cal-menu-item", "aria-expanded": section === "move", onSelect: (e) => toggle(e, "move"), children: [
+            "Move to column…",
+            chevron(section === "move")
+          ] }),
+          section === "move" && /* @__PURE__ */ jsxRuntimeExports.jsx(RadioGroup2, { value: task2.status, onValueChange: onMove, children: columns.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsxs(RadioItem2, { value: c.status_key, className: "cal-menu-item cal-menu-sub", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 8, height: 8, borderRadius: "50%", background: c.color, flex: "none" } }),
+            c.name,
+            /* @__PURE__ */ jsxRuntimeExports.jsx(ItemIndicator2, { style: { marginLeft: "auto", display: "flex" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-3.5 w-3.5", style: { color: "var(--cal-brand-text)" } }) })
+          ] }, c.id)) }),
+          onSetPriority && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(Item2, { className: "cal-menu-item", "aria-expanded": section === "priority", onSelect: (e) => toggle(e, "priority"), children: [
+              "Set priority",
+              chevron(section === "priority")
+            ] }),
+            section === "priority" && /* @__PURE__ */ jsxRuntimeExports.jsx(RadioGroup2, { value: task2.priority, onValueChange: (v) => onSetPriority(v), children: PRIORITIES$1.map((p) => /* @__PURE__ */ jsxRuntimeExports.jsxs(RadioItem2, { value: p.value, className: "cal-menu-item cal-menu-sub", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 8, height: 8, borderRadius: "50%", background: `var(--cal-${priorityKey(p.value)}-dot)`, flex: "none" } }),
+              p.label,
+              /* @__PURE__ */ jsxRuntimeExports.jsx(ItemIndicator2, { style: { marginLeft: "auto", display: "flex" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-3.5 w-3.5", style: { color: "var(--cal-brand-text)" } }) })
+            ] }, p.value)) })
+          ] }),
+          onDelete && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Separator2, { className: "cal-menu-sep" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Item2, { className: "cal-menu-item cal-menu-danger", onSelect: onDelete, children: "Delete" })
+          ] })
+        ]
+      }
+    ) })
+  ] });
+}
+function TaskCard({ task: task2, onTitleEdit, onClick, userMap, columns, onMove, onSetPriority, onDelete }) {
+  var _a2;
   const [editingTitle, setEditingTitle] = reactExports.useState(false);
   const [titleValue, setTitleValue] = reactExports.useState(task2.title);
   const titleInputRef = reactExports.useRef(null);
@@ -54430,8 +54583,8 @@ function TaskCard({ task: task2, onTitleEdit, onClick, userMap }) {
     setTitleValue(task2.title);
     setEditingTitle(true);
     setTimeout(() => {
-      var _a2;
-      return (_a2 = titleInputRef.current) == null ? void 0 : _a2.select();
+      var _a3;
+      return (_a3 = titleInputRef.current) == null ? void 0 : _a3.select();
     }, 10);
   };
   const handleTitleSave = () => {
@@ -54440,19 +54593,18 @@ function TaskCard({ task: task2, onTitleEdit, onClick, userMap }) {
     else setTitleValue(task2.title);
     setEditingTitle(false);
   };
-  const cardLabels = (task2.tags ?? []).map(getLabelById).filter(Boolean);
+  const labelIds = (task2.tags ?? []).filter((id) => getLabelById(id));
   const coverStyle = getCoverStyle(task2.cover_colour);
   const recur = describeRRule(task2.rrule);
-  const assignee = task2.assigned_to_user_id ? (userMap == null ? void 0 : userMap[task2.assigned_to_user_id]) ?? {
-    initials: task2.assigned_to_user_id.slice(0, 2).toUpperCase(),
-    colour: avatarColour(task2.assigned_to_user_id)
-  } : null;
+  const assignee = task2.assigned_to_user_id ? { id: task2.assigned_to_user_id, initials: ((_a2 = userMap == null ? void 0 : userMap[task2.assigned_to_user_id]) == null ? void 0 : _a2.initials) ?? task2.assigned_to_user_id.slice(0, 2).toUpperCase() } : null;
   const done = task2.status === "Done";
+  const menu = onMove && columns && columns.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(CardMenu, { task: task2, columns, onOpen: onClick, onMove, onSetPriority, onDelete }) : null;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
       role: "button",
       tabIndex: 0,
+      "aria-label": task2.title,
       onClick,
       onKeyDown: (e) => {
         if (e.key === "Enter" && !editingTitle) onClick == null ? void 0 : onClick();
@@ -54460,99 +54612,92 @@ function TaskCard({ task: task2, onTitleEdit, onClick, userMap }) {
       className: "cal-focus",
       style: {
         background: "var(--cal-surface)",
-        border: "1px solid var(--cal-line)",
-        borderRadius: 14,
-        boxShadow: "var(--cal-shadow)",
+        borderRadius: 16,
+        boxShadow: "var(--cal-card-shadow)",
+        padding: coverStyle ? "8px 12px 12px" : "12px 12px 12px 14px",
+        display: "flex",
+        flexDirection: "column",
+        gap: 9,
         cursor: "pointer",
-        overflow: "hidden",
-        color: "var(--cal-ink)"
+        color: "var(--cal-ink)",
+        ...done ? { opacity: 0.85 } : {}
       },
       children: [
-        coverStyle && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { ...coverStyle, height: 64 } }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: 12, display: "flex", flexDirection: "column", gap: 8 }, children: [
-          cardLabels.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", gap: 4, flexWrap: "wrap" }, children: cardLabels.map((label2) => label2 && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        coverStyle && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { ...coverStyle, height: 92, borderRadius: 11, margin: "0 -4px" } }),
+        labelIds.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }, children: [
+          labelIds.map((id) => /* @__PURE__ */ jsxRuntimeExports.jsx(LabelTag, { id }, id)),
+          menu
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "flex-start", gap: 8 }, onClick: (e) => (onTitleEdit || editingTitle) && e.stopPropagation(), children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
             "span",
             {
-              title: label2.name,
-              style: { height: 6, borderRadius: 999, flex: "1 1 2rem", maxWidth: "4rem", minWidth: "2rem", background: label2.colour }
-            },
-            label2.id
-          )) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "flex-start", gap: 8 }, onClick: (e) => (onTitleEdit || editingTitle) && e.stopPropagation(), children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "span",
-              {
-                "aria-hidden": true,
-                title: `${task2.priority === "Med" ? "Medium" : task2.priority} priority`,
-                style: { width: 8, height: 8, borderRadius: "50%", marginTop: 6, flex: "none", background: `var(--cal-${priorityKey(task2.priority)}-dot)` }
-              }
-            ),
-            editingTitle ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                ref: titleInputRef,
-                "aria-label": "Task title",
-                value: titleValue,
-                onChange: (e) => setTitleValue(e.target.value),
-                onBlur: handleTitleSave,
-                onClick: (e) => e.stopPropagation(),
-                onKeyDown: (e) => {
-                  e.stopPropagation();
-                  if (e.key === "Enter") handleTitleSave();
-                  if (e.key === "Escape") {
-                    setTitleValue(task2.title);
-                    setEditingTitle(false);
-                  }
-                },
-                autoFocus: true,
-                style: { flex: 1, font: "inherit", fontSize: 14, fontWeight: 600, background: "transparent", border: "none", borderBottom: "2px solid var(--cal-brand)", outline: "none", color: "var(--cal-ink)" }
-              }
-            ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "h4",
-              {
-                onDoubleClick: handleTitleDoubleClick,
-                title: onTitleEdit ? "Double-click to edit" : task2.title,
-                style: {
-                  margin: 0,
-                  flex: 1,
-                  fontSize: 14,
-                  fontWeight: 600,
-                  lineHeight: 1.3,
-                  display: "-webkit-box",
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: "vertical",
-                  overflow: "hidden",
-                  ...done ? { color: "var(--cal-muted)" } : {}
-                },
-                children: task2.title
-              }
-            ),
-            recur && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { title: recur, style: { display: "inline-flex", flex: "none", marginTop: 2, color: "var(--cal-watch-dot)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat, { className: "h-3.5 w-3.5" }) })
-          ] }),
-          (task2.due_at || recur) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(DueChip, { task: task2 }),
-            recur && !task2.due_at && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 11, color: "var(--cal-muted)" }, children: recur })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(ChecklistBar, { task: task2 }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6 }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(PriorityChip, { priority: task2.priority }),
-            assignee && /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "span",
-              {
-                title: assignee.initials,
-                className: "cal-mono",
-                style: { width: 26, height: 26, borderRadius: 8, display: "grid", placeItems: "center", color: "#fff", fontSize: 10.5, fontWeight: 600, background: assignee.colour, flex: "none" },
-                children: assignee.initials
-              }
-            )
-          ] })
+              "aria-hidden": true,
+              title: `${task2.priority === "Med" ? "Medium" : task2.priority} priority`,
+              style: { width: 8, height: 8, borderRadius: "50%", marginTop: 6, flex: "none", background: `var(--cal-${priorityKey(task2.priority)}-dot)` }
+            }
+          ),
+          editingTitle ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              ref: titleInputRef,
+              "aria-label": "Task title",
+              value: titleValue,
+              onChange: (e) => setTitleValue(e.target.value),
+              onBlur: handleTitleSave,
+              onClick: (e) => e.stopPropagation(),
+              onKeyDown: (e) => {
+                e.stopPropagation();
+                if (e.key === "Enter") handleTitleSave();
+                if (e.key === "Escape") {
+                  setTitleValue(task2.title);
+                  setEditingTitle(false);
+                }
+              },
+              autoFocus: true,
+              style: { flex: 1, minWidth: 0, font: "inherit", fontSize: 14, fontWeight: 600, background: "transparent", border: "none", borderBottom: "2px solid var(--cal-brand)", outline: "none", color: "var(--cal-ink)" }
+            }
+          ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "h4",
+            {
+              onDoubleClick: handleTitleDoubleClick,
+              title: onTitleEdit ? "Double-click to edit" : task2.title,
+              style: {
+                margin: 0,
+                flex: 1,
+                minWidth: 0,
+                fontSize: 14,
+                fontWeight: 600,
+                lineHeight: 1.35,
+                display: "-webkit-box",
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+                ...done ? { textDecoration: "line-through", color: "var(--cal-ink-2)" } : {}
+              },
+              children: task2.title
+            }
+          ),
+          recur && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { role: "img", "aria-label": `Recurring: ${recur}`, title: recur, style: { display: "inline-flex", flex: "none", marginTop: 2, color: "var(--cal-brand-text)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat, { className: "h-[15px] w-[15px]" }) }),
+          labelIds.length === 0 && menu && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { marginTop: -4, display: "flex" }, children: menu })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(ChecklistBar, { task: task2 }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }, children: [
+          task2.due_at ? /* @__PURE__ */ jsxRuntimeExports.jsx(DueChip, { task: task2 }) : recur ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 11, color: "var(--cal-muted)" }, children: recur }) : null,
+          /* @__PURE__ */ jsxRuntimeExports.jsx(PriorityChip, { priority: task2.priority }),
+          assignee && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { marginLeft: "auto", display: "flex" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Initials, { userId: assignee.id, initials: assignee.initials }) })
         ] })
       ]
     }
   );
 }
-function QuickAddCard({ columnStatusKey, onAdd, isLoading }) {
-  const [open, setOpen] = reactExports.useState(false);
+function QuickAddCard({ columnStatusKey, onAdd, isLoading, open: openProp, onOpenChange }) {
+  const [openState, setOpenState] = reactExports.useState(false);
+  const open = openProp ?? openState;
+  const setOpen = (o) => {
+    setOpenState(o);
+    onOpenChange == null ? void 0 : onOpenChange(o);
+  };
   const [title, setTitle] = reactExports.useState("");
   const textareaRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
@@ -54662,26 +54807,42 @@ function QuickAddCard({ columnStatusKey, onAdd, isLoading }) {
     ] })
   ] });
 }
-function EditableColumnHeader({
+const countPill = {
+  fontSize: 12,
+  fontWeight: 600,
+  padding: "3px 8px",
+  borderRadius: 8,
+  flex: "none",
+  background: "var(--cal-surface-2)",
+  color: "var(--cal-ink-2)"
+};
+function ColumnHeader({
   column,
-  canEdit,
+  count: count2,
+  wipLimit,
+  canManage,
   onRename,
   onDelete,
-  allCount,
-  wipLimit,
-  editingWip,
-  wipValue,
-  onStartEditWip,
-  onSaveWip,
-  onChangeWip,
-  onCancelWip,
-  isCollapsed,
-  onToggleCollapse,
-  isDark
+  onSetWip,
+  onCollapse,
+  onQuickAdd
 }) {
-  const [editing, setEditing] = reactExports.useState(false);
-  const [value, setValue] = reactExports.useState(column.name);
-  const isOverWip = wipLimit !== void 0 && allCount > wipLimit;
+  const [renaming, setRenaming] = reactExports.useState(false);
+  const [name, setName] = reactExports.useState(column.name);
+  const [editingWip, setEditingWip] = reactExports.useState(false);
+  const [wip, setWip] = reactExports.useState("");
+  const isOverWip = wipLimit !== void 0 && count2 > wipLimit;
+  const saveName = () => {
+    const trimmed = name.trim();
+    if (trimmed && trimmed !== column.name) onRename(trimmed);
+    else setName(column.name);
+    setRenaming(false);
+  };
+  const saveWip = () => {
+    const n = parseInt(wip);
+    onSetWip(isNaN(n) || n <= 0 ? void 0 : n);
+    setEditingWip(false);
+  };
   const iconBtn = {
     width: 28,
     height: 28,
@@ -54692,118 +54853,121 @@ function EditableColumnHeader({
     display: "grid",
     placeItems: "center",
     cursor: "pointer",
-    padding: 0
+    padding: 0,
+    flex: "none"
   };
-  const handleSave = () => {
-    const trimmed = value.trim();
-    if (trimmed && trimmed !== column.name) onRename(column.id, trimmed);
-    setEditing(false);
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6 }, children: editing ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 6, flex: 1 }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "input",
-        {
-          "aria-label": "Column name",
-          className: "cal-field",
-          style: { flex: 1, height: 32 },
-          value,
-          onChange: (e) => setValue(e.target.value),
-          onKeyDown: (e) => {
-            if (e.key === "Enter") handleSave();
-            if (e.key === "Escape") {
-              setValue(column.name);
-              setEditing(false);
-            }
-          },
-          onBlur: handleSave,
-          autoFocus: true
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": "Save", onClick: handleSave, style: { ...iconBtn, color: "var(--cal-leave-dot)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-4 w-4" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": "Cancel", onClick: () => {
-        setValue(column.name);
-        setEditing(false);
-      }, style: iconBtn, children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4" }) })
-    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "div",
-        {
-          style: { display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 0, cursor: canEdit ? "pointer" : void 0 },
-          onDoubleClick: () => canEdit && setEditing(true),
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 10, height: 10, borderRadius: "50%", flex: "none", background: column.color } }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 15, fontWeight: 600, color: "var(--cal-ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: column.name }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "span",
-              {
-                className: "cal-mono",
-                style: {
-                  fontSize: 11,
-                  fontWeight: 600,
-                  padding: "2px 7px",
-                  borderRadius: 999,
-                  flex: "none",
-                  ...isOverWip ? { background: "var(--cal-station-bg)", color: "var(--cal-station-fg)" } : { background: "var(--cal-surface)", color: "var(--cal-ink-2)", border: "1px solid var(--cal-line)" }
-                },
-                title: isOverWip ? "Over the WIP limit" : void 0,
-                children: [
-                  allCount,
-                  wipLimit ? `/${wipLimit}` : ""
-                ]
-              }
-            )
-          ]
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 2 }, children: [
-        canEdit && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity", style: { display: "flex", gap: 2 }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", style: iconBtn, onClick: () => setEditing(true), title: "Rename", "aria-label": `Rename ${column.name}`, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "h-3.5 w-3.5" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", style: iconBtn, onClick: () => onDelete(column.id), title: "Delete", "aria-label": `Delete ${column.name}`, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-3.5 w-3.5" }) })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
-          {
-            type: "button",
-            onClick: onToggleCollapse,
-            style: iconBtn,
-            title: isCollapsed ? "Expand column" : "Collapse column",
-            "aria-label": isCollapsed ? `Expand ${column.name}` : `Collapse ${column.name}`,
-            children: isCollapsed ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-4 w-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "h-4 w-4" })
-          }
-        )
-      ] })
-    ] }) }),
-    canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", justifyContent: "flex-end", minHeight: 18, marginTop: 2 }, children: editingWip ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 4 }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "input",
-        {
-          "aria-label": "WIP limit",
-          className: "cal-field cal-mono",
-          style: { width: 64, height: 28, fontSize: 12 },
-          placeholder: "limit",
-          value: wipValue,
-          onChange: (e) => onChangeWip(e.target.value),
-          onKeyDown: (e) => {
-            if (e.key === "Enter") onSaveWip();
-            if (e.key === "Escape") onCancelWip();
-          },
-          autoFocus: true
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": "Save limit", onClick: onSaveWip, style: { ...iconBtn, color: "var(--cal-leave-dot)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-3.5 w-3.5" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": "Cancel", onClick: onCancelWip, style: iconBtn, children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" }) })
-    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "button",
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 6 }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
       {
-        type: "button",
-        onClick: onStartEditWip,
-        className: "opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity cal-mono",
-        style: { border: "none", background: "transparent", color: "var(--cal-muted)", fontSize: 11, cursor: "pointer", padding: 0 },
-        title: "Set a work-in-progress limit",
-        children: wipLimit ? `WIP ${wipLimit}` : "Set limit"
+        style: {
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          height: 52,
+          padding: "0 6px 0 14px",
+          borderRadius: 16,
+          background: "var(--cal-surface)",
+          boxShadow: isOverWip ? "var(--cal-card-shadow), inset 0 0 0 1.5px var(--cal-station-dot)" : "var(--cal-card-shadow)"
+        },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 10, height: 10, borderRadius: "50%", flex: "none", background: column.color } }),
+          renaming ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              "aria-label": "Column name",
+              className: "cal-field",
+              style: { flex: 1, minWidth: 0, height: 34 },
+              value: name,
+              onChange: (e) => setName(e.target.value),
+              onKeyDown: (e) => {
+                if (e.key === "Enter") saveName();
+                if (e.key === "Escape") {
+                  setName(column.name);
+                  setRenaming(false);
+                }
+              },
+              onBlur: saveName,
+              autoFocus: true
+            }
+          ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "span",
+            {
+              onDoubleClick: () => canManage && setRenaming(true),
+              style: { fontSize: 15, fontWeight: 600, color: "var(--cal-ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", minWidth: 0 },
+              children: column.name
+            }
+          ),
+          !renaming && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "span",
+            {
+              className: "cal-mono",
+              title: isOverWip ? "Over the work-in-progress limit" : void 0,
+              style: isOverWip ? { ...countPill, background: "var(--cal-station-bg)", color: "var(--cal-station-fg)" } : countPill,
+              children: [
+                count2,
+                wipLimit ? `/${wipLimit}` : ""
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { flex: 1 } }),
+          onQuickAdd && !renaming && /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              "aria-label": `Add a card to ${column.name}`,
+              title: "Add a card",
+              onClick: onQuickAdd,
+              className: "cal-focus",
+              style: { width: 32, height: 32, borderRadius: "50%", border: "none", background: "var(--cal-brand-soft)", color: "var(--cal-brand-text)", display: "grid", placeItems: "center", cursor: "pointer", flex: "none", padding: 0 },
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-[15px] w-[15px]", strokeWidth: 2.6 })
+            }
+          ),
+          !renaming && /* @__PURE__ */ jsxRuntimeExports.jsxs(Root2$3, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Trigger$3, { asChild: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": `${column.name} column actions`, className: "cal-focus", style: iconBtn, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Ellipsis, { className: "h-4 w-4" }) }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Portal2$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Content2$2, { align: "end", sideOffset: 6, collisionPadding: 12, className: "cal-menu", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Item2, { className: "cal-menu-item", onSelect: onCollapse, children: "Collapse column" }),
+              canManage && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Item2, { className: "cal-menu-item", onSelect: () => setRenaming(true), children: "Rename" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Item2, { className: "cal-menu-item", onSelect: () => {
+                  setWip((wipLimit == null ? void 0 : wipLimit.toString()) ?? "");
+                  setEditingWip(true);
+                }, children: wipLimit ? `Change WIP limit (${wipLimit})…` : "Set WIP limit…" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Separator2, { className: "cal-menu-sep" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Item2, { className: "cal-menu-item cal-menu-danger", onSelect: onDelete, children: "Delete column" })
+              ] })
+            ] }) })
+          ] })
+        ]
       }
-    ) })
+    ),
+    isOverWip && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: 12, fontWeight: 600, color: "var(--cal-station-fg)", padding: "0 6px" }, children: [
+      "Over WIP limit · ",
+      count2,
+      " of ",
+      wipLimit
+    ] }),
+    editingWip && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 6, padding: "0 2px" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "input",
+        {
+          "aria-label": "Work-in-progress limit",
+          className: "cal-field cal-mono",
+          inputMode: "numeric",
+          style: { width: 90, height: 34, fontSize: 12 },
+          placeholder: "No limit",
+          value: wip,
+          onChange: (e) => setWip(e.target.value),
+          onKeyDown: (e) => {
+            if (e.key === "Enter") saveWip();
+            if (e.key === "Escape") setEditingWip(false);
+          },
+          autoFocus: true
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": "Save limit", onClick: saveWip, style: { ...iconBtn, color: "var(--cal-leave-dot)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-4 w-4" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": "Cancel", onClick: () => setEditingWip(false), style: iconBtn, children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4" }) })
+    ] })
   ] });
 }
 function TaskBoard({
@@ -54818,6 +54982,7 @@ function TaskBoard({
   canManageColumns = false,
   filters,
   isDark = false,
+  tinted = false,
   userMap
 }) {
   const { toast: toast2 } = useToast();
@@ -54832,6 +54997,7 @@ function TaskBoard({
   const [dragOverTaskId, setDragOverTaskId] = reactExports.useState(null);
   const [addingColumn, setAddingColumn] = reactExports.useState(false);
   const [newColName, setNewColName] = reactExports.useState("");
+  const [quickAddCol, setQuickAddCol] = reactExports.useState(null);
   const [collapsedCols, setCollapsedCols] = reactExports.useState(() => {
     try {
       return new Set(JSON.parse(localStorage.getItem("task-collapsed-cols") ?? "[]"));
@@ -54855,16 +55021,12 @@ function TaskBoard({
       return {};
     }
   });
-  const [editingWip, setEditingWip] = reactExports.useState(null);
-  const [wipValue, setWipValue] = reactExports.useState("");
-  const saveWip = (key2) => {
-    const n = parseInt(wipValue);
+  const setWip = (key2, limit) => {
     const next = { ...wipLimits };
-    if (isNaN(n) || n <= 0) delete next[key2];
-    else next[key2] = n;
+    if (limit === void 0) delete next[key2];
+    else next[key2] = limit;
     setWipLimits(next);
     localStorage.setItem("task-wip-limits", JSON.stringify(next));
-    setEditingWip(null);
   };
   const createColumnMutation = useMutation({
     mutationFn: async (name) => backendClient.task.createColumn({ name, status_key: name.replace(/\s+/g, "_") + "_" + Date.now() }),
@@ -54892,7 +55054,13 @@ function TaskBoard({
       const { id, ...rest } = params;
       return backendClient.task.update(id, rest);
     },
-    onSuccess: () => queryClient2.invalidateQueries({ queryKey: ["tasks"] })
+    onSuccess: () => queryClient2.invalidateQueries({ queryKey: ["tasks"] }),
+    onError: (err) => toast2({ title: "Couldn't change the task", description: err.message, variant: "destructive" })
+  });
+  const deleteTaskMutation = useMutation({
+    mutationFn: async (id) => backendClient.task.deleteTask(id),
+    onSuccess: () => queryClient2.invalidateQueries({ queryKey: ["tasks"] }),
+    onError: (err) => toast2({ title: "Couldn't delete the task", description: err.message, variant: "destructive" })
   });
   const handleAddColumn = () => {
     const trimmed = newColName.trim();
@@ -54907,6 +55075,9 @@ function TaskBoard({
     if (confirm(
       count2 > 0 ? `Delete "${col == null ? void 0 : col.name}"? ${count2} task${count2 !== 1 ? "s" : ""} will be moved to the first column.` : `Delete column "${col == null ? void 0 : col.name}"?`
     )) deleteColumnMutation.mutate(id);
+  };
+  const handleDeleteTask = (task2) => {
+    if (confirm(`Delete "${task2.title}"? This can't be undone.`)) deleteTaskMutation.mutate(task2.id);
   };
   const visibleTasks = tasks.filter((t) => {
     if (!filters) return true;
@@ -54924,6 +55095,30 @@ function TaskBoard({
     tasksByColumn[col.status_key] = visibleTasks.filter((t) => t.status === col.status_key).sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
     allTasksByColumn[col.status_key] = tasks.filter((t) => t.status === col.status_key);
   }
+  const moveTask = (task2, colKey, position) => {
+    var _a2;
+    const colTasks = tasksByColumn[colKey] ?? [];
+    const newPosition = position ?? (((_a2 = colTasks[colTasks.length - 1]) == null ? void 0 : _a2.position) ?? 0) + 1;
+    updateTaskMutation.mutate({ id: task2.id, position: newPosition, status: colKey });
+    if (task2.status !== colKey) {
+      onStatusChange == null ? void 0 : onStatusChange(task2.id, colKey);
+      if (task2.source_type) {
+        setTimeout(() => {
+          queryClient2.invalidateQueries({ queryKey: ["hfsv"] });
+          queryClient2.invalidateQueries({ queryKey: ["hfsv-pending"] });
+          queryClient2.invalidateQueries({ queryKey: ["inspection-assignments-pending"] });
+          queryClient2.invalidateQueries({ queryKey: ["inspection-assignments"] });
+          queryClient2.invalidateQueries({ queryKey: ["targets"] });
+          queryClient2.invalidateQueries({ queryKey: ["activity"] });
+        }, 500);
+        const isDone = colKey === "Done";
+        toast2({
+          title: isDone ? "Inspection complete" : "Inspection reverted",
+          description: `${task2.title} — targets updated.`
+        });
+      }
+    }
+  };
   const handleDragStart = (e, task2) => {
     if (!canEdit) return;
     setDraggedTask(task2);
@@ -54945,125 +55140,106 @@ function TaskBoard({
     setDragOverTaskId(taskId);
   };
   const handleDrop = (e, colKey) => {
-    var _a2, _b2, _c2, _d2;
+    var _a2, _b2;
     e.preventDefault();
     if (!canEdit || !draggedTask) return;
     const colTasks = tasksByColumn[colKey] ?? [];
     let newPosition;
     if (dragOverTaskId !== null && dragOverTaskId !== draggedTask.id) {
       const overIdx = colTasks.findIndex((t) => t.id === dragOverTaskId);
-      if (overIdx === -1) newPosition = (((_a2 = colTasks[colTasks.length - 1]) == null ? void 0 : _a2.position) ?? 0) + 1;
-      else {
-        const before = ((_b2 = colTasks[overIdx - 1]) == null ? void 0 : _b2.position) ?? (colTasks[overIdx].position ?? 0) - 1;
-        newPosition = (before + (((_c2 = colTasks[overIdx]) == null ? void 0 : _c2.position) ?? 0)) / 2;
-      }
-    } else {
-      newPosition = (((_d2 = colTasks[colTasks.length - 1]) == null ? void 0 : _d2.position) ?? 0) + 1;
-    }
-    updateTaskMutation.mutate({ id: draggedTask.id, position: newPosition, status: colKey });
-    if (draggedTask.status !== colKey) {
-      onStatusChange == null ? void 0 : onStatusChange(draggedTask.id, colKey);
-      if (draggedTask.source_type) {
-        setTimeout(() => {
-          queryClient2.invalidateQueries({ queryKey: ["hfsv"] });
-          queryClient2.invalidateQueries({ queryKey: ["hfsv-pending"] });
-          queryClient2.invalidateQueries({ queryKey: ["inspection-assignments-pending"] });
-          queryClient2.invalidateQueries({ queryKey: ["inspection-assignments"] });
-          queryClient2.invalidateQueries({ queryKey: ["targets"] });
-          queryClient2.invalidateQueries({ queryKey: ["activity"] });
-        }, 500);
-        const isDone = colKey === "Done";
-        toast2({
-          title: isDone ? "Inspection complete" : "Inspection reverted",
-          description: `${draggedTask.title} — targets updated.`
-        });
+      if (overIdx !== -1) {
+        const before = ((_a2 = colTasks[overIdx - 1]) == null ? void 0 : _a2.position) ?? (colTasks[overIdx].position ?? 0) - 1;
+        newPosition = (before + (((_b2 = colTasks[overIdx]) == null ? void 0 : _b2.position) ?? 0)) / 2;
       }
     }
+    moveTask(draggedTask, colKey, newPosition);
     setDraggedTask(null);
     setDragOverColKey(null);
     setDragOverTaskId(null);
   };
   if (isLoading && columns.length === 0) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-4", children: [...Array(4)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-64 w-[80vw] sm:w-72 shrink-0", style: { borderRadius: 20 } }, i)) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-5", children: [...Array(3)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-64 w-[80vw] sm:w-[280px] shrink-0", style: { borderRadius: 20 } }, i)) });
   }
-  const colBox = {
-    background: "var(--cal-surface-2)",
-    border: "1px solid var(--cal-line)",
-    borderRadius: 20,
-    boxShadow: "var(--cal-shadow)"
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4 overflow-x-auto pb-4 items-start", children: [
-    columns.map((col) => {
-      const colTasks = tasksByColumn[col.status_key] ?? [];
-      const allColTasks = allTasksByColumn[col.status_key] ?? [];
-      const isDropTarget = dragOverColKey === col.status_key && (draggedTask == null ? void 0 : draggedTask.status) !== col.status_key && dragOverTaskId === null;
-      const isCollapsed = collapsedCols.has(col.status_key);
-      const wipLimit = wipLimits[col.status_key];
-      if (isCollapsed) {
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "button",
-          {
-            type: "button",
-            className: "shrink-0 cal-focus",
-            onClick: () => toggleCollapse(col.status_key),
-            title: `Expand ${col.name}`,
-            style: { ...colBox, width: 48, display: "flex", flexDirection: "column", alignItems: "center", gap: 8, padding: "14px 0", cursor: "pointer", font: "inherit", color: "var(--cal-ink-2)" },
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 10, height: 10, borderRadius: "50%", background: col.color } }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 13, fontWeight: 600, writingMode: "vertical-rl", transform: "rotate(180deg)" }, children: col.name }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 12, color: "var(--cal-muted)" }, children: allColTasks.length })
-            ]
-          },
-          col.id
-        );
-      }
-      return /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "div",
-        {
-          className: "shrink-0 w-[80vw] sm:w-72 group",
-          onDragOver: (e) => handleColDragOver(e, col.status_key),
-          onDrop: (e) => handleDrop(e, col.status_key),
-          onDragLeave: (e) => {
-            if (!e.currentTarget.contains(e.relatedTarget)) {
-              setDragOverColKey(null);
-              setDragOverTaskId(null);
-            }
-          },
-          children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      className: "flex gap-5 overflow-x-auto items-start",
+      style: tinted ? { background: "var(--cal-board)", borderRadius: 28, padding: 20 } : { paddingBottom: 16 },
+      children: [
+        columns.map((col) => {
+          const colTasks = tasksByColumn[col.status_key] ?? [];
+          const allColTasks = allTasksByColumn[col.status_key] ?? [];
+          const isDropTarget = dragOverColKey === col.status_key && (draggedTask == null ? void 0 : draggedTask.status) !== col.status_key && dragOverTaskId === null;
+          const isCollapsed = collapsedCols.has(col.status_key);
+          const wipLimit = wipLimits[col.status_key];
+          if (isCollapsed) {
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                className: "shrink-0 cal-focus",
+                onClick: () => toggleCollapse(col.status_key),
+                onDragOver: (e) => handleColDragOver(e, col.status_key),
+                onDragLeave: () => setDragOverColKey(null),
+                onDrop: (e) => handleDrop(e, col.status_key),
+                "aria-label": `${col.name}, ${allColTasks.length} cards, collapsed. Expand`,
+                title: `Expand ${col.name}`,
+                style: {
+                  width: 60,
+                  minHeight: 220,
+                  borderRadius: 18,
+                  border: "none",
+                  background: "var(--cal-surface)",
+                  boxShadow: dragOverColKey === col.status_key ? "0 0 0 2px var(--cal-brand), var(--cal-card-shadow)" : "var(--cal-card-shadow)",
+                  color: "var(--cal-ink)",
+                  font: "inherit",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 12,
+                  padding: "16px 0",
+                  cursor: "pointer"
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronsRight, { className: "h-4 w-4", style: { color: "var(--cal-muted)" } }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 10, height: 10, borderRadius: "50%", background: col.color } }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { writingMode: "vertical-rl", fontSize: 15, fontWeight: 600 }, children: col.name }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { ...countPill, padding: "3px 7px" }, children: allColTasks.length })
+                ]
+              },
+              col.id
+            );
+          }
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "section",
             {
               "aria-label": col.name,
-              style: {
-                ...colBox,
-                display: "flex",
-                flexDirection: "column",
-                ...isDropTarget ? { boxShadow: "0 0 0 2px var(--cal-brand), var(--cal-shadow)" } : {}
+              className: "shrink-0 w-[80vw] sm:w-[280px]",
+              style: { display: "flex", flexDirection: "column", gap: 12 },
+              onDragOver: (e) => handleColDragOver(e, col.status_key),
+              onDrop: (e) => handleDrop(e, col.status_key),
+              onDragLeave: (e) => {
+                if (!e.currentTarget.contains(e.relatedTarget)) {
+                  setDragOverColKey(null);
+                  setDragOverTaskId(null);
+                }
               },
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "14px 14px 10px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  EditableColumnHeader,
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  ColumnHeader,
                   {
                     column: col,
-                    canEdit: canManageColumns,
-                    onRename: (id, name) => updateColumnMutation.mutate({ id, name }),
-                    onDelete: handleDeleteColumn,
-                    allCount: allColTasks.length,
+                    count: allColTasks.length,
                     wipLimit,
-                    editingWip: editingWip === col.status_key,
-                    wipValue,
-                    onStartEditWip: () => {
-                      setEditingWip(col.status_key);
-                      setWipValue((wipLimit == null ? void 0 : wipLimit.toString()) ?? "");
-                    },
-                    onSaveWip: () => saveWip(col.status_key),
-                    onChangeWip: setWipValue,
-                    onCancelWip: () => setEditingWip(null),
-                    isCollapsed: false,
-                    onToggleCollapse: () => toggleCollapse(col.status_key),
-                    isDark: false
+                    canManage: canManageColumns,
+                    onRename: (name) => updateColumnMutation.mutate({ id: col.id, name }),
+                    onDelete: () => handleDeleteColumn(col.id),
+                    onSetWip: (limit) => setWip(col.status_key, limit),
+                    onCollapse: () => toggleCollapse(col.status_key),
+                    onQuickAdd: canEdit ? () => setQuickAddCol(col.status_key) : void 0
                   }
-                ) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", flexDirection: "column", gap: 8, padding: "0 10px 12px", minHeight: 60 }, children: isLoading ? [...Array(2)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-20 w-full", style: { borderRadius: 14 } }, i)) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                ),
+                isLoading ? [...Array(2)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-24 w-full", style: { borderRadius: 16 } }, i)) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                   colTasks.map((task2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
                     "div",
                     {
@@ -55072,11 +55248,11 @@ function TaskBoard({
                       onDragEnd: handleDragEnd,
                       onDragOver: (e) => handleTaskDragOver(e, task2.id),
                       style: {
-                        opacity: (draggedTask == null ? void 0 : draggedTask.id) === task2.id ? 0.3 : 1,
-                        transition: "opacity .15s",
-                        borderRadius: 14,
+                        borderRadius: 16,
                         cursor: canEdit ? "grab" : void 0,
-                        ...dragOverTaskId === task2.id && (draggedTask == null ? void 0 : draggedTask.id) !== task2.id ? { boxShadow: "0 -3px 0 var(--cal-brand)" } : {}
+                        transition: "opacity .15s, box-shadow .15s",
+                        ...(draggedTask == null ? void 0 : draggedTask.id) === task2.id ? { opacity: 0.45, boxShadow: "0 0 0 2px var(--cal-brand)" } : {},
+                        ...dragOverTaskId === task2.id && (draggedTask == null ? void 0 : draggedTask.id) !== task2.id ? { boxShadow: "0 -4px 0 var(--cal-brand)" } : {}
                       },
                       children: /* @__PURE__ */ jsxRuntimeExports.jsx(
                         TaskCard,
@@ -55086,92 +55262,99 @@ function TaskBoard({
                           onChecklistToggle,
                           onTitleEdit: canEdit ? onTitleEdit : void 0,
                           isDark,
-                          userMap
+                          userMap,
+                          columns: canEdit ? columns : void 0,
+                          onMove: canEdit ? (key2) => moveTask(task2, key2) : void 0,
+                          onSetPriority: canEdit ? (priority) => updateTaskMutation.mutate({ id: task2.id, priority }) : void 0,
+                          onDelete: canEdit ? () => handleDeleteTask(task2) : void 0
                         }
                       )
                     },
                     task2.id
                   )),
-                  colTasks.length === 0 && !isDropTarget && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { textAlign: "center", padding: "22px 0", fontSize: 13, color: "var(--cal-muted)", border: "2px dashed var(--cal-line-2)", borderRadius: 14 }, children: "No tasks" }),
-                  isDropTarget && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { textAlign: "center", padding: "16px 0", fontSize: 13, fontWeight: 600, color: "var(--cal-brand-text)", border: "2px dashed var(--cal-brand)", background: "var(--cal-brand-soft)", borderRadius: 14 }, children: "Drop here" }),
+                  colTasks.length === 0 && !isDropTarget && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { textAlign: "center", padding: "22px 12px", fontSize: 13, color: "var(--cal-muted)", border: "2px dashed var(--cal-line-2)", borderRadius: 16 }, children: "No tasks" }),
+                  isDropTarget && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { textAlign: "center", padding: "18px 0", fontSize: 12, fontWeight: 600, color: "var(--cal-brand-text)", border: "2px dashed var(--cal-brand)", background: "var(--cal-brand-soft)", borderRadius: 16 }, children: "Drop here" }),
                   canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx(
                     QuickAddCard,
                     {
                       columnStatusKey: col.status_key,
-                      onAdd: (title, statusKey) => onTaskCreate == null ? void 0 : onTaskCreate(title, statusKey)
+                      onAdd: (title, statusKey) => onTaskCreate == null ? void 0 : onTaskCreate(title, statusKey),
+                      open: quickAddCol === col.status_key,
+                      onOpenChange: (open) => setQuickAddCol(open ? col.status_key : null)
                     }
                   )
-                ] }) })
+                ] })
               ]
+            },
+            col.id
+          );
+        }),
+        canManageColumns && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "shrink-0 w-[80vw] sm:w-[280px]", children: addingColumn ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--cal-surface)", borderRadius: 16, boxShadow: "var(--cal-card-shadow)", padding: 14, display: "flex", flexDirection: "column", gap: 10 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              "aria-label": "Column name",
+              placeholder: "Column name…",
+              value: newColName,
+              onChange: (e) => setNewColName(e.target.value),
+              onKeyDown: (e) => {
+                if (e.key === "Enter") handleAddColumn();
+                if (e.key === "Escape") {
+                  setAddingColumn(false);
+                  setNewColName("");
+                }
+              },
+              autoFocus: true,
+              className: "cal-field"
             }
-          )
-        },
-        col.id
-      );
-    }),
-    canManageColumns && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "shrink-0 w-[80vw] sm:w-72", children: addingColumn ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { ...colBox, padding: 14, display: "flex", flexDirection: "column", gap: 10 }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "input",
-        {
-          "aria-label": "Column name",
-          placeholder: "Column name…",
-          value: newColName,
-          onChange: (e) => setNewColName(e.target.value),
-          onKeyDown: (e) => {
-            if (e.key === "Enter") handleAddColumn();
-            if (e.key === "Escape") {
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: 8, alignItems: "center" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                type: "button",
+                onClick: handleAddColumn,
+                className: "cal-focus",
+                style: { height: 36, padding: "0 14px", borderRadius: 10, border: "none", background: "var(--cal-brand)", color: "#fff", font: "inherit", fontSize: 13, fontWeight: 600, cursor: "pointer" },
+                children: "Add column"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": "Cancel", className: "cal-btn", style: { width: 36, height: 36, padding: 0 }, onClick: () => {
               setAddingColumn(false);
               setNewColName("");
-            }
-          },
-          autoFocus: true,
-          className: "cal-field"
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: 8, alignItems: "center" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
+            }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4" }) })
+          ] })
+        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
             type: "button",
-            onClick: handleAddColumn,
+            onClick: () => setAddingColumn(true),
             className: "cal-focus",
-            style: { height: 36, padding: "0 14px", borderRadius: 10, border: "none", background: "var(--cal-brand)", color: "#fff", font: "inherit", fontSize: 13, fontWeight: 600, cursor: "pointer" },
-            children: "Add column"
+            style: {
+              width: "100%",
+              height: 52,
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "0 14px",
+              borderRadius: 16,
+              border: "2px dashed var(--cal-line-2)",
+              background: "transparent",
+              color: isDark && !tinted ? "#fff" : "var(--cal-ink-2)",
+              font: "inherit",
+              fontSize: 14,
+              fontWeight: 500,
+              cursor: "pointer"
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4" }),
+              " Add column"
+            ]
           }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": "Cancel", className: "cal-btn", style: { width: 36, height: 36, padding: 0 }, onClick: () => {
-          setAddingColumn(false);
-          setNewColName("");
-        }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4" }) })
-      ] })
-    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "button",
-      {
-        type: "button",
-        onClick: () => setAddingColumn(true),
-        className: "cal-focus",
-        style: {
-          width: "100%",
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          padding: "12px 14px",
-          borderRadius: 20,
-          border: "2px dashed var(--cal-line-2)",
-          background: "transparent",
-          color: isDark ? "#fff" : "var(--cal-ink-2)",
-          font: "inherit",
-          fontSize: 14,
-          fontWeight: 500,
-          cursor: "pointer"
-        },
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4" }),
-          " Add column"
-        ]
-      }
-    ) })
-  ] });
+        ) })
+      ]
+    }
+  );
 }
 function TaskList({ tasks, isLoading, onTaskClick }) {
   const [searchQuery, setSearchQuery] = reactExports.useState("");
@@ -56692,27 +56875,34 @@ function Tasks() {
                   children: /* @__PURE__ */ jsxRuntimeExports.jsx(Palette, { className: "h-[18px] w-[18px]" })
                 }
               ),
-              showBgPicker && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cal-card", style: { position: "absolute", right: 0, top: 52, zIndex: 50, width: 288, padding: 16, boxShadow: "var(--cal-pop)" }, children: [
+              showBgPicker && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { role: "dialog", "aria-label": "Board background", className: "cal-card", style: { position: "absolute", right: 0, top: 52, zIndex: 50, width: 340, maxWidth: "calc(100vw - 32px)", padding: 16, boxShadow: "var(--cal-pop)" }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }, children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 14, fontWeight: 600 }, children: "Board background" }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": "Close", onClick: () => setShowBgPicker(false), className: "cal-btn", style: { width: 32, height: 32, padding: 0, borderRadius: 10 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4" }) })
                 ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }, children: BOARD_BACKGROUNDS.map((b) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 10 }, children: BOARD_BACKGROUNDS.map((b) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
                   "button",
                   {
                     type: "button",
                     onClick: () => handleBgChange(b.id),
-                    title: b.name,
-                    "aria-label": b.name,
                     "aria-pressed": bgId === b.id,
                     className: "cal-focus",
-                    style: {
-                      height: 44,
-                      borderRadius: 12,
-                      cursor: "pointer",
-                      background: b.style.replace("background: ", ""),
-                      border: bgId === b.id ? "2px solid var(--cal-brand)" : "2px solid transparent"
-                    }
+                    style: { border: "none", background: "transparent", padding: 0, font: "inherit", display: "flex", flexDirection: "column", gap: 4, cursor: "pointer", borderRadius: 12 },
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "span",
+                        {
+                          style: {
+                            display: "block",
+                            height: 44,
+                            borderRadius: 12,
+                            background: b.style.replace("background: ", ""),
+                            boxShadow: bgId === b.id ? "0 0 0 2px var(--cal-surface), 0 0 0 4px var(--cal-brand)" : "inset 0 0 0 1px rgba(0,0,0,.06)"
+                          }
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 11, color: "var(--cal-ink-2)", textAlign: "center", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: b.name })
+                    ]
                   },
                   b.id
                 )) })
@@ -56830,6 +57020,7 @@ function Tasks() {
         viewMode === "board" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
           TaskBoard,
           {
+            tinted: bgId === "default",
             tasks: filteredTasks,
             isLoading,
             onTaskClick: setSelectedTask,

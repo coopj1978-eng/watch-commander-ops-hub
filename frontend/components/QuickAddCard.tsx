@@ -5,10 +5,15 @@ interface QuickAddCardProps {
   columnStatusKey: string;
   onAdd: (title: string, statusKey: string) => void;
   isLoading?: boolean;
+  /** Optional control from outside (the column header's "+" opens it). */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export default function QuickAddCard({ columnStatusKey, onAdd, isLoading }: QuickAddCardProps) {
-  const [open, setOpen] = useState(false);
+export default function QuickAddCard({ columnStatusKey, onAdd, isLoading, open: openProp, onOpenChange }: QuickAddCardProps) {
+  const [openState, setOpenState] = useState(false);
+  const open = openProp ?? openState;
+  const setOpen = (o: boolean) => { setOpenState(o); onOpenChange?.(o); };
   const [title, setTitle] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 

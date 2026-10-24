@@ -1201,6 +1201,10 @@
     height: calc(var(--spacing) * 96);
   }
 
+  .h-\[15px\] {
+    height: 15px;
+  }
+
   .h-\[18px\] {
     height: 18px;
   }
@@ -1451,6 +1455,10 @@
 
   .w-96 {
     width: calc(var(--spacing) * 96);
+  }
+
+  .w-\[15px\] {
+    width: 15px;
   }
 
   .w-\[18px\] {
@@ -5240,10 +5248,6 @@
     padding-bottom: calc(var(--spacing) * 0);
   }
 
-  .focus-within\:opacity-100:focus-within {
-    opacity: 1;
-  }
-
   @media (hover: hover) {
     .hover\:-translate-y-0\.5:hover {
       --tw-translate-y: calc(var(--spacing) * -.5);
@@ -6439,16 +6443,16 @@
       max-height: none;
     }
 
-    .sm\:w-72 {
-      width: calc(var(--spacing) * 72);
-    }
-
     .sm\:w-\[108px\] {
       width: 108px;
     }
 
     .sm\:w-\[180px\] {
       width: 180px;
+    }
+
+    .sm\:w-\[280px\] {
+      width: 280px;
     }
 
     .sm\:w-auto {
@@ -9038,6 +9042,35 @@ table.plain tbody tr:last-child td {
   --cal-leave-fg: #14532d;
   --cal-leave-dot: #16a34a;
   --cal-leave-shade: #16a34a0f;
+  --cal-board: #eceffa;
+  --cal-todo-dot: #64748b;
+  --cal-card-shadow: 0 1px 2px #1114270d, 0 4px 14px #1114270d;
+  --lb-urgent-bg: #fde4e4;
+  --lb-urgent-fg: #991b1b;
+  --lb-operational-bg: #ffead6;
+  --lb-operational-fg: #9a3412;
+  --lb-training-bg: #fdf3c4;
+  --lb-training-fg: #713f12;
+  --lb-routine-bg: #dcf7e4;
+  --lb-routine-fg: #166534;
+  --lb-admin-bg: #dde9fe;
+  --lb-admin-fg: #1e40af;
+  --lb-inspection-bg: #f1e4fe;
+  --lb-inspection-fg: #6b21a8;
+  --lb-crewing-bg: #fce3f0;
+  --lb-crewing-fg: #9d174d;
+  --lb-welfare-bg: #d6f5fa;
+  --lb-welfare-fg: #155e75;
+  --pp-indigo-bg: #e0e3fd;
+  --pp-indigo-fg: #3730a3;
+  --pp-teal-bg: #d3f2ee;
+  --pp-teal-fg: #115e59;
+  --pp-rose-bg: #fde2e8;
+  --pp-rose-fg: #9f1239;
+  --pp-amber-bg: #fcedc8;
+  --pp-amber-fg: #7c4a03;
+  --pp-slate-bg: #e3e7ee;
+  --pp-slate-fg: #334155;
 }
 
 .cal-ui {
@@ -9090,6 +9123,35 @@ table.plain tbody tr:last-child td {
   --cal-leave-fg: #bbf7d0;
   --cal-leave-dot: #4ade80;
   --cal-leave-shade: #16a34a14;
+  --cal-board: #10132a;
+  --cal-todo-dot: #94a3b8;
+  --cal-card-shadow: 0 1px 2px #0006, 0 6px 18px #00000040;
+  --lb-urgent-bg: #ef444438;
+  --lb-urgent-fg: #fecaca;
+  --lb-operational-bg: #f9731638;
+  --lb-operational-fg: #fed7aa;
+  --lb-training-bg: #eab30838;
+  --lb-training-fg: #fef08a;
+  --lb-routine-bg: #22c55e33;
+  --lb-routine-fg: #bbf7d0;
+  --lb-admin-bg: #3b82f638;
+  --lb-admin-fg: #bfdbfe;
+  --lb-inspection-bg: #a855f73d;
+  --lb-inspection-fg: #e9d5ff;
+  --lb-crewing-bg: #ec489938;
+  --lb-crewing-fg: #fbcfe8;
+  --lb-welfare-bg: #06b6d433;
+  --lb-welfare-fg: #a5f3fc;
+  --pp-indigo-bg: #2b2f63;
+  --pp-indigo-fg: #d4d8ff;
+  --pp-teal-bg: #123a39;
+  --pp-teal-fg: #a7f3eb;
+  --pp-rose-bg: #43192a;
+  --pp-rose-fg: #fecdd8;
+  --pp-amber-bg: #3d2e10;
+  --pp-amber-fg: #fde3a7;
+  --pp-slate-bg: #2a3142;
+  --pp-slate-fg: #d5dbe6;
 }
 
 .cal-mono {
@@ -9153,6 +9215,60 @@ table.plain tbody tr:last-child td {
   --muted-foreground: var(--cal-muted);
   --border: var(--cal-line);
   --input: var(--cal-line-2);
+}
+
+.cal-menu {
+  background: var(--cal-surface);
+  border: 1px solid var(--cal-line);
+  min-width: 230px;
+  box-shadow: var(--cal-pop);
+  z-index: 50;
+  color: var(--cal-ink);
+  font-family: var(--font-sans);
+  border-radius: 16px;
+  padding: 6px;
+}
+
+.cal-menu-item {
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+  border-radius: 10px;
+  outline: none;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 12px;
+  font-size: 14px;
+  display: flex;
+}
+
+.cal-menu-item[data-highlighted], .cal-menu-item[aria-expanded="true"] {
+  background: var(--cal-surface-2);
+}
+
+.cal-menu-sub {
+  height: 34px;
+  color: var(--cal-ink-2);
+  margin-left: 14px;
+  padding: 0 10px;
+  font-size: 13px;
+}
+
+.cal-menu-sub[data-state="checked"] {
+  color: var(--cal-ink);
+  font-weight: 600;
+}
+
+.cal-menu-danger {
+  color: var(--cal-station-fg);
+  font-weight: 600;
+}
+
+.cal-menu-sep {
+  background: var(--cal-line);
+  height: 1px;
+  margin: 4px 6px;
 }
 
 @media (min-width: 768px) {
