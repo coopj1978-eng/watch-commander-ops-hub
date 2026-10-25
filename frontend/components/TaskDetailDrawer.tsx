@@ -506,7 +506,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
   );
 
   const watchSelect = (id: string) => (
-    <Select value={watchUnit || "__none__"} onValueChange={handleWatchChange}>
+    <Select value={watchUnit || "__none__"} onValueChange={handleWatchChange} disabled={!canEdit}>
       <SelectTrigger id={id} className="tdd-field cal-focus"><SelectValue placeholder="Assign watch…" /></SelectTrigger>
       <SelectContent className="cal-menu">
         <SelectItem value="__none__" className={ITEM_CLS}>— None —</SelectItem>

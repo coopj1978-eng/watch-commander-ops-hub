@@ -56680,7 +56680,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
     /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id, className: "tdd-field cal-focus", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { className: "cal-menu", children: CATEGORY_OPTIONS$1.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: c, className: ITEM_CLS, children: c }, c)) })
   ] });
-  const watchSelect = (id) => /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watchUnit || "__none__", onValueChange: handleWatchChange, children: [
+  const watchSelect = (id) => /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watchUnit || "__none__", onValueChange: handleWatchChange, disabled: !canEdit, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id, className: "tdd-field cal-focus", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Assign watch…" }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { className: "cal-menu", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "__none__", className: ITEM_CLS, children: "— None —" }),
