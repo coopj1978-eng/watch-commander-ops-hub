@@ -1912,6 +1912,30 @@ export namespace h4h {
 }
 
 export namespace handover {
+    /** One line of a handover: "action" = needs doing (a board card), "info" = for info. */
+    export interface HandoverItem {
+        id?: number
+        kind: "action" | "info"
+        tag?: string
+        text: string
+        "show_until"?: string
+        "task_id"?: number
+        "task_status"?: string
+        "done_by_name"?: string
+        "done_at"?: string
+    }
+
+    /** Info lines a watch should see on its board. */
+    export interface BoardNote {
+        "handover_id": number
+        "from_watch": string
+        "shift_type": string
+        "shift_date": string
+        "written_by_name"?: string
+        unread: boolean
+        items: HandoverItem[]
+    }
+
     export interface CreateHandoverRequest {
         watch: string
         "shift_type": ShiftType
@@ -1921,6 +1945,7 @@ export namespace handover {
         "equipment_notes"?: string
         "staff_notes"?: string
         "general_notes"?: string
+        items?: HandoverItem[]
     }
 
     export interface DeleteHandoverResponse {
@@ -1946,6 +1971,10 @@ export namespace handover {
         "general_notes": string
         "created_at": string
         "updated_at": string
+        items: HandoverItem[]
+        "next_watch"?: string
+        "read_by_name"?: string
+        "read_at"?: string
     }
 
     export interface ListHandoversResponse {
@@ -1962,6 +1991,7 @@ export namespace handover {
     export type ShiftType = "Day" | "Night"
 
     export interface UpdateHandoverRequest {
+        items?: HandoverItem[]
         incidents?: string
         "outstanding_tasks"?: string
         "equipment_notes"?: string
@@ -1979,6 +2009,19 @@ export namespace handover {
             this.getLatest = this.getLatest.bind(this)
             this.list = this.list.bind(this)
             this.update = this.update.bind(this)
+            this.boardNotes = this.boardNotes.bind(this)
+            this.markRead = this.markRead.bind(this)
+        }
+
+        public async boardNotes(params: { watch: string }): Promise<{ notes: BoardNote[] }> {
+            const query = makeRecord<string, string | string[]>({ watch: params.watch })
+            const resp = await this.baseClient.callTypedAPI("GET", `/handovers/notes`, undefined, {query})
+            return await resp.json() as { notes: BoardNote[] }
+        }
+
+        public async markRead(id: number, params: { watch: string }): Promise<{ ok: boolean }> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/handovers/${encodeURIComponent(id)}/read`, JSON.stringify(params))
+            return await resp.json() as { ok: boolean }
         }
 
         public async create(params: CreateHandoverRequest): Promise<Handover> {
@@ -4469,7 +4512,8 @@ export namespace task {
     }
 
     export interface ShiftTask extends Task {
-        kind: "check" | "watch" | "calendar"
+        kind: "check" | "handover" | "watch" | "calendar"
+        "handover_from"?: string
         "check_freq"?: string
         "completed_by_name"?: string
     }

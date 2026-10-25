@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/App";
 import backend from "@/lib/backend";
-import { Check, Filter, LayoutGrid, List, Plus, Repeat, Search, Palette, X as XIcon } from "lucide-react";
+import { ArrowRightLeft, Check, Filter, LayoutGrid, List, Plus, Repeat, Search, Palette, X as XIcon } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useUserRole } from "@/lib/rbac";
 import TaskBoard from "@/components/TaskBoard";
@@ -70,6 +70,23 @@ export default function Tasks() {
   const shiftTasks = useMemo(() => (shiftData?.tasks ?? []) as unknown as Task[], [shiftData]);
   const boardWatch = shift?.watch ?? user?.watch_unit;
   const myWatchOnDuty = !shiftData || (shiftData.on_duty_watch ?? "").toLowerCase() === (user?.watch_unit ?? "").toLowerCase();
+
+  // "For info" handover lines for the watch on this board: from the last
+  // shift until they're marked read, plus anything kept on until a date.
+  const { data: notesData } = useQuery({
+    queryKey: ["handover-notes", boardWatch],
+    queryFn: () => backend.handover.boardNotes({ watch: boardWatch! }),
+    enabled: !!boardWatch,
+    refetchInterval: 60_000,
+  });
+  const handoverNotes = notesData?.notes ?? [];
+  const markReadMutation = useMutation({
+    mutationFn: (id: number) => backend.handover.markRead(id, { watch: boardWatch! }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["handover-notes"] });
+      queryClient.invalidateQueries({ queryKey: ["handovers"] });
+    },
+  });
 
   const { data: columnsData } = useQuery({
     queryKey: ["task-columns"],
@@ -407,6 +424,49 @@ export default function Tasks() {
           </div>
 
           {viewMode === "board" && viewSwitch}
+
+          {/* ── Handover notes for this watch ───────────────────────────────── */}
+          {viewMode === "board" && handoverNotes.length > 0 && (
+            <section aria-label="Handover notes" style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {handoverNotes.map((n) => {
+                const when = new Date(`${n.shift_date}T12:00:00`).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+                return (
+                  <div key={n.handover_id} style={{ background: "var(--cal-watch-bg)", color: "var(--cal-watch-fg)", borderRadius: 16, padding: "12px 14px", display: "flex", flexDirection: "column", gap: 6 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                      <ArrowRightLeft className="h-4 w-4" />
+                      <span style={{ fontSize: 13, fontWeight: 700 }}>
+                        Handover from {n.from_watch} Watch · {n.shift_type} {when}
+                      </span>
+                      {n.written_by_name && <span style={{ fontSize: 12, opacity: 0.8 }}>{n.written_by_name}</span>}
+                      {n.unread && (
+                        <button
+                          type="button"
+                          onClick={() => markReadMutation.mutate(n.handover_id)}
+                          disabled={markReadMutation.isPending}
+                          className="cal-focus"
+                          style={{ marginLeft: "auto", height: 32, padding: "0 12px", borderRadius: 10, border: "none", background: "var(--cal-surface)", color: "var(--cal-ink)", font: "inherit", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6 }}
+                        >
+                          <Check className="h-4 w-4" /> Mark read
+                        </button>
+                      )}
+                    </div>
+                    <ul style={{ margin: 0, paddingLeft: 22, display: "flex", flexDirection: "column", gap: 2, fontSize: 14, color: "var(--cal-ink)" }}>
+                      {n.items.map((it) => (
+                        <li key={it.id}>
+                          {it.text}
+                          {it.show_until && (
+                            <span style={{ fontSize: 12, color: "var(--cal-muted)" }}>
+                              {" "}· until {new Date(`${it.show_until}T12:00:00`).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}
+                            </span>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              })}
+            </section>
+          )}
 
           {/* ── Phone: this week on the watch calendar (tap to open it) ───────── */}
           {isPhone && watchName !== "Watch" && (

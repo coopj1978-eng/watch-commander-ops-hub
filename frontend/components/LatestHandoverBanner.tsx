@@ -49,7 +49,15 @@ export function LatestHandoverBanner() {
 
   // Pick the top-line content — the widget lower down shows the full detail,
   // this banner is deliberately one-line-ish.
-  const primary = latest.incidents
+  // New-style handovers: the first open "needs doing" line, else the first info line.
+  const items = latest.items ?? [];
+  const openAction = items.find((i) => i.kind === "action" && i.task_status !== "Done");
+  const firstInfo = items.find((i) => i.kind === "info");
+  const primary = openAction
+    ? { kind: "outstanding" as const, text: items.filter((i) => i.kind === "action" && i.task_status !== "Done").map((i) => i.text).join(" · "), label: "Needs doing" }
+    : firstInfo
+    ? { kind: "general" as const, text: items.filter((i) => i.kind === "info").map((i) => i.text).join(" · "), label: "For info" }
+    : latest.incidents
     ? { kind: "incidents" as const, text: latest.incidents, label: "Incidents" }
     : latest.outstanding_tasks
     ? { kind: "outstanding" as const, text: latest.outstanding_tasks, label: "Outstanding" }

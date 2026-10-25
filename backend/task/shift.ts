@@ -5,9 +5,10 @@ import { slotAt, slotForWatch, watchForSlot } from "../lib/shiftRota";
 import type { Task } from "./types";
 
 // The shift board (Oct 2026): everything the watch on duty should see this
-// shift — station checks (from templates), the watch's own tasks due by the
-// end of the shift (unfinished ones from earlier shifts roll on by themselves)
-// and the calendar's tasks for the day. Done shows only this shift's work.
+// shift — station checks (from templates), "needs doing" handover lines from
+// earlier shifts, the watch's own tasks due by the end of the shift
+// (unfinished ones from earlier shifts roll on by themselves) and the
+// calendar's tasks for the day. Done shows only this shift's work.
 
 interface ShiftBoardRequest {
   /** A watch's own board (its current or next shift). Default: the watch on duty now. */
@@ -28,7 +29,9 @@ export interface ShiftInfo {
 }
 
 export interface ShiftTask extends Task {
-  kind: "check" | "watch" | "calendar";
+  kind: "check" | "handover" | "watch" | "calendar";
+  /** Handover lines: who handed it over, e.g. "Blue Watch · Night 25 Oct". */
+  handover_from?: string;
   /** Station checks: shift | daily | weekly | fortnightly | monthly | quarterly | repeat. */
   check_freq?: string;
   completed_by_name?: string;
@@ -76,17 +79,20 @@ export const shiftBoard = api<ShiftBoardRequest, ShiftBoardResponse>(
     }
 
     const rows = await db.rawQueryAll<any>(
-      `SELECT t.*, u.name AS completed_by_name, tt.per_shift, tt.rrule AS template_rrule
+      `SELECT t.*, u.name AS completed_by_name, tt.per_shift, tt.rrule AS template_rrule,
+              ho.watch AS ho_watch, ho.shift_type AS ho_type, ho.shift_date AS ho_date
        FROM tasks t
        LEFT JOIN task_template_instances i ON i.task_id = t.id
        LEFT JOIN task_templates tt ON tt.id = i.template_id
        LEFT JOIN users u ON u.id = t.completed_by
+       LEFT JOIN handover_items hi ON hi.task_id = t.id
+       LEFT JOIN handovers ho ON ho.id = hi.handover_id
        WHERE (
-         ($1::boolean AND t.source_type = 'template' AND t.watch_unit IS NULL AND (
+         ($1::boolean AND t.source_type IN ('template', 'handover') AND t.watch_unit IS NULL AND (
             (t.status NOT IN ('Done', 'Missed') AND t.created_at < $3)
             OR (t.status = 'Done' AND t.completed_at >= $2)))
          OR
-         ($4::text IS NOT NULL AND LOWER(t.watch_unit) = LOWER($4::text) AND t.source_type IS DISTINCT FROM 'template' AND (
+         ($4::text IS NOT NULL AND LOWER(t.watch_unit) = LOWER($4::text) AND t.source_type IS DISTINCT FROM 'template' AND t.source_type IS DISTINCT FROM 'handover' AND (
             (t.status NOT IN ('Done', 'Missed') AND (t.due_at IS NULL OR t.due_at < $3))
             OR (t.status = 'Done' AND t.completed_at >= $2)))
        )
@@ -95,9 +101,12 @@ export const shiftBoard = api<ShiftBoardRequest, ShiftBoardResponse>(
     );
 
     const tasks: ShiftTask[] = rows.map((t) => {
-      const { per_shift, template_rrule, ...rest } = t;
+      const { per_shift, template_rrule, ho_watch, ho_type, ho_date, ...rest } = t;
       const kind: ShiftTask["kind"] =
-        t.source_type === "template" ? "check" : t.source_type === "station_event" || t.calendar_event_id ? "calendar" : "watch";
+        t.source_type === "template" ? "check"
+        : t.source_type === "handover" ? "handover"
+        : t.source_type === "station_event" || t.calendar_event_id ? "calendar" : "watch";
+      const hoDate = ho_date ? new Date(ho_date instanceof Date ? ho_date.toISOString().slice(0, 10) + "T12:00:00Z" : String(ho_date).slice(0, 10) + "T12:00:00Z") : null;
       return {
         ...rest,
         checklist: typeof t.checklist === "string" ? JSON.parse(t.checklist) : t.checklist,
@@ -106,6 +115,9 @@ export const shiftBoard = api<ShiftBoardRequest, ShiftBoardResponse>(
         completed_by_name: t.completed_by_name ?? undefined,
         kind,
         check_freq: kind === "check" ? checkFreq(per_shift, template_rrule ?? t.rrule) : undefined,
+        handover_from: kind === "handover" && ho_watch
+          ? `${ho_watch} Watch · ${ho_type} ${hoDate ? hoDate.toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "Europe/London" }) : ""}`.trim()
+          : undefined,
       };
     });
 

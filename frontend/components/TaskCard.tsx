@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import * as Menu from "@radix-ui/react-dropdown-menu";
-import { CalendarDays, Check, ChevronRight, ClipboardCheck, History, MoreHorizontal, Repeat } from "lucide-react";
+import { ArrowRightLeft, CalendarDays, Check, ChevronRight, ClipboardCheck, History, MoreHorizontal, Repeat } from "lucide-react";
 import type { Task, TaskColumn, TaskPriority } from "~backend/task/types";
 import { getCoverStyle, getLabelById } from "@/lib/taskLabels";
 import { ChecklistBar, DueChip, Initials, LabelTag, PriorityChip, describeRRule, priorityKey, priorityLabel, useIsPhone } from "@/lib/taskUi";
@@ -280,9 +280,20 @@ const tagStyle = (bg: string, fg: string): React.CSSProperties => ({
 });
 
 /** What the card is on the shift board: a station check, carried over, or from the calendar. */
-function ShiftTag({ task, shiftStart }: { task: Task & { kind?: string; check_freq?: string }; shiftStart?: string }) {
+function ShiftTag({ task, shiftStart }: { task: Task & { kind?: string; check_freq?: string; handover_from?: string }; shiftStart?: string }) {
   const due = task.due_at ? new Date(task.due_at) : null;
   const short = (d: Date) => d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+  if (task.kind === "handover") {
+    const waiting = task.status !== "Done" && due && shiftStart && due < new Date(shiftStart);
+    return (
+      <>
+        <span style={tagStyle("var(--cal-insp-bg)", "var(--cal-insp-fg)")} title="Handed over by an earlier shift — stays until someone does it">
+          <ArrowRightLeft className="h-3 w-3" /> Handover{task.handover_from ? ` · ${task.handover_from}` : ""}
+        </span>
+        {waiting && <span className="cal-mono" style={tagStyle("var(--cal-surface-2)", "var(--cal-ink-2)")}>Waiting since {short(due!)}</span>}
+      </>
+    );
+  }
   if (task.kind === "check") {
     const long = ["weekly", "fortnightly", "monthly", "quarterly"].includes(task.check_freq ?? "");
     return (

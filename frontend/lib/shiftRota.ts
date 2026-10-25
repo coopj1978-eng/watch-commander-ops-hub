@@ -302,3 +302,23 @@ export function getNextShiftDate(watch?: string): string {
   const shifts = getShiftsForDateRange(watch, from, to);
   return shifts.find(s => s.isWorking)?.date ?? todayIso;
 }
+
+/**
+ * The shift a watch is on now, or the last one it worked — what a handover is
+ * written for. A night belongs to the day it started (as on the crewing board),
+ * so a handover written at 07:45 on Tuesday is for Monday's night shift.
+ */
+export function handoverShiftFor(watch: string, now: Date = new Date()): { date: string; type: "Day" | "Night" } | null {
+  if (!hasRotaConfig(watch)) return null;
+  const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const h = now.getHours();
+  let date = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (h < 8 ? 1 : 0));
+  let type: "Day" | "Night" = h >= 8 && h < 18 ? "Day" : "Night";
+  for (let i = 0; i < 2 * 80; i++) {
+    const s = getShiftForDate(watch, date)?.shiftType;
+    if (type === "Day" ? s === "1st Day" || s === "2nd Day" : s === "1st Night" || s === "2nd Night") return { date: iso(date), type };
+    if (type === "Night") type = "Day";
+    else { type = "Night"; date = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1); }
+  }
+  return null;
+}

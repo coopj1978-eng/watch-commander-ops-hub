@@ -107,7 +107,8 @@ export function addDaysIso(dateIso: string, n: number): string {
 export type SlotType = "day" | "night";
 export interface ShiftSlot { date: string; type: SlotType; start: Date; end: Date }
 
-function slotOf(date: string, type: SlotType): ShiftSlot {
+/** The day (08–18) or night (18–08 next day) shift starting on a date, in UK time. */
+export function shiftSlot(date: string, type: SlotType): ShiftSlot {
   return type === "day"
     ? { date, type, start: ukInstant(date, 8), end: ukInstant(date, 18) }
     : { date, type, start: ukInstant(date, 18), end: ukInstant(addDaysIso(date, 1), 8) };
@@ -116,8 +117,8 @@ function slotOf(date: string, type: SlotType): ShiftSlot {
 /** The shift running at `now`: day 08:00–18:00, or night 18:00–08:00 (dated the day it started). */
 export function slotAt(now: Date = new Date()): ShiftSlot {
   const { date, hour } = ukParts(now);
-  if (hour >= 8 && hour < 18) return slotOf(date, "day");
-  return slotOf(hour < 8 ? addDaysIso(date, -1) : date, "night");
+  if (hour >= 8 && hour < 18) return shiftSlot(date, "day");
+  return shiftSlot(hour < 8 ? addDaysIso(date, -1) : date, "night");
 }
 
 /** A watch's rota entry for a date ("1st Day", "Rest"…), or null for an unknown watch. */
@@ -144,9 +145,14 @@ export function slotForWatch(watch: string, now: Date = new Date()): (ShiftSlot 
   let { date, type } = slotAt(now);
   for (let i = 0; i < 2 * (MEGA_CYCLE + 2); i++) {
     const s = watchShiftOn(watch, date);
-    if (works(s, type)) return { ...slotOf(date, type), label: s!, onDuty: i === 0 };
+    if (works(s, type)) return { ...shiftSlot(date, type), label: s!, onDuty: i === 0 };
     if (type === "day") type = "night";
     else { type = "day"; date = addDaysIso(date, 1); }
   }
   return null;
+}
+
+/** The shift straight after this one (day → that night; night → next day). */
+export function slotAfter(slot: ShiftSlot): ShiftSlot {
+  return slot.type === "day" ? shiftSlot(slot.date, "night") : shiftSlot(addDaysIso(slot.date, 1), "day");
 }

@@ -68,8 +68,10 @@ export function WCHandoverWidget() {
 
   const timeAgo = formatDistanceToNow(parseISO(latest.created_at), { addSuffix: true });
   const shiftDateStr = format(parseISO(latest.shift_date), "dd MMM yyyy");
-  const hasIncidents = !!latest.incidents;
-  const hasTasks = !!latest.outstanding_tasks;
+  const items = latest.items ?? [];
+  const openActions = items.filter((i) => i.kind === "action" && i.task_status !== "Done");
+  const hasIncidents = !!latest.incidents || items.some((i) => i.tag === "incident");
+  const hasTasks = !!latest.outstanding_tasks || openActions.length > 0;
 
   // Top accent: orange if there are incidents/outstanding tasks, otherwise indigo
   const accentBorder = hasIncidents || hasTasks
@@ -94,6 +96,19 @@ export function WCHandoverWidget() {
         <p className="text-xs text-muted-foreground">
           Written by <span className="font-medium text-foreground">{latest.written_by_name ?? "Unknown"}</span> · {timeAgo}
         </p>
+
+        {/* Handover lines (new-style handovers) */}
+        {items.length > 0 && (
+          <ul className="space-y-1">
+            {items.slice(0, 3).map((it) => (
+              <li key={it.id} className="flex items-start gap-2 text-sm leading-snug">
+                <span className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${it.kind === "action" ? (it.task_status === "Done" ? "bg-green-500" : "bg-amber-500") : "bg-blue-500"}`} />
+                <span className={it.task_status === "Done" ? "line-through text-muted-foreground" : "text-foreground"}>{it.text}</span>
+              </li>
+            ))}
+            {items.length > 3 && <li className="text-xs text-muted-foreground pl-3.5">+{items.length - 3} more</li>}
+          </ul>
+        )}
 
         {/* General notes preview */}
         {latest.general_notes && (

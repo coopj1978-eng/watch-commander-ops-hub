@@ -28,6 +28,11 @@ export const deleteHandover = api<DeleteHandoverRequest, DeleteHandoverResponse>
       throw APIError.permissionDenied("only the author or a Watch Commander can delete this handover");
     }
 
+    // Its "needs doing" cards come off the board too (finished ones stay on record).
+    await db.exec`
+      DELETE FROM tasks
+      WHERE status <> 'Done' AND id IN (SELECT task_id FROM handover_items WHERE handover_id = ${id})
+    `;
     await db.exec`DELETE FROM handovers WHERE id = ${id}`;
 
     await logActivity({

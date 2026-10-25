@@ -16,7 +16,9 @@ import { ClipboardList, Users, Plus, ChevronDown, ChevronUp, Trash2, Pencil, Shi
 import { formatDistanceToNow, parseISO, format, differenceInDays } from "date-fns";
 import { useUserRole } from "@/lib/rbac";
 import CrewingBoard from "@/components/CrewingBoard";
-import { shiftDisplay } from "@/lib/shiftRota";
+import { handoverShiftFor, shiftDisplay } from "@/lib/shiftRota";
+import HandoverItemsEditor, { KindBadge, tagLabel } from "@/components/HandoverItemsEditor";
+import type { handover as handoverApi } from "@/client";
 
 const WATCHES = ["Red", "White", "Green", "Blue", "Amber"] as const;
 type WatchName = typeof WATCHES[number];
@@ -30,6 +32,8 @@ interface HandoverFormData {
   equipment_notes: string;
   staff_notes: string;
   general_notes: string;
+  /** The handover itself: short "needs doing" / "for info" lines. */
+  items: handoverApi.HandoverItem[];
 }
 
 const emptyForm: HandoverFormData = {
@@ -41,6 +45,7 @@ const emptyForm: HandoverFormData = {
   equipment_notes: "",
   staff_notes: "",
   general_notes: "",
+  items: [],
 };
 
 type Tab = "crewing" | "handover" | "detachments";
@@ -254,7 +259,7 @@ export default function Handover() {
   const [showForm, setShowForm]       = useState(false);
   const [expandedId, setExpandedId]   = useState<number | null>(null);
   const [editingId, setEditingId]     = useState<number | null>(null);
-  const [editForm, setEditForm]       = useState<{ incidents: string; outstanding_tasks: string; equipment_notes: string; staff_notes: string; general_notes: string }>({ incidents: "", outstanding_tasks: "", equipment_notes: "", staff_notes: "", general_notes: "" });
+  const [editForm, setEditForm]       = useState<{ incidents: string; outstanding_tasks: string; equipment_notes: string; staff_notes: string; general_notes: string; items: handoverApi.HandoverItem[] }>({ incidents: "", outstanding_tasks: "", equipment_notes: "", staff_notes: "", general_notes: "", items: [] });
   const [form, setForm]               = useState<HandoverFormData>(emptyForm);
   const [watchFilter, setWatchFilter] = useState<WatchName | "">("");
   const [limit, setLimit]             = useState(PAGE_SIZE);
@@ -269,35 +274,9 @@ export default function Handover() {
     }),
   });
 
-  // ── Open tasks query (for auto-import into new handover form) ─────────────
-  const { data: tasksData } = useQuery({
-    queryKey: ["tasks-for-handover"],
-    queryFn: async () => (await backend.task.list({ limit: 200 })).tasks,
-    enabled: showForm,
-    staleTime: 60_000,
-  });
-
-  // ── Handle ?tab=handover&logTask=... deep-link from task completion ────────
+  // ?tab=handover opens the handover tab.
   useEffect(() => {
-    const tab = searchParams.get("tab");
-    const logTask = searchParams.get("logTask");
-    if (tab === "handover") {
-      setActiveTab("handover");
-      if (logTask && canWrite) {
-        const h = new Date().getHours();
-        const shiftType: "Day" | "Night" = (h >= 8 && h < 18) ? "Day" : "Night";
-        setForm({
-          ...emptyForm,
-          watch: (user?.watch_unit as WatchName) || "",
-          shift_type: shiftType,
-          shift_date: new Date().toISOString().split("T")[0],
-          general_notes: `Completed this watch:\n• ${decodeURIComponent(logTask)}`,
-        });
-        setShowForm(true);
-        // Clear the search params so a refresh doesn't re-trigger
-        setSearchParams({}, { replace: true });
-      }
-    }
+    if (searchParams.get("tab") === "handover") setActiveTab("handover");
   }, []);
 
   const createMutation = useMutation({
@@ -312,11 +291,13 @@ export default function Handover() {
         equipment_notes:   data.equipment_notes || undefined,
         staff_notes:       data.staff_notes || undefined,
         general_notes:     data.general_notes || undefined,
+        items:             data.items,
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["handovers"] });
       queryClient.invalidateQueries({ queryKey: ["wc-latest-handover"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
       setForm(emptyForm);
       setShowForm(false);
       toast({ title: "Handover saved", description: "The handover note has been recorded." });
@@ -346,6 +327,7 @@ export default function Handover() {
         equipment_notes:   data.equipment_notes,
         staff_notes:       data.staff_notes,
         general_notes:     data.general_notes,
+        items:             data.items,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["handovers"] });
@@ -362,34 +344,23 @@ export default function Handover() {
   const total     = data?.total ?? 0;
   const hasMore   = handovers.length < total;
 
-  // ── Smart "New Handover" opener ───────────────────────────────────────────
+  // ── "New Handover": the shift your watch is on, or has just finished ─────
+  // From the rota, not the clock — a night belongs to the day it started, so
+  // a handover written at 07:45 is for last night; one finished at 18:10 is
+  // still the day shift's.
   const handleNewHandover = () => {
-    const h = new Date().getHours();
-    const shiftType: "Day" | "Night" = (h >= 8 && h < 18) ? "Day" : "Night";
+    const watch = (user?.watch_unit as WatchName) || "";
+    const shift = watch ? handoverShiftFor(watch) : null;
+    const now = new Date();
+    const todayIso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
     setForm({
       ...emptyForm,
-      watch: (user?.watch_unit as WatchName) || "",
-      shift_type: shiftType,
-      shift_date: new Date().toISOString().split("T")[0],
+      items: [],
+      watch,
+      shift_type: shift?.type ?? (now.getHours() >= 8 && now.getHours() < 18 ? "Day" : "Night"),
+      shift_date: shift?.date ?? todayIso,
     });
     setShowForm(true);
-  };
-
-  // ── Import open tasks into Outstanding Tasks field ────────────────────────
-  const handleImportTasks = () => {
-    const openTasks = ((tasksData ?? []) as any[])
-      .filter((t: any) => {
-        const s = (t.status ?? "").toLowerCase();
-        return s !== "done" && !s.includes("done") && !s.includes("complete");
-      })
-      .map((t: any) => `• ${t.title}`)
-      .join("\n");
-    if (openTasks) {
-      setForm(f => ({ ...f, outstanding_tasks: openTasks }));
-      toast({ title: "Tasks imported", description: "Open tasks added to Outstanding Tasks." });
-    } else {
-      toast({ title: "No open tasks", description: "There are no open tasks to import." });
-    }
   };
 
   return (
@@ -566,77 +537,23 @@ export default function Handover() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label>General Notes</Label>
+                  <Label>Handover for the next watch</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Short lines, as you'd say them at changeover. "Needs doing" goes on the board until someone does it; "For info" shows on the next watch's Tasks page.
+                  </p>
+                  <HandoverItemsEditor items={form.items} onChange={(items) => setForm((f) => ({ ...f, items }))} />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="flex items-center gap-2">
+                    Anything else
+                    <Badge variant="outline" className="text-xs">optional</Badge>
+                  </Label>
                   <Textarea
-                    placeholder="Overall summary of the watch..."
-                    rows={3}
+                    placeholder="A longer note, if one is needed…"
+                    rows={2}
                     value={form.general_notes}
                     onChange={(e) => setForm((f) => ({ ...f, general_notes: e.target.value }))}
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label className="flex items-center gap-2">
-                    Incidents
-                    <Badge variant="outline" className="text-xs text-orange-600 border-orange-300">optional</Badge>
-                  </Label>
-                  <Textarea
-                    placeholder="Notable calls or incidents during the watch..."
-                    rows={2}
-                    value={form.incidents}
-                    onChange={(e) => setForm((f) => ({ ...f, incidents: e.target.value }))}
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between gap-2">
-                    <Label className="flex items-center gap-2">
-                      Outstanding Tasks
-                      <Badge variant="outline" className="text-xs text-blue-600 border-blue-300">optional</Badge>
-                    </Label>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 px-2 text-xs text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 gap-1"
-                      onClick={handleImportTasks}
-                      title="Auto-fill with current open tasks"
-                    >
-                      <Wand2 className="h-3 w-3" />
-                      Import open tasks
-                    </Button>
-                  </div>
-                  <Textarea
-                    placeholder="Tasks left incomplete that the next watch needs to action..."
-                    rows={2}
-                    value={form.outstanding_tasks}
-                    onChange={(e) => setForm((f) => ({ ...f, outstanding_tasks: e.target.value }))}
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label className="flex items-center gap-2">
-                    Equipment / Defects
-                    <Badge variant="outline" className="text-xs text-yellow-600 border-yellow-300">optional</Badge>
-                  </Label>
-                  <Textarea
-                    placeholder="Any defective kit, appliance issues, or defects raised..."
-                    rows={2}
-                    value={form.equipment_notes}
-                    onChange={(e) => setForm((f) => ({ ...f, equipment_notes: e.target.value }))}
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label className="flex items-center gap-2">
-                    Staff Notes
-                    <Badge variant="outline" className="text-xs text-purple-600 border-purple-300">optional</Badge>
-                  </Label>
-                  <Textarea
-                    placeholder="Anything the incoming watch commander needs to know about personnel..."
-                    rows={2}
-                    value={form.staff_notes}
-                    onChange={(e) => setForm((f) => ({ ...f, staff_notes: e.target.value }))}
                   />
                 </div>
 
@@ -646,7 +563,7 @@ export default function Handover() {
                   </Button>
                   <Button
                     onClick={() => createMutation.mutate(form)}
-                    disabled={!form.watch || !form.shift_date || createMutation.isPending}
+                    disabled={!form.watch || !form.shift_date || (form.items.length === 0 && !form.general_notes.trim()) || createMutation.isPending}
                   >
                     {createMutation.isPending ? "Saving..." : "Save Handover"}
                   </Button>
@@ -708,12 +625,32 @@ export default function Handover() {
                             </span>
                             <Badge variant="outline" className="text-xs">{h.watch} Watch</Badge>
                             <Badge variant="secondary" className="text-xs">{h.shift_type}</Badge>
+                            {(() => {
+                              const actions = (h.items ?? []).filter((i) => i.kind === "action");
+                              const open = actions.filter((i) => i.task_status !== "Done").length;
+                              const infos = (h.items ?? []).filter((i) => i.kind === "info").length;
+                              return (
+                                <>
+                                  {actions.length > 0 && (
+                                    <Badge className={`text-xs hover:bg-inherit ${open ? "bg-amber-100 text-amber-800 border-amber-300" : "bg-green-100 text-green-800 border-green-300"}`}>
+                                      {open ? `${open} of ${actions.length} still to do` : `${actions.length} done`}
+                                    </Badge>
+                                  )}
+                                  {infos > 0 && <Badge className="text-xs bg-blue-100 text-blue-700 border-blue-300 hover:bg-blue-100">{infos} for info</Badge>}
+                                </>
+                              );
+                            })()}
                             {h.incidents && <Badge className="text-xs bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-100">Incidents</Badge>}
                             {h.outstanding_tasks && <Badge className="text-xs bg-blue-100 text-blue-700 border-blue-300 hover:bg-blue-100">Outstanding Tasks</Badge>}
                             {h.equipment_notes && <Badge className="text-xs bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-100">Equipment</Badge>}
                           </div>
                           <p className="text-xs text-muted-foreground flex items-center gap-2 flex-wrap">
                             By {h.written_by_name ?? "Unknown"} · {timeAgo}
+                            {h.next_watch && (
+                              <span className={h.read_at ? "text-green-700 dark:text-green-400" : ""}>
+                                · For {h.next_watch} Watch{h.read_at ? ` — read${h.read_by_name ? ` by ${h.read_by_name}` : ""}` : (h.items ?? []).some((i) => i.kind === "info") ? " — not read yet" : ""}
+                              </span>
+                            )}
                             {editedAt && (
                               <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-muted text-muted-foreground border border-border/60">
                                 edited <span className="font-mono">{editedAt}</span>
@@ -736,6 +673,7 @@ export default function Handover() {
                                   equipment_notes:   h.equipment_notes   ?? "",
                                   staff_notes:       h.staff_notes       ?? "",
                                   general_notes:     h.general_notes     ?? "",
+                                  items:             h.items             ?? [],
                                 });
                                 setEditingId(h.id);
                                 setExpandedId(h.id);
@@ -765,35 +703,39 @@ export default function Handover() {
                     <CardContent className={`pt-0 border-t handover-card-body ${isExpanded ? "" : "hidden"}`}>
                       {editingId === h.id ? (
                         <div className="space-y-4 pt-4">
+                          <div className="space-y-1.5">
+                            <Label>Handover lines</Label>
+                            <HandoverItemsEditor items={editForm.items} onChange={(items) => setEditForm((f) => ({ ...f, items }))} />
+                          </div>
                           <EditField
-                            label="General Notes"
+                            label="Anything else"
                             value={editForm.general_notes}
                             onChange={(v) => setEditForm((f) => ({ ...f, general_notes: v }))}
                           />
-                          <EditField
+                          {h.incidents && <EditField
                             label="Incidents"
                             colour="orange"
                             value={editForm.incidents}
                             onChange={(v) => setEditForm((f) => ({ ...f, incidents: v }))}
-                          />
-                          <EditField
+                          />}
+                          {h.outstanding_tasks && <EditField
                             label="Outstanding Tasks"
                             colour="blue"
                             value={editForm.outstanding_tasks}
                             onChange={(v) => setEditForm((f) => ({ ...f, outstanding_tasks: v }))}
-                          />
-                          <EditField
+                          />}
+                          {h.equipment_notes && <EditField
                             label="Equipment / Defects"
                             colour="yellow"
                             value={editForm.equipment_notes}
                             onChange={(v) => setEditForm((f) => ({ ...f, equipment_notes: v }))}
-                          />
-                          <EditField
+                          />}
+                          {h.staff_notes && <EditField
                             label="Staff Notes"
                             colour="purple"
                             value={editForm.staff_notes}
                             onChange={(v) => setEditForm((f) => ({ ...f, staff_notes: v }))}
-                          />
+                          />}
                           <div className="flex justify-end gap-2 pt-1">
                             <Button
                               variant="outline"
@@ -813,6 +755,27 @@ export default function Handover() {
                         </div>
                       ) : (
                         <div className="space-y-4 pt-0">
+                          {(h.items ?? []).length > 0 && (
+                            <ul className="cal-ui" style={{ listStyle: "none", margin: "12px 0 0", padding: 0, display: "flex", flexDirection: "column", gap: 6 }}>
+                              {(h.items ?? []).map((it) => (
+                                <li key={it.id} style={{ display: "flex", alignItems: "flex-start", gap: 8, flexWrap: "wrap", padding: "8px 10px", borderRadius: 10, background: "var(--cal-surface-2)" }}>
+                                  <KindBadge kind={it.kind} />
+                                  {it.tag && <span style={{ fontSize: 11, fontWeight: 600, color: "var(--cal-muted)", lineHeight: "22px" }}>{tagLabel(it.tag) ?? it.tag}</span>}
+                                  <span style={{ flex: "1 1 200px", fontSize: 14, lineHeight: "22px", ...(it.task_status === "Done" ? { textDecoration: "line-through", color: "var(--cal-muted)" } : {}) }}>{it.text}</span>
+                                  {it.kind === "action" && (
+                                    <span style={{ fontSize: 12, fontWeight: 600, lineHeight: "22px", color: it.task_status === "Done" ? "var(--cal-leave-fg)" : "var(--cal-day-fg)" }}>
+                                      {it.task_status === "Done" ? `Done${it.done_by_name ? ` by ${it.done_by_name}` : ""}` : it.task_id ? "On the board" : "Taken off the board"}
+                                    </span>
+                                  )}
+                                  {it.kind === "info" && it.show_until && (
+                                    <span style={{ fontSize: 12, lineHeight: "22px", color: "var(--cal-muted)" }}>
+                                      showing until {format(parseISO(it.show_until), "EEE d MMM")}
+                                    </span>
+                                  )}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
                           {h.general_notes    && <Section label="General Notes"      value={h.general_notes} />}
                           {h.incidents        && <Section label="Incidents"           value={h.incidents} colour="orange" />}
                           {h.outstanding_tasks && <Section label="Outstanding Tasks"  value={h.outstanding_tasks} colour="blue" />}
