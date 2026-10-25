@@ -25,7 +25,7 @@ export const create = api<CreateTaskRequest, Task>(
       req.title,
       req.description ?? null,
       req.assigned_to ?? null,
-      req.assigned_by,
+      auth.userID, // who set it = who's logged in (edit rights depend on it), not what the request says
       req.priority ?? "Med",
       req.due_date ?? null,
       req.category,
