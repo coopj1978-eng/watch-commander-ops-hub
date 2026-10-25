@@ -52168,8 +52168,11 @@ function MonthView({
             display: "flex",
             flexDirection: "column",
             gap: 4,
-            background: k ? tok(k, "shade") : "var(--cal-surface-2)",
-            boxShadow: isToday2 ? "inset 0 0 0 2px var(--cal-brand)" : void 0,
+            // Shift days are filled (day amber, night indigo, leave green);
+            // rest days stay plain with a thin outline so "off" never
+            // looks like a night.
+            background: k ? `var(--cal-${k}-cell)` : "var(--cal-surface)",
+            boxShadow: isToday2 ? "inset 0 0 0 2px var(--cal-brand)" : k ? void 0 : "inset 0 0 0 1px var(--cal-line)",
             minWidth: 0
           },
           children: [

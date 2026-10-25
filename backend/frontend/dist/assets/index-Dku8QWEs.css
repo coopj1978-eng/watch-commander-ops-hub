@@ -9204,9 +9204,9 @@ table.plain tbody tr:last-child td {
   --cal-leave-shade: #16a34a0f;
   --cal-board: #eceffa;
   --cal-todo-dot: #64748b;
-  --cal-day-cell: #fbf3dc;
-  --cal-night-cell: #eeedfc;
-  --cal-leave-cell: #e8f7ec;
+  --cal-day-cell: #fbf1d4;
+  --cal-night-cell: #e3e1fb;
+  --cal-leave-cell: #e3f5e8;
   --cal-card-shadow: 0 1px 2px #1114270d, 0 4px 14px #1114270d;
   --lb-urgent-bg: #fde4e4;
   --lb-urgent-fg: #991b1b;
@@ -9288,9 +9288,9 @@ table.plain tbody tr:last-child td {
   --cal-leave-shade: #16a34a14;
   --cal-board: #10132a;
   --cal-todo-dot: #94a3b8;
-  --cal-day-cell: #221f17;
-  --cal-night-cell: #191c3a;
-  --cal-leave-cell: #13241b;
+  --cal-day-cell: #2a2516;
+  --cal-night-cell: #262a5e;
+  --cal-leave-cell: #15291d;
   --cal-card-shadow: 0 1px 2px #0006, 0 6px 18px #00000040;
   --lb-urgent-bg: #ef444438;
   --lb-urgent-fg: #fecaca;

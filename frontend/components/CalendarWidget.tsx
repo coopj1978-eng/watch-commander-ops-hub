@@ -647,8 +647,11 @@ function MonthView({
               className="cal-focus"
               style={{
                 minHeight: 112, borderRadius: 14, padding: 8, cursor: "pointer", display: "flex", flexDirection: "column", gap: 4,
-                background: k ? tok(k, "shade") : "var(--cal-surface-2)",
-                boxShadow: isToday ? "inset 0 0 0 2px var(--cal-brand)" : undefined,
+                // Shift days are filled (day amber, night indigo, leave green);
+                // rest days stay plain with a thin outline so "off" never
+                // looks like a night.
+                background: k ? `var(--cal-${k}-cell)` : "var(--cal-surface)",
+                boxShadow: isToday ? "inset 0 0 0 2px var(--cal-brand)" : k ? undefined : "inset 0 0 0 1px var(--cal-line)",
                 minWidth: 0,
               }}
             >
