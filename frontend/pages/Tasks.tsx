@@ -60,38 +60,34 @@ export default function Tasks() {
   });
   const columns = (columnsData ?? []) as unknown as TaskColumn[];
 
-  // ── Users for avatars ───────────────────────────────────────────────────
-  const { data: profilesData } = useQuery({
-    queryKey: ["profiles-for-tasks"],
-    queryFn: async () => (await backend.profile.list({})).profiles ?? [],
+  // ── People (names → initials for cards and the "filter by person" row) ─
+  const { data: peopleData } = useQuery({
+    queryKey: ["people-for-tasks"],
+    queryFn: async () => (await backend.profile.listWithUsers({ limit: 500 })).people ?? [],
     staleTime: 5 * 60 * 1000,
   });
-
-  // Watch members for the "filter by person" row (you first).
-  const { data: watchProfiles } = useQuery({
-    queryKey: ["profiles-watch", user?.watch_unit],
-    queryFn: async () => (await backend.profile.list({ watch: user!.watch_unit })).profiles ?? [],
-    enabled: !!user?.watch_unit,
-    staleTime: 5 * 60 * 1000,
-  });
-  const people = useMemo(() => {
-    const list = (watchProfiles ?? []).map((p: any) => {
-      const name = (`${(p.first_name ?? "")} ${(p.last_name ?? "")}`).trim() || (p.email?.split("@")[0] ?? "?");
-      return { id: p.user_id as string, name, initials: name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2) };
-    });
-    return list.sort((a, b) => (a.id === user?.id ? -1 : b.id === user?.id ? 1 : a.name.localeCompare(b.name)));
-  }, [watchProfiles, user?.id]);
+  const initialsOf = (name: string) => name.split(/\s+/).filter(Boolean).map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "?";
 
   const userMap = useMemo(() => {
-    const colours = ["#6366f1","#8b5cf6","#ec4899","#f97316","#14b8a6","#0ea5e9","#22c55e","#eab308"];
     const map: Record<string, { initials: string; colour: string }> = {};
-    (profilesData ?? []).forEach((p: any, i: number) => {
-      const name = (`${(p.first_name ?? "")} ${(p.last_name ?? "")}`).trim() || (p.email?.split("@")[0] ?? "?");
-      const initials = name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
-      map[p.user_id] = { initials, colour: colours[i % colours.length] };
-    });
+    for (const p of peopleData ?? []) {
+      const name = p.user.name || p.user.email?.split("@")[0] || "?";
+      map[p.user.id] = { initials: initialsOf(name), colour: "" };
+    }
     return map;
-  }, [profilesData]);
+  }, [peopleData]);
+
+  // This watch's members for the person filter (you first).
+  const people = useMemo(() => {
+    const watch = (user?.watch_unit ?? "").toLowerCase();
+    return (peopleData ?? [])
+      .filter((p) => watch && (p.user.watch_unit ?? "").toLowerCase() === watch)
+      .map((p) => {
+        const name = p.user.name || p.user.email?.split("@")[0] || "?";
+        return { id: p.user.id, name, initials: initialsOf(name) };
+      })
+      .sort((a, b) => (a.id === user?.id ? -1 : b.id === user?.id ? 1 : a.name.localeCompare(b.name)));
+  }, [peopleData, user?.id, user?.watch_unit]);
 
   // All watch members see all watch tasks — backend already scopes by watch_unit
   const filteredTasks = tasks;

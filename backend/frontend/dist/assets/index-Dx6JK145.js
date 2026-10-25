@@ -58416,36 +58416,29 @@ function Tasks() {
     queryFn: async () => (await backendClient.task.listColumns()).columns
   });
   const columns = columnsData ?? [];
-  const { data: profilesData } = useQuery({
-    queryKey: ["profiles-for-tasks"],
-    queryFn: async () => (await backendClient.profile.list({})).profiles ?? [],
+  const { data: peopleData } = useQuery({
+    queryKey: ["people-for-tasks"],
+    queryFn: async () => (await backendClient.profile.listWithUsers({ limit: 500 })).people ?? [],
     staleTime: 5 * 60 * 1e3
   });
-  const { data: watchProfiles } = useQuery({
-    queryKey: ["profiles-watch", user2 == null ? void 0 : user2.watch_unit],
-    queryFn: async () => (await backendClient.profile.list({ watch: user2.watch_unit })).profiles ?? [],
-    enabled: !!(user2 == null ? void 0 : user2.watch_unit),
-    staleTime: 5 * 60 * 1e3
-  });
-  const people = reactExports.useMemo(() => {
-    const list = (watchProfiles ?? []).map((p) => {
-      var _a2;
-      const name = `${p.first_name ?? ""} ${p.last_name ?? ""}`.trim() || (((_a2 = p.email) == null ? void 0 : _a2.split("@")[0]) ?? "?");
-      return { id: p.user_id, name, initials: name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) };
-    });
-    return list.sort((a, b) => a.id === (user2 == null ? void 0 : user2.id) ? -1 : b.id === (user2 == null ? void 0 : user2.id) ? 1 : a.name.localeCompare(b.name));
-  }, [watchProfiles, user2 == null ? void 0 : user2.id]);
+  const initialsOf = (name) => name.split(/\s+/).filter(Boolean).map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "?";
   const userMap = reactExports.useMemo(() => {
-    const colours = ["#6366f1", "#8b5cf6", "#ec4899", "#f97316", "#14b8a6", "#0ea5e9", "#22c55e", "#eab308"];
+    var _a2;
     const map = {};
-    (profilesData ?? []).forEach((p, i) => {
-      var _a2;
-      const name = `${p.first_name ?? ""} ${p.last_name ?? ""}`.trim() || (((_a2 = p.email) == null ? void 0 : _a2.split("@")[0]) ?? "?");
-      const initials2 = name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
-      map[p.user_id] = { initials: initials2, colour: colours[i % colours.length] };
-    });
+    for (const p of peopleData ?? []) {
+      const name = p.user.name || ((_a2 = p.user.email) == null ? void 0 : _a2.split("@")[0]) || "?";
+      map[p.user.id] = { initials: initialsOf(name), colour: "" };
+    }
     return map;
-  }, [profilesData]);
+  }, [peopleData]);
+  const people = reactExports.useMemo(() => {
+    const watch = ((user2 == null ? void 0 : user2.watch_unit) ?? "").toLowerCase();
+    return (peopleData ?? []).filter((p) => watch && (p.user.watch_unit ?? "").toLowerCase() === watch).map((p) => {
+      var _a2;
+      const name = p.user.name || ((_a2 = p.user.email) == null ? void 0 : _a2.split("@")[0]) || "?";
+      return { id: p.user.id, name, initials: initialsOf(name) };
+    }).sort((a, b) => a.id === (user2 == null ? void 0 : user2.id) ? -1 : b.id === (user2 == null ? void 0 : user2.id) ? 1 : a.name.localeCompare(b.name));
+  }, [peopleData, user2 == null ? void 0 : user2.id, user2 == null ? void 0 : user2.watch_unit]);
   const filteredTasks = tasks;
   const taskStats = reactExports.useMemo(() => {
     const now = /* @__PURE__ */ new Date();
