@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as Menu from "@radix-ui/react-dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Check, X, ChevronsRight, MoreHorizontal } from "lucide-react";
+import { Plus, Check, X, ChevronsLeft, ChevronsRight, MoreHorizontal } from "lucide-react";
 import TaskCard from "./TaskCard";
 import QuickAddCard from "./QuickAddCard";
 import backend from "@/lib/backend";
 import { useToast } from "@/components/ui/use-toast";
+import { useIsPhone } from "@/lib/taskUi";
 import type { Task, TaskColumn, TaskPriority } from "~backend/task/types";
 
 interface TaskBoardFilters {
@@ -14,6 +15,8 @@ interface TaskBoardFilters {
   labels: string[];
   overdueOnly: boolean;
   assignee: string;
+  /** Only tasks due on this day (YYYY-MM-DD), from the watch calendar panel. */
+  dueOn?: string;
 }
 
 interface TaskBoardProps {
@@ -28,8 +31,6 @@ interface TaskBoardProps {
   canManageColumns?: boolean;
   filters?: TaskBoardFilters;
   isDark?: boolean;
-  /** Sit the columns on the soft board tint (the default background). */
-  tinted?: boolean;
   userMap?: Record<string, { initials: string; colour: string }>;
 }
 
@@ -38,7 +39,7 @@ const countPill: React.CSSProperties = {
   background: "var(--cal-surface-2)", color: "var(--cal-ink-2)",
 };
 
-/** Column header pill: dot, name, count (red when over the WIP limit), quick-add "+" and a ⋯ menu. */
+/** Column header pill: dot, name, count (red when over the WIP limit), ⋯ menu (WC/CC), collapse and quick-add "+". */
 function ColumnHeader({
   column, count, wipLimit, canManage, onRename, onDelete, onSetWip, onCollapse, onQuickAdd,
 }: {
@@ -49,7 +50,8 @@ function ColumnHeader({
   onRename: (name: string) => void;
   onDelete: () => void;
   onSetWip: (limit: number | undefined) => void;
-  onCollapse: () => void;
+  /** Undefined on phones, where one column shows at a time. */
+  onCollapse?: () => void;
   onQuickAdd?: () => void;
 }) {
   const [renaming, setRenaming] = useState(false);
@@ -70,7 +72,7 @@ function ColumnHeader({
     setEditingWip(false);
   };
   const iconBtn: React.CSSProperties = {
-    width: 28, height: 28, borderRadius: 8, border: "none", background: "transparent", color: "var(--cal-muted)",
+    width: 32, height: 32, borderRadius: 9, border: "none", background: "transparent", color: "var(--cal-muted)",
     display: "grid", placeItems: "center", cursor: "pointer", padding: 0, flex: "none",
   };
 
@@ -78,9 +80,9 @@ function ColumnHeader({
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
       <div
         style={{
-          display: "flex", alignItems: "center", gap: 8, height: 52, padding: "0 6px 0 14px", borderRadius: 16,
+          display: "flex", alignItems: "center", gap: 8, height: 52, padding: "0 8px 0 14px", borderRadius: 16,
           background: "var(--cal-surface)",
-          boxShadow: isOverWip ? "var(--cal-card-shadow), inset 0 0 0 1.5px var(--cal-station-dot)" : "var(--cal-card-shadow)",
+          boxShadow: isOverWip ? "var(--cal-shadow), inset 0 0 0 1.5px var(--cal-station-dot)" : "var(--cal-shadow)",
         }}
       >
         <span style={{ width: 10, height: 10, borderRadius: "50%", flex: "none", background: column.color }} />
@@ -113,6 +115,30 @@ function ColumnHeader({
           </span>
         )}
         <span style={{ flex: 1 }} />
+        {!renaming && canManage && (
+          <Menu.Root>
+            <Menu.Trigger asChild>
+              <button type="button" aria-label={`${column.name} column actions`} className="cal-focus" style={iconBtn}>
+                <MoreHorizontal className="h-4 w-4" />
+              </button>
+            </Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Content align="end" sideOffset={6} collisionPadding={12} className="cal-menu">
+                <Menu.Item className="cal-menu-item" onSelect={() => setRenaming(true)}>Rename</Menu.Item>
+                <Menu.Item className="cal-menu-item" onSelect={() => { setWip(wipLimit?.toString() ?? ""); setEditingWip(true); }}>
+                  {wipLimit ? `Change WIP limit (${wipLimit})…` : "Set WIP limit…"}
+                </Menu.Item>
+                <Menu.Separator className="cal-menu-sep" />
+                <Menu.Item className="cal-menu-item cal-menu-danger" onSelect={onDelete}>Delete column</Menu.Item>
+              </Menu.Content>
+            </Menu.Portal>
+          </Menu.Root>
+        )}
+        {!renaming && onCollapse && (
+          <button type="button" aria-label={`Collapse ${column.name}`} title="Collapse column" onClick={onCollapse} className="cal-focus" style={{ ...iconBtn, width: 32, height: 32, borderRadius: 9 }}>
+            <ChevronsLeft className="h-4 w-4" />
+          </button>
+        )}
         {onQuickAdd && !renaming && (
           <button
             type="button"
@@ -125,34 +151,11 @@ function ColumnHeader({
             <Plus className="h-[15px] w-[15px]" strokeWidth={2.6} />
           </button>
         )}
-        {!renaming && (
-          <Menu.Root>
-            <Menu.Trigger asChild>
-              <button type="button" aria-label={`${column.name} column actions`} className="cal-focus" style={iconBtn}>
-                <MoreHorizontal className="h-4 w-4" />
-              </button>
-            </Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Content align="end" sideOffset={6} collisionPadding={12} className="cal-menu">
-                <Menu.Item className="cal-menu-item" onSelect={onCollapse}>Collapse column</Menu.Item>
-                {canManage && (
-                  <>
-                    <Menu.Item className="cal-menu-item" onSelect={() => setRenaming(true)}>Rename</Menu.Item>
-                    <Menu.Item className="cal-menu-item" onSelect={() => { setWip(wipLimit?.toString() ?? ""); setEditingWip(true); }}>
-                      {wipLimit ? `Change WIP limit (${wipLimit})…` : "Set WIP limit…"}
-                    </Menu.Item>
-                    <Menu.Separator className="cal-menu-sep" />
-                    <Menu.Item className="cal-menu-item cal-menu-danger" onSelect={onDelete}>Delete column</Menu.Item>
-                  </>
-                )}
-              </Menu.Content>
-            </Menu.Portal>
-          </Menu.Root>
-        )}
+
       </div>
 
       {isOverWip && (
-        <span style={{ fontSize: 12, fontWeight: 600, color: "var(--cal-station-fg)", padding: "0 6px" }}>
+        <span style={{ fontSize: 12, fontWeight: 600, color: "var(--cal-station-fg)", padding: "0 6px", marginTop: -4 }}>
           Over WIP limit · {count} of {wipLimit}
         </span>
       )}
@@ -190,7 +193,6 @@ export default function TaskBoard({
   canManageColumns = false,
   filters,
   isDark = false,
-  tinted = false,
   userMap,
 }: TaskBoardProps) {
   const { toast } = useToast();
@@ -208,6 +210,9 @@ export default function TaskBoard({
   const [addingColumn, setAddingColumn] = useState(false);
   const [newColName, setNewColName] = useState("");
   const [quickAddCol, setQuickAddCol] = useState<string | null>(null);
+  const isPhone = useIsPhone();
+  const [phoneCol, setPhoneCol] = useState<string | null>(null);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
 
   // ── Collapse state ─────────────────────────────────────────────────────────
   const [collapsedCols, setCollapsedCols] = useState<Set<string>>(() => {
@@ -300,6 +305,12 @@ export default function TaskBoard({
       if (!t.due_at || new Date(t.due_at) > new Date() || t.status === "Done") return false;
     }
     if (filters.assignee && t.assigned_to_user_id !== filters.assignee) return false;
+    if (filters.dueOn) {
+      if (!t.due_at) return false;
+      const d = new Date(t.due_at);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      if (key !== filters.dueOn) return false;
+    }
     return true;
   });
 
@@ -373,19 +384,166 @@ export default function TaskBoard({
     setDraggedTask(null); setDragOverColKey(null); setDragOverTaskId(null);
   };
 
+  // ── Cards for one column (shared by the desktop board and the phone view) ──
+  const renderColumnBody = (col: TaskColumn, colTasks: Task[], isDropTarget: boolean) =>
+    isLoading ? (
+      [...Array(2)].map((_, i) => <Skeleton key={i} className="h-24 w-full" style={{ borderRadius: 16 }} />)
+    ) : (
+      <>
+        {colTasks.map((task) => (
+          <div
+            key={task.id}
+            draggable={canEdit && !isPhone}
+            onDragStart={(e) => handleDragStart(e, task)}
+            onDragEnd={handleDragEnd}
+            onDragOver={(e) => handleTaskDragOver(e, task.id)}
+            style={{
+              borderRadius: 16,
+              cursor: canEdit && !isPhone ? "grab" : undefined,
+              transition: "opacity .15s, box-shadow .15s",
+              ...(draggedTask?.id === task.id ? { opacity: 0.45, boxShadow: "0 0 0 2px var(--cal-brand)" } : {}),
+              ...(dragOverTaskId === task.id && draggedTask?.id !== task.id ? { boxShadow: "0 -4px 0 var(--cal-brand)" } : {}),
+            }}
+          >
+            <TaskCard
+              task={task}
+              onClick={() => onTaskClick?.(task)}
+              onChecklistToggle={onChecklistToggle}
+              onTitleEdit={canEdit ? onTitleEdit : undefined}
+              isDark={isDark}
+              userMap={userMap}
+              columns={canEdit ? columns : undefined}
+              columnCounts={columnCounts}
+              onMove={canEdit ? (key) => moveTask(task, key) : undefined}
+              onSetPriority={canEdit ? (priority) => updateTaskMutation.mutate({ id: task.id, priority }) : undefined}
+              onDelete={canEdit ? () => handleDeleteTask(task) : undefined}
+            />
+          </div>
+        ))}
+
+        {colTasks.length === 0 && !isDropTarget && quickAddCol !== col.status_key && (
+          <div style={{ textAlign: "center", padding: "22px 12px", fontSize: 13, color: "var(--cal-muted)", border: "2px dashed var(--cal-line-2)", borderRadius: 16 }}>
+            No tasks
+          </div>
+        )}
+
+        {isDropTarget && (
+          <div style={{ textAlign: "center", padding: "18px 0", fontSize: 12, fontWeight: 600, color: "var(--cal-brand-text)", border: "2px dashed var(--cal-brand)", background: "var(--cal-brand-soft)", borderRadius: 16 }}>
+            Drop here
+          </div>
+        )}
+
+        {canEdit && (
+          <QuickAddCard
+            columnStatusKey={col.status_key}
+            onAdd={(title, statusKey) => onTaskCreate?.(title, statusKey)}
+            open={quickAddCol === col.status_key}
+            onOpenChange={(open) => setQuickAddCol(open ? col.status_key : null)}
+          />
+        )}
+      </>
+    );
+
+  const columnCounts: Record<string, string> = {};
+  for (const col of columns) {
+    const n = (allTasksByColumn[col.status_key] ?? []).length;
+    columnCounts[col.status_key] = wipLimits[col.status_key] ? `${n}/${wipLimits[col.status_key]}` : String(n);
+  }
+
   if (isLoading && columns.length === 0) {
     return (
-      <div className="flex gap-5">
-        {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-64 w-[80vw] sm:w-[280px] shrink-0" style={{ borderRadius: 20 }} />)}
+      <div className="flex gap-4">
+        {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-64 w-full sm:w-[300px] shrink-0" style={{ borderRadius: 20 }} />)}
+      </div>
+    );
+  }
+
+  // ── Phone: one column at a time, picked with tabs (or a sideways swipe) ──
+  if (isPhone) {
+    const active = columns.find((c) => c.status_key === phoneCol) ?? columns[0];
+    if (!active) return null;
+    const activeIdx = columns.indexOf(active);
+    const colTasks = tasksByColumn[active.status_key] ?? [];
+    const go = (delta: number) => {
+      const next = columns[activeIdx + delta];
+      if (next) setPhoneCol(next.status_key);
+    };
+    const fewTabs = columns.length <= 3;
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div
+          role="tablist"
+          aria-label="Columns"
+          style={{
+            padding: 4, borderRadius: 14, background: "var(--cal-surface-3)", gap: 4,
+            ...(fewTabs
+              ? { display: "grid", gridTemplateColumns: `repeat(${columns.length}, minmax(0, 1fr))` }
+              : { display: "flex", overflowX: "auto" }),
+          }}
+        >
+          {columns.map((c) => {
+            const on = c.status_key === active.status_key;
+            const n = (allTasksByColumn[c.status_key] ?? []).length;
+            const over = wipLimits[c.status_key] !== undefined && n > wipLimits[c.status_key];
+            return (
+              <button
+                key={c.id}
+                type="button"
+                role="tab"
+                aria-selected={on}
+                onClick={() => setPhoneCol(c.status_key)}
+                className="cal-focus"
+                style={{
+                  height: 40, borderRadius: 10, border: "none", font: "inherit", fontSize: 13, cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "0 10px", whiteSpace: "nowrap",
+                  ...(fewTabs ? {} : { flex: "1 0 auto" }),
+                  ...(on
+                    ? { background: "var(--cal-surface)", color: "var(--cal-ink)", fontWeight: 600, boxShadow: "var(--cal-shadow)" }
+                    : { background: "transparent", color: "var(--cal-ink-2)", fontWeight: 500 }),
+                }}
+              >
+                {c.name}
+                <span
+                  className="cal-mono"
+                  style={{
+                    fontSize: 11, padding: "1px 6px", borderRadius: 6,
+                    ...(over ? { background: "var(--cal-station-bg)", color: "var(--cal-station-fg)", fontWeight: 600 } : { background: "var(--cal-surface-2)" }),
+                  }}
+                >
+                  {columnCounts[c.status_key]}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        <section
+          role="tabpanel"
+          aria-label={active.name}
+          style={{ display: "flex", flexDirection: "column", gap: 12, minHeight: 200 }}
+          onTouchStart={(e) => { touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }; }}
+          onTouchEnd={(e) => {
+            const start = touchStart.current;
+            touchStart.current = null;
+            if (!start) return;
+            const dx = e.changedTouches[0].clientX - start.x;
+            const dy = e.changedTouches[0].clientY - start.y;
+            if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1);
+          }}
+        >
+          {wipLimits[active.status_key] !== undefined && colTasks.length > wipLimits[active.status_key] && (
+            <span style={{ fontSize: 12, fontWeight: 600, color: "var(--cal-station-fg)", padding: "0 6px" }}>
+              Over WIP limit · {(allTasksByColumn[active.status_key] ?? []).length} of {wipLimits[active.status_key]}
+            </span>
+          )}
+          {renderColumnBody(active, colTasks, false)}
+        </section>
       </div>
     );
   }
 
   return (
-    <div
-      className="flex gap-5 overflow-x-auto items-start"
-      style={tinted ? { background: "var(--cal-board)", borderRadius: 28, padding: 20 } : { paddingBottom: 16 }}
-    >
+    <div className="flex gap-4 items-start" style={{ minWidth: "fit-content" }}>
       {columns.map((col) => {
         const colTasks = tasksByColumn[col.status_key] ?? [];
         const allColTasks = allTasksByColumn[col.status_key] ?? [];
@@ -407,8 +565,8 @@ export default function TaskBoard({
               aria-label={`${col.name}, ${allColTasks.length} cards, collapsed. Expand`}
               title={`Expand ${col.name}`}
               style={{
-                width: 60, minHeight: 220, borderRadius: 18, border: "none", background: "var(--cal-surface)",
-                boxShadow: dragOverColKey === col.status_key ? "0 0 0 2px var(--cal-brand), var(--cal-card-shadow)" : "var(--cal-card-shadow)",
+                width: 60, height: 420, borderRadius: 18, border: "none", background: "var(--cal-surface)",
+                boxShadow: dragOverColKey === col.status_key ? "0 0 0 2px var(--cal-brand), var(--cal-shadow)" : "var(--cal-shadow)",
                 color: "var(--cal-ink)", font: "inherit", display: "flex", flexDirection: "column", alignItems: "center",
                 gap: 12, padding: "16px 0", cursor: "pointer",
               }}
@@ -425,8 +583,8 @@ export default function TaskBoard({
           <section
             key={col.id}
             aria-label={col.name}
-            className="shrink-0 w-[80vw] sm:w-[280px]"
-            style={{ display: "flex", flexDirection: "column", gap: 12 }}
+            className="shrink-0"
+            style={{ width: 300, display: "flex", flexDirection: "column", gap: 10 }}
             onDragOver={(e) => handleColDragOver(e, col.status_key)}
             onDrop={(e) => handleDrop(e, col.status_key)}
             onDragLeave={(e) => {
@@ -444,72 +602,16 @@ export default function TaskBoard({
               onCollapse={() => toggleCollapse(col.status_key)}
               onQuickAdd={canEdit ? () => setQuickAddCol(col.status_key) : undefined}
             />
-
-            {isLoading ? (
-              [...Array(2)].map((_, i) => <Skeleton key={i} className="h-24 w-full" style={{ borderRadius: 16 }} />)
-            ) : (
-              <>
-                {colTasks.map((task) => (
-                  <div
-                    key={task.id}
-                    draggable={canEdit}
-                    onDragStart={(e) => handleDragStart(e, task)}
-                    onDragEnd={handleDragEnd}
-                    onDragOver={(e) => handleTaskDragOver(e, task.id)}
-                    style={{
-                      borderRadius: 16,
-                      cursor: canEdit ? "grab" : undefined,
-                      transition: "opacity .15s, box-shadow .15s",
-                      ...(draggedTask?.id === task.id ? { opacity: 0.45, boxShadow: "0 0 0 2px var(--cal-brand)" } : {}),
-                      ...(dragOverTaskId === task.id && draggedTask?.id !== task.id ? { boxShadow: "0 -4px 0 var(--cal-brand)" } : {}),
-                    }}
-                  >
-                    <TaskCard
-                      task={task}
-                      onClick={() => onTaskClick?.(task)}
-                      onChecklistToggle={onChecklistToggle}
-                      onTitleEdit={canEdit ? onTitleEdit : undefined}
-                      isDark={isDark}
-                      userMap={userMap}
-                      columns={canEdit ? columns : undefined}
-                      onMove={canEdit ? (key) => moveTask(task, key) : undefined}
-                      onSetPriority={canEdit ? (priority) => updateTaskMutation.mutate({ id: task.id, priority }) : undefined}
-                      onDelete={canEdit ? () => handleDeleteTask(task) : undefined}
-                    />
-                  </div>
-                ))}
-
-                {colTasks.length === 0 && !isDropTarget && (
-                  <div style={{ textAlign: "center", padding: "22px 12px", fontSize: 13, color: "var(--cal-muted)", border: "2px dashed var(--cal-line-2)", borderRadius: 16 }}>
-                    No tasks
-                  </div>
-                )}
-
-                {isDropTarget && (
-                  <div style={{ textAlign: "center", padding: "18px 0", fontSize: 12, fontWeight: 600, color: "var(--cal-brand-text)", border: "2px dashed var(--cal-brand)", background: "var(--cal-brand-soft)", borderRadius: 16 }}>
-                    Drop here
-                  </div>
-                )}
-
-                {canEdit && (
-                  <QuickAddCard
-                    columnStatusKey={col.status_key}
-                    onAdd={(title, statusKey) => onTaskCreate?.(title, statusKey)}
-                    open={quickAddCol === col.status_key}
-                    onOpenChange={(open) => setQuickAddCol(open ? col.status_key : null)}
-                  />
-                )}
-              </>
-            )}
+            {renderColumnBody(col, colTasks, isDropTarget)}
           </section>
         );
       })}
 
       {/* Add Column */}
       {canManageColumns && (
-        <div className="shrink-0 w-[80vw] sm:w-[280px]">
+        <div className="shrink-0" style={{ width: addingColumn ? 300 : 200 }}>
           {addingColumn ? (
-            <div style={{ background: "var(--cal-surface)", borderRadius: 16, boxShadow: "var(--cal-card-shadow)", padding: 14, display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ background: "var(--cal-surface)", borderRadius: 16, boxShadow: "var(--cal-shadow)", padding: 14, display: "flex", flexDirection: "column", gap: 10 }}>
               <input
                 aria-label="Column name"
                 placeholder="Column name…"
@@ -539,12 +641,12 @@ export default function TaskBoard({
               onClick={() => setAddingColumn(true)}
               className="cal-focus"
               style={{
-                width: "100%", height: 52, display: "flex", alignItems: "center", gap: 8, padding: "0 14px", borderRadius: 16,
-                border: "2px dashed var(--cal-line-2)", background: "transparent", color: isDark && !tinted ? "#fff" : "var(--cal-ink-2)",
+                width: "100%", height: 52, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, borderRadius: 16,
+                border: "2px dashed var(--cal-line-2)", background: "transparent", color: "var(--cal-ink-2)",
                 font: "inherit", fontSize: 14, fontWeight: 500, cursor: "pointer",
               }}
             >
-              <Plus className="h-4 w-4" /> Add column
+              <Plus className="h-4 w-4" strokeWidth={2.2} /> Add column
             </button>
           )}
         </div>

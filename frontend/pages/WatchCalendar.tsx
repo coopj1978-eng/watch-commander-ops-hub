@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/App";
+import { useSearchParams } from "react-router-dom";
 import { useUserRole } from "@/lib/rbac";
 import backend from "@/lib/backend";
 import type { shift_adjustments } from "@/client";
@@ -25,8 +26,13 @@ export default function UnifiedCalendar() {
   const userId = user?.id ?? "user_123";
 
   // View state
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [view, setView] = useState<CalendarViewType>("month");
+  // "?date=YYYY-MM-DD" (e.g. from the Tasks page's watch calendar) opens that day.
+  const [searchParams] = useSearchParams();
+  const dateParam = searchParams.get("date");
+  const [currentDate, setCurrentDate] = useState(() =>
+    dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam) ? new Date(`${dateParam}T12:00:00`) : new Date()
+  );
+  const [view, setView] = useState<CalendarViewType>(dateParam ? "day" : "month");
 
   // Calendar visibility toggles
   const [visibleCalendars, setVisibleCalendars] = useState<Set<string>>(

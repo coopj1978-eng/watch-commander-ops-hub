@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { AlertCircle, Calendar, CheckCircle2, Clock, Repeat } from "lucide-react";
 import type { Task } from "~backend/task/types";
 import { getLabelById } from "@/lib/taskLabels";
@@ -125,11 +126,16 @@ export function LabelTag({ id }: { id: string }) {
 
 const PEOPLE = ["indigo", "teal", "rose", "amber", "slate"];
 
-/** Someone's initials in a tinted rounded square; the tint is fixed per person. */
-export function Initials({ userId, initials, size = 26 }: { userId: string; initials: string; size?: number }) {
+/** A person's fixed tint family (--pp-<key>-bg / -fg). */
+export function personTint(userId: string): string {
   let hash = 0;
   for (let i = 0; i < userId.length; i++) hash = userId.charCodeAt(i) + ((hash << 5) - hash);
-  const k = PEOPLE[Math.abs(hash) % PEOPLE.length];
+  return PEOPLE[Math.abs(hash) % PEOPLE.length];
+}
+
+/** Someone's initials in a tinted rounded square; the tint is fixed per person. */
+export function Initials({ userId, initials, size = 26 }: { userId: string; initials: string; size?: number }) {
+  const k = personTint(userId);
   return (
     <span
       title={initials}
@@ -143,4 +149,17 @@ export function Initials({ userId, initials, size = 26 }: { userId: string; init
       {initials}
     </span>
   );
+}
+
+/** True below the md breakpoint (phones) — for layouts that differ, not just restyle. */
+export function useIsPhone(): boolean {
+  const query = "(max-width: 767px)";
+  const [isPhone, setIsPhone] = useState(() => typeof window !== "undefined" && window.matchMedia(query).matches);
+  useEffect(() => {
+    const m = window.matchMedia(query);
+    const onChange = () => setIsPhone(m.matches);
+    m.addEventListener("change", onChange);
+    return () => m.removeEventListener("change", onChange);
+  }, []);
+  return isPhone;
 }

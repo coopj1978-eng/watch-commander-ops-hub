@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Plus, X } from "lucide-react";
+import { Plus } from "lucide-react";
 
 interface QuickAddCardProps {
   columnStatusKey: string;
@@ -10,37 +10,31 @@ interface QuickAddCardProps {
   onOpenChange?: (open: boolean) => void;
 }
 
+const kbd: React.CSSProperties = { padding: "1px 5px", borderRadius: 5, background: "var(--cal-surface-2)" };
+
 export default function QuickAddCard({ columnStatusKey, onAdd, isLoading, open: openProp, onOpenChange }: QuickAddCardProps) {
   const [openState, setOpenState] = useState(false);
   const open = openProp ?? openState;
   const setOpen = (o: boolean) => { setOpenState(o); onOpenChange?.(o); };
   const [title, setTitle] = useState("");
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (open) textareaRef.current?.focus();
+    if (open) inputRef.current?.focus();
   }, [open]);
 
   const handleSubmit = () => {
     const trimmed = title.trim();
-    if (!trimmed) return;
+    if (!trimmed || isLoading) return;
     onAdd(trimmed, columnStatusKey);
     setTitle("");
     // Keep open for rapid entry
-    textareaRef.current?.focus();
+    inputRef.current?.focus();
   };
 
   const handleCancel = () => {
     setOpen(false);
     setTitle("");
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit();
-    }
-    if (e.key === "Escape") handleCancel();
   };
 
   if (!open) {
@@ -50,50 +44,37 @@ export default function QuickAddCard({ columnStatusKey, onAdd, isLoading, open: 
         onClick={() => setOpen(true)}
         className="cal-focus"
         style={{
-          display: "flex", alignItems: "center", gap: 6, width: "100%", padding: "8px 10px", borderRadius: 12,
-          border: "none", background: "transparent", color: "var(--cal-ink-2)", font: "inherit", fontSize: 13,
+          display: "flex", alignItems: "center", gap: 8, width: "100%", height: 44, padding: "0 12px", borderRadius: 14,
+          border: "none", background: "transparent", color: "var(--cal-ink-2)", font: "inherit", fontSize: 14,
           fontWeight: 500, cursor: "pointer",
         }}
       >
-        <Plus className="h-4 w-4" />
+        <Plus className="h-4 w-4" strokeWidth={2.2} />
         Add a card
       </button>
     );
   }
 
+  // Enter adds and stays open for the next one; Esc (or leaving it empty) closes.
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-      <textarea
-        ref={textareaRef}
+    <div style={{ background: "var(--cal-surface)", borderRadius: 16, padding: 10, boxShadow: "0 0 0 2px var(--cal-brand)", display: "flex", flexDirection: "column", gap: 8 }}>
+      <input
+        ref={inputRef}
         aria-label="New card title"
-        placeholder="Enter a title…"
+        placeholder="Card title…"
         value={title}
+        enterKeyHint="done"
         onChange={(e) => setTitle(e.target.value)}
-        onKeyDown={handleKeyDown}
-        rows={3}
-        style={{
-          width: "100%", borderRadius: 14, border: "2px solid var(--cal-brand)", background: "var(--cal-surface)",
-          padding: 10, font: "inherit", fontSize: 14, color: "var(--cal-ink)", outline: "none", resize: "none",
-          boxShadow: "var(--cal-shadow)", boxSizing: "border-box",
+        onKeyDown={(e) => {
+          if (e.key === "Enter") { e.preventDefault(); handleSubmit(); }
+          if (e.key === "Escape") handleCancel();
         }}
+        onBlur={() => { if (!title.trim()) handleCancel(); }}
+        style={{ border: "none", background: "transparent", font: "inherit", fontSize: 14, color: "var(--cal-ink)", outline: "none", padding: 4 }}
       />
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={!title.trim() || isLoading}
-          className="cal-focus"
-          style={{
-            height: 36, padding: "0 14px", borderRadius: 10, border: "none", background: "var(--cal-brand)", color: "#fff",
-            font: "inherit", fontSize: 13, fontWeight: 600, cursor: "pointer", opacity: !title.trim() || isLoading ? 0.5 : 1,
-          }}
-        >
-          Add card
-        </button>
-        <button type="button" aria-label="Cancel" className="cal-btn" style={{ width: 36, height: 36, padding: 0 }} onClick={handleCancel}>
-          <X className="h-4 w-4" />
-        </button>
-      </div>
+      <span style={{ fontSize: 11, color: "var(--cal-muted)" }}>
+        <span className="cal-mono" style={kbd}>Enter</span> to add · <span className="cal-mono" style={kbd}>Esc</span> to cancel
+      </span>
     </div>
   );
 }

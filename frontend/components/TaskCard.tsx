@@ -1,9 +1,10 @@
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
+import { createPortal } from "react-dom";
 import * as Menu from "@radix-ui/react-dropdown-menu";
 import { Check, ChevronRight, MoreHorizontal, Repeat } from "lucide-react";
 import type { Task, TaskColumn, TaskPriority } from "~backend/task/types";
 import { getCoverStyle, getLabelById } from "@/lib/taskLabels";
-import { ChecklistBar, DueChip, Initials, LabelTag, PriorityChip, describeRRule, priorityKey } from "@/lib/taskUi";
+import { ChecklistBar, DueChip, Initials, LabelTag, PriorityChip, describeRRule, priorityKey, priorityLabel, useIsPhone } from "@/lib/taskUi";
 
 // Board card in the Claude Design Tasks layout: label tags + ⋯ menu on top,
 // priority dot and title, checklist bar, then due / priority / initials.
@@ -18,6 +19,8 @@ interface TaskCardProps {
   userMap?: Record<string, { initials: string; colour: string }>;
   /** ⋯ menu actions — the menu only shows when onMove is given. */
   columns?: TaskColumn[];
+  /** Card count per column ("4" or "4/3" with a WIP limit) for the phone "Move to…" list. */
+  columnCounts?: Record<string, string>;
   onMove?: (statusKey: string) => void;
   onSetPriority?: (priority: TaskPriority) => void;
   onDelete?: () => void;
@@ -29,22 +32,164 @@ const PRIORITIES: { value: TaskPriority; label: string }[] = [
   { value: "Low", label: "Low" },
 ];
 
-function CardMenu({
-  task, columns, onOpen, onMove, onSetPriority, onDelete,
-}: {
+type MenuProps = {
   task: Task;
   columns: TaskColumn[];
+  columnCounts?: Record<string, string>;
   onOpen?: () => void;
   onMove: (statusKey: string) => void;
   onSetPriority?: (priority: TaskPriority) => void;
   onDelete?: () => void;
-}) {
+};
+
+/** Phone: the ⋯ actions as a bottom sheet (Open, Move to…, Set priority, Delete, Cancel). */
+function CardActionSheet({ task, columns, columnCounts, onOpen, onMove, onSetPriority, onDelete, onClose }: MenuProps & { onClose: () => void }) {
+  const [priorityOpen, setPriorityOpen] = useState(false);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+  const item: React.CSSProperties = {
+    height: 52, border: "none", background: "transparent", borderRadius: 12, textAlign: "left", padding: "0 12px",
+    font: "inherit", fontSize: 16, color: "var(--cal-ink)", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", width: "100%",
+  };
+  const act = (fn?: () => void) => () => { onClose(); fn?.(); };
+
+  return createPortal(
+    // Portal content still bubbles React events to the card — stop them here.
+    <div className="cal-ui" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()} style={{ position: "fixed", inset: 0, zIndex: 50 }}>
+      <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "rgba(10,12,24,.45)" }} />
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Actions for ${task.title}`}
+        style={{
+          position: "absolute", left: 0, right: 0, bottom: 0, maxHeight: "88vh", overflowY: "auto", background: "var(--cal-surface)",
+          borderRadius: "28px 28px 0 0", padding: "10px 16px calc(20px + env(safe-area-inset-bottom))",
+          display: "flex", flexDirection: "column", gap: 4, boxShadow: "var(--cal-pop)",
+        }}
+      >
+        <span aria-hidden style={{ alignSelf: "center", width: 40, height: 5, borderRadius: 3, background: "var(--cal-line-2)", marginBottom: 10 }} />
+        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 8px 12px", borderBottom: "1px solid var(--cal-line)" }}>
+          <span style={{ width: 9, height: 9, borderRadius: "50%", flex: "none", background: `var(--cal-${priorityKey(task.priority)}-dot)` }} />
+          <span style={{ fontSize: 16, fontWeight: 600, flex: 1, minWidth: 0 }}>{task.title}</span>
+          {task.due_at && <DueChip task={task} />}
+        </div>
+        {onOpen && <button type="button" className="cal-focus" style={item} onClick={act(onOpen)}>Open</button>}
+        <div role="radiogroup" aria-label="Move to" style={{ display: "flex", flexDirection: "column", padding: 6, borderRadius: 16, background: "var(--cal-surface-2)" }}>
+          <span style={{ fontSize: 12, fontWeight: 600, color: "var(--cal-muted)", letterSpacing: ".06em", textTransform: "uppercase", padding: "8px 10px 4px" }}>Move to…</span>
+          {columns.map((c) => {
+            const on = c.status_key === task.status;
+            const count = columnCounts?.[c.status_key];
+            const [n, limit] = (count ?? "").split("/").map(Number);
+            const over = !!limit && n > limit;
+            return (
+              <button
+                key={c.id}
+                type="button"
+                role="radio"
+                aria-checked={on}
+                className="cal-focus"
+                onClick={act(on ? undefined : () => onMove(c.status_key))}
+                style={{ ...item, ...(on ? { background: "var(--cal-surface)", fontWeight: 600, boxShadow: "var(--cal-shadow)" } : {}) }}
+              >
+                <span style={{ width: 10, height: 10, borderRadius: "50%", background: c.color, flex: "none" }} />
+                {c.name}
+                {count && (
+                  <span className="cal-mono" style={{ marginLeft: "auto", fontSize: 12, padding: "2px 7px", borderRadius: 7, ...(over ? { background: "var(--cal-station-bg)", color: "var(--cal-station-fg)" } : { background: "var(--cal-surface-2)", color: "var(--cal-ink-2)" }) }}>
+                    {count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+        {onSetPriority && (
+          <>
+            <button type="button" className="cal-focus" style={item} aria-expanded={priorityOpen} onClick={() => setPriorityOpen(!priorityOpen)}>
+              Set priority<span style={{ marginLeft: "auto", fontSize: 13, color: "var(--cal-muted)" }}>{priorityLabel(task.priority)}</span>
+            </button>
+            {priorityOpen && (
+              <div role="radiogroup" aria-label="Priority" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 6, padding: "0 6px 6px" }}>
+                {PRIORITIES.map((p) => {
+                  const on = p.value === task.priority;
+                  return (
+                    <button
+                      key={p.value}
+                      type="button"
+                      role="radio"
+                      aria-checked={on}
+                      className="cal-focus"
+                      onClick={act(on ? undefined : () => onSetPriority(p.value))}
+                      style={{
+                        height: 44, borderRadius: 12, font: "inherit", fontSize: 14, fontWeight: 600, cursor: "pointer",
+                        display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                        border: on ? "2px solid var(--cal-ink)" : "1px solid var(--cal-line-2)",
+                        background: `var(--cal-${priorityKey(p.value)}-bg)`, color: `var(--cal-${priorityKey(p.value)}-fg)`,
+                      }}
+                    >
+                      {p.label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </>
+        )}
+        {onDelete && (
+          <button type="button" className="cal-focus" style={{ ...item, fontWeight: 600, color: "var(--cal-station-fg)" }} onClick={act(onDelete)}>Delete</button>
+        )}
+        <button
+          type="button"
+          className="cal-focus"
+          onClick={onClose}
+          style={{ height: 52, borderRadius: 14, border: "1px solid var(--cal-line-2)", background: "var(--cal-surface)", color: "var(--cal-ink)", font: "inherit", fontSize: 16, fontWeight: 500, marginTop: 4, cursor: "pointer" }}
+        >
+          Cancel
+        </button>
+      </section>
+    </div>,
+    document.body
+  );
+}
+
+function CardMenu(props: MenuProps) {
+  const { task, columns, onOpen, onMove, onSetPriority, onDelete } = props;
+  const isPhone = useIsPhone();
+  const [sheetOpen, setSheetOpen] = useState(false);
   // "Move to column…" and "Set priority" open in place (easier on a phone than fly-outs).
   const [section, setSection] = useState<"move" | "priority" | null>(null);
   const toggle = (e: Event, s: "move" | "priority") => { e.preventDefault(); setSection(section === s ? null : s); };
   const chevron = (open: boolean) => (
     <ChevronRight className="h-3.5 w-3.5" style={{ marginLeft: "auto", transform: open ? "rotate(90deg)" : undefined, transition: "transform .15s" }} />
   );
+
+  const triggerStyle: React.CSSProperties = {
+    marginLeft: "auto", width: isPhone ? 36 : 28, height: isPhone ? 36 : 28, borderRadius: isPhone ? 10 : 8, border: "none",
+    background: "transparent", color: "var(--cal-muted)", display: "grid", placeItems: "center", cursor: "pointer", flex: "none", padding: 0,
+  };
+
+  // Phones get a bottom sheet, opened on a full tap (Radix opens on pointer-down,
+  // which would let the same tap land on the sheet's backdrop and close it).
+  if (isPhone) {
+    return (
+      <>
+        <button
+          type="button"
+          aria-label="Card actions"
+          aria-haspopup="dialog"
+          className="cal-focus"
+          onClick={(e) => { e.stopPropagation(); setSheetOpen(true); }}
+          onKeyDown={(e) => e.stopPropagation()}
+          style={triggerStyle}
+        >
+          <MoreHorizontal className="h-[18px] w-[18px]" />
+        </button>
+        {sheetOpen && <CardActionSheet {...props} onClose={() => setSheetOpen(false)} />}
+      </>
+    );
+  }
 
   return (
     <Menu.Root onOpenChange={(open) => { if (!open) setSection(null); }}>
@@ -55,10 +200,7 @@ function CardMenu({
           className="cal-focus"
           onClick={(e) => e.stopPropagation()}
           onKeyDown={(e) => e.stopPropagation()}
-          style={{
-            marginLeft: "auto", width: 28, height: 28, borderRadius: 8, border: "none", background: "transparent",
-            color: "var(--cal-muted)", display: "grid", placeItems: "center", cursor: "pointer", flex: "none", padding: 0,
-          }}
+          style={triggerStyle}
         >
           <MoreHorizontal className="h-4 w-4" />
         </button>
@@ -125,7 +267,7 @@ function CardMenu({
   );
 }
 
-export default function TaskCard({ task, onTitleEdit, onClick, userMap, columns, onMove, onSetPriority, onDelete }: TaskCardProps) {
+export default function TaskCard({ task, onTitleEdit, onClick, userMap, columns, columnCounts, onMove, onSetPriority, onDelete }: TaskCardProps) {
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState(task.title);
   const titleInputRef = useRef<HTMLInputElement>(null);
@@ -153,7 +295,7 @@ export default function TaskCard({ task, onTitleEdit, onClick, userMap, columns,
     : null;
   const done = task.status === "Done";
   const menu = onMove && columns && columns.length > 0
-    ? <CardMenu task={task} columns={columns} onOpen={onClick} onMove={onMove} onSetPriority={onSetPriority} onDelete={onDelete} />
+    ? <CardMenu task={task} columns={columns} columnCounts={columnCounts} onOpen={onClick} onMove={onMove} onSetPriority={onSetPriority} onDelete={onDelete} />
     : null;
 
   return (

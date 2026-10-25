@@ -638,6 +638,7 @@ table.plain tbody tr:last-child td { border-bottom: none; }
   /* Tasks (Claude Design, Oct 2026): board tint, card shadow, label tints
      (--lb-<label id>) and the five initials colours (--pp-*). */
   --cal-board: #eceffa; --cal-todo-dot: #64748b;
+  --cal-day-cell: #fbf3dc; --cal-night-cell: #eeedfc; --cal-leave-cell: #e8f7ec;
   --cal-card-shadow: 0 1px 2px rgba(17,20,39,.05), 0 4px 14px rgba(17,20,39,.05);
   --lb-urgent-bg: #fde4e4; --lb-urgent-fg: #991b1b; --lb-operational-bg: #ffead6; --lb-operational-fg: #9a3412;
   --lb-training-bg: #fdf3c4; --lb-training-fg: #713f12; --lb-routine-bg: #dcf7e4; --lb-routine-fg: #166534;
@@ -664,6 +665,7 @@ table.plain tbody tr:last-child td { border-bottom: none; }
   --cal-night-bg: rgba(99,102,241,.26); --cal-night-fg: #d4dafe; --cal-night-dot: #818cf8; --cal-night-shade: rgba(99,102,241,.11);
   --cal-leave-bg: rgba(22,163,74,.22); --cal-leave-fg: #bbf7d0; --cal-leave-dot: #4ade80; --cal-leave-shade: rgba(22,163,74,.08);
   --cal-board: #10132a; --cal-todo-dot: #94a3b8;
+  --cal-day-cell: #221f17; --cal-night-cell: #191c3a; --cal-leave-cell: #13241b;
   --cal-card-shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.25);
   --lb-urgent-bg: rgba(239,68,68,.22); --lb-urgent-fg: #fecaca; --lb-operational-bg: rgba(249,115,22,.22); --lb-operational-fg: #fed7aa;
   --lb-training-bg: rgba(234,179,8,.22); --lb-training-fg: #fef08a; --lb-routine-bg: rgba(34,197,94,.20); --lb-routine-fg: #bbf7d0;
