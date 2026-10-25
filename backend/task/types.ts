@@ -23,6 +23,8 @@ export interface Task {
   rrule?: string;
   position?: number;
   completed_at?: Date;
+  /** Who moved it to Done. */
+  completed_by?: string;
   cover_colour?: string;
   source_type?: string;
   source_id?: number;
@@ -50,6 +52,8 @@ export interface TaskTemplate {
   priority: TaskPriority;
   checklist?: ChecklistItem[];
   rrule: string;
+  /** "Every shift": a card for the day and night shift of each day the rule fires. */
+  per_shift: boolean;
   is_active: boolean;
   created_by: string;
   created_at: Date;

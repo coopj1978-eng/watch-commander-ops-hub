@@ -28695,6 +28695,7 @@ var task;
       this.deleteTemplate = this.deleteTemplate.bind(this);
       this.list = this.list.bind(this);
       this.listColumns = this.listColumns.bind(this);
+      this.shiftBoard = this.shiftBoard.bind(this);
       this.listTemplates = this.listTemplates.bind(this);
       this.reorderColumns = this.reorderColumns.bind(this);
       this.update = this.update.bind(this);
@@ -28733,6 +28734,11 @@ var task;
         "watch_unit": params["watch_unit"]
       });
       const resp = await this.baseClient.callTypedAPI("GET", `/api/tasks`, void 0, { query });
+      return await resp.json();
+    }
+    async shiftBoard(params) {
+      const query = makeRecord({ watch: params.watch });
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/tasks/shift`, void 0, { query });
       return await resp.json();
     }
     async listColumns() {
@@ -54712,7 +54718,63 @@ function CardMenu(props) {
     ) })
   ] });
 }
-function TaskCard({ task: task2, onTitleEdit, onClick, userMap, columns, columnCounts, onMove, onSetPriority, onDelete }) {
+const FREQ_LABEL = {
+  shift: "Every shift",
+  daily: "Daily",
+  weekly: "Weekly",
+  fortnightly: "Fortnightly",
+  monthly: "Monthly",
+  quarterly: "Quarterly",
+  repeat: "Repeating"
+};
+const tagStyle = (bg, fg) => ({
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 5,
+  height: 22,
+  padding: "0 8px",
+  borderRadius: 7,
+  fontSize: 11,
+  fontWeight: 600,
+  whiteSpace: "nowrap",
+  background: bg,
+  color: fg
+});
+function ShiftTag({ task: task2, shiftStart: shiftStart2 }) {
+  const due = task2.due_at ? new Date(task2.due_at) : null;
+  const short = (d) => d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+  if (task2.kind === "check") {
+    const long = ["weekly", "fortnightly", "monthly", "quarterly"].includes(task2.check_freq ?? "");
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: tagStyle("var(--cal-brand-soft)", "var(--cal-brand-text)"), children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(ClipboardCheck, { className: "h-3 w-3" }),
+        " Station check · ",
+        FREQ_LABEL[task2.check_freq ?? ""] ?? "Repeating"
+      ] }),
+      long && due && task2.status !== "Done" && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: tagStyle("var(--cal-surface-2)", "var(--cal-ink-2)"), children: [
+        "Due by ",
+        short(new Date(due.getTime() - 6e4))
+      ] })
+    ] });
+  }
+  if (task2.status !== "Done" && due && shiftStart2 && due < new Date(shiftStart2)) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: tagStyle("var(--cal-day-bg)", "var(--cal-day-fg)"), title: "Not finished on an earlier shift", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(History, { className: "h-3 w-3" }),
+      " Carried from ",
+      short(due)
+    ] });
+  }
+  if (task2.kind === "calendar") {
+    const time = due && (due.getHours() || due.getMinutes()) ? ` · ${String(due.getHours()).padStart(2, "0")}:${String(due.getMinutes()).padStart(2, "0")}` : "";
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: tagStyle("var(--cal-watch-bg)", "var(--cal-watch-fg)"), children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarDays, { className: "h-3 w-3" }),
+      " Calendar",
+      time
+    ] });
+  }
+  return null;
+}
+function TaskCard({ task: task2, onTitleEdit, onClick, userMap, columns, columnCounts, onMove, onSetPriority, onDelete, shiftStart: shiftStart2 }) {
   var _a2;
   const [editingTitle, setEditingTitle] = reactExports.useState(false);
   const [titleValue, setTitleValue] = reactExports.useState(task2.title);
@@ -54738,6 +54800,9 @@ function TaskCard({ task: task2, onTitleEdit, onClick, userMap, columns, columnC
   const recur = describeRRule(task2.rrule);
   const assignee = task2.assigned_to_user_id ? { id: task2.assigned_to_user_id, initials: ((_a2 = userMap == null ? void 0 : userMap[task2.assigned_to_user_id]) == null ? void 0 : _a2.initials) ?? task2.assigned_to_user_id.slice(0, 2).toUpperCase() } : null;
   const done = task2.status === "Done";
+  const shiftTask = task2;
+  const tag = shiftTask.kind ? /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftTag, { task: shiftTask, shiftStart: shiftStart2 }) : null;
+  const showDue = !!task2.due_at && (!shiftTask.kind || shiftTask.kind === "watch" && !(shiftStart2 && new Date(task2.due_at) < new Date(shiftStart2)));
   const menu = onMove && columns && columns.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(CardMenu, { task: task2, columns, columnCounts, onOpen: onClick, onMove, onSetPriority, onDelete }) : null;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
@@ -54764,7 +54829,8 @@ function TaskCard({ task: task2, onTitleEdit, onClick, userMap, columns, columnC
       },
       children: [
         coverStyle && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { ...coverStyle, height: 92, borderRadius: 11, margin: "0 -4px" } }),
-        labelIds.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }, children: [
+        (labelIds.length > 0 || tag) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }, children: [
+          tag,
           labelIds.map((id) => /* @__PURE__ */ jsxRuntimeExports.jsx(LabelTag, { id }, id)),
           menu
         ] }),
@@ -54818,12 +54884,16 @@ function TaskCard({ task: task2, onTitleEdit, onClick, userMap, columns, columnC
               children: task2.title
             }
           ),
-          recur && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { role: "img", "aria-label": `Recurring: ${recur}`, title: recur, style: { display: "inline-flex", flex: "none", marginTop: 2, color: "var(--cal-brand-text)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat, { className: "h-[15px] w-[15px]" }) }),
-          labelIds.length === 0 && menu && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { marginTop: -4, display: "flex" }, children: menu })
+          recur && shiftTask.kind !== "check" && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { role: "img", "aria-label": `Recurring: ${recur}`, title: recur, style: { display: "inline-flex", flex: "none", marginTop: 2, color: "var(--cal-brand-text)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat, { className: "h-[15px] w-[15px]" }) }),
+          labelIds.length === 0 && !tag && menu && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { marginTop: -4, display: "flex" }, children: menu })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(ChecklistBar, { task: task2 }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }, children: [
-          task2.due_at ? /* @__PURE__ */ jsxRuntimeExports.jsx(DueChip, { task: task2 }) : recur ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 11, color: "var(--cal-muted)" }, children: recur }) : null,
+          done && shiftTask.completed_by_name ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 600, color: "var(--cal-leave-fg)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-3 w-3", strokeWidth: 3 }),
+            " ",
+            shiftTask.completed_by_name
+          ] }) : showDue ? /* @__PURE__ */ jsxRuntimeExports.jsx(DueChip, { task: task2 }) : recur && !shiftTask.kind ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 11, color: "var(--cal-muted)" }, children: recur }) : null,
           /* @__PURE__ */ jsxRuntimeExports.jsx(PriorityChip, { priority: task2.priority }),
           assignee && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { marginLeft: "auto", display: "flex" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Initials, { userId: assignee.id, initials: assignee.initials }) })
         ] })
@@ -54930,6 +55000,7 @@ const countPill = {
 function ColumnHeader({
   column,
   count: count2,
+  shown,
   wipLimit,
   canManage,
   onRename,
@@ -55009,16 +55080,13 @@ function ColumnHeader({
               children: column.name
             }
           ),
-          !renaming && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          !renaming && /* @__PURE__ */ jsxRuntimeExports.jsx(
             "span",
             {
               className: "cal-mono",
               title: isOverWip ? "Over the work-in-progress limit" : void 0,
               style: isOverWip ? { ...countPill, background: "var(--cal-station-bg)", color: "var(--cal-station-fg)" } : countPill,
-              children: [
-                count2,
-                wipLimit ? `/${wipLimit}` : ""
-              ]
+              children: shown !== void 0 && shown < count2 ? `${shown} of ${count2}` : `${count2}${wipLimit ? `/${wipLimit}` : ""}`
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { flex: 1 } }),
@@ -55091,7 +55159,8 @@ function TaskBoard({
   canManageColumns = false,
   filters,
   isDark = false,
-  userMap
+  userMap,
+  shiftStart: shiftStart2
 }) {
   const { toast: toast2 } = useToast();
   const queryClient2 = useQueryClient();
@@ -55187,10 +55256,26 @@ function TaskBoard({
       count2 > 0 ? `Delete "${col == null ? void 0 : col.name}"? ${count2} task${count2 !== 1 ? "s" : ""} will be moved to the first column.` : `Delete column "${col == null ? void 0 : col.name}"?`
     )) deleteColumnMutation.mutate(id);
   };
+  const [deletingIds, setDeletingIds] = reactExports.useState(/* @__PURE__ */ new Set());
   const handleDeleteTask = (task2) => {
-    if (confirm(`Delete "${task2.title}"? This can't be undone.`)) deleteTaskMutation.mutate(task2.id);
+    const restore = () => setDeletingIds((prev) => {
+      const next = new Set(prev);
+      next.delete(task2.id);
+      return next;
+    });
+    setDeletingIds((prev) => new Set(prev).add(task2.id));
+    const timer = setTimeout(() => deleteTaskMutation.mutate(task2.id, { onError: restore }), 6e3);
+    toast2({
+      title: "Task deleted",
+      description: task2.title,
+      action: /* @__PURE__ */ jsxRuntimeExports.jsx(ToastAction, { altText: "Undo delete", onClick: () => {
+        clearTimeout(timer);
+        restore();
+      }, children: "Undo" })
+    });
   };
-  const visibleTasks = tasks.filter((t) => {
+  const liveTasks = tasks.filter((t) => !deletingIds.has(t.id));
+  const visibleTasks = liveTasks.filter((t) => {
     if (!filters) return true;
     if (filters.search && !t.title.toLowerCase().includes(filters.search.toLowerCase())) return false;
     if (filters.labels.length > 0 && !filters.labels.some((l) => (t.tags ?? []).includes(l))) return false;
@@ -55210,7 +55295,7 @@ function TaskBoard({
   const allTasksByColumn = {};
   for (const col of columns) {
     tasksByColumn[col.status_key] = visibleTasks.filter((t) => t.status === col.status_key).sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
-    allTasksByColumn[col.status_key] = tasks.filter((t) => t.status === col.status_key);
+    allTasksByColumn[col.status_key] = liveTasks.filter((t) => t.status === col.status_key);
   }
   const moveTask = (task2, colKey, position) => {
     var _a2;
@@ -55302,13 +55387,14 @@ function TaskBoard({
             columnCounts,
             onMove: canEdit ? (key2) => moveTask(task2, key2) : void 0,
             onSetPriority: canEdit ? (priority) => updateTaskMutation.mutate({ id: task2.id, priority }) : void 0,
-            onDelete: canEdit ? () => handleDeleteTask(task2) : void 0
+            onDelete: canEdit ? () => handleDeleteTask(task2) : void 0,
+            shiftStart: shiftStart2
           }
         )
       },
       task2.id
     )),
-    colTasks.length === 0 && !isDropTarget && quickAddCol !== col.status_key && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { textAlign: "center", padding: "22px 12px", fontSize: 13, color: "var(--cal-muted)", border: "2px dashed var(--cal-line-2)", borderRadius: 16 }, children: "No tasks" }),
+    colTasks.length === 0 && !isDropTarget && quickAddCol !== col.status_key && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { textAlign: "center", padding: "22px 12px", fontSize: 13, color: "var(--cal-muted)", border: "2px dashed var(--cal-line-2)", borderRadius: 16 }, children: (allTasksByColumn[col.status_key] ?? []).length > 0 ? `${(allTasksByColumn[col.status_key] ?? []).length} hidden by your filters` : "No tasks" }),
     isDropTarget && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { textAlign: "center", padding: "18px 0", fontSize: 12, fontWeight: 600, color: "var(--cal-brand-text)", border: "2px dashed var(--cal-brand)", background: "var(--cal-brand-soft)", borderRadius: 16 }, children: "Drop here" }),
     canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx(
       QuickAddCard,
@@ -55496,6 +55582,7 @@ function TaskBoard({
               {
                 column: col,
                 count: allColTasks.length,
+                shown: colTasks.length,
                 wipLimit,
                 canManage: canManageColumns,
                 onRename: (name) => updateColumnMutation.mutate({ id: col.id, name }),
@@ -57180,10 +57267,12 @@ const PRIORITY_OPTIONS = [
   { value: "Low", label: "Low" }
 ];
 const SCHED_OPTIONS = [
+  { value: "SHIFT", label: "Every shift" },
   { value: "DAILY", label: "Daily" },
   { value: "WEEKLY", label: "Weekly on days" },
   { value: "NWEEKS", label: "Every N weeks" },
-  { value: "MONTHLY", label: "Monthly" }
+  { value: "MONTHLY", label: "Monthly" },
+  { value: "QUARTERLY", label: "Quarterly" }
 ];
 function buildRrule(freq, selectedDays, interval) {
   if (freq === "WEEKLY" && selectedDays.length > 0) {
@@ -57209,7 +57298,7 @@ function parseRruleDisplay(rrule) {
     }
     return interval === 1 ? "Every week" : `Every ${interval} weeks`;
   }
-  if (freq === "MONTHLY") return interval === 1 ? "Every month" : `Every ${interval} months`;
+  if (freq === "MONTHLY") return interval === 1 ? "Every month" : interval === 3 ? "Quarterly" : `Every ${interval} months`;
   return rrule;
 }
 const emptyForm$1 = () => ({
@@ -57234,7 +57323,7 @@ function fromTemplate(t) {
   });
   const freq = parts["FREQ"] ?? "WEEKLY";
   const interval = parseInt(parts["INTERVAL"] ?? "1");
-  const sched = freq === "WEEKLY" ? interval > 1 ? "NWEEKS" : "WEEKLY" : freq === "DAILY" || freq === "MONTHLY" ? freq : "WEEKLY";
+  const sched = t.per_shift ? "SHIFT" : freq === "WEEKLY" ? interval > 1 ? "NWEEKS" : "WEEKLY" : freq === "MONTHLY" ? interval === 3 ? "QUARTERLY" : "MONTHLY" : freq === "DAILY" ? "DAILY" : "WEEKLY";
   return {
     name: t.name,
     title_template: t.title_template,
@@ -57252,6 +57341,8 @@ function fromTemplate(t) {
 }
 function schedulePhrase(f) {
   const n = f.interval;
+  if (f.sched === "SHIFT") return "every shift (day and night)";
+  if (f.sched === "QUARTERLY") return "each quarter";
   if (f.freq === "DAILY") return n === 1 ? "each day" : `every ${n} days`;
   if (f.freq === "WEEKLY") {
     const days = DAYS_OF_WEEK.filter((d) => f.selectedDays.includes(d.key)).map((d) => d.label).join(", ");
@@ -57359,7 +57450,8 @@ function TaskTemplateManager({ isOpen, onClose, onUseTemplate, canManage }) {
         category: f.category,
         priority: f.priority,
         checklist: f.checklist,
-        rrule: buildRrule(f.freq, f.selectedDays, f.interval)
+        rrule: buildRrule(f.freq, f.selectedDays, f.interval),
+        per_shift: f.sched === "SHIFT"
       });
       if (!f.is_active) await backendClient.task.updateTemplate(created.id, { is_active: false });
       return created;
@@ -57379,7 +57471,8 @@ function TaskTemplateManager({ isOpen, onClose, onUseTemplate, canManage }) {
       category: f.category,
       priority: f.priority,
       checklist: f.checklist,
-      rrule: buildRrule(f.freq, f.selectedDays, f.interval)
+      rrule: buildRrule(f.freq, f.selectedDays, f.interval),
+      per_shift: f.sched === "SHIFT"
     }),
     onSuccess: () => {
       queryClient2.invalidateQueries({ queryKey: ["task-templates"] });
@@ -57439,6 +57532,8 @@ function TaskTemplateManager({ isOpen, onClose, onUseTemplate, canManage }) {
   const setSched = (s) => {
     if (s === form.sched) return;
     if (s === "NWEEKS") setF({ sched: s, freq: "WEEKLY", interval: Math.max(2, form.interval) });
+    else if (s === "SHIFT") setF({ sched: s, freq: "DAILY", interval: 1 });
+    else if (s === "QUARTERLY") setF({ sched: s, freq: "MONTHLY", interval: 3 });
     else setF({ sched: s, freq: s, interval: 1 });
   };
   const intervalMin = form.sched === "NWEEKS" ? 2 : 1;
@@ -57528,7 +57623,7 @@ function TaskTemplateManager({ isOpen, onClose, onUseTemplate, canManage }) {
                   canManage ? "WC / CC only" : "Set by WC / CC"
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { id: "ttm-title", className: "ttm-h1", children: "Work templates" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ttm-sub", children: "Recurring tasks that create cards automatically on schedule." })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ttm-sub", children: "Station checks for every watch — each one appears on the board of the watch on duty." })
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { flex: 1 } }),
               canManage && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", className: "ttm-pill cal-focus", onClick: handleNew, children: [
@@ -57567,7 +57662,7 @@ function TaskTemplateManager({ isOpen, onClose, onUseTemplate, canManage }) {
                           canManage && /* @__PURE__ */ jsxRuntimeExports.jsx(Switch$2, { checked: active, onChange: (v) => setActive(t, v), label: `${t.name} active` })
                         ] }),
                         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "ttm-row", children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(Tag, { bg: "var(--cal-brand-soft)", fg: "var(--cal-brand-text)", children: parseRruleDisplay(t.rrule) }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(Tag, { bg: "var(--cal-brand-soft)", fg: "var(--cal-brand-text)", children: t.per_shift ? "Every shift" : parseRruleDisplay(t.rrule) }),
                           /* @__PURE__ */ jsxRuntimeExports.jsx(Tag, { bg: `var(--cal-${priorityKey(t.priority)}-bg)`, fg: `var(--cal-${priorityKey(t.priority)}-fg)`, children: priorityLabel(t.priority) }),
                           /* @__PURE__ */ jsxRuntimeExports.jsx(Tag, { bg: "var(--cal-surface-2)", fg: "var(--cal-ink-2)", weight: 500, children: t.category }),
                           !active && /* @__PURE__ */ jsxRuntimeExports.jsx(Tag, { bg: "var(--cal-surface-3)", fg: "var(--cal-muted)", children: "Paused" }),
@@ -57798,7 +57893,7 @@ function TaskTemplateManager({ isOpen, onClose, onUseTemplate, canManage }) {
                     Segmented,
                     {
                       label: "Schedule",
-                      className: "ttm-seg-4",
+                      className: "ttm-seg-6",
                       options: SCHED_OPTIONS,
                       value: form.sched,
                       onChange: setSched
@@ -57815,7 +57910,7 @@ function TaskTemplateManager({ isOpen, onClose, onUseTemplate, canManage }) {
                     },
                     d.key
                   )) }),
-                  form.sched !== "WEEKLY" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "ttm-every", children: [
+                  form.sched !== "WEEKLY" && form.sched !== "SHIFT" && form.sched !== "QUARTERLY" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "ttm-every", children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Repeat every" }),
                     /* @__PURE__ */ jsxRuntimeExports.jsx(
                       "button",
@@ -57857,13 +57952,14 @@ function TaskTemplateManager({ isOpen, onClose, onUseTemplate, canManage }) {
                     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: intervalUnit })
                   ] }),
                   phrase ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ttm-preview", children: [
-                    "Creates one ",
-                    cardTitle ? `“${cardTitle}” ` : "",
-                    "card ",
+                    "Makes ",
+                    cardTitle ? `a “${cardTitle}”` : "a",
+                    " station check ",
                     phrase,
-                    " in ",
+                    " for whichever watch is on duty, in ",
                     generatedColName,
-                    "."
+                    ".",
+                    ["WEEKLY", "NWEEKS", "MONTHLY", "QUARTERLY"].includes(form.sched) ? " It stays on every shift until it's done." : ` If it isn't done that ${form.sched === "SHIFT" ? "shift" : "day"} it's marked missed — it doesn't carry over.`
                   ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ttm-preview", style: { color: "var(--cal-station-fg)" }, children: "Pick at least one day." })
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "ttm-foot", children: [
@@ -57965,6 +58061,8 @@ select.ttm-input{appearance:none;-webkit-appearance:none;padding-right:36px;curs
 .ttm-seg{display:grid;gap:4px;padding:4px;border-radius:12px;background:var(--cal-surface-3)}
 .ttm-seg-3{grid-template-columns:repeat(3,minmax(0,1fr))}
 .ttm-seg-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.ttm-seg-6{grid-template-columns:repeat(3,minmax(0,1fr))}
+.ttm-seg-6 button{height:36px}
 .ttm-seg button{height:34px;padding:0 6px;border-radius:9px;border:none;background:transparent;color:var(--cal-ink-2);font:inherit;font-size:13px;font-weight:400;letter-spacing:0;text-transform:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
 .ttm-seg-4 button{height:36px}
 .ttm-seg button:hover{color:var(--cal-ink)}
@@ -58024,7 +58122,7 @@ select.ttm-input{appearance:none;-webkit-appearance:none;padding-right:36px;curs
   .ttm-listbar .ttm-pill{width:100%;height:48px;justify-content:space-between}
   .ttm-form{padding:16px 16px 0}
   .ttm-grid2,.ttm-cl{grid-template-columns:minmax(0,1fr)}
-  .ttm-seg-4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ttm-seg-4,.ttm-seg-6{grid-template-columns:repeat(2,minmax(0,1fr))}
   .ttm-seg button,.ttm-seg-4 button,.ttm-day,.ttm-step,.ttm-num{height:40px}
   .ttm-step{width:40px}
   .ttm-input,.ttm-num,.ttm-add-row input{font-size:16px}
@@ -58129,6 +58227,7 @@ function TaskSidePanel({ watch, tasks, selectedDay, onPickDay, onOpenTask }) {
   const n = new Date(y, m + 1, 0).getDate();
   const upcoming = reactExports.useMemo(() => buildUpcoming(tasks, events2), [tasks, events2]);
   const dayEvents = selectedDay ? events2.filter((e) => dayKey(e.start) === dayKey(selectedDay)) : [];
+  const dayTasks = selectedDay ? tasks.filter((t) => t.due_at && dayKey(new Date(t.due_at)) === dayKey(selectedDay)) : [];
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { "aria-label": `${watch} Watch calendar`, style: { display: "flex", flexDirection: "column", gap: 16 }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "cal-card", style: { padding: 18, display: "flex", flexDirection: "column", gap: 10 }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: { fontSize: 11, letterSpacing: ".12em", color: "var(--cal-muted)", textTransform: "uppercase" }, children: [
@@ -58228,11 +58327,29 @@ function TaskSidePanel({ watch, tasks, selectedDay, onPickDay, onOpenTask }) {
         ] }, k))
       ] }),
       selectedDay && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { borderTop: "1px solid var(--cal-line)", paddingTop: 10, display: "flex", flexDirection: "column", gap: 6 }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: 12, fontWeight: 600, color: "var(--cal-ink-2)" }, children: [
-          shortDate(selectedDay),
-          " · showing tasks due this day"
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: 13, fontWeight: 600 }, children: [
+            "Planned ",
+            shortDate(selectedDay)
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => onPickDay(null), className: "cal-focus", style: { border: "none", background: "transparent", color: "var(--cal-muted)", font: "inherit", fontSize: 12, cursor: "pointer", padding: "2px 4px" }, children: "Close" })
         ] }),
-        dayEvents.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 12, color: "var(--cal-muted)" }, children: "No watch events this day." }) : dayEvents.map((e) => /* @__PURE__ */ jsxRuntimeExports.jsxs(Link, { to: `/calendar?date=${dayKey(e.start)}`, style: { display: "flex", gap: 8, alignItems: "baseline", fontSize: 13, color: "var(--cal-watch-fg)", background: "var(--cal-watch-bg)", padding: "6px 10px", borderRadius: 10, textDecoration: "none" }, children: [
+        dayTasks.length === 0 && dayEvents.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 12, color: "var(--cal-muted)" }, children: "Nothing planned for the watch this day." }),
+        dayTasks.map((t) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: () => onOpenTask(t),
+            className: "cal-focus",
+            style: { display: "flex", gap: 8, alignItems: "baseline", fontSize: 13, textAlign: "left", font: "inherit", cursor: "pointer", border: "1px solid var(--cal-line)", background: "var(--cal-surface)", color: "var(--cal-ink)", padding: "6px 10px", borderRadius: 10, ...t.status === "Done" ? { color: "var(--cal-muted)", textDecoration: "line-through" } : {} },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 11, color: "var(--cal-muted)" }, children: "Task" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 600, fontSize: 13 }, children: t.title })
+            ]
+          },
+          t.id
+        )),
+        dayEvents.map((e) => /* @__PURE__ */ jsxRuntimeExports.jsxs(Link, { to: `/calendar?date=${dayKey(e.start)}`, style: { display: "flex", gap: 8, alignItems: "baseline", fontSize: 13, color: "var(--cal-watch-fg)", background: "var(--cal-watch-bg)", padding: "6px 10px", borderRadius: 10, textDecoration: "none" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 11 }, children: e.allDay ? "All day" : hhmm(e.start) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 600 }, children: e.title })
         ] }, e.id))
@@ -58393,13 +58510,12 @@ function Tasks() {
   const [filterOverdue, setFilterOverdue] = reactExports.useState(false);
   const [filterAssignee, setFilterAssignee] = reactExports.useState("");
   const [selectedDay, setSelectedDay] = reactExports.useState(null);
-  const hasActiveFilters = !!(filterSearch || filterLabels.length > 0 || filterOverdue || filterAssignee || selectedDay);
+  const hasActiveFilters = !!(filterSearch || filterLabels.length > 0 || filterOverdue || filterAssignee);
   const clearFilters = () => {
     setFilterSearch("");
     setFilterLabels([]);
     setFilterOverdue(false);
     setFilterAssignee("");
-    setSelectedDay(null);
   };
   const [showFilterSheet, setShowFilterSheet] = reactExports.useState(false);
   const isPhone = useIsPhone();
@@ -58411,6 +58527,18 @@ function Tasks() {
     queryFn: async () => (await backendClient.task.list({ watch_unit: user2 == null ? void 0 : user2.watch_unit, limit: 1e3 })).tasks,
     enabled: !!user2
   });
+  const [boardView, setBoardView] = reactExports.useState("duty");
+  const { data: shiftData, isLoading: shiftLoading } = useQuery({
+    queryKey: ["tasks", "shift", boardView, user2 == null ? void 0 : user2.watch_unit],
+    queryFn: () => backendClient.task.shiftBoard({ watch: boardView === "mine" ? user2 == null ? void 0 : user2.watch_unit : void 0 }),
+    enabled: !!user2,
+    refetchInterval: 6e4
+    // rolls over at 08:00 and 18:00
+  });
+  const shift2 = shiftData == null ? void 0 : shiftData.shift;
+  const shiftTasks = reactExports.useMemo(() => (shiftData == null ? void 0 : shiftData.tasks) ?? [], [shiftData]);
+  const boardWatch = (shift2 == null ? void 0 : shift2.watch) ?? (user2 == null ? void 0 : user2.watch_unit);
+  const myWatchOnDuty = !shiftData || (shiftData.on_duty_watch ?? "").toLowerCase() === ((user2 == null ? void 0 : user2.watch_unit) ?? "").toLowerCase();
   const { data: columnsData } = useQuery({
     queryKey: ["task-columns"],
     queryFn: async () => (await backendClient.task.listColumns()).columns
@@ -58439,40 +58567,25 @@ function Tasks() {
       return { id: p.user.id, name, initials: initialsOf(name) };
     }).sort((a, b) => a.id === (user2 == null ? void 0 : user2.id) ? -1 : b.id === (user2 == null ? void 0 : user2.id) ? 1 : a.name.localeCompare(b.name));
   }, [peopleData, user2 == null ? void 0 : user2.id, user2 == null ? void 0 : user2.watch_unit]);
-  const filteredTasks = tasks;
-  const taskStats = reactExports.useMemo(() => {
-    const now = /* @__PURE__ */ new Date();
-    const startOfDay2 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const endOfWeek = new Date(startOfDay2.getTime() + 7 * 864e5);
-    const sevenDaysAgo = new Date(startOfDay2.getTime() - 7 * 864e5);
-    let open = 0;
-    let dueThisWeek = 0;
-    let overdue = 0;
-    let blocked = 0;
-    let completedRecent = 0;
-    let inProgress = 0;
-    for (const t of tasks) {
-      const status = (t.status ?? "").toLowerCase();
-      const isDone = status === "done" || status === "completed";
-      if (!isDone) open += 1;
-      if (status.includes("progress")) inProgress += 1;
-      if (status.includes("block")) blocked += 1;
-      if (t.due_at && !isDone) {
-        const due = new Date(t.due_at);
-        if (!Number.isNaN(due.getTime())) {
-          if (due < startOfDay2) overdue += 1;
-          else if (due < endOfWeek) dueThisWeek += 1;
-        }
+  const filteredTasks = reactExports.useMemo(() => {
+    const byId = /* @__PURE__ */ new Map();
+    for (const t of [...tasks, ...shiftTasks]) byId.set(t.id, t);
+    return [...byId.values()];
+  }, [tasks, shiftTasks]);
+  const shiftStats = reactExports.useMemo(() => {
+    const start = shift2 ? new Date(shift2.start) : null;
+    let todo = 0, checks = 0, carried = 0, done = 0;
+    for (const t of shiftTasks) {
+      if (t.status === "Done") {
+        done++;
+        continue;
       }
-      if (isDone && t.updated_at) {
-        const updated = new Date(t.updated_at);
-        if (!Number.isNaN(updated.getTime()) && updated >= sevenDaysAgo) {
-          completedRecent += 1;
-        }
-      }
+      todo++;
+      if (t.kind === "check") checks++;
+      else if (start && t.due_at && new Date(t.due_at) < start) carried++;
     }
-    return { open, dueThisWeek, overdue, blocked, completedRecent, inProgress };
-  }, [tasks]);
+    return { todo, checks, carried, done };
+  }, [shiftTasks, shift2]);
   const createTaskMutation = useMutation({
     mutationFn: async (data) => backendClient.task.create({ ...data, assigned_by: (user2 == null ? void 0 : user2.id) || "" }),
     onSuccess: () => queryClient2.invalidateQueries({ queryKey: ["tasks"] }),
@@ -58489,7 +58602,7 @@ function Tasks() {
   const handleTaskCreate = (title, statusKey) => {
     const colTasks = filteredTasks.filter((t) => t.status === statusKey);
     const maxPos = colTasks.reduce((max2, t) => Math.max(max2, t.position ?? 0), 0);
-    createTaskMutation.mutate({ title, category: "Other", priority: "Med", status: statusKey, position: maxPos + 1, watch_unit: user2 == null ? void 0 : user2.watch_unit });
+    createTaskMutation.mutate({ title, category: "Other", priority: "Med", status: statusKey, position: maxPos + 1, watch_unit: boardWatch, due_date: shift2 ? new Date(shift2.start) : void 0 });
   };
   const handleNewTask = () => {
     const firstCol = columns[0];
@@ -58499,7 +58612,8 @@ function Tasks() {
       priority: "Med",
       status: (firstCol == null ? void 0 : firstCol.status_key) ?? "NotStarted",
       position: 0,
-      watch_unit: user2 == null ? void 0 : user2.watch_unit
+      watch_unit: boardWatch,
+      due_date: shift2 ? new Date(shift2.start) : void 0
     }).then((newTask) => {
       queryClient2.invalidateQueries({ queryKey: ["tasks"] });
       setIsNewTask(true);
@@ -58531,9 +58645,9 @@ function Tasks() {
       category: template.category,
       priority: template.priority,
       checklist,
-      rrule: template.rrule,
       status: (firstCol == null ? void 0 : firstCol.status_key) ?? "NotStarted",
-      watch_unit: user2 == null ? void 0 : user2.watch_unit
+      watch_unit: boardWatch,
+      due_date: shift2 ? new Date(shift2.start) : void 0
     });
     toast2({ title: "Task created", description: `"${template.title_template}" added to board` });
   };
@@ -58542,20 +58656,19 @@ function Tasks() {
     localStorage.setItem("task-board-bg", id);
     setShowBgPicker(false);
   };
-  const syncedSelectedTask = selectedTask ? tasks.find((t) => t.id === selectedTask.id) ?? selectedTask : null;
-  const dueOn = selectedDay ? `${selectedDay.getFullYear()}-${String(selectedDay.getMonth() + 1).padStart(2, "0")}-${String(selectedDay.getDate()).padStart(2, "0")}` : void 0;
-  const boardFilters = { search: filterSearch, labels: filterLabels, overdueOnly: filterOverdue, assignee: filterAssignee, dueOn };
-  const activeFilterCount = [filterSearch, filterLabels.length, filterOverdue, filterAssignee, selectedDay].filter(Boolean).length;
+  const syncedSelectedTask = selectedTask ? filteredTasks.find((t) => t.id === selectedTask.id) ?? selectedTask : null;
+  const boardFilters = { search: filterSearch, labels: filterLabels, overdueOnly: filterOverdue, assignee: filterAssignee };
+  const activeFilterCount = [filterSearch, filterLabels.length, filterOverdue, filterAssignee].filter(Boolean).length;
+  const hhmm2 = (iso) => new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+  const shiftWhen = shift2 ? `${shift2.label} ${hhmm2(shift2.start)}–${hhmm2(shift2.end)}${shift2.on_duty ? " · on duty" : ` · ${new Date(shift2.start).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}`}` : "";
   const toggleLabel = (id) => setFilterLabels(filterLabels.includes(id) ? filterLabels.filter((l) => l !== id) : [...filterLabels, id]);
   const headerInk = isDark ? "#fff" : "var(--cal-ink)";
   const headerMuted = isDark ? "rgba(255,255,255,.75)" : "var(--cal-muted)";
   const stats = [
-    { key: "open", label: "Open", value: taskStats.open },
-    { key: "week", label: "Due this week", value: taskStats.dueThisWeek },
-    { key: "overdue", label: "Overdue", value: taskStats.overdue, over: true },
-    { key: "blocked", label: "Blocked", value: taskStats.blocked },
-    { key: "progress", label: "In progress", value: taskStats.inProgress },
-    { key: "done", label: "Done (7d)", value: taskStats.completedRecent }
+    { key: "todo", label: "To do this shift", value: shiftStats.todo },
+    { key: "checks", label: "Station checks left", value: shiftStats.checks },
+    { key: "carried", label: "Carried over", value: shiftStats.carried, over: true },
+    { key: "done", label: "Done this shift", value: shiftStats.done }
   ];
   const iconBtn = { width: 44, height: 44, padding: 0, position: "relative" };
   const bgPicker = showBgPicker && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { role: "dialog", "aria-label": "Board background", className: "cal-card", style: { position: "absolute", right: 0, top: 52, zIndex: 50, width: 340, maxWidth: "calc(100vw - 32px)", padding: 16, boxShadow: "var(--cal-pop)" }, children: [
@@ -58619,7 +58732,27 @@ function Tasks() {
       p.id
     );
   };
-  const dayLabel2 = selectedDay == null ? void 0 : selectedDay.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+  const viewSwitch = !myWatchOnDuty && (shiftData == null ? void 0 : shiftData.on_duty_watch) && (user2 == null ? void 0 : user2.watch_unit) ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { role: "group", "aria-label": "Which board", style: { display: "inline-flex", alignSelf: "flex-start", padding: 4, borderRadius: 12, background: "var(--cal-surface-3)", gap: 2 }, children: [["duty", `On duty · ${shiftData.on_duty_watch}`], ["mine", `My watch · ${user2.watch_unit}`]].map(([v, label2]) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "button",
+    {
+      type: "button",
+      "aria-pressed": boardView === v,
+      onClick: () => setBoardView(v),
+      className: "cal-focus",
+      style: {
+        height: 34,
+        padding: "0 12px",
+        borderRadius: 9,
+        border: "none",
+        font: "inherit",
+        fontSize: 13,
+        cursor: "pointer",
+        ...boardView === v ? { background: "var(--cal-surface)", color: "var(--cal-ink)", fontWeight: 600, boxShadow: "var(--cal-shadow)" } : { background: "transparent", color: "var(--cal-ink-2)", fontWeight: 500 }
+      },
+      children: label2
+    },
+    v
+  )) }) : null;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
@@ -58630,17 +58763,16 @@ function Tasks() {
           /* @__PURE__ */ jsxRuntimeExports.jsxs("main", { style: { flex: "999 1 640px", minWidth: 0, display: "flex", flexDirection: "column", gap: 16, paddingBottom: isPhone ? 72 : 0 }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 4 }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: { fontSize: isPhone ? 11 : 12, letterSpacing: ".12em", textTransform: "uppercase", color: headerMuted }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: isPhone ? 11 : 12, letterSpacing: ".12em", textTransform: "uppercase", color: headerMuted }, children: viewMode === "board" && shift2 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                  boardWatch,
+                  " Watch · ",
+                  shiftWhen
+                ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                   watchName,
                   " Watch · ",
                   tasks.length,
-                  isPhone ? "" : " total",
-                  taskStats.overdue > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: isDark ? "#fecaca" : "var(--cal-station-fg)", fontWeight: 600 }, children: [
-                    " · ",
-                    taskStats.overdue,
-                    " overdue"
-                  ] })
-                ] }),
+                  isPhone ? "" : " total"
+                ] }) }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { style: { margin: 0, fontSize: isPhone ? 28 : 40, lineHeight: 1.05, fontWeight: 600, letterSpacing: "-.02em", color: headerInk }, children: "Tasks" })
               ] }),
               isPhone ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: 6, position: "relative" }, children: [
@@ -58730,6 +58862,7 @@ function Tasks() {
                 )
               ] })
             ] }),
+            viewMode === "board" && viewSwitch,
             isPhone && watchName !== "Watch" && /* @__PURE__ */ jsxRuntimeExports.jsx(TaskWeekStrip, { watch: watchName, tasks, selectedDay, onPickDay: setSelectedDay, onOpenTask: setSelectedTask }),
             viewMode === "board" && !isPhone && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { role: "group", "aria-label": "Task counts", style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 8 }, children: stats.map((st) => {
               const filled = st.over && st.value > 0;
@@ -58742,7 +58875,7 @@ function Tasks() {
                 borderRadius: 16,
                 font: "inherit",
                 textAlign: "left",
-                ...filled ? { background: "var(--cal-station-bg)", color: "var(--cal-station-fg)", border: "1px solid transparent" } : { background: "var(--cal-surface)", color: "var(--cal-ink)", border: "1px solid var(--cal-line)", boxShadow: "var(--cal-shadow)" }
+                ...filled ? { background: "var(--cal-day-bg)", color: "var(--cal-day-fg)", border: "1px solid transparent" } : { background: "var(--cal-surface)", color: "var(--cal-ink)", border: "1px solid var(--cal-line)", boxShadow: "var(--cal-shadow)" }
               };
               const body = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 11, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", opacity: 0.85 }, children: st.label }),
@@ -58756,7 +58889,7 @@ function Tasks() {
                   "aria-label": `${st.label}: ${st.value}. ${filterOverdue ? "Show all tasks" : "Show only overdue tasks"}`,
                   onClick: () => setFilterOverdue(!filterOverdue),
                   className: "cal-focus",
-                  style: { ...style, cursor: "pointer", ...filterOverdue ? { boxShadow: "0 0 0 2px var(--cal-station-dot)" } : {} },
+                  style: { ...style, cursor: "pointer", ...filterOverdue ? { boxShadow: "0 0 0 2px var(--cal-day-dot)" } : {} },
                   children: body
                 },
                 st.key
@@ -58854,22 +58987,6 @@ function Tasks() {
                     children: "Overdue only"
                   }
                 ),
-                selectedDay && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "button",
-                  {
-                    type: "button",
-                    onClick: () => setSelectedDay(null),
-                    "aria-label": `Showing tasks due ${dayLabel2}. Clear`,
-                    className: "cal-focus",
-                    style: { height: 32, padding: "0 10px 0 12px", borderRadius: 999, border: "1px solid var(--cal-brand)", background: "var(--cal-brand-soft)", color: "var(--cal-brand-text)", font: "inherit", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6 },
-                    children: [
-                      "Due ",
-                      dayLabel2,
-                      " ",
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" })
-                    ]
-                  }
-                ),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "button",
                   {
@@ -58883,7 +59000,7 @@ function Tasks() {
                 )
               ] })
             ] }),
-            viewMode === "board" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            viewMode === "board" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
               "section",
               {
                 "aria-label": "Board",
@@ -58893,45 +59010,29 @@ function Tasks() {
                   padding: 16,
                   overflowX: "auto"
                 },
-                children: [
-                  isPhone && selectedDay && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                    "button",
-                    {
-                      type: "button",
-                      onClick: () => setSelectedDay(null),
-                      className: "cal-focus",
-                      style: { marginBottom: 12, height: 32, padding: "0 10px 0 12px", borderRadius: 999, border: "1px solid var(--cal-brand)", background: "var(--cal-brand-soft)", color: "var(--cal-brand-text)", font: "inherit", fontSize: 13, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 6 },
-                      children: [
-                        "Due ",
-                        dayLabel2,
-                        " ",
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" })
-                      ]
-                    }
-                  ),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    TaskBoard,
-                    {
-                      tasks: filteredTasks,
-                      isLoading,
-                      onTaskClick: setSelectedTask,
-                      onChecklistToggle: handleChecklistToggle,
-                      onStatusChange: handleStatusChange,
-                      onTaskCreate: handleTaskCreate,
-                      onTitleEdit: handleTitleEdit,
-                      canEdit: canEditStatus,
-                      canManageColumns: canAssignTasks,
-                      filters: boardFilters,
-                      isDark,
-                      userMap
-                    }
-                  )
-                ]
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  TaskBoard,
+                  {
+                    tasks: shiftTasks,
+                    isLoading: shiftLoading,
+                    shiftStart: shift2 == null ? void 0 : shift2.start,
+                    onTaskClick: setSelectedTask,
+                    onChecklistToggle: handleChecklistToggle,
+                    onStatusChange: handleStatusChange,
+                    onTaskCreate: handleTaskCreate,
+                    onTitleEdit: handleTitleEdit,
+                    canEdit: canEditStatus,
+                    canManageColumns: canAssignTasks,
+                    filters: boardFilters,
+                    isDark,
+                    userMap
+                  }
+                )
               }
             ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
               TaskList,
               {
-                tasks: filteredTasks,
+                tasks,
                 isLoading,
                 onTaskClick: setSelectedTask
               }
@@ -59032,13 +59133,6 @@ function Tasks() {
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { position: "absolute", top: 3, left: filterOverdue ? 23 : 3, width: 26, height: 26, borderRadius: "50%", background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,.25)", transition: "left .15s" } })
               }
             )
-          ] }),
-          selectedDay && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: 44 }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: 15, fontWeight: 500 }, children: [
-              "Due ",
-              dayLabel2
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setSelectedDay(null), className: "cal-btn", style: { height: 36, padding: "0 12px", fontSize: 13 }, children: "Clear day" })
           ] }),
           people.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: sheetCaption, children: "Person" }),

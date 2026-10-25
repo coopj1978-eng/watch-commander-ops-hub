@@ -13,14 +13,17 @@ export const deleteTask = api<DeleteTaskRequest, void>(
   async ({ id }) => {
     const auth = getAuthData()!;
     await assertCanModifyTask(id);
-    await db.exec`DELETE FROM tasks WHERE id = ${id}`;
+    // Keep what it was in the log — a deleted task can't otherwise be traced.
+    const gone = await db.queryRow<{ title: string; watch_unit: string | null; due_at: Date | null; status: string }>`
+      DELETE FROM tasks WHERE id = ${id} RETURNING title, watch_unit, due_at, status
+    `;
 
     await logActivity({
       user_id: auth.userID,
       action: "delete_task",
       entity_type: "task",
       entity_id: id.toString(),
-      details: {},
+      details: gone ? { title: gone.title, watch_unit: gone.watch_unit, due_at: gone.due_at, status: gone.status } : {},
     });
   }
 );

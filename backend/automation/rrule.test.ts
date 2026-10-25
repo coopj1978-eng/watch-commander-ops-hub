@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { rruleFiresOn } from "./rrule";
+import { rruleFiresOn } from "../lib/rrule";
 
 // Wed 21 Oct 2026, 10:00 BST
 const CREATED = new Date("2026-10-21T09:00:00Z");

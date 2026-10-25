@@ -37,10 +37,10 @@ export default function Tasks() {
   const [filterLabels, setFilterLabels] = useState<string[]>([]);
   const [filterOverdue, setFilterOverdue] = useState(false);
   const [filterAssignee, setFilterAssignee] = useState("");
-  // Day picked on the watch calendar panel: the board shows tasks due that day.
+  // Day picked on the watch calendar panel — the panel lists what's planned that day.
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
-  const hasActiveFilters = !!(filterSearch || filterLabels.length > 0 || filterOverdue || filterAssignee || selectedDay);
-  const clearFilters = () => { setFilterSearch(""); setFilterLabels([]); setFilterOverdue(false); setFilterAssignee(""); setSelectedDay(null); };
+  const hasActiveFilters = !!(filterSearch || filterLabels.length > 0 || filterOverdue || filterAssignee);
+  const clearFilters = () => { setFilterSearch(""); setFilterLabels([]); setFilterOverdue(false); setFilterAssignee(""); };
   const [showFilterSheet, setShowFilterSheet] = useState(false);
   const isPhone = useIsPhone();
 
@@ -53,6 +53,23 @@ export default function Tasks() {
     queryFn: async () => (await backend.task.list({ watch_unit: user?.watch_unit, limit: 1000 })).tasks as unknown as Task[],
     enabled: !!user,
   });
+
+  // ── The shift board ─────────────────────────────────────────────────────
+  // "duty": the watch on duty now — everyone working this shift (head-for-heads
+  // and overtime too) sees the same board. "mine": your own watch's current
+  // or next shift. Station checks, the watch's tasks due by the end of the
+  // shift (unfinished ones roll on by themselves) and the calendar's tasks.
+  const [boardView, setBoardView] = useState<"duty" | "mine">("duty");
+  const { data: shiftData, isLoading: shiftLoading } = useQuery({
+    queryKey: ["tasks", "shift", boardView, user?.watch_unit],
+    queryFn: () => backend.task.shiftBoard({ watch: boardView === "mine" ? user?.watch_unit : undefined }),
+    enabled: !!user,
+    refetchInterval: 60_000, // rolls over at 08:00 and 18:00
+  });
+  const shift = shiftData?.shift;
+  const shiftTasks = useMemo(() => (shiftData?.tasks ?? []) as unknown as Task[], [shiftData]);
+  const boardWatch = shift?.watch ?? user?.watch_unit;
+  const myWatchOnDuty = !shiftData || (shiftData.on_duty_watch ?? "").toLowerCase() === (user?.watch_unit ?? "").toLowerCase();
 
   const { data: columnsData } = useQuery({
     queryKey: ["task-columns"],
@@ -89,51 +106,24 @@ export default function Tasks() {
       .sort((a, b) => (a.id === user?.id ? -1 : b.id === user?.id ? 1 : a.name.localeCompare(b.name)));
   }, [peopleData, user?.id, user?.watch_unit]);
 
-  // All watch members see all watch tasks — backend already scopes by watch_unit
-  const filteredTasks = tasks;
+  // Board actions look tasks up here: the shift board's cards plus the watch's list.
+  const filteredTasks = useMemo(() => {
+    const byId = new Map<number, Task>();
+    for (const t of [...tasks, ...shiftTasks]) byId.set(t.id, t);
+    return [...byId.values()];
+  }, [tasks, shiftTasks]);
 
-  // ── KPI summary for the today-strip ─────────────────────────────────────
-  // Derived live from the task list so the strip never disagrees with the
-  // board below it. Mirrors the design's header strip:
-  //   open · due this week · overdue · blocked · completed (7d) · in progress
-  const taskStats = useMemo(() => {
-    const now = new Date();
-    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const endOfWeek = new Date(startOfDay.getTime() + 7 * 86_400_000);
-    const sevenDaysAgo = new Date(startOfDay.getTime() - 7 * 86_400_000);
-
-    let open = 0;
-    let dueThisWeek = 0;
-    let overdue = 0;
-    let blocked = 0;
-    let completedRecent = 0;
-    let inProgress = 0;
-
-    for (const t of tasks) {
-      const status = (t.status ?? "").toLowerCase();
-      const isDone = status === "done" || status === "completed";
-      if (!isDone) open += 1;
-      if (status.includes("progress")) inProgress += 1;
-      if (status.includes("block")) blocked += 1;
-
-      if (t.due_at && !isDone) {
-        const due = new Date(t.due_at);
-        if (!Number.isNaN(due.getTime())) {
-          if (due < startOfDay) overdue += 1;
-          else if (due < endOfWeek) dueThisWeek += 1;
-        }
-      }
-
-      if (isDone && t.updated_at) {
-        const updated = new Date(t.updated_at);
-        if (!Number.isNaN(updated.getTime()) && updated >= sevenDaysAgo) {
-          completedRecent += 1;
-        }
-      }
+  const shiftStats = useMemo(() => {
+    const start = shift ? new Date(shift.start) : null;
+    let todo = 0, checks = 0, carried = 0, done = 0;
+    for (const t of shiftTasks as (Task & { kind?: string })[]) {
+      if (t.status === "Done") { done++; continue; }
+      todo++;
+      if (t.kind === "check") checks++;
+      else if (start && t.due_at && new Date(t.due_at) < start) carried++;
     }
-
-    return { open, dueThisWeek, overdue, blocked, completedRecent, inProgress };
-  }, [tasks]);
+    return { todo, checks, carried, done };
+  }, [shiftTasks, shift]);
 
   // ── Mutations ────────────────────────────────────────────────────────────
   const createTaskMutation = useMutation({
@@ -152,7 +142,7 @@ export default function Tasks() {
   const handleTaskCreate = (title: string, statusKey: string) => {
     const colTasks = filteredTasks.filter((t) => t.status === statusKey);
     const maxPos = colTasks.reduce((max, t) => Math.max(max, t.position ?? 0), 0);
-    createTaskMutation.mutate({ title, category: "Other", priority: "Med", status: statusKey, position: maxPos + 1, watch_unit: user?.watch_unit });
+    createTaskMutation.mutate({ title, category: "Other", priority: "Med", status: statusKey, position: maxPos + 1, watch_unit: boardWatch, due_date: shift ? new Date(shift.start) : undefined });
   };
 
   const handleNewTask = () => {
@@ -163,7 +153,8 @@ export default function Tasks() {
       priority: "Med",
       status: firstCol?.status_key ?? "NotStarted",
       position: 0,
-      watch_unit: user?.watch_unit,
+      watch_unit: boardWatch,
+      due_date: shift ? new Date(shift.start) : undefined,
     }).then((newTask) => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       setIsNewTask(true);
@@ -198,9 +189,9 @@ export default function Tasks() {
       category: template.category,
       priority: template.priority,
       checklist,
-      rrule: template.rrule,
       status: firstCol?.status_key ?? "NotStarted",
-      watch_unit: user?.watch_unit,
+      watch_unit: boardWatch,
+      due_date: shift ? new Date(shift.start) : undefined,
     });
     toast({ title: "Task created", description: `"${template.title_template}" added to board` });
   };
@@ -211,12 +202,13 @@ export default function Tasks() {
     setShowBgPicker(false);
   };
 
-  const syncedSelectedTask = selectedTask ? (tasks.find((t) => t.id === selectedTask.id) ?? selectedTask) : null;
-  const dueOn = selectedDay
-    ? `${selectedDay.getFullYear()}-${String(selectedDay.getMonth() + 1).padStart(2, "0")}-${String(selectedDay.getDate()).padStart(2, "0")}`
-    : undefined;
-  const boardFilters = { search: filterSearch, labels: filterLabels, overdueOnly: filterOverdue, assignee: filterAssignee, dueOn };
-  const activeFilterCount = [filterSearch, filterLabels.length, filterOverdue, filterAssignee, selectedDay].filter(Boolean).length;
+  const syncedSelectedTask = selectedTask ? (filteredTasks.find((t) => t.id === selectedTask.id) ?? selectedTask) : null;
+  const boardFilters = { search: filterSearch, labels: filterLabels, overdueOnly: filterOverdue, assignee: filterAssignee };
+  const activeFilterCount = [filterSearch, filterLabels.length, filterOverdue, filterAssignee].filter(Boolean).length;
+  const hhmm = (iso: string) => new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+  const shiftWhen = shift
+    ? `${shift.label} ${hhmm(shift.start)}–${hhmm(shift.end)}${shift.on_duty ? " · on duty" : ` · ${new Date(shift.start).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}`}`
+    : "";
   const toggleLabel = (id: string) => setFilterLabels(filterLabels.includes(id) ? filterLabels.filter((l) => l !== id) : [...filterLabels, id]);
 
   // On a dark board background the page header text turns white; the
@@ -224,13 +216,12 @@ export default function Tasks() {
   const headerInk = isDark ? "#fff" : "var(--cal-ink)";
   const headerMuted = isDark ? "rgba(255,255,255,.75)" : "var(--cal-muted)";
 
+  // Counts for the shift shown. "Carried over" doubles as the overdue filter.
   const stats: { key: string; label: string; value: number; over?: boolean }[] = [
-    { key: "open", label: "Open", value: taskStats.open },
-    { key: "week", label: "Due this week", value: taskStats.dueThisWeek },
-    { key: "overdue", label: "Overdue", value: taskStats.overdue, over: true },
-    { key: "blocked", label: "Blocked", value: taskStats.blocked },
-    { key: "progress", label: "In progress", value: taskStats.inProgress },
-    { key: "done", label: "Done (7d)", value: taskStats.completedRecent },
+    { key: "todo", label: "To do this shift", value: shiftStats.todo },
+    { key: "checks", label: "Station checks left", value: shiftStats.checks },
+    { key: "carried", label: "Carried over", value: shiftStats.carried, over: true },
+    { key: "done", label: "Done this shift", value: shiftStats.done },
   ];
 
   const iconBtn: React.CSSProperties = { width: 44, height: 44, padding: 0, position: "relative" };
@@ -289,7 +280,28 @@ export default function Tasks() {
     );
   };
 
-  const dayLabel = selectedDay?.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+  // Your watch isn't on: switch between the shift on duty and your own watch's next shift.
+  const viewSwitch = !myWatchOnDuty && shiftData?.on_duty_watch && user?.watch_unit ? (
+    <div role="group" aria-label="Which board" style={{ display: "inline-flex", alignSelf: "flex-start", padding: 4, borderRadius: 12, background: "var(--cal-surface-3)", gap: 2 }}>
+      {([["duty", `On duty · ${shiftData.on_duty_watch}`], ["mine", `My watch · ${user.watch_unit}`]] as const).map(([v, label]) => (
+        <button
+          key={v}
+          type="button"
+          aria-pressed={boardView === v}
+          onClick={() => setBoardView(v)}
+          className="cal-focus"
+          style={{
+            height: 34, padding: "0 12px", borderRadius: 9, border: "none", font: "inherit", fontSize: 13, cursor: "pointer",
+            ...(boardView === v
+              ? { background: "var(--cal-surface)", color: "var(--cal-ink)", fontWeight: 600, boxShadow: "var(--cal-shadow)" }
+              : { background: "transparent", color: "var(--cal-ink-2)", fontWeight: 500 }),
+          }}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  ) : null;
 
   return (
     <div
@@ -303,8 +315,9 @@ export default function Tasks() {
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
               <span className="cal-mono" style={{ fontSize: isPhone ? 11 : 12, letterSpacing: ".12em", textTransform: "uppercase", color: headerMuted }}>
-                {watchName} Watch · {tasks.length}{isPhone ? "" : " total"}
-                {taskStats.overdue > 0 && <span style={{ color: isDark ? "#fecaca" : "var(--cal-station-fg)", fontWeight: 600 }}> · {taskStats.overdue} overdue</span>}
+                {viewMode === "board" && shift
+                  ? <>{boardWatch} Watch · {shiftWhen}</>
+                  : <>{watchName} Watch · {tasks.length}{isPhone ? "" : " total"}</>}
               </span>
               <h1 style={{ margin: 0, fontSize: isPhone ? 28 : 40, lineHeight: 1.05, fontWeight: 600, letterSpacing: "-.02em", color: headerInk }}>Tasks</h1>
             </div>
@@ -393,6 +406,8 @@ export default function Tasks() {
             )}
           </div>
 
+          {viewMode === "board" && viewSwitch}
+
           {/* ── Phone: this week on the watch calendar (tap to open it) ───────── */}
           {isPhone && watchName !== "Watch" && (
             <TaskWeekStrip watch={watchName} tasks={tasks} selectedDay={selectedDay} onPickDay={setSelectedDay} onOpenTask={setSelectedTask} />
@@ -407,7 +422,7 @@ export default function Tasks() {
                   display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 8, padding: "12px 14px", borderRadius: 16,
                   font: "inherit", textAlign: "left",
                   ...(filled
-                    ? { background: "var(--cal-station-bg)", color: "var(--cal-station-fg)", border: "1px solid transparent" }
+                    ? { background: "var(--cal-day-bg)", color: "var(--cal-day-fg)", border: "1px solid transparent" }
                     : { background: "var(--cal-surface)", color: "var(--cal-ink)", border: "1px solid var(--cal-line)", boxShadow: "var(--cal-shadow)" }),
                 };
                 const body = (
@@ -424,7 +439,7 @@ export default function Tasks() {
                     aria-label={`${st.label}: ${st.value}. ${filterOverdue ? "Show all tasks" : "Show only overdue tasks"}`}
                     onClick={() => setFilterOverdue(!filterOverdue)}
                     className="cal-focus"
-                    style={{ ...style, cursor: "pointer", ...(filterOverdue ? { boxShadow: "0 0 0 2px var(--cal-station-dot)" } : {}) }}
+                    style={{ ...style, cursor: "pointer", ...(filterOverdue ? { boxShadow: "0 0 0 2px var(--cal-day-dot)" } : {}) }}
                   >
                     {body}
                   </button>
@@ -506,17 +521,6 @@ export default function Tasks() {
                 >
                   Overdue only
                 </button>
-                {selectedDay && (
-                  <button
-                    type="button"
-                    onClick={() => setSelectedDay(null)}
-                    aria-label={`Showing tasks due ${dayLabel}. Clear`}
-                    className="cal-focus"
-                    style={{ height: 32, padding: "0 10px 0 12px", borderRadius: 999, border: "1px solid var(--cal-brand)", background: "var(--cal-brand-soft)", color: "var(--cal-brand-text)", font: "inherit", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6 }}
-                  >
-                    Due {dayLabel} <XIcon className="h-3.5 w-3.5" />
-                  </button>
-                )}
                 <button
                   type="button"
                   disabled={!hasActiveFilters}
@@ -539,19 +543,10 @@ export default function Tasks() {
                 borderRadius: 24, padding: 16, overflowX: "auto",
               }}
             >
-              {isPhone && selectedDay && (
-                <button
-                  type="button"
-                  onClick={() => setSelectedDay(null)}
-                  className="cal-focus"
-                  style={{ marginBottom: 12, height: 32, padding: "0 10px 0 12px", borderRadius: 999, border: "1px solid var(--cal-brand)", background: "var(--cal-brand-soft)", color: "var(--cal-brand-text)", font: "inherit", fontSize: 13, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 6 }}
-                >
-                  Due {dayLabel} <XIcon className="h-3.5 w-3.5" />
-                </button>
-              )}
               <TaskBoard
-                tasks={filteredTasks}
-                isLoading={isLoading}
+                tasks={shiftTasks}
+                isLoading={shiftLoading}
+                shiftStart={shift?.start}
                 onTaskClick={setSelectedTask}
                 onChecklistToggle={handleChecklistToggle}
                 onStatusChange={handleStatusChange}
@@ -566,7 +561,7 @@ export default function Tasks() {
             </section>
           ) : (
             <TaskList
-              tasks={filteredTasks}
+              tasks={tasks}
               isLoading={isLoading}
               onTaskClick={setSelectedTask}
             />
@@ -651,12 +646,6 @@ export default function Tasks() {
               <span style={{ position: "absolute", top: 3, left: filterOverdue ? 23 : 3, width: 26, height: 26, borderRadius: "50%", background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,.25)", transition: "left .15s" }} />
             </button>
           </div>
-          {selectedDay && (
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: 44 }}>
-              <span style={{ fontSize: 15, fontWeight: 500 }}>Due {dayLabel}</span>
-              <button type="button" onClick={() => setSelectedDay(null)} className="cal-btn" style={{ height: 36, padding: "0 12px", fontSize: 13 }}>Clear day</button>
-            </div>
-          )}
           {people.length > 0 && (
             <>
               <span style={sheetCaption}>Person</span>

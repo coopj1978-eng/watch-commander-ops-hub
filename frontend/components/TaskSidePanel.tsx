@@ -96,7 +96,7 @@ const dotStyle = (bg: string, size = 5): React.CSSProperties => ({ width: size, 
 interface PanelProps {
   watch: string;
   tasks: Task[];
-  /** Day the board is filtered to (tasks due that day), or null. */
+  /** Day picked on the mini month — the panel lists what's planned that day. */
   selectedDay: Date | null;
   onPickDay: (d: Date | null) => void;
   onOpenTask: (task: Task) => void;
@@ -119,6 +119,7 @@ export default function TaskSidePanel({ watch, tasks, selectedDay, onPickDay, on
 
   const upcoming = useMemo(() => buildUpcoming(tasks, events), [tasks, events]);
   const dayEvents = selectedDay ? events.filter((e) => dayKey(e.start) === dayKey(selectedDay)) : [];
+  const dayTasks = selectedDay ? tasks.filter((t) => t.due_at && dayKey(new Date(t.due_at)) === dayKey(selectedDay)) : [];
 
   return (
     <aside aria-label={`${watch} Watch calendar`} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -198,12 +199,28 @@ export default function TaskSidePanel({ watch, tasks, selectedDay, onPickDay, on
 
         {selectedDay && (
           <div style={{ borderTop: "1px solid var(--cal-line)", paddingTop: 10, display: "flex", flexDirection: "column", gap: 6 }}>
-            <span style={{ fontSize: 12, fontWeight: 600, color: "var(--cal-ink-2)" }}>
-              {shortDate(selectedDay)} · showing tasks due this day
-            </span>
-            {dayEvents.length === 0 ? (
-              <span style={{ fontSize: 12, color: "var(--cal-muted)" }}>No watch events this day.</span>
-            ) : dayEvents.map((e) => (
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+              <span style={{ fontSize: 13, fontWeight: 600 }}>Planned {shortDate(selectedDay)}</span>
+              <button type="button" onClick={() => onPickDay(null)} className="cal-focus" style={{ border: "none", background: "transparent", color: "var(--cal-muted)", font: "inherit", fontSize: 12, cursor: "pointer", padding: "2px 4px" }}>
+                Close
+              </button>
+            </div>
+            {dayTasks.length === 0 && dayEvents.length === 0 && (
+              <span style={{ fontSize: 12, color: "var(--cal-muted)" }}>Nothing planned for the watch this day.</span>
+            )}
+            {dayTasks.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => onOpenTask(t)}
+                className="cal-focus"
+                style={{ display: "flex", gap: 8, alignItems: "baseline", fontSize: 13, textAlign: "left", font: "inherit", cursor: "pointer", border: "1px solid var(--cal-line)", background: "var(--cal-surface)", color: "var(--cal-ink)", padding: "6px 10px", borderRadius: 10, ...(t.status === "Done" ? { color: "var(--cal-muted)", textDecoration: "line-through" } : {}) }}
+              >
+                <span className="cal-mono" style={{ fontSize: 11, color: "var(--cal-muted)" }}>Task</span>
+                <span style={{ fontWeight: 600, fontSize: 13 }}>{t.title}</span>
+              </button>
+            ))}
+            {dayEvents.map((e) => (
               <Link key={e.id} to={`/calendar?date=${dayKey(e.start)}`} style={{ display: "flex", gap: 8, alignItems: "baseline", fontSize: 13, color: "var(--cal-watch-fg)", background: "var(--cal-watch-bg)", padding: "6px 10px", borderRadius: 10, textDecoration: "none" }}>
                 <span className="cal-mono" style={{ fontSize: 11 }}>{e.allDay ? "All day" : hhmm(e.start)}</span>
                 <span style={{ fontWeight: 600 }}>{e.title}</span>

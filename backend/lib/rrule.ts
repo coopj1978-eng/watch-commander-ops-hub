@@ -1,4 +1,4 @@
-import { ukTodayIso } from "../lib/sicknessMath";
+import { ukTodayIso } from "./sicknessMath";
 
 /**
  * RRULE matching for the template task generator. No Encore imports, so it

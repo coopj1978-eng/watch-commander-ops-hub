@@ -7,6 +7,7 @@ import TaskCard from "./TaskCard";
 import QuickAddCard from "./QuickAddCard";
 import backend from "@/lib/backend";
 import { useToast } from "@/components/ui/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 import { useIsPhone } from "@/lib/taskUi";
 import type { Task, TaskColumn, TaskPriority } from "~backend/task/types";
 
@@ -32,6 +33,8 @@ interface TaskBoardProps {
   filters?: TaskBoardFilters;
   isDark?: boolean;
   userMap?: Record<string, { initials: string; colour: string }>;
+  /** Start of the shift shown — earlier unfinished cards are tagged "Carried from …". */
+  shiftStart?: string;
 }
 
 const countPill: React.CSSProperties = {
@@ -41,10 +44,12 @@ const countPill: React.CSSProperties = {
 
 /** Column header pill: dot, name, count (red when over the WIP limit), ⋯ menu (WC/CC), collapse and quick-add "+". */
 function ColumnHeader({
-  column, count, wipLimit, canManage, onRename, onDelete, onSetWip, onCollapse, onQuickAdd,
+  column, count, shown, wipLimit, canManage, onRename, onDelete, onSetWip, onCollapse, onQuickAdd,
 }: {
   column: TaskColumn;
   count: number;
+  /** Cards showing after filters; the pill reads "0 of 3" when some are hidden. */
+  shown?: number;
   wipLimit?: number;
   canManage: boolean;
   onRename: (name: string) => void;
@@ -111,7 +116,7 @@ function ColumnHeader({
             title={isOverWip ? "Over the work-in-progress limit" : undefined}
             style={isOverWip ? { ...countPill, background: "var(--cal-station-bg)", color: "var(--cal-station-fg)" } : countPill}
           >
-            {count}{wipLimit ? `/${wipLimit}` : ""}
+            {shown !== undefined && shown < count ? `${shown} of ${count}` : `${count}${wipLimit ? `/${wipLimit}` : ""}`}
           </span>
         )}
         <span style={{ flex: 1 }} />
@@ -194,6 +199,7 @@ export default function TaskBoard({
   filters,
   isDark = false,
   userMap,
+  shiftStart,
 }: TaskBoardProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -292,12 +298,22 @@ export default function TaskBoard({
     )) deleteColumnMutation.mutate(id);
   };
 
+  // Delete hides the card at once and only deletes after a few seconds, so Undo can bring it back.
+  const [deletingIds, setDeletingIds] = useState<Set<number>>(new Set());
   const handleDeleteTask = (task: Task) => {
-    if (confirm(`Delete "${task.title}"? This can't be undone.`)) deleteTaskMutation.mutate(task.id);
+    const restore = () => setDeletingIds((prev) => { const next = new Set(prev); next.delete(task.id); return next; });
+    setDeletingIds((prev) => new Set(prev).add(task.id));
+    const timer = setTimeout(() => deleteTaskMutation.mutate(task.id, { onError: restore }), 6000);
+    toast({
+      title: "Task deleted",
+      description: task.title,
+      action: <ToastAction altText="Undo delete" onClick={() => { clearTimeout(timer); restore(); }}>Undo</ToastAction>,
+    });
   };
 
   // ── Filter tasks ────────────────────────────────────────────────────────────
-  const visibleTasks = tasks.filter((t) => {
+  const liveTasks = tasks.filter((t) => !deletingIds.has(t.id));
+  const visibleTasks = liveTasks.filter((t) => {
     if (!filters) return true;
     if (filters.search && !t.title.toLowerCase().includes(filters.search.toLowerCase())) return false;
     if (filters.labels.length > 0 && !filters.labels.some((l) => (t.tags ?? []).includes(l))) return false;
@@ -319,7 +335,7 @@ export default function TaskBoard({
   const allTasksByColumn: Record<string, Task[]> = {};
   for (const col of columns) {
     tasksByColumn[col.status_key] = visibleTasks.filter((t) => t.status === col.status_key).sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
-    allTasksByColumn[col.status_key] = tasks.filter((t) => t.status === col.status_key);
+    allTasksByColumn[col.status_key] = liveTasks.filter((t) => t.status === col.status_key);
   }
 
   /** Put a task in a column at a position — shared by drag-and-drop and the card's ⋯ menu. */
@@ -417,13 +433,16 @@ export default function TaskBoard({
               onMove={canEdit ? (key) => moveTask(task, key) : undefined}
               onSetPriority={canEdit ? (priority) => updateTaskMutation.mutate({ id: task.id, priority }) : undefined}
               onDelete={canEdit ? () => handleDeleteTask(task) : undefined}
+              shiftStart={shiftStart}
             />
           </div>
         ))}
 
         {colTasks.length === 0 && !isDropTarget && quickAddCol !== col.status_key && (
           <div style={{ textAlign: "center", padding: "22px 12px", fontSize: 13, color: "var(--cal-muted)", border: "2px dashed var(--cal-line-2)", borderRadius: 16 }}>
-            No tasks
+            {(allTasksByColumn[col.status_key] ?? []).length > 0
+              ? `${(allTasksByColumn[col.status_key] ?? []).length} hidden by your filters`
+              : "No tasks"}
           </div>
         )}
 
@@ -594,6 +613,7 @@ export default function TaskBoard({
             <ColumnHeader
               column={col}
               count={allColTasks.length}
+              shown={colTasks.length}
               wipLimit={wipLimit}
               canManage={canManageColumns}
               onRename={(name) => updateColumnMutation.mutate({ id: col.id, name })}

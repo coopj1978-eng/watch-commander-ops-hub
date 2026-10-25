@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import * as Menu from "@radix-ui/react-dropdown-menu";
-import { Check, ChevronRight, MoreHorizontal, Repeat } from "lucide-react";
+import { CalendarDays, Check, ChevronRight, ClipboardCheck, History, MoreHorizontal, Repeat } from "lucide-react";
 import type { Task, TaskColumn, TaskPriority } from "~backend/task/types";
 import { getCoverStyle, getLabelById } from "@/lib/taskLabels";
 import { ChecklistBar, DueChip, Initials, LabelTag, PriorityChip, describeRRule, priorityKey, priorityLabel, useIsPhone } from "@/lib/taskUi";
@@ -24,6 +24,8 @@ interface TaskCardProps {
   onMove?: (statusKey: string) => void;
   onSetPriority?: (priority: TaskPriority) => void;
   onDelete?: () => void;
+  /** Start of the shift being shown — earlier unfinished tasks show "Carried from …". */
+  shiftStart?: string;
 }
 
 const PRIORITIES: { value: TaskPriority; label: string }[] = [
@@ -267,7 +269,54 @@ function CardMenu(props: MenuProps) {
   );
 }
 
-export default function TaskCard({ task, onTitleEdit, onClick, userMap, columns, columnCounts, onMove, onSetPriority, onDelete }: TaskCardProps) {
+const FREQ_LABEL: Record<string, string> = {
+  shift: "Every shift", daily: "Daily", weekly: "Weekly", fortnightly: "Fortnightly",
+  monthly: "Monthly", quarterly: "Quarterly", repeat: "Repeating",
+};
+
+const tagStyle = (bg: string, fg: string): React.CSSProperties => ({
+  display: "inline-flex", alignItems: "center", gap: 5, height: 22, padding: "0 8px", borderRadius: 7,
+  fontSize: 11, fontWeight: 600, whiteSpace: "nowrap", background: bg, color: fg,
+});
+
+/** What the card is on the shift board: a station check, carried over, or from the calendar. */
+function ShiftTag({ task, shiftStart }: { task: Task & { kind?: string; check_freq?: string }; shiftStart?: string }) {
+  const due = task.due_at ? new Date(task.due_at) : null;
+  const short = (d: Date) => d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+  if (task.kind === "check") {
+    const long = ["weekly", "fortnightly", "monthly", "quarterly"].includes(task.check_freq ?? "");
+    return (
+      <>
+        <span style={tagStyle("var(--cal-brand-soft)", "var(--cal-brand-text)")}>
+          <ClipboardCheck className="h-3 w-3" /> Station check · {FREQ_LABEL[task.check_freq ?? ""] ?? "Repeating"}
+        </span>
+        {long && due && task.status !== "Done" && (
+          <span className="cal-mono" style={tagStyle("var(--cal-surface-2)", "var(--cal-ink-2)")}>
+            Due by {short(new Date(due.getTime() - 60_000))}
+          </span>
+        )}
+      </>
+    );
+  }
+  if (task.status !== "Done" && due && shiftStart && due < new Date(shiftStart)) {
+    return (
+      <span style={tagStyle("var(--cal-day-bg)", "var(--cal-day-fg)")} title="Not finished on an earlier shift">
+        <History className="h-3 w-3" /> Carried from {short(due)}
+      </span>
+    );
+  }
+  if (task.kind === "calendar") {
+    const time = due && (due.getHours() || due.getMinutes()) ? ` · ${String(due.getHours()).padStart(2, "0")}:${String(due.getMinutes()).padStart(2, "0")}` : "";
+    return (
+      <span style={tagStyle("var(--cal-watch-bg)", "var(--cal-watch-fg)")}>
+        <CalendarDays className="h-3 w-3" /> Calendar{time}
+      </span>
+    );
+  }
+  return null;
+}
+
+export default function TaskCard({ task, onTitleEdit, onClick, userMap, columns, columnCounts, onMove, onSetPriority, onDelete, shiftStart }: TaskCardProps) {
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState(task.title);
   const titleInputRef = useRef<HTMLInputElement>(null);
@@ -294,6 +343,10 @@ export default function TaskCard({ task, onTitleEdit, onClick, userMap, columns,
     ? { id: task.assigned_to_user_id, initials: userMap?.[task.assigned_to_user_id]?.initials ?? task.assigned_to_user_id.slice(0, 2).toUpperCase() }
     : null;
   const done = task.status === "Done";
+  const shiftTask = task as Task & { kind?: string; check_freq?: string; completed_by_name?: string };
+  const tag = shiftTask.kind ? <ShiftTag task={shiftTask} shiftStart={shiftStart} /> : null;
+  // On the shift board the tag says when it's for, so the due chip is only kept for plain watch tasks.
+  const showDue = !!task.due_at && (!shiftTask.kind || (shiftTask.kind === "watch" && !(shiftStart && new Date(task.due_at) < new Date(shiftStart))));
   const menu = onMove && columns && columns.length > 0
     ? <CardMenu task={task} columns={columns} columnCounts={columnCounts} onOpen={onClick} onMove={onMove} onSetPriority={onSetPriority} onDelete={onDelete} />
     : null;
@@ -315,8 +368,9 @@ export default function TaskCard({ task, onTitleEdit, onClick, userMap, columns,
     >
       {coverStyle && <div style={{ ...coverStyle, height: 92, borderRadius: 11, margin: "0 -4px" }} />}
 
-      {labelIds.length > 0 && (
+      {(labelIds.length > 0 || tag) && (
         <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+          {tag}
           {labelIds.map((id) => <LabelTag key={id} id={id} />)}
           {menu}
         </div>
@@ -359,20 +413,24 @@ export default function TaskCard({ task, onTitleEdit, onClick, userMap, columns,
             {task.title}
           </h4>
         )}
-        {recur && (
+        {recur && shiftTask.kind !== "check" && (
           <span role="img" aria-label={`Recurring: ${recur}`} title={recur} style={{ display: "inline-flex", flex: "none", marginTop: 2, color: "var(--cal-brand-text)" }}>
             <Repeat className="h-[15px] w-[15px]" />
           </span>
         )}
-        {labelIds.length === 0 && menu && <span style={{ marginTop: -4, display: "flex" }}>{menu}</span>}
+        {labelIds.length === 0 && !tag && menu && <span style={{ marginTop: -4, display: "flex" }}>{menu}</span>}
       </div>
 
       <ChecklistBar task={task} />
 
       <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-        {task.due_at ? (
+        {done && shiftTask.completed_by_name ? (
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 600, color: "var(--cal-leave-fg)" }}>
+            <Check className="h-3 w-3" strokeWidth={3} /> {shiftTask.completed_by_name}
+          </span>
+        ) : showDue ? (
           <DueChip task={task} />
-        ) : recur ? (
+        ) : recur && !shiftTask.kind ? (
           <span className="cal-mono" style={{ fontSize: 11, color: "var(--cal-muted)" }}>{recur}</span>
         ) : null}
         <PriorityChip priority={task.priority} />

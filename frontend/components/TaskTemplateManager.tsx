@@ -34,14 +34,18 @@ const PRIORITY_OPTIONS: { value: TaskPriority; label: string }[] = [
   { value: "Low", label: "Low" },
 ];
 
-// The four schedule choices in the design. "Weekly on days" and "Every N
-// weeks" are both FREQ=WEEKLY — the second just has an interval of 2+.
-type Sched = "DAILY" | "WEEKLY" | "NWEEKS" | "MONTHLY";
+// Schedule choices. Templates are station checks: "Every shift" makes a card
+// for the day and the night shift (FREQ=DAILY + per_shift); "Weekly on days"
+// and "Every N weeks" are both FREQ=WEEKLY (the second has an interval of 2+);
+// "Quarterly" is FREQ=MONTHLY;INTERVAL=3.
+type Sched = "SHIFT" | "DAILY" | "WEEKLY" | "NWEEKS" | "MONTHLY" | "QUARTERLY";
 const SCHED_OPTIONS: { value: Sched; label: string }[] = [
+  { value: "SHIFT", label: "Every shift" },
   { value: "DAILY", label: "Daily" },
   { value: "WEEKLY", label: "Weekly on days" },
   { value: "NWEEKS", label: "Every N weeks" },
   { value: "MONTHLY", label: "Monthly" },
+  { value: "QUARTERLY", label: "Quarterly" },
 ];
 
 function buildRrule(freq: string, selectedDays: string[], interval: number): string {
@@ -67,7 +71,7 @@ function parseRruleDisplay(rrule: string): string {
     }
     return interval === 1 ? "Every week" : `Every ${interval} weeks`;
   }
-  if (freq === "MONTHLY") return interval === 1 ? "Every month" : `Every ${interval} months`;
+  if (freq === "MONTHLY") return interval === 1 ? "Every month" : interval === 3 ? "Quarterly" : `Every ${interval} months`;
   return rrule;
 }
 
@@ -108,7 +112,10 @@ function fromTemplate(t: TaskTemplate): TemplateFormState {
   const freq = parts["FREQ"] ?? "WEEKLY";
   const interval = parseInt(parts["INTERVAL"] ?? "1");
   const sched: Sched =
-    freq === "WEEKLY" ? (interval > 1 ? "NWEEKS" : "WEEKLY") : freq === "DAILY" || freq === "MONTHLY" ? freq : "WEEKLY";
+    t.per_shift ? "SHIFT"
+    : freq === "WEEKLY" ? (interval > 1 ? "NWEEKS" : "WEEKLY")
+    : freq === "MONTHLY" ? (interval === 3 ? "QUARTERLY" : "MONTHLY")
+    : freq === "DAILY" ? "DAILY" : "WEEKLY";
   return {
     name: t.name,
     title_template: t.title_template,
@@ -128,6 +135,8 @@ function fromTemplate(t: TaskTemplate): TemplateFormState {
 /** "each day", "every Mon, Thu", "every 2 weeks on Mon" … or null when no day is picked. */
 function schedulePhrase(f: TemplateFormState): string | null {
   const n = f.interval;
+  if (f.sched === "SHIFT") return "every shift (day and night)";
+  if (f.sched === "QUARTERLY") return "each quarter";
   if (f.freq === "DAILY") return n === 1 ? "each day" : `every ${n} days`;
   if (f.freq === "WEEKLY") {
     const days = DAYS_OF_WEEK.filter((d) => f.selectedDays.includes(d.key)).map((d) => d.label).join(", ");
@@ -249,6 +258,7 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
         priority: f.priority,
         checklist: f.checklist,
         rrule: buildRrule(f.freq, f.selectedDays, f.interval),
+        per_shift: f.sched === "SHIFT",
       });
       // New templates start active; if it was switched off in the form, pause it.
       if (!f.is_active) await backend.task.updateTemplate(created.id, { is_active: false });
@@ -272,6 +282,7 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
         priority: f.priority,
         checklist: f.checklist,
         rrule: buildRrule(f.freq, f.selectedDays, f.interval),
+        per_shift: f.sched === "SHIFT",
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["task-templates"] });
@@ -341,6 +352,8 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
   const setSched = (s: Sched) => {
     if (s === form.sched) return;
     if (s === "NWEEKS") setF({ sched: s, freq: "WEEKLY", interval: Math.max(2, form.interval) });
+    else if (s === "SHIFT") setF({ sched: s, freq: "DAILY", interval: 1 });
+    else if (s === "QUARTERLY") setF({ sched: s, freq: "MONTHLY", interval: 3 });
     else setF({ sched: s, freq: s, interval: 1 });
   };
 
@@ -439,7 +452,7 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
               {watch ? `${watch} Watch · ` : ""}{canManage ? "WC / CC only" : "Set by WC / CC"}
             </span>
             <h2 id="ttm-title" className="ttm-h1">Work templates</h2>
-            <span className="ttm-sub">Recurring tasks that create cards automatically on schedule.</span>
+            <span className="ttm-sub">Station checks for every watch — each one appears on the board of the watch on duty.</span>
           </div>
           <span style={{ flex: 1 }} />
           {canManage && (
@@ -489,7 +502,7 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
                       {canManage && <Switch checked={active} onChange={(v) => setActive(t, v)} label={`${t.name} active`} />}
                     </div>
                     <div className="ttm-row">
-                      <Tag bg="var(--cal-brand-soft)" fg="var(--cal-brand-text)">{parseRruleDisplay(t.rrule)}</Tag>
+                      <Tag bg="var(--cal-brand-soft)" fg="var(--cal-brand-text)">{t.per_shift ? "Every shift" : parseRruleDisplay(t.rrule)}</Tag>
                       <Tag bg={`var(--cal-${priorityKey(t.priority)}-bg)`} fg={`var(--cal-${priorityKey(t.priority)}-fg)`}>
                         {priorityLabel(t.priority)}
                       </Tag>
@@ -700,7 +713,7 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
                     <span className="ttm-caption">Schedule</span>
                     <Segmented
                       label="Schedule"
-                      className="ttm-seg-4"
+                      className="ttm-seg-6"
                       options={SCHED_OPTIONS}
                       value={form.sched}
                       onChange={setSched}
@@ -722,7 +735,7 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
                       </div>
                     )}
 
-                    {form.sched !== "WEEKLY" && (
+                    {form.sched !== "WEEKLY" && form.sched !== "SHIFT" && form.sched !== "QUARTERLY" && (
                       <div className="ttm-every">
                         <span>Repeat every</span>
                         <button
@@ -759,7 +772,8 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
 
                     {phrase ? (
                       <span className="ttm-preview">
-                        Creates one {cardTitle ? `“${cardTitle}” ` : ""}card {phrase} in {generatedColName}.
+                        Makes {cardTitle ? `a “${cardTitle}”` : "a"} station check {phrase} for whichever watch is on duty, in {generatedColName}.
+                        {["WEEKLY", "NWEEKS", "MONTHLY", "QUARTERLY"].includes(form.sched) ? " It stays on every shift until it's done." : ` If it isn't done that ${form.sched === "SHIFT" ? "shift" : "day"} it's marked missed — it doesn't carry over.`}
                       </span>
                     ) : (
                       <span className="ttm-preview" style={{ color: "var(--cal-station-fg)" }}>Pick at least one day.</span>
@@ -870,6 +884,8 @@ select.ttm-input{appearance:none;-webkit-appearance:none;padding-right:36px;curs
 .ttm-seg{display:grid;gap:4px;padding:4px;border-radius:12px;background:var(--cal-surface-3)}
 .ttm-seg-3{grid-template-columns:repeat(3,minmax(0,1fr))}
 .ttm-seg-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.ttm-seg-6{grid-template-columns:repeat(3,minmax(0,1fr))}
+.ttm-seg-6 button{height:36px}
 .ttm-seg button{height:34px;padding:0 6px;border-radius:9px;border:none;background:transparent;color:var(--cal-ink-2);font:inherit;font-size:13px;font-weight:400;letter-spacing:0;text-transform:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
 .ttm-seg-4 button{height:36px}
 .ttm-seg button:hover{color:var(--cal-ink)}
@@ -929,7 +945,7 @@ select.ttm-input{appearance:none;-webkit-appearance:none;padding-right:36px;curs
   .ttm-listbar .ttm-pill{width:100%;height:48px;justify-content:space-between}
   .ttm-form{padding:16px 16px 0}
   .ttm-grid2,.ttm-cl{grid-template-columns:minmax(0,1fr)}
-  .ttm-seg-4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ttm-seg-4,.ttm-seg-6{grid-template-columns:repeat(2,minmax(0,1fr))}
   .ttm-seg button,.ttm-seg-4 button,.ttm-day,.ttm-step,.ttm-num{height:40px}
   .ttm-step{width:40px}
   .ttm-input,.ttm-num,.ttm-add-row input{font-size:16px}

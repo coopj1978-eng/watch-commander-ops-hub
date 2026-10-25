@@ -4349,6 +4349,7 @@ export namespace task {
         priority: TaskPriority
         checklist?: ChecklistItem[]
         rrule: string
+        "per_shift"?: boolean
     }
 
     export interface ListColumnsResponse {
@@ -4397,6 +4398,7 @@ export namespace task {
         rrule?: string
         position?: number
         "completed_at"?: string
+        "completed_by"?: string
         "cover_colour"?: string
         "source_type"?: string
         "source_id"?: number
@@ -4430,6 +4432,7 @@ export namespace task {
         priority: TaskPriority
         checklist?: ChecklistItem[]
         rrule: string
+        "per_shift": boolean
         "is_active": boolean
         "created_by": string
         "created_at": string
@@ -4450,7 +4453,31 @@ export namespace task {
         priority?: TaskPriority
         checklist?: ChecklistItem[]
         rrule?: string
+        "per_shift"?: boolean
         "is_active"?: boolean
+    }
+
+    /** The shift board: what the watch on duty should see this shift. */
+    export interface ShiftInfo {
+        watch: string | null
+        date: string
+        type: "day" | "night"
+        label: string
+        start: string
+        end: string
+        "on_duty": boolean
+    }
+
+    export interface ShiftTask extends Task {
+        kind: "check" | "watch" | "calendar"
+        "check_freq"?: string
+        "completed_by_name"?: string
+    }
+
+    export interface ShiftBoardResponse {
+        shift: ShiftInfo
+        "on_duty_watch": string | null
+        tasks: ShiftTask[]
     }
 
     export class ServiceClient {
@@ -4466,6 +4493,7 @@ export namespace task {
             this.deleteTemplate = this.deleteTemplate.bind(this)
             this.list = this.list.bind(this)
             this.listColumns = this.listColumns.bind(this)
+            this.shiftBoard = this.shiftBoard.bind(this)
             this.listTemplates = this.listTemplates.bind(this)
             this.reorderColumns = this.reorderColumns.bind(this)
             this.update = this.update.bind(this)
@@ -4518,6 +4546,12 @@ export namespace task {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/api/tasks`, undefined, {query})
             return await resp.json() as ListTasksResponse
+        }
+
+        public async shiftBoard(params: { watch?: string }): Promise<ShiftBoardResponse> {
+            const query = makeRecord<string, string | string[]>({ watch: params.watch })
+            const resp = await this.baseClient.callTypedAPI("GET", `/api/tasks/shift`, undefined, {query})
+            return await resp.json() as ShiftBoardResponse
         }
 
         public async listColumns(): Promise<ListColumnsResponse> {

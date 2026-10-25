@@ -16,6 +16,7 @@ interface CreateTemplateRequest {
   priority: TaskPriority;
   checklist?: ChecklistItem[];
   rrule: string;
+  per_shift?: boolean;
 }
 
 interface UpdateTemplateRequest {
@@ -28,6 +29,7 @@ interface UpdateTemplateRequest {
   priority?: TaskPriority;
   checklist?: ChecklistItem[];
   rrule?: string;
+  per_shift?: boolean;
   is_active?: boolean;
 }
 
@@ -59,8 +61,8 @@ export const createTemplate = api<CreateTemplateRequest, TaskTemplate>(
 
     const raw = await db.rawQueryRow<any>(
       `INSERT INTO task_templates
-         (name, description, title_template, task_description, category, priority, checklist, rrule, created_by)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+         (name, description, title_template, task_description, category, priority, checklist, rrule, created_by, per_shift)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
        RETURNING *`,
       req.name,
       req.description ?? null,
@@ -70,7 +72,8 @@ export const createTemplate = api<CreateTemplateRequest, TaskTemplate>(
       req.priority,
       JSON.stringify(req.checklist ?? []),
       req.rrule,
-      auth.userID
+      auth.userID,
+      req.per_shift ?? false
     );
 
     if (!raw) throw new Error("Failed to create template");
@@ -103,6 +106,7 @@ export const updateTemplate = api(
     if (updates.checklist !== undefined) { setClauses.push(`checklist = $${paramIndex++}`); queryParams.push(JSON.stringify(updates.checklist)); }
     if (updates.rrule !== undefined) { setClauses.push(`rrule = $${paramIndex++}`); queryParams.push(updates.rrule); }
     if (updates.is_active !== undefined) { setClauses.push(`is_active = $${paramIndex++}`); queryParams.push(updates.is_active); }
+    if (updates.per_shift !== undefined) { setClauses.push(`per_shift = $${paramIndex++}`); queryParams.push(updates.per_shift); }
 
     if (setClauses.length === 0) throw APIError.invalidArgument("no updates provided");
 

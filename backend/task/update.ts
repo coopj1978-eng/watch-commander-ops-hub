@@ -42,8 +42,11 @@ export const update = api(
       queryParams.push(updates.status);
       if (updates.status === "Done") {
         setClauses.push(`completed_at = NOW()`);
+        setClauses.push(`completed_by = $${paramIndex++}`);
+        queryParams.push(auth.userID);
       } else {
         setClauses.push(`completed_at = NULL`);
+        setClauses.push(`completed_by = NULL`);
       }
     }
     if (updates.priority !== undefined) {
