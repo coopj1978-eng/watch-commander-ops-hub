@@ -2,56 +2,15 @@ import { CronJob } from "encore.dev/cron";
 import { api } from "encore.dev/api";
 import db from "../db";
 import log from "encore.dev/log";
-
-/**
- * Parses an rrule string and determines whether it fires on the given date.
- * Supports FREQ=DAILY, FREQ=WEEKLY (with optional BYDAY), FREQ=MONTHLY (BYMONTHDAY).
- */
-function rruleFiresToday(rrule: string, date: Date, templateCreatedAt?: Date | string | null): boolean {
-  const parts: Record<string, string> = {};
-  rrule.split(";").forEach((part) => {
-    const [key, val] = part.split("=");
-    if (key && val) parts[key.trim()] = val.trim();
-  });
-
-  const freq = parts["FREQ"];
-  if (!freq) return false;
-
-  const dayNames = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
-  const dayOfWeek = date.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
-  const dayOfMonth = date.getDate();
-
-  if (freq === "DAILY") {
-    return true;
-  }
-
-  if (freq === "WEEKLY") {
-    if (parts["BYDAY"]) {
-      const byDay = parts["BYDAY"].split(",").map((d) => d.trim());
-      return byDay.includes(dayNames[dayOfWeek]);
-    }
-    // No BYDAY: once a week, on the weekday the template was created (Monday if unknown).
-    const created = templateCreatedAt ? new Date(templateCreatedAt) : null;
-    const anchorDay = created && !Number.isNaN(created.getTime()) ? created.getDay() : 1;
-    return dayOfWeek === anchorDay;
-  }
-
-  if (freq === "MONTHLY") {
-    if (parts["BYMONTHDAY"]) {
-      return parseInt(parts["BYMONTHDAY"]) === dayOfMonth;
-    }
-    // Default to 1st of month
-    return dayOfMonth === 1;
-  }
-
-  return false;
-}
+import { ukTodayIso } from "../lib/sicknessMath";
+import { rruleFiresOn } from "./rrule";
 
 export const generateTasksFromTemplates = api(
   { expose: false, method: "POST", path: "/automation/generate-template-tasks" },
   async (): Promise<void> => {
-    const today = new Date();
-    const todayDate = today.toISOString().split("T")[0]; // YYYY-MM-DD
+    // UK calendar day (YYYY-MM-DD) — the same as the UTC day at the 06:00 UTC
+    // cron, and also the key that stops a template generating twice in a day.
+    const todayDate = ukTodayIso();
     log.info("Generating tasks from templates", { date: todayDate });
 
     // The board filters tasks by watch_unit, so generated tasks inherit the
@@ -78,7 +37,7 @@ export const generateTasksFromTemplates = api(
     let skipped = 0;
 
     for (const template of rawTemplates) {
-      if (!rruleFiresToday(template.rrule, today, template.created_at)) {
+      if (!rruleFiresOn(template.rrule, todayDate, template.created_at)) {
         skipped++;
         continue;
       }
