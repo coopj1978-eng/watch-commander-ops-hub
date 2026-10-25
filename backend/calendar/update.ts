@@ -104,16 +104,18 @@ export const update = api<UpdateEventParams, CalendarEvent>(
       throw APIError.notFound("calendar event not found");
     }
 
-    // If the time changed, move the linked station_event task with it (a
-    // watch-calendar event's task stays with that watch).
-    if (updates.start_time !== undefined) {
+    // The linked board card follows the event only when it's actually moved
+    // (a watch-calendar event's card stays with that watch). The form sends
+    // the start time on every save, so checking for it alone meant adding a
+    // note to the event undid a card someone had moved to another day or watch.
+    if (moved) {
       const linkedTask = await db.rawQueryRow<{ id: number }>(
         `SELECT t.id FROM tasks t
          WHERE t.calendar_event_id = $1 AND t.source_type = 'station_event' AND t.status != 'Done'`,
         id
       );
       if (linkedTask) {
-        const newStart = new Date(updates.start_time);
+        const newStart = new Date(updates.start_time!); // set — `moved` checks it
         const newWatch = taskWatchFor(event);
         if (newWatch) {
           await db.rawQueryRow(
@@ -122,6 +124,15 @@ export const update = api<UpdateEventParams, CalendarEvent>(
           );
         }
       }
+    }
+
+    // A renamed event renames its open card, so the calendar and board agree.
+    if (updates.title !== undefined && updates.title.trim() && before && updates.title !== before.title) {
+      await db.rawExec(
+        `UPDATE tasks SET title = $1, updated_at = NOW()
+         WHERE calendar_event_id = $2 AND source_type = 'station_event' AND status <> 'Done'`,
+        updates.title.trim(), id
+      );
     }
 
     if (moved) {
