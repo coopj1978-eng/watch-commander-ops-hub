@@ -101,7 +101,7 @@ export const update = api(
       UPDATE tasks
       SET ${setClauses.join(", ")}
       WHERE id = $${paramIndex}
-      RETURNING *
+      RETURNING * /* tasks v68 — see list.ts */
     `;
 
     const task = await db.rawQueryRow<Task>(query, ...queryParams);

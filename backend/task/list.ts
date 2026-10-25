@@ -68,7 +68,10 @@ export const list = api<ListTasksRequest, ListTasksResponse>(
 
     const whereClause = conditions.length > 0 ? ` WHERE ${conditions.join(" AND ")}` : "";
 
-    const query = `SELECT * FROM tasks${whereClause}
+    // "v68" makes the database prepare this afresh: pooled connections cached
+    // the old plan before migration 068 added a column ("cached plan must not
+    // change result type"). Bump it whenever the tasks table gains a column.
+    const query = `SELECT * /* tasks v68 */ FROM tasks${whereClause}
       ORDER BY
         CASE priority WHEN 'High' THEN 1 WHEN 'Med' THEN 2 WHEN 'Low' THEN 3 END,
         position ASC,

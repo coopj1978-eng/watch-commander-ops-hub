@@ -34,7 +34,7 @@ export const exportICS = api<ExportICSRequest, ExportICSResponse>(
     `;
 
     const tasks = await db.query<Task>`
-      SELECT * FROM tasks
+      SELECT * /* tasks v68 */ FROM tasks
       WHERE assigned_to_user_id = ${userId}
         AND due_at IS NOT NULL
         AND due_at >= ${startDate}

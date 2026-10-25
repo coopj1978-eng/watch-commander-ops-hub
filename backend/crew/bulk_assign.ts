@@ -37,7 +37,7 @@ export const bulkAssign = api<BulkTaskAssignment, BulkAssignResponse>(
         ) VALUES (
           $1, $2, $3, $4, 'NotStarted', $5, $6, NOW(), NOW()
         )
-        RETURNING *`,
+        RETURNING * /* tasks v68 */`,
         req.title,
         req.description || null,
         req.category,
