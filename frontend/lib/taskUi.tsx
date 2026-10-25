@@ -151,6 +151,24 @@ export function Initials({ userId, initials, size = 26 }: { userId: string; init
   );
 }
 
+/**
+ * Whether someone may change a task's details (title, due date, labels,
+ * priority, repeat, delete…) — the same rule as the server's
+ * task/permissions.ts: the person who set it, the person it's assigned to, or
+ * a WC/CC on its watch (station cards have no watch). Anyone on the watch can
+ * still move a card between columns and tick its checklist.
+ */
+export function canEditTaskDetails(
+  task: { assigned_by?: string; assigned_to_user_id?: string; watch_unit?: string } | null | undefined,
+  user: { id?: string; watch_unit?: string } | null | undefined,
+  role: string,
+): boolean {
+  if (!task || !user?.id) return false;
+  if (task.assigned_by === user.id || task.assigned_to_user_id === user.id) return true;
+  const sameWatch = !task.watch_unit || task.watch_unit.toLowerCase() === (user.watch_unit ?? "").toLowerCase();
+  return (role === "WC" || role === "CC") && sameWatch;
+}
+
 /** True below the md breakpoint (phones) — for layouts that differ, not just restyle. */
 export function useIsPhone(): boolean {
   const query = "(max-width: 767px)";

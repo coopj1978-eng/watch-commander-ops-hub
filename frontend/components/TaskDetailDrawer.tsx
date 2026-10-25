@@ -11,7 +11,7 @@ import {
   X, Trash2, Repeat, Plus, Clock, User, ImageIcon, Search, Upload, Key, Check, ChevronDown, Loader2,
 } from "lucide-react";
 import { TASK_LABELS, CARD_COVERS, getCoverStyle } from "@/lib/taskLabels";
-import { describeRRule, priorityKey } from "@/lib/taskUi";
+import { canEditTaskDetails, describeRRule, priorityKey } from "@/lib/taskUi";
 import type { Task, TaskColumn, ChecklistItem, TaskCategory, TaskPriority } from "~backend/task/types";
 
 interface TaskDetailDrawerProps {
@@ -168,9 +168,13 @@ function ProgressBar({ pct, className }: { pct: number; className?: string }) {
   );
 }
 
-export default function TaskDetailDrawer({ task, columns, onClose, onDelete, canEdit = false, isNewTask = false, onCompleted }: TaskDetailDrawerProps) {
+export default function TaskDetailDrawer({ task, columns, onClose, onDelete, canEdit: canWork = false, isNewTask = false, onCompleted }: TaskDetailDrawerProps) {
   const { user } = useAuth();
   const userRole = useUserRole();
+  // canWork (the prop): move it between columns and tick its checklist — anyone
+  // on the watch. canEdit: change its details — only who the server allows,
+  // so nobody is offered a change that would then be refused.
+  const canEdit = canWork && (isNewTask || canEditTaskDetails(task as any, user, userRole));
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -204,7 +208,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
   const pickerRef = useRef<HTMLElement>(null);
   const focusedNewRef = useRef<number | null>(null);
 
-  useEffect(() => {
+  const resetFields = () => {
     if (!task) return;
     setTitle(task.title);
     setDescription(task.description ?? "");
@@ -226,7 +230,8 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
     setAddingItem(false);
     setNewChecklistItem("");
     setShowCoverPicker(false);
-  }, [task?.id]);
+  };
+  useEffect(resetFields, [task?.id]);
 
   // The title grows with its text (one line until it wraps).
   useLayoutEffect(() => {
@@ -254,7 +259,16 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
   const updateMutation = useMutation({
     mutationFn: async (updates: any) => backend.task.update(task!.id, updates),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),
-    onError: () => toast({ title: "Error", description: "Failed to save", variant: "destructive" }),
+    onError: (err: Error) => {
+      toast({
+        title: "That change wasn't saved",
+        description: /permission/i.test(err.message ?? "")
+          ? "Only the person who set this task, the person it's assigned to, or a WC/CC on its watch can change that."
+          : err.message || "Please try again.",
+        variant: "destructive",
+      });
+      resetFields(); // put back what's really saved
+    },
   });
 
   const deleteMutation = useMutation({
@@ -265,7 +279,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
       onClose();
       toast({ title: "Task deleted" });
     },
-    onError: () => toast({ title: "Error", description: "Failed to delete task", variant: "destructive" }),
+    onError: (err: Error) => toast({ title: "Couldn't delete the task", description: err.message, variant: "destructive" }),
   });
 
   if (!task) return null;
@@ -681,6 +695,11 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
               disabled={!canEdit}
               placeholder="Task title"
             />
+            {canWork && !canEdit && (
+              <p className="text-xs" style={{ margin: 0, color: "var(--cal-muted)" }}>
+                You can move this card and tick its checklist. Its details can only be changed by the person who set it, the person it's assigned to, or a WC/CC on its watch.
+              </p>
+            )}
 
             <div className="flex flex-col gap-3.5 sm:grid sm:grid-cols-[minmax(0,1fr)_220px] md:grid-cols-[minmax(0,1fr)_260px] sm:gap-7 sm:items-start">
 
@@ -712,7 +731,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                 {/* Phones: Column / Priority / Due / Repeats tiles */}
                 <div className="order-2 sm:hidden flex flex-col gap-2">
                   <div className="grid grid-cols-2 gap-2">
-                    <Select value={status} onValueChange={handleStatusChange} disabled={!canEdit}>
+                    <Select value={status} onValueChange={handleStatusChange} disabled={!canWork}>
                       <SelectTrigger className="tdd-tile cal-focus">
                         <span className="tdd-k">Column</span>
                         <SelectValue><span className="tdd-v">{statusCol?.name ?? status}</span></SelectValue>
@@ -785,9 +804,9 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                                   type="button"
                                   role="checkbox"
                                   aria-checked={item.done}
-                                  disabled={!canEdit}
+                                  disabled={!canWork}
                                   className="cal-focus flex flex-1 min-w-0 items-center gap-3 text-left min-h-11 sm:min-h-10 px-1 sm:px-2"
-                                  style={{ border: "none", background: "transparent", borderRadius: 10, color: "var(--cal-ink)", cursor: canEdit ? "pointer" : "default" }}
+                                  style={{ border: "none", background: "transparent", borderRadius: 10, color: "var(--cal-ink)", cursor: canWork ? "pointer" : "default" }}
                                   onClick={() => handleChecklistToggle(idx)}
                                 >
                                   <span className="tdd-box grid place-items-center h-6 w-6 sm:h-[22px] sm:w-[22px]" data-on={item.done ? "" : undefined}>
@@ -1112,7 +1131,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
               {/* ── Right rail (desktop) ─────────────────────────────────── */}
               <div className="hidden sm:flex flex-col gap-3.5 min-w-0">
                 <Field label="Column" htmlFor={`${uid}-col`}>
-                  <Select value={status} onValueChange={handleStatusChange} disabled={!canEdit}>
+                  <Select value={status} onValueChange={handleStatusChange} disabled={!canWork}>
                     <SelectTrigger id={`${uid}-col`} className="tdd-field cal-focus">
                       <SelectValue>
                         {statusCol ? <span className="flex items-center gap-2"><Dot color={statusCol.color} />{statusCol.name}</span> : status}

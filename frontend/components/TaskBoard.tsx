@@ -8,7 +8,9 @@ import QuickAddCard from "./QuickAddCard";
 import backend from "@/lib/backend";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
-import { useIsPhone } from "@/lib/taskUi";
+import { canEditTaskDetails, useIsPhone } from "@/lib/taskUi";
+import { useAuth } from "@/App";
+import { useUserRole } from "@/lib/rbac";
 import type { Task, TaskColumn, TaskPriority } from "~backend/task/types";
 
 interface TaskBoardFilters {
@@ -203,6 +205,11 @@ export default function TaskBoard({
 }: TaskBoardProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const role = useUserRole();
+  // Moving a card is for anyone working the board (canEdit); renaming,
+  // re-prioritising and deleting only for who the server allows.
+  const mayEditDetails = (t: Task) => canEdit && canEditTaskDetails(t, user, role);
 
   const { data: columnsData } = useQuery({
     queryKey: ["task-columns"],
@@ -425,14 +432,14 @@ export default function TaskBoard({
               task={task}
               onClick={() => onTaskClick?.(task)}
               onChecklistToggle={onChecklistToggle}
-              onTitleEdit={canEdit ? onTitleEdit : undefined}
+              onTitleEdit={mayEditDetails(task) ? onTitleEdit : undefined}
               isDark={isDark}
               userMap={userMap}
               columns={canEdit ? columns : undefined}
               columnCounts={columnCounts}
               onMove={canEdit ? (key) => moveTask(task, key) : undefined}
-              onSetPriority={canEdit ? (priority) => updateTaskMutation.mutate({ id: task.id, priority }) : undefined}
-              onDelete={canEdit ? () => handleDeleteTask(task) : undefined}
+              onSetPriority={mayEditDetails(task) ? (priority) => updateTaskMutation.mutate({ id: task.id, priority }) : undefined}
+              onDelete={mayEditDetails(task) ? () => handleDeleteTask(task) : undefined}
               shiftStart={shiftStart}
             />
           </div>

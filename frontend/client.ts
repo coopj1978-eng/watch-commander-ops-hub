@@ -4431,6 +4431,7 @@ export namespace task {
         description?: string
         category: TaskCategory
         "assigned_to_user_id"?: string
+        "assigned_by"?: string
         "watch_unit"?: string
         status: TaskStatus
         priority: TaskPriority
@@ -4518,6 +4519,16 @@ export namespace task {
         "completed_by_name"?: string
     }
 
+    /** A station check nobody did before the next one came. */
+    export interface MissedCheck {
+        id: number
+        title: string
+        date: string
+        shift: string
+        freq: string
+        watches: string[]
+    }
+
     export interface ShiftBoardResponse {
         shift: ShiftInfo
         "on_duty_watch": string | null
@@ -4538,6 +4549,7 @@ export namespace task {
             this.list = this.list.bind(this)
             this.listColumns = this.listColumns.bind(this)
             this.shiftBoard = this.shiftBoard.bind(this)
+            this.missedChecks = this.missedChecks.bind(this)
             this.listTemplates = this.listTemplates.bind(this)
             this.reorderColumns = this.reorderColumns.bind(this)
             this.update = this.update.bind(this)
@@ -4590,6 +4602,12 @@ export namespace task {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/api/tasks`, undefined, {query})
             return await resp.json() as ListTasksResponse
+        }
+
+        public async missedChecks(params: { days?: number }): Promise<{ checks: MissedCheck[] }> {
+            const query = makeRecord<string, string | string[]>({ days: params.days === undefined ? undefined : String(params.days) })
+            const resp = await this.baseClient.callTypedAPI("GET", `/api/tasks/missed-checks`, undefined, {query})
+            return await resp.json() as { checks: MissedCheck[] }
         }
 
         public async shiftBoard(params: { watch?: string }): Promise<ShiftBoardResponse> {

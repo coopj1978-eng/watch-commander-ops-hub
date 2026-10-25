@@ -1,7 +1,7 @@
 import { api, Query } from "encore.dev/api";
 import db from "../db";
 import { ensureStationChecks } from "../lib/stationChecks";
-import { slotAt, slotForWatch, watchForSlot } from "../lib/shiftRota";
+import { shiftSlot, slotAt, slotForWatch, watchForSlot, type SlotType } from "../lib/shiftRota";
 import type { Task } from "./types";
 
 // The shift board (Oct 2026): everything the watch on duty should see this
@@ -122,5 +122,50 @@ export const shiftBoard = api<ShiftBoardRequest, ShiftBoardResponse>(
     });
 
     return { shift, on_duty_watch: onDuty?.watch ?? null, tasks };
+  }
+);
+
+// ─── Missed station checks (for the WC dashboard and the Tasks page) ─────────
+
+export interface MissedCheck {
+  id: number;
+  title: string;
+  /** The day (or night, dated the day it started) it was for. */
+  date: string;
+  /** "day" / "night" for every-shift checks; "" for daily and longer. */
+  shift: string;
+  /** shift | daily | weekly | fortnightly | monthly | quarterly | repeat */
+  freq: string;
+  /** Watches on duty when it was due — none for weekly and longer (the station's). */
+  watches: string[];
+}
+
+export const missedChecks = api<{ days?: Query<number> }, { checks: MissedCheck[] }>(
+  { auth: true, expose: true, method: "GET", path: "/api/tasks/missed-checks" },
+  async (req) => {
+    const days = Math.min(31, Math.max(1, Number(req.days) || 7));
+    // due_at is set on every check the shift-board generator makes; the old
+    // generator's leftovers (retired by migration 068) have none.
+    const rows = await db.rawQueryAll<{ id: number; title: string; d: Date | string; shift: string; per_shift: boolean | null; rrule: string | null }>(
+      `SELECT t.id, t.title, i.generated_for_date AS d, i.generated_for_shift AS shift, tt.per_shift, tt.rrule
+       FROM tasks t
+       JOIN task_template_instances i ON i.task_id = t.id
+       LEFT JOIN task_templates tt ON tt.id = i.template_id
+       WHERE t.source_type = 'template' AND t.status = 'Missed' AND t.due_at IS NOT NULL
+         AND t.due_at > NOW() - make_interval(days => $1::int)
+       ORDER BY t.due_at DESC`,
+      days
+    );
+    return {
+      checks: rows.map((r) => {
+        const date = r.d instanceof Date ? r.d.toISOString().slice(0, 10) : String(r.d).slice(0, 10);
+        const freq = checkFreq(r.per_shift, r.rrule);
+        const slots = r.shift
+          ? [shiftSlot(date, r.shift as SlotType)]
+          : freq === "daily" ? [shiftSlot(date, "day"), shiftSlot(date, "night")] : [];
+        const watches = [...new Set(slots.map((s) => watchForSlot(s)?.watch).filter((w): w is string => !!w))];
+        return { id: r.id, title: r.title, date, shift: r.shift, freq, watches };
+      }),
+    };
   }
 );

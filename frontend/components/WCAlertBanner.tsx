@@ -67,6 +67,11 @@ export function WCAlertBanner() {
 
   // Re-use same queryKeys as the individual widgets → React Query returns cached
   // data instantly; no extra network requests are made.
+  const { data: missedData } = useQuery({
+    queryKey: ["missed-checks"],
+    queryFn: () => backend.task.missedChecks({ days: 7 }),
+    staleTime: 5 * 60_000,
+  });
   const { data: inspectionsData } = useQuery({
     queryKey: ["wc-inspections"],
     queryFn: () => backend.inspection.list({ limit: 200 }),
@@ -176,6 +181,22 @@ export function WCAlertBanner() {
       label,
       count:    sickOnCrew.length,
       href:     "/handover",
+    });
+  }
+
+  // WARNING: Station checks missed in the last 7 days — on this watch's shifts,
+  // plus weekly-and-longer ones (the station's, whoever was on).
+  const missedMine = (missedData?.checks ?? []).filter(
+    (c) => c.watches.length === 0 || c.watches.some((w) => w.toLowerCase() === watch.toLowerCase())
+  ).length;
+  if (missedMine > 0) {
+    alerts.push({
+      id:    "missed-checks",
+      severity: "warning",
+      Icon:  ClipboardCheck,
+      label: missedMine === 1 ? "Station check missed (7 days)" : "Station checks missed (7 days)",
+      count: missedMine,
+      href:  "/tasks",
     });
   }
 

@@ -28697,6 +28697,7 @@ var task;
       this.list = this.list.bind(this);
       this.listColumns = this.listColumns.bind(this);
       this.shiftBoard = this.shiftBoard.bind(this);
+      this.missedChecks = this.missedChecks.bind(this);
       this.listTemplates = this.listTemplates.bind(this);
       this.reorderColumns = this.reorderColumns.bind(this);
       this.update = this.update.bind(this);
@@ -28735,6 +28736,11 @@ var task;
         "watch_unit": params["watch_unit"]
       });
       const resp = await this.baseClient.callTypedAPI("GET", `/api/tasks`, void 0, { query });
+      return await resp.json();
+    }
+    async missedChecks(params) {
+      const query = makeRecord({ days: params.days === void 0 ? void 0 : String(params.days) });
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/tasks/missed-checks`, void 0, { query });
       return await resp.json();
     }
     async shiftBoard(params) {
@@ -40886,6 +40892,11 @@ function WCAlertBanner() {
   const crewShift = crewingShiftFor(watch);
   const shiftDate = (crewShift == null ? void 0 : crewShift.shiftDate) ?? "";
   const shiftType = crewShift == null ? void 0 : crewShift.shiftType;
+  const { data: missedData } = useQuery({
+    queryKey: ["missed-checks"],
+    queryFn: () => backendClient.task.missedChecks({ days: 7 }),
+    staleTime: 5 * 6e4
+  });
   const { data: inspectionsData } = useQuery({
     queryKey: ["wc-inspections"],
     queryFn: () => backendClient.inspection.list({ limit: 200 })
@@ -40967,6 +40978,19 @@ function WCAlertBanner() {
       label: label2,
       count: sickOnCrew.length,
       href: "/handover"
+    });
+  }
+  const missedMine = ((missedData == null ? void 0 : missedData.checks) ?? []).filter(
+    (c) => c.watches.length === 0 || c.watches.some((w) => w.toLowerCase() === watch.toLowerCase())
+  ).length;
+  if (missedMine > 0) {
+    alerts.push({
+      id: "missed-checks",
+      severity: "warning",
+      Icon: ClipboardCheck,
+      label: missedMine === 1 ? "Station check missed (7 days)" : "Station checks missed (7 days)",
+      count: missedMine,
+      href: "/tasks"
     });
   }
   const overdueTasks = (crewStats == null ? void 0 : crewStats.overdue_tasks) ?? 0;
@@ -54495,6 +54519,12 @@ function Initials({ userId, initials: initials2, size: size2 = 26 }) {
     }
   );
 }
+function canEditTaskDetails(task2, user2, role) {
+  if (!task2 || !(user2 == null ? void 0 : user2.id)) return false;
+  if (task2.assigned_by === user2.id || task2.assigned_to_user_id === user2.id) return true;
+  const sameWatch = !task2.watch_unit || task2.watch_unit.toLowerCase() === (user2.watch_unit ?? "").toLowerCase();
+  return (role === "WC" || role === "CC") && sameWatch;
+}
 function useIsPhone() {
   const query = "(max-width: 767px)";
   const [isPhone, setIsPhone] = reactExports.useState(() => typeof window !== "undefined" && window.matchMedia(query).matches);
@@ -55213,6 +55243,9 @@ function TaskBoard({
 }) {
   const { toast: toast2 } = useToast();
   const queryClient2 = useQueryClient();
+  const { user: user2 } = useAuth();
+  const role = useUserRole();
+  const mayEditDetails = (t) => canEdit && canEditTaskDetails(t, user2, role);
   const { data: columnsData } = useQuery({
     queryKey: ["task-columns"],
     queryFn: async () => (await backendClient.task.listColumns()).columns
@@ -55429,14 +55462,14 @@ function TaskBoard({
             task: task2,
             onClick: () => onTaskClick == null ? void 0 : onTaskClick(task2),
             onChecklistToggle,
-            onTitleEdit: canEdit ? onTitleEdit : void 0,
+            onTitleEdit: mayEditDetails(task2) ? onTitleEdit : void 0,
             isDark,
             userMap,
             columns: canEdit ? columns : void 0,
             columnCounts,
             onMove: canEdit ? (key2) => moveTask(task2, key2) : void 0,
-            onSetPriority: canEdit ? (priority) => updateTaskMutation.mutate({ id: task2.id, priority }) : void 0,
-            onDelete: canEdit ? () => handleDeleteTask(task2) : void 0,
+            onSetPriority: mayEditDetails(task2) ? (priority) => updateTaskMutation.mutate({ id: task2.id, priority }) : void 0,
+            onDelete: mayEditDetails(task2) ? () => handleDeleteTask(task2) : void 0,
             shiftStart: shiftStart2
           }
         )
@@ -56351,10 +56384,11 @@ function Field({ label: label2, htmlFor, hint, children }) {
 function ProgressBar({ pct, className }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className, "aria-hidden": "true", style: { height: 6, borderRadius: 3, background: "var(--cal-surface-3)", overflow: "hidden" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: `${pct}%`, height: "100%", borderRadius: 3, background: pct === 100 ? "var(--cal-leave-dot)" : "var(--cal-brand)", transition: "width .3s" } }) });
 }
-function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = false, isNewTask = false, onCompleted }) {
+function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: canWork = false, isNewTask = false, onCompleted }) {
   var _a2, _b2, _c2, _d2, _e2;
   const { user: user2 } = useAuth();
   const userRole = useUserRole();
+  const canEdit = canWork && (isNewTask || canEditTaskDetails(task2, user2, userRole));
   const { toast: toast2 } = useToast();
   const queryClient2 = useQueryClient();
   const [title, setTitle] = reactExports.useState("");
@@ -56386,7 +56420,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
   const titleRef = reactExports.useRef(null);
   const pickerRef = reactExports.useRef(null);
   const focusedNewRef = reactExports.useRef(null);
-  reactExports.useEffect(() => {
+  const resetFields = () => {
     if (!task2) return;
     setTitle(task2.title);
     setDescription(task2.description ?? "");
@@ -56406,7 +56440,8 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
     setAddingItem(false);
     setNewChecklistItem("");
     setShowCoverPicker(false);
-  }, [task2 == null ? void 0 : task2.id]);
+  };
+  reactExports.useEffect(resetFields, [task2 == null ? void 0 : task2.id]);
   reactExports.useLayoutEffect(() => {
     const el = titleRef.current;
     if (!el) return;
@@ -56428,7 +56463,14 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
   const updateMutation = useMutation({
     mutationFn: async (updates) => backendClient.task.update(task2.id, updates),
     onSuccess: () => queryClient2.invalidateQueries({ queryKey: ["tasks"] }),
-    onError: () => toast2({ title: "Error", description: "Failed to save", variant: "destructive" })
+    onError: (err) => {
+      toast2({
+        title: "That change wasn't saved",
+        description: /permission/i.test(err.message ?? "") ? "Only the person who set this task, the person it's assigned to, or a WC/CC on its watch can change that." : err.message || "Please try again.",
+        variant: "destructive"
+      });
+      resetFields();
+    }
   });
   const deleteMutation = useMutation({
     mutationFn: async () => backendClient.task.deleteTask(task2.id),
@@ -56438,7 +56480,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
       onClose();
       toast2({ title: "Task deleted" });
     },
-    onError: () => toast2({ title: "Error", description: "Failed to delete task", variant: "destructive" })
+    onError: (err) => toast2({ title: "Couldn't delete the task", description: err.message, variant: "destructive" })
   });
   if (!task2) return null;
   const save = async (updates) => {
@@ -56811,6 +56853,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
                   placeholder: "Task title"
                 }
               ),
+              canWork && !canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { margin: 0, color: "var(--cal-muted)" }, children: "You can move this card and tick its checklist. Its details can only be changed by the person who set it, the person it's assigned to, or a WC/CC on its watch." }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-3.5 sm:grid sm:grid-cols-[minmax(0,1fr)_220px] md:grid-cols-[minmax(0,1fr)_260px] sm:gap-7 sm:items-start", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-3.5 sm:gap-[18px] min-w-0", children: [
                   (canEdit || tags.length > 0) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "order-1 flex flex-col gap-2", children: [
@@ -56833,7 +56876,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
                   ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "order-2 sm:hidden flex flex-col gap-2", children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-2", children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: status, onValueChange: handleStatusChange, disabled: !canEdit, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: status, onValueChange: handleStatusChange, disabled: !canWork, children: [
                         /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectTrigger, { className: "tdd-tile cal-focus", children: [
                           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tdd-k", children: "Column" }),
                           /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tdd-v", children: (statusCol == null ? void 0 : statusCol.name) ?? status }) })
@@ -56903,9 +56946,9 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
                           type: "button",
                           role: "checkbox",
                           "aria-checked": item.done,
-                          disabled: !canEdit,
+                          disabled: !canWork,
                           className: "cal-focus flex flex-1 min-w-0 items-center gap-3 text-left min-h-11 sm:min-h-10 px-1 sm:px-2",
-                          style: { border: "none", background: "transparent", borderRadius: 10, color: "var(--cal-ink)", cursor: canEdit ? "pointer" : "default" },
+                          style: { border: "none", background: "transparent", borderRadius: 10, color: "var(--cal-ink)", cursor: canWork ? "pointer" : "default" },
                           onClick: () => handleChecklistToggle(idx),
                           children: [
                             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tdd-box grid place-items-center h-6 w-6 sm:h-[22px] sm:w-[22px]", "data-on": item.done ? "" : void 0, children: item.done && /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-[13px] w-[13px]", strokeWidth: 3.4, color: "#ffffff" }) }),
@@ -57227,7 +57270,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit = f
                   ] })
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden sm:flex flex-col gap-3.5 min-w-0", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Column", htmlFor: `${uid}-col`, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: status, onValueChange: handleStatusChange, disabled: !canEdit, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Column", htmlFor: `${uid}-col`, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: status, onValueChange: handleStatusChange, disabled: !canWork, children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: `${uid}-col`, className: "tdd-field cal-focus", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { children: statusCol ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center gap-2", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx(Dot, { color: statusCol.color }),
                       statusCol.name
@@ -58275,6 +58318,12 @@ function TaskSidePanel({ watch, tasks, selectedDay, onPickDay, onOpenTask }) {
   const blanks = (new Date(y, m, 1).getDay() + 6) % 7;
   const n = new Date(y, m + 1, 0).getDate();
   const upcoming = reactExports.useMemo(() => buildUpcoming(tasks, events2), [tasks, events2]);
+  const { data: missedData } = useQuery({
+    queryKey: ["missed-checks"],
+    queryFn: () => backendClient.task.missedChecks({ days: 7 }),
+    staleTime: 5 * 6e4
+  });
+  const missed = (missedData == null ? void 0 : missedData.checks) ?? [];
   const dayEvents = selectedDay ? events2.filter((e) => dayKey(e.start) === dayKey(selectedDay)) : [];
   const dayTasks = selectedDay ? tasks.filter((t) => t.due_at && dayKey(new Date(t.due_at)) === dayKey(selectedDay)) : [];
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { "aria-label": `${watch} Watch calendar`, style: { display: "flex", flexDirection: "column", gap: 16 }, children: [
@@ -58402,6 +58451,28 @@ function TaskSidePanel({ watch, tasks, selectedDay, onPickDay, onOpenTask }) {
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 11 }, children: e.allDay ? "All day" : hhmm(e.start) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 600 }, children: e.title })
         ] }, e.id))
+      ] })
+    ] }),
+    missed.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { "aria-label": "Missed station checks", style: { background: "var(--cal-day-bg)", color: "var(--cal-day-fg)", borderRadius: 18, padding: "14px 16px", display: "flex", flexDirection: "column", gap: 6 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "h-4 w-4" }),
+        " Station checks missed · last 7 days"
+      ] }),
+      missed.slice(0, 5).map((c) => {
+        const day = (/* @__PURE__ */ new Date(`${c.date}T12:00:00`)).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+        const when = c.shift === "night" ? `Night ${day}` : c.shift === "day" ? `Day ${day}` : c.freq === "daily" ? day : `${c.freq[0].toUpperCase()}${c.freq.slice(1)} from ${day}`;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", fontSize: 13, color: "var(--cal-ink)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 600 }, children: c.title }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: { fontSize: 11, color: "var(--cal-ink-2)" }, children: [
+            when,
+            c.watches.length ? ` · ${c.watches.join(" / ")} Watch` : " · station"
+          ] })
+        ] }, c.id);
+      }),
+      missed.length > 5 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: 12 }, children: [
+        "+",
+        missed.length - 5,
+        " more"
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { "aria-label": "Upcoming", style: { display: "flex", flexDirection: "column", gap: 10 }, children: [

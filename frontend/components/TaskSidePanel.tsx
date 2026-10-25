@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { ArrowRight, ChevronDown, ChevronLeft, ChevronRight, Moon, Sun } from "lucide-react";
+import { AlertTriangle, ArrowRight, ChevronDown, ChevronLeft, ChevronRight, Moon, Sun } from "lucide-react";
 import backend from "@/lib/backend";
 import { useAuth } from "@/App";
 import { getShiftForDate, getWatchShiftStatus, hasRotaConfig, type ShiftDay } from "@/lib/shiftRota";
@@ -118,6 +118,13 @@ export default function TaskSidePanel({ watch, tasks, selectedDay, onPickDay, on
   const n = new Date(y, m + 1, 0).getDate();
 
   const upcoming = useMemo(() => buildUpcoming(tasks, events), [tasks, events]);
+  // Station checks nobody did in the last 7 days (shared with the WC dashboard).
+  const { data: missedData } = useQuery({
+    queryKey: ["missed-checks"],
+    queryFn: () => backend.task.missedChecks({ days: 7 }),
+    staleTime: 5 * 60_000,
+  });
+  const missed = missedData?.checks ?? [];
   const dayEvents = selectedDay ? events.filter((e) => dayKey(e.start) === dayKey(selectedDay)) : [];
   const dayTasks = selectedDay ? tasks.filter((t) => t.due_at && dayKey(new Date(t.due_at)) === dayKey(selectedDay)) : [];
 
@@ -229,6 +236,27 @@ export default function TaskSidePanel({ watch, tasks, selectedDay, onPickDay, on
           </div>
         )}
       </section>
+
+      {missed.length > 0 && (
+        <section aria-label="Missed station checks" style={{ background: "var(--cal-day-bg)", color: "var(--cal-day-fg)", borderRadius: 18, padding: "14px 16px", display: "flex", flexDirection: "column", gap: 6 }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700 }}>
+            <AlertTriangle className="h-4 w-4" /> Station checks missed · last 7 days
+          </span>
+          {missed.slice(0, 5).map((c) => {
+            const day = new Date(`${c.date}T12:00:00`).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+            const when = c.shift === "night" ? `Night ${day}` : c.shift === "day" ? `Day ${day}` : c.freq === "daily" ? day : `${c.freq[0].toUpperCase()}${c.freq.slice(1)} from ${day}`;
+            return (
+              <div key={c.id} style={{ display: "flex", flexDirection: "column", fontSize: 13, color: "var(--cal-ink)" }}>
+                <span style={{ fontWeight: 600 }}>{c.title}</span>
+                <span className="cal-mono" style={{ fontSize: 11, color: "var(--cal-ink-2)" }}>
+                  {when}{c.watches.length ? ` · ${c.watches.join(" / ")} Watch` : " · station"}
+                </span>
+              </div>
+            );
+          })}
+          {missed.length > 5 && <span style={{ fontSize: 12 }}>+{missed.length - 5} more</span>}
+        </section>
+      )}
 
       <section aria-label="Upcoming" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: "0 4px" }}>

@@ -13,6 +13,8 @@ export interface Task {
   description?: string;
   category: TaskCategory;
   assigned_to_user_id?: string;
+  /** Who set the task. */
+  assigned_by?: string;
   watch_unit?: string;
   status: TaskStatus;
   priority: TaskPriority;
