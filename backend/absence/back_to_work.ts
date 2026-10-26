@@ -2,6 +2,7 @@ import { api, APIError, Query } from "encore.dev/api";
 import db from "../db";
 import { logActivity } from "../logging/logger";
 import { absenceViewer, assertCanManageAbsencesOf, assertCanViewAbsencesOf, visiblePersonIds } from "../lib/absenceAccess";
+import { sendBackToWorkReminders } from "../lib/backToWork";
 
 // Back to work interviews (see lib/backToWork.ts). Visible to the person and
 // their own watch's WC/CC; recorded as done by a WC/CC on their watch.
@@ -45,6 +46,9 @@ export const listBackToWork = api<{ user_id?: Query<string> }, { interviews: Bac
       return { interviews: rows.map(toInterview) };
     }
     if (!viewer.isManager) return { interviews: [] };
+    // Send any reminders now due — the hourly job runs late in the hour, so
+    // the WC/CC opening their dashboard at the start of the shift triggers it.
+    await sendBackToWorkReminders().catch(() => 0);
     const ids = [...(await visiblePersonIds(viewer))].filter((id) => id !== viewer.userID);
     if (ids.length === 0) return { interviews: [] };
     const rows = await db.rawQueryAll<any>(

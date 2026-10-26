@@ -1,6 +1,7 @@
 import { api, Query } from "encore.dev/api";
 import db from "../db";
 import { ensureStationChecks } from "../lib/stationChecks";
+import { sendBackToWorkReminders } from "../lib/backToWork";
 import { shiftSlot, slotAt, slotForWatch, watchForSlot, type SlotType } from "../lib/shiftRota";
 import type { Task } from "./types";
 
@@ -59,6 +60,8 @@ export const shiftBoard = api<ShiftBoardRequest, ShiftBoardResponse>(
   async (req) => {
     // Make sure this shift's station checks exist (the hourly job also does).
     await ensureStationChecks().catch(() => undefined);
+    // Back to work reminders for anyone whose first shift back has started.
+    await sendBackToWorkReminders().catch(() => 0);
 
     const now = new Date();
     const current = slotAt(now);
