@@ -2,6 +2,7 @@ import { CronJob } from "encore.dev/cron";
 import { api } from "encore.dev/api";
 import db from "../db";
 import log from "encore.dev/log";
+import { recalcTriggersSafely } from "../lib/sickness";
 
 export const nightlyRollup = api(
   { expose: false, method: "POST", path: "/automation/nightly-rollup" },
@@ -74,6 +75,12 @@ export const nightlyRollup = api(
     }
 
     log.info(`Nightly rollup completed. Updated ${updatedCount} records`);
+
+    // Sickness totals move with time (an open sickness gains duty days, old
+    // ones fall out of the six months), so bring everyone's up to date.
+    const people = await db.rawQueryAll<{ user_id: string }>(`SELECT user_id FROM firefighter_profiles`);
+    for (const p of people) await recalcTriggersSafely(p.user_id);
+    log.info(`Sickness triggers recalculated for ${people.length} people`);
   }
 );
 

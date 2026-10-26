@@ -1,6 +1,7 @@
 import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import { recalcTriggersForUser } from "../lib/sickness";
+import { absenceViewer, assertCanViewAbsencesOf } from "../lib/absenceAccess";
 import type { TriggerStage } from "./types";
 
 interface RecalculateTriggersRequest {
@@ -18,10 +19,10 @@ interface RecalculateTriggersResponse {
 export const recalculateTriggers = api<RecalculateTriggersRequest, RecalculateTriggersResponse>(
   { auth: true, method: "POST", path: "/profile/recalculate-triggers", expose: true },
   async (req) => {
-    const auth = getAuthData()!;
-    if (auth.role !== "WC" && auth.role !== "CC" && auth.userID !== req.user_id) {
-      throw APIError.permissionDenied("Not allowed to recalculate another person's triggers");
-    }
+    getAuthData()!;
+    // It returns their sickness totals, so: the person, or a WC/CC on their
+    // watch — the same rule as everything else about sickness.
+    await assertCanViewAbsencesOf(await absenceViewer(), req.user_id);
     return recalcTriggersForUser(req.user_id);
   }
 );
