@@ -31,6 +31,8 @@ interface AlertItem {
   label: string;
   count: number;
   href: string;
+  /** People the alert is about — each links to their profile. */
+  people?: { id: string; name: string }[];
 }
 
 // ── Severity styling ───────────────────────────────────────────────────────────
@@ -76,6 +78,17 @@ export function WCAlertBanner() {
     queryKey: ["wc-inspections"],
     queryFn: () => backend.inspection.list({ limit: 200 }),
   });
+
+  // Names for alerts about people (same cache as the Tasks page).
+  const { data: peopleData } = useQuery({
+    queryKey: ["people-for-tasks"],
+    queryFn: async () => (await backend.profile.listWithUsers({ limit: 500 })).people ?? [],
+    staleTime: 5 * 60 * 1000,
+  });
+  const nameOf = (id: string) => {
+    const p = (peopleData ?? []).find((x) => x.user.id === id);
+    return p?.user.name || p?.user.email?.split("@")[0] || "Unknown";
+  };
 
   const { data: profilesData } = useQuery({
     queryKey: ["wc-sickness-triggers"],
@@ -139,19 +152,26 @@ export function WCAlertBanner() {
     });
   }
 
-  // CRITICAL: Stage 3 sickness triggers
+  // Sickness triggers name the people: one person → View opens their
+  // profile; several → each name links to theirs.
   const profiles = profilesData?.profiles ?? [];
-  const stage3 = profiles.filter((p) => p.trigger_stage === "Stage3").length;
-  if (stage3 > 0) {
+  const triggerAlert = (stage: "Stage1" | "Stage2" | "Stage3", severity: Severity) => {
+    const people = profiles.filter((p) => p.trigger_stage === stage).map((p) => ({ id: p.user_id, name: nameOf(p.user_id) }));
+    if (people.length === 0) return;
+    const n = stage.slice(-1);
     alerts.push({
-      id:    "sickness-stage3",
-      severity: "critical",
+      id:    `sickness-${stage.toLowerCase()}`,
+      severity,
       Icon:  ShieldAlert,
-      label: stage3 === 1 ? "Stage 3 sickness trigger" : "Stage 3 sickness triggers",
-      count: stage3,
-      href:  "/people",
+      label: people.length === 1 ? `Stage ${n} sickness trigger` : `Stage ${n} sickness triggers`,
+      count: people.length,
+      href:  people.length === 1 ? `/people/${people[0].id}` : "/people",
+      people,
     });
-  }
+  };
+
+  // CRITICAL: Stage 3 sickness triggers
+  triggerAlert("Stage3", "critical");
 
   // CRITICAL: Sick staff assigned to today's crewing slots → gap alert
   const sickUserIds  = sickOn?.ids ?? new Set<string>();
@@ -214,17 +234,7 @@ export function WCAlertBanner() {
   }
 
   // WARNING: Stage 2 sickness triggers
-  const stage2 = profiles.filter((p) => p.trigger_stage === "Stage2").length;
-  if (stage2 > 0) {
-    alerts.push({
-      id:    "sickness-stage2",
-      severity: "warning",
-      Icon:  ShieldAlert,
-      label: stage2 === 1 ? "Stage 2 sickness trigger" : "Stage 2 sickness triggers",
-      count: stage2,
-      href:  "/people",
-    });
-  }
+  triggerAlert("Stage2", "warning");
 
   // WARNING: Certifications expiring soon
   const expiringSoon = skillsData?.warning_count ?? 0;
@@ -240,17 +250,7 @@ export function WCAlertBanner() {
   }
 
   // INFO: Stage 1 sickness triggers
-  const stage1 = profiles.filter((p) => p.trigger_stage === "Stage1").length;
-  if (stage1 > 0) {
-    alerts.push({
-      id:    "sickness-stage1",
-      severity: "info",
-      Icon:  ShieldAlert,
-      label: stage1 === 1 ? "Stage 1 sickness trigger" : "Stage 1 sickness triggers",
-      count: stage1,
-      href:  "/people",
-    });
-  }
+  triggerAlert("Stage1", "info");
 
   // Nothing to surface
   if (alerts.length === 0) return null;
@@ -340,6 +340,36 @@ export function WCAlertBanner() {
         <div className="divide-y divide-border/50">
           {alerts.map((alert) => {
             const Icon = alert.Icon;
+            if (alert.people?.length) {
+              return (
+                <div
+                  key={alert.id}
+                  className={cn("flex items-center gap-3 px-4 py-2.5 bg-background transition-colors group", rowHover[alert.severity])}
+                >
+                  <span className={cn("w-2 h-2 rounded-full shrink-0", dot[alert.severity])} aria-hidden="true" />
+                  <Icon className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                  <span className="flex-1 text-sm text-foreground">
+                    <span className={cn("font-bold tabular-nums mr-1.5", countText[alert.severity])}>{alert.count}</span>
+                    {alert.label}
+                    {" — "}
+                    {alert.people.map((p, i) => (
+                      <span key={p.id}>
+                        {i > 0 && ", "}
+                        <Link to={`/people/${p.id}`} className="font-medium underline-offset-2 hover:underline hover:text-primary">
+                          {p.name}
+                        </Link>
+                      </span>
+                    ))}
+                  </span>
+                  <Link
+                    to={alert.href}
+                    className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-0.5 shrink-0"
+                  >
+                    {alert.people.length === 1 ? "View profile →" : "View all →"}
+                  </Link>
+                </div>
+              );
+            }
             return (
               <Link
                 key={alert.id}

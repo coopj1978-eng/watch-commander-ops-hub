@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
+import { SicknessTriggerList } from "@/components/SicknessTriggerList";
 import backend from "@/lib/backend";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -67,25 +68,7 @@ export function WCSicknessAlertsWidget() {
           total={profiles.length}
           className="mt-3"
         />
-        {totalAlerts > 0 && (
-          <div className="flex gap-2 mt-2 flex-wrap">
-            {stage1 > 0 && (
-              <Badge variant="outline" className="text-yellow-600 border-yellow-400 dark:text-yellow-400 dark:border-yellow-600 text-xs">
-                Stage 1: {stage1}
-              </Badge>
-            )}
-            {stage2 > 0 && (
-              <Badge variant="outline" className="text-orange-600 border-orange-400 dark:text-orange-400 dark:border-orange-600 text-xs">
-                Stage 2: {stage2}
-              </Badge>
-            )}
-            {stage3 > 0 && (
-              <Badge variant="outline" className="text-red-600 border-red-400 dark:text-red-400 dark:border-red-600 text-xs">
-                Stage 3: {stage3}
-              </Badge>
-            )}
-          </div>
-        )}
+        <SicknessTriggerList profiles={profiles} />
         <Link
           to="/people"
           className="mt-3 flex items-center gap-0.5 text-xs text-muted-foreground hover:text-primary transition-colors group border-t border-border/40 pt-2"

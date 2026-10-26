@@ -40027,6 +40027,39 @@ function WCInspectionsWidget() {
     ] })
   ] });
 }
+const STAGE_STYLE = {
+  Stage3: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
+  Stage2: "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300",
+  Stage1: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300"
+};
+function SicknessTriggerList({ profiles, max: max2 = 5 }) {
+  const { data: people } = useQuery({
+    queryKey: ["people-for-tasks"],
+    queryFn: async () => (await backendClient.profile.listWithUsers({ limit: 500 })).people ?? [],
+    staleTime: 5 * 60 * 1e3
+  });
+  const nameOf = (id) => {
+    var _a2;
+    const p = (people ?? []).find((x) => x.user.id === id);
+    return (p == null ? void 0 : p.user.name) || ((_a2 = p == null ? void 0 : p.user.email) == null ? void 0 : _a2.split("@")[0]) || "Unknown";
+  };
+  const flagged = profiles.filter((p) => p.trigger_stage && p.trigger_stage in STAGE_STYLE).sort((a, b) => String(b.trigger_stage).localeCompare(String(a.trigger_stage)));
+  if (flagged.length === 0) return null;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { className: "mt-2 space-y-1", children: [
+    flagged.slice(0, max2).map((p) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Link, { to: `/people/${p.user_id}`, className: "flex items-center justify-between gap-2 rounded-md px-1 py-0.5 text-sm hover:bg-muted/60 hover:text-primary transition-colors", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate font-medium", children: nameOf(p.user_id) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: `shrink-0 rounded px-1.5 py-0.5 text-[11px] font-semibold ${STAGE_STYLE[p.trigger_stage]}`, children: [
+        "Stage ",
+        String(p.trigger_stage).slice(-1)
+      ] })
+    ] }) }, p.user_id)),
+    flagged.length > max2 && /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "px-1 text-xs text-muted-foreground", children: [
+      "+",
+      flagged.length - max2,
+      " more"
+    ] })
+  ] });
+}
 function WCSicknessAlertsWidget() {
   const { data, isLoading } = useQuery({
     queryKey: ["wc-sickness-triggers"],
@@ -40073,20 +40106,7 @@ function WCSicknessAlertsWidget() {
           className: "mt-3"
         }
       ),
-      totalAlerts > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 mt-2 flex-wrap", children: [
-        stage1 > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-yellow-600 border-yellow-400 dark:text-yellow-400 dark:border-yellow-600 text-xs", children: [
-          "Stage 1: ",
-          stage1
-        ] }),
-        stage2 > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-orange-600 border-orange-400 dark:text-orange-400 dark:border-orange-600 text-xs", children: [
-          "Stage 2: ",
-          stage2
-        ] }),
-        stage3 > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-red-600 border-red-400 dark:text-red-400 dark:border-red-600 text-xs", children: [
-          "Stage 3: ",
-          stage3
-        ] })
-      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(SicknessTriggerList, { profiles }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
         Link,
         {
@@ -40901,6 +40921,16 @@ function WCAlertBanner() {
     queryKey: ["wc-inspections"],
     queryFn: () => backendClient.inspection.list({ limit: 200 })
   });
+  const { data: peopleData } = useQuery({
+    queryKey: ["people-for-tasks"],
+    queryFn: async () => (await backendClient.profile.listWithUsers({ limit: 500 })).people ?? [],
+    staleTime: 5 * 60 * 1e3
+  });
+  const nameOf = (id) => {
+    var _a2;
+    const p = (peopleData ?? []).find((x) => x.user.id === id);
+    return (p == null ? void 0 : p.user.name) || ((_a2 = p == null ? void 0 : p.user.email) == null ? void 0 : _a2.split("@")[0]) || "Unknown";
+  };
   const { data: profilesData } = useQuery({
     queryKey: ["wc-sickness-triggers"],
     queryFn: () => backendClient.profile.list({ limit: 200 })
@@ -40949,17 +40979,21 @@ function WCAlertBanner() {
     });
   }
   const profiles = (profilesData == null ? void 0 : profilesData.profiles) ?? [];
-  const stage3 = profiles.filter((p) => p.trigger_stage === "Stage3").length;
-  if (stage3 > 0) {
+  const triggerAlert = (stage, severity) => {
+    const people = profiles.filter((p) => p.trigger_stage === stage).map((p) => ({ id: p.user_id, name: nameOf(p.user_id) }));
+    if (people.length === 0) return;
+    const n = stage.slice(-1);
     alerts.push({
-      id: "sickness-stage3",
-      severity: "critical",
+      id: `sickness-${stage.toLowerCase()}`,
+      severity,
       Icon: ShieldAlert,
-      label: stage3 === 1 ? "Stage 3 sickness trigger" : "Stage 3 sickness triggers",
-      count: stage3,
-      href: "/people"
+      label: people.length === 1 ? `Stage ${n} sickness trigger` : `Stage ${n} sickness triggers`,
+      count: people.length,
+      href: people.length === 1 ? `/people/${people[0].id}` : "/people",
+      people
     });
-  }
+  };
+  triggerAlert("Stage3", "critical");
   const sickUserIds = (sickOn == null ? void 0 : sickOn.ids) ?? /* @__PURE__ */ new Set();
   const crewEntries = (crewingData == null ? void 0 : crewingData.entries) ?? [];
   const sickOnCrew = crewEntries.filter((e) => e.user_id && sickUserIds.has(e.user_id));
@@ -41004,17 +41038,7 @@ function WCAlertBanner() {
       href: "/tasks"
     });
   }
-  const stage2 = profiles.filter((p) => p.trigger_stage === "Stage2").length;
-  if (stage2 > 0) {
-    alerts.push({
-      id: "sickness-stage2",
-      severity: "warning",
-      Icon: ShieldAlert,
-      label: stage2 === 1 ? "Stage 2 sickness trigger" : "Stage 2 sickness triggers",
-      count: stage2,
-      href: "/people"
-    });
-  }
+  triggerAlert("Stage2", "warning");
   const expiringSoon = (skillsData == null ? void 0 : skillsData.warning_count) ?? 0;
   if (expiringSoon > 0) {
     alerts.push({
@@ -41026,17 +41050,7 @@ function WCAlertBanner() {
       href: "/people"
     });
   }
-  const stage1 = profiles.filter((p) => p.trigger_stage === "Stage1").length;
-  if (stage1 > 0) {
-    alerts.push({
-      id: "sickness-stage1",
-      severity: "info",
-      Icon: ShieldAlert,
-      label: stage1 === 1 ? "Stage 1 sickness trigger" : "Stage 1 sickness triggers",
-      count: stage1,
-      href: "/people"
-    });
-  }
+  triggerAlert("Stage1", "info");
   if (alerts.length === 0) return null;
   const hasCritical = alerts.some((a) => a.severity === "critical");
   const hasWarning = !hasCritical && alerts.some((a) => a.severity === "warning");
@@ -41096,7 +41110,38 @@ function WCAlertBanner() {
           }
         ),
         expanded && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "divide-y divide-border/50", children: alerts.map((alert) => {
+          var _a2;
           const Icon2 = alert.Icon;
+          if ((_a2 = alert.people) == null ? void 0 : _a2.length) {
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "div",
+              {
+                className: cn("flex items-center gap-3 px-4 py-2.5 bg-background transition-colors group", rowHover[alert.severity]),
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn("w-2 h-2 rounded-full shrink-0", dot[alert.severity]), "aria-hidden": "true" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "h-4 w-4 shrink-0 text-muted-foreground", "aria-hidden": "true" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex-1 text-sm text-foreground", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn("font-bold tabular-nums mr-1.5", countText[alert.severity]), children: alert.count }),
+                    alert.label,
+                    " — ",
+                    alert.people.map((p, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                      i > 0 && ", ",
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: `/people/${p.id}`, className: "font-medium underline-offset-2 hover:underline hover:text-primary", children: p.name })
+                    ] }, p.id))
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    Link,
+                    {
+                      to: alert.href,
+                      className: "text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-0.5 shrink-0",
+                      children: alert.people.length === 1 ? "View profile →" : "View all →"
+                    }
+                  )
+                ]
+              },
+              alert.id
+            );
+          }
           return /* @__PURE__ */ jsxRuntimeExports.jsxs(
             Link,
             {
@@ -43500,20 +43545,7 @@ function CCSicknessWidget() {
     /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `text-2xl font-bold ${alertColor}`, children: totalAlerts }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground mt-1", children: totalAlerts === 0 ? "No active triggers" : "Crew members at trigger stage" }),
-      totalAlerts > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 mt-3 flex-wrap", children: [
-        stage1 > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-yellow-600 border-yellow-400 text-xs", children: [
-          "Stage 1: ",
-          stage1
-        ] }),
-        stage2 > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-orange-600 border-orange-400 text-xs", children: [
-          "Stage 2: ",
-          stage2
-        ] }),
-        stage3 > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-red-600 border-red-400 text-xs", children: [
-          "Stage 3: ",
-          stage3
-        ] })
-      ] })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(SicknessTriggerList, { profiles })
     ] })
   ] });
 }
