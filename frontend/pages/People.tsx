@@ -186,7 +186,14 @@ export default function People() {
   // WC/CC are notified by the backend.
   const bookBackFit = useMutation({
     mutationFn: async (absenceId: number) => backend.absence.bookBackFit({ absence_id: absenceId }),
-    onSuccess: () => invalidateAbsenceViews(queryClient),
+    onSuccess: (res) => {
+      invalidateAbsenceViews(queryClient);
+      queryClient.invalidateQueries({ queryKey: ["back-to-work"] });
+      toast({
+        title: "Booked back fit",
+        description: res.back_to_work_due ? `Back to work interview due on their first shift back: ${res.back_to_work_due}.` : undefined,
+      });
+    },
     onError: (err: any) =>
       toast({
         title: "Couldn't book back fit",

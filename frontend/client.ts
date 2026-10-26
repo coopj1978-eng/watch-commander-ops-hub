@@ -234,12 +234,25 @@ export namespace absence {
         "sick_line_document"?: string
     }
 
+    /** A back to work interview — due on their first shift back after a sickness. */
+    export interface BackToWorkInterview {
+        "absence_id": number
+        "user_id": string
+        name?: string
+        "due_at": string
+        "shift_label": string
+        "done_at"?: string
+        "done_by_name"?: string
+    }
+
     export class ServiceClient {
         private baseClient: BaseClient
 
         constructor(baseClient: BaseClient) {
             this.baseClient = baseClient
             this.approve = this.approve.bind(this)
+            this.listBackToWork = this.listBackToWork.bind(this)
+            this.backToWorkDone = this.backToWorkDone.bind(this)
             this.bookBackFit = this.bookBackFit.bind(this)
             this.create = this.create.bind(this)
             this.deleteAbsence = this.deleteAbsence.bind(this)
@@ -260,14 +273,25 @@ export namespace absence {
          * Closes out an open sickness absence. Until this is called, the FF
          * is treated as currently off regardless of end_date.
          */
-        public async bookBackFit(params: BookBackFitRequest): Promise<Absence> {
+        public async listBackToWork(params: { user_id?: string }): Promise<{ interviews: BackToWorkInterview[] }> {
+            const query = makeRecord<string, string | string[]>({ "user_id": params["user_id"] })
+            const resp = await this.baseClient.callTypedAPI("GET", `/absences/back-to-work`, undefined, {query})
+            return await resp.json() as { interviews: BackToWorkInterview[] }
+        }
+
+        public async backToWorkDone(absenceId: number): Promise<BackToWorkInterview> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/absences/${encodeURIComponent(absenceId)}/back-to-work-done`)
+            return await resp.json() as BackToWorkInterview
+        }
+
+        public async bookBackFit(params: BookBackFitRequest): Promise<Absence & { "back_to_work_due"?: string }> {
             const { absence_id, ...body } = params
             const resp = await this.baseClient.callTypedAPI(
                 "POST",
                 `/absences/${encodeURIComponent(absence_id)}/book-back-fit`,
                 JSON.stringify(body)
             )
-            return await resp.json() as Absence
+            return await resp.json() as Absence & { "back_to_work_due"?: string }
         }
 
         public async create(params: CreateAbsenceRequest): Promise<Absence> {

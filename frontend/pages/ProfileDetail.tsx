@@ -1273,7 +1273,7 @@ export default function ProfileDetail() {
           )}
 
           {userId && canSeeSickness && (
-            <AbsenceHistorySection userId={userId} canManage={isLineManager} />
+            <AbsenceHistorySection userId={userId} canManage={isLineManager} watch={user?.watch_unit || profile?.watch || undefined} />
           )}
         </TabsContent>
 

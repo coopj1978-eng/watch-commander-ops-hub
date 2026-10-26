@@ -27204,6 +27204,8 @@ var absence;
     constructor(baseClient) {
       this.baseClient = baseClient;
       this.approve = this.approve.bind(this);
+      this.listBackToWork = this.listBackToWork.bind(this);
+      this.backToWorkDone = this.backToWorkDone.bind(this);
       this.bookBackFit = this.bookBackFit.bind(this);
       this.create = this.create.bind(this);
       this.deleteAbsence = this.deleteAbsence.bind(this);
@@ -27221,6 +27223,15 @@ var absence;
      * Closes out an open sickness absence. Until this is called, the FF
      * is treated as currently off regardless of end_date.
      */
+    async listBackToWork(params) {
+      const query = makeRecord({ "user_id": params["user_id"] });
+      const resp = await this.baseClient.callTypedAPI("GET", `/absences/back-to-work`, void 0, { query });
+      return await resp.json();
+    }
+    async backToWorkDone(absenceId) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/absences/${encodeURIComponent(absenceId)}/back-to-work-done`);
+      return await resp.json();
+    }
     async bookBackFit(params) {
       const { absence_id, ...body } = params;
       const resp = await this.baseClient.callTypedAPI(
@@ -40909,6 +40920,11 @@ function WCAlertBanner() {
   const crewShift = crewingShiftFor(watch);
   const shiftDate = (crewShift == null ? void 0 : crewShift.shiftDate) ?? "";
   const shiftType = crewShift == null ? void 0 : crewShift.shiftType;
+  const { data: btwData } = useQuery({
+    queryKey: ["back-to-work", "due"],
+    queryFn: () => backendClient.absence.listBackToWork({}),
+    staleTime: 6e4
+  });
   const { data: missedData } = useQuery({
     queryKey: ["missed-checks"],
     queryFn: () => backendClient.task.missedChecks({ days: 7 }),
@@ -41006,6 +41022,18 @@ function WCAlertBanner() {
       label: label2,
       count: sickOnCrew.length,
       href: "/handover"
+    });
+  }
+  const btw = (btwData == null ? void 0 : btwData.interviews) ?? [];
+  if (btw.length > 0) {
+    alerts.push({
+      id: "back-to-work",
+      severity: "warning",
+      Icon: MessageSquare,
+      label: btw.length === 1 ? "Back to work interview due" : "Back to work interviews due",
+      count: btw.length,
+      href: btw.length === 1 ? `/people/${btw[0].user_id}` : "/people",
+      people: btw.map((i) => ({ id: i.user_id, name: `${i.name ?? "Unknown"} (${i.shift_label})` }))
     });
   }
   const missedMine = ((missedData == null ? void 0 : missedData.checks) ?? []).filter(
@@ -42827,7 +42855,14 @@ function CrewOnWatchTable() {
   const { toast: toast2 } = useToast();
   const bookBackFit = useMutation({
     mutationFn: async (absenceId) => backendClient.absence.bookBackFit({ absence_id: absenceId }),
-    onSuccess: () => invalidateAbsenceViews(queryClient2),
+    onSuccess: (res) => {
+      invalidateAbsenceViews(queryClient2);
+      queryClient2.invalidateQueries({ queryKey: ["back-to-work"] });
+      toast2({
+        title: "Booked back fit",
+        description: res.back_to_work_due ? `Back to work interview due on their first shift back: ${res.back_to_work_due}.` : void 0
+      });
+    },
     onError: (err) => toast2({
       title: "Couldn't book back fit",
       description: (err == null ? void 0 : err.message) ?? "Please try again.",
@@ -43247,6 +43282,28 @@ function TargetsCompact() {
     ] })
   ] });
 }
+function BackToWorkDueCard() {
+  const { data } = useQuery({
+    queryKey: ["back-to-work", "due"],
+    queryFn: () => backendClient.absence.listBackToWork({}),
+    staleTime: 6e4
+  });
+  const due = (data == null ? void 0 : data.interviews) ?? [];
+  if (due.length === 0) return null;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { className: "border-t-2 border-t-amber-500", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(CardHeader, { className: "flex flex-row items-center justify-between space-y-0 pb-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { className: "text-sm font-medium", children: "Back to work interviews" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(MessageSquare, { className: "h-4 w-4 text-amber-500" })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "space-y-1", children: due.map((i) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Link, { to: `/people/${i.user_id}`, className: "flex items-center justify-between gap-2 rounded-md px-1 py-0.5 text-sm hover:bg-muted/60 hover:text-primary transition-colors", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate font-medium", children: i.name ?? "Unknown" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "shrink-0 text-xs text-muted-foreground", children: i.shift_label })
+      ] }) }, i.absence_id)) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2 text-xs text-muted-foreground", children: "Record each one on their profile when it's done." })
+    ] })
+  ] });
+}
 function createContextScope(scopeName, createContextScopeDeps = []) {
   let defaultContexts = [];
   function createContext3(rootComponentName, defaultContext) {
@@ -43560,7 +43617,8 @@ function CCDashboard() {
       /* @__PURE__ */ jsxRuntimeExports.jsx(CCTasksWidget, {}),
       /* @__PURE__ */ jsxRuntimeExports.jsx(CCInspectionsWidget, {}),
       /* @__PURE__ */ jsxRuntimeExports.jsx(CCOneToOnesWidget, {}),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(CCSicknessWidget, {})
+      /* @__PURE__ */ jsxRuntimeExports.jsx(CCSicknessWidget, {}),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(BackToWorkDueCard, {})
     ] })
   ] });
 }
@@ -47955,7 +48013,14 @@ function People() {
   const sickToday = sickOn == null ? void 0 : sickOn.ids;
   const bookBackFit = useMutation({
     mutationFn: async (absenceId) => backend.absence.bookBackFit({ absence_id: absenceId }),
-    onSuccess: () => invalidateAbsenceViews(queryClient2),
+    onSuccess: (res) => {
+      invalidateAbsenceViews(queryClient2);
+      queryClient2.invalidateQueries({ queryKey: ["back-to-work"] });
+      toast2({
+        title: "Booked back fit",
+        description: res.back_to_work_due ? `Back to work interview due on their first shift back: ${res.back_to_work_due}.` : void 0
+      });
+    },
     onError: (err) => toast2({
       title: "Couldn't book back fit",
       description: (err == null ? void 0 : err.message) ?? "Please try again.",
@@ -50161,7 +50226,10 @@ const dayToIso = (day) => new Date(day * DAY_MS).toISOString().slice(0, 10);
 function countDays(startIso, endIso, isDutyDay) {
   const start = isoToDay(startIso), end = isoToDay(endIso);
   if (end < start) return 0;
-  return end - start + 1;
+  if (!isDutyDay) return end - start + 1;
+  let n = 0;
+  for (let d = start; d <= end; d++) if (isDutyDay(dayToIso(d))) n++;
+  return n;
 }
 function rollingSickness(rows, todayIso = ukTodayIso(), isDutyDay) {
   const today = isoToDay(todayIso);
@@ -50182,7 +50250,7 @@ function rollingSickness(rows, todayIso = ukTodayIso(), isDutyDay) {
   let days = 0;
   let episodes = 0;
   for (const m of merged) {
-    const n = countDays(dayToIso(Math.max(m.start, windowStart)), dayToIso(m.end));
+    const n = countDays(dayToIso(Math.max(m.start, windowStart)), dayToIso(m.end), isDutyDay);
     days += n;
     if (n > 0) episodes++;
   }
@@ -50218,7 +50286,8 @@ function toIsoDate(v) {
 }
 function AbsenceHistorySection({
   userId,
-  canManage
+  canManage,
+  watch
 }) {
   const { toast: toast2 } = useToast();
   const queryClient2 = useQueryClient();
@@ -50228,6 +50297,29 @@ function AbsenceHistorySection({
     enabled: !!userId
   });
   const absences = (data == null ? void 0 : data.absences) ?? [];
+  const isDutyDay = reactExports.useMemo(() => {
+    const w = watch ? watch[0].toUpperCase() + watch.slice(1).toLowerCase() : "";
+    if (!w || !hasRotaConfig(w)) return void 0;
+    return (iso) => {
+      var _a2;
+      const s = (_a2 = getShiftForDate(w, /* @__PURE__ */ new Date(`${iso}T12:00:00`))) == null ? void 0 : _a2.shiftType;
+      return s === "1st Day" || s === "2nd Day" || s === "1st Night" || s === "2nd Night";
+    };
+  }, [watch]);
+  const { data: interviewsData } = useQuery({
+    queryKey: ["back-to-work", userId],
+    queryFn: () => backendClient.absence.listBackToWork({ user_id: userId }),
+    enabled: !!userId
+  });
+  const interviewFor = (absenceId) => interviewsData == null ? void 0 : interviewsData.interviews.find((i) => i.absence_id === absenceId);
+  const interviewDoneMutation = useMutation({
+    mutationFn: (absenceId) => backendClient.absence.backToWorkDone(absenceId),
+    onSuccess: () => {
+      toast2({ title: "Back to work interview recorded" });
+      queryClient2.invalidateQueries({ queryKey: ["back-to-work"] });
+    },
+    onError: (err) => toast2({ title: "Couldn't record the interview", description: err == null ? void 0 : err.message, variant: "destructive" })
+  });
   const totals = reactExports.useMemo(
     () => rollingSickness(
       absences.filter((a) => a.type === "sickness" && a.status === "approved").map((a) => ({
@@ -50235,9 +50327,10 @@ function AbsenceHistorySection({
         end_date: a.end_date,
         returned_to_work_at: a.returned_to_work_at ?? null
       })),
-      localTodayIso()
+      localTodayIso(),
+      isDutyDay
     ),
-    [absences]
+    [absences, isDutyDay]
   );
   const [editing, setEditing] = reactExports.useState(null);
   const updateMutation = useMutation({
@@ -50276,9 +50369,13 @@ function AbsenceHistorySection({
   });
   const bookFitMutation = useMutation({
     mutationFn: async (id) => backendClient.absence.bookBackFit({ absence_id: id }),
-    onSuccess: () => {
-      toast2({ title: "Booked back fit" });
+    onSuccess: (res) => {
+      toast2({
+        title: "Booked back fit",
+        description: res.back_to_work_due ? `Back to work interview due on their first shift back: ${res.back_to_work_due}.` : void 0
+      });
       invalidateAbsenceViews(queryClient2);
+      queryClient2.invalidateQueries({ queryKey: ["back-to-work"] });
     },
     onError: (err) => {
       toast2({
@@ -50293,19 +50390,21 @@ function AbsenceHistorySection({
     /* @__PURE__ */ jsxRuntimeExports.jsx(CardHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-between", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { children: "Absence History" }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(CardDescription, { children: [
-        "Rolling 6-month totals: ",
+        "Last 6 months: ",
         /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { children: [
           totals.episodes,
-          " episode",
+          " sickness absence",
           totals.episodes === 1 ? "" : "s"
         ] }),
         ",",
         " ",
         /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { children: [
           totals.days,
-          " day",
+          " duty day",
           totals.days === 1 ? "" : "s"
-        ] })
+        ] }),
+        " lost",
+        isDutyDay ? " (rostered shifts only)" : ""
       ] })
     ] }) }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { children: [
@@ -50313,22 +50412,46 @@ function AbsenceHistorySection({
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Type" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Start Date" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "End Date" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Days" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: isDutyDay ? "Duty days" : "Days" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Reason" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Status" }),
         canManage && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "text-right", children: "Actions" })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(TableBody, { children: isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(TableRow, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { colSpan: canManage ? 7 : 6, className: "text-center py-8", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-6 w-full" }) }) }) : absences.length > 0 ? absences.map((absence2) => {
-        const days = inclusiveDays(absence2.start_date, absence2.end_date);
+        const days = countDays(toIsoDate(absence2.start_date), toIsoDate(absence2.end_date), isDutyDay);
+        const interview = interviewFor(absence2.id);
         const isOpenSickness = absence2.type === "sickness" && absence2.status === "approved" && !absence2.returned_to_work_at;
         return /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", children: absenceTypeLabels[absence2.type] }),
-            isOpenSickness && /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: "bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900", children: "Open" })
-          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(TableCell, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", children: absenceTypeLabels[absence2.type] }),
+              isOpenSickness && /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: "bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900", children: "Open" })
+            ] }),
+            interview && (interview.done_at ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-1 flex items-center gap-1 text-xs text-green-700 dark:text-green-400", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-3 w-3" }),
+              "Back to work interview done ",
+              new Date(interview.done_at).toLocaleDateString("en-GB"),
+              interview.done_by_name ? ` · ${interview.done_by_name}` : ""
+            ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-1 flex flex-wrap items-center gap-1.5 text-xs text-amber-700 dark:text-amber-300", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(MessageSquare, { className: "h-3 w-3" }),
+              "Back to work interview due · ",
+              interview.shift_label,
+              canManage && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Button,
+                {
+                  size: "sm",
+                  variant: "outline",
+                  className: "h-6 px-2 text-[11px]",
+                  disabled: interviewDoneMutation.isPending,
+                  onClick: () => interviewDoneMutation.mutate(absence2.id),
+                  children: "Interview done"
+                }
+              )
+            ] }))
+          ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: new Date(absence2.start_date).toLocaleDateString() }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: new Date(absence2.end_date).toLocaleDateString() }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: isOpenSickness ? `${inclusiveDays(absence2.start_date, localTodayIso())} so far` : days }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: isOpenSickness ? `${countDays(toIsoDate(absence2.start_date), localTodayIso(), isDutyDay)} so far` : days }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "max-w-xs truncate", children: absence2.reason }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: statusBadgeClass[absence2.status] ?? "", children: absence2.status }) }),
           canManage && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "text-right", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-end gap-1", children: [
@@ -51376,7 +51499,7 @@ function ProfileDetail() {
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground mt-1", children: "Any stage is for the Station Commander to decide and note on the attendance file." })
           ] })
         ] }) }),
-        userId && canSeeSickness && /* @__PURE__ */ jsxRuntimeExports.jsx(AbsenceHistorySection, { userId, canManage: isLineManager })
+        userId && canSeeSickness && /* @__PURE__ */ jsxRuntimeExports.jsx(AbsenceHistorySection, { userId, canManage: isLineManager, watch: (user2 == null ? void 0 : user2.watch_unit) || (profile2 == null ? void 0 : profile2.watch) || void 0 })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "h4h", className: "space-y-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { className: "pt-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
         H4HLedgerSection,

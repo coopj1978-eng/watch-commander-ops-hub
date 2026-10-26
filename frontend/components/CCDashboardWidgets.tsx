@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import backend from "@/lib/backend";
 import { SicknessTriggerList } from "@/components/SicknessTriggerList";
+import { BackToWorkDueCard } from "@/components/BackToWorkDueCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -208,6 +209,7 @@ export function CCDashboard() {
         <CCInspectionsWidget />
         <CCOneToOnesWidget />
         <CCSicknessWidget />
+        <BackToWorkDueCard />
       </div>
     </div>
   );

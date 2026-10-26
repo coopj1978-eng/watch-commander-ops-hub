@@ -5,6 +5,7 @@ import db from "../db";
 import { logActivity } from "../logging/logger";
 import type { Absence } from "./types";
 import { recalcTriggersSafely, ukTodayIso } from "../lib/sickness";
+import { notifyPersonOfInterview, scheduleBackToWorkInterview } from "../lib/backToWork";
 
 interface BookBackFitRequest {
   absence_id: number;
@@ -23,7 +24,7 @@ interface BookBackFitRequest {
 // Any WC/CC — whoever takes the call when they ring back in. The person's
 // own watch WC/CC are notified. Nobody books themself back.
 // ──────────────────────────────────────────────────────────────────────────────
-export const bookBackFit = api<BookBackFitRequest, Absence>(
+export const bookBackFit = api<BookBackFitRequest, Absence & { back_to_work_due?: string }>(
   { auth: true, expose: true, method: "POST", path: "/absences/:absence_id/book-back-fit" },
   async (req) => {
     const auth = getAuthData()!;
@@ -100,13 +101,17 @@ export const bookBackFit = api<BookBackFitRequest, Absence>(
              (SELECT name FROM users WHERE id = ${auth.userID}) AS actor
     `;
     const backOn = new Date(returnedIso + "T12:00:00Z").toLocaleDateString("en-GB");
+    // A back to work interview is due on their first rostered shift back.
+    const interview = await scheduleBackToWorkInterview(updated.id, updated.firefighter_id, returnedIso);
     await notifyLineManagers(updated.firefighter_id, auth.userID, {
-      title: "Booked back fit",
-      message: `${names?.person ?? "A member of your watch"} has been booked back fit for duty from ${backOn}. Booked by ${names?.actor ?? "a WC/CC"}.`,
+      title: "Booked back fit — back to work interview due",
+      message: `${names?.person ?? "A member of your watch"} has been booked back fit for duty from ${backOn}. A back to work interview is due on their first shift back: ${interview.label}. Booked by ${names?.actor ?? "a WC/CC"}.`,
       absenceId: updated.id,
     });
+    await notifyPersonOfInterview(updated.firefighter_id, updated.id,
+      `Welcome back. You've been booked back fit from ${backOn}. You'll have a back to work interview with your WC or CC on your first shift back: ${interview.label}.`);
 
     await recalcTriggersSafely(updated.firefighter_id);
-    return updated;
+    return { ...updated, back_to_work_due: interview.label };
   }
 );

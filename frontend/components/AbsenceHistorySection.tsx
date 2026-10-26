@@ -30,10 +30,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
-import { Heart, Pencil, Trash2 } from "lucide-react";
+import { CheckCircle2, Heart, MessageSquare, Pencil, Trash2 } from "lucide-react";
 import type { AbsenceType } from "~backend/absence/types";
 import { invalidateAbsenceViews, localTodayIso } from "@/lib/absences";
-import { rollingSickness } from "~backend/lib/sicknessMath";
+import { countDays, rollingSickness } from "~backend/lib/sicknessMath";
+import { getShiftForDate, hasRotaConfig } from "@/lib/shiftRota";
 
 // ──────────────────────────────────────────────────────────────────────────────
 // AbsenceHistorySection
@@ -98,10 +99,13 @@ function toIsoDate(v: string | Date | null | undefined): string {
 export function AbsenceHistorySection({
   userId,
   canManage,
+  watch,
 }: {
   userId: string;
   /** A WC/CC on this person's watch — the only people who can change records. */
   canManage: boolean;
+  /** Their watch — sickness counts the rostered shifts they missed (duty days). */
+  watch?: string;
 }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -113,6 +117,32 @@ export function AbsenceHistorySection({
   });
 
   const absences = data?.absences ?? [];
+
+  // Duty days: the shifts their watch's rota had them on (as the backend counts).
+  const isDutyDay = useMemo(() => {
+    const w = watch ? watch[0].toUpperCase() + watch.slice(1).toLowerCase() : "";
+    if (!w || !hasRotaConfig(w)) return undefined;
+    return (iso: string) => {
+      const s = getShiftForDate(w, new Date(`${iso}T12:00:00`))?.shiftType;
+      return s === "1st Day" || s === "2nd Day" || s === "1st Night" || s === "2nd Night";
+    };
+  }, [watch]);
+
+  // Back to work interviews, one per sickness booked back fit.
+  const { data: interviewsData } = useQuery({
+    queryKey: ["back-to-work", userId],
+    queryFn: () => backend.absence.listBackToWork({ user_id: userId }),
+    enabled: !!userId,
+  });
+  const interviewFor = (absenceId: number) => interviewsData?.interviews.find((i) => i.absence_id === absenceId);
+  const interviewDoneMutation = useMutation({
+    mutationFn: (absenceId: number) => backend.absence.backToWorkDone(absenceId),
+    onSuccess: () => {
+      toast({ title: "Back to work interview recorded" });
+      queryClient.invalidateQueries({ queryKey: ["back-to-work"] });
+    },
+    onError: (err: any) => toast({ title: "Couldn't record the interview", description: err?.message, variant: "destructive" }),
+  });
 
   // Rolling 6-month totals — the same calculation the backend uses for
   // sickness triggers, so this always agrees with the dashboard.
@@ -126,9 +156,10 @@ export function AbsenceHistorySection({
             end_date: a.end_date,
             returned_to_work_at: a.returned_to_work_at ?? null,
           })),
-        localTodayIso()
+        localTodayIso(),
+        isDutyDay
       ),
-    [absences]
+    [absences, isDutyDay]
   );
 
   // ── Edit dialog state ─────────────────────────────────────────────────────
@@ -178,9 +209,13 @@ export function AbsenceHistorySection({
 
   const bookFitMutation = useMutation({
     mutationFn: async (id: number) => backend.absence.bookBackFit({ absence_id: id }),
-    onSuccess: () => {
-      toast({ title: "Booked back fit" });
+    onSuccess: (res) => {
+      toast({
+        title: "Booked back fit",
+        description: res.back_to_work_due ? `Back to work interview due on their first shift back: ${res.back_to_work_due}.` : undefined,
+      });
       invalidateAbsenceViews(queryClient);
+      queryClient.invalidateQueries({ queryKey: ["back-to-work"] });
     },
     onError: (err: any) => {
       toast({
@@ -200,8 +235,8 @@ export function AbsenceHistorySection({
           <div>
             <CardTitle>Absence History</CardTitle>
             <CardDescription>
-              Rolling 6-month totals: <strong>{totals.episodes} episode{totals.episodes === 1 ? "" : "s"}</strong>,{" "}
-              <strong>{totals.days} day{totals.days === 1 ? "" : "s"}</strong>
+              Last 6 months: <strong>{totals.episodes} sickness absence{totals.episodes === 1 ? "" : "s"}</strong>,{" "}
+              <strong>{totals.days} duty day{totals.days === 1 ? "" : "s"}</strong> lost{isDutyDay ? " (rostered shifts only)" : ""}
             </CardDescription>
           </div>
         </div>
@@ -214,7 +249,7 @@ export function AbsenceHistorySection({
                 <TableHead>Type</TableHead>
                 <TableHead>Start Date</TableHead>
                 <TableHead>End Date</TableHead>
-                <TableHead>Days</TableHead>
+                <TableHead>{isDutyDay ? "Duty days" : "Days"}</TableHead>
                 <TableHead>Reason</TableHead>
                 <TableHead>Status</TableHead>
                 {canManage && <TableHead className="text-right">Actions</TableHead>}
@@ -229,7 +264,8 @@ export function AbsenceHistorySection({
                 </TableRow>
               ) : absences.length > 0 ? (
                 absences.map((absence) => {
-                  const days = inclusiveDays(absence.start_date, absence.end_date);
+                  const days = countDays(toIsoDate(absence.start_date), toIsoDate(absence.end_date), isDutyDay);
+                  const interview = interviewFor(absence.id);
                   const isOpenSickness =
                     absence.type === "sickness" &&
                     absence.status === "approved" &&
@@ -245,12 +281,37 @@ export function AbsenceHistorySection({
                             </Badge>
                           )}
                         </div>
+                        {interview && (
+                          interview.done_at ? (
+                            <div className="mt-1 flex items-center gap-1 text-xs text-green-700 dark:text-green-400">
+                              <CheckCircle2 className="h-3 w-3" />
+                              Back to work interview done {new Date(interview.done_at).toLocaleDateString("en-GB")}
+                              {interview.done_by_name ? ` · ${interview.done_by_name}` : ""}
+                            </div>
+                          ) : (
+                            <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-amber-700 dark:text-amber-300">
+                              <MessageSquare className="h-3 w-3" />
+                              Back to work interview due · {interview.shift_label}
+                              {canManage && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-6 px-2 text-[11px]"
+                                  disabled={interviewDoneMutation.isPending}
+                                  onClick={() => interviewDoneMutation.mutate(absence.id)}
+                                >
+                                  Interview done
+                                </Button>
+                              )}
+                            </div>
+                          )
+                        )}
                       </TableCell>
                       <TableCell>{new Date(absence.start_date).toLocaleDateString()}</TableCell>
                       <TableCell>{new Date(absence.end_date).toLocaleDateString()}</TableCell>
                       <TableCell>
                         {isOpenSickness
-                          ? `${inclusiveDays(absence.start_date, localTodayIso())} so far`
+                          ? `${countDays(toIsoDate(absence.start_date), localTodayIso(), isDutyDay)} so far`
                           : days}
                       </TableCell>
                       <TableCell className="max-w-xs truncate">{absence.reason}</TableCell>

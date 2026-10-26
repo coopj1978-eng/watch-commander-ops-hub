@@ -13,6 +13,7 @@ import {
   ShieldAlert,
   UserX,
   XCircle,
+  MessageSquare,
 } from "lucide-react";
 import { isBefore, parseISO, startOfDay } from "date-fns";
 import { crewingShiftFor } from "@/lib/shiftRota";
@@ -69,6 +70,12 @@ export function WCAlertBanner() {
 
   // Re-use same queryKeys as the individual widgets → React Query returns cached
   // data instantly; no extra network requests are made.
+  // Back to work interviews still to do for this WC/CC's watch.
+  const { data: btwData } = useQuery({
+    queryKey: ["back-to-work", "due"],
+    queryFn: () => backend.absence.listBackToWork({}),
+    staleTime: 60_000,
+  });
   const { data: missedData } = useQuery({
     queryKey: ["missed-checks"],
     queryFn: () => backend.task.missedChecks({ days: 7 }),
@@ -199,6 +206,20 @@ export function WCAlertBanner() {
       label,
       count:    sickOnCrew.length,
       href:     "/handover",
+    });
+  }
+
+  // WARNING: Back to work interviews due (first shift back after sickness)
+  const btw = btwData?.interviews ?? [];
+  if (btw.length > 0) {
+    alerts.push({
+      id:    "back-to-work",
+      severity: "warning",
+      Icon:  MessageSquare,
+      label: btw.length === 1 ? "Back to work interview due" : "Back to work interviews due",
+      count: btw.length,
+      href:  btw.length === 1 ? `/people/${btw[0].user_id}` : "/people",
+      people: btw.map((i) => ({ id: i.user_id, name: `${i.name ?? "Unknown"} (${i.shift_label})` })),
     });
   }
 
