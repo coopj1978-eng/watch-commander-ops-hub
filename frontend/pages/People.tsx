@@ -706,7 +706,7 @@ export default function People() {
                     {visibleColumns.absence && (
                       <TableCell>
                         <div className="text-sm">
-                          <div>{profile?.rolling_sick_days || 0} days</div>
+                          <div>{profile?.rolling_sick_days || 0} duty days</div>
                           <div className="text-xs text-muted-foreground">
                             {profile?.rolling_sick_episodes || 0} episodes
                           </div>

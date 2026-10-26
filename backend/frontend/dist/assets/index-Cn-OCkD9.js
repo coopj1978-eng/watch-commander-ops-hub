@@ -40048,10 +40048,7 @@ function SicknessTriggerList({ profiles, max: max2 = 5 }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { className: "mt-2 space-y-1", children: [
     flagged.slice(0, max2).map((p) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Link, { to: `/people/${p.user_id}`, className: "flex items-center justify-between gap-2 rounded-md px-1 py-0.5 text-sm hover:bg-muted/60 hover:text-primary transition-colors", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate font-medium", children: nameOf(p.user_id) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: `shrink-0 rounded px-1.5 py-0.5 text-[11px] font-semibold ${STAGE_STYLE[p.trigger_stage]}`, children: [
-        "Stage ",
-        String(p.trigger_stage).slice(-1)
-      ] })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "shrink-0 rounded px-1.5 py-0.5 text-[11px] font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300", children: "Triggers hit" })
     ] }) }, p.user_id)),
     flagged.length > max2 && /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "px-1 text-xs text-muted-foreground", children: [
       "+",
@@ -40087,12 +40084,12 @@ function WCSicknessAlertsWidget() {
   const accentColor = stage3 > 0 ? "border-t-red-500" : stage2 > 0 ? "border-t-orange-500" : stage1 > 0 ? "border-t-amber-500" : "border-t-green-500";
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { className: `border-t-2 ${accentColor}`, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(CardHeader, { className: "flex flex-row items-center justify-between space-y-0 pb-2", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { className: "text-sm font-medium", children: "Sickness Triggers" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { className: "text-sm font-medium", children: "Absence Triggers" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldAlert, { className: `h-4 w-4 ${totalAlerts > 0 ? "text-red-500" : "text-muted-foreground"}` })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `text-4xl font-bold tabular-nums ${alertColor}`, children: animatedAlerts }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground mt-1", children: totalAlerts === 0 ? "No active triggers" : "Staff at trigger stage" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground mt-1", children: totalAlerts === 0 ? "No triggers hit" : "Triggers hit — see profile" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         MiniBar,
         {
@@ -40979,21 +40976,18 @@ function WCAlertBanner() {
     });
   }
   const profiles = (profilesData == null ? void 0 : profilesData.profiles) ?? [];
-  const triggerAlert = (stage, severity) => {
-    const people = profiles.filter((p) => p.trigger_stage === stage).map((p) => ({ id: p.user_id, name: nameOf(p.user_id) }));
-    if (people.length === 0) return;
-    const n = stage.slice(-1);
+  const triggered = profiles.filter((p) => p.trigger_stage && p.trigger_stage !== "None").map((p) => ({ id: p.user_id, name: nameOf(p.user_id) }));
+  if (triggered.length > 0) {
     alerts.push({
-      id: `sickness-${stage.toLowerCase()}`,
-      severity,
+      id: "absence-triggers",
+      severity: "warning",
       Icon: ShieldAlert,
-      label: people.length === 1 ? `Stage ${n} sickness trigger` : `Stage ${n} sickness triggers`,
-      count: people.length,
-      href: people.length === 1 ? `/people/${people[0].id}` : "/people",
-      people
+      label: "Absence triggers hit",
+      count: triggered.length,
+      href: triggered.length === 1 ? `/people/${triggered[0].id}` : "/people",
+      people: triggered
     });
-  };
-  triggerAlert("Stage3", "critical");
+  }
   const sickUserIds = (sickOn == null ? void 0 : sickOn.ids) ?? /* @__PURE__ */ new Set();
   const crewEntries = (crewingData == null ? void 0 : crewingData.entries) ?? [];
   const sickOnCrew = crewEntries.filter((e) => e.user_id && sickUserIds.has(e.user_id));
@@ -41038,7 +41032,6 @@ function WCAlertBanner() {
       href: "/tasks"
     });
   }
-  triggerAlert("Stage2", "warning");
   const expiringSoon = (skillsData == null ? void 0 : skillsData.warning_count) ?? 0;
   if (expiringSoon > 0) {
     alerts.push({
@@ -41050,7 +41043,6 @@ function WCAlertBanner() {
       href: "/people"
     });
   }
-  triggerAlert("Stage1", "info");
   if (alerts.length === 0) return null;
   const hasCritical = alerts.some((a) => a.severity === "critical");
   const hasWarning = !hasCritical && alerts.some((a) => a.severity === "warning");
@@ -41134,7 +41126,7 @@ function WCAlertBanner() {
                     {
                       to: alert.href,
                       className: "text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-0.5 shrink-0",
-                      children: alert.people.length === 1 ? "View profile →" : "View all →"
+                      children: alert.people.length === 1 ? "See profile →" : "See all →"
                     }
                   )
                 ]
@@ -41994,16 +41986,16 @@ function AbsenceTriggersCard() {
       const prof = row.profile;
       if (!prof) continue;
       const episodes = prof.rolling_sick_episodes ?? 0;
-      prof.rolling_sick_days ?? 0;
-      const summary = `Sickness — ${episodes} episode${episodes === 1 ? "" : "s"} in 6 months`;
+      const days = prof.rolling_sick_days ?? 0;
+      const summary = `${episodes} sickness absence${episodes === 1 ? "" : "s"}, ${days} duty day${days === 1 ? "" : "s"} in 6 months`;
       if (prof.trigger_stage === "Stage3") {
         stage3.push({
           user_id: userRec.id,
           name: userRec.name,
           subtitle: summary,
-          action: "One-to-one required",
+          action: "See profile",
           badge: {
-            label: "STAGE 3",
+            label: "TRIGGERS HIT",
             className: "bg-red-100 text-red-700 border border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900"
           }
         });
@@ -42012,9 +42004,9 @@ function AbsenceTriggersCard() {
           user_id: userRec.id,
           name: userRec.name,
           subtitle: summary,
-          action: "Management review",
+          action: "See profile",
           badge: {
-            label: "STAGE 2",
+            label: "TRIGGERS HIT",
             className: "bg-orange-100 text-orange-700 border border-orange-200 dark:bg-orange-950/40 dark:text-orange-300 dark:border-orange-900"
           }
         });
@@ -42023,9 +42015,9 @@ function AbsenceTriggersCard() {
           user_id: userRec.id,
           name: userRec.name,
           subtitle: summary,
-          action: "Monitor",
+          action: "See profile",
           badge: {
-            label: "STAGE 1",
+            label: "TRIGGERS HIT",
             className: "bg-yellow-100 text-yellow-700 border border-yellow-200 dark:bg-yellow-950/40 dark:text-yellow-300 dark:border-yellow-900"
           }
         });
@@ -42885,7 +42877,8 @@ function CrewOnWatchTable() {
         m.hooklift_operator && "HOOKLIFT"
       ].filter(Boolean),
       status,
-      stage3: (profile2 == null ? void 0 : profile2.trigger_stage) === "Stage3",
+      stage3: !!(profile2 == null ? void 0 : profile2.trigger_stage) && profile2.trigger_stage !== "None",
+      // absence triggers hit
       absence_id: (absence2 == null ? void 0 : absence2.id) ?? null
     };
   });
@@ -42992,7 +42985,7 @@ function CrewOnWatchTable() {
             )) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground/40 text-xs", children: "—" }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4", style: { paddingBlock: "var(--pad-row)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(StatusBadge$1, { status: r2.status }),
-              r2.stage3 && /* @__PURE__ */ jsxRuntimeExports.jsx(StatusBadge$1, { status: { kind: "stage3", label: "Stage 3" } })
+              r2.stage3 && /* @__PURE__ */ jsxRuntimeExports.jsx(StatusBadge$1, { status: { kind: "stage3", label: "Triggers hit" } })
             ] }) }),
             canLogSick && /* @__PURE__ */ jsxRuntimeExports.jsx(
               "td",
@@ -43544,7 +43537,7 @@ function CCSicknessWidget() {
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `text-2xl font-bold ${alertColor}`, children: totalAlerts }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground mt-1", children: totalAlerts === 0 ? "No active triggers" : "Crew members at trigger stage" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground mt-1", children: totalAlerts === 0 ? "No triggers hit" : "Triggers hit — see profile" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(SicknessTriggerList, { profiles })
     ] })
   ] });
@@ -48344,7 +48337,7 @@ function People() {
                 visibleColumns.absence && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-sm", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                     (profile2 == null ? void 0 : profile2.rolling_sick_days) || 0,
-                    " days"
+                    " duty days"
                   ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs text-muted-foreground", children: [
                     (profile2 == null ? void 0 : profile2.rolling_sick_episodes) || 0,
@@ -50164,7 +50157,13 @@ function toIsoDate$1(v) {
 function isoToDay(iso) {
   return Date.UTC(+iso.slice(0, 4), +iso.slice(5, 7) - 1, +iso.slice(8, 10)) / DAY_MS;
 }
-function rollingSickness(rows, todayIso = ukTodayIso()) {
+const dayToIso = (day) => new Date(day * DAY_MS).toISOString().slice(0, 10);
+function countDays(startIso, endIso, isDutyDay) {
+  const start = isoToDay(startIso), end = isoToDay(endIso);
+  if (end < start) return 0;
+  return end - start + 1;
+}
+function rollingSickness(rows, todayIso = ukTodayIso(), isDutyDay) {
   const today = isoToDay(todayIso);
   const windowStartDate = /* @__PURE__ */ new Date(todayIso + "T00:00:00.000Z");
   windowStartDate.setUTCMonth(windowStartDate.getUTCMonth() - 6);
@@ -50181,8 +50180,13 @@ function rollingSickness(rows, todayIso = ukTodayIso()) {
     else merged.push({ ...i });
   }
   let days = 0;
-  for (const m of merged) days += m.end - Math.max(m.start, windowStart) + 1;
-  return { episodes: merged.length, days };
+  let episodes = 0;
+  for (const m of merged) {
+    const n = countDays(dayToIso(Math.max(m.start, windowStart)), dayToIso(m.end));
+    days += n;
+    if (n > 0) episodes++;
+  }
+  return { episodes, days };
 }
 const absenceTypeLabels = {
   sickness: "Sickness",
@@ -51353,24 +51357,23 @@ function ProfileDetail() {
         canSeeSickness && profile2 && profile2.trigger_stage !== "None" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `p-4 rounded-lg border ${profile2.trigger_stage === "Stage3" ? "bg-red-500/10 border-red-500/20" : profile2.trigger_stage === "Stage2" ? "bg-yellow-500/10 border-yellow-500/20" : "bg-blue-500/10 border-blue-500/20"}`, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-3", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: `h-5 w-5 mt-0.5 ${profile2.trigger_stage === "Stage3" ? "text-red-600 dark:text-red-400" : profile2.trigger_stage === "Stage2" ? "text-yellow-600 dark:text-yellow-400" : "text-blue-600 dark:text-blue-400"}` }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("h4", { className: `font-semibold ${profile2.trigger_stage === "Stage3" ? "text-red-600 dark:text-red-400" : profile2.trigger_stage === "Stage2" ? "text-yellow-600 dark:text-yellow-400" : "text-blue-600 dark:text-blue-400"}`, children: [
-              profile2.trigger_stage === "Stage3" && "Critical Alert - Stage 3 Triggered",
-              profile2.trigger_stage === "Stage2" && "Warning - Stage 2 Triggered",
-              profile2.trigger_stage === "Stage1" && "Notice - Stage 1 Triggered"
-            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: `font-semibold ${profile2.trigger_stage === "Stage3" ? "text-red-600 dark:text-red-400" : profile2.trigger_stage === "Stage2" ? "text-yellow-600 dark:text-yellow-400" : "text-blue-600 dark:text-blue-400"}`, children: "Absence triggers hit" }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-muted-foreground mt-1", children: [
-              "Rolling 6-month sickness: ",
+              "Last 6 months: ",
               /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { children: [
                 profile2.rolling_sick_episodes,
-                " episodes"
+                " sickness absence",
+                profile2.rolling_sick_episodes === 1 ? "" : "s"
               ] }),
               ", ",
               /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { children: [
                 profile2.rolling_sick_days,
-                " days"
-              ] })
+                " duty day",
+                profile2.rolling_sick_days === 1 ? "" : "s"
+              ] }),
+              " lost (rostered shifts only)"
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground mt-1", children: "Action may be required according to absence management policy" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground mt-1", children: "Any stage is for the Station Commander to decide and note on the attendance file." })
           ] })
         ] }) }),
         userId && canSeeSickness && /* @__PURE__ */ jsxRuntimeExports.jsx(AbsenceHistorySection, { userId, canManage: isLineManager })
@@ -63687,7 +63690,7 @@ function AbsenceThresholds() {
           /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "h-5 w-5" }),
           "Sickness Trigger Stages (6-Month Rolling)"
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { children: "Configure trigger stages based on sickness episodes and days" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { children: "Trigger points from sickness absences and duty days lost (rostered shifts only) in the rolling period" }),
         !isWC && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 text-sm text-muted-foreground", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Lock, { className: "h-4 w-4" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Read-only (Watch Commander access required)" })
@@ -63713,7 +63716,7 @@ function AbsenceThresholds() {
                 )
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "stage1-days", children: "Days" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "stage1-days", children: "Duty days" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   Input,
                   {
@@ -63752,7 +63755,7 @@ function AbsenceThresholds() {
                 )
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "stage2-days", children: "Days" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "stage2-days", children: "Duty days" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   Input,
                   {
@@ -63791,7 +63794,7 @@ function AbsenceThresholds() {
                 )
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "stage3-days", children: "Days" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "stage3-days", children: "Duty days" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   Input,
                   {

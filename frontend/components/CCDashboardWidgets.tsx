@@ -178,7 +178,7 @@ export function CCSicknessWidget() {
       <CardContent>
         <div className={`text-2xl font-bold ${alertColor}`}>{totalAlerts}</div>
         <p className="text-xs text-muted-foreground mt-1">
-          {totalAlerts === 0 ? "No active triggers" : "Crew members at trigger stage"}
+          {totalAlerts === 0 ? "No triggers hit" : "Triggers hit — see profile"}
         </p>
         <SicknessTriggerList profiles={profiles} />
       </CardContent>

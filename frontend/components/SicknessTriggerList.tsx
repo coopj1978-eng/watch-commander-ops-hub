@@ -2,8 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import backend from "@/lib/backend";
 
-// Who is at a sickness trigger stage — each name opens their profile, so the
+// Who has hit their absence triggers — each name opens their profile, so the
 // dashboard takes a WC/CC straight to the person rather than the staff list.
+// No stage is shown: that's the Station Commander's note on the attendance file.
 
 const STAGE_STYLE: Record<string, string> = {
   Stage3: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
@@ -32,8 +33,8 @@ export function SicknessTriggerList({ profiles, max = 5 }: { profiles: { user_id
         <li key={p.user_id}>
           <Link to={`/people/${p.user_id}`} className="flex items-center justify-between gap-2 rounded-md px-1 py-0.5 text-sm hover:bg-muted/60 hover:text-primary transition-colors">
             <span className="truncate font-medium">{nameOf(p.user_id)}</span>
-            <span className={`shrink-0 rounded px-1.5 py-0.5 text-[11px] font-semibold ${STAGE_STYLE[p.trigger_stage!]}`}>
-              Stage {String(p.trigger_stage).slice(-1)}
+            <span className="shrink-0 rounded px-1.5 py-0.5 text-[11px] font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+              Triggers hit
             </span>
           </Link>
         </li>

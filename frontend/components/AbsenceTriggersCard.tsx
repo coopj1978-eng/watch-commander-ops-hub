@@ -14,9 +14,9 @@ import { latestAbsencePerPerson, useTodaysAbsences } from "@/lib/absences";
 //
 // Right-column card matching the original design mockup. Lists staff with
 // active absence situations grouped by severity:
-//   • Stage 3 — sickness triggers at the highest level, "One-to-one required"
-//   • Stage 2 — pending management review
-//   • Stage 1 — monitor
+//   • Absence triggers hit — shown as "Triggers hit" (highest first); any
+//     stage is the Station Commander's note on the attendance file, not ours
+//     (days are duty days — rostered shifts only)
 //   • Annual leave — current + upcoming so the WC can eyeball cover gaps
 //
 // Reuses the existing profile + absence query caches so no extra network
@@ -70,18 +70,16 @@ export function AbsenceTriggersCard() {
       if (!prof) continue;
       const episodes = prof.rolling_sick_episodes ?? 0;
       const days = prof.rolling_sick_days ?? 0;
-      const summary = `Sickness — ${episodes} episode${
-        episodes === 1 ? "" : "s"
-      } in 6 months`;
+      const summary = `${episodes} sickness absence${episodes === 1 ? "" : "s"}, ${days} duty day${days === 1 ? "" : "s"} in 6 months`;
 
       if (prof.trigger_stage === "Stage3") {
         stage3.push({
           user_id: userRec.id,
           name: userRec.name,
           subtitle: summary,
-          action: "One-to-one required",
+          action: "See profile",
           badge: {
-            label: "STAGE 3",
+            label: "TRIGGERS HIT",
             className:
               "bg-red-100 text-red-700 border border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900",
           },
@@ -91,9 +89,9 @@ export function AbsenceTriggersCard() {
           user_id: userRec.id,
           name: userRec.name,
           subtitle: summary,
-          action: "Management review",
+          action: "See profile",
           badge: {
-            label: "STAGE 2",
+            label: "TRIGGERS HIT",
             className:
               "bg-orange-100 text-orange-700 border border-orange-200 dark:bg-orange-950/40 dark:text-orange-300 dark:border-orange-900",
           },
@@ -103,9 +101,9 @@ export function AbsenceTriggersCard() {
           user_id: userRec.id,
           name: userRec.name,
           subtitle: summary,
-          action: "Monitor",
+          action: "See profile",
           badge: {
-            label: "STAGE 1",
+            label: "TRIGGERS HIT",
             className:
               "bg-yellow-100 text-yellow-700 border border-yellow-200 dark:bg-yellow-950/40 dark:text-yellow-300 dark:border-yellow-900",
           },

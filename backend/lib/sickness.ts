@@ -1,10 +1,26 @@
 import { APIError } from "encore.dev/api";
 import db from "../db";
-import { rollingSickness, type SicknessRow, type TriggerStage } from "./sicknessMath";
+import { rollingSickness, type DutyDayCheck, type SicknessRow, type TriggerStage } from "./sicknessMath";
+import { watchShiftOn } from "./shiftRota";
 
 export { ukTodayIso } from "./sicknessMath";
 
-/** Recompute and store rolling sickness + trigger stage (episodes/days in 6 months) for one person. */
+/** Was a date one of this person's rostered shifts? Undefined when their watch has no rota. */
+export async function dutyDayCheckFor(userId: string): Promise<DutyDayCheck> {
+  const row = await db.queryRow<{ watch: string | null }>`
+    SELECT COALESCE(u.watch_unit, fp.watch) AS watch
+    FROM users u LEFT JOIN firefighter_profiles fp ON fp.user_id = u.id
+    WHERE u.id = ${userId}
+  `;
+  const watch = row?.watch;
+  if (!watch || !watchShiftOn(watch, "2026-01-01")) return undefined;
+  return (iso) => {
+    const s = watchShiftOn(watch, iso);
+    return s === "1st Day" || s === "2nd Day" || s === "1st Night" || s === "2nd Night";
+  };
+}
+
+/** Recompute and store rolling sickness + trigger stage (episodes / duty days in 6 months) for one person. */
 export async function recalcTriggersForUser(userId: string) {
   const rows: SicknessRow[] = [];
   for await (const r of db.query<SicknessRow>`
@@ -15,7 +31,7 @@ export async function recalcTriggersForUser(userId: string) {
     rows.push(r);
   }
 
-  const { episodes, days } = rollingSickness(rows);
+  const { episodes, days } = rollingSickness(rows, undefined, await dutyDayCheckFor(userId));
 
   const s = await db.queryRow<{
     trigger_stage1_episodes: number; trigger_stage1_days: number;

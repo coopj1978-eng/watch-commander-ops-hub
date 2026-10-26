@@ -37,7 +37,7 @@ import { invalidateAbsenceViews, latestAbsencePerPerson, useTodaysAbsences } fro
 // ──────────────────────────────────────────────────────────────────────────────
 
 type Status =
-  | { kind: "stage3"; label: "Stage 3" }
+  | { kind: "stage3"; label: "Triggers hit" }
   | { kind: "sick"; label: "Sick" }
   | { kind: "leave"; label: "Leave" }
   | { kind: "on_duty"; label: "On duty" };
@@ -209,7 +209,7 @@ export function CrewOnWatchTable() {
         m.hooklift_operator && "HOOKLIFT",
       ].filter(Boolean) as string[],
       status,
-      stage3: profile?.trigger_stage === "Stage3",
+      stage3: !!profile?.trigger_stage && profile.trigger_stage !== "None", // absence triggers hit
       absence_id: absence?.id ?? null,
     };
   });
@@ -346,7 +346,7 @@ export function CrewOnWatchTable() {
                     <td className="px-4" style={{ paddingBlock: "var(--pad-row)" }}>
                       <span className="inline-flex items-center gap-1">
                         <StatusBadge status={r.status} />
-                        {r.stage3 && <StatusBadge status={{ kind: "stage3", label: "Stage 3" }} />}
+                        {r.stage3 && <StatusBadge status={{ kind: "stage3", label: "Triggers hit" }} />}
                       </span>
                     </td>
                     {canLogSick && (

@@ -1259,15 +1259,13 @@ export default function ProfileDetail() {
                       ? "text-yellow-600 dark:text-yellow-400"
                       : "text-blue-600 dark:text-blue-400"
                   }`}>
-                    {profile.trigger_stage === "Stage3" && "Critical Alert - Stage 3 Triggered"}
-                    {profile.trigger_stage === "Stage2" && "Warning - Stage 2 Triggered"}
-                    {profile.trigger_stage === "Stage1" && "Notice - Stage 1 Triggered"}
+                    Absence triggers hit
                   </h4>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Rolling 6-month sickness: <strong>{profile.rolling_sick_episodes} episodes</strong>, <strong>{profile.rolling_sick_days} days</strong>
+                    Last 6 months: <strong>{profile.rolling_sick_episodes} sickness absence{profile.rolling_sick_episodes === 1 ? "" : "s"}</strong>, <strong>{profile.rolling_sick_days} duty day{profile.rolling_sick_days === 1 ? "" : "s"}</strong> lost (rostered shifts only)
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Action may be required according to absence management policy
+                    Any stage is for the Station Commander to decide and note on the attendance file.
                   </p>
                 </div>
               </div>

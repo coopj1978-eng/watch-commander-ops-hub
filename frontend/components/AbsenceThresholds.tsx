@@ -248,7 +248,7 @@ export function AbsenceThresholds() {
             Sickness Trigger Stages (6-Month Rolling)
           </CardTitle>
           <CardDescription>
-            Configure trigger stages based on sickness episodes and days
+            Trigger points from sickness absences and duty days lost (rostered shifts only) in the rolling period
           </CardDescription>
           {!isWC && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -274,7 +274,7 @@ export function AbsenceThresholds() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="stage1-days">Days</Label>
+                  <Label htmlFor="stage1-days">Duty days</Label>
                   <Input
                     id="stage1-days"
                     type="number"
@@ -305,7 +305,7 @@ export function AbsenceThresholds() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="stage2-days">Days</Label>
+                  <Label htmlFor="stage2-days">Duty days</Label>
                   <Input
                     id="stage2-days"
                     type="number"
@@ -336,7 +336,7 @@ export function AbsenceThresholds() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="stage3-days">Days</Label>
+                  <Label htmlFor="stage3-days">Duty days</Label>
                   <Input
                     id="stage3-days"
                     type="number"

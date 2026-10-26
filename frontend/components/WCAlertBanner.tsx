@@ -152,26 +152,24 @@ export function WCAlertBanner() {
     });
   }
 
-  // Sickness triggers name the people: one person → View opens their
-  // profile; several → each name links to theirs.
+  // Absence triggers: the app only flags that someone has reached them —
+  // the stage is a note the Station Commander puts on their attendance
+  // file. Names link to the profile (one person: straight there).
   const profiles = profilesData?.profiles ?? [];
-  const triggerAlert = (stage: "Stage1" | "Stage2" | "Stage3", severity: Severity) => {
-    const people = profiles.filter((p) => p.trigger_stage === stage).map((p) => ({ id: p.user_id, name: nameOf(p.user_id) }));
-    if (people.length === 0) return;
-    const n = stage.slice(-1);
+  const triggered = profiles
+    .filter((p) => p.trigger_stage && p.trigger_stage !== "None")
+    .map((p) => ({ id: p.user_id, name: nameOf(p.user_id) }));
+  if (triggered.length > 0) {
     alerts.push({
-      id:    `sickness-${stage.toLowerCase()}`,
-      severity,
+      id:    "absence-triggers",
+      severity: "warning",
       Icon:  ShieldAlert,
-      label: people.length === 1 ? `Stage ${n} sickness trigger` : `Stage ${n} sickness triggers`,
-      count: people.length,
-      href:  people.length === 1 ? `/people/${people[0].id}` : "/people",
-      people,
+      label: "Absence triggers hit",
+      count: triggered.length,
+      href:  triggered.length === 1 ? `/people/${triggered[0].id}` : "/people",
+      people: triggered,
     });
-  };
-
-  // CRITICAL: Stage 3 sickness triggers
-  triggerAlert("Stage3", "critical");
+  }
 
   // CRITICAL: Sick staff assigned to today's crewing slots → gap alert
   const sickUserIds  = sickOn?.ids ?? new Set<string>();
@@ -233,8 +231,7 @@ export function WCAlertBanner() {
     });
   }
 
-  // WARNING: Stage 2 sickness triggers
-  triggerAlert("Stage2", "warning");
+
 
   // WARNING: Certifications expiring soon
   const expiringSoon = skillsData?.warning_count ?? 0;
@@ -249,8 +246,7 @@ export function WCAlertBanner() {
     });
   }
 
-  // INFO: Stage 1 sickness triggers
-  triggerAlert("Stage1", "info");
+
 
   // Nothing to surface
   if (alerts.length === 0) return null;
@@ -365,7 +361,7 @@ export function WCAlertBanner() {
                     to={alert.href}
                     className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-0.5 shrink-0"
                   >
-                    {alert.people.length === 1 ? "View profile →" : "View all →"}
+                    {alert.people.length === 1 ? "See profile →" : "See all →"}
                   </Link>
                 </div>
               );

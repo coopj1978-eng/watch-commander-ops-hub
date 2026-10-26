@@ -20,6 +20,25 @@ function isoToDay(iso: string): number {
   return Date.UTC(+iso.slice(0, 4), +iso.slice(5, 7) - 1, +iso.slice(8, 10)) / DAY_MS;
 }
 
+const dayToIso = (day: number) => new Date(day * DAY_MS).toISOString().slice(0, 10);
+
+/**
+ * Whether a date was one of the person's rostered shifts. Absence counts
+ * duty days only — rest days and the rota's leave block aren't days lost.
+ * Undefined (count every day) when their watch has no rota.
+ */
+export type DutyDayCheck = ((iso: string) => boolean) | undefined;
+
+/** Days from start to end (inclusive) that count — duty days when `isDutyDay` is given. */
+export function countDays(startIso: string, endIso: string, isDutyDay?: DutyDayCheck): number {
+  const start = isoToDay(startIso), end = isoToDay(endIso);
+  if (end < start) return 0;
+  if (!isDutyDay) return end - start + 1;
+  let n = 0;
+  for (let d = start; d <= end; d++) if (isDutyDay(dayToIso(d))) n++;
+  return n;
+}
+
 export interface SicknessRow {
   start_date: Date | string;
   end_date: Date | string;
@@ -29,9 +48,11 @@ export interface SicknessRow {
 /**
  * Rolling sickness totals for one person over the last six months.
  * An open sickness (not booked back fit) counts up to today. Overlapping
- * rows — e.g. a duplicate booking — are merged so they count once.
+ * rows — e.g. a duplicate booking — are merged so they count once. With
+ * `isDutyDay`, days are the person's rostered shifts only, and a sickness
+ * that missed no shift isn't an episode.
  */
-export function rollingSickness(rows: SicknessRow[], todayIso = ukTodayIso()) {
+export function rollingSickness(rows: SicknessRow[], todayIso = ukTodayIso(), isDutyDay?: DutyDayCheck) {
   const today = isoToDay(todayIso);
   const windowStartDate = new Date(todayIso + "T00:00:00.000Z");
   windowStartDate.setUTCMonth(windowStartDate.getUTCMonth() - 6);
@@ -54,6 +75,11 @@ export function rollingSickness(rows: SicknessRow[], todayIso = ukTodayIso()) {
   }
 
   let days = 0;
-  for (const m of merged) days += m.end - Math.max(m.start, windowStart) + 1;
-  return { episodes: merged.length, days };
+  let episodes = 0;
+  for (const m of merged) {
+    const n = countDays(dayToIso(Math.max(m.start, windowStart)), dayToIso(m.end), isDutyDay);
+    days += n;
+    if (n > 0) episodes++;
+  }
+  return { episodes, days };
 }
