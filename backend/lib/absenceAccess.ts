@@ -114,6 +114,36 @@ export function visibleAbsencesSql(viewer: AbsenceViewer, column: string, params
 }
 
 /**
+ * Tell the person's own watch WC/CC they've crossed an absence trigger (each
+ * rise, not every recalculation). No stage is named — that's the Station
+ * Commander's decision for the attendance file. Never throws.
+ */
+export async function notifyTriggersHit(
+  personId: string,
+  totals: { episodes: number; days: number; further: boolean }
+): Promise<void> {
+  const row = await db.queryRow<{ name: string | null; email: string | null; watch: string | null }>`
+    SELECT u.name, u.email, COALESCE(u.watch_unit, fp.watch) AS watch
+    FROM users u
+    LEFT JOIN firefighter_profiles fp ON fp.user_id = u.id
+    WHERE u.id = ${personId}
+  `.catch(() => null);
+  if (!row?.watch) return;
+  const name = row.name || row.email?.split("@")[0] || "Someone on your watch";
+  const { episodes, days } = totals;
+  await notifyWatchManagers(row.watch, [personId], {
+    type: "sick_booking",
+    title: "Absence triggers hit — see profile",
+    message:
+      `${name} has hit ${totals.further ? "a further absence trigger" : "their absence triggers"}: ` +
+      `${episodes} sickness absence${episodes === 1 ? "" : "s"}, ${days} duty day${days === 1 ? "" : "s"} in 6 months.`,
+    entity_type: "profile",
+    entity_id: personId,
+    link: `/people/${personId}`,
+  });
+}
+
+/**
  * Tell the person's own watch WC/CC about a sickness change made by someone
  * else — booking off or back fit can be taken by any WC/CC on duty, but the
  * person's line managers must always hear about it. Never throws.

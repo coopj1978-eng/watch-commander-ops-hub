@@ -2,8 +2,11 @@ import { APIError } from "encore.dev/api";
 import db from "../db";
 import { rollingSickness, type DutyDayCheck, type SicknessRow, type TriggerStage } from "./sicknessMath";
 import { watchShiftOn } from "./shiftRota";
+import { notifyTriggersHit } from "./absenceAccess";
 
 export { ukTodayIso } from "./sicknessMath";
+
+const STAGE_RANK: Record<TriggerStage, number> = { None: 0, Stage1: 1, Stage2: 2, Stage3: 3 };
 
 /** Was a date one of this person's rostered shifts? Undefined when their watch has no rota. */
 export async function dutyDayCheckFor(userId: string): Promise<DutyDayCheck> {
@@ -46,20 +49,23 @@ export async function recalcTriggersForUser(userId: string) {
     else if (episodes >= s.trigger_stage1_episodes || days >= s.trigger_stage1_days) stage = "Stage1";
   }
 
-  const previous = await db.queryRow<{ trigger_stage: TriggerStage }>`
-    SELECT trigger_stage FROM firefighter_profiles WHERE user_id = ${userId}
-  `;
-
-  await db.exec`
-    UPDATE firefighter_profiles
+  // Lock the row while reading the old stage so two recalculations at once
+  // can't both see the rise and notify twice.
+  const previous = await db.queryRow<{ trigger_stage: TriggerStage | null }>`
+    UPDATE firefighter_profiles fp
        SET rolling_sick_episodes = ${episodes},
            rolling_sick_days = ${days},
            trigger_stage = ${stage},
            updated_at = NOW()
-     WHERE user_id = ${userId}
+      FROM (SELECT trigger_stage FROM firefighter_profiles WHERE user_id = ${userId} FOR UPDATE) prev
+     WHERE fp.user_id = ${userId}
+    RETURNING prev.trigger_stage
   `;
 
   const previousStage = previous?.trigger_stage ?? "None";
+  if (previous && STAGE_RANK[stage] > STAGE_RANK[previousStage]) {
+    await notifyTriggersHit(userId, { episodes, days, further: previousStage !== "None" });
+  }
   return {
     rolling_sick_episodes: episodes,
     rolling_sick_days: days,
