@@ -42759,8 +42759,8 @@ function DashboardKPIs() {
   const alertCount = triggers + overdueTasks + expiredCerts;
   const alertDetail = alertCount === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-green-600 dark:text-green-500", children: "All clear" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
     triggers > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono", children: triggers }),
-      " triggers hit"
+      "triggers hit ",
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono", children: triggers })
     ] }),
     triggers > 0 && (overdueTasks > 0 || expiredCerts > 0) && " · ",
     overdueTasks > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
@@ -58682,11 +58682,17 @@ function TaskTemplateManager({ isOpen, onClose, onUseTemplate, canManage }) {
                       "input",
                       {
                         className: "ttm-input",
-                        placeholder: "e.g. Station Equipment Check",
+                        placeholder: "e.g. Station Equipment Check — {date}",
                         value: form.title_template,
                         onChange: (e) => setF({ title_template: e.target.value })
                       }
-                    )
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: 11, fontWeight: 400, color: "var(--cal-muted)" }, children: [
+                      "{date}",
+                      " becomes the day, e.g. Mon 2 Nov; ",
+                      "{shift}",
+                      " becomes Day or Night."
+                    ] })
                   ] })
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "ttm-label", children: [

@@ -186,7 +186,7 @@ export function DashboardKPIs() {
     <>
       {triggers > 0 && (
         <>
-          <span className="font-mono">{triggers}</span> triggers hit
+          triggers hit <span className="font-mono">{triggers}</span>
         </>
       )}
       {triggers > 0 && (overdueTasks > 0 || expiredCerts > 0) && " · "}

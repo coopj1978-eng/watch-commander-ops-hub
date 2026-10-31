@@ -588,10 +588,13 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
                       Card title
                       <input
                         className="ttm-input"
-                        placeholder="e.g. Station Equipment Check"
+                        placeholder="e.g. Station Equipment Check — {date}"
                         value={form.title_template}
                         onChange={(e) => setF({ title_template: e.target.value })}
                       />
+                      <span style={{ fontSize: 11, fontWeight: 400, color: "var(--cal-muted)" }}>
+                        {"{date}"} becomes the day, e.g. Mon 2 Nov; {"{shift}"} becomes Day or Night.
+                      </span>
                     </label>
                   </div>
 

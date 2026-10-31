@@ -16,6 +16,19 @@ import { addDaysIso, slotAt, ukInstant } from "./shiftRota";
  * missed checks never pile up. Idempotent (unique template + date + shift),
  * so it runs hourly and whenever the shift board is opened.
  */
+/** "{date}" and "{shift}" in a template's card title become the day and shift, e.g. "Mon 2 Nov" / "Night". */
+export function fillTitle(template: string, dateIso: string, shift: "day" | "night", perShift: boolean): string {
+  const [y, m, d] = dateIso.split("-").map(Number);
+  const day = new Date(Date.UTC(y, m - 1, d, 12)).toLocaleDateString("en-GB", {
+    weekday: "short", day: "numeric", month: "short", timeZone: "UTC",
+  });
+  return template
+    .replace(/\{date\}/gi, day)
+    .replace(/\{shift\}/gi, perShift ? (shift === "day" ? "Day" : "Night") : "")
+    .replace(/\s+([—–-])\s*$/, "")
+    .trim();
+}
+
 export async function ensureStationChecks(now: Date = new Date()): Promise<{ created: number }> {
   const slot = slotAt(now);
   const templates = await db.rawQueryAll<{
@@ -66,7 +79,7 @@ export async function ensureStationChecks(now: Date = new Date()): Promise<{ cre
         `INSERT INTO tasks (title, description, category, assigned_by, priority, checklist, rrule, status, watch_unit, source_type, due_at)
          VALUES ($1, $2, $3, $4, $5, $6, $7, 'NotStarted', NULL, 'template', $8)
          RETURNING id`,
-        t.title_template, t.task_description ?? null, t.category, t.created_by, t.priority, checklist, t.rrule, due
+        fillTitle(t.title_template, slot.date, slot.type, t.per_shift), t.task_description ?? null, t.category, t.created_by, t.priority, checklist, t.rrule, due
       );
       const instance = task && await tx.rawQueryRow<{ id: number }>(
         `INSERT INTO task_template_instances (template_id, task_id, generated_for_date, generated_for_shift)
