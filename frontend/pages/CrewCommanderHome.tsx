@@ -4,6 +4,7 @@ import { CrewUpcomingInspections } from "@/components/CrewUpcomingInspections";
 import { CrewOneToOnes } from "@/components/CrewOneToOnes";
 import { ShiftHero } from "@/components/ShiftHero";
 import { WCAlertBanner } from "@/components/WCAlertBanner";
+import { ThisShiftCard } from "@/components/ThisShiftCard";
 
 // Layout already wraps every page in PageContainer, so this page doesn't.
 export default function CrewCommanderHome() {
@@ -14,6 +15,8 @@ export default function CrewCommanderHome() {
       {/* Triggers hit, back to work interviews, crew gaps, missed checks —
           the same "needs you" list the WC sees, for their own watch. */}
       <WCAlertBanner />
+
+      <ThisShiftCard />
 
       <CrewKPIs />
 

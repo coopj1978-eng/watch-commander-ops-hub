@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/App";
 import { useSearchParams } from "react-router-dom";
+import { createPortal } from "react-dom";
 import { useUserRole } from "@/lib/rbac";
 import backend from "@/lib/backend";
 import type { shift_adjustments } from "@/client";
@@ -526,8 +527,9 @@ export default function UnifiedCalendar() {
       </main>
 
       {/* ── Add / edit event panel ────────────────────────────────────────── */}
-      {formOpen && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 50 }}>
+      {/* Portalled to <body> above the phone bottom bar, so its buttons aren't hidden behind it */}
+      {formOpen && createPortal(
+        <div style={{ position: "fixed", inset: 0, zIndex: 60 }}>
           <div
             onClick={closeForm}
             style={{ position: "absolute", inset: 0, background: isPhone || !formAnchor ? "rgba(0,0,0,.4)" : "rgba(17,20,39,.06)" }}
@@ -547,7 +549,8 @@ export default function UnifiedCalendar() {
               onCalendarPick={editingEvent ? undefined : rememberCalendar}
             />
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* ── Inspection event modal (create + edit) ──────────────────────────── */}

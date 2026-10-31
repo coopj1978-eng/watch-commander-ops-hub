@@ -270,12 +270,12 @@ export function CrewOnWatchTable() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-t border-b border-border/60 bg-muted/30">
-                  <th className="text-left font-medium text-[10px] uppercase tracking-widest text-muted-foreground px-4 py-2">Name</th>
+                  <th className="text-left font-medium text-[10px] uppercase tracking-widest text-muted-foreground pl-3 pr-2 sm:px-4 py-2">Name</th>
                   <th className="text-left font-medium text-[10px] uppercase tracking-widest text-muted-foreground px-3 py-2 hidden md:table-cell">Rank</th>
                   <th className="text-left font-medium text-[10px] uppercase tracking-widest text-muted-foreground px-3 py-2 hidden lg:table-cell">Service #</th>
                   <th className="text-left font-medium text-[10px] uppercase tracking-widest text-muted-foreground px-3 py-2 hidden md:table-cell">Driver</th>
                   <th className="text-left font-medium text-[10px] uppercase tracking-widest text-muted-foreground px-3 py-2 hidden sm:table-cell">Quals</th>
-                  <th className="text-left font-medium text-[10px] uppercase tracking-widest text-muted-foreground px-4 py-2">Status</th>
+                  <th className="text-left font-medium text-[10px] uppercase tracking-widest text-muted-foreground px-2 sm:px-4 py-2">Status</th>
                   {canLogSick && (
                     <th className="text-right font-medium text-[10px] uppercase tracking-widest text-muted-foreground px-2 sm:px-4 py-2 sm:w-28">
                       <span className="sr-only sm:not-sr-only">Actions</span>
@@ -289,13 +289,13 @@ export function CrewOnWatchTable() {
                     key={r.id}
                     className="border-b border-border/40 last:border-0 hover:bg-muted/30 transition-colors"
                   >
-                    <td className="px-4" style={{ paddingBlock: "var(--pad-row)" }}>
+                    <td className="pl-3 pr-2 sm:px-4" style={{ paddingBlock: "var(--pad-row)" }}>
                       <Link
                         to={`/people/${r.id}`}
                         className="inline-flex items-center gap-2.5 min-w-0 hover:text-primary transition-colors"
                       >
                         <Avatar name={r.name} />
-                        <span className="min-w-0">
+                        <span className="min-w-0 max-w-[150px] sm:max-w-none">
                           <span className="block font-medium truncate">{r.name}</span>
                           {/* Phones: quals sit under the name instead of a column */}
                           {r.quals.length > 0 && (
