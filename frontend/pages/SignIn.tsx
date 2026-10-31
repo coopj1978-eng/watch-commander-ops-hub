@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { backendClient } from "@/lib/backend";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { getWatchShiftStatus } from "@/lib/shiftRota";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -9,6 +9,64 @@ import { Shield, ArrowLeft, CheckCircle, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 type View = "signin" | "forgot" | "forgot-sent";
+
+const WATCHES = ["Red", "White", "Green", "Blue", "Amber"];
+
+// The dark "control room" side of the sign-in page: a live clock and which
+// watch is on duty now (from the rota — no data needed before sign-in).
+function BrandPanel() {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 15_000);
+    return () => clearInterval(id);
+  }, []);
+  const onDuty = WATCHES.map((w) => ({ w, s: getWatchShiftStatus(w, now) })).find((x) => x.s?.state === "on");
+  const night = onDuty?.s?.current?.startTime === "18:00";
+  const accent = onDuty ? (night ? "#818cf8" : "#fbbf24") : "#94a3b8";
+
+  return (
+    <div className="relative isolate overflow-hidden bg-neutral-950 text-white">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 opacity-[0.08] [background-image:linear-gradient(to_right,white_1px,transparent_1px),linear-gradient(to_bottom,white_1px,transparent_1px)] [background-size:36px_36px] [mask-image:radial-gradient(ellipse_at_bottom_left,black,transparent_75%)]"
+      />
+      <div aria-hidden className="pointer-events-none absolute -bottom-40 -left-24 -z-10 h-[28rem] w-[28rem] rounded-full blur-3xl opacity-25" style={{ background: accent }} />
+
+      <div className="flex h-full flex-col justify-between gap-10 p-6 sm:p-10 lg:p-14">
+        <div className="flex items-center gap-3">
+          <div className="grid h-10 w-10 place-items-center rounded bg-brand-bright font-mono text-sm font-semibold tracking-wide text-neutral-900">WC</div>
+          <div>
+            <div className="text-sm font-semibold">Watch Commander Ops Hub</div>
+            <div className="font-mono text-[10.5px] uppercase tracking-[0.14em] text-white/50">B10 Springburn</div>
+          </div>
+        </div>
+
+        <div>
+          <div className="font-mono text-6xl font-medium tabular-nums tracking-tight sm:text-7xl lg:text-8xl">
+            {now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
+          </div>
+          <div className="mt-2 text-base text-white/60">
+            {now.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+          </div>
+          {onDuty && (
+            <div className="mt-6 inline-flex items-center gap-2.5 rounded-full bg-white/10 px-3 py-1.5 text-sm ring-1 ring-white/10">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={{ background: accent }} />
+                <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: accent }} />
+              </span>
+              <span className="text-white/70">On duty now</span>
+              <span className="font-semibold">{onDuty.w} Watch · {onDuty.s?.current?.shiftType}</span>
+            </div>
+          )}
+        </div>
+
+        <p className="hidden max-w-sm text-sm text-white/40 lg:block">
+          Crewing, shift board, handovers, calendars and your watch's people — in one place, on any device.
+        </p>
+      </div>
+    </div>
+  );
+}
 
 export default function SignIn() {
   const [view, setView] = useState<View>("signin");
@@ -69,25 +127,23 @@ export default function SignIn() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 p-4">
-      <Card className="w-full max-w-md shadow-xl">
-        <CardHeader className="space-y-1 text-center pb-4">
-          <div className="flex justify-center mb-4">
-            <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-700 flex items-center justify-center shadow-lg">
-              <Shield className="h-9 w-9 text-white" />
-            </div>
-          </div>
-          <CardTitle className="text-2xl font-bold">
-            {view === "signin" ? "Watch Commander Ops Hub" : view === "forgot" ? "Reset your password" : "Check your email"}
-          </CardTitle>
-          <CardDescription>
-            {view === "signin" ? "Sign in to access your dashboard"
-              : view === "forgot" ? "Enter your email and we'll send you a reset link"
-              : `We've sent a reset link to ${forgotEmail}`}
-          </CardDescription>
-        </CardHeader>
+    <div className="grid min-h-screen bg-background lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+      <BrandPanel />
 
-        <CardContent>
+      <div className="flex items-start justify-center px-6 py-10 sm:items-center sm:px-10">
+        <div className="w-full max-w-sm">
+          <div className="mb-8 space-y-1.5">
+            <h1 className="text-2xl font-semibold tracking-tight">
+              {view === "signin" ? "Sign in" : view === "forgot" ? "Reset your password" : "Check your email"}
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {view === "signin" ? "Use the email your Watch Commander set up for you."
+                : view === "forgot" ? "Enter your email and we'll send you a reset link."
+                : `We've sent a reset link to ${forgotEmail}`}
+            </p>
+          </div>
+
+        <div>
           {/* ── Sign in form ── */}
           {view === "signin" && (
             <form onSubmit={handleSignIn} className="space-y-4">
@@ -96,12 +152,13 @@ export default function SignIn() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="your.email@example.com"
+                  placeholder="you@firescotland.gov.uk"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={loading}
                   autoFocus
+                  className="h-11"
                 />
               </div>
               <div className="space-y-2">
@@ -110,7 +167,7 @@ export default function SignIn() {
                   <button
                     type="button"
                     onClick={() => { setForgotEmail(email); setView("forgot"); }}
-                    className="text-xs text-indigo-600 hover:underline"
+                    className="text-xs text-brand hover:underline"
                   >
                     Forgot password?
                   </button>
@@ -124,7 +181,7 @@ export default function SignIn() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     disabled={loading}
-                    className="pr-10"
+                    className="pr-10 h-11"
                   />
                   <button
                     type="button"
@@ -138,10 +195,10 @@ export default function SignIn() {
               </div>
               <Button
                 type="submit"
-                className="w-full bg-indigo-600 hover:bg-indigo-700 h-11 text-base font-medium"
+                className="w-full bg-brand text-brand-foreground hover:bg-brand/90 h-11 text-base font-medium"
                 disabled={loading}
               >
-                {loading ? "Signing in…" : "Sign In"}
+                {loading ? "Signing in…" : "Sign in"}
               </Button>
             </form>
           )}
@@ -160,11 +217,12 @@ export default function SignIn() {
                   required
                   disabled={loading}
                   autoFocus
+                  className="h-11"
                 />
               </div>
               <Button
                 type="submit"
-                className="w-full bg-indigo-600 hover:bg-indigo-700 h-11 text-base font-medium"
+                className="w-full bg-brand text-brand-foreground hover:bg-brand/90 h-11 text-base font-medium"
                 disabled={loading || !forgotEmail.trim()}
               >
                 {loading ? "Sending…" : "Send reset link"}
@@ -211,14 +269,15 @@ export default function SignIn() {
               </div>
               <button
                 onClick={() => setView("signin")}
-                className="flex items-center gap-1.5 text-sm text-indigo-600 hover:underline mx-auto"
+                className="flex items-center gap-1.5 text-sm text-brand hover:underline mx-auto"
               >
                 <ArrowLeft className="h-3.5 w-3.5" /> Back to sign in
               </button>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+        </div>
+      </div>
     </div>
   );
 }

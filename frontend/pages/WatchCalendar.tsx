@@ -27,7 +27,7 @@ export default function UnifiedCalendar() {
 
   // View state
   // "?date=YYYY-MM-DD" (e.g. from the Tasks page's watch calendar) opens that day.
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const dateParam = searchParams.get("date");
   const [currentDate, setCurrentDate] = useState(() =>
     dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam) ? new Date(`${dateParam}T12:00:00`) : new Date()
@@ -308,6 +308,15 @@ export default function UnifiedCalendar() {
     setPendingSlot(view === "week" || view === "day" ? date : null);
     setFormOpen(true);
   };
+
+  // "?new=1" (the quick-add button) opens a new event at the next hour.
+  useEffect(() => {
+    if (searchParams.get("new") !== "1") return;
+    setSearchParams((p) => { p.delete("new"); return p; }, { replace: true });
+    const at = new Date();
+    at.setHours(at.getHours() + 1, 0, 0, 0);
+    handleSlotClick(at);
+  }, [searchParams]);
 
   const closeForm = () => {
     setFormOpen(false);

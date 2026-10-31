@@ -89,6 +89,9 @@ export default function People() {
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">(
     (searchParams.get("status") as any) || "all"
   );
+  // Station / rank / skills / driver filters fold away; the watch chips and
+  // status switch stay in view.
+  const [showFilterPanel, setShowFilterPanel] = useState(false);
   const [watchFilters, setWatchFilters] = useState<string[]>(
     searchParams.get("watch")?.split(",").filter(Boolean) || []
   );
@@ -387,18 +390,37 @@ export default function People() {
       <Card className="border-border/60">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between gap-3 flex-wrap">
-            <div className="flex items-center gap-3">
-              <CardTitle className="eyebrow !text-foreground">Filters</CardTitle>
+            <div className="flex items-center gap-2 flex-wrap">
+              <CardTitle className="eyebrow !text-foreground mr-1">Filters</CardTitle>
+              {/* One-tap watch chips — the filter people reach for most */}
+              {WATCH_OPTIONS.map((watch) => {
+                const on = watchFilters.includes(watch);
+                return (
+                  <button
+                    key={watch}
+                    type="button"
+                    onClick={() => toggleFilter(watch, watchFilters, setWatchFilters)}
+                    aria-pressed={on}
+                    className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
+                      on ? "border-foreground bg-foreground text-background" : "border-border bg-background text-muted-foreground hover:text-foreground hover:border-foreground/30"
+                    }`}
+                  >
+                    <WatchDot watch={watch} size="sm" />
+                    {watch}
+                  </button>
+                );
+              })}
               {activeFiltersCount > 0 && (
                 <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={clearFilters}>
-                  Clear all
+                  Clear all ({activeFiltersCount})
                 </Button>
               )}
             </div>
             {/* Quick status switch — segmented control matches the design's
                 .seg primitive. Backed by the same statusFilter state as the
                 Select dropdown below — they're kept in sync. */}
-            <div className="seg" style={{ width: 280 }}>
+            <div className="flex items-center gap-2 flex-wrap">
+            <div className="seg" style={{ width: 260 }}>
               <button
                 data-on={statusFilter === "active"}
                 onClick={() => setStatusFilter("active")}
@@ -418,9 +440,21 @@ export default function People() {
                 Left station
               </button>
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-[30px] text-xs"
+              onClick={() => setShowFilterPanel((v) => !v)}
+              aria-expanded={showFilterPanel}
+            >
+              {showFilterPanel ? "Fewer filters" : "More filters"}
+              <ChevronDown className={`ml-1 h-3.5 w-3.5 transition-transform ${showFilterPanel ? "rotate-180" : ""}`} />
+            </Button>
+            </div>
           </div>
         </CardHeader>
-        <CardContent>
+        {showFilterPanel && (
+        <CardContent className="animate-in fade-in-0 slide-in-from-top-1 duration-200">
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
             <div>
               <label className="eyebrow mb-2 block">Station</label>
@@ -499,6 +533,7 @@ export default function People() {
             </div>
           </div>
         </CardContent>
+        )}
       </Card>
 
       {isLoading ? (

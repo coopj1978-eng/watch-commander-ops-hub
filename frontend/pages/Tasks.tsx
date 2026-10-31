@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { createPortal } from "react-dom";
+import { useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/App";
 import backend from "@/lib/backend";
@@ -178,6 +179,14 @@ export default function Tasks() {
       setSelectedTask(newTask as unknown as Task);
     }).catch(() => {});
   };
+
+  // "?new=1" (the quick-add button) opens a new card once the board has loaded.
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    if (searchParams.get("new") !== "1" || columns.length === 0 || !shift) return;
+    setSearchParams((p) => { p.delete("new"); return p; }, { replace: true });
+    handleNewTask();
+  }, [searchParams, columns.length, shift]);
 
   const handleTitleEdit = (taskId: number, newTitle: string) => {
     updateTaskMutation.mutate({ id: taskId, title: newTitle });

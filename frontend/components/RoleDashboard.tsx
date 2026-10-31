@@ -25,14 +25,13 @@ import { Users, ClipboardCheck, FileText, GripVertical, RotateCcw } from "lucide
 import { WCStaffingWidget }      from "@/components/WCStaffingWidget";
 import { WCInspectionsWidget }    from "@/components/WCInspectionsWidget";
 import { WCSicknessAlertsWidget } from "@/components/WCSicknessAlertsWidget";
-import { WCShiftWidget }          from "@/components/WCShiftWidget";
 import { WCSkillsExpiryWidget }   from "@/components/WCSkillsExpiryWidget";
 import { WCWeatherWidget }        from "@/components/WCWeatherWidget";
 import { WCContactsWidget }       from "@/components/WCContactsWidget";
 import { WCHandoverWidget }       from "@/components/WCHandoverWidget";
 import { WCAlertBanner }          from "@/components/WCAlertBanner";
 import { WCPersonalCalendarWidget } from "@/components/WCPersonalCalendarWidget";
-import { OperationalStatusBar }   from "@/components/OperationalStatusBar";
+import { ShiftHero }              from "@/components/ShiftHero";
 import { LatestHandoverBanner }   from "@/components/LatestHandoverBanner";
 import { BulletinsTile }          from "@/components/BulletinsTile";
 import { PolicyAcksTile }         from "@/components/PolicyAcksTile";
@@ -79,7 +78,8 @@ type SectionKey = "operational" | "shift" | "certs" | "targets";
 // re-enable them if/when we add a widget picker.
 const SECTION_DEFAULTS: Record<SectionKey, string[]> = {
   operational: ["staffing", "sickness", "inspections"],
-  shift:       ["shift", "calendar", "weather", "contacts", "handover", "h4h", "toil"],
+  // The crewing card moved into ShiftHero's riding board at the top.
+  shift:       ["calendar", "weather", "contacts", "handover", "h4h", "toil"],
   certs:       ["skills"],
   targets:     [],
 };
@@ -90,7 +90,6 @@ const WIDGET_COMPONENTS: Record<string, React.ComponentType> = {
   inspections: WCInspectionsWidget,
   sickness:    WCSicknessAlertsWidget,
   weather:     WCWeatherWidget,
-  shift:       WCShiftWidget,
   contacts:    WCContactsWidget,
   handover:    WCHandoverWidget,
   skills:      WCSkillsExpiryWidget,
@@ -246,7 +245,7 @@ function WatchCommanderDashboard() {
       {/* ── Reset-layout affordance — only surfaces when the WC has
               re-ordered widgets from defaults. Replaces the old command
               strip (watch/date/shift now live in the TopBar and the
-              OperationalStatusBar below). ─────────────────────────────── */}
+              ShiftHero below). ─────────────────────────────── */}
       {isCustomised && (
         <div className="flex justify-end -mb-2 animate-in fade-in-0 duration-300">
           <button
@@ -260,32 +259,23 @@ function WatchCommanderDashboard() {
         </div>
       )}
 
+      {/* ── Shift now ─ watch, live shift timeline, who's riding and the
+              next places to go. Replaces the old five-cell status bar and
+              the crewing card. ─────────────────────────────────────────── */}
+      <ShiftHero />
+
       {/* ── Alert banner ───────────────────────────────────────────────── */}
       <WCAlertBanner />
 
       {/* ── Last handover summary ─ one-line strip surfacing what the
-              previous shift left for this WC. Shares the
-              ["wc-latest-handover"] query cache with WCHandoverWidget so
-              there's no extra network traffic. Renders nothing when no
-              handover exists — the widget lower in the grid handles the
-              first-handover CTA. ─────────────────────────────────────── */}
+              previous shift left for this WC. Renders nothing when no
+              handover exists. ──────────────────────────────────────────── */}
       <LatestHandoverBanner />
 
-      {/* ── Unread bulletins summary ─ only renders when there's something
-              to chase. Links through to /bulletins. Urgent red variant
-              kicks in when a requires_ack bulletin is still outstanding. */}
+      {/* ── Unread bulletins / unacknowledged policies — only render when
+              there's something to chase. ───────────────────────────────── */}
       <BulletinsTile />
-
-      {/* ── Unacknowledged required policies — red strip when the caller
-              has SOPs still awaiting their acknowledgement. Renders nothing
-              when caught up. Shares the ["policies"] cache with the Docs
-              page so there's no extra network traffic. */}
       <PolicyAcksTile />
-
-      {/* ── At-a-glance status bar (5 cells: date, watch, shift, strength,
-              tasks). Reuses the same TanStack queryKeys as the downstream
-              widgets so it adds no extra network traffic. ────────────── */}
-      <OperationalStatusBar />
 
       {/* ── 4-KPI row — Tasks / HFSV / Absence / Alerts. Shares query
               caches with the dashboard widgets below, so adds no network

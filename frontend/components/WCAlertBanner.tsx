@@ -6,7 +6,9 @@ import { useAuth } from "@/App";
 import { cn } from "@/lib/utils";
 import {
   AlertTriangle,
+  CheckCircle2,
   ChevronDown,
+  ChevronRight,
   ChevronUp,
   CalendarCheck,
   ClipboardCheck,
@@ -38,16 +40,22 @@ interface AlertItem {
 
 // ── Severity styling ───────────────────────────────────────────────────────────
 
-const dot: Record<Severity, string> = {
-  critical: "bg-red-500",
-  warning:  "bg-amber-500",
-  info:     "bg-yellow-400",
-};
-
 const countText: Record<Severity, string> = {
   critical: "text-red-600 dark:text-red-400",
   warning:  "text-amber-600 dark:text-amber-400",
   info:     "text-yellow-600 dark:text-yellow-400",
+};
+
+const rail: Record<Severity, string> = {
+  critical: "bg-red-500",
+  warning:  "bg-amber-500",
+  info:     "bg-sky-500",
+};
+
+const tile: Record<Severity, string> = {
+  critical: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
+  warning:  "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300",
+  info:     "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300",
 };
 
 const rowHover: Record<Severity, string> = {
@@ -269,37 +277,23 @@ export function WCAlertBanner() {
 
 
 
-  // Nothing to surface
-  if (alerts.length === 0) return null;
+  // Nothing to surface — say so, so a WC/CC knows the list is live and empty
+  // rather than wondering whether it loaded.
+  if (alerts.length === 0) {
+    return (
+      <div className="flex items-center gap-3 rounded-xl border border-border/70 bg-card px-4 py-3 text-sm animate-in fade-in-0 duration-300">
+        <span className="grid h-7 w-7 place-items-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+          <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+        </span>
+        <span className="font-medium text-foreground">All caught up</span>
+        <span className="text-muted-foreground">— nothing needs you right now.</span>
+      </div>
+    );
+  }
 
-  // ── Banner chrome colours (driven by highest severity) ─────────────────────
-
-  const hasCritical = alerts.some((a) => a.severity === "critical");
-  const hasWarning  = !hasCritical && alerts.some((a) => a.severity === "warning");
-
-  const bannerBorder = hasCritical
-    ? "border-red-300 dark:border-red-700"
-    : hasWarning
-    ? "border-amber-300 dark:border-amber-700"
-    : "border-yellow-300 dark:border-yellow-700";
-
-  const headerBg = hasCritical
-    ? "bg-red-50 dark:bg-red-950/40"
-    : hasWarning
-    ? "bg-amber-50 dark:bg-amber-950/40"
-    : "bg-yellow-50 dark:bg-yellow-950/40";
-
-  const headerTextColor = hasCritical
-    ? "text-red-700 dark:text-red-400"
-    : hasWarning
-    ? "text-amber-700 dark:text-amber-400"
-    : "text-yellow-700 dark:text-yellow-400";
-
-  const headerIcon = hasCritical
-    ? "text-red-500"
-    : hasWarning
-    ? "text-amber-500"
-    : "text-yellow-500";
+  // Most urgent first.
+  const order: Record<Severity, number> = { critical: 0, warning: 1, info: 2 };
+  alerts.sort((a, b) => order[a.severity] - order[b.severity]);
 
   const criticalItems = alerts.filter((a) => a.severity === "critical").length;
   const warningItems  = alerts.filter((a) => a.severity === "warning").length;
@@ -307,115 +301,83 @@ export function WCAlertBanner() {
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div
-      className={cn(
-        "rounded-xl border overflow-hidden shadow-sm",
-        "animate-in fade-in-0 slide-in-from-top-2 duration-300",
-        bannerBorder,
-      )}
+    <section
+      aria-label="Needs you"
+      className="rounded-xl border border-border/70 bg-card overflow-hidden shadow-sm animate-in fade-in-0 slide-in-from-top-2 duration-300"
     >
       {/* Summary / toggle header */}
       <button
         onClick={() => setExpanded((v) => !v)}
-        className={cn(
-          "w-full flex items-center justify-between gap-3 px-4 py-2.5",
-          "text-left transition-colors cursor-pointer",
-          headerBg,
-        )}
+        className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/40"
         aria-expanded={expanded}
         aria-label={expanded ? "Collapse alert panel" : "Expand alert panel"}
       >
-        <div className={cn("flex items-center gap-2 flex-wrap", headerTextColor)}>
-          <AlertTriangle className={cn("h-4 w-4 shrink-0", headerIcon)} aria-hidden="true" />
-          <span className="text-sm font-semibold">
-            {alerts.length} item{alerts.length !== 1 ? "s" : ""} need{alerts.length === 1 ? "s" : ""} attention
-          </span>
-          <span className="h-3.5 w-px bg-current opacity-30 hidden sm:block" />
-          <div className="flex gap-1.5">
-            {criticalItems > 0 && (
-              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-500" aria-hidden="true" />
-                {criticalItems} critical
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <span className="text-sm font-semibold text-foreground">Needs you</span>
+          <span className="font-mono text-xs tabular-nums text-muted-foreground">{alerts.length}</span>
+          {criticalItems > 0 && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75 motion-safe:animate-ping" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-red-500" />
               </span>
-            )}
-            {warningItems > 0 && (
-              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" aria-hidden="true" />
-                {warningItems} warning
-              </span>
-            )}
-          </div>
+              {criticalItems} critical
+            </span>
+          )}
+          {warningItems > 0 && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500" aria-hidden="true" />
+              {warningItems} warning
+            </span>
+          )}
         </div>
         {expanded
-          ? <ChevronUp   className={cn("h-4 w-4 shrink-0", headerTextColor)} aria-hidden="true" />
-          : <ChevronDown className={cn("h-4 w-4 shrink-0", headerTextColor)} aria-hidden="true" />
+          ? <ChevronUp   className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+          : <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
         }
       </button>
 
-      {/* Alert rows */}
+      {/* Alert rows — a severity rail on the left, one sentence, one action */}
       {expanded && (
-        <div className="divide-y divide-border/50">
+        <ul className="divide-y divide-border/60 border-t border-border/60">
           {alerts.map((alert) => {
             const Icon = alert.Icon;
-            if (alert.people?.length) {
-              return (
-                <div
-                  key={alert.id}
-                  className={cn("flex items-center gap-3 px-4 py-2.5 bg-background transition-colors group", rowHover[alert.severity])}
-                >
-                  <span className={cn("w-2 h-2 rounded-full shrink-0", dot[alert.severity])} aria-hidden="true" />
-                  <Icon className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-                  <span className="flex-1 text-sm text-foreground">
-                    <span className={cn("font-bold tabular-nums mr-1.5", countText[alert.severity])}>{alert.count}</span>
-                    {alert.label}
-                    {" — "}
-                    {alert.people.map((p, i) => (
-                      <span key={p.id}>
-                        {i > 0 && ", "}
-                        <Link to={`/people/${p.id}`} className="font-medium underline-offset-2 hover:underline hover:text-primary">
-                          {p.name}
-                        </Link>
-                      </span>
-                    ))}
-                  </span>
-                  <Link
-                    to={alert.href}
-                    className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-0.5 shrink-0"
-                  >
-                    {alert.people.length === 1 ? "See profile →" : "See all →"}
-                  </Link>
-                </div>
-              );
-            }
+            const action = alert.people?.length === 1 ? "See profile" : alert.people?.length ? "See all" : "Open";
             return (
-              <Link
-                key={alert.id}
-                to={alert.href}
-                className={cn(
-                  "flex items-center gap-3 px-4 py-2.5",
-                  "bg-background transition-colors group",
-                  rowHover[alert.severity],
-                )}
-              >
-                <span
-                  className={cn("w-2 h-2 rounded-full shrink-0", dot[alert.severity])}
-                  aria-hidden="true"
-                />
-                <Icon className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-                <span className="flex-1 text-sm text-foreground">
-                  <span className={cn("font-bold tabular-nums mr-1.5", countText[alert.severity])}>
-                    {alert.count}
-                  </span>
+              <li key={alert.id} className={cn("relative flex items-center gap-3 pl-5 pr-3 py-3 transition-colors group", rowHover[alert.severity])}>
+                <span className={cn("absolute left-0 inset-y-0 w-[3px]", rail[alert.severity])} aria-hidden="true" />
+                <span className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-lg", tile[alert.severity])}>
+                  <Icon className="h-4 w-4" aria-hidden="true" />
+                </span>
+                <span className="flex-1 min-w-0 text-sm text-foreground">
+                  <span className={cn("font-semibold tabular-nums mr-1.5", countText[alert.severity])}>{alert.count}</span>
                   {alert.label}
+                  {alert.people?.length ? (
+                    <>
+                      {" — "}
+                      {alert.people.map((p, i) => (
+                        <span key={p.id}>
+                          {i > 0 && ", "}
+                          <Link to={`/people/${p.id}`} className="font-medium underline-offset-2 hover:underline hover:text-primary">
+                            {p.name}
+                          </Link>
+                        </span>
+                      ))}
+                    </>
+                  ) : null}
                 </span>
-                <span className="text-xs text-muted-foreground group-hover:text-primary transition-colors flex items-center gap-0.5 shrink-0">
-                  View →
-                </span>
-              </Link>
+                <Link
+                  to={alert.href}
+                  className="shrink-0 inline-flex items-center gap-1 rounded-md border border-border/80 bg-background px-2.5 py-1 text-xs font-medium text-foreground transition-colors hover:border-foreground/30 hover:bg-muted"
+                >
+                  <span className="hidden sm:inline">{action}</span>
+                  <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+                </Link>
+              </li>
             );
           })}
-        </div>
+        </ul>
       )}
-    </div>
+    </section>
   );
 }

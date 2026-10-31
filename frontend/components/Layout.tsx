@@ -4,6 +4,7 @@ import SidebarNav from "./SidebarNav";
 import TopBar from "./TopBar";
 import PageContainer from "./PageContainer";
 import { MobileBottomNav } from "./MobileBottomNav";
+import { QuickAddButton } from "./QuickAddButton";
 import PWAInstallPrompt from "./PWAInstallPrompt";
 import { useKeyboardShortcuts, SHORTCUTS } from "@/lib/useKeyboardShortcuts";
 import {
@@ -91,6 +92,9 @@ export default function Layout() {
       </PageContainer>
 
       <MobileBottomNav />
+
+      {/* Phones: "+" for the few things people add on the move */}
+      <QuickAddButton />
 
       {/* PWA install nudge — iOS instructions or Chrome's prompt() helper */}
       <PWAInstallPrompt />

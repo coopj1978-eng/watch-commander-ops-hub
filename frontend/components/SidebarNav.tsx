@@ -158,7 +158,7 @@ export default function SidebarNav({
           >
             <p className="text-white font-semibold text-[13px] leading-tight">Watch Commander</p>
             <p className="text-white/40 font-mono text-[10px] uppercase tracking-[0.08em] leading-tight mt-0.5">
-              Ops Hub · Station A
+              Ops Hub · B10 Springburn
             </p>
           </div>
         )}

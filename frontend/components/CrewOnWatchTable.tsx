@@ -26,7 +26,8 @@ import { invalidateAbsenceViews, latestAbsencePerPerson, useTodaysAbsences } fro
 //   3. backend.absence.list({ today })      → today's sickness / leave
 //
 // Status column derivation (in priority order):
-//   Stage 3 trigger → "STAGE 3"  (red)
+//   Absence triggers hit → "Triggers hit" (red) — never a stage; that's
+//     the Station Commander's note on the attendance file
 //   Sickness absence today → "Sick"
 //   Non-sickness absence today → "Leave"
 //   Otherwise → "On duty"
@@ -66,11 +67,7 @@ function StatusBadge({ status }: { status: Status }) {
       className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-sm text-[11px] font-medium border ${cls}`}
     >
       <span className={`h-1.5 w-1.5 rounded-full ${dotCls}`} aria-hidden />
-      {status.kind === "stage3" ? (
-        <span className="font-mono tracking-wide">STAGE 3</span>
-      ) : (
-        status.label
-      )}
+      {status.label}
     </span>
   );
 }
@@ -190,8 +187,8 @@ export function CrewOnWatchTable() {
     const profile = profileByUser.get(m.id);
     const absence = absenceByUser.get(m.id);
 
-    // Stage 3 is a Bradford flag, not an absence — show it alongside the
-    // real status so a Stage 3 FF who's at work still counts as on duty.
+    // Triggers hit isn't an absence — show it alongside the real status so
+    // someone at work who has hit their triggers still counts as on duty.
     let status: Status;
     if (absence?.type === "sickness") {
       status = { kind: "sick", label: "Sick" };
@@ -277,11 +274,11 @@ export function CrewOnWatchTable() {
                   <th className="text-left font-medium text-[10px] uppercase tracking-widest text-muted-foreground px-3 py-2 hidden md:table-cell">Rank</th>
                   <th className="text-left font-medium text-[10px] uppercase tracking-widest text-muted-foreground px-3 py-2 hidden lg:table-cell">Service #</th>
                   <th className="text-left font-medium text-[10px] uppercase tracking-widest text-muted-foreground px-3 py-2 hidden md:table-cell">Driver</th>
-                  <th className="text-left font-medium text-[10px] uppercase tracking-widest text-muted-foreground px-3 py-2">Quals</th>
+                  <th className="text-left font-medium text-[10px] uppercase tracking-widest text-muted-foreground px-3 py-2 hidden sm:table-cell">Quals</th>
                   <th className="text-left font-medium text-[10px] uppercase tracking-widest text-muted-foreground px-4 py-2">Status</th>
                   {canLogSick && (
-                    <th className="text-right font-medium text-[10px] uppercase tracking-widest text-muted-foreground px-4 py-2 hidden sm:table-cell w-28">
-                      Actions
+                    <th className="text-right font-medium text-[10px] uppercase tracking-widest text-muted-foreground px-2 sm:px-4 py-2 sm:w-28">
+                      <span className="sr-only sm:not-sr-only">Actions</span>
                     </th>
                   )}
                 </tr>
@@ -298,7 +295,15 @@ export function CrewOnWatchTable() {
                         className="inline-flex items-center gap-2.5 min-w-0 hover:text-primary transition-colors"
                       >
                         <Avatar name={r.name} />
-                        <span className="font-medium truncate">{r.name}</span>
+                        <span className="min-w-0">
+                          <span className="block font-medium truncate">{r.name}</span>
+                          {/* Phones: quals sit under the name instead of a column */}
+                          {r.quals.length > 0 && (
+                            <span className="sm:hidden mt-0.5 block truncate font-mono text-[10px] text-muted-foreground">
+                              {r.quals.join(" · ")}
+                            </span>
+                          )}
+                        </span>
                       </Link>
                     </td>
                     <td
@@ -330,7 +335,7 @@ export function CrewOnWatchTable() {
                         <span className="text-muted-foreground/40 text-xs">—</span>
                       )}
                     </td>
-                    <td className="px-3" style={{ paddingBlock: "var(--pad-row)" }}>
+                    <td className="px-3 hidden sm:table-cell min-w-[180px]" style={{ paddingBlock: "var(--pad-row)" }}>
                       {r.quals.length > 0 ? (
                         <div className="flex flex-wrap gap-1">
                           {r.quals.map((q) => (
@@ -350,15 +355,15 @@ export function CrewOnWatchTable() {
                         <span className="text-muted-foreground/40 text-xs">—</span>
                       )}
                     </td>
-                    <td className="px-4" style={{ paddingBlock: "var(--pad-row)" }}>
-                      <span className="inline-flex items-center gap-1">
+                    <td className="px-2 sm:px-4" style={{ paddingBlock: "var(--pad-row)" }}>
+                      <span className="inline-flex flex-wrap items-center gap-1">
                         <StatusBadge status={r.status} />
                         {r.stage3 && <StatusBadge status={{ kind: "stage3", label: "Triggers hit" }} />}
                       </span>
                     </td>
                     {canLogSick && (
                       <td
-                        className="px-4 text-right hidden sm:table-cell"
+                        className="px-2 sm:px-4 text-right"
                         style={{ paddingBlock: "var(--pad-row)" }}
                       >
                         {r.status.kind === "on_duty" ? (
@@ -367,9 +372,10 @@ export function CrewOnWatchTable() {
                             variant="ghost"
                             className="h-7 px-2 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20"
                             onClick={() => openLogSickFor(r.id, r.name)}
+                            aria-label={`Log ${r.name} sick`}
                           >
-                            <Stethoscope className="h-3 w-3 mr-1" />
-                            Log sick
+                            <Stethoscope className="h-3.5 w-3.5 sm:h-3 sm:w-3 sm:mr-1" />
+                            <span className="hidden sm:inline">Log sick</span>
                           </Button>
                         ) : r.status.kind === "sick" ? (
                           r.absence_id ? (
@@ -380,9 +386,10 @@ export function CrewOnWatchTable() {
                               disabled={bookBackFit.isPending}
                               onClick={() => bookBackFit.mutate(r.absence_id!)}
                               title="Book this firefighter back fit and close the sickness"
+                              aria-label={`Mark ${r.name} fit`}
                             >
-                              <Heart className="h-3 w-3 mr-1" />
-                              Mark fit
+                              <Heart className="h-3.5 w-3.5 sm:h-3 sm:w-3 sm:mr-1" />
+                              <span className="hidden sm:inline">Mark fit</span>
                             </Button>
                           ) : (
                             <span className="text-[11px] text-muted-foreground italic">Booked off</span>

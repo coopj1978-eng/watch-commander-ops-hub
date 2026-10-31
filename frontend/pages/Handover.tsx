@@ -274,7 +274,9 @@ export default function Handover() {
     }),
   });
 
-  // ?tab=handover opens the handover tab.
+  // ?tab=handover opens the handover tab; &new=1 (the quick-add button) also
+  // starts a new handover note.
+  const wantsNewHandover = searchParams.get("new") === "1";
   useEffect(() => {
     if (searchParams.get("tab") === "handover") setActiveTab("handover");
   }, []);
@@ -362,6 +364,13 @@ export default function Handover() {
     });
     setShowForm(true);
   };
+
+  useEffect(() => {
+    if (!wantsNewHandover) return;
+    setSearchParams((p) => { p.delete("new"); return p; }, { replace: true });
+    setActiveTab("handover");
+    handleNewHandover();
+  }, [wantsNewHandover]);
 
   return (
     <div className="p-4 md:p-8 space-y-6 max-w-5xl mx-auto">

@@ -174,22 +174,22 @@ export function DashboardKPIs() {
   );
 
   // ── Alerts ─────────────────────────────────────────────────────────────────
-  // Aggregates the WC-facing warning signals: stage-3 sickness triggers,
-  // overdue tasks, expired certifications. Mirrors (a subset of) what
-  // WCAlertBanner shows but as a single count.
-  const stage3 = (sicknessQ.data?.profiles ?? []).filter((p) => p.trigger_stage === "Stage3").length;
+  // Aggregates the WC-facing warning signals: absence triggers hit (never a
+  // stage — that's the Station Commander's call), overdue tasks, expired
+  // certifications. Mirrors (a subset of) what WCAlertBanner shows.
+  const triggers = (sicknessQ.data?.profiles ?? []).filter((p) => p.trigger_stage && p.trigger_stage !== "None").length;
   const expiredCerts = skillsQ.data?.expired_count ?? 0;
-  const alertCount = stage3 + overdueTasks + expiredCerts;
+  const alertCount = triggers + overdueTasks + expiredCerts;
   const alertDetail = alertCount === 0 ? (
     <span className="text-green-600 dark:text-green-500">All clear</span>
   ) : (
     <>
-      {stage3 > 0 && (
+      {triggers > 0 && (
         <>
-          <span className="font-mono">{stage3}</span> stage-3
+          <span className="font-mono">{triggers}</span> triggers hit
         </>
       )}
-      {stage3 > 0 && (overdueTasks > 0 || expiredCerts > 0) && " · "}
+      {triggers > 0 && (overdueTasks > 0 || expiredCerts > 0) && " · "}
       {overdueTasks > 0 && (
         <>
           <span className="font-mono">{overdueTasks}</span> overdue

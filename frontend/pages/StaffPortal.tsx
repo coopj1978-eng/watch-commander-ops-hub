@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import PersonalDashboard from "@/components/PersonalDashboard";
 import MyTasks from "@/components/MyTasks";
 import MyCalendar from "@/components/MyCalendar";
@@ -6,6 +7,7 @@ import MyProfile from "@/components/MyProfile";
 import AbsenceRequest from "@/components/AbsenceRequest";
 import FFSickLineUpload from "@/components/FFSickLineUpload";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ShiftHero } from "@/components/ShiftHero";
 import { 
   LayoutDashboard,
   ListTodo, 
@@ -17,18 +19,24 @@ import {
 type TabValue = "dashboard" | "tasks" | "calendar" | "profile" | "absence";
 
 export default function StaffPortal() {
-  const [activeTab, setActiveTab] = useState<TabValue>("dashboard");
+  // "?tab=absence" (the quick-add button) opens straight on a tab.
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState<TabValue>(() => {
+    const t = searchParams.get("tab");
+    return t === "tasks" || t === "calendar" || t === "profile" || t === "absence" ? t : "dashboard";
+  });
+  const tabParam = searchParams.get("tab");
+  useEffect(() => {
+    if (tabParam === "tasks" || tabParam === "calendar" || tabParam === "profile" || tabParam === "absence") setActiveTab(tabParam);
+  }, [tabParam]);
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="p-4 md:p-8 space-y-6">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
-            <User className="h-7 w-7 text-brand shrink-0" />
-            Staff Portal
-          </h1>
-          <p className="text-muted-foreground mt-1">Your personal workspace</p>
-        </div>
+    // Layout already pads the page; the shift panel replaces the old
+    // "Staff Portal" heading so a firefighter sees their watch's shift and
+    // where they're riding first.
+    <div>
+      <div className="space-y-6">
+        <ShiftHero />
 
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabValue)}>
           <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
