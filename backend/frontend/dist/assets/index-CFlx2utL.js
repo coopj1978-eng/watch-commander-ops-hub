@@ -41315,7 +41315,9 @@ function WCAlertBanner() {
       href: "/people"
     });
   }
+  const loaded = [btwData, missedData, inspectionsData, profilesData, crewStats, skillsData].every((d) => d !== void 0);
   if (alerts.length === 0) {
+    if (!loaded) return null;
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 rounded-xl border border-border/70 bg-card px-4 py-3 text-sm animate-in fade-in-0 duration-300", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "grid h-7 w-7 place-items-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300", children: /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-4 w-4", "aria-hidden": "true" }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium text-foreground", children: "All caught up" }),
@@ -42045,7 +42047,7 @@ function ThisShiftCard() {
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "text-sm font-semibold", children: [
             "On the board ",
-            (shift2 == null ? void 0 : shift2.on_duty) ? "this shift" : "next shift"
+            shift2 && !shift2.on_duty ? "next shift" : "this shift"
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-0.5 text-xs text-muted-foreground", children: (shift2 == null ? void 0 : shift2.label) ?? "Loading…" })
         ] }),

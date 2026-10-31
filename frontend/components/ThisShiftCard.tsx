@@ -50,7 +50,7 @@ export function ThisShiftCard() {
       <div className="rounded-xl border border-border/70 bg-card p-4 sm:p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h3 className="text-sm font-semibold">On the board {shift?.on_duty ? "this shift" : "next shift"}</h3>
+            <h3 className="text-sm font-semibold">On the board {shift && !shift.on_duty ? "next shift" : "this shift"}</h3>
             <p className="mt-0.5 text-xs text-muted-foreground">{shift?.label ?? "Loading…"}</p>
           </div>
           <Link to="/tasks" className="text-xs font-medium text-brand hover:underline">Shift board →</Link>

@@ -279,7 +279,11 @@ export function WCAlertBanner() {
 
   // Nothing to surface — say so, so a WC/CC knows the list is live and empty
   // rather than wondering whether it loaded.
+  // Only say "all caught up" once everything has loaded — never on a blank
+  // first render.
+  const loaded = [btwData, missedData, inspectionsData, profilesData, crewStats, skillsData].every((d) => d !== undefined);
   if (alerts.length === 0) {
+    if (!loaded) return null;
     return (
       <div className="flex items-center gap-3 rounded-xl border border-border/70 bg-card px-4 py-3 text-sm animate-in fade-in-0 duration-300">
         <span className="grid h-7 w-7 place-items-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
