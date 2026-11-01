@@ -5,6 +5,7 @@ import { CrewOneToOnes } from "@/components/CrewOneToOnes";
 import { ShiftHero } from "@/components/ShiftHero";
 import { WCAlertBanner } from "@/components/WCAlertBanner";
 import { ShiftRunningOrder } from "@/components/home/ShiftRunningOrder";
+import { OurReference } from "@/components/home/OurReference";
 
 // Layout already wraps every page in PageContainer, so this page doesn't.
 export default function CrewCommanderHome() {
@@ -17,6 +18,7 @@ export default function CrewCommanderHome() {
       <WCAlertBanner />
 
       <ShiftRunningOrder />
+      <OurReference />
 
       <CrewKPIs />
 

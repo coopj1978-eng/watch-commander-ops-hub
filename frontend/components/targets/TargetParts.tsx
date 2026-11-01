@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { ReferenceHolder } from "@/components/references/ReferenceHolder";
 import { PACE_LABEL, type Pace, type PaceState } from "@/lib/quarters";
 
 // Shared pieces for the Targets page cards: the progress ring with a pace
@@ -85,9 +86,11 @@ export function TargetRing({
 }
 
 export function TargetCard({
-  icon, title, subtitle, pill, ring, children, footer,
+  icon, title, subtitle, pill, ring, children, footer, reference,
 }: {
   icon: ReactNode; title: string; subtitle?: ReactNode; pill?: ReactNode; ring: ReactNode; children?: ReactNode; footer?: ReactNode;
+  /** The station reference that covers this work — shows who holds it. */
+  reference?: number;
 }) {
   return (
     <section className="flex min-w-0 flex-col rounded-2xl border border-border/70 bg-card shadow-sm">
@@ -97,6 +100,7 @@ export function TargetCard({
           <div className="min-w-0">
             <h2 className="truncate text-[15px] font-semibold leading-tight">{title}</h2>
             {subtitle && <p className="mt-0.5 truncate text-xs text-muted-foreground">{subtitle}</p>}
+            {reference !== undefined && <ReferenceHolder refNo={reference} className="mt-1.5" />}
           </div>
         </div>
         <div className="shrink-0">{pill}</div>

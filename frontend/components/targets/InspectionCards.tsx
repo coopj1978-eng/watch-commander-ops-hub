@@ -38,6 +38,7 @@ export function MultiStoryCard({ watch, fq, canEdit }: { watch: string; fq: FyQu
 
   return (
     <TargetCard
+        reference={3}
       icon={<Building2 className="h-[18px] w-[18px]" />}
       title="Multi-story inspections"
       subtitle={`From the inspection plan · ${fq.months}`}
@@ -116,6 +117,7 @@ export function HydrantCard({ watch, fq }: { watch: string; fq: FyQuarter }) {
 
   return (
     <TargetCard
+        reference={2}
       icon={<Flame className="h-[18px] w-[18px]" />}
       title="Hydrant inspections"
       subtitle={mine ? `${mine.label} · ${year} route` : `Annual route · ${year}`}

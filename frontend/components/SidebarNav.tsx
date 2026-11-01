@@ -19,6 +19,7 @@ import {
   GraduationCap,
   Megaphone,
   Flame,
+  BookMarked,
 } from "lucide-react";
 import {
   Tooltip,
@@ -72,6 +73,7 @@ const navGroups: NavGroup[] = [
     items: [
       { name: "Targets",     path: "/targets",     icon: Target,        ariaLabel: "Go to Targets",             featureKey: "targets" },
       { name: "Hydrants",    path: "/hydrants",    icon: Flame,         ariaLabel: "Go to Hydrant Routes" },
+      { name: "References",  path: "/references",  icon: BookMarked,    ariaLabel: "Go to Watch References" },
       { name: "Detachments", path: "/detachments", icon: Navigation,    ariaLabel: "Go to Detachment Rota",     featureKey: "detachments" },
       { name: "J4 Checks",   path: "/equipment",   icon: Truck,         ariaLabel: "Go to J4 Equipment Checks", featureKey: "equipment" },
       { name: "Training",    path: "/training",    icon: GraduationCap, ariaLabel: "Go to Training" },

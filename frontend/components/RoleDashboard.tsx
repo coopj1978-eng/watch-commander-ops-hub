@@ -16,6 +16,7 @@ import { PolicyAcksTile }         from "@/components/PolicyAcksTile";
 import { ShiftRunningOrder }      from "@/components/home/ShiftRunningOrder";
 import { ComingUp }               from "@/components/home/ComingUp";
 import { TargetRings }            from "@/components/home/TargetRings";
+import { OurReference }           from "@/components/home/OurReference";
 import { CrewOnWatchTable }       from "@/components/CrewOnWatchTable";
 import { WCContactsWidget }       from "@/components/WCContactsWidget";
 import { WCSkillsExpiryWidget }   from "@/components/WCSkillsExpiryWidget";
@@ -61,6 +62,7 @@ export default function RoleDashboard() {
 const RAIL_CARDS: { id: string; label: string }[] = [
   { id: "comingup", label: "Coming up — next 7 days" },
   { id: "targets",  label: "Targets" },
+  { id: "reference", label: "Our reference" },
   { id: "crew",     label: "Crew" },
   { id: "contacts", label: "Duty contacts" },
   { id: "h4h",      label: "My H4H balance" },
@@ -156,6 +158,7 @@ function WatchCommanderDashboard() {
         </div>
         <aside aria-label="At a glance" className="flex min-w-0 flex-col gap-4">
           {show("targets") && <TargetRings />}
+          {show("reference") && <OurReference />}
           {show("crew") && <CrewOnWatchTable compact />}
           {show("contacts") && <WCContactsWidget />}
           {show("h4h") && <WCH4HWidget />}

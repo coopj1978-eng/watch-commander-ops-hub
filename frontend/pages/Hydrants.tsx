@@ -1,3 +1,4 @@
+import { ReferenceHolder } from "@/components/references/ReferenceHolder";
 import { useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -275,6 +276,7 @@ export default function Hydrants() {
                   {watch} Watch's route for {year}
                   {otherWatch && " · read only"}
                 </div>
+                <ReferenceHolder refNo={2} className="mt-1.5" />
               </div>
               <span className="ml-auto"><PacePill state={p.state} /></span>
             </div>

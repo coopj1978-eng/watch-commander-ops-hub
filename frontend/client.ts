@@ -55,6 +55,7 @@ export default class Client {
     public readonly policy: policy.ServiceClient
     public readonly profile: profile.ServiceClient
     public readonly quarterly_report: quarterly_report.ServiceClient
+    public readonly references: references.ServiceClient
     public readonly report: report.ServiceClient
     public readonly schedule: schedule.ServiceClient
     public readonly settings: settings.ServiceClient
@@ -102,6 +103,7 @@ export default class Client {
         this.policy = new policy.ServiceClient(base)
         this.profile = new profile.ServiceClient(base)
         this.quarterly_report = new quarterly_report.ServiceClient(base)
+        this.references = new references.ServiceClient(base)
         this.report = new report.ServiceClient(base)
         this.schedule = new schedule.ServiceClient(base)
         this.settings = new settings.ServiceClient(base)
@@ -4111,6 +4113,42 @@ export namespace quarterly_report {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("PUT", `/quarterly-reports/${encodeURIComponent(id)}`, JSON.stringify(params))
             return await resp.json() as UpdateReportResponse
+        }
+    }
+}
+
+export namespace references {
+    export interface ReferenceSection {
+        heading: string
+        items: string[]
+    }
+
+    export interface StationReference {
+        ref: number
+        title: string
+        sections: ReferenceSection[]
+        "updated_at": string
+    }
+
+    export class ServiceClient {
+        private baseClient: BaseClient
+
+        constructor(baseClient: BaseClient) {
+            this.baseClient = baseClient
+            this.listReferences = this.listReferences.bind(this)
+            this.saveReference = this.saveReference.bind(this)
+        }
+
+        /** Every station reference's title and duties (0 = all watches). */
+        public async listReferences(): Promise<{ references: StationReference[] }> {
+            const resp = await this.baseClient.callTypedAPI("GET", `/references`)
+            return await resp.json() as { references: StationReference[] }
+        }
+
+        /** Set a reference's title and duties (WC/CC). */
+        public async saveReference(ref: number, params: { title: string; sections: ReferenceSection[] }): Promise<StationReference> {
+            const resp = await this.baseClient.callTypedAPI("PUT", `/references/${encodeURIComponent(ref)}`, JSON.stringify(params))
+            return await resp.json() as StationReference
         }
     }
 }

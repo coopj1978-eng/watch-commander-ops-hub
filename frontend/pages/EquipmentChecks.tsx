@@ -1,3 +1,4 @@
+import { ReferenceHolder } from "@/components/references/ReferenceHolder";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -101,6 +102,7 @@ export default function EquipmentChecks() {
             <span className="crumb-sep">·</span>
             Appliance & Equipment Management
           </span>
+          <ReferenceHolder refNo={4} />
         </div>
         <div className="flex flex-wrap items-center gap-3">
           {overdueDefects.length > 0 && (

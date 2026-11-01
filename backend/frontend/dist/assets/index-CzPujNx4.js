@@ -14199,8 +14199,8 @@ async function getKeyedPrefetchLinks(matches, manifest, routeModules) {
     matches.map(async (match2) => {
       let route = manifest.routes[match2.route.id];
       if (route) {
-        let mod = await loadRouteModule(route, routeModules);
-        return mod.links ? mod.links() : [];
+        let mod2 = await loadRouteModule(route, routeModules);
+        return mod2.links ? mod2.links() : [];
       }
       return [];
     })
@@ -19601,12 +19601,25 @@ const createLucideIcon = (iconName, iconNode) => {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$2f = [
+const __iconNode$2g = [
   ["path", { d: "M15 12H3", key: "6jk70r" }],
   ["path", { d: "M17 18H3", key: "1amg6g" }],
   ["path", { d: "M21 6H3", key: "1jwq7v" }]
 ];
-const AlignLeft = createLucideIcon("align-left", __iconNode$2f);
+const AlignLeft = createLucideIcon("align-left", __iconNode$2g);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$2f = [
+  ["path", { d: "M8 3 4 7l4 4", key: "9rb6wj" }],
+  ["path", { d: "M4 7h16", key: "6tx8e3" }],
+  ["path", { d: "m16 21 4-4-4-4", key: "siv7j2" }],
+  ["path", { d: "M20 17H4", key: "h6l3hr" }]
+];
+const ArrowLeftRight = createLucideIcon("arrow-left-right", __iconNode$2f);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19614,12 +19627,10 @@ const AlignLeft = createLucideIcon("align-left", __iconNode$2f);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2e = [
-  ["path", { d: "M8 3 4 7l4 4", key: "9rb6wj" }],
-  ["path", { d: "M4 7h16", key: "6tx8e3" }],
-  ["path", { d: "m16 21 4-4-4-4", key: "siv7j2" }],
-  ["path", { d: "M20 17H4", key: "h6l3hr" }]
+  ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
+  ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowLeftRight = createLucideIcon("arrow-left-right", __iconNode$2e);
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$2e);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19627,10 +19638,12 @@ const ArrowLeftRight = createLucideIcon("arrow-left-right", __iconNode$2e);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2d = [
-  ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
-  ["path", { d: "M19 12H5", key: "x3x0zl" }]
+  ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
+  ["path", { d: "M20 7H4", key: "zbl0bi" }],
+  ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
+  ["path", { d: "M4 17h16", key: "g4d7ey" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$2d);
+const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$2d);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19638,12 +19651,10 @@ const ArrowLeft = createLucideIcon("arrow-left", __iconNode$2d);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2c = [
-  ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
-  ["path", { d: "M20 7H4", key: "zbl0bi" }],
-  ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
-  ["path", { d: "M4 17h16", key: "g4d7ey" }]
+  ["path", { d: "M5 12h14", key: "1ays0h" }],
+  ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$2c);
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$2c);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19651,17 +19662,6 @@ const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$2c);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2b = [
-  ["path", { d: "M5 12h14", key: "1ays0h" }],
-  ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
-];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$2b);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$2a = [
   [
     "path",
     {
@@ -19671,7 +19671,18 @@ const __iconNode$2a = [
   ],
   ["circle", { cx: "12", cy: "8", r: "6", key: "1vp47v" }]
 ];
-const Award = createLucideIcon("award", __iconNode$2a);
+const Award = createLucideIcon("award", __iconNode$2b);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$2a = [
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["path", { d: "m4.9 4.9 14.2 14.2", key: "1m5liu" }]
+];
+const Ban = createLucideIcon("ban", __iconNode$2a);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19679,10 +19690,12 @@ const Award = createLucideIcon("award", __iconNode$2a);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$29 = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["path", { d: "m4.9 4.9 14.2 14.2", key: "1m5liu" }]
+  ["path", { d: "M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8", key: "1k78r4" }],
+  ["path", { d: "M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4", key: "fb3tl2" }],
+  ["path", { d: "M12 4v6", key: "1dcgq2" }],
+  ["path", { d: "M2 18h20", key: "ajqnye" }]
 ];
-const Ban = createLucideIcon("ban", __iconNode$29);
+const BedDouble = createLucideIcon("bed-double", __iconNode$29);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19690,19 +19703,6 @@ const Ban = createLucideIcon("ban", __iconNode$29);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$28 = [
-  ["path", { d: "M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8", key: "1k78r4" }],
-  ["path", { d: "M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4", key: "fb3tl2" }],
-  ["path", { d: "M12 4v6", key: "1dcgq2" }],
-  ["path", { d: "M2 18h20", key: "ajqnye" }]
-];
-const BedDouble = createLucideIcon("bed-double", __iconNode$28);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$27 = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -19712,7 +19712,24 @@ const __iconNode$27 = [
     }
   ]
 ];
-const Bell = createLucideIcon("bell", __iconNode$27);
+const Bell = createLucideIcon("bell", __iconNode$28);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$27 = [
+  ["path", { d: "M10 2v8l3-3 3 3V2", key: "sqw3rj" }],
+  [
+    "path",
+    {
+      d: "M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20",
+      key: "k3hazp"
+    }
+  ]
+];
+const BookMarked = createLucideIcon("book-marked", __iconNode$27);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -21877,8 +21894,8 @@ const createParseClassName = (config) => {
 };
 const createSortModifiers = (config) => {
   const modifierWeights = /* @__PURE__ */ new Map();
-  config.orderSensitiveModifiers.forEach((mod, index2) => {
-    modifierWeights.set(mod, 1e6 + index2);
+  config.orderSensitiveModifiers.forEach((mod2, index2) => {
+    modifierWeights.set(mod2, 1e6 + index2);
   });
   return (modifiers) => {
     const result = [];
@@ -27484,6 +27501,7 @@ class Client {
     this.policy = new policy.ServiceClient(base);
     this.profile = new profile.ServiceClient(base);
     this.quarterly_report = new quarterly_report.ServiceClient(base);
+    this.references = new references.ServiceClient(base);
     this.report = new report.ServiceClient(base);
     this.schedule = new schedule.ServiceClient(base);
     this.settings = new settings.ServiceClient(base);
@@ -28911,6 +28929,27 @@ var quarterly_report;
   }
   quarterly_report2.ServiceClient = ServiceClient;
 })(quarterly_report || (quarterly_report = {}));
+var references;
+((references2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.listReferences = this.listReferences.bind(this);
+      this.saveReference = this.saveReference.bind(this);
+    }
+    /** Every station reference's title and duties (0 = all watches). */
+    async listReferences() {
+      const resp = await this.baseClient.callTypedAPI("GET", `/references`);
+      return await resp.json();
+    }
+    /** Set a reference's title and duties (WC/CC). */
+    async saveReference(ref, params) {
+      const resp = await this.baseClient.callTypedAPI("PUT", `/references/${encodeURIComponent(ref)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+  }
+  references2.ServiceClient = ServiceClient;
+})(references || (references = {}));
 var report;
 ((report2) => {
   class ServiceClient {
@@ -29757,6 +29796,7 @@ const navGroups = [
     items: [
       { name: "Targets", path: "/targets", icon: Target, ariaLabel: "Go to Targets", featureKey: "targets" },
       { name: "Hydrants", path: "/hydrants", icon: Flame, ariaLabel: "Go to Hydrant Routes" },
+      { name: "References", path: "/references", icon: BookMarked, ariaLabel: "Go to Watch References" },
       { name: "Detachments", path: "/detachments", icon: Navigation, ariaLabel: "Go to Detachment Rota", featureKey: "detachments" },
       { name: "J4 Checks", path: "/equipment", icon: Truck, ariaLabel: "Go to J4 Equipment Checks", featureKey: "equipment" },
       { name: "Training", path: "/training", icon: GraduationCap, ariaLabel: "Go to Training" },
@@ -37541,6 +37581,78 @@ function WatchDot({ watch, size: size2 = "md" }) {
   const sizeClass = dotSizes[size2];
   return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `inline-block rounded-full ${colorClass} ${sizeClass}` });
 }
+const REFERENCE_START = 2022;
+const REFERENCE_YEARS = 2;
+const REFERENCE_WATCHES = ["Green", "Blue", "White", "Red", "Amber"];
+const mod = (n, m) => (n % m + m) % m;
+function referencePeriod(year) {
+  return mod(Math.floor((year - REFERENCE_START) / REFERENCE_YEARS), 5);
+}
+function periodLabel(year) {
+  const start = REFERENCE_START + Math.floor((year - REFERENCE_START) / REFERENCE_YEARS) * REFERENCE_YEARS;
+  return `${start}–${start + REFERENCE_YEARS - 1}`;
+}
+function nextChangeYear(year) {
+  return REFERENCE_START + (Math.floor((year - REFERENCE_START) / REFERENCE_YEARS) + 1) * REFERENCE_YEARS;
+}
+function watchReferences(watch, year) {
+  const i = REFERENCE_WATCHES.findIndex((w) => w.toLowerCase() === watch.toLowerCase());
+  if (i < 0) return null;
+  const main = mod(i + referencePeriod(year), 5) + 1;
+  return { main, secondary: main % 5 + 1 };
+}
+function referenceHolders(ref, year) {
+  const p = referencePeriod(year);
+  return {
+    main: REFERENCE_WATCHES[mod(ref - 1 - p, 5)],
+    secondary: REFERENCE_WATCHES[mod(ref - 2 - p, 5)]
+  };
+}
+function useReferences() {
+  return useQuery({
+    queryKey: ["references"],
+    queryFn: async () => (await backendClient.references.listReferences()).references,
+    staleTime: 10 * 6e4
+  });
+}
+function watchOnDutyNow(now = /* @__PURE__ */ new Date()) {
+  return REFERENCE_WATCHES.find((w) => {
+    var _a3;
+    return ((_a3 = getWatchShiftStatus(w, now)) == null ? void 0 : _a3.state) === "on";
+  }) ?? null;
+}
+function coverNow(ref, now = /* @__PURE__ */ new Date()) {
+  const { main, secondary } = referenceHolders(ref, now.getFullYear());
+  const on = watchOnDutyNow(now);
+  if (on === main) return { watch: main, as: "main" };
+  if (on === secondary) return { watch: secondary, as: "secondary" };
+  return { watch: null, as: null };
+}
+function ReferenceHolder({ refNo, className }) {
+  var _a3;
+  const year = (/* @__PURE__ */ new Date()).getFullYear();
+  const { main, secondary } = referenceHolders(refNo, year);
+  const { data } = useReferences();
+  const title = (_a3 = data == null ? void 0 : data.find((r2) => r2.ref === refNo)) == null ? void 0 : _a3.title;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    Link,
+    {
+      to: `/references#ref-${refNo}`,
+      title: `Reference ${refNo}${title ? ` — ${title}` : ""}. Main: ${main} Watch · secondary: ${secondary} Watch (covers it when ${main} Watch is off).`,
+      className: cn("inline-flex items-center gap-1.5 rounded-md border border-border/70 px-2 py-0.5 text-[11px] font-medium text-muted-foreground hover:bg-muted hover:text-foreground", className),
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(BookMarked, { className: "h-3 w-3" }),
+        "Ref ",
+        refNo,
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "aria-hidden": true, children: "·" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(WatchDot, { watch: main, size: "sm" }),
+        " ",
+        main,
+        " Watch"
+      ]
+    }
+  );
+}
 const RING_COLOUR = {
   done: "text-emerald-500",
   ahead: "text-foreground",
@@ -37632,7 +37744,8 @@ function TargetCard({
   pill,
   ring,
   children,
-  footer
+  footer,
+  reference
 }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "flex min-w-0 flex-col rounded-2xl border border-border/70 bg-card shadow-sm", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "flex items-start justify-between gap-3 px-4 pt-4 sm:px-5 sm:pt-5", children: [
@@ -37640,7 +37753,8 @@ function TargetCard({
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-muted text-foreground/80", children: icon }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "truncate text-[15px] font-semibold leading-tight", children: title }),
-          subtitle && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-0.5 truncate text-xs text-muted-foreground", children: subtitle })
+          subtitle && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-0.5 truncate text-xs text-muted-foreground", children: subtitle }),
+          reference !== void 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(ReferenceHolder, { refNo: reference, className: "mt-1.5" })
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "shrink-0", children: pill })
@@ -38262,6 +38376,62 @@ function TargetRings() {
           note: `${year} route`
         }
       )
+    ] })
+  ] });
+}
+function OurReference() {
+  const { user: user2 } = useAuth();
+  const watch = (user2 == null ? void 0 : user2.watch_unit) ?? "";
+  const year = (/* @__PURE__ */ new Date()).getFullYear();
+  const mine = watch ? watchReferences(watch, year) : null;
+  const { data } = useReferences();
+  if (!mine) return null;
+  const title = (ref) => {
+    var _a3;
+    return (_a3 = data == null ? void 0 : data.find((r2) => r2.ref === ref)) == null ? void 0 : _a3.title;
+  };
+  const coverFor = referenceHolders(mine.secondary, year).main;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { "aria-label": "Our reference", className: "rounded-2xl border border-border/70 bg-card p-4", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline justify-between gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "flex items-center gap-2 text-sm font-semibold", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(BookMarked, { className: "h-4 w-4 text-muted-foreground" }),
+        " Our reference"
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono text-[11px] text-muted-foreground", children: periodLabel(year) })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Link, { to: `/references#ref-${mine.main}`, className: "mt-3 flex items-start gap-3 rounded-xl p-1 hover:bg-muted/50", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-foreground font-mono text-lg font-semibold text-background", children: mine.main }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "min-w-0", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "block text-sm font-semibold", children: [
+          "Reference ",
+          mine.main
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block text-xs text-muted-foreground", children: title(mine.main) ?? `${watch} Watch's main reference` })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Link, { to: `/references#ref-${mine.secondary}`, className: "mt-1 flex items-start gap-3 rounded-xl p-1 hover:bg-muted/50", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-border font-mono text-lg font-semibold", children: mine.secondary }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "min-w-0", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "block text-sm font-semibold", children: [
+          "Secondary: Reference ",
+          mine.secondary
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "block text-xs text-muted-foreground", children: [
+          title(mine.secondary) ? `${title(mine.secondary)} — ` : "",
+          "covers it when ",
+          coverFor,
+          " Watch is off"
+        ] })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 flex items-center justify-between gap-2 border-t border-border/60 pt-3 text-xs text-muted-foreground", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+        "Moves to Reference ",
+        mine.main % 5 + 1,
+        " on 1 Jan ",
+        nextChangeYear(year)
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: "/references", className: "font-medium text-brand hover:underline", children: "All references →" })
     ] })
   ] });
 }
@@ -42872,6 +43042,7 @@ function RoleDashboard() {
 const RAIL_CARDS = [
   { id: "comingup", label: "Coming up — next 7 days" },
   { id: "targets", label: "Targets" },
+  { id: "reference", label: "Our reference" },
   { id: "crew", label: "Crew" },
   { id: "contacts", label: "Duty contacts" },
   { id: "h4h", label: "My H4H balance" },
@@ -42957,6 +43128,7 @@ function WatchCommanderDashboard() {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { "aria-label": "At a glance", className: "flex min-w-0 flex-col gap-4", children: [
         show("targets") && /* @__PURE__ */ jsxRuntimeExports.jsx(TargetRings, {}),
+        show("reference") && /* @__PURE__ */ jsxRuntimeExports.jsx(OurReference, {}),
         show("crew") && /* @__PURE__ */ jsxRuntimeExports.jsx(CrewOnWatchTable, { compact: true }),
         show("contacts") && /* @__PURE__ */ jsxRuntimeExports.jsx(WCContactsWidget, {}),
         show("h4h") && /* @__PURE__ */ jsxRuntimeExports.jsx(WCH4HWidget, {}),
@@ -56773,10 +56945,10 @@ const WATCH_COLORS = {
   Amber: "bg-amber-500/10 text-amber-600 border-amber-400/30"
 };
 const SECTION_CONFIG = [
-  { type: "multistory", label: "Multi-Story Inspections", icon: Building2, description: "Premises requiring quarterly inspection", isQuarterly: true },
-  { type: "care_home", label: "Care Home Validations", icon: House, description: "Annual validation visits by all watches", isQuarterly: false },
-  { type: "hydrant", label: "Hydrant Register", icon: Flame, description: "Annual hydrant inspections by watch", isQuarterly: false },
-  { type: "operational", label: "Operational Inspections", icon: Wrench, description: "Annual operational inspection programme", isQuarterly: false }
+  { type: "multistory", label: "Multi-Story Inspections", icon: Building2, description: "Premises requiring quarterly inspection", isQuarterly: true, reference: 3 },
+  { type: "care_home", label: "Care Home Validations", icon: House, description: "Annual validation visits by all watches", isQuarterly: false, reference: 2 },
+  { type: "hydrant", label: "Hydrant Register", icon: Flame, description: "Annual hydrant inspections by watch", isQuarterly: false, reference: 2 },
+  { type: "operational", label: "Operational Inspections", icon: Wrench, description: "Annual operational inspection programme", isQuarterly: false, reference: 3 }
 ];
 function WatchBadge$1({ watch }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${WATCH_COLORS[watch]}`, children: watch });
@@ -56806,7 +56978,8 @@ function SectionCard$1({
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-2 rounded-lg bg-red-500/10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "h-4 w-4 text-red-600" }) }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { className: "text-base", children: config.label }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { className: "text-xs mt-0.5", children: config.description })
+                /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { className: "text-xs mt-0.5", children: config.description }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ReferenceHolder, { refNo: config.reference, className: "mt-1.5" })
               ] })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
@@ -56883,7 +57056,7 @@ function InspectionAssignments({ financialYear, quarter, year, exclude = [] }) {
   const [watchFilter, setWatchFilter] = reactExports.useState(userWatch ?? "all");
   const [togglingId, setTogglingId] = reactExports.useState(null);
   const effectiveWatch = canManage ? watchFilter : userWatch ?? "all";
-  const periodLabel = quarter ? financialQuarterLabel(financialYear, quarter) : financialYearLabel(financialYear);
+  const periodLabel2 = quarter ? financialQuarterLabel(financialYear, quarter) : financialYearLabel(financialYear);
   const watchLabel = effectiveWatch === "all" ? "All Watches" : `${effectiveWatch} Watch`;
   const watchParam = effectiveWatch !== "all" ? effectiveWatch : void 0;
   const msQ = useQuery({
@@ -56948,7 +57121,7 @@ function InspectionAssignments({ financialYear, quarter, year, exclude = [] }) {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-center justify-between gap-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-lg font-semibold", children: annualOnly ? "Annual inspections" : "Inspection Workload" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: annualOnly ? `${watchLabel} — care homes, hydrant route and operational inspections for ${year}` : quarter ? `${watchLabel} — ${periodLabel} multi-story assignments plus annual items` : `${watchLabel} — all inspections for ${financialYearLabel(financialYear)}` })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: annualOnly ? `${watchLabel} — care homes, hydrant route and operational inspections for ${year}` : quarter ? `${watchLabel} — ${periodLabel2} multi-story assignments plus annual items` : `${watchLabel} — all inspections for ${financialYearLabel(financialYear)}` })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
         canManage && /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watchFilter, onValueChange: setWatchFilter, children: [
@@ -56989,7 +57162,7 @@ function InspectionAssignments({ financialYear, quarter, year, exclude = [] }) {
             "Overall progress — ",
             watchLabel,
             ", ",
-            annualOnly ? year : periodLabel
+            annualOnly ? year : periodLabel2
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-muted-foreground", children: [
             totalComplete,
@@ -57401,6 +57574,7 @@ function HfsvCard({ watch, fq, canEdit }) {
     /* @__PURE__ */ jsxRuntimeExports.jsxs(
       TargetCard,
       {
+        reference: 5,
         icon: /* @__PURE__ */ jsxRuntimeExports.jsx(House, { className: "h-[18px] w-[18px]" }),
         title: "Home fire safety visits",
         subtitle: `${HFSV_TARGET_Q} a quarter · ${fq.months}`,
@@ -57500,6 +57674,7 @@ function CommunityCard({ watch, fq, canEdit }) {
     /* @__PURE__ */ jsxRuntimeExports.jsxs(
       TargetCard,
       {
+        reference: 5,
         icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { className: "h-[18px] w-[18px]" }),
         title: "Community engagement",
         subtitle: `${COMMUNITY_TARGET_Q} a quarter, ${COMMUNITY_TAP_MIN}+ TAP · ${fq.months}`,
@@ -57585,6 +57760,7 @@ function MultiStoryCard({ watch, fq, canEdit }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
     TargetCard,
     {
+      reference: 3,
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Building2, { className: "h-[18px] w-[18px]" }),
       title: "Multi-story inspections",
       subtitle: `From the inspection plan · ${fq.months}`,
@@ -57650,6 +57826,7 @@ function HydrantCard({ watch, fq }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     TargetCard,
     {
+      reference: 2,
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Flame, { className: "h-[18px] w-[18px]" }),
       title: "Hydrant inspections",
       subtitle: mine ? `${mine.label} · ${year} route` : `Annual route · ${year}`,
@@ -58459,6 +58636,10 @@ function HydrantReport({
         " · ",
         data.year,
         " — every hydrant that isn't fully functional, ready to email."
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "flex flex-wrap items-center gap-2 text-xs text-muted-foreground", children: [
+        "Hydrant defect reporting is a Reference 2 duty: ",
+        /* @__PURE__ */ jsxRuntimeExports.jsx(ReferenceHolder, { refNo: 2 })
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "seg w-full sm:w-[320px]", role: "group", "aria-label": "Which hydrants", children: [
@@ -58752,7 +58933,8 @@ function Hydrants() {
             " Watch's route for ",
             year,
             otherWatch && " · read only"
-          ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ReferenceHolder, { refNo: 2, className: "mt-1.5" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsx(PacePill, { state: p.state }) })
       ] }),
@@ -59079,6 +59261,194 @@ function CommentBox({ initial, wanted, disabled, onSave }) {
       )
     }
   );
+}
+const toText = (sections) => sections.map((s) => [`## ${s.heading}`, ...s.items.map((i) => `- ${i}`)].join("\n")).join("\n\n");
+function fromText(text2) {
+  const out = [];
+  for (const raw of text2.split("\n")) {
+    const line = raw.trim();
+    if (!line) continue;
+    if (line.startsWith("#")) out.push({ heading: line.replace(/^#+\s*/, ""), items: [] });
+    else {
+      if (!out.length) out.push({ heading: "", items: [] });
+      out[out.length - 1].items.push(line.replace(/^[-•*]\s*/, ""));
+    }
+  }
+  return out;
+}
+function References() {
+  const { user: user2 } = useAuth();
+  const { hash } = useLocation();
+  const year = (/* @__PURE__ */ new Date()).getFullYear();
+  const watch = (user2 == null ? void 0 : user2.watch_unit) ?? "";
+  const mine = watch ? watchReferences(watch, year) : null;
+  const canEdit = (user2 == null ? void 0 : user2.role) === "WC" || (user2 == null ? void 0 : user2.role) === "CC";
+  const { data, isLoading } = useReferences();
+  const byRef = new Map((data ?? []).map((r2) => [r2.ref, r2]));
+  reactExports.useEffect(() => {
+    var _a3;
+    if (!hash || isLoading) return;
+    (_a3 = document.getElementById(hash.slice(1))) == null ? void 0 : _a3.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [hash, isLoading]);
+  const blocks = [0, 1, 2, 3, 4].map((i) => REFERENCE_START + i * 2 + 10 * Math.floor((year - REFERENCE_START) / 10));
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", style: { gap: "var(--gap-section)" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eyebrow", children: [
+        "Station standards · ",
+        periodLabel(year)
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "mt-1 text-3xl font-semibold tracking-tight", children: "References" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "mt-2 max-w-3xl text-sm text-muted-foreground", children: [
+        "Each watch holds a reference for two years and is secondary on the next one — the secondary watch covers it when the main watch is off. They move on together on ",
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-medium text-foreground", children: [
+          "1 January ",
+          nextChangeYear(year)
+        ] }),
+        "."
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { "aria-label": "10-year planner", className: "overflow-x-auto rounded-2xl border border-border/70 bg-card", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full min-w-[640px] text-sm", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "border-b border-border/60 text-left", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-2.5 text-xs font-medium text-muted-foreground", children: "Watch" }),
+          blocks.map((b) => /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: cn("px-3 py-2.5 font-mono text-xs font-semibold", periodLabel(b) === periodLabel(year) ? "text-foreground" : "text-muted-foreground"), children: [
+            periodLabel(b),
+            periodLabel(b) === periodLabel(year) && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-1.5 rounded bg-foreground px-1.5 py-0.5 text-[10px] text-background", children: "NOW" })
+          ] }, b))
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: REFERENCE_WATCHES.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: cn("border-b border-border/40 last:border-0", w === watch && "bg-muted/40"), children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "whitespace-nowrap px-4 py-2 font-medium", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(WatchDot, { watch: w, size: "sm" }),
+            " ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-1.5", children: w }),
+            w === watch && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-1.5 text-xs text-muted-foreground", children: "(you)" })
+          ] }),
+          blocks.map((b) => {
+            const r2 = watchReferences(w, b);
+            const now = periodLabel(b) === periodLabel(year);
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: cn("px-3 py-2", now && "bg-muted/60"), children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: cn("font-semibold", !now && "text-muted-foreground"), children: [
+                "Ref ",
+                r2.main
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ml-1.5 text-xs text-muted-foreground", children: [
+                "sec. ",
+                r2.secondary
+              ] })
+            ] }, b);
+          })
+        ] }, w)) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "border-t border-border/60 px-4 py-2 text-xs text-muted-foreground", children: [
+        "Runs 1 January – 31 December; the ten-year cycle started in ",
+        REFERENCE_START,
+        " and repeats."
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid gap-4 lg:grid-cols-2", children: [1, 2, 3, 4, 5].map((n) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ReferenceCard,
+      {
+        n,
+        data: byRef.get(n),
+        loading: isLoading,
+        canEdit,
+        badge: (mine == null ? void 0 : mine.main) === n ? "Your watch" : (mine == null ? void 0 : mine.secondary) === n ? "Your secondary" : null
+      },
+      n
+    )) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(ReferenceCard, { n: 0, data: byRef.get(0), loading: isLoading, canEdit, badge: null })
+  ] });
+}
+function ReferenceCard({ n, data, loading, canEdit, badge }) {
+  const qc = useQueryClient();
+  const { toast: toast2 } = useToast();
+  const year = (/* @__PURE__ */ new Date()).getFullYear();
+  const [editing, setEditing] = reactExports.useState(false);
+  const [title, setTitle] = reactExports.useState("");
+  const [text2, setText] = reactExports.useState("");
+  const all = n === 0;
+  const holders = all ? null : referenceHolders(n, year);
+  const cover = all ? null : coverNow(n);
+  const save = useMutation({
+    mutationFn: () => backendClient.references.saveReference(n, { title: title.trim(), sections: fromText(text2) }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["references"] });
+      setEditing(false);
+      toast2({ title: `${all ? "All watches" : `Reference ${n}`} saved` });
+    },
+    onError: (e) => toast2({ title: "Couldn't save", description: e.message, variant: "destructive" })
+  });
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { id: `ref-${n}`, className: cn("scroll-mt-24 rounded-2xl border bg-card", badge === "Your watch" ? "border-foreground/60 ring-1 ring-foreground/20" : "border-border/70", all && "lg:col-span-2"), children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "flex flex-wrap items-start gap-3 border-b border-border/60 px-4 py-3.5 sm:px-5", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn("grid h-10 w-10 shrink-0 place-items-center rounded-xl font-mono text-lg font-semibold", all ? "bg-muted" : "bg-foreground text-background"), children: all ? "★" : n }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0 flex-1", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-base font-semibold", children: all ? "All watches" : `Reference ${n}` }),
+          badge && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "rounded-md bg-foreground px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-background", children: badge })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: (data == null ? void 0 : data.title) ?? (loading ? "Loading…" : "Not written up yet") }),
+        holders && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1.5", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "Main" }),
+            " ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx(WatchDot, { watch: holders.main, size: "sm" }),
+            " ",
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-medium", children: [
+              holders.main,
+              " Watch"
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1.5", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "Secondary" }),
+            " ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx(WatchDot, { watch: holders.secondary, size: "sm" }),
+            " ",
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-medium", children: [
+              holders.secondary,
+              " Watch"
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: (cover == null ? void 0 : cover.as) === "main" ? `On duty now: ${cover.watch} Watch` : (cover == null ? void 0 : cover.as) === "secondary" ? `${holders.main} Watch off — ${cover.watch} Watch covers it now` : `Neither is on duty now` })
+        ] })
+      ] }),
+      canEdit && !editing && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "button",
+        {
+          type: "button",
+          onClick: () => {
+            setTitle((data == null ? void 0 : data.title) ?? "");
+            setText(toText((data == null ? void 0 : data.sections) ?? []));
+            setEditing(true);
+          },
+          className: "inline-flex h-8 items-center gap-1.5 rounded-lg border border-border px-2.5 text-xs font-medium hover:bg-muted",
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "h-3.5 w-3.5" }),
+            " Edit"
+          ]
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-4 py-3.5 sm:px-5", children: editing ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-xs font-medium text-muted-foreground", children: [
+        "Title",
+        /* @__PURE__ */ jsxRuntimeExports.jsx("input", { value: title, onChange: (e) => setTitle(e.target.value), className: "mt-1 h-9 w-full rounded-lg border border-border bg-background px-2.5 text-sm text-foreground" })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-xs font-medium text-muted-foreground", children: [
+        'Duties — a line starting "##" is a heading, each other line is a duty',
+        /* @__PURE__ */ jsxRuntimeExports.jsx("textarea", { value: text2, onChange: (e) => setText(e.target.value), rows: 14, className: "mt-1 w-full rounded-lg border border-border bg-background p-2.5 font-mono text-xs leading-relaxed text-foreground" })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", disabled: save.isPending || !title.trim(), onClick: () => save.mutate(), className: "h-9 rounded-lg bg-foreground px-3 text-sm font-medium text-background disabled:opacity-50", children: save.isPending ? "Saving…" : "Save" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setEditing(false), className: "h-9 rounded-lg border border-border px-3 text-sm", children: "Cancel" })
+      ] })
+    ] }) : (data == null ? void 0 : data.sections.length) ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: cn("grid gap-x-8 gap-y-4", all && "md:grid-cols-2"), children: data.sections.map((s, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+      s.heading && /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-sm font-semibold", children: s.heading }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "mt-1.5 space-y-1.5", children: s.items.map((item, j) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex gap-2 text-sm text-muted-foreground", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "aria-hidden": true, className: "mt-2 h-1 w-1 shrink-0 rounded-full bg-muted-foreground" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: item })
+      ] }, j)) })
+    ] }, i)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: loading ? "Loading…" : canEdit ? "No duties written up yet — use Edit to add them." : "No duties written up yet." }) })
+  ] });
 }
 const DOC_CATEGORIES = [
   "Operational Guidance",
@@ -64691,7 +65061,8 @@ function EquipmentChecks() {
           "B10 Springburn",
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "crumb-sep", children: "·" }),
           "Appliance & Equipment Management"
-        ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(ReferenceHolder, { refNo: 4 })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-3", children: [
         overdueDefects.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "destructive", className: "text-sm px-3 py-1", children: [
@@ -65868,6 +66239,7 @@ function StaffPortal() {
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftHero, {}),
       /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftRunningOrder, {}),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(OurReference, {}),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Tabs, { value: activeTab, onValueChange: (v) => setActiveTab(v), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(TabsList, { className: "grid w-full grid-cols-5 lg:w-auto lg:inline-grid", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs(TabsTrigger, { value: "dashboard", className: "gap-2", children: [
@@ -66508,6 +66880,7 @@ function CrewCommanderHome() {
     /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftHero, {}),
     /* @__PURE__ */ jsxRuntimeExports.jsx(WCAlertBanner, {}),
     /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftRunningOrder, {}),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(OurReference, {}),
     /* @__PURE__ */ jsxRuntimeExports.jsx(CrewKPIs, {}),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid gap-6 md:grid-cols-2", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(CrewUpcomingInspections, {}),
@@ -75601,6 +75974,7 @@ function AppRoutes() {
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/equipment", element: /* @__PURE__ */ jsxRuntimeExports.jsx(EquipmentChecks, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/targets", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Targets, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/hydrants", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Hydrants, {}) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/references", element: /* @__PURE__ */ jsxRuntimeExports.jsx(References, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/policies", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Policies, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/policies/qa", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Navigate, { to: "/policies", replace: true }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/resources", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Resources, {}) }),

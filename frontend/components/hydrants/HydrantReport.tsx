@@ -1,3 +1,4 @@
+import { ReferenceHolder } from "@/components/references/ReferenceHolder";
 import { useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Copy, Download, Mail } from "lucide-react";
@@ -120,6 +121,9 @@ export function HydrantReport({
           <DialogDescription>
             {data.watch} Watch · {label} · {data.year} — every hydrant that isn't fully functional, ready to email.
           </DialogDescription>
+          <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+            Hydrant defect reporting is a Reference 2 duty: <ReferenceHolder refNo={2} />
+          </p>
         </DialogHeader>
 
         <div className="seg w-full sm:w-[320px]" role="group" aria-label="Which hydrants">

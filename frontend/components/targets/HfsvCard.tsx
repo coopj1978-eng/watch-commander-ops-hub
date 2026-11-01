@@ -90,6 +90,7 @@ export function HfsvCard({ watch, fq, canEdit }: { watch: string; fq: FyQuarter;
   return (
     <>
       <TargetCard
+        reference={5}
         icon={<Home className="h-[18px] w-[18px]" />}
         title="Home fire safety visits"
         subtitle={`${HFSV_TARGET_Q} a quarter · ${fq.months}`}

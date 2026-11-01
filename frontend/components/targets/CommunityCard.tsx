@@ -46,6 +46,7 @@ export function CommunityCard({ watch, fq, canEdit }: { watch: string; fq: FyQua
   return (
     <>
       <TargetCard
+        reference={5}
         icon={<Users className="h-[18px] w-[18px]" />}
         title="Community engagement"
         subtitle={`${COMMUNITY_TARGET_Q} a quarter, ${COMMUNITY_TAP_MIN}+ TAP · ${fq.months}`}

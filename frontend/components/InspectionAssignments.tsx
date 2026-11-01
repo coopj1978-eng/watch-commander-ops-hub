@@ -1,3 +1,4 @@
+import { ReferenceHolder } from "@/components/references/ReferenceHolder";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { invalidateTargetViews } from "@/lib/targetsCache";
@@ -40,11 +41,13 @@ const SECTION_CONFIG: Array<{
   icon: React.ComponentType<{ className?: string }>;
   description: string;
   isQuarterly: boolean;
+  /** The station reference that runs this programme. */
+  reference: number;
 }> = [
-  { type: "multistory",  label: "Multi-Story Inspections", icon: Building2, description: "Premises requiring quarterly inspection",    isQuarterly: true },
-  { type: "care_home",   label: "Care Home Validations",   icon: Home,      description: "Annual validation visits by all watches",   isQuarterly: false },
-  { type: "hydrant",     label: "Hydrant Register",        icon: Flame,     description: "Annual hydrant inspections by watch",       isQuarterly: false },
-  { type: "operational", label: "Operational Inspections", icon: Wrench,    description: "Annual operational inspection programme",   isQuarterly: false },
+  { type: "multistory",  label: "Multi-Story Inspections", icon: Building2, description: "Premises requiring quarterly inspection",    isQuarterly: true,  reference: 3 },
+  { type: "care_home",   label: "Care Home Validations",   icon: Home,      description: "Annual validation visits by all watches",   isQuarterly: false, reference: 2 },
+  { type: "hydrant",     label: "Hydrant Register",        icon: Flame,     description: "Annual hydrant inspections by watch",       isQuarterly: false, reference: 2 },
+  { type: "operational", label: "Operational Inspections", icon: Wrench,    description: "Annual operational inspection programme",   isQuarterly: false, reference: 3 },
 ];
 
 function WatchBadge({ watch }: { watch: WatchName }) {
@@ -90,6 +93,7 @@ function SectionCard({
             <div>
               <CardTitle className="text-base">{config.label}</CardTitle>
               <CardDescription className="text-xs mt-0.5">{config.description}</CardDescription>
+              <ReferenceHolder refNo={config.reference} className="mt-1.5" />
             </div>
           </div>
           <div className="flex items-center gap-3">
