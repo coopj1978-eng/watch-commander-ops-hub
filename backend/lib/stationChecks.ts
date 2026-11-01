@@ -2,7 +2,7 @@ import db from "../db";
 import log from "encore.dev/log";
 import { rruleFiresOn } from "./rrule";
 import { routineRuleFires } from "./routine";
-import { addDaysIso, shiftSlot, slotAt, ukInstant } from "./shiftRota";
+import { addDaysIso, shiftSlot, slotAt, ukInstant, watchForSlot } from "./shiftRota";
 
 /**
  * Station checks from templates (shift board, Oct 2026). Each active template
@@ -16,8 +16,9 @@ import { addDaysIso, shiftSlot, slotAt, ukInstant } from "./shiftRota";
  *     check stays on every shift until it's done, and a daily one lasts the day.
  * Making a check's next card — or its due time passing — marks its earlier
  * unfinished card Missed, so missed checks never pile up. Weekly routine and
- * every-shift cards are due when their shift ends; monthly and quarterly
- * routine cards stay on the board until done, due when the next one comes. Idempotent (unique template + date + shift),
+ * every-shift cards are due when their shift ends (then Missed and off the
+ * board); monthly and quarterly routine cards belong to the watch on duty
+ * and stay on that watch's board until done, due when the next one comes. Idempotent (unique template + date + shift),
  * so it runs hourly and whenever the shift board is opened.
  */
 /** "{date}" and "{shift}" in a template's card title become the day and shift, e.g. "Mon 2 Nov" / "Night". */
@@ -64,9 +65,9 @@ export async function ensureStationChecks(now: Date = new Date()): Promise<{ cre
     let due: Date;
     const monthlyRoutine = !!t.routine_slot && t.routine_slot !== "every" && !!t.routine_rule && t.routine_rule !== "weekly";
     if (monthlyRoutine) {
-      // A monthly or quarterly routine card stays on the board until it's done
-      // (John, Nov 2026) — whichever watch is on — and only counts as missed
-      // when its next one comes round.
+      // A monthly or quarterly routine card stays with the watch whose shift it
+      // came on until they've done it (John, Nov 2026) — never moved onto
+      // another watch — and only counts as missed when its next one comes round.
       let next: string | null = null;
       for (let i = 1; i <= 400 && !next; i++) {
         const d = addDaysIso(slot.date, i);
@@ -100,10 +101,13 @@ export async function ensureStationChecks(now: Date = new Date()): Promise<{ cre
     try {
       const task = await tx.rawQueryRow<{ id: number }>(
         `INSERT INTO tasks (title, description, category, assigned_by, priority, checklist, rrule, status, watch_unit, source_type, due_at, tags, cover_colour)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, 'NotStarted', NULL, 'template', $8, $9, $10)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, 'NotStarted', $11, 'template', $8, $9, $10)
          RETURNING id`,
         fillTitle(t.title_template, slot.date, slot.type, t.per_shift), t.task_description ?? null, t.category, t.created_by, t.priority, checklist, t.rrule, due,
-        t.routine_slot ? ["routine"] : null, t.cover ?? null
+        t.routine_slot ? ["routine"] : null, t.cover ?? null,
+        // A monthly / quarterly card belongs to the watch on duty when it comes
+        // round: if they don't finish it, it stays on their board, not the next watch's.
+        monthlyRoutine ? watchForSlot(slot)?.watch ?? null : null
       );
       const instance = task && await tx.rawQueryRow<{ id: number }>(
         `INSERT INTO task_template_instances (template_id, task_id, generated_for_date, generated_for_shift)
@@ -137,7 +141,7 @@ export async function ensureStationChecks(now: Date = new Date()): Promise<{ cre
   // round again next week, and a deleted template's cards would never go.)
   await db.rawExec(
     `UPDATE tasks SET status = 'Missed', updated_at = NOW()
-     WHERE source_type = 'template' AND watch_unit IS NULL
+     WHERE source_type = 'template'
        AND status NOT IN ('Done', 'Missed') AND due_at IS NOT NULL AND due_at <= $1`,
     now
   ).catch((err) => log.error("Retiring expired station checks failed", { error: String(err) }));
