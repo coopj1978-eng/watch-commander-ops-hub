@@ -61,7 +61,8 @@ function daysAgoLabel(dateStr: string | null): string {
   const days = differenceInDays(new Date(), parseISO(dateStr));
   if (days === 0) return "Today";
   if (days === 1) return "Yesterday";
-  if (days < 0) return `${Math.abs(days)} days ago`;
+  if (days === -1) return "Tomorrow";
+  if (days < 0) return `In ${Math.abs(days)} days`; // planned ahead
   return `${days} days ago`;
 }
 

@@ -69670,7 +69670,8 @@ const MAX = 2;
 function sinceLabel(date) {
   if (!date) return "never";
   const d = differenceInCalendarDays(/* @__PURE__ */ new Date(), parseISO(date));
-  return d <= 0 ? "today" : d === 1 ? "yesterday" : `${d} days ago`;
+  if (d < 0) return d === -1 ? "tomorrow" : `in ${-d} days`;
+  return d === 0 ? "today" : d === 1 ? "yesterday" : `${d} days ago`;
 }
 function useCanteen(watch, shiftDate, shiftType) {
   var _a2, _b2;
@@ -71850,7 +71851,8 @@ function daysAgoLabel(dateStr) {
   const days = differenceInDays(/* @__PURE__ */ new Date(), parseISO(dateStr));
   if (days === 0) return "Today";
   if (days === 1) return "Yesterday";
-  if (days < 0) return `${Math.abs(days)} days ago`;
+  if (days === -1) return "Tomorrow";
+  if (days < 0) return `In ${Math.abs(days)} days`;
   return `${days} days ago`;
 }
 function DetachmentsTabPanel({ watch }) {

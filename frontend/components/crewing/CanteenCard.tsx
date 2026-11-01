@@ -19,7 +19,8 @@ const MAX = 2;
 export function sinceLabel(date: string | null): string {
   if (!date) return "never";
   const d = differenceInCalendarDays(new Date(), parseISO(date));
-  return d <= 0 ? "today" : d === 1 ? "yesterday" : `${d} days ago`;
+  if (d < 0) return d === -1 ? "tomorrow" : `in ${-d} days`; // planned ahead
+  return d === 0 ? "today" : d === 1 ? "yesterday" : `${d} days ago`;
 }
 
 /** Canteen for one shift + the watch's rota, with add/remove. */
