@@ -17,7 +17,6 @@ import { ShiftRunningOrder }      from "@/components/home/ShiftRunningOrder";
 import { ComingUp }               from "@/components/home/ComingUp";
 import { TargetRings }            from "@/components/home/TargetRings";
 import { CrewOnWatchTable }       from "@/components/CrewOnWatchTable";
-import { WCWeatherWidget }        from "@/components/WCWeatherWidget";
 import { WCContactsWidget }       from "@/components/WCContactsWidget";
 import { WCSkillsExpiryWidget }   from "@/components/WCSkillsExpiryWidget";
 
@@ -52,8 +51,8 @@ export default function RoleDashboard() {
 //   1. the shift now (ShiftHero: clock, countdown, who's riding);
 //   2. Needs you — every alert in one ranked list (the only place alerts live);
 //   3. the shift's running order, then the week ahead;
-//   4. a side rail: targets as rings, the crew (who's off first), weather,
-//      contacts and your own balances.
+//   4. a side rail: targets as rings, the crew (who's off first), contacts
+//      and your own balances. The weather is in the shift panel.
 // Before this, ~17 cards repeated each other: absence triggers showed three
 // times, sickness three times, the handover and HFSV twice each, and the
 // 14-day inspections, staffing and KPI tiles duplicated the panels above.
@@ -63,7 +62,6 @@ const RAIL_CARDS: { id: string; label: string }[] = [
   { id: "comingup", label: "Coming up — next 7 days" },
   { id: "targets",  label: "Targets" },
   { id: "crew",     label: "Crew" },
-  { id: "weather",  label: "Weather" },
   { id: "contacts", label: "Duty contacts" },
   { id: "h4h",      label: "My H4H balance" },
   { id: "toil",     label: "My TOIL" },
@@ -159,7 +157,6 @@ function WatchCommanderDashboard() {
         <aside aria-label="At a glance" className="flex min-w-0 flex-col gap-4">
           {show("targets") && <TargetRings />}
           {show("crew") && <CrewOnWatchTable compact />}
-          {show("weather") && <WCWeatherWidget />}
           {show("contacts") && <WCContactsWidget />}
           {show("h4h") && <WCH4HWidget />}
           {show("toil") && <ToilWidget />}

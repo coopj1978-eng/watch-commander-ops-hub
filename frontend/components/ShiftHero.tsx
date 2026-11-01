@@ -6,6 +6,7 @@ import backend from "@/lib/backend";
 import { cn } from "@/lib/utils";
 import { crewingShiftFor, getWatchShiftStatus, type ShiftDay } from "@/lib/shiftRota";
 import { latestAbsencePerPerson, useTodaysAbsences } from "@/lib/absences";
+import { ShiftWeather } from "@/components/home/ShiftWeather";
 import {
   CalendarDays,
   ClipboardList,
@@ -265,6 +266,8 @@ export function ShiftHero() {
   }
 
   const actions = isManager ? MANAGER_ACTIONS : CREW_ACTIONS;
+  const bounds = shown ? shiftBounds(shown) : null;
+  const shiftWord = state === "on" ? "this shift" : "next shift";
   const dateLabel = now.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
 
   return (
@@ -313,10 +316,16 @@ export function ShiftHero() {
                 {shown ? `${shown.startTime}–${shown.endTime}` : status?.nextLabel ? `Next: ${status.nextLabel}` : "No rota for this watch"}
                 {countdown && <span className="text-white/90"> · {countdown}</span>}
               </p>
+              {/* Phones: the weather as one line under the shift times. */}
+              <ShiftWeather compact start={bounds?.start} end={bounds?.end} shiftWord={shiftWord} className="mt-1.5 sm:hidden" />
             </div>
-            <div className="hidden text-right sm:block">
-              <div className="font-mono text-4xl font-medium tabular-nums tracking-tight text-white/90">{hhmm(now)}</div>
-              <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-white/40">UK time</div>
+            <div className="hidden items-start gap-3 sm:flex">
+              <ShiftWeather start={bounds?.start} end={bounds?.end} shiftWord={shiftWord} />
+              <span aria-hidden className="mt-2 h-12 w-px bg-white/10" />
+              <div className="px-2 py-1 text-right">
+                <div className="font-mono text-4xl font-medium tabular-nums tracking-tight text-white/90">{hhmm(now)}</div>
+                <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-white/40">UK time</div>
+              </div>
             </div>
           </div>
 
