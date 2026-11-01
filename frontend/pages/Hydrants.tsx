@@ -454,7 +454,7 @@ function HydrantRow({
             names={INSPECTION_CODES}
             disabled={!canEdit}
             problem={isDefect(i.inspection_codes) || isUnable(i.inspection_codes)}
-            onChange={(codes) => onSave({ inspection_codes: codes })}
+            onChange={(codes, picked) => onSave({ inspection_codes: withoutContradictions(codes, picked) })}
           />
           <CodePicker label="Action" codes={i.action_codes} names={ACTION_CODES} disabled={!canEdit} onChange={(codes) => onSave({ action_codes: codes })} />
           <YesNo label="Lid secured" value={i.lid_ok} problemWhen={false} disabled={!canEdit} onChange={(v) => onSave({ lid_ok: v })} />
@@ -472,6 +472,14 @@ function HydrantRow({
   );
 }
 
+/** "1 Fully functional" can't stand beside a problem code: picking one drops the other. */
+function withoutContradictions(codes: number[], picked: number): number[] {
+  const problem = (c: number) => (c >= 2 && c <= 5) || c >= 7;
+  if (picked === 1) return codes.filter((c) => !problem(c));
+  if (problem(picked)) return codes.filter((c) => c !== 1);
+  return codes;
+}
+
 /** A drop-down of codes; more than one can be ticked, as the sheet allows. */
 function CodePicker({
   label, codes, names, disabled, problem, onChange,
@@ -481,15 +489,15 @@ function CodePicker({
   names: Record<number, string>;
   disabled: boolean;
   problem?: boolean;
-  onChange: (codes: number[]) => void;
+  onChange: (codes: number[], picked: number) => void;
 }) {
-  const summary = codes.length === 0 ? "Pick a code" : codes.length === 1 ? `${codes[0]} · ${names[codes[0]]}` : codes.join(", ");
+  const summary = codes.length === 0 ? "Pick a code" : `${codes[0]} · ${names[codes[0]]}${codes.length > 1 ? ` +${codes.length - 1}` : ""}`;
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         disabled={disabled}
         className={cn(
-          "flex h-10 min-w-0 items-center gap-1.5 rounded-lg border bg-background px-2.5 text-left text-sm disabled:cursor-default sm:h-9",
+          "col-span-2 flex h-10 min-w-0 items-center gap-1.5 rounded-lg border bg-background px-2.5 text-left text-sm disabled:cursor-default sm:col-span-1 sm:h-9",
           problem ? "border-amber-400 text-amber-900 dark:border-amber-500/60 dark:text-amber-200" : "border-border",
         )}
       >
@@ -509,7 +517,7 @@ function CodePicker({
               onSelect={(e) => e.preventDefault()}
               onCheckedChange={() => {
                 const next = on ? codes.filter((c) => c !== code) : [...codes, code].sort((a, b) => a - b);
-                if (next.length) onChange(next);
+                if (next.length) onChange(next, code);
               }}
             >
               <span className="w-5 shrink-0 font-mono text-xs text-muted-foreground">{code}</span> {name}

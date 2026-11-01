@@ -63641,7 +63641,7 @@ function HydrantRow({
               names: INSPECTION_CODES,
               disabled: !canEdit,
               problem: isDefect(i.inspection_codes) || isUnable(i.inspection_codes),
-              onChange: (codes) => onSave({ inspection_codes: codes })
+              onChange: (codes, picked) => onSave({ inspection_codes: withoutContradictions(codes, picked) })
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx(CodePicker, { label: "Action", codes: i.action_codes, names: ACTION_CODES, disabled: !canEdit, onChange: (codes) => onSave({ action_codes: codes }) }),
@@ -63662,6 +63662,12 @@ function HydrantRow({
     }
   );
 }
+function withoutContradictions(codes, picked) {
+  const problem = (c) => c >= 2 && c <= 5 || c >= 7;
+  if (picked === 1) return codes.filter((c) => !problem(c));
+  if (problem(picked)) return codes.filter((c) => c !== 1);
+  return codes;
+}
 function CodePicker({
   label: label2,
   codes,
@@ -63670,14 +63676,14 @@ function CodePicker({
   problem,
   onChange
 }) {
-  const summary = codes.length === 0 ? "Pick a code" : codes.length === 1 ? `${codes[0]} · ${names[codes[0]]}` : codes.join(", ");
+  const summary = codes.length === 0 ? "Pick a code" : `${codes[0]} · ${names[codes[0]]}${codes.length > 1 ? ` +${codes.length - 1}` : ""}`;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenu, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(
       DropdownMenuTrigger,
       {
         disabled,
         className: cn(
-          "flex h-10 min-w-0 items-center gap-1.5 rounded-lg border bg-background px-2.5 text-left text-sm disabled:cursor-default sm:h-9",
+          "col-span-2 flex h-10 min-w-0 items-center gap-1.5 rounded-lg border bg-background px-2.5 text-left text-sm disabled:cursor-default sm:col-span-1 sm:h-9",
           problem ? "border-amber-400 text-amber-900 dark:border-amber-500/60 dark:text-amber-200" : "border-border"
         ),
         children: [
@@ -63702,7 +63708,7 @@ function CodePicker({
             onSelect: (e) => e.preventDefault(),
             onCheckedChange: () => {
               const next = on ? codes.filter((c) => c !== code) : [...codes, code].sort((a, b) => a - b);
-              if (next.length) onChange(next);
+              if (next.length) onChange(next, code);
             },
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-5 shrink-0 font-mono text-xs text-muted-foreground", children: code }),
