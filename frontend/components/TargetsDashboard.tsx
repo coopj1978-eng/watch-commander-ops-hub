@@ -287,7 +287,8 @@ export default function TargetsDashboard({
     [activePeriodStart, activePeriodEnd]
   );
 
-  // Derive the calendar year + quarter (for inspection_assignments: multistory, hydrant)
+  // Calendar year for the annual hydrant route. Multi-story uses the
+  // financial period above — the plan's quarters are financial quarters.
   const calPeriod = useMemo(
     () => toCalendarPeriod(activePeriodStart, activePeriodEnd),
     [activePeriodStart, activePeriodEnd]
@@ -324,13 +325,13 @@ export default function TargetsDashboard({
 
   // ── Fetch multi-story inspection assignments ─────────────────────────────
   const { data: multiStoryData, isFetching: multiStoryFetching } = useQuery({
-    queryKey: ["assignments", "multistory", userWatch, calPeriod.year, calPeriod.quarter],
+    queryKey: ["assignments", "multistory", userWatch, financialPeriod?.financial_year, financialPeriod?.quarter],
     queryFn: () =>
       backend.inspection_plans.listAssignments({
         plan_type: "multistory",
         watch: userWatch || undefined,
-        year: calPeriod.year,
-        quarter: calPeriod.quarter ?? undefined,
+        year: financialPeriod?.financial_year,
+        quarter: financialPeriod?.quarter ?? undefined,
       }),
     retry: false,
   });

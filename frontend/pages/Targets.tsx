@@ -57,25 +57,19 @@ function QuarterlyOverview({ watch }: { watch: string }) {
     ),
   });
 
-  // Multi-story queries: 4 quarters (uses calendar year mapping from FY quarter)
+  // Multi-story: the plan's quarters are financial quarters, same as above.
   const msResults = useQueries({
-    queries: [1, 2, 3, 4].map((fq) => {
-      // Map financial quarter to calendar year + calendar quarter
-      // FY Q1=Apr-Jun → cal Q2 of fy, Q2=Jul-Sep → cal Q3 of fy, Q3=Oct-Dec → cal Q4 of fy, Q4=Jan-Mar → cal Q1 of fy+1
-      const calYear = fq === 4 ? fy + 1 : fy;
-      const calQ = fq === 4 ? 1 : fq + 1;
-      return {
-        queryKey: ["ms-assignments-q", watch, calYear, calQ],
-        queryFn: () =>
-          backend.inspection_plans.listAssignments({
-            watch: watch || undefined,
-            year: calYear,
-            quarter: calQ,
-            plan_type: "multistory",
-          }),
-        enabled: !!watch,
-      };
-    }),
+    queries: [1, 2, 3, 4].map((fq) => ({
+      queryKey: ["ms-assignments-q", watch, fy, fq],
+      queryFn: () =>
+        backend.inspection_plans.listAssignments({
+          watch: watch || undefined,
+          year: fy,
+          quarter: fq,
+          plan_type: "multistory",
+        }),
+      enabled: !!watch,
+    })),
   });
 
   // Annual hydrant route for the current calendar year (same source as the
@@ -374,18 +368,19 @@ export default function Targets() {
     }
   }, [periodType, selectedQuarter, selectedMonth, customStart, customEnd, quarters, months]);
 
-  // Derive year + quarter for InspectionAssignments (Multi-Story, Care Homes, Hydrants, Operational)
-  const { inspYear, inspQuarter } = useMemo(() => {
+  // Year + quarter for InspectionAssignments: multi-story by financial year
+  // and quarter (Apr–Jun = Q1); the annual items by calendar year.
+  const { inspFY, inspYear, inspQuarter } = useMemo(() => {
     const start = getPeriodDates.start;
-    if (!start) return { inspYear: new Date().getFullYear(), inspQuarter: null as number | null };
-    const d = new Date(start + "T00:00:00"); // timezone-safe parse
-    const startMonth = d.getMonth();
-    // Full-year view → no specific quarter
-    if (periodType === "year") return { inspYear: d.getFullYear(), inspQuarter: null as number | null };
-    // Map start month to calendar quarter for API:
-    // Apr(3)→Q2, Jul(6)→Q3, Oct(9)→Q4, Jan(0)→Q1
-    const calQ = Math.floor(startMonth / 3) + 1;
-    return { inspYear: d.getFullYear(), inspQuarter: calQ as number | null };
+    const d = start ? new Date(start + "T00:00:00") : new Date(); // timezone-safe parse
+    const m = d.getMonth();
+    const fy = m >= 3 ? d.getFullYear() : d.getFullYear() - 1;
+    const fq = m >= 3 ? Math.floor((m - 3) / 3) + 1 : 4;
+    return {
+      inspFY: fy,
+      inspYear: d.getFullYear(),
+      inspQuarter: start && periodType !== "year" ? fq : null as number | null,
+    };
   }, [getPeriodDates, periodType]);
 
   return (
@@ -523,7 +518,7 @@ export default function Targets() {
         showPeriodSelector={false}
       />
 
-      <InspectionAssignments year={inspYear} quarter={inspQuarter} />
+      <InspectionAssignments financialYear={inspFY} quarter={inspQuarter} year={inspYear} />
     </div>
   );
 }

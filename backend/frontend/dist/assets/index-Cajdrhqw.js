@@ -42657,15 +42657,15 @@ function getCurrentFinancialPeriod(date = /* @__PURE__ */ new Date()) {
   const label2 = `Q${quarter} ${financial_year}/${String(financial_year + 1).slice(2)}`;
   return { financial_year, quarter, label: label2 };
 }
-const CAL_QUARTER_MONTHS = ["Jan–Mar", "Apr–Jun", "Jul–Sep", "Oct–Dec"];
-function calendarQuarterLabel(year, calQuarter) {
-  const months = CAL_QUARTER_MONTHS[calQuarter - 1] ?? `Q${calQuarter}`;
-  const fy = calQuarter === 1 ? year - 1 : year;
-  const fq = calQuarter === 1 ? 4 : calQuarter - 1;
-  return `${months} ${year} (Q${fq} ${fy}/${String(fy + 1).slice(2)})`;
+const FY_QUARTER_MONTHS = ["Apr–Jun", "Jul–Sep", "Oct–Dec", "Jan–Mar"];
+function financialQuarterLabel(financialYear, quarter) {
+  return `Q${quarter} ${financialYear}/${String(financialYear + 1).slice(2)} (${financialQuarterMonths(quarter)})`;
 }
-function calendarQuarterMonths(calQuarter) {
-  return CAL_QUARTER_MONTHS[calQuarter - 1] ?? `Q${calQuarter}`;
+function financialQuarterMonths(quarter) {
+  return FY_QUARTER_MONTHS[quarter - 1] ?? `Q${quarter}`;
+}
+function financialYearLabel(financialYear) {
+  return `${financialYear}/${String(financialYear + 1).slice(2)}`;
 }
 const HFSV_TARGET = 36;
 function KPITile({
@@ -43691,7 +43691,6 @@ function TargetsCompact() {
   const watch = (user2 == null ? void 0 : user2.watch_unit) ?? "";
   const { financial_year, quarter, label: periodLabel } = getCurrentFinancialPeriod();
   const year = (/* @__PURE__ */ new Date()).getFullYear();
-  const calendarQuarter = Math.floor((/* @__PURE__ */ new Date()).getMonth() / 3) + 1;
   const now = /* @__PURE__ */ new Date();
   const qStartMonth = quarter === 1 ? 3 : quarter === 2 ? 6 : quarter === 3 ? 9 : 0;
   const qStartYear = quarter === 4 ? financial_year + 1 : financial_year;
@@ -43711,12 +43710,12 @@ function TargetsCompact() {
     enabled: !!watch
   });
   const multistoryQ = useQuery({
-    queryKey: ["assignments", "multistory", watch, year, calendarQuarter],
+    queryKey: ["assignments", "multistory", watch, financial_year, quarter],
     queryFn: async () => backendClient.inspection_plans.listAssignments({
       plan_type: "multistory",
       watch: watch || void 0,
-      year,
-      quarter: calendarQuarter
+      year: financial_year,
+      quarter
     }),
     enabled: !!watch
   });
@@ -54144,7 +54143,7 @@ function InspectionEventModal({ open, onClose, defaultDate, editingEvent }) {
   const fy = currentFinancialYear();
   const fq = currentFinancialQuarter();
   const calYear = currentCalendarYear();
-  const calQuarter = currentCalendarQuarter();
+  currentCalendarQuarter();
   const isEditing = !!editingEvent;
   const [step, setStep] = reactExports.useState(1);
   const [template, setTemplate] = reactExports.useState(null);
@@ -54205,19 +54204,16 @@ function InspectionEventModal({ open, onClose, defaultDate, editingEvent }) {
     }
   }, [template == null ? void 0 : template.type, nextHfsv == null ? void 0 : nextHfsv.id]);
   const assignmentQuery = useQuery({
-    queryKey: ["inspection-assignments-pending", template == null ? void 0 : template.type, watch, calYear, calQuarter],
+    queryKey: ["inspection-assignments-pending", template == null ? void 0 : template.type, watch, fy, fq, calYear],
     queryFn: async () => {
       if (!template || template.type === "hfsv" || template.type === "activity") return { items: [] };
       const params = {
         plan_type: template.type,
         watch,
-        year: calYear,
         status: "pending",
-        ...template.type === "multistory" ? { quarter: calQuarter } : { quarter: 0 }
+        ...template.type === "multistory" ? { year: fy, quarter: fq } : { year: calYear, quarter: 0 }
       };
-      console.log("[InspectionModal] listAssignments params:", params);
       const r2 = await backendClient.inspection_plans.listAssignments(params);
-      console.log("[InspectionModal] listAssignments result:", r2);
       return r2;
     },
     enabled: open && !isEditing && !!template && template.type !== "hfsv" && template.type !== "activity" && !!watch
@@ -60546,12 +60542,12 @@ function TargetsDashboard({
     retry: false
   });
   const { data: multiStoryData, isFetching: multiStoryFetching } = useQuery({
-    queryKey: ["assignments", "multistory", userWatch, calPeriod.year, calPeriod.quarter],
+    queryKey: ["assignments", "multistory", userWatch, financialPeriod == null ? void 0 : financialPeriod.financial_year, financialPeriod == null ? void 0 : financialPeriod.quarter],
     queryFn: () => backendClient.inspection_plans.listAssignments({
       plan_type: "multistory",
       watch: userWatch || void 0,
-      year: calPeriod.year,
-      quarter: calPeriod.quarter ?? void 0
+      year: financialPeriod == null ? void 0 : financialPeriod.financial_year,
+      quarter: (financialPeriod == null ? void 0 : financialPeriod.quarter) ?? void 0
     }),
     retry: false
   });
@@ -60853,7 +60849,7 @@ function SectionCard$1({
             ) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `py-2 ${item.status === "complete" ? "line-through text-muted-foreground" : ""}`, children: item.label }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "py-2 px-3 text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(WatchBadge$1, { watch: item.watch }) }),
-            config.isQuarterly && showQuarterCol && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "py-2 px-3 text-center text-xs text-muted-foreground", children: item.quarter ? calendarQuarterMonths(item.quarter) : "—" }),
+            config.isQuarterly && showQuarterCol && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "py-2 px-3 text-center text-xs text-muted-foreground", children: item.quarter ? financialQuarterMonths(item.quarter) : "—" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "py-2 px-3 text-center", children: item.status === "complete" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-xs bg-green-500/10 text-green-600 border-green-400/30", children: "Complete" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-xs bg-amber-500/10 text-amber-600 border-amber-400/30", children: "Pending" }) })
           ]
         },
@@ -60862,7 +60858,8 @@ function SectionCard$1({
     ] }) }) })
   ] });
 }
-function InspectionAssignments({ year, quarter }) {
+function InspectionAssignments({ financialYear, quarter, year }) {
+  var _a2, _b2;
   const { toast: toast2 } = useToast();
   const qc = useQueryClient();
   const isWC = useIsWC();
@@ -60872,18 +60869,28 @@ function InspectionAssignments({ year, quarter }) {
   const [watchFilter, setWatchFilter] = reactExports.useState(userWatch ?? "all");
   const [togglingId, setTogglingId] = reactExports.useState(null);
   const effectiveWatch = canManage ? watchFilter : userWatch ?? "all";
-  const periodLabel = quarter ? calendarQuarterLabel(year, quarter) : `${year}`;
+  const periodLabel = quarter ? financialQuarterLabel(financialYear, quarter) : financialYearLabel(financialYear);
   const watchLabel = effectiveWatch === "all" ? "All Watches" : `${effectiveWatch} Watch`;
-  const queryKey = ["inspection-assignments", year, effectiveWatch];
-  const { data, isLoading } = useQuery({
-    queryKey,
-    queryFn: () => backendClient.inspection_plans.listAssignments({
-      year,
-      watch: effectiveWatch !== "all" ? effectiveWatch : void 0
-    })
+  const watchParam = effectiveWatch !== "all" ? effectiveWatch : void 0;
+  const msQ = useQuery({
+    queryKey: ["inspection-assignments", "multistory", financialYear, effectiveWatch],
+    queryFn: () => backendClient.inspection_plans.listAssignments({ year: financialYear, plan_type: "multistory", watch: watchParam })
   });
+  const annualQ = useQuery({
+    queryKey: ["inspection-assignments", "annual", year, effectiveWatch],
+    queryFn: () => backendClient.inspection_plans.listAssignments({ year, quarter: 0, watch: watchParam })
+  });
+  const isLoading = msQ.isLoading || annualQ.isLoading;
+  const data = { items: [...((_a2 = msQ.data) == null ? void 0 : _a2.items) ?? [], ...((_b2 = annualQ.data) == null ? void 0 : _b2.items) ?? []] };
   const generateMutation = useMutation({
-    mutationFn: () => backendClient.inspection_plans.generateAssignments({ year }),
+    // Multi-story for the financial year, annual items for the calendar year
+    // (one call when they're the same year, Apr–Dec).
+    mutationFn: async () => {
+      const a = await backendClient.inspection_plans.generateAssignments({ year: financialYear });
+      if (year === financialYear) return a;
+      const b = await backendClient.inspection_plans.generateAssignments({ year });
+      return { ...a, created: a.created + b.created, skipped: a.skipped + b.skipped };
+    },
     onSuccess: (res) => {
       toast2({
         title: "Assignments generated",
@@ -60926,7 +60933,7 @@ function InspectionAssignments({ year, quarter }) {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-center justify-between gap-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-lg font-semibold", children: "Inspection Workload" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: quarter ? `${watchLabel} — ${periodLabel} multi-story assignments plus annual items` : `${watchLabel} — all inspections for ${year}` })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: quarter ? `${watchLabel} — ${periodLabel} multi-story assignments plus annual items` : `${watchLabel} — all inspections for ${financialYearLabel(financialYear)}` })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
         canManage && /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watchFilter, onValueChange: setWatchFilter, children: [
@@ -60947,14 +60954,14 @@ function InspectionAssignments({ year, quarter }) {
             className: "gap-2",
             disabled: generateMutation.isPending,
             onClick: () => {
-              if (confirm(`Generate inspection assignments for ${year}? Existing assignments will not be duplicated.`)) {
+              if (confirm(`Generate inspection assignments for ${financialYearLabel(financialYear)}? Existing assignments will not be duplicated.`)) {
                 generateMutation.mutate();
               }
             },
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: `h-3.5 w-3.5 ${generateMutation.isPending ? "animate-spin" : ""}` }),
               "Generate ",
-              year
+              financialYearLabel(financialYear)
             ]
           }
         )
@@ -60990,7 +60997,7 @@ function InspectionAssignments({ year, quarter }) {
         "No assignments for ",
         year
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground mt-1", children: canManage ? `Click "Generate ${year}" to create assignments from the Inspection Plans.` : "No inspection assignments have been generated for this period yet." })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground mt-1", children: canManage ? `Click "Generate ${financialYearLabel(financialYear)}" to create assignments from the Inspection Plans.` : "No inspection assignments have been generated for this period yet." })
     ] }) }),
     !isLoading && hasAnyAssignments && SECTION_CONFIG.map((config) => {
       const sectionItems = getItemsForSection(config.type);
@@ -61035,20 +61042,16 @@ function QuarterlyOverview({ watch }) {
     )
   });
   const msResults = useQueries({
-    queries: [1, 2, 3, 4].map((fq) => {
-      const calYear = fq === 4 ? fy + 1 : fy;
-      const calQ = fq === 4 ? 1 : fq + 1;
-      return {
-        queryKey: ["ms-assignments-q", watch, calYear, calQ],
-        queryFn: () => backendClient.inspection_plans.listAssignments({
-          watch: watch || void 0,
-          year: calYear,
-          quarter: calQ,
-          plan_type: "multistory"
-        }),
-        enabled: !!watch
-      };
-    })
+    queries: [1, 2, 3, 4].map((fq) => ({
+      queryKey: ["ms-assignments-q", watch, fy, fq],
+      queryFn: () => backendClient.inspection_plans.listAssignments({
+        watch: watch || void 0,
+        year: fy,
+        quarter: fq,
+        plan_type: "multistory"
+      }),
+      enabled: !!watch
+    }))
   });
   const hydrantYear = now.getFullYear();
   const hydrantQ = useQuery({
@@ -61297,14 +61300,17 @@ function Targets() {
         return { start: "", end: "", label: "" };
     }
   }, [periodType, selectedQuarter, selectedMonth, customStart, customEnd, quarters, months]);
-  const { inspYear, inspQuarter } = reactExports.useMemo(() => {
+  const { inspFY, inspYear, inspQuarter } = reactExports.useMemo(() => {
     const start = getPeriodDates.start;
-    if (!start) return { inspYear: (/* @__PURE__ */ new Date()).getFullYear(), inspQuarter: null };
-    const d = /* @__PURE__ */ new Date(start + "T00:00:00");
-    const startMonth = d.getMonth();
-    if (periodType === "year") return { inspYear: d.getFullYear(), inspQuarter: null };
-    const calQ = Math.floor(startMonth / 3) + 1;
-    return { inspYear: d.getFullYear(), inspQuarter: calQ };
+    const d = start ? /* @__PURE__ */ new Date(start + "T00:00:00") : /* @__PURE__ */ new Date();
+    const m = d.getMonth();
+    const fy = m >= 3 ? d.getFullYear() : d.getFullYear() - 1;
+    const fq = m >= 3 ? Math.floor((m - 3) / 3) + 1 : 4;
+    return {
+      inspFY: fy,
+      inspYear: d.getFullYear(),
+      inspQuarter: start && periodType !== "year" ? fq : null
+    };
   }, [getPeriodDates, periodType]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 md:p-8 space-y-6", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline flex-wrap gap-x-4 gap-y-1", children: [
@@ -61419,7 +61425,7 @@ function Targets() {
         showPeriodSelector: false
       }
     ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(InspectionAssignments, { year: inspYear, quarter: inspQuarter })
+    /* @__PURE__ */ jsxRuntimeExports.jsx(InspectionAssignments, { financialYear: inspFY, quarter: inspQuarter, year: inspYear })
   ] });
 }
 const DOC_CATEGORIES = [
@@ -65005,19 +65011,19 @@ function MultistorySection({ canEdit }) {
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-left px-4 py-2.5 font-medium text-muted-foreground", children: "Address" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "text-center px-3 py-2.5 font-medium text-muted-foreground w-[115px]", children: [
           "Q1",
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block text-[10px] font-normal", children: "Jan–Mar" })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "text-center px-3 py-2.5 font-medium text-muted-foreground w-[115px]", children: [
-          "Q2",
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block text-[10px] font-normal", children: "Apr–Jun" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "text-center px-3 py-2.5 font-medium text-muted-foreground w-[115px]", children: [
-          "Q3",
+          "Q2",
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block text-[10px] font-normal", children: "Jul–Sep" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "text-center px-3 py-2.5 font-medium text-muted-foreground w-[115px]", children: [
-          "Q4",
+          "Q3",
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block text-[10px] font-normal", children: "Oct–Dec" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "text-center px-3 py-2.5 font-medium text-muted-foreground w-[115px]", children: [
+          "Q4",
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block text-[10px] font-normal", children: "Jan–Mar" })
         ] }),
         canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "w-[80px]" })
       ] }) }),

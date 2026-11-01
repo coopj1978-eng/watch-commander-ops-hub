@@ -171,23 +171,20 @@ export default function InspectionEventModal({ open, onClose, defaultDate, editi
     }
   }, [template?.type, nextHfsv?.id]);
 
-  // ── Inspection assignments (create mode) — uses CALENDAR year/quarter ─────
-  // inspection_assignments stores year as calendar year, quarters as Q1=Jan-Mar etc.
-  // This is distinct from the financial year used for activity_records.
+  // ── Inspection assignments (create mode) ─────────────────────────────────
+  // Multi-story: financial year + quarter (Q1 = Apr–Jun). Annual items
+  // (care homes, hydrants, operational): calendar year.
   const assignmentQuery = useQuery({
-    queryKey: ["inspection-assignments-pending", template?.type, watch, calYear, calQuarter],
+    queryKey: ["inspection-assignments-pending", template?.type, watch, fy, fq, calYear],
     queryFn: async () => {
       if (!template || template.type === "hfsv" || template.type === "activity") return { items: [] };
       const params = {
         plan_type: template.type as any,
         watch,
-        year: calYear,
         status: "pending" as const,
-        ...(template.type === "multistory" ? { quarter: calQuarter } : { quarter: 0 }),
+        ...(template.type === "multistory" ? { year: fy, quarter: fq } : { year: calYear, quarter: 0 }),
       };
-      console.log("[InspectionModal] listAssignments params:", params);
       const r = await backend.inspection_plans.listAssignments(params);
-      console.log("[InspectionModal] listAssignments result:", r);
       return r;
     },
     enabled: open && !isEditing && !!template && template.type !== "hfsv" && template.type !== "activity" && !!watch,

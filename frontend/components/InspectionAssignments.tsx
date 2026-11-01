@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { invalidateTargetViews } from "@/lib/targetsCache";
-import { calendarQuarterLabel, calendarQuarterMonths } from "@/lib/financialQuarter";
+import { financialQuarterLabel, financialQuarterMonths, financialYearLabel } from "@/lib/financialQuarter";
 import {
   Card, CardContent, CardHeader, CardTitle, CardDescription,
 } from "@/components/ui/card";
@@ -157,7 +157,7 @@ function SectionCard({
                       </td>
                       {config.isQuarterly && showQuarterCol && (
                         <td className="py-2 px-3 text-center text-xs text-muted-foreground">
-                          {item.quarter ? calendarQuarterMonths(item.quarter) : "—"}
+                          {item.quarter ? financialQuarterMonths(item.quarter) : "—"}
                         </td>
                       )}
                       <td className="py-2 px-3 text-center">
@@ -184,11 +184,14 @@ function SectionCard({
 }
 
 interface Props {
+  /** Financial year (April start) and quarter for multi-story; quarter null = the whole year. */
+  financialYear: number;
+  quarter: number | null;
+  /** Calendar year for the annual items (care homes, hydrant route, operational). */
   year: number;
-  quarter: number | null; // null = all quarters (yearly view)
 }
 
-export default function InspectionAssignments({ year, quarter }: Props) {
+export default function InspectionAssignments({ financialYear, quarter, year }: Props) {
   const { toast } = useToast();
   const qc        = useQueryClient();
   const isWC      = useIsWC();
@@ -206,28 +209,35 @@ export default function InspectionAssignments({ year, quarter }: Props) {
   // Non-managers always see their own watch regardless of the dropdown state.
   const effectiveWatch = canManage ? watchFilter : (userWatch ?? "all");
 
-  // Quarter label for display — plan quarters are calendar quarters, so name
-  // the months and the financial quarter: "Oct–Dec 2026 (Q3 2026/27)".
-  const periodLabel = quarter ? calendarQuarterLabel(year, quarter) : `${year}`;
+  // Multi-story quarters are financial quarters: "Q3 2026/27 (Oct–Dec)".
+  const periodLabel = quarter ? financialQuarterLabel(financialYear, quarter) : financialYearLabel(financialYear);
 
   // Watch label for display
   const watchLabel = effectiveWatch === "all" ? "All Watches" : `${effectiveWatch} Watch`;
 
-  // Fetch all assignments for the year & effective watch.
-  // Quarter filtering for multi-story is done client-side so annual sections
-  // (care homes, hydrants, OIs) always show regardless of the selected quarter.
-  const queryKey = ["inspection-assignments", year, effectiveWatch];
-
-  const { data, isLoading } = useQuery({
-    queryKey,
-    queryFn: () => backend.inspection_plans.listAssignments({
-      year,
-      watch: effectiveWatch !== "all" ? effectiveWatch : undefined,
-    }),
+  // Multi-story by financial year (quarter filtered client-side); the annual
+  // items by calendar year. In Jan–Mar the two years differ.
+  const watchParam = effectiveWatch !== "all" ? effectiveWatch : undefined;
+  const msQ = useQuery({
+    queryKey: ["inspection-assignments", "multistory", financialYear, effectiveWatch],
+    queryFn: () => backend.inspection_plans.listAssignments({ year: financialYear, plan_type: "multistory", watch: watchParam }),
   });
+  const annualQ = useQuery({
+    queryKey: ["inspection-assignments", "annual", year, effectiveWatch],
+    queryFn: () => backend.inspection_plans.listAssignments({ year, quarter: 0, watch: watchParam }),
+  });
+  const isLoading = msQ.isLoading || annualQ.isLoading;
+  const data = { items: [...(msQ.data?.items ?? []), ...(annualQ.data?.items ?? [])] };
 
   const generateMutation = useMutation({
-    mutationFn: () => backend.inspection_plans.generateAssignments({ year }),
+    // Multi-story for the financial year, annual items for the calendar year
+    // (one call when they're the same year, Apr–Dec).
+    mutationFn: async () => {
+      const a = await backend.inspection_plans.generateAssignments({ year: financialYear });
+      if (year === financialYear) return a;
+      const b = await backend.inspection_plans.generateAssignments({ year });
+      return { ...a, created: a.created + b.created, skipped: a.skipped + b.skipped };
+    },
     onSuccess: (res) => {
       toast({
         title: "Assignments generated",
@@ -290,7 +300,7 @@ export default function InspectionAssignments({ year, quarter }: Props) {
           <p className="text-sm text-muted-foreground">
             {quarter
               ? `${watchLabel} — ${periodLabel} multi-story assignments plus annual items`
-              : `${watchLabel} — all inspections for ${year}`}
+              : `${watchLabel} — all inspections for ${financialYearLabel(financialYear)}`}
           </p>
         </div>
 
@@ -317,13 +327,13 @@ export default function InspectionAssignments({ year, quarter }: Props) {
               className="gap-2"
               disabled={generateMutation.isPending}
               onClick={() => {
-                if (confirm(`Generate inspection assignments for ${year}? Existing assignments will not be duplicated.`)) {
+                if (confirm(`Generate inspection assignments for ${financialYearLabel(financialYear)}? Existing assignments will not be duplicated.`)) {
                   generateMutation.mutate();
                 }
               }}
             >
               <RefreshCw className={`h-3.5 w-3.5 ${generateMutation.isPending ? "animate-spin" : ""}`} />
-              Generate {year}
+              Generate {financialYearLabel(financialYear)}
             </Button>
           )}
         </div>
@@ -362,7 +372,7 @@ export default function InspectionAssignments({ year, quarter }: Props) {
             <p className="font-medium text-foreground">No assignments for {year}</p>
             <p className="text-sm text-muted-foreground mt-1">
               {canManage
-                ? `Click "Generate ${year}" to create assignments from the Inspection Plans.`
+                ? `Click "Generate ${financialYearLabel(financialYear)}" to create assignments from the Inspection Plans.`
                 : "No inspection assignments have been generated for this period yet."}
             </p>
           </CardContent>

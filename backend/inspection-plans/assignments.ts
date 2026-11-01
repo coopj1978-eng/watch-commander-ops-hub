@@ -18,6 +18,8 @@ const ALL_WATCHES: WatchName[] = ["Red", "White", "Green", "Blue", "Amber"];
 // POST /inspection-plans/assignments/generate
 // WC/CC only — reads the 4 plan tables and creates assignments for the given year.
 // Passing quarter= limits multi-story to that quarter only; omitting it generates all quarters.
+// Multi-story quarters are SFRS financial quarters (Q1 = Apr–Jun, John Nov 2026), so for
+// multi-story `year` is the April-start financial year; the annual items use the calendar year.
 // Care homes always generate annual assignments (quarter = null) for ALL watches.
 // Hydrants + OIs generate annual assignments for their own watch field.
 // Uses ON CONFLICT DO NOTHING so it is safe to re-run.
@@ -187,7 +189,7 @@ export const updateAssignment = api(
 
     // ── Auto-update HighRise target actual_count ─────────────────────────────
     // When a multi-story assignment is toggled, count all completed multi-story
-    // assignments for the same calendar year and push that total into any
+    // assignments for the same year and push that total into any
     // HighRise target rows whose period overlaps with that year.
     if (row.plan_type === "multistory") {
       const countRow = await db.rawQueryRow<{ n: number }>(

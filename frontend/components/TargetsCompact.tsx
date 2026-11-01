@@ -160,13 +160,8 @@ export function TargetsCompact() {
   const { financial_year, quarter, label: periodLabel } = getCurrentFinancialPeriod();
   const year = new Date().getFullYear();
 
-  // Inspection assignments are stored by CALENDAR quarter, not financial
-  // quarter — TargetsDashboard uses `calPeriod.quarter` (1-4 from month/3)
-  // when querying multi-story, and `quarter: 0` (annual) for hydrants.
-  // Mirroring that here is the difference between the dashboard widget
-  // showing "0/10" and "0/20" vs the /targets page showing "6/6" and
-  // "1/1": same DB rows, completely different bucket keys.
-  const calendarQuarter = Math.floor(new Date().getMonth() / 3) + 1;
+  // Multi-story assignments use the financial year and quarter (Q1 = Apr–Jun),
+  // like HFSV; the hydrant route is per calendar year (quarter 0 = annual).
 
   // Day-of-quarter / days-in-quarter — used for pace calculation.
   const now = new Date();
@@ -194,19 +189,15 @@ export function TargetsCompact() {
     enabled: !!watch,
   });
 
-  // Multi-story assignments — TargetsDashboard queries with CALENDAR
-  // quarter (Apr-Jun = 2), not financial quarter (Apr-Jun = FY Q1).
-  // Using the financial quarter here was returning the wrong bucket
-  // (e.g. "0 / 10" while the page showed "6 / 6"). queryKey shares the
-  // exact same shape as TargetsDashboard so the cache is reused.
+  // Multi-story — same query key shape as TargetsDashboard so the cache is shared.
   const multistoryQ = useQuery({
-    queryKey: ["assignments", "multistory", watch, year, calendarQuarter],
+    queryKey: ["assignments", "multistory", watch, financial_year, quarter],
     queryFn: async () =>
       backend.inspection_plans.listAssignments({
         plan_type: "multistory",
         watch: watch || undefined,
-        year,
-        quarter: calendarQuarter,
+        year: financial_year,
+        quarter,
       }),
     enabled: !!watch,
   });

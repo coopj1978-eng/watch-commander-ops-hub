@@ -31,21 +31,24 @@ export function getCurrentFinancialPeriod(date: Date = new Date()): FinancialPer
   return { financial_year, quarter, label };
 }
 
-const CAL_QUARTER_MONTHS = ["Jan–Mar", "Apr–Jun", "Jul–Sep", "Oct–Dec"];
+const FY_QUARTER_MONTHS = ["Apr–Jun", "Jul–Sep", "Oct–Dec", "Jan–Mar"];
 
 /**
- * Inspection plans (multi-story) store CALENDAR quarters (Q4 = Oct–Dec).
- * Name the months and the matching financial quarter so they line up with
- * the HFSV / community targets, e.g. "Oct–Dec 2026 (Q3 2026/27)".
+ * Multi-story inspection plans use SFRS financial quarters, like HFSV and
+ * community targets (John, Nov 2026): Q1 = Apr–Jun … Q4 = Jan–Mar, and an
+ * assignment's `year` is the April-start financial year.
+ * e.g. financialQuarterLabel(2026, 3) → "Q3 2026/27 (Oct–Dec)".
  */
-export function calendarQuarterLabel(year: number, calQuarter: number): string {
-  const months = CAL_QUARTER_MONTHS[calQuarter - 1] ?? `Q${calQuarter}`;
-  const fy = calQuarter === 1 ? year - 1 : year;
-  const fq = calQuarter === 1 ? 4 : calQuarter - 1;
-  return `${months} ${year} (Q${fq} ${fy}/${String(fy + 1).slice(2)})`;
+export function financialQuarterLabel(financialYear: number, quarter: number): string {
+  return `Q${quarter} ${financialYear}/${String(financialYear + 1).slice(2)} (${financialQuarterMonths(quarter)})`;
 }
 
-/** Just the months of a calendar quarter, e.g. "Oct–Dec". */
-export function calendarQuarterMonths(calQuarter: number): string {
-  return CAL_QUARTER_MONTHS[calQuarter - 1] ?? `Q${calQuarter}`;
+/** Just the months of a financial quarter, e.g. 3 → "Oct–Dec". */
+export function financialQuarterMonths(quarter: number): string {
+  return FY_QUARTER_MONTHS[quarter - 1] ?? `Q${quarter}`;
+}
+
+/** "2026/27" for financial year 2026. */
+export function financialYearLabel(financialYear: number): string {
+  return `${financialYear}/${String(financialYear + 1).slice(2)}`;
 }

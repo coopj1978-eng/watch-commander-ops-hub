@@ -7,6 +7,7 @@ import { MiniRing } from "@/components/ui/MiniRing";
 import { Building2, MapPin, ChevronRight } from "lucide-react";
 import { useCountUp } from "@/hooks/useCountUp";
 import { useAuth } from "@/App";
+import { getCurrentFinancialPeriod } from "@/lib/financialQuarter";
 
 /**
  * WC Dashboard widget — shows how many multi-story inspections
@@ -15,7 +16,8 @@ import { useAuth } from "@/App";
 export function WCMultiStoryWidget() {
   const { user } = useAuth();
   const watch = user?.watch_unit ?? "";
-  const year  = new Date().getFullYear();
+  // Multi-story runs on the financial year (April start).
+  const { financial_year: year } = getCurrentFinancialPeriod();
 
   const { data, isLoading } = useQuery({
     queryKey: ["wc-multistory", watch, year],
