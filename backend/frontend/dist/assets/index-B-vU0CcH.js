@@ -37989,21 +37989,25 @@ function ShiftRunningOrder() {
         });
       }
     }
+    const shownEvents = /* @__PURE__ */ new Set();
     for (const e of ((_c2 = eventsQ.data) == null ? void 0 : _c2.events) ?? []) {
       const at = new Date(e.when).getTime();
       if (at < start || at >= end) continue;
+      const calId = e.id.startsWith("cal-") ? Number(e.id.slice(4)) : NaN;
+      const card = Number.isFinite(calId) ? tasks.find((t) => t.calendar_event_id === calId) : void 0;
+      if (card) shownEvents.add(calId);
       rows.push({
         key: `event-${e.id}`,
         at,
         time: hhmm$3(e.when),
         Icon: CalendarClock,
-        to: e.link || "/calendar",
-        tone: e.is_critical ? "warn" : void 0,
+        to: card ? "/tasks" : e.link || "/calendar",
+        tone: (card == null ? void 0 : card.status) === "Done" ? "done" : e.is_critical ? "warn" : void 0,
         title: e.what,
         body: [e.location, e.crew.length ? e.crew.map((c) => c.initials).join(" ") : null].filter(Boolean).join(" · ") || void 0
       });
     }
-    const jobs = tasks.filter((t) => t.kind !== "check" && t.status !== "Done");
+    const jobs = tasks.filter((t) => t.kind !== "check" && t.status !== "Done" && !(t.calendar_event_id && shownEvents.has(t.calendar_event_id)));
     if (jobs.length) {
       const carried = jobs.filter((t) => t.kind === "watch" && t.due_at && new Date(t.due_at).getTime() < start).length;
       rows.push({

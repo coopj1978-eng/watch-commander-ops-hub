@@ -146,20 +146,26 @@ export function ShiftRunningOrder() {
       }
     }
 
-    // ── Timed events in the shift window.
+    // ── Timed events in the shift window. A calendar event's own card on the
+    //    board is shown here, at its time (ticked when the card is done),
+    //    rather than again under the jobs.
+    const shownEvents = new Set<number>();
     for (const e of eventsQ.data?.events ?? []) {
       const at = new Date(e.when).getTime();
       if (at < start || at >= end) continue;
+      const calId = e.id.startsWith("cal-") ? Number(e.id.slice(4)) : NaN;
+      const card = Number.isFinite(calId) ? tasks.find((t) => t.calendar_event_id === calId) : undefined;
+      if (card) shownEvents.add(calId);
       rows.push({
-        key: `event-${e.id}`, at, time: hhmm(e.when), Icon: CalendarClock, to: e.link || "/calendar",
-        tone: e.is_critical ? "warn" : undefined,
+        key: `event-${e.id}`, at, time: hhmm(e.when), Icon: CalendarClock, to: card ? "/tasks" : e.link || "/calendar",
+        tone: card?.status === "Done" ? "done" : e.is_critical ? "warn" : undefined,
         title: e.what,
         body: [e.location, e.crew.length ? e.crew.map((c) => c.initials).join(" ") : null].filter(Boolean).join(" · ") || undefined,
       });
     }
 
     // ── Jobs on the board (watch tasks, handover jobs, calendar cards).
-    const jobs = tasks.filter((t) => t.kind !== "check" && t.status !== "Done");
+    const jobs = tasks.filter((t) => t.kind !== "check" && t.status !== "Done" && !(t.calendar_event_id && shownEvents.has(t.calendar_event_id)));
     if (jobs.length) {
       const carried = jobs.filter((t) => t.kind === "watch" && t.due_at && new Date(t.due_at).getTime() < start).length;
       rows.push({

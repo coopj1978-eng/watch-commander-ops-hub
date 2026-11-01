@@ -292,14 +292,27 @@ export const list = api<ListScheduleRequest, ListScheduleResponse>(
       end_time: Date | null;
       attendees: string[] | null;
     }>(
-      `SELECT id, title, event_type, start_time, end_time, attendees
-       FROM calendar_events
-       WHERE start_time >= $1
-         AND start_time < $2
-         AND event_type NOT IN ('inspection', 'training')
-       ORDER BY start_time ASC`,
+      `SELECT ce.id, ce.title, ce.event_type, ce.start_time, ce.end_time, ce.attendees
+       FROM calendar_events ce
+       LEFT JOIN users creator ON creator.id = ce.created_by
+       WHERE ce.start_time >= $1
+         AND ce.start_time < $2
+         AND ce.event_type NOT IN ('inspection', 'training')
+         AND ce.cancelled_at IS NULL
+         -- Only what this person may see (as on the Calendar page): station
+         -- events, their own watch's calendar, and their own personal events
+         -- and reminders — never someone else's.
+         AND (ce.event_type <> 'reminder' OR ce.created_by = $4)
+         AND (
+           COALESCE(ce.calendar_visibility, 'station') = 'station'
+           OR (ce.calendar_visibility = 'watch' AND LOWER(COALESCE(ce.watch, creator.watch_unit, '')) = $3)
+           OR (ce.calendar_visibility = 'personal' AND (ce.user_id = $4 OR ce.created_by = $4))
+         )
+       ORDER BY ce.start_time ASC`,
       from,
-      to
+      to,
+      callerWatch ?? "",
+      auth.userID
     );
 
     if (calEvents.length > 0) {
