@@ -2176,6 +2176,10 @@
     column-gap: calc(var(--spacing) * 4);
   }
 
+  .gap-x-5 {
+    column-gap: calc(var(--spacing) * 5);
+  }
+
   .gap-x-6 {
     column-gap: calc(var(--spacing) * 6);
   }
@@ -2200,6 +2204,10 @@
 
   .gap-y-2 {
     row-gap: calc(var(--spacing) * 2);
+  }
+
+  .gap-y-3 {
+    row-gap: calc(var(--spacing) * 3);
   }
 
   :where(.divide-x > :not(:last-child)) {
@@ -6997,6 +7005,10 @@
       margin-right: calc(var(--spacing) * 2);
     }
 
+    .sm\:mb-0 {
+      margin-bottom: calc(var(--spacing) * 0);
+    }
+
     .sm\:ml-0 {
       margin-left: calc(var(--spacing) * 0);
     }
@@ -7007,6 +7019,10 @@
 
     .sm\:block {
       display: block;
+    }
+
+    .sm\:contents {
+      display: contents;
     }
 
     .sm\:flex {
@@ -7141,6 +7157,10 @@
       grid-template-columns: minmax(0, 1fr) 220px;
     }
 
+    .sm\:grid-cols-\[minmax\(120px\,1fr\)_repeat\(4\,minmax\(0\,1\.3fr\)\)_20px\] {
+      grid-template-columns: minmax(120px, 1fr) repeat(4, minmax(0, 1.3fr)) 20px;
+    }
+
     .sm\:flex-col {
       flex-direction: column;
     }
@@ -7183,6 +7203,10 @@
 
     .sm\:gap-4 {
       gap: calc(var(--spacing) * 4);
+    }
+
+    .sm\:gap-5 {
+      gap: calc(var(--spacing) * 5);
     }
 
     .sm\:gap-7 {

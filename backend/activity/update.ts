@@ -1,4 +1,6 @@
 import { api, APIError } from "encore.dev/api";
+import { getAuthData } from "~encore/auth";
+import { requireRole } from "../auth/rbac";
 import db, { type SQLPrimitive } from "../db";
 import type { ActivityRecord, UpdateActivityRequest } from "./types";
 
@@ -7,6 +9,8 @@ import type { ActivityRecord, UpdateActivityRequest } from "./types";
 export const update = api<{ id: number } & UpdateActivityRequest, ActivityRecord>(
   { auth: true, expose: true, method: "PATCH", path: "/activities/:id" },
   async (req) => {
+    // Only WCs and CCs log targets (John, Nov 2026); the UI matches.
+    requireRole(getAuthData()!, "WC", "CC");
     const { id, ...fields } = req;
 
     const setClauses: string[] = [];

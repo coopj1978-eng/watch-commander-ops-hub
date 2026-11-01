@@ -54286,7 +54286,7 @@ function InspectionEventModal({ open, onClose, defaultDate, editingEvent }) {
         }
       });
       if ((template == null ? void 0 : template.type) === "hfsv" && (editingEvent == null ? void 0 : editingEvent.source_id) && address) {
-        await backendClient.activity.update(editingEvent.source_id, { address });
+        await backendClient.activity.update(editingEvent.source_id, { address }).catch(() => void 0);
       }
     },
     onSuccess: () => {
@@ -60801,7 +60801,10 @@ function QuarterStrip({
   });
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-2 flex items-center justify-between", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "eyebrow", children: "Financial year" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eyebrow", children: [
+        "Financial year",
+        watch ? ` · ${watch} Watch` : ""
+      ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onFy(fy - 1), className: "grid h-7 w-7 place-items-center rounded-md hover:bg-muted", "aria-label": "Previous year", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronLeft, { className: "h-4 w-4" }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "min-w-[64px] text-center font-mono text-sm font-semibold tabular-nums", children: fyLabel(fy) }),
@@ -61406,12 +61409,167 @@ function HydrantCard({ watch, fq, canEdit }) {
     }
   );
 }
+const STATION_WATCHES = ["Red", "White", "Green", "Blue", "Amber"];
+function MetricCell({ cell, label: label2 }) {
+  const pct = cell.target > 0 ? Math.min(100, cell.done / cell.target * 100) : 0;
+  const behind = cell.p.state === "behind" || cell.p.state === "late" || cell.p.state === "missed";
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-baseline justify-between gap-2 text-xs sm:hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: label2 }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline gap-1.5", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono text-sm font-semibold tabular-nums", children: cell.target === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "—" }) : cell.done }),
+      cell.target > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono text-xs tabular-nums text-muted-foreground", children: [
+        "/ ",
+        cell.target
+      ] }),
+      cell.extra && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-auto text-[10px] font-medium text-muted-foreground", children: cell.extra })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: cn("h-full rounded-full transition-[width] duration-700", BAR_COLOUR[cell.p.state]), style: { width: `${pct}%` } }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: cn("mt-1 h-4 text-[11px]", behind ? cell.p.state === "behind" ? "text-amber-700 dark:text-amber-400" : "text-red-600 dark:text-red-400" : "text-muted-foreground"), children: cell.target === 0 ? "" : cell.p.state === "done" ? "Done" : behind ? `${cell.p.behindBy} behind` : cell.p.state === "upcoming" ? "" : "On pace" })
+  ] });
+}
+function StationComparison({
+  fq,
+  ownWatch,
+  onPick
+}) {
+  const time = quarterTime(fq);
+  const year = fq.start.getFullYear();
+  const now = /* @__PURE__ */ new Date();
+  const yStart = new Date(year, 0, 1);
+  const yEnd = new Date(year, 11, 31);
+  const yPhase = now < yStart ? "future" : now > yEnd ? "past" : "now";
+  const yElapsed = yPhase === "now" ? (now.getTime() - yStart.getTime()) / (yEnd.getTime() - yStart.getTime()) : yPhase === "past" ? 1 : 0;
+  const results = useQueries({
+    queries: STATION_WATCHES.flatMap((w) => [
+      {
+        queryKey: ["activities", "hfsv", w, fq.fy, fq.q],
+        queryFn: () => backendClient.activity.list({ type: "hfsv", watch: w, financial_year: fq.fy, quarter: fq.q })
+      },
+      {
+        queryKey: ["activities", "community", w, fq.fy, fq.q],
+        queryFn: () => backendClient.activity.list({ type: "community", watch: w, financial_year: fq.fy, quarter: fq.q })
+      },
+      {
+        queryKey: ["assignments", "multistory", w, fq.fy, fq.q],
+        queryFn: () => backendClient.inspection_plans.listAssignments({ plan_type: "multistory", watch: w, year: fq.fy, quarter: fq.q })
+      },
+      {
+        queryKey: ["assignments", "hydrant", w, year],
+        queryFn: () => backendClient.inspection_plans.listAssignments({ plan_type: "hydrant", watch: w, year, quarter: 0 })
+      }
+    ])
+  });
+  const rows = STATION_WATCHES.map((w, i) => {
+    var _a2, _b2, _c2, _d2;
+    const hf = results[i * 4].data;
+    const cm = results[i * 4 + 1].data;
+    const ms = results[i * 4 + 2].data;
+    const hy = results[i * 4 + 3].data;
+    const hfDone = (hf == null ? void 0 : hf.total_completed) ?? 0;
+    const cmDone = (cm == null ? void 0 : cm.total_completed) ?? 0;
+    const tap = (cm == null ? void 0 : cm.total_tap_completed) ?? 0;
+    const msDone = ((_a2 = ms == null ? void 0 : ms.totals) == null ? void 0 : _a2.complete) ?? 0;
+    const msTotal = msDone + (((_b2 = ms == null ? void 0 : ms.totals) == null ? void 0 : _b2.pending) ?? 0);
+    const hyDone = ((_c2 = hy == null ? void 0 : hy.totals) == null ? void 0 : _c2.complete) ?? 0;
+    const hyTotal = hyDone + (((_d2 = hy == null ? void 0 : hy.totals) == null ? void 0 : _d2.pending) ?? 0);
+    return {
+      watch: w,
+      hfsv: { done: hfDone, target: HFSV_TARGET_Q, p: pace(hfDone, HFSV_TARGET_Q, time.elapsed, time.phase) },
+      community: {
+        done: cmDone,
+        target: COMMUNITY_TARGET_Q,
+        extra: `TAP ${tap}/${COMMUNITY_TAP_MIN}`,
+        p: pace(cmDone, COMMUNITY_TARGET_Q, time.elapsed, time.phase, tap >= COMMUNITY_TAP_MIN)
+      },
+      multistory: { done: msDone, target: msTotal, p: pace(msDone, msTotal, time.elapsed, time.phase) },
+      hydrant: { done: hyDone, target: hyTotal, p: pace(hyDone, hyTotal, yElapsed, yPhase) }
+    };
+  });
+  const sum = (k) => {
+    const done = rows.reduce((n, r2) => n + r2[k].done, 0);
+    const target = rows.reduce((n, r2) => n + r2[k].target, 0);
+    const el = k === "hydrant" ? yElapsed : time.elapsed;
+    const ph = k === "hydrant" ? yPhase : time.phase;
+    return { done, target, p: pace(done, target, el, ph) };
+  };
+  const loading = results.some((r2) => r2.isLoading);
+  const COLS2 = "sm:grid sm:grid-cols-[minmax(120px,1fr)_repeat(4,minmax(0,1.3fr))_20px] sm:items-center sm:gap-5";
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "flex flex-wrap items-baseline justify-between gap-2 border-b border-border/60 px-5 py-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-[15px] font-semibold", children: [
+          "Station · ",
+          fq.label,
+          " · ",
+          fq.months
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "mt-0.5 text-xs text-muted-foreground", children: [
+          "Every watch against an even pace through the quarter. Hydrants are the ",
+          year,
+          " route."
+        ] })
+      ] }),
+      loading && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-muted-foreground", children: "Loading…" })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: cn("hidden px-5 pt-3 text-[10.5px] font-medium uppercase tracking-[0.12em] text-muted-foreground", COLS2), children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Watch" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "HFSV" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Community" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Multi-story" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Hydrants" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", {})
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { className: "divide-y divide-border/60", children: [
+      rows.map((r2) => {
+        const mine = r2.watch.toLowerCase() === ownWatch.toLowerCase();
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: () => onPick(r2.watch),
+            className: cn("block w-full px-5 py-4 text-left transition-colors hover:bg-muted/40", mine && "bg-muted/30", COLS2),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-3 flex items-center gap-2 sm:mb-0", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(WatchDot, { watch: r2.watch }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: r2.watch }),
+                mine && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "rounded-full bg-foreground px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-background", children: "You" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "ml-auto h-4 w-4 text-muted-foreground sm:hidden" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-x-5 gap-y-3 sm:contents", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(MetricCell, { cell: r2.hfsv, label: "HFSV" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(MetricCell, { cell: r2.community, label: "Community" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(MetricCell, { cell: r2.multistory, label: "Multi-story" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(MetricCell, { cell: r2.hydrant, label: "Hydrants" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "hidden h-4 w-4 text-muted-foreground sm:block" })
+            ]
+          }
+        ) }, r2.watch);
+      }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: cn("bg-muted/40 px-5 py-4", COLS2), children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-3 font-semibold sm:mb-0", children: "Station" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-x-5 gap-y-3 sm:contents", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(MetricCell, { cell: sum("hfsv"), label: "HFSV" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(MetricCell, { cell: sum("community"), label: "Community" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(MetricCell, { cell: sum("multistory"), label: "Multi-story" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(MetricCell, { cell: sum("hydrant"), label: "Hydrants" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", {})
+      ] })
+    ] })
+  ] });
+}
 function Targets() {
   const { user: user2 } = useAuth();
-  const watch = (user2 == null ? void 0 : user2.watch_unit) ?? "";
-  const canEdit = (user2 == null ? void 0 : user2.role) === "WC" || (user2 == null ? void 0 : user2.role) === "CC";
+  const ownWatch = (user2 == null ? void 0 : user2.watch_unit) ?? "";
+  const isManager = (user2 == null ? void 0 : user2.role) === "WC" || (user2 == null ? void 0 : user2.role) === "CC";
   const now = currentFyQuarter();
   const [params, setParams] = useSearchParams();
+  const station = isManager && params.get("view") === "station";
+  const wParam = params.get("w");
+  const watch = isManager && wParam && STATION_WATCHES.includes(wParam) ? wParam : ownWatch;
+  const otherWatch = watch.toLowerCase() !== ownWatch.toLowerCase();
+  const canEdit = isManager && !otherWatch;
   const fy = Number(params.get("fy")) || now.fy;
   const qParam = Number(params.get("q"));
   const q = qParam >= 1 && qParam <= 4 ? qParam : fy === now.fy ? now.q : 1;
@@ -61422,17 +61580,34 @@ function Targets() {
     const p = new URLSearchParams(params);
     p.set("fy", String(next.fy ?? fy));
     p.set("q", String(next.q ?? q));
+    if (next.view !== void 0) {
+      if (next.view) p.set("view", next.view);
+      else p.delete("view");
+    }
+    if (next.w !== void 0) {
+      if (next.w && next.w !== ownWatch) p.set("w", next.w);
+      else p.delete("w");
+    }
     setParams(p, { replace: true });
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", style: { gap: "var(--gap-section)" }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-end justify-between gap-x-6 gap-y-2", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eyebrow", children: [
-          watch ? `${watch} Watch` : "No watch set",
+          station ? "B10 Springburn · all watches" : watch ? `${watch} Watch` : "No watch set",
           " · FY ",
           fyLabel(fy)
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "mt-1 text-3xl font-semibold tracking-tight", children: "Targets" })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-1 flex flex-wrap items-center gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-3xl font-semibold tracking-tight", children: "Targets" }),
+          isManager && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "seg", style: { width: 210 }, role: "group", "aria-label": "Show", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { "data-on": !station, onClick: () => select({ view: null }), children: [
+              watch || "My",
+              " Watch"
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { "data-on": station, onClick: () => select({ view: "station" }), children: "Station" })
+          ] })
+        ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-muted-foreground", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-medium text-foreground", children: [
@@ -61462,6 +61637,24 @@ function Targets() {
         time.phase === "future" && " — not started"
       ] })
     ] }),
+    otherWatch && !station && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border/70 bg-muted/40 px-4 py-2.5 text-sm", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+        "Viewing ",
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-semibold", children: [
+          watch,
+          " Watch"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: " — read only; their WC or CC logs their targets." })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex gap-3 text-xs font-medium", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "text-brand hover:underline", onClick: () => select({ view: "station" }), children: "← Station" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "text-brand hover:underline", onClick: () => select({ w: null }), children: [
+          "Back to ",
+          ownWatch,
+          " Watch"
+        ] })
+      ] })
+    ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       QuarterStrip,
       {
@@ -61472,21 +61665,26 @@ function Targets() {
         onFy: (next) => select({ fy: next, q: next === now.fy ? now.q : 4 })
       }
     ),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid gap-4 lg:grid-cols-2", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(HfsvCard, { watch, fq, canEdit }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(CommunityCard, { watch, fq, canEdit }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(MultiStoryCard, { watch, fq, canEdit }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(HydrantCard, { watch, fq, canEdit })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      InspectionAssignments,
-      {
-        financialYear: fy,
-        quarter: q,
-        year: fq.start.getFullYear(),
-        exclude: ["multistory"]
-      }
-    )
+    station ? (
+      /* ── Every watch side by side ─────────────────────────────────── */
+      /* @__PURE__ */ jsxRuntimeExports.jsx(StationComparison, { fq, ownWatch, onPick: (w) => select({ view: null, w }) })
+    ) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid gap-4 lg:grid-cols-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(HfsvCard, { watch, fq, canEdit }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(CommunityCard, { watch, fq, canEdit }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(MultiStoryCard, { watch, fq, canEdit }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(HydrantCard, { watch, fq, canEdit })
+      ] }),
+      !otherWatch && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        InspectionAssignments,
+        {
+          financialYear: fy,
+          quarter: q,
+          year: fq.start.getFullYear(),
+          exclude: ["multistory"]
+        }
+      )
+    ] })
   ] });
 }
 const DOC_CATEGORIES = [

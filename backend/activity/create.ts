@@ -1,5 +1,6 @@
 import { api } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
+import { requireRole } from "../auth/rbac";
 import db from "../db";
 import type { ActivityRecord, CreateActivityRequest } from "./types";
 
@@ -10,6 +11,8 @@ export const create = api<CreateActivityRequest, ActivityRecord>(
   { auth: true, expose: true, method: "POST", path: "/activities" },
   async (req) => {
     const auth = getAuthData()!;
+    // Only WCs and CCs log targets (John, Nov 2026); the UI matches.
+    requireRole(auth, "WC", "CC");
 
     // Calculate sort_order as max + 1 for this type/watch/year/quarter
     const maxRow = await db.rawQueryRow<{ m: number }>(

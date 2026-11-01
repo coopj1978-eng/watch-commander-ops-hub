@@ -275,9 +275,11 @@ export default function InspectionEventModal({ open, onClose, defaultDate, editi
         },
       });
 
-      // 2. For HFSV: also update the linked activity_record address
+      // 2. For HFSV: also update the linked activity_record address. Only WCs
+      //    and CCs may change target records — for anyone else the event
+      //    itself is saved and the slot's address is left alone.
       if (template?.type === "hfsv" && editingEvent?.source_id && address) {
-        await backend.activity.update(editingEvent.source_id, { address });
+        await backend.activity.update(editingEvent.source_id, { address }).catch(() => undefined);
       }
     },
     onSuccess: () => {

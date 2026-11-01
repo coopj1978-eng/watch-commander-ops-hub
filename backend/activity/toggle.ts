@@ -1,4 +1,6 @@
 import { api, APIError } from "encore.dev/api";
+import { getAuthData } from "~encore/auth";
+import { requireRole } from "../auth/rbac";
 import db from "../db";
 import type { ActivityRecord } from "./types";
 
@@ -7,6 +9,8 @@ import type { ActivityRecord } from "./types";
 export const toggle = api<{ id: number }, ActivityRecord>(
   { auth: true, expose: true, method: "PATCH", path: "/activities/:id/toggle" },
   async (req) => {
+    // Only WCs and CCs log targets (John, Nov 2026); the UI matches.
+    requireRole(getAuthData()!, "WC", "CC");
     // Fetch current state first
     const current = await db.rawQueryRow<ActivityRecord>(
       `SELECT * FROM activity_records WHERE id = $1`,
