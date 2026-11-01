@@ -9,6 +9,8 @@ import {
   LayoutDashboard, Users, Calendar as CalendarIcon, CheckSquare,
   Target, Navigation, Truck, GraduationCap, UserCircle, FileText,
   BookOpen, Settings as SettingsIcon, ShieldCheck, Megaphone, BarChart2,
+  Flame,
+  BookMarked,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,6 +43,8 @@ const ROUTES: { path: string; name: string; icon: React.ElementType }[] = [
   { path: "/handover",    name: "Shift",       icon: ClipboardList },
   { path: "/bulletins",   name: "Bulletins",   icon: Megaphone },
   { path: "/targets",     name: "Targets",     icon: Target },
+  { path: "/hydrants",    name: "Hydrants",    icon: Flame },
+  { path: "/references",  name: "References",  icon: BookMarked },
   { path: "/detachments", name: "Detachments", icon: Navigation },
   { path: "/equipment",   name: "J4 Checks",   icon: Truck },
   { path: "/training",    name: "Training",    icon: GraduationCap },
