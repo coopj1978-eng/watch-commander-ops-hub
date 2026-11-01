@@ -282,8 +282,9 @@ export const list = api<ListScheduleRequest, ListScheduleResponse>(
     }
 
     // ── 4. Calendar events (meetings / maintenance / reminders) ──────────────
-    // Leave calendar rows of event_type="inspection" / "training" out so we
-    // don't double-count ones that shadow a real inspections/training row.
+    // Leave out inspection / training events made from an inspection plan or
+    // a training record (source_type set) — those rows are listed above. Ones
+    // typed straight into the calendar (a care home visit, a course) stay.
     const calEvents = await db.rawQueryAll<{
       id: number;
       title: string;
@@ -297,7 +298,7 @@ export const list = api<ListScheduleRequest, ListScheduleResponse>(
        LEFT JOIN users creator ON creator.id = ce.created_by
        WHERE ce.start_time >= $1
          AND ce.start_time < $2
-         AND ce.event_type NOT IN ('inspection', 'training')
+         AND NOT (ce.event_type IN ('inspection', 'training') AND ce.source_type IS NOT NULL)
          AND ce.cancelled_at IS NULL
          -- Only what this person may see (as on the Calendar page): station
          -- events, their own watch's calendar, and their own personal events
