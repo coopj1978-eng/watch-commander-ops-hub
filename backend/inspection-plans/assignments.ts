@@ -21,7 +21,8 @@ const ALL_WATCHES: WatchName[] = ["Red", "White", "Green", "Blue", "Amber"];
 // Multi-story quarters are SFRS financial quarters (Q1 = Apr–Jun, John Nov 2026), so for
 // multi-story `year` is the April-start financial year; the annual items use the calendar year.
 // Care homes always generate annual assignments (quarter = null) for ALL watches.
-// Hydrants + OIs generate annual assignments for their own watch field.
+// OIs generate annual assignments for their own watch field. Hydrants have their own
+// routes and rota now (backend/hydrants), so the old register no longer makes any.
 // Uses ON CONFLICT DO NOTHING so it is safe to re-run.
 export const generateAssignments = api(
   { auth: true, expose: true, method: "POST", path: "/inspection-plans/assignments/generate" },
@@ -74,23 +75,6 @@ export const generateAssignments = api(
           );
           result ? created++ : skipped++;
         }
-      }
-
-      // ── Hydrants (annual — own watch) ─────────────────────────────────────
-      const hydrants = await db.rawQueryAll<{ id: number; area_code: string; street: string; section: string; watch: string | null }>(
-        `SELECT id, area_code, street, section, watch FROM hydrant_registers`
-      );
-      for (const row of hydrants) {
-        if (!row.watch) continue;
-        const label = `${row.area_code} – ${row.street}, ${row.section}`;
-        const result = await db.rawQueryRow<{ id: number }>(
-          `INSERT INTO inspection_assignments (plan_type, plan_id, label, watch, year, quarter)
-           VALUES ('hydrant', $1, $2, $3, $4, NULL)
-           ON CONFLICT (plan_type, plan_id, watch, year, COALESCE(quarter, 0)) DO NOTHING
-           RETURNING id`,
-          row.id, label, row.watch, req.year
-        );
-        result ? created++ : skipped++;
       }
 
       // ── Operational Inspections (annual — own watch) ──────────────────────

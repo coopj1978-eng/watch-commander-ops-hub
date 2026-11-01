@@ -1,4 +1,4 @@
-import { useQueries } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
 import backend from "@/lib/backend";
 import type { activity, inspection_plans } from "@/client";
@@ -67,25 +67,25 @@ export function StationComparison({
         queryKey: ["assignments", "multistory", w, fq.fy, fq.q],
         queryFn: () => backend.inspection_plans.listAssignments({ plan_type: "multistory", watch: w, year: fq.fy, quarter: fq.q }),
       },
-      {
-        queryKey: ["assignments", "hydrant", w, year],
-        queryFn: () => backend.inspection_plans.listAssignments({ plan_type: "hydrant", watch: w, year, quarter: 0 }),
-      },
     ]),
+  });
+  const { data: hydrantYear } = useQuery({
+    queryKey: ["hydrants", "summary", year],
+    queryFn: () => backend.hydrants.getHydrantSummary({ year }),
   });
 
   const rows = STATION_WATCHES.map((w, i) => {
-    const hf = results[i * 4].data as activity.ListActivitiesResponse | undefined;
-    const cm = results[i * 4 + 1].data as activity.ListActivitiesResponse | undefined;
-    const ms = results[i * 4 + 2].data as inspection_plans.ListAssignmentsResponse | undefined;
-    const hy = results[i * 4 + 3].data as inspection_plans.ListAssignmentsResponse | undefined;
+    const hf = results[i * 3].data as activity.ListActivitiesResponse | undefined;
+    const cm = results[i * 3 + 1].data as activity.ListActivitiesResponse | undefined;
+    const ms = results[i * 3 + 2].data as inspection_plans.ListAssignmentsResponse | undefined;
+    const hy = hydrantYear?.watches.find((x) => x.watch === w);
     const hfDone = hf?.total_completed ?? 0;
     const cmDone = cm?.total_completed ?? 0;
     const tap = cm?.total_tap_completed ?? 0;
     const msDone = ms?.totals?.complete ?? 0;
     const msTotal = msDone + (ms?.totals?.pending ?? 0);
-    const hyDone = hy?.totals?.complete ?? 0;
-    const hyTotal = hyDone + (hy?.totals?.pending ?? 0);
+    const hyDone = hy?.done ?? 0;
+    const hyTotal = hy?.total ?? 0;
     return {
       watch: w,
       hfsv: { done: hfDone, target: HFSV_TARGET_Q, p: pace(hfDone, HFSV_TARGET_Q, time.elapsed, time.phase) },

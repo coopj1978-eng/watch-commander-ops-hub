@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { invalidateTargetViews } from "@/lib/targetsCache";
@@ -555,204 +556,6 @@ function CareHomeSection({ canEdit }: { canEdit: boolean }) {
   );
 }
 
-// ─── Hydrant Register ──────────────────────────────────────────────────────
-
-function HydrantSection({ canEdit }: { canEdit: boolean }) {
-  const { toast } = useToast();
-  const qc = useQueryClient();
-
-  const [adding, setAdding] = useState(false);
-  const [newFields, setNewFields] = useState({ area_code: "", street: "", section: "", year: new Date().getFullYear(), watch: null as WatchName | null });
-  const [editId, setEditId] = useState<number | null>(null);
-  const [editFields, setEditFields] = useState({ area_code: "", street: "", section: "", year: 0, watch: null as WatchName | null });
-  const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
-  const [movePending, setMovePending] = useState(false);
-
-  const { data, isLoading } = useQuery({
-    queryKey: ["inspection-plans-hydrants"],
-    queryFn: () => backend.inspection_plans.listHydrants(),
-  });
-
-  const createMutation = useMutation({
-    mutationFn: () => backend.inspection_plans.createHydrant({
-      area_code: newFields.area_code,
-      street: newFields.street,
-      section: newFields.section,
-      year: newFields.year,
-      watch: newFields.watch ?? undefined,
-    }),
-    onSuccess: () => {
-      toast({ title: "Hydrant added" });
-      qc.invalidateQueries({ queryKey: ["inspection-plans-hydrants"] });
-      invalidateTargetViews(qc);
-      setAdding(false);
-      setNewFields({ area_code: "", street: "", section: "", year: new Date().getFullYear(), watch: null });
-    },
-    onError: () => toast({ title: "Error", description: "Failed to add hydrant", variant: "destructive" }),
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: () => backend.inspection_plans.updateHydrant(editId!, {
-      area_code: editFields.area_code,
-      street: editFields.street,
-      section: editFields.section,
-      year: editFields.year,
-      watch: editFields.watch,
-    }),
-    onSuccess: () => {
-      toast({ title: "Updated" });
-      qc.invalidateQueries({ queryKey: ["inspection-plans-hydrants"] });
-      invalidateTargetViews(qc);
-      setEditId(null);
-    },
-    onError: () => toast({ title: "Error", description: "Failed to update", variant: "destructive" }),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => backend.inspection_plans.deleteHydrant(id),
-    onSuccess: () => {
-      toast({ title: "Deleted" });
-      qc.invalidateQueries({ queryKey: ["inspection-plans-hydrants"] });
-      invalidateTargetViews(qc);
-      setConfirmDelete(null);
-    },
-    onError: () => toast({ title: "Error", description: "Failed to delete", variant: "destructive" }),
-  });
-
-  const moveItem = async (index: number, direction: "up" | "down") => {
-    const items = data?.items ?? [];
-    const targetIndex = direction === "up" ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= items.length) return;
-    setMovePending(true);
-    try {
-      const posA = items[index].position;
-      const posB = items[targetIndex].position;
-      await backend.inspection_plans.updateHydrant(items[index].id, { position: posB });
-      await backend.inspection_plans.updateHydrant(items[targetIndex].id, { position: posA });
-      qc.invalidateQueries({ queryKey: ["inspection-plans-hydrants"] });
-      invalidateTargetViews(qc);
-    } catch {
-      toast({ title: "Error", description: "Failed to reorder", variant: "destructive" });
-    } finally {
-      setMovePending(false);
-    }
-  };
-
-  const items = data?.items ?? [];
-  const isNewValid = newFields.area_code.trim() && newFields.street.trim() && newFields.section.trim() && newFields.year > 2000;
-
-  return (
-    <div className="space-y-3">
-      <div className="overflow-x-auto rounded-lg border border-border">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border bg-muted/40">
-              {canEdit && <th className="w-[36px]" />}
-              <th className="text-left px-4 py-2.5 font-medium text-muted-foreground w-[110px]">Area Code</th>
-              <th className="text-left px-3 py-2.5 font-medium text-muted-foreground">Street</th>
-              <th className="text-left px-3 py-2.5 font-medium text-muted-foreground w-[100px]">Section</th>
-              <th className="text-left px-3 py-2.5 font-medium text-muted-foreground w-[80px]">Year</th>
-              <th className="text-left px-3 py-2.5 font-medium text-muted-foreground w-[115px]">Watch</th>
-              {canEdit && <th className="w-[80px]" />}
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading && (
-              <tr><td colSpan={7} className="text-center py-6 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin inline mr-2" />Loading…</td></tr>
-            )}
-            {!isLoading && items.length === 0 && !adding && (
-              <tr><td colSpan={7} className="text-center py-6 text-muted-foreground text-xs">No hydrant entries yet.</td></tr>
-            )}
-            {items.map((item, index) =>
-              editId === item.id ? (
-                <tr key={item.id} className="border-b border-border bg-blue-500/5">
-                  {canEdit && <td className="px-2 py-2" />}
-                  <td className="px-4 py-2"><Input className="h-8 text-xs" value={editFields.area_code} onChange={(e) => setEditFields((s) => ({ ...s, area_code: e.target.value }))} autoFocus /></td>
-                  <td className="px-3 py-2"><Input className="h-8 text-xs" value={editFields.street} onChange={(e) => setEditFields((s) => ({ ...s, street: e.target.value }))} /></td>
-                  <td className="px-3 py-2"><Input className="h-8 text-xs" value={editFields.section} onChange={(e) => setEditFields((s) => ({ ...s, section: e.target.value }))} /></td>
-                  <td className="px-3 py-2"><Input className="h-8 text-xs w-[70px]" type="number" value={editFields.year} onChange={(e) => setEditFields((s) => ({ ...s, year: parseInt(e.target.value) || s.year }))} /></td>
-                  <td className="px-3 py-2"><WatchSelect value={editFields.watch} onChange={(v) => setEditFields((s) => ({ ...s, watch: v }))} /></td>
-                  <td className="px-3 py-2">
-                    <div className="flex gap-1 justify-end">
-                      <Button size="icon" variant="ghost" className="h-7 w-7 text-green-600" onClick={() => updateMutation.mutate()} disabled={updateMutation.isPending}>
-                        <Check className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setEditId(null)}>
-                        <X className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                <tr key={item.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
-                  {canEdit && (
-                    <td className="px-2 py-3">
-                      <MoveButtons onUp={() => moveItem(index, "up")} onDown={() => moveItem(index, "down")} isFirst={index === 0} isLast={index === items.length - 1} isPending={movePending} />
-                    </td>
-                  )}
-                  <td className="px-4 py-3 font-medium">{item.area_code}</td>
-                  <td className="px-3 py-3">{item.street}</td>
-                  <td className="px-3 py-3">{item.section}</td>
-                  <td className="px-3 py-3">{item.year}</td>
-                  <td className="px-3 py-3"><WatchBadge watch={item.watch as WatchName | null} /></td>
-                  {canEdit && (
-                    <td className="px-3 py-3">
-                      {confirmDelete === item.id ? (
-                        <div className="flex gap-1 justify-end">
-                          <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => deleteMutation.mutate(item.id)} disabled={deleteMutation.isPending}>
-                            <Check className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setConfirmDelete(null)}>
-                            <X className="h-3.5 w-3.5" />
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="flex gap-1 justify-end">
-                          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => { setEditId(item.id); setEditFields({ area_code: item.area_code, street: item.street, section: item.section, year: item.year, watch: (item.watch ?? null) as WatchName | null }); }}>
-                            <Pencil className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => setConfirmDelete(item.id)}>
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
-                        </div>
-                      )}
-                    </td>
-                  )}
-                </tr>
-              )
-            )}
-            {canEdit && adding && (
-              <tr className="border-t border-border bg-green-500/5">
-                <td className="px-2 py-2" />
-                <td className="px-4 py-2"><Input className="h-8 text-xs" placeholder="Area code" value={newFields.area_code} onChange={(e) => setNewFields((s) => ({ ...s, area_code: e.target.value }))} autoFocus /></td>
-                <td className="px-3 py-2"><Input className="h-8 text-xs" placeholder="Street" value={newFields.street} onChange={(e) => setNewFields((s) => ({ ...s, street: e.target.value }))} /></td>
-                <td className="px-3 py-2"><Input className="h-8 text-xs" placeholder="Section" value={newFields.section} onChange={(e) => setNewFields((s) => ({ ...s, section: e.target.value }))} /></td>
-                <td className="px-3 py-2"><Input className="h-8 text-xs w-[70px]" type="number" value={newFields.year} onChange={(e) => setNewFields((s) => ({ ...s, year: parseInt(e.target.value) || s.year }))} /></td>
-                <td className="px-3 py-2"><WatchSelect value={newFields.watch} onChange={(v) => setNewFields((s) => ({ ...s, watch: v }))} /></td>
-                <td className="px-3 py-2">
-                  <div className="flex gap-1 justify-end">
-                    <Button size="icon" variant="ghost" className="h-7 w-7 text-green-600" onClick={() => isNewValid && createMutation.mutate()} disabled={!isNewValid || createMutation.isPending}>
-                      <Check className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => { setAdding(false); setNewFields({ area_code: "", street: "", section: "", year: new Date().getFullYear(), watch: null }); }}>
-                      <X className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-      {canEdit && !adding && (
-        <Button variant="outline" size="sm" className="gap-2" onClick={() => setAdding(true)}>
-          <Plus className="h-4 w-4" /> Add hydrant
-        </Button>
-      )}
-    </div>
-  );
-}
-
 // ─── Operational Inspections ───────────────────────────────────────────────
 
 function OperationalSection({ canEdit }: { canEdit: boolean }) {
@@ -961,8 +764,11 @@ export function InspectionPlans() {
         <CareHomeSection canEdit={isWC} />
       </SectionCard>
 
-      <SectionCard icon={Flame} title="Hydrant Register" description="Fire hydrant register by area code, street and section">
-        <HydrantSection canEdit={isWC} />
+      <SectionCard icon={Flame} title="Hydrant Routes" description="The station's SP hydrant routes and the 15-year watch rota">
+        <p className="text-sm text-muted-foreground">
+          Hydrants are loaded from the station's route sheets, and each watch's route for the year comes from the rota.{" "}
+          <Link to="/hydrants" className="font-medium text-brand hover:underline">Open Hydrants →</Link>
+        </p>
       </SectionCard>
 
       <SectionCard icon={ClipboardCheck} title="Operational Inspections" description="Annual operational inspections — one watch assigned per premises">

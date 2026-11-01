@@ -8,7 +8,7 @@ import type { QueryClient } from "@tanstack/react-query";
 const TARGET_QUERY_ROOTS = new Set([
   "activities", "activities-q", "activity", "hfsv", "hfsv-pending", "hfsv-slot",
   "assignments", "ms-assignments-q", "inspection-assignments", "inspection-assignments-pending",
-  "targets", "wc-targets", "wc-hfsv", "wc-community", "wc-multistory", "wc-hydrant",
+  "targets", "wc-targets", "wc-hfsv", "wc-community", "wc-multistory", "wc-hydrant", "hydrants",
 ]);
 
 export function invalidateTargetViews(qc: QueryClient) {

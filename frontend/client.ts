@@ -45,6 +45,7 @@ export default class Client {
     public readonly frontend: frontend.ServiceClient
     public readonly h4h: h4h.ServiceClient
     public readonly handover: handover.ServiceClient
+    public readonly hydrants: hydrants.ServiceClient
     public readonly inspection: inspection.ServiceClient
     public readonly inspection_plans: inspection_plans.ServiceClient
     public readonly localauth: localauth.ServiceClient
@@ -91,6 +92,7 @@ export default class Client {
         this.frontend = new frontend.ServiceClient(base)
         this.h4h = new h4h.ServiceClient(base)
         this.handover = new handover.ServiceClient(base)
+        this.hydrants = new hydrants.ServiceClient(base)
         this.inspection = new inspection.ServiceClient(base)
         this.inspection_plans = new inspection_plans.ServiceClient(base)
         this.localauth = new localauth.ServiceClient(base)
@@ -2158,6 +2160,153 @@ export namespace handover {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("PATCH", `/handovers/${encodeURIComponent(id)}`, JSON.stringify(params))
             return await resp.json() as Handover
+        }
+    }
+}
+
+export namespace hydrants {
+    export interface Hydrant {
+        id: number
+        route: string
+        seq: number
+        ref: string | null
+        street: string
+        location: string | null
+        "main_size": string | null
+        surface: string | null
+        marker: string | null
+        dist: string | null
+        "in_use": boolean
+    }
+
+    export interface HydrantInspection {
+        "hydrant_id": number
+        year: number
+        watch: string
+        "lid_ok": boolean | null
+        "trip_hazard": boolean | null
+        "inspection_codes": number[]
+        "action_codes": number[]
+        comment: string | null
+        "inspected_by": string
+        "inspected_by_name": string | null
+        "inspected_at": string
+    }
+
+    export interface RouteHydrant extends Hydrant {
+        inspection: HydrantInspection | null
+    }
+
+    export interface HydrantRoute {
+        route: string
+        hydrants: RouteHydrant[]
+    }
+
+    export interface HydrantRouteResponse {
+        year: number
+        "cycle_year": number
+        watch: string
+        label: string | null
+        routes: HydrantRoute[]
+        total: number
+        done: number
+        unable: number
+        defects: number
+        loaded: boolean
+        "can_edit": boolean
+    }
+
+    export interface HydrantWatchSummary {
+        watch: string
+        label: string
+        total: number
+        done: number
+        defects: number
+    }
+
+    export interface HydrantSummaryResponse {
+        year: number
+        "cycle_year": number
+        watches: HydrantWatchSummary[]
+        loaded: boolean
+    }
+
+    export interface SaveHydrantInspectionRequest {
+        year: number
+        "lid_ok"?: boolean | null
+        "trip_hazard"?: boolean | null
+        "inspection_codes"?: number[]
+        "action_codes"?: number[]
+        comment?: string | null
+    }
+
+    export interface ImportHydrant {
+        route: string
+        seq: number
+        ref?: string | null
+        street: string
+        location?: string | null
+        "main_size"?: string | null
+        surface?: string | null
+        marker?: string | null
+        dist?: string | null
+        "in_use": boolean
+    }
+
+    export class ServiceClient {
+        private baseClient: BaseClient
+
+        constructor(baseClient: BaseClient) {
+            this.baseClient = baseClient
+            this.getHydrantRoute = this.getHydrantRoute.bind(this)
+            this.getHydrantSummary = this.getHydrantSummary.bind(this)
+            this.saveHydrantInspection = this.saveHydrantInspection.bind(this)
+            this.clearHydrantInspection = this.clearHydrantInspection.bind(this)
+            this.setHydrantInUse = this.setHydrantInUse.bind(this)
+            this.importHydrants = this.importHydrants.bind(this)
+        }
+
+        /** One watch's hydrant routes for a year, hydrant by hydrant. */
+        public async getHydrantRoute(params: { watch?: string; year?: number }): Promise<HydrantRouteResponse> {
+            const query = makeRecord<string, string | string[]>({
+                watch: params.watch,
+                year:  params.year === undefined ? undefined : String(params.year),
+            })
+            const resp = await this.baseClient.callTypedAPI("GET", `/hydrants/route`, undefined, {query})
+            return await resp.json() as HydrantRouteResponse
+        }
+
+        /** Every watch's hydrant total and progress for a year. */
+        public async getHydrantSummary(params: { year?: number }): Promise<HydrantSummaryResponse> {
+            const query = makeRecord<string, string | string[]>({
+                year: params.year === undefined ? undefined : String(params.year),
+            })
+            const resp = await this.baseClient.callTypedAPI("GET", `/hydrants/summary`, undefined, {query})
+            return await resp.json() as HydrantSummaryResponse
+        }
+
+        /** Tick a hydrant (first tick = 1 Fully functional, 1 Tested, lid secured, no trip hazard) or change its result. */
+        public async saveHydrantInspection(id: number, params: SaveHydrantInspectionRequest): Promise<HydrantInspection> {
+            const resp = await this.baseClient.callTypedAPI("PUT", `/hydrants/${encodeURIComponent(id)}/inspection`, JSON.stringify(params))
+            return await resp.json() as HydrantInspection
+        }
+
+        /** Untick a hydrant for a year. */
+        public async clearHydrantInspection(id: number, params: { year: number }): Promise<void> {
+            const query = makeRecord<string, string | string[]>({ year: String(params.year) })
+            await this.baseClient.callTypedAPI("DELETE", `/hydrants/${encodeURIComponent(id)}/inspection`, undefined, {query})
+        }
+
+        /** Mark a hydrant abandoned/removed, or back in use (WC/CC). */
+        public async setHydrantInUse(id: number, params: { "in_use": boolean }): Promise<Hydrant> {
+            const resp = await this.baseClient.callTypedAPI("PATCH", `/hydrants/${encodeURIComponent(id)}`, JSON.stringify(params))
+            return await resp.json() as Hydrant
+        }
+
+        /** Load or refresh the route sheets (WC/CC). */
+        public async importHydrants(params: { hydrants: ImportHydrant[] }): Promise<{ created: number; updated: number }> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/hydrants/import`, JSON.stringify(params))
+            return await resp.json() as { created: number; updated: number }
         }
     }
 }

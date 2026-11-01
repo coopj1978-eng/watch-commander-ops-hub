@@ -11,7 +11,7 @@ import { PaceLines, PacePill, TargetCard, TargetRing } from "./TargetParts";
 // Multi-story and hydrant targets. Multi-story buildings come from the
 // inspection plan for this watch and financial quarter, ticked right here (the
 // only place they're listed). The hydrant route is annual, by calendar year,
-// and ticked in Annual inspections below.
+// and ticked hydrant by hydrant on the Hydrants page.
 
 export function MultiStoryCard({ watch, fq, canEdit }: { watch: string; fq: FyQuarter; canEdit: boolean }) {
   const qc = useQueryClient();
@@ -92,17 +92,18 @@ export function MultiStoryCard({ watch, fq, canEdit }: { watch: string; fq: FyQu
   );
 }
 
-export function HydrantCard({ watch, fq, canEdit }: { watch: string; fq: FyQuarter; canEdit: boolean }) {
-  // The route is per calendar year — the one this quarter falls in.
+export function HydrantCard({ watch, fq }: { watch: string; fq: FyQuarter }) {
+  // The route is per calendar year — the one this quarter falls in — and
+  // comes from the station's rota and route sheets (pages/Hydrants.tsx).
   const year = fq.start.getFullYear();
   const { data, isLoading } = useQuery({
-    queryKey: ["assignments", "hydrant", watch, year],
-    queryFn: () =>
-      backend.inspection_plans.listAssignments({ plan_type: "hydrant", watch: watch || undefined, year, quarter: 0 }),
+    queryKey: ["hydrants", "summary", year],
+    queryFn: () => backend.hydrants.getHydrantSummary({ year }),
     enabled: !!watch,
   });
-  const done = data?.totals?.complete ?? 0;
-  const total = done + (data?.totals?.pending ?? 0);
+  const mine = data?.watches.find((w) => w.watch.toLowerCase() === watch.toLowerCase());
+  const done = mine?.done ?? 0;
+  const total = mine?.total ?? 0;
 
   // Pace over the calendar year.
   const now = new Date();
@@ -111,12 +112,13 @@ export function HydrantCard({ watch, fq, canEdit }: { watch: string; fq: FyQuart
   const phase = now < yStart ? "future" : now > yEnd ? "past" : "now";
   const elapsed = phase === "now" ? (now.getTime() - yStart.getTime()) / (yEnd.getTime() - yStart.getTime()) : phase === "past" ? 1 : 0;
   const p = paceOf(done, total, elapsed, phase);
+  const link = `/hydrants?watch=${encodeURIComponent(watch)}&year=${year}`;
 
   return (
     <TargetCard
       icon={<Flame className="h-[18px] w-[18px]" />}
       title="Hydrant inspections"
-      subtitle={`Annual route · ${year}`}
+      subtitle={mine ? `${mine.label} · ${year} route` : `Annual route · ${year}`}
       pill={<PacePill state={p.state} label={total === 0 && !isLoading ? "No route" : undefined} />}
       ring={
         <TargetRing actual={done} target={total} pace={p}>
@@ -128,22 +130,18 @@ export function HydrantCard({ watch, fq, canEdit }: { watch: string; fq: FyQuart
       }
     >
       {total === 0 ? (
-        <div className="space-y-2 text-sm">
-          <p className="text-muted-foreground">
-            {isLoading ? "Loading…" : `No ${year} hydrant route for ${watch} Watch yet. The target comes from the route — however many hydrants it has.`}
-          </p>
-          {canEdit && !isLoading && (
-            <Link to="/settings?tab=inspection-plans" className="inline-block text-xs font-medium text-brand hover:underline">
-              Add the route in Settings → Inspection plans →
-            </Link>
-          )}
-        </div>
+        <p className="text-sm text-muted-foreground">
+          {isLoading ? "Loading…" : data?.loaded ? `No hydrants on ${watch} Watch's ${year} route.` : "The hydrant routes haven't been loaded yet."}
+        </p>
       ) : (
         <>
           <PaceLines pace={p} noun="hydrants" shifts={null} watch={watch} />
-          {canEdit && <p className="mt-3 text-xs text-muted-foreground">Tick hydrants in Annual inspections below.</p>}
+          {!!mine?.defects && (
+            <p className="mt-2 text-sm font-medium text-amber-800 dark:text-amber-300">{mine.defects} unsatisfactory — see the route</p>
+          )}
         </>
       )}
+      <Link to={link} className="mt-3 inline-block text-sm font-medium text-brand hover:underline">Open the route →</Link>
     </TargetCard>
   );
 }

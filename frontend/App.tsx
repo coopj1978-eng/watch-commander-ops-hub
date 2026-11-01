@@ -9,6 +9,7 @@ import ProfileDetail from "./pages/ProfileDetail";
 import UnifiedCalendar from "./pages/WatchCalendar";
 import Tasks from "./pages/Tasks";
 import Targets from "./pages/Targets";
+import Hydrants from "./pages/Hydrants";
 import Policies from "./pages/Policies";
 import PolicyQA from "./pages/PolicyQA";
 import Reports from "./pages/Reports";
@@ -202,6 +203,7 @@ function AppRoutes() {
         <Route path="/tasks" element={<Tasks />} />
         <Route path="/equipment" element={<EquipmentChecks />} />
         <Route path="/targets" element={<Targets />} />
+        <Route path="/hydrants" element={<Hydrants />} />
         <Route path="/policies" element={<Policies />} />
         {/* Q&A is a stub (fakes RAG responses). Route hidden until real
             vector-based search is wired up — see policy/ask.ts for the TODO.

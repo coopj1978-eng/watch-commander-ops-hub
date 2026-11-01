@@ -116,16 +116,16 @@ export default function Targets() {
             <HfsvCard watch={watch} fq={fq} canEdit={canEdit} />
             <CommunityCard watch={watch} fq={fq} canEdit={canEdit} />
             <MultiStoryCard watch={watch} fq={fq} canEdit={canEdit} />
-            <HydrantCard watch={watch} fq={fq} canEdit={canEdit} />
+            <HydrantCard watch={watch} fq={fq} />
           </div>
 
-          {/* ── Annual inspections (care homes, hydrant route, operational) */}
+          {/* ── Annual inspections (care homes, operational) ──────────────── */}
           {!otherWatch && (
             <InspectionAssignments
               financialYear={fy}
               quarter={q}
               year={fq.start.getFullYear()}
-              exclude={["multistory"]}
+              exclude={["multistory", "hydrant"]}
             />
           )}
         </>

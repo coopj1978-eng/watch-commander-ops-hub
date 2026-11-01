@@ -27352,6 +27352,7 @@ class Client {
     this.frontend = new frontend.ServiceClient(base);
     this.h4h = new h4h.ServiceClient(base);
     this.handover = new handover.ServiceClient(base);
+    this.hydrants = new hydrants.ServiceClient(base);
     this.inspection = new inspection.ServiceClient(base);
     this.inspection_plans = new inspection_plans.ServiceClient(base);
     this.localauth = new localauth.ServiceClient(base);
@@ -28140,6 +28141,58 @@ var handover;
   }
   handover2.ServiceClient = ServiceClient;
 })(handover || (handover = {}));
+var hydrants;
+((hydrants2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.getHydrantRoute = this.getHydrantRoute.bind(this);
+      this.getHydrantSummary = this.getHydrantSummary.bind(this);
+      this.saveHydrantInspection = this.saveHydrantInspection.bind(this);
+      this.clearHydrantInspection = this.clearHydrantInspection.bind(this);
+      this.setHydrantInUse = this.setHydrantInUse.bind(this);
+      this.importHydrants = this.importHydrants.bind(this);
+    }
+    /** One watch's hydrant routes for a year, hydrant by hydrant. */
+    async getHydrantRoute(params) {
+      const query = makeRecord({
+        watch: params.watch,
+        year: params.year === void 0 ? void 0 : String(params.year)
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/hydrants/route`, void 0, { query });
+      return await resp.json();
+    }
+    /** Every watch's hydrant total and progress for a year. */
+    async getHydrantSummary(params) {
+      const query = makeRecord({
+        year: params.year === void 0 ? void 0 : String(params.year)
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/hydrants/summary`, void 0, { query });
+      return await resp.json();
+    }
+    /** Tick a hydrant (first tick = 1 Fully functional, 1 Tested, lid secured, no trip hazard) or change its result. */
+    async saveHydrantInspection(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PUT", `/hydrants/${encodeURIComponent(id)}/inspection`, JSON.stringify(params));
+      return await resp.json();
+    }
+    /** Untick a hydrant for a year. */
+    async clearHydrantInspection(id, params) {
+      const query = makeRecord({ year: String(params.year) });
+      await this.baseClient.callTypedAPI("DELETE", `/hydrants/${encodeURIComponent(id)}/inspection`, void 0, { query });
+    }
+    /** Mark a hydrant abandoned/removed, or back in use (WC/CC). */
+    async setHydrantInUse(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/hydrants/${encodeURIComponent(id)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+    /** Load or refresh the route sheets (WC/CC). */
+    async importHydrants(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/hydrants/import`, JSON.stringify(params));
+      return await resp.json();
+    }
+  }
+  hydrants2.ServiceClient = ServiceClient;
+})(hydrants || (hydrants = {}));
 var inspection;
 ((inspection2) => {
   class ServiceClient {
@@ -29575,6 +29628,7 @@ const navGroups = [
     label: "Work",
     items: [
       { name: "Targets", path: "/targets", icon: Target, ariaLabel: "Go to Targets", featureKey: "targets" },
+      { name: "Hydrants", path: "/hydrants", icon: Flame, ariaLabel: "Go to Hydrant Routes" },
       { name: "Detachments", path: "/detachments", icon: Navigation, ariaLabel: "Go to Detachment Rota", featureKey: "detachments" },
       { name: "J4 Checks", path: "/equipment", icon: Truck, ariaLabel: "Go to J4 Equipment Checks", featureKey: "equipment" },
       { name: "Training", path: "/training", icon: GraduationCap, ariaLabel: "Go to Training" },
@@ -32050,30 +32104,30 @@ var DropdownMenuGroup = reactExports.forwardRef(
 );
 DropdownMenuGroup.displayName = GROUP_NAME$1;
 var LABEL_NAME$1 = "DropdownMenuLabel";
-var DropdownMenuLabel = reactExports.forwardRef(
+var DropdownMenuLabel$1 = reactExports.forwardRef(
   (props, forwardedRef) => {
     const { __scopeDropdownMenu, ...labelProps } = props;
     const menuScope = useMenuScope(__scopeDropdownMenu);
     return /* @__PURE__ */ jsxRuntimeExports.jsx(Label$2, { ...menuScope, ...labelProps, ref: forwardedRef });
   }
 );
-DropdownMenuLabel.displayName = LABEL_NAME$1;
+DropdownMenuLabel$1.displayName = LABEL_NAME$1;
 var ITEM_NAME$1 = "DropdownMenuItem";
-var DropdownMenuItem = reactExports.forwardRef(
+var DropdownMenuItem$1 = reactExports.forwardRef(
   (props, forwardedRef) => {
     const { __scopeDropdownMenu, ...itemProps } = props;
     const menuScope = useMenuScope(__scopeDropdownMenu);
     return /* @__PURE__ */ jsxRuntimeExports.jsx(Item2$1, { ...menuScope, ...itemProps, ref: forwardedRef });
   }
 );
-DropdownMenuItem.displayName = ITEM_NAME$1;
+DropdownMenuItem$1.displayName = ITEM_NAME$1;
 var CHECKBOX_ITEM_NAME = "DropdownMenuCheckboxItem";
-var DropdownMenuCheckboxItem = reactExports.forwardRef((props, forwardedRef) => {
+var DropdownMenuCheckboxItem$1 = reactExports.forwardRef((props, forwardedRef) => {
   const { __scopeDropdownMenu, ...checkboxItemProps } = props;
   const menuScope = useMenuScope(__scopeDropdownMenu);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(CheckboxItem, { ...menuScope, ...checkboxItemProps, ref: forwardedRef });
 });
-DropdownMenuCheckboxItem.displayName = CHECKBOX_ITEM_NAME;
+DropdownMenuCheckboxItem$1.displayName = CHECKBOX_ITEM_NAME;
 var RADIO_GROUP_NAME = "DropdownMenuRadioGroup";
 var DropdownMenuRadioGroup = reactExports.forwardRef((props, forwardedRef) => {
   const { __scopeDropdownMenu, ...radioGroupProps } = props;
@@ -32147,7 +32201,9 @@ var Root2$3 = DropdownMenu$1;
 var Trigger$3 = DropdownMenuTrigger$1;
 var Portal2$1 = DropdownMenuPortal;
 var Content2$2 = DropdownMenuContent$1;
-var Item2 = DropdownMenuItem;
+var Label2 = DropdownMenuLabel$1;
+var Item2 = DropdownMenuItem$1;
+var CheckboxItem2 = DropdownMenuCheckboxItem$1;
 var RadioGroup2 = DropdownMenuRadioGroup;
 var RadioItem2 = DropdownMenuRadioItem;
 var ItemIndicator2 = DropdownMenuItemIndicator;
@@ -32185,6 +32241,67 @@ function DropdownMenuContent({
       ...props
     }
   ) });
+}
+function DropdownMenuItem({
+  className,
+  inset,
+  variant = "default",
+  ...props
+}) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    Item2,
+    {
+      "data-slot": "dropdown-menu-item",
+      "data-inset": inset,
+      "data-variant": variant,
+      className: cn(
+        "focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:!text-destructive [&_svg:not([class*='text-'])]:text-muted-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        className
+      ),
+      ...props
+    }
+  );
+}
+function DropdownMenuCheckboxItem({
+  className,
+  children,
+  checked,
+  ...props
+}) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    CheckboxItem2,
+    {
+      "data-slot": "dropdown-menu-checkbox-item",
+      className: cn(
+        "focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-sm py-1.5 pr-2 pl-8 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        className
+      ),
+      checked,
+      ...props,
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pointer-events-none absolute left-2 flex size-3.5 items-center justify-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ItemIndicator2, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "size-4" }) }) }),
+        children
+      ]
+    }
+  );
+}
+function DropdownMenuLabel({
+  className,
+  inset,
+  ...props
+}) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    Label2,
+    {
+      "data-slot": "dropdown-menu-label",
+      "data-inset": inset,
+      className: cn(
+        "px-2 py-1.5 text-sm font-medium data-[inset]:pl-8",
+        className
+      ),
+      ...props
+    }
+  );
 }
 var DIALOG_NAME = "Dialog";
 var [createDialogContext, createDialogScope] = createContextScope$1(DIALOG_NAME);
@@ -54211,7 +54328,8 @@ const TARGET_QUERY_ROOTS = /* @__PURE__ */ new Set([
   "wc-hfsv",
   "wc-community",
   "wc-multistory",
-  "wc-hydrant"
+  "wc-hydrant",
+  "hydrants"
 ]);
 function invalidateTargetViews(qc) {
   return qc.invalidateQueries({ predicate: (q) => TARGET_QUERY_ROOTS.has(String(q.queryKey[0])) });
@@ -59360,7 +59478,7 @@ const DOW = ["M", "T", "W", "T", "F", "S", "S"];
 const dayKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
 const daysFromToday = (d) => Math.round((startOfDay(d).getTime() - startOfDay(/* @__PURE__ */ new Date()).getTime()) / 864e5);
-const shortDate = (d) => d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+const shortDate$1 = (d) => d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
 const hhmm$1 = (d) => `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 function shiftKind(s) {
   if (!s) return null;
@@ -59553,7 +59671,7 @@ function TaskSidePanel({ watch, tasks, selectedDay, onPickDay, onOpenTask }) {
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: 13, fontWeight: 600 }, children: [
             "Planned ",
-            shortDate(selectedDay)
+            shortDate$1(selectedDay)
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => onPickDay(null), className: "cal-focus", style: { border: "none", background: "transparent", color: "var(--cal-muted)", font: "inherit", fontSize: 12, cursor: "pointer", padding: "2px 4px" }, children: "Close" })
         ] }),
@@ -59657,7 +59775,7 @@ function buildUpcoming(tasks, events2) {
       key: `t${t.id}`,
       kind: diff < 0 ? "over" : diff <= 3 ? "soon" : "plain",
       tag: rel ? `${label2} · ${rel}` : label2,
-      when: shortDate(due),
+      when: shortDate$1(due),
       title: t.title,
       at: diff < 0 ? -1e15 + due.getTime() : startOfDay(due).getTime(),
       date: dayKey(due),
@@ -59667,7 +59785,7 @@ function buildUpcoming(tasks, events2) {
   for (const e of events2) {
     if (e.start.getTime() < now - (e.allDay ? 864e5 : 0)) continue;
     const diff = daysFromToday(e.start);
-    const day = diff === 0 ? "Today" : diff === 1 ? "Tomorrow" : shortDate(e.start);
+    const day = diff === 0 ? "Today" : diff === 1 ? "Tomorrow" : shortDate$1(e.start);
     items.push({
       key: `e${e.id}`,
       kind: "ev",
@@ -59698,7 +59816,7 @@ function TaskWeekStrip({ watch, tasks, selectedDay, onPickDay, onOpenTask }) {
         style: { display: "flex", flexDirection: "column", gap: 8, padding: "10px 12px", borderRadius: 16, border: "none", background: "var(--cal-surface)", boxShadow: "var(--cal-card-shadow)", font: "inherit", color: "var(--cal-ink)", textAlign: "left", cursor: "pointer" },
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "flex", alignItems: "center", gap: 8, width: "100%" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 13, fontWeight: 600 }, children: shortDate(today) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 13, fontWeight: 600 }, children: shortDate$1(today) }),
             rota && /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftPill, { watch, small: true }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "h-4 w-4", style: { marginLeft: "auto", color: "var(--cal-muted)", transform: open ? "rotate(180deg)" : void 0, transition: "transform .15s" } })
           ] }),
@@ -62227,28 +62345,29 @@ function MultiStoryCard({ watch, fq, canEdit }) {
     }
   );
 }
-function HydrantCard({ watch, fq, canEdit }) {
-  var _a2, _b2;
+function HydrantCard({ watch, fq }) {
   const year = fq.start.getFullYear();
   const { data, isLoading } = useQuery({
-    queryKey: ["assignments", "hydrant", watch, year],
-    queryFn: () => backendClient.inspection_plans.listAssignments({ plan_type: "hydrant", watch: watch || void 0, year, quarter: 0 }),
+    queryKey: ["hydrants", "summary", year],
+    queryFn: () => backendClient.hydrants.getHydrantSummary({ year }),
     enabled: !!watch
   });
-  const done = ((_a2 = data == null ? void 0 : data.totals) == null ? void 0 : _a2.complete) ?? 0;
-  const total = done + (((_b2 = data == null ? void 0 : data.totals) == null ? void 0 : _b2.pending) ?? 0);
+  const mine = data == null ? void 0 : data.watches.find((w) => w.watch.toLowerCase() === watch.toLowerCase());
+  const done = (mine == null ? void 0 : mine.done) ?? 0;
+  const total = (mine == null ? void 0 : mine.total) ?? 0;
   const now = /* @__PURE__ */ new Date();
   const yStart = new Date(year, 0, 1);
   const yEnd = new Date(year, 11, 31);
   const phase = now < yStart ? "future" : now > yEnd ? "past" : "now";
   const elapsed = phase === "now" ? (now.getTime() - yStart.getTime()) / (yEnd.getTime() - yStart.getTime()) : phase === "past" ? 1 : 0;
   const p = pace(done, total, elapsed, phase);
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+  const link = `/hydrants?watch=${encodeURIComponent(watch)}&year=${year}`;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     TargetCard,
     {
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Flame, { className: "h-[18px] w-[18px]" }),
       title: "Hydrant inspections",
-      subtitle: `Annual route · ${year}`,
+      subtitle: mine ? `${mine.label} · ${year} route` : `Annual route · ${year}`,
       pill: /* @__PURE__ */ jsxRuntimeExports.jsx(PacePill, { state: p.state, label: total === 0 && !isLoading ? "No route" : void 0 }),
       ring: /* @__PURE__ */ jsxRuntimeExports.jsx(TargetRing, { actual: done, target: total, pace: p, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono text-3xl font-semibold tabular-nums leading-none", children: isLoading ? "…" : done }),
@@ -62257,13 +62376,16 @@ function HydrantCard({ watch, fq, canEdit }) {
           total
         ] })
       ] }) }),
-      children: total === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2 text-sm", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground", children: isLoading ? "Loading…" : `No ${year} hydrant route for ${watch} Watch yet. The target comes from the route — however many hydrants it has.` }),
-        canEdit && !isLoading && /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: "/settings?tab=inspection-plans", className: "inline-block text-xs font-medium text-brand hover:underline", children: "Add the route in Settings → Inspection plans →" })
-      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(PaceLines, { pace: p, noun: "hydrants", shifts: null, watch }),
-        canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-3 text-xs text-muted-foreground", children: "Tick hydrants in Annual inspections below." })
-      ] })
+      children: [
+        total === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: isLoading ? "Loading…" : (data == null ? void 0 : data.loaded) ? `No hydrants on ${watch} Watch's ${year} route.` : "The hydrant routes haven't been loaded yet." }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(PaceLines, { pace: p, noun: "hydrants", shifts: null, watch }),
+          !!(mine == null ? void 0 : mine.defects) && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "mt-2 text-sm font-medium text-amber-800 dark:text-amber-300", children: [
+            mine.defects,
+            " unsatisfactory — see the route"
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: link, className: "mt-3 inline-block text-sm font-medium text-brand hover:underline", children: "Open the route →" })
+      ]
     }
   );
 }
@@ -62310,26 +62432,26 @@ function StationComparison({
       {
         queryKey: ["assignments", "multistory", w, fq.fy, fq.q],
         queryFn: () => backendClient.inspection_plans.listAssignments({ plan_type: "multistory", watch: w, year: fq.fy, quarter: fq.q })
-      },
-      {
-        queryKey: ["assignments", "hydrant", w, year],
-        queryFn: () => backendClient.inspection_plans.listAssignments({ plan_type: "hydrant", watch: w, year, quarter: 0 })
       }
     ])
   });
+  const { data: hydrantYear } = useQuery({
+    queryKey: ["hydrants", "summary", year],
+    queryFn: () => backendClient.hydrants.getHydrantSummary({ year })
+  });
   const rows = STATION_WATCHES.map((w, i) => {
-    var _a2, _b2, _c2, _d2;
-    const hf = results[i * 4].data;
-    const cm = results[i * 4 + 1].data;
-    const ms = results[i * 4 + 2].data;
-    const hy = results[i * 4 + 3].data;
+    var _a2, _b2;
+    const hf = results[i * 3].data;
+    const cm = results[i * 3 + 1].data;
+    const ms = results[i * 3 + 2].data;
+    const hy = hydrantYear == null ? void 0 : hydrantYear.watches.find((x) => x.watch === w);
     const hfDone = (hf == null ? void 0 : hf.total_completed) ?? 0;
     const cmDone = (cm == null ? void 0 : cm.total_completed) ?? 0;
     const tap = (cm == null ? void 0 : cm.total_tap_completed) ?? 0;
     const msDone = ((_a2 = ms == null ? void 0 : ms.totals) == null ? void 0 : _a2.complete) ?? 0;
     const msTotal = msDone + (((_b2 = ms == null ? void 0 : ms.totals) == null ? void 0 : _b2.pending) ?? 0);
-    const hyDone = ((_c2 = hy == null ? void 0 : hy.totals) == null ? void 0 : _c2.complete) ?? 0;
-    const hyTotal = hyDone + (((_d2 = hy == null ? void 0 : hy.totals) == null ? void 0 : _d2.pending) ?? 0);
+    const hyDone = (hy == null ? void 0 : hy.done) ?? 0;
+    const hyTotal = (hy == null ? void 0 : hy.total) ?? 0;
     return {
       watch: w,
       hfsv: { done: hfDone, target: HFSV_TARGET_Q, p: pace(hfDone, HFSV_TARGET_Q, time.elapsed, time.phase) },
@@ -62538,7 +62660,7 @@ function Targets() {
         /* @__PURE__ */ jsxRuntimeExports.jsx(HfsvCard, { watch, fq, canEdit }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(CommunityCard, { watch, fq, canEdit }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(MultiStoryCard, { watch, fq, canEdit }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(HydrantCard, { watch, fq, canEdit })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(HydrantCard, { watch, fq })
       ] }),
       !otherWatch && /* @__PURE__ */ jsxRuntimeExports.jsx(
         InspectionAssignments,
@@ -62546,11 +62668,527 @@ function Targets() {
           financialYear: fy,
           quarter: q,
           year: fq.start.getFullYear(),
-          exclude: ["multistory"]
+          exclude: ["multistory", "hydrant"]
         }
       )
     ] })
   ] });
+}
+const INSPECTION_CODES = {
+  1: "Fully functional",
+  2: "Unable to inspect – assistance required",
+  3: "Unable to inspect – Scottish Water meter fitted",
+  4: "Unable to inspect – car parked over hydrant",
+  5: "Unable to locate hydrant",
+  6: "New hydrant – adopted",
+  7: "Unsatisfactory (dry / low water pressure)",
+  8: "Unsatisfactory (trip hazard)",
+  9: "Unsatisfactory (jammed lid)",
+  10: "Unsatisfactory (seized spindle)",
+  11: "Unsatisfactory (misaligned)",
+  12: "Unsatisfactory (leaking)",
+  13: "Unsatisfactory (other)"
+};
+const ACTION_CODES = {
+  1: "Tested",
+  2: "Cleaned",
+  3: "H1 raised",
+  4: "Timber lid fitted",
+  5: "New metal lid fitted",
+  6: "In-house repair",
+  7: "Plate fitted",
+  8: "Painted",
+  9: "Capped"
+};
+const NEEDS_COMMENT = [8, 13];
+const isUnable = (codes) => codes.some((c) => c >= 2 && c <= 5);
+const isDefect = (codes) => codes.some((c) => c >= 7 && c <= 13);
+const FIRST_YEAR = 2019;
+const thisYear = () => (/* @__PURE__ */ new Date()).getFullYear();
+function yearPace(year) {
+  const now = /* @__PURE__ */ new Date();
+  const start = new Date(year, 0, 1).getTime();
+  const end = new Date(year + 1, 0, 1).getTime();
+  const phase = now.getTime() < start ? "future" : now.getTime() >= end ? "past" : "now";
+  const elapsed = phase === "now" ? (now.getTime() - start) / (end - start) : phase === "past" ? 1 : 0;
+  return { phase, elapsed };
+}
+const shortDate = (iso) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+function Hydrants() {
+  const { user: user2 } = useAuth();
+  const qc = useQueryClient();
+  const { toast: toast2 } = useToast();
+  const [params, setParams] = useSearchParams();
+  const ownWatch = (user2 == null ? void 0 : user2.watch_unit) ?? "";
+  const isManager = (user2 == null ? void 0 : user2.role) === "WC" || (user2 == null ? void 0 : user2.role) === "CC";
+  const watch = STATION_WATCHES.find((w) => w === params.get("watch")) ?? ownWatch;
+  const year = Math.min(Math.max(Number(params.get("year")) || thisYear(), FIRST_YEAR), thisYear() + 1);
+  const [search, setSearch] = reactExports.useState("");
+  const [filter, setFilter] = reactExports.useState("all");
+  const [closed, setClosed] = reactExports.useState(/* @__PURE__ */ new Set());
+  const select = (next) => {
+    const p2 = new URLSearchParams(params);
+    const w = next.watch ?? watch;
+    if (w && w !== ownWatch) p2.set("watch", w);
+    else p2.delete("watch");
+    const y = next.year ?? year;
+    if (y !== thisYear()) p2.set("year", String(y));
+    else p2.delete("year");
+    setParams(p2, { replace: true });
+  };
+  const key2 = ["hydrants", "route", watch, year];
+  const { data, isLoading, isError } = useQuery({
+    queryKey: key2,
+    queryFn: () => backendClient.hydrants.getHydrantRoute({ watch: watch || void 0, year }),
+    enabled: !!watch
+  });
+  const patchCache = (id, inspection2) => qc.setQueryData(key2, (old) => old && {
+    ...old,
+    routes: old.routes.map((r2) => ({ ...r2, hydrants: r2.hydrants.map((h) => h.id === id ? { ...h, inspection: inspection2 } : h) }))
+  });
+  const refresh = () => {
+    qc.invalidateQueries({ queryKey: ["hydrants"] });
+    invalidateTargetViews(qc);
+  };
+  const failed = (err) => {
+    qc.invalidateQueries({ queryKey: key2 });
+    toast2({ title: "Couldn't save the hydrant", description: err instanceof Error ? err.message : void 0, variant: "destructive" });
+  };
+  const save = useMutation({
+    mutationFn: ({ h, patch }) => backendClient.hydrants.saveHydrantInspection(h.id, patch),
+    onMutate: ({ h, patch }) => {
+      const base = h.inspection ?? {
+        hydrant_id: h.id,
+        year,
+        watch,
+        lid_ok: true,
+        trip_hazard: false,
+        inspection_codes: [1],
+        action_codes: [1],
+        comment: null,
+        inspected_by: (user2 == null ? void 0 : user2.id) ?? "",
+        inspected_by_name: (user2 == null ? void 0 : user2.name) ?? null,
+        inspected_at: (/* @__PURE__ */ new Date()).toISOString()
+      };
+      patchCache(h.id, { ...base, ...patch, year });
+    },
+    onSuccess: (saved, { h }) => patchCache(h.id, saved),
+    onError: failed,
+    onSettled: refresh
+  });
+  const clear = useMutation({
+    mutationFn: (h) => backendClient.hydrants.clearHydrantInspection(h.id, { year }),
+    onMutate: (h) => patchCache(h.id, null),
+    onError: failed,
+    onSettled: refresh
+  });
+  const setInUse = useMutation({
+    mutationFn: ({ h, inUse }) => backendClient.hydrants.setHydrantInUse(h.id, { in_use: inUse }),
+    onError: failed,
+    onSettled: refresh
+  });
+  const tick = (h) => {
+    if (!h.inspection) {
+      save.mutate({ h, patch: { year } });
+      return;
+    }
+    const before = h.inspection;
+    clear.mutate(h);
+    toast2({
+      title: `Unticked #${h.seq} ${h.street}`,
+      duration: 1e4,
+      action: /* @__PURE__ */ jsxRuntimeExports.jsx(ToastAction, { altText: "Undo", onClick: () => save.mutate({
+        h: { ...h, inspection: null },
+        patch: {
+          year,
+          lid_ok: before.lid_ok,
+          trip_hazard: before.trip_hazard,
+          inspection_codes: before.inspection_codes,
+          action_codes: before.action_codes,
+          comment: before.comment
+        }
+      }), children: "Undo" })
+    });
+  };
+  const q = search.trim().toLowerCase();
+  const routes = reactExports.useMemo(() => ((data == null ? void 0 : data.routes) ?? []).map((r2) => ({
+    ...r2,
+    shown: r2.hydrants.filter((h) => {
+      if (q && ![h.street, h.location ?? "", h.ref ?? "", `#${h.seq}`].some((s) => s.toLowerCase().includes(q))) return false;
+      const i = h.inspection;
+      if (filter === "todo") return h.in_use && !i;
+      if (filter === "done") return !!i;
+      if (filter === "issues") return !!i && (isDefect(i.inspection_codes) || isUnable(i.inspection_codes) || i.lid_ok === false || i.trip_hazard === true);
+      return true;
+    })
+  })), [data, q, filter]);
+  const total = (data == null ? void 0 : data.total) ?? 0;
+  const done = (data == null ? void 0 : data.done) ?? 0;
+  const yp = yearPace(year);
+  const p = pace(done, total, yp.elapsed, yp.phase);
+  const notInUse = ((data == null ? void 0 : data.routes) ?? []).reduce((n, r2) => n + r2.hydrants.filter((h) => !h.in_use).length, 0);
+  const canEdit = !!(data == null ? void 0 : data.can_edit) && year <= thisYear();
+  const otherWatch = watch !== ownWatch;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", style: { gap: "var(--gap-section)" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-end justify-between gap-x-6 gap-y-3", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eyebrow", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: "/targets", className: "hover:underline", children: "Targets" }),
+          " · ",
+          watch ? `${watch} Watch` : "No watch set",
+          data && ` · Year ${data.cycle_year} of 15`
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-1 flex flex-wrap items-center gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-3xl font-semibold tracking-tight", children: "Hydrants" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", role: "group", "aria-label": "Year", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                className: "grid h-8 w-8 place-items-center rounded-lg border border-border hover:bg-muted disabled:opacity-40",
+                "aria-label": "Previous year",
+                disabled: year <= FIRST_YEAR,
+                onClick: () => select({ year: year - 1 }),
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronLeft, { className: "h-4 w-4" })
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-14 text-center font-mono text-sm font-semibold tabular-nums", children: year }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                className: "grid h-8 w-8 place-items-center rounded-lg border border-border hover:bg-muted disabled:opacity-40",
+                "aria-label": "Next year",
+                disabled: year >= thisYear() + 1,
+                onClick: () => select({ year: year + 1 }),
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-4 w-4" })
+              }
+            )
+          ] })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1.5", role: "group", "aria-label": "Watch", children: STATION_WATCHES.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "button",
+        {
+          onClick: () => select({ watch: w }),
+          "aria-pressed": w === watch,
+          className: cn(
+            "inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition-colors",
+            w === watch ? "border-foreground/70 bg-foreground text-background" : "border-border hover:bg-muted"
+          ),
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(WatchDot, { watch: w }),
+            " ",
+            w,
+            w === ownWatch && w !== watch ? " (yours)" : ""
+          ]
+        },
+        w
+      )) })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("section", { className: "rounded-2xl border border-border/70 bg-card p-4 sm:p-5", children: isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "Loading…" }) : isError || !data ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "Couldn't load the hydrant route." }) : !data.loaded ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "The hydrant routes haven't been loaded yet." }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-3", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-x-4 gap-y-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono text-3xl font-semibold tabular-nums leading-none", children: [
+          done,
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-muted-foreground", children: [
+            "/",
+            total
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-semibold", children: data.label }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs text-muted-foreground", children: [
+            watch,
+            " Watch's route for ",
+            year,
+            otherWatch && " · read only"
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsx(PacePill, { state: p.state }) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative h-2.5 rounded-full bg-muted", role: "progressbar", "aria-valuemin": 0, "aria-valuemax": total, "aria-valuenow": done, "aria-label": "Hydrants inspected", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: cn("absolute inset-y-0 left-0 rounded-full transition-[width]", p.state === "behind" || p.state === "late" ? "bg-amber-500" : p.state === "done" ? "bg-emerald-500" : "bg-brand"),
+            style: { width: `${total ? Math.round(done / total * 100) : 0}%` }
+          }
+        ),
+        yp.phase === "now" && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "absolute -inset-y-1 w-0.5 rounded bg-foreground", style: { left: `calc(${yp.elapsed * 100}% - 1px)` }, title: `${Math.round(yp.elapsed * 100)}% of ${year} gone` })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(PaceLines, { pace: p, noun: "hydrants", shifts: null, watch }),
+      (data.defects > 0 || data.unable > 0 || notInUse > 0) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-1.5 text-xs font-medium", children: [
+        data.defects > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => setFilter("issues"), className: "inline-flex items-center gap-1 rounded-lg bg-amber-100 px-2 py-1 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "h-3.5 w-3.5" }),
+          " ",
+          data.defects,
+          " unsatisfactory"
+        ] }),
+        data.unable > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => setFilter("issues"), className: "rounded-lg bg-amber-100 px-2 py-1 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300", children: [
+          data.unable,
+          " couldn't be inspected"
+        ] }),
+        notInUse > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "rounded-lg bg-muted px-2 py-1 text-muted-foreground", children: [
+          notInUse,
+          " not in use (not counted)"
+        ] })
+      ] })
+    ] }) }),
+    (data == null ? void 0 : data.loaded) && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "relative min-w-[200px] flex-1", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              value: search,
+              onChange: (e) => setSearch(e.target.value),
+              placeholder: "Street, location or ID",
+              "aria-label": "Search hydrants",
+              className: "h-10 w-full rounded-xl border border-border bg-background pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-brand/40"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "seg", style: { width: 300 }, role: "group", "aria-label": "Show", children: [["all", "All"], ["todo", "To do"], ["done", "Done"], ["issues", "Issues"]].map(([k, label2]) => /* @__PURE__ */ jsxRuntimeExports.jsx("button", { "data-on": filter === k, onClick: () => setFilter(k), children: label2 }, k)) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-col gap-4", children: routes.map((r2) => {
+        const live = r2.hydrants.filter((h) => h.in_use);
+        const rDone = live.filter((h) => h.inspection).length;
+        const open = !closed.has(r2.route);
+        if (r2.shown.length === 0 && (q || filter !== "all")) return null;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "rounded-2xl border border-border/70 bg-card", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              className: "flex w-full items-center gap-3 px-4 py-3 text-left",
+              "aria-expanded": open,
+              onClick: () => setClosed((s) => {
+                const n = new Set(s);
+                if (n.has(r2.route)) n.delete(r2.route);
+                else n.add(r2.route);
+                return n;
+              }),
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-semibold", children: [
+                  "SP ",
+                  r2.route
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-muted-foreground", children: [
+                  [...new Set(live.map((h) => h.street))].slice(0, 3).join(", "),
+                  new Set(live.map((h) => h.street)).size > 3 ? "…" : ""
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-auto font-mono text-xs tabular-nums text-muted-foreground", children: rDone === live.length && live.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-semibold text-emerald-700 dark:text-emerald-400", children: [
+                  "All ",
+                  live.length,
+                  " done"
+                ] }) : `${rDone}/${live.length}` }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: cn("h-4 w-4 text-muted-foreground transition-transform", !open && "-rotate-90") })
+              ]
+            }
+          ),
+          open && /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "flex flex-col gap-1.5 border-t border-border/60 p-2 sm:p-3", children: r2.shown.map((h) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            HydrantRow,
+            {
+              h,
+              canEdit,
+              isManager,
+              onTick: () => tick(h),
+              onSave: (patch) => save.mutate({ h, patch: { year, ...patch } }),
+              onInUse: (inUse) => setInUse.mutate({ h, inUse })
+            },
+            h.id
+          )) })
+        ] }, r2.route);
+      }) })
+    ] })
+  ] });
+}
+function HydrantRow({
+  h,
+  canEdit,
+  isManager,
+  onTick,
+  onSave,
+  onInUse
+}) {
+  const i = h.inspection;
+  const issue = !!i && (isDefect(i.inspection_codes) || isUnable(i.inspection_codes) || i.lid_ok === false || i.trip_hazard === true);
+  const wantsComment = !!i && i.inspection_codes.some((c) => NEEDS_COMMENT.includes(c)) && !i.comment;
+  const details = [h.main_size && `${h.main_size}mm`, h.surface, h.marker, h.dist && `dist ${h.dist}`].filter(Boolean).join(" · ");
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "li",
+    {
+      className: cn(
+        "rounded-xl px-2 py-2 sm:px-3",
+        !h.in_use && "opacity-60",
+        issue ? "bg-amber-50 ring-1 ring-amber-300/70 dark:bg-amber-500/10 dark:ring-amber-500/30" : i ? "bg-muted/40" : ""
+      ),
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-3", children: [
+          h.in_use ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              onClick: onTick,
+              disabled: !canEdit,
+              "aria-pressed": !!i,
+              "aria-label": i ? `Untick hydrant ${h.seq}, ${h.street}` : `Tick hydrant ${h.seq}, ${h.street} as inspected`,
+              className: cn(
+                "grid h-10 w-10 shrink-0 place-items-center rounded-xl border-2 transition-colors sm:h-9 sm:w-9",
+                i ? "border-emerald-500 bg-emerald-500 text-white" : "border-muted-foreground/40 bg-background",
+                canEdit ? i ? "hover:bg-emerald-600" : "hover:border-emerald-500" : "cursor-default"
+              ),
+              children: i && /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-5 w-5", strokeWidth: 3 })
+            }
+          ) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "grid h-10 w-10 shrink-0 place-items-center text-[10px] font-semibold uppercase text-muted-foreground sm:h-9 sm:w-9", children: "off" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0 flex-1 pt-0.5", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-baseline gap-x-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono text-xs text-muted-foreground", children: [
+                "#",
+                h.seq
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn("font-medium", !h.in_use && "line-through"), children: h.street }),
+              h.ref && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono text-[11px] text-muted-foreground", children: [
+                "ID ",
+                h.ref
+              ] }),
+              !h.in_use && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px] font-medium text-muted-foreground", children: "Not in use" })
+            ] }),
+            h.location && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-muted-foreground", children: h.location }),
+            details && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] text-muted-foreground", children: details })
+          ] }),
+          i && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "shrink-0 pt-1 font-mono text-[11px] text-muted-foreground", title: `Ticked by ${i.inspected_by_name ?? "someone"}`, children: [
+            initialsOf(i.inspected_by_name),
+            " · ",
+            shortDate(i.inspected_at)
+          ] }),
+          isManager && /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenu, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuTrigger, { className: "grid h-8 w-8 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-muted", "aria-label": `More for hydrant ${h.seq}`, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Ellipsis, { className: "h-4 w-4" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuContent, { align: "end", children: /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuItem, { onSelect: () => onInUse(!h.in_use), children: h.in_use ? "Mark not in use (abandoned / removed)" : "Mark back in use" }) })
+          ] })
+        ] }),
+        i && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 grid grid-cols-2 gap-2 sm:ml-12 sm:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_auto_auto] sm:items-center", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            CodePicker,
+            {
+              label: "Inspection",
+              codes: i.inspection_codes,
+              names: INSPECTION_CODES,
+              disabled: !canEdit,
+              problem: isDefect(i.inspection_codes) || isUnable(i.inspection_codes),
+              onChange: (codes) => onSave({ inspection_codes: codes })
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(CodePicker, { label: "Action", codes: i.action_codes, names: ACTION_CODES, disabled: !canEdit, onChange: (codes) => onSave({ action_codes: codes }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(YesNo, { label: "Lid secured", value: i.lid_ok, problemWhen: false, disabled: !canEdit, onChange: (v) => onSave({ lid_ok: v }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(YesNo, { label: "Trip hazard", value: i.trip_hazard, problemWhen: true, disabled: !canEdit, onChange: (v) => onSave({ trip_hazard: v }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            CommentBox,
+            {
+              initial: i.comment ?? "",
+              wanted: wantsComment,
+              disabled: !canEdit,
+              onSave: (comment) => onSave({ comment })
+            },
+            `${h.id}-${i.comment ?? ""}`
+          )
+        ] })
+      ]
+    }
+  );
+}
+function CodePicker({
+  label: label2,
+  codes,
+  names,
+  disabled,
+  problem,
+  onChange
+}) {
+  const summary = codes.length === 0 ? "Pick a code" : codes.length === 1 ? `${codes[0]} · ${names[codes[0]]}` : codes.join(", ");
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenu, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      DropdownMenuTrigger,
+      {
+        disabled,
+        className: cn(
+          "flex h-10 min-w-0 items-center gap-1.5 rounded-lg border bg-background px-2.5 text-left text-sm disabled:cursor-default sm:h-9",
+          problem ? "border-amber-400 text-amber-900 dark:border-amber-500/60 dark:text-amber-200" : "border-border"
+        ),
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "shrink-0 text-[11px] text-muted-foreground", children: label2 }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "min-w-0 flex-1 truncate font-medium", children: summary }),
+          !disabled && /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "h-3.5 w-3.5 shrink-0 text-muted-foreground" })
+        ]
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuContent, { align: "start", className: "max-h-[60vh] w-80 overflow-y-auto", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuLabel, { children: [
+        label2,
+        " code(s)"
+      ] }),
+      Object.entries(names).map(([n, name]) => {
+        const code = Number(n);
+        const on = codes.includes(code);
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          DropdownMenuCheckboxItem,
+          {
+            checked: on,
+            onSelect: (e) => e.preventDefault(),
+            onCheckedChange: () => {
+              const next = on ? codes.filter((c) => c !== code) : [...codes, code].sort((a, b) => a - b);
+              if (next.length) onChange(next);
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-5 shrink-0 font-mono text-xs text-muted-foreground", children: code }),
+              " ",
+              name
+            ]
+          },
+          code
+        );
+      })
+    ] })
+  ] });
+}
+function YesNo({
+  label: label2,
+  value,
+  problemWhen,
+  disabled,
+  onChange
+}) {
+  const problem = value === problemWhen;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-2 sm:justify-start", role: "group", "aria-label": label2, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn("text-xs", problem ? "font-semibold text-amber-800 dark:text-amber-300" : "text-muted-foreground"), children: label2 }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "seg", style: { width: 76 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { "data-on": value === true, disabled, onClick: () => onChange(true), children: "Y" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { "data-on": value === false, disabled, onClick: () => onChange(false), children: "N" })
+    ] })
+  ] });
+}
+function CommentBox({ initial, wanted, disabled, onSave }) {
+  const [text, setText] = reactExports.useState(initial);
+  const commit = () => {
+    if (text.trim() !== initial.trim()) onSave(text.trim() || null);
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "input",
+    {
+      value: text,
+      disabled,
+      onChange: (e) => setText(e.target.value),
+      onBlur: commit,
+      onKeyDown: (e) => {
+        if (e.key === "Enter") e.target.blur();
+      },
+      placeholder: wanted ? "Add a comment — this code needs one" : "Comment (optional)",
+      "aria-label": "Comment",
+      maxLength: 500,
+      className: cn(
+        "col-span-2 h-10 rounded-lg border bg-background px-2.5 text-sm outline-none focus:ring-2 focus:ring-brand/40 sm:col-span-4 sm:h-9",
+        wanted ? "border-amber-400 placeholder:text-amber-700 dark:placeholder:text-amber-300" : "border-border"
+      )
+    }
+  );
 }
 const DOC_CATEGORIES = [
   "Operational Guidance",
@@ -66332,153 +66970,6 @@ function CareHomeSection({ canEdit }) {
     ] })
   ] });
 }
-function HydrantSection({ canEdit }) {
-  const { toast: toast2 } = useToast();
-  const qc = useQueryClient();
-  const [adding, setAdding] = reactExports.useState(false);
-  const [newFields, setNewFields] = reactExports.useState({ area_code: "", street: "", section: "", year: (/* @__PURE__ */ new Date()).getFullYear(), watch: null });
-  const [editId, setEditId] = reactExports.useState(null);
-  const [editFields, setEditFields] = reactExports.useState({ area_code: "", street: "", section: "", year: 0, watch: null });
-  const [confirmDelete, setConfirmDelete] = reactExports.useState(null);
-  const [movePending, setMovePending] = reactExports.useState(false);
-  const { data, isLoading } = useQuery({
-    queryKey: ["inspection-plans-hydrants"],
-    queryFn: () => backendClient.inspection_plans.listHydrants()
-  });
-  const createMutation = useMutation({
-    mutationFn: () => backendClient.inspection_plans.createHydrant({
-      area_code: newFields.area_code,
-      street: newFields.street,
-      section: newFields.section,
-      year: newFields.year,
-      watch: newFields.watch ?? void 0
-    }),
-    onSuccess: () => {
-      toast2({ title: "Hydrant added" });
-      qc.invalidateQueries({ queryKey: ["inspection-plans-hydrants"] });
-      invalidateTargetViews(qc);
-      setAdding(false);
-      setNewFields({ area_code: "", street: "", section: "", year: (/* @__PURE__ */ new Date()).getFullYear(), watch: null });
-    },
-    onError: () => toast2({ title: "Error", description: "Failed to add hydrant", variant: "destructive" })
-  });
-  const updateMutation = useMutation({
-    mutationFn: () => backendClient.inspection_plans.updateHydrant(editId, {
-      area_code: editFields.area_code,
-      street: editFields.street,
-      section: editFields.section,
-      year: editFields.year,
-      watch: editFields.watch
-    }),
-    onSuccess: () => {
-      toast2({ title: "Updated" });
-      qc.invalidateQueries({ queryKey: ["inspection-plans-hydrants"] });
-      invalidateTargetViews(qc);
-      setEditId(null);
-    },
-    onError: () => toast2({ title: "Error", description: "Failed to update", variant: "destructive" })
-  });
-  const deleteMutation = useMutation({
-    mutationFn: (id) => backendClient.inspection_plans.deleteHydrant(id),
-    onSuccess: () => {
-      toast2({ title: "Deleted" });
-      qc.invalidateQueries({ queryKey: ["inspection-plans-hydrants"] });
-      invalidateTargetViews(qc);
-      setConfirmDelete(null);
-    },
-    onError: () => toast2({ title: "Error", description: "Failed to delete", variant: "destructive" })
-  });
-  const moveItem = async (index2, direction) => {
-    const items2 = (data == null ? void 0 : data.items) ?? [];
-    const targetIndex = direction === "up" ? index2 - 1 : index2 + 1;
-    if (targetIndex < 0 || targetIndex >= items2.length) return;
-    setMovePending(true);
-    try {
-      const posA = items2[index2].position;
-      const posB = items2[targetIndex].position;
-      await backendClient.inspection_plans.updateHydrant(items2[index2].id, { position: posB });
-      await backendClient.inspection_plans.updateHydrant(items2[targetIndex].id, { position: posA });
-      qc.invalidateQueries({ queryKey: ["inspection-plans-hydrants"] });
-      invalidateTargetViews(qc);
-    } catch {
-      toast2({ title: "Error", description: "Failed to reorder", variant: "destructive" });
-    } finally {
-      setMovePending(false);
-    }
-  };
-  const items = (data == null ? void 0 : data.items) ?? [];
-  const isNewValid = newFields.area_code.trim() && newFields.street.trim() && newFields.section.trim() && newFields.year > 2e3;
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto rounded-lg border border-border", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full text-sm", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "border-b border-border bg-muted/40", children: [
-        canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "w-[36px]" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-left px-4 py-2.5 font-medium text-muted-foreground w-[110px]", children: "Area Code" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-left px-3 py-2.5 font-medium text-muted-foreground", children: "Street" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-left px-3 py-2.5 font-medium text-muted-foreground w-[100px]", children: "Section" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-left px-3 py-2.5 font-medium text-muted-foreground w-[80px]", children: "Year" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-left px-3 py-2.5 font-medium text-muted-foreground w-[115px]", children: "Watch" }),
-        canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "w-[80px]" })
-      ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("tbody", { children: [
-        isLoading && /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { colSpan: 7, className: "text-center py-6 text-muted-foreground", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "h-4 w-4 animate-spin inline mr-2" }),
-          "Loading…"
-        ] }) }),
-        !isLoading && items.length === 0 && !adding && /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 7, className: "text-center py-6 text-muted-foreground text-xs", children: "No hydrant entries yet." }) }),
-        items.map(
-          (item, index2) => editId === item.id ? /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "border-b border-border bg-blue-500/5", children: [
-            canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-2 py-2" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { className: "h-8 text-xs", value: editFields.area_code, onChange: (e) => setEditFields((s) => ({ ...s, area_code: e.target.value })), autoFocus: true }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-3 py-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { className: "h-8 text-xs", value: editFields.street, onChange: (e) => setEditFields((s) => ({ ...s, street: e.target.value })) }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-3 py-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { className: "h-8 text-xs", value: editFields.section, onChange: (e) => setEditFields((s) => ({ ...s, section: e.target.value })) }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-3 py-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { className: "h-8 text-xs w-[70px]", type: "number", value: editFields.year, onChange: (e) => setEditFields((s) => ({ ...s, year: parseInt(e.target.value) || s.year })) }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-3 py-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(WatchSelect, { value: editFields.watch, onChange: (v) => setEditFields((s) => ({ ...s, watch: v })) }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-3 py-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1 justify-end", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "icon", variant: "ghost", className: "h-7 w-7 text-green-600", onClick: () => updateMutation.mutate(), disabled: updateMutation.isPending, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-3.5 w-3.5" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "icon", variant: "ghost", className: "h-7 w-7", onClick: () => setEditId(null), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" }) })
-            ] }) })
-          ] }, item.id) : /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "border-b border-border last:border-0 hover:bg-muted/30 transition-colors", children: [
-            canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-2 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(MoveButtons, { onUp: () => moveItem(index2, "up"), onDown: () => moveItem(index2, "down"), isFirst: index2 === 0, isLast: index2 === items.length - 1, isPending: movePending }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 font-medium", children: item.area_code }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-3 py-3", children: item.street }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-3 py-3", children: item.section }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-3 py-3", children: item.year }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-3 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(WatchBadge, { watch: item.watch }) }),
-            canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-3 py-3", children: confirmDelete === item.id ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1 justify-end", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "icon", variant: "ghost", className: "h-7 w-7 text-destructive", onClick: () => deleteMutation.mutate(item.id), disabled: deleteMutation.isPending, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-3.5 w-3.5" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "icon", variant: "ghost", className: "h-7 w-7", onClick: () => setConfirmDelete(null), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" }) })
-            ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1 justify-end", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "icon", variant: "ghost", className: "h-7 w-7", onClick: () => {
-                setEditId(item.id);
-                setEditFields({ area_code: item.area_code, street: item.street, section: item.section, year: item.year, watch: item.watch ?? null });
-              }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "h-3.5 w-3.5" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "icon", variant: "ghost", className: "h-7 w-7 text-destructive", onClick: () => setConfirmDelete(item.id), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-3.5 w-3.5" }) })
-            ] }) })
-          ] }, item.id)
-        ),
-        canEdit && adding && /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "border-t border-border bg-green-500/5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-2 py-2" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { className: "h-8 text-xs", placeholder: "Area code", value: newFields.area_code, onChange: (e) => setNewFields((s) => ({ ...s, area_code: e.target.value })), autoFocus: true }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-3 py-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { className: "h-8 text-xs", placeholder: "Street", value: newFields.street, onChange: (e) => setNewFields((s) => ({ ...s, street: e.target.value })) }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-3 py-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { className: "h-8 text-xs", placeholder: "Section", value: newFields.section, onChange: (e) => setNewFields((s) => ({ ...s, section: e.target.value })) }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-3 py-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { className: "h-8 text-xs w-[70px]", type: "number", value: newFields.year, onChange: (e) => setNewFields((s) => ({ ...s, year: parseInt(e.target.value) || s.year })) }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-3 py-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(WatchSelect, { value: newFields.watch, onChange: (v) => setNewFields((s) => ({ ...s, watch: v })) }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-3 py-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1 justify-end", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "icon", variant: "ghost", className: "h-7 w-7 text-green-600", onClick: () => isNewValid && createMutation.mutate(), disabled: !isNewValid || createMutation.isPending, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-3.5 w-3.5" }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "icon", variant: "ghost", className: "h-7 w-7", onClick: () => {
-              setAdding(false);
-              setNewFields({ area_code: "", street: "", section: "", year: (/* @__PURE__ */ new Date()).getFullYear(), watch: null });
-            }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" }) })
-          ] }) })
-        ] })
-      ] })
-    ] }) }),
-    canEdit && !adding && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline", size: "sm", className: "gap-2", onClick: () => setAdding(true), children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4" }),
-      " Add hydrant"
-    ] })
-  ] });
-}
 function OperationalSection({ canEdit }) {
   const { toast: toast2 } = useToast();
   const qc = useQueryClient();
@@ -66625,7 +67116,11 @@ function InspectionPlans() {
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(SectionCard, { icon: Building2, title: "Multi-Story Inspections", description: "Premises requiring quarterly inspection — one watch assigned per quarter", children: /* @__PURE__ */ jsxRuntimeExports.jsx(MultistorySection, { canEdit: isWC }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(SectionCard, { icon: Heart, title: "Care Home Validations", description: "Annual care home visits — all watches attend each property", children: /* @__PURE__ */ jsxRuntimeExports.jsx(CareHomeSection, { canEdit: isWC }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(SectionCard, { icon: Flame, title: "Hydrant Register", description: "Fire hydrant register by area code, street and section", children: /* @__PURE__ */ jsxRuntimeExports.jsx(HydrantSection, { canEdit: isWC }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(SectionCard, { icon: Flame, title: "Hydrant Routes", description: "The station's SP hydrant routes and the 15-year watch rota", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-muted-foreground", children: [
+      "Hydrants are loaded from the station's route sheets, and each watch's route for the year comes from the rota.",
+      " ",
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: "/hydrants", className: "font-medium text-brand hover:underline", children: "Open Hydrants →" })
+    ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(SectionCard, { icon: ClipboardCheck, title: "Operational Inspections", description: "Annual operational inspections — one watch assigned per premises", children: /* @__PURE__ */ jsxRuntimeExports.jsx(OperationalSection, { canEdit: isWC }) })
   ] });
 }
@@ -75585,6 +76080,7 @@ function AppRoutes() {
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/tasks", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Tasks, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/equipment", element: /* @__PURE__ */ jsxRuntimeExports.jsx(EquipmentChecks, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/targets", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Targets, {}) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/hydrants", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Hydrants, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/policies", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Policies, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/policies/qa", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Navigate, { to: "/policies", replace: true }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/resources", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Resources, {}) }),
