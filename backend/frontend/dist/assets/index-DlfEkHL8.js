@@ -34571,7 +34571,7 @@ function ShiftWeather({
   const rain = start && end ? rainChanceBetween(data, start, end) : null;
   const wind = windWarning(c.wind_speed_10m);
   const temp = Math.round(c.temperature_2m);
-  const forecast = /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuContent, { align: "end", className: "w-72", children: [
+  const forecast = /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuContent, { align: "end", className: "w-[22rem] max-w-[calc(100vw-2rem)]", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuLabel, { children: [
       STATION_PLACE,
       " · next 5 days"

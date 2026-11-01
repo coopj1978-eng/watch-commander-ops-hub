@@ -34,7 +34,7 @@ export function ShiftWeather({
   const temp = Math.round(c.temperature_2m);
 
   const forecast = (
-    <DropdownMenuContent align="end" className="w-72">
+    <DropdownMenuContent align="end" className="w-[22rem] max-w-[calc(100vw-2rem)]">
       <DropdownMenuLabel>{STATION_PLACE} · next 5 days</DropdownMenuLabel>
       <ul className="px-2 pb-2">
         {data.daily.time.slice(0, 5).map((d, i) => {

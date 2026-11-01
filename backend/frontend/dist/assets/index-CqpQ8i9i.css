@@ -1564,10 +1564,6 @@
     width: calc(var(--spacing) * 64);
   }
 
-  .w-72 {
-    width: calc(var(--spacing) * 72);
-  }
-
   .w-80 {
     width: calc(var(--spacing) * 80);
   }
@@ -1594,6 +1590,10 @@
 
   .w-\[18px\] {
     width: 18px;
+  }
+
+  .w-\[22rem\] {
+    width: 22rem;
   }
 
   .w-\[28rem\] {
@@ -1694,6 +1694,10 @@
 
   .max-w-\[calc\(100\%-2rem\)\] {
     max-width: calc(100% - 2rem);
+  }
+
+  .max-w-\[calc\(100vw-2rem\)\] {
+    max-width: calc(100vw - 2rem);
   }
 
   .max-w-lg {
