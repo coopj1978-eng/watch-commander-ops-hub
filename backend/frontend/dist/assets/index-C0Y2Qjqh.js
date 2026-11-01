@@ -33772,7 +33772,7 @@ function QuickAddButton() {
   const { user: user2 } = useAuth();
   const isManager = (user2 == null ? void 0 : user2.role) === "WC" || (user2 == null ? void 0 : user2.role) === "CC";
   const actions = isManager ? MANAGER_ACTIONS$1 : CREW_ACTIONS$1;
-  if (pathname.startsWith("/tasks")) return null;
+  if (pathname.startsWith("/tasks") || pathname.startsWith("/hydrants")) return null;
   const go = (to) => {
     setOpen(false);
     navigate(to);
@@ -63510,7 +63510,7 @@ function Hydrants() {
             }
           )
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "seg", style: { width: 300 }, role: "group", "aria-label": "Show", children: [["all", "All"], ["todo", "To do"], ["done", "Done"], ["issues", "Issues"]].map(([k, label2]) => /* @__PURE__ */ jsxRuntimeExports.jsx("button", { "data-on": filter === k, onClick: () => setFilter(k), children: label2 }, k)) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "seg w-full sm:w-[300px]", role: "group", "aria-label": "Show", children: [["all", "All"], ["todo", "To do"], ["done", "Done"], ["issues", "Issues"]].map(([k, label2]) => /* @__PURE__ */ jsxRuntimeExports.jsx("button", { "data-on": filter === k, onClick: () => setFilter(k), children: label2 }, k)) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-col gap-4", children: routes.map((r2) => {
         const live = r2.hydrants.filter((h) => h.in_use);
@@ -63530,15 +63530,15 @@ function Hydrants() {
                 return n;
               }),
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-semibold", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "shrink-0 whitespace-nowrap font-semibold", children: [
                   "SP ",
                   r2.route
                 ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-muted-foreground", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "min-w-0 truncate text-xs text-muted-foreground", children: [
                   [...new Set(live.map((h) => h.street))].slice(0, 3).join(", "),
                   new Set(live.map((h) => h.street)).size > 3 ? "…" : ""
                 ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-auto font-mono text-xs tabular-nums text-muted-foreground", children: rDone === live.length && live.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-semibold text-emerald-700 dark:text-emerald-400", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-auto shrink-0 font-mono text-xs tabular-nums text-muted-foreground", children: rDone === live.length && live.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-semibold text-emerald-700 dark:text-emerald-400", children: [
                   "All ",
                   live.length,
                   " done"

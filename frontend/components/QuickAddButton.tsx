@@ -53,7 +53,8 @@ export function QuickAddButton() {
   const isManager = user?.role === "WC" || user?.role === "CC";
   const actions = isManager ? MANAGER_ACTIONS : CREW_ACTIONS;
 
-  if (pathname.startsWith("/tasks")) return null;
+  // Pages with a tick list down the right of the screen.
+  if (pathname.startsWith("/tasks") || pathname.startsWith("/hydrants")) return null;
 
   const go = (to: string) => {
     setOpen(false);

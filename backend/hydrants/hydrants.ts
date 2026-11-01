@@ -122,14 +122,20 @@ export interface ImportHydrant {
 type InspectionRow = Omit<HydrantInspection, "inspected_at"> & { inspected_at: Date | string };
 
 const iso = (d: Date | string) => (d instanceof Date ? d.toISOString() : d);
+// jsonb comes back parsed. The codes are sent as JSON text cast in SQL
+// ($n::text::jsonb) — a bare $n::jsonb makes Encore store a JSON string.
+const codes = (v: unknown): number[] => {
+  const arr = typeof v === "string" ? JSON.parse(v) : v;
+  return Array.isArray(arr) ? arr.map(Number).filter(Number.isInteger) : [];
+};
 const toInspection = (r: InspectionRow): HydrantInspection => ({
   hydrant_id: r.hydrant_id,
   year: r.year,
   watch: r.watch,
   lid_ok: r.lid_ok,
   trip_hazard: r.trip_hazard,
-  inspection_codes: r.inspection_codes ?? [],
-  action_codes: r.action_codes ?? [],
+  inspection_codes: codes(r.inspection_codes),
+  action_codes: codes(r.action_codes),
   comment: r.comment,
   inspected_by: r.inspected_by,
   inspected_by_name: r.inspected_by_name,
@@ -274,7 +280,7 @@ export const saveHydrantInspection = api(
     const row = await db.rawQueryRow<InspectionRow>(
       `INSERT INTO hydrant_inspections
          (hydrant_id, year, watch, lid_ok, trip_hazard, inspection_codes, action_codes, comment, inspected_by, inspected_by_name)
-       VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7::jsonb, $8, $9, (SELECT name FROM users WHERE id = $9))
+       VALUES ($1, $2, $3, $4, $5, $6::text::jsonb, $7::text::jsonb, $8, $9, (SELECT name FROM users WHERE id = $9))
        ON CONFLICT (hydrant_id, year) DO UPDATE SET
          lid_ok = EXCLUDED.lid_ok, trip_hazard = EXCLUDED.trip_hazard,
          inspection_codes = EXCLUDED.inspection_codes, action_codes = EXCLUDED.action_codes,
@@ -284,8 +290,8 @@ export const saveHydrantInspection = api(
       hydrant.id, year, watch,
       req.lid_ok !== undefined ? req.lid_ok : before ? before.lid_ok : true,
       req.trip_hazard !== undefined ? req.trip_hazard : before ? before.trip_hazard : false,
-      JSON.stringify(inspection ?? before?.inspection_codes ?? [1]),
-      JSON.stringify(action ?? before?.action_codes ?? [1]),
+      JSON.stringify(inspection ?? (before ? codes(before.inspection_codes) : [1])),
+      JSON.stringify(action ?? (before ? codes(before.action_codes) : [1])),
       comment !== undefined ? comment : before?.comment ?? null,
       auth.userID
     );

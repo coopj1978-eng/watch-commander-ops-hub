@@ -316,7 +316,7 @@ export default function Hydrants() {
                 className="h-10 w-full rounded-xl border border-border bg-background pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-brand/40"
               />
             </label>
-            <div className="seg" style={{ width: 300 }} role="group" aria-label="Show">
+            <div className="seg w-full sm:w-[300px]" role="group" aria-label="Show">
               {([["all", "All"], ["todo", "To do"], ["done", "Done"], ["issues", "Issues"]] as [Filter, string][]).map(([k, label]) => (
                 <button key={k} data-on={filter === k} onClick={() => setFilter(k)}>{label}</button>
               ))}
@@ -337,9 +337,9 @@ export default function Hydrants() {
                     aria-expanded={open}
                     onClick={() => setClosed((s) => { const n = new Set(s); if (n.has(r.route)) n.delete(r.route); else n.add(r.route); return n; })}
                   >
-                    <span className="font-semibold">SP {r.route}</span>
-                    <span className="text-xs text-muted-foreground">{[...new Set(live.map((h) => h.street))].slice(0, 3).join(", ")}{new Set(live.map((h) => h.street)).size > 3 ? "…" : ""}</span>
-                    <span className="ml-auto font-mono text-xs tabular-nums text-muted-foreground">
+                    <span className="shrink-0 whitespace-nowrap font-semibold">SP {r.route}</span>
+                    <span className="min-w-0 truncate text-xs text-muted-foreground">{[...new Set(live.map((h) => h.street))].slice(0, 3).join(", ")}{new Set(live.map((h) => h.street)).size > 3 ? "…" : ""}</span>
+                    <span className="ml-auto shrink-0 font-mono text-xs tabular-nums text-muted-foreground">
                       {rDone === live.length && live.length > 0 ? <span className="font-semibold text-emerald-700 dark:text-emerald-400">All {live.length} done</span> : `${rDone}/${live.length}`}
                     </span>
                     <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", !open && "-rotate-90")} />
