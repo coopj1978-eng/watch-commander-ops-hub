@@ -37785,8 +37785,8 @@ function yearTime(year) {
 }
 function Ring({ label: label2, done, target, p, note: note2, to }) {
   const word = p.state === "behind" || p.state === "late" ? `${p.behindBy} behind` : p.state === "none" ? "No target" : PACE_LABEL[p.state];
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Link, { to, className: "group flex min-w-0 flex-col items-center gap-1.5 rounded-xl p-1.5 text-center transition-colors hover:bg-muted/50", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(TargetRing, { actual: done, target, pace: p, size: 78, stroke: 7, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono text-sm font-semibold tabular-nums leading-none", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Link, { to, className: "group flex min-w-0 flex-col items-center gap-1.5 rounded-xl p-1 text-center transition-colors hover:bg-muted/50", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(TargetRing, { actual: done, target, pace: p, size: 68, stroke: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono text-sm font-semibold tabular-nums leading-none", children: [
       done,
       /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-muted-foreground", children: [
         "/",
@@ -37838,7 +37838,7 @@ function TargetRings() {
         " →"
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 grid grid-cols-4 gap-1", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 grid grid-cols-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Ring, { label: "HFSV", done: hfDone, target: HFSV_TARGET_Q, p: pace(hfDone, HFSV_TARGET_Q, t.elapsed, t.phase), to: "/targets" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         Ring,

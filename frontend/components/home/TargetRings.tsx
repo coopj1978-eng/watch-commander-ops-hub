@@ -26,8 +26,8 @@ function Ring({ label, done, target, p, note, to }: { label: string; done: numbe
     p.state === "behind" || p.state === "late" ? `${p.behindBy} behind`
       : p.state === "none" ? "No target" : PACE_LABEL[p.state];
   return (
-    <Link to={to} className="group flex min-w-0 flex-col items-center gap-1.5 rounded-xl p-1.5 text-center transition-colors hover:bg-muted/50">
-      <TargetRing actual={done} target={target} pace={p} size={78} stroke={7}>
+    <Link to={to} className="group flex min-w-0 flex-col items-center gap-1.5 rounded-xl p-1 text-center transition-colors hover:bg-muted/50">
+      <TargetRing actual={done} target={target} pace={p} size={68} stroke={6}>
         <span className="font-mono text-sm font-semibold tabular-nums leading-none">
           {done}<span className="text-muted-foreground">/{target}</span>
         </span>
@@ -81,7 +81,7 @@ export function TargetRings() {
           {fq.label} · day {t.dayOf} of {t.totalDays} →
         </Link>
       </div>
-      <div className="mt-3 grid grid-cols-4 gap-1">
+      <div className="mt-3 grid grid-cols-4">
         <Ring label="HFSV" done={hfDone} target={HFSV_TARGET_Q} p={pace(hfDone, HFSV_TARGET_Q, t.elapsed, t.phase)} to="/targets" />
         <Ring
           label="Community" done={cmDone} target={COMMUNITY_TARGET_Q} to="/targets"
