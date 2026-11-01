@@ -51409,7 +51409,7 @@ function TaskCard({ task: task2, onTitleEdit, onClick, onChecklistToggle, userMa
       children: [
         coverStyle && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { ...coverStyle, height: 92, borderRadius: 11, margin: "0 -4px" } }),
         routineHeader && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { margin: "0 -4px" }, children: routineHeader }),
-        (labelIds.length > 0 || tag || routineHeader && menu) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }, children: [
+        (labelIds.length > 0 || tag) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }, children: [
           tag,
           labelIds.map((id) => /* @__PURE__ */ jsxRuntimeExports.jsx(LabelTag, { id }, id)),
           menu

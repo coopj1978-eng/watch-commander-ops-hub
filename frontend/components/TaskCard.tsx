@@ -463,7 +463,7 @@ export default function TaskCard({ task, onTitleEdit, onClick, onChecklistToggle
       {coverStyle && <div style={{ ...coverStyle, height: 92, borderRadius: 11, margin: "0 -4px" }} />}
       {routineHeader && <div style={{ margin: "0 -4px" }}>{routineHeader}</div>}
 
-      {(labelIds.length > 0 || tag || (routineHeader && menu)) && (
+      {(labelIds.length > 0 || tag) && (
         <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
           {tag}
           {labelIds.map((id) => <LabelTag key={id} id={id} />)}
