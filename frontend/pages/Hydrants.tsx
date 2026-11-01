@@ -36,7 +36,7 @@ const thisYear = () => new Date().getFullYear();
 function yearPace(year: number) {
   const now = new Date();
   const start = new Date(year, 0, 1).getTime();
-  const end = new Date(year + 1, 0, 1).getTime();
+  const end = new Date(year, 11, 31).getTime(); // as the Targets card and station view
   const phase = now.getTime() < start ? "future" : now.getTime() >= end ? "past" : "now";
   const elapsed = phase === "now" ? (now.getTime() - start) / (end - start) : phase === "past" ? 1 : 0;
   return { phase, elapsed } as const;
@@ -491,7 +491,7 @@ function CodePicker({
   problem?: boolean;
   onChange: (codes: number[], picked: number) => void;
 }) {
-  const summary = codes.length === 0 ? "Pick a code" : `${codes[0]} · ${names[codes[0]]}${codes.length > 1 ? ` +${codes.length - 1}` : ""}`;
+  const summary = codes.length === 0 ? "Pick a code" : `${codes[0]} · ${names[codes[0]]}`;
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -503,6 +503,7 @@ function CodePicker({
       >
         <span className="shrink-0 text-[11px] text-muted-foreground">{label}</span>
         <span className="min-w-0 flex-1 truncate font-medium">{summary}</span>
+        {codes.length > 1 && <span className="shrink-0 rounded bg-muted px-1 font-mono text-[11px] font-semibold">+{codes.length - 1}</span>}
         {!disabled && <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="max-h-[60vh] w-80 overflow-y-auto">

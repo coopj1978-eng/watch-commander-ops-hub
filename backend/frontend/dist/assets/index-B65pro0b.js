@@ -63218,7 +63218,7 @@ const thisYear = () => (/* @__PURE__ */ new Date()).getFullYear();
 function yearPace(year) {
   const now = /* @__PURE__ */ new Date();
   const start = new Date(year, 0, 1).getTime();
-  const end = new Date(year + 1, 0, 1).getTime();
+  const end = new Date(year, 11, 31).getTime();
   const phase = now.getTime() < start ? "future" : now.getTime() >= end ? "past" : "now";
   const elapsed = phase === "now" ? (now.getTime() - start) / (end - start) : phase === "past" ? 1 : 0;
   return { phase, elapsed };
@@ -63676,7 +63676,7 @@ function CodePicker({
   problem,
   onChange
 }) {
-  const summary = codes.length === 0 ? "Pick a code" : `${codes[0]} · ${names[codes[0]]}${codes.length > 1 ? ` +${codes.length - 1}` : ""}`;
+  const summary = codes.length === 0 ? "Pick a code" : `${codes[0]} · ${names[codes[0]]}`;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenu, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(
       DropdownMenuTrigger,
@@ -63689,6 +63689,10 @@ function CodePicker({
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "shrink-0 text-[11px] text-muted-foreground", children: label2 }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "min-w-0 flex-1 truncate font-medium", children: summary }),
+          codes.length > 1 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "shrink-0 rounded bg-muted px-1 font-mono text-[11px] font-semibold", children: [
+            "+",
+            codes.length - 1
+          ] }),
           !disabled && /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "h-3.5 w-3.5 shrink-0 text-muted-foreground" })
         ]
       }
