@@ -735,6 +735,7 @@ export default function Tasks() {
         onDelete={() => { setSelectedTask(null); setIsNewTask(false); }}
         canEdit={canEditStatus}
         isNewTask={isNewTask}
+        onOpenRoutine={() => { setSelectedTask(null); setIsNewTask(false); setShowRoutines(true); }}
       />
 
       {/* ── Weekly routine planner, and the other scheduled checks ───────────── */}

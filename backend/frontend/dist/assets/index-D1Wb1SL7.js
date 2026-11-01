@@ -57473,7 +57473,7 @@ function Field({ label: label2, htmlFor, hint, children }) {
 function ProgressBar({ pct, className }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className, "aria-hidden": "true", style: { height: 6, borderRadius: 3, background: "var(--cal-surface-3)", overflow: "hidden" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: `${pct}%`, height: "100%", borderRadius: 3, background: pct === 100 ? "var(--cal-leave-dot)" : "var(--cal-brand)", transition: "width .3s" } }) });
 }
-function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: canWork = false, isNewTask = false, onCompleted }) {
+function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: canWork = false, isNewTask = false, onCompleted, onOpenRoutine }) {
   var _a2, _b2, _c2, _d2, _e2;
   const { user: user2 } = useAuth();
   const userRole = useUserRole();
@@ -57762,6 +57762,17 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
   const currentRruleVal = showCustomRrule ? "__custom__" : rrule || "__none__";
   const recurLabel = parseRRuleLabel(showCustomRrule ? customRrule : rrule);
   const recurText = describeRRule(showCustomRrule ? task2.rrule : rrule && rrule !== "__none__" ? rrule : null);
+  const isCheck = task2.source_type === "template";
+  const fromRoutine = !!task2.routine_slot;
+  const checkNote = isCheck && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 8, padding: 12, borderRadius: 14, background: "var(--cal-brand-soft)", color: "var(--cal-brand-text)", fontSize: 13, lineHeight: 1.4 }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 600 }, children: fromRoutine ? "From the weekly routine" : "Station check" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--cal-ink-2)" }, children: [
+      "Due by the end of its shift (or before the next one is made); anything not done then is marked missed. Change what's on it in the ",
+      fromRoutine ? "weekly routine" : "other checks",
+      "."
+    ] }),
+    onOpenRoutine && /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: onOpenRoutine, className: "cal-btn", style: { alignSelf: "flex-start", height: 34, padding: "0 12px", fontSize: 13 }, children: "Open weekly routine" })
+  ] });
   const coverStyle = getCoverStyle(coverColour);
   const statusCol = columns.find((c) => c.status_key === status);
   const firstColKey = (_d2 = [...columns].sort((a, b) => a.position - b.position)[0]) == null ? void 0 : _d2.status_key;
@@ -57910,7 +57921,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
                   /* @__PURE__ */ jsxRuntimeExports.jsx(Dot, { color: statusCol.color, size: 7 }),
                   statusCol.name
                 ] }),
-                recurText && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "hidden sm:inline-flex items-center gap-1 min-w-0", style: { fontSize: 12, color: "var(--cal-brand-text)", whiteSpace: "nowrap" }, children: [
+                recurText && !isCheck && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "hidden sm:inline-flex items-center gap-1 min-w-0", style: { fontSize: 12, color: "var(--cal-brand-text)", whiteSpace: "nowrap" }, children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat, { className: "h-[13px] w-[13px] flex-none", strokeWidth: 2.2 }),
                   "Recurring · ",
                   recurText
@@ -57989,7 +58000,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
                         ] }),
                         /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { className: "cal-menu", children: priorityItems })
                       ] }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "tdd-tile tdd-due relative flex", style: { ...dueBorder, cursor: canEdit ? "pointer" : "default" }, children: [
+                      !isCheck && /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "tdd-tile tdd-due relative flex", style: { ...dueBorder, cursor: canEdit ? "pointer" : "default" }, children: [
                         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tdd-k", children: "Due" }),
                         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `tdd-v${dueDateObj ? " cal-mono" : ""}`, style: { color: dueTone && dueTone !== "night" ? `var(--cal-${dueTone}-fg)` : dueDateObj ? "var(--cal-ink)" : "var(--cal-muted)" }, children: phoneDueText }),
                         /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -58005,10 +58016,11 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
                           }
                         )
                       ] }),
-                      recurrenceSelect(`${uid}-rec-m`, "tile")
+                      !isCheck && recurrenceSelect(`${uid}-rec-m`, "tile")
                     ] }),
-                    dueHint,
-                    showCustomRrule && canEdit && customPanel(/* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tdd-lbl", children: "Custom repeat" }))
+                    !isCheck && dueHint,
+                    !isCheck && showCustomRrule && canEdit && customPanel(/* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tdd-lbl", children: "Custom repeat" })),
+                    checkNote
                   ] }),
                   (canEdit || checklist.length > 0) && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "order-3 flex flex-col gap-2", children: checklist.length === 0 && !addingItem ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center gap-1", style: { padding: 14, borderRadius: 14, border: "1.5px dashed var(--cal-line-2)" }, children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 13, fontWeight: 600, color: "var(--cal-ink-2)" }, children: "No checklist yet" }),
@@ -58120,8 +58132,8 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
                     )
                   ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "order-5 sm:hidden flex flex-col gap-3.5", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Category", htmlFor: `${uid}-cat-m`, children: categorySelect(`${uid}-cat-m`) }),
-                    userRole === "WC" && /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Move to watch", htmlFor: `${uid}-watch-m`, children: watchSelect(`${uid}-watch-m`) }),
+                    !isCheck && /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Category", htmlFor: `${uid}-cat-m`, children: categorySelect(`${uid}-cat-m`) }),
+                    userRole === "WC" && !isCheck && /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Move to watch", htmlFor: `${uid}-watch-m`, children: watchSelect(`${uid}-watch-m`) }),
                     canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Cover", htmlFor: `${uid}-cover-m`, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
                       "button",
                       {
@@ -58381,26 +58393,28 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
                     ] }) : status }) }),
                     /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { className: "cal-menu", children: columnItems })
                   ] }) }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Category", htmlFor: `${uid}-cat`, children: categorySelect(`${uid}-cat`) }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Due date", htmlFor: `${uid}-due`, hint: dueHint, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "input",
-                    {
-                      id: `${uid}-due`,
-                      type: "date",
-                      className: "cal-field tdd-field cal-mono cal-focus",
-                      style: dueBorder,
-                      value: dueDate,
-                      onChange: handleDueChange,
-                      disabled: !canEdit
-                    }
-                  ) }),
-                  showCustomRrule && canEdit ? customPanel(
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-2", children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: `${uid}-rec`, className: "tdd-lbl", children: "Recurrence" }),
-                      recurrenceSelect(`${uid}-rec`, "compact")
-                    ] })
-                  ) : /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Recurrence", htmlFor: `${uid}-rec`, children: recurrenceSelect(`${uid}-rec`, "field") }),
-                  userRole === "WC" && /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Move to watch", htmlFor: `${uid}-watch`, children: watchSelect(`${uid}-watch`) }),
+                  isCheck ? checkNote : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Category", htmlFor: `${uid}-cat`, children: categorySelect(`${uid}-cat`) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Due date", htmlFor: `${uid}-due`, hint: dueHint, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "input",
+                      {
+                        id: `${uid}-due`,
+                        type: "date",
+                        className: "cal-field tdd-field cal-mono cal-focus",
+                        style: dueBorder,
+                        value: dueDate,
+                        onChange: handleDueChange,
+                        disabled: !canEdit
+                      }
+                    ) }),
+                    showCustomRrule && canEdit ? customPanel(
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-2", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: `${uid}-rec`, className: "tdd-lbl", children: "Recurrence" }),
+                        recurrenceSelect(`${uid}-rec`, "compact")
+                      ] })
+                    ) : /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Recurrence", htmlFor: `${uid}-rec`, children: recurrenceSelect(`${uid}-rec`, "field") }),
+                    userRole === "WC" && /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Move to watch", htmlFor: `${uid}-watch`, children: watchSelect(`${uid}-watch`) })
+                  ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-1.5", children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { id: `${uid}-pri`, className: "tdd-lbl", children: "Priority" }),
                     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { role: "radiogroup", "aria-labelledby": `${uid}-pri`, className: "tdd-seg", style: { gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }, onKeyDown: onPriorityKeyDown, children: PRIORITY_OPTIONS$1.map((p) => {
@@ -61005,7 +61019,12 @@ function Tasks() {
               setIsNewTask(false);
             },
             canEdit: canEditStatus,
-            isNewTask
+            isNewTask,
+            onOpenRoutine: () => {
+              setSelectedTask(null);
+              setIsNewTask(false);
+              setShowRoutines(true);
+            }
           }
         ),
         /* @__PURE__ */ jsxRuntimeExports.jsx(

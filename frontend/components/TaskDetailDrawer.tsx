@@ -22,6 +22,8 @@ interface TaskDetailDrawerProps {
   canEdit?: boolean;
   isNewTask?: boolean;
   onCompleted?: (task: Task) => void;
+  /** Opens the weekly routine planner (station checks are changed there, not on the card). */
+  onOpenRoutine?: () => void;
 }
 
 const PRIORITY_OPTIONS: { value: TaskPriority; label: string }[] = [
@@ -168,7 +170,7 @@ function ProgressBar({ pct, className }: { pct: number; className?: string }) {
   );
 }
 
-export default function TaskDetailDrawer({ task, columns, onClose, onDelete, canEdit: canWork = false, isNewTask = false, onCompleted }: TaskDetailDrawerProps) {
+export default function TaskDetailDrawer({ task, columns, onClose, onDelete, canEdit: canWork = false, isNewTask = false, onCompleted, onOpenRoutine }: TaskDetailDrawerProps) {
   const { user } = useAuth();
   const userRole = useUserRole();
   // canWork (the prop): move it between columns and tick its checklist — anyone
@@ -487,6 +489,23 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
   const currentRruleVal = showCustomRrule ? "__custom__" : (rrule || "__none__");
   const recurLabel = parseRRuleLabel(showCustomRrule ? customRrule : rrule);
   const recurText = describeRRule(showCustomRrule ? task.rrule : rrule && rrule !== "__none__" ? rrule : null);
+  // Station checks come from the routine / scheduled checks: their timing,
+  // repeat and watch are set there, so those fields aren't shown on the card.
+  const isCheck = (task as Task & { source_type?: string }).source_type === "template";
+  const fromRoutine = !!(task as Task & { routine_slot?: string }).routine_slot;
+  const checkNote = isCheck && (
+    <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: 12, borderRadius: 14, background: "var(--cal-brand-soft)", color: "var(--cal-brand-text)", fontSize: 13, lineHeight: 1.4 }}>
+      <span style={{ fontWeight: 600 }}>{fromRoutine ? "From the weekly routine" : "Station check"}</span>
+      <span style={{ color: "var(--cal-ink-2)" }}>
+        Due by the end of its shift (or before the next one is made); anything not done then is marked missed. Change what's on it in the {fromRoutine ? "weekly routine" : "other checks"}.
+      </span>
+      {onOpenRoutine && (
+        <button type="button" onClick={onOpenRoutine} className="cal-btn" style={{ alignSelf: "flex-start", height: 34, padding: "0 12px", fontSize: 13 }}>
+          Open weekly routine
+        </button>
+      )}
+    </div>
+  );
   const coverStyle = getCoverStyle(coverColour);
   const statusCol = columns.find((c) => c.status_key === status);
   const firstColKey = [...columns].sort((a, b) => a.position - b.position)[0]?.status_key;
@@ -662,7 +681,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                   {statusCol.name}
                 </span>
               )}
-              {recurText && (
+              {recurText && !isCheck && (
                 <span className="hidden sm:inline-flex items-center gap-1 min-w-0" style={{ fontSize: 12, color: "var(--cal-brand-text)", whiteSpace: "nowrap" }}>
                   <Repeat className="h-[13px] w-[13px] flex-none" strokeWidth={2.2} />
                   Recurring · {recurText}
@@ -758,7 +777,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                       </SelectTrigger>
                       <SelectContent className="cal-menu">{priorityItems}</SelectContent>
                     </Select>
-                    <label className="tdd-tile tdd-due relative flex" style={{ ...dueBorder, cursor: canEdit ? "pointer" : "default" }}>
+                    {!isCheck && <label className="tdd-tile tdd-due relative flex" style={{ ...dueBorder, cursor: canEdit ? "pointer" : "default" }}>
                       <span className="tdd-k">Due</span>
                       <span className={`tdd-v${dueDateObj ? " cal-mono" : ""}`} style={{ color: dueTone && dueTone !== "night" ? `var(--cal-${dueTone}-fg)` : dueDateObj ? "var(--cal-ink)" : "var(--cal-muted)" }}>
                         {phoneDueText}
@@ -772,11 +791,12 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                         onChange={handleDueChange}
                         disabled={!canEdit}
                       />
-                    </label>
-                    {recurrenceSelect(`${uid}-rec-m`, "tile")}
+                    </label>}
+                    {!isCheck && recurrenceSelect(`${uid}-rec-m`, "tile")}
                   </div>
-                  {dueHint}
-                  {showCustomRrule && canEdit && customPanel(<span className="tdd-lbl">Custom repeat</span>)}
+                  {!isCheck && dueHint}
+                  {!isCheck && showCustomRrule && canEdit && customPanel(<span className="tdd-lbl">Custom repeat</span>)}
+                  {checkNote}
                 </div>
 
                 {/* Checklist */}
@@ -895,8 +915,8 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
 
                 {/* Phones: the rest of the fields, further down the sheet */}
                 <div className="order-5 sm:hidden flex flex-col gap-3.5">
-                  <Field label="Category" htmlFor={`${uid}-cat-m`}>{categorySelect(`${uid}-cat-m`)}</Field>
-                  {userRole === "WC" && <Field label="Move to watch" htmlFor={`${uid}-watch-m`}>{watchSelect(`${uid}-watch-m`)}</Field>}
+                  {!isCheck && <Field label="Category" htmlFor={`${uid}-cat-m`}>{categorySelect(`${uid}-cat-m`)}</Field>}
+                  {userRole === "WC" && !isCheck && <Field label="Move to watch" htmlFor={`${uid}-watch-m`}>{watchSelect(`${uid}-watch-m`)}</Field>}
                   {canEdit && (
                     <Field label="Cover" htmlFor={`${uid}-cover-m`}>
                       <button
@@ -1159,6 +1179,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                   </Select>
                 </Field>
 
+                {isCheck ? checkNote : <>
                 <Field label="Category" htmlFor={`${uid}-cat`}>{categorySelect(`${uid}-cat`)}</Field>
 
                 <Field label="Due date" htmlFor={`${uid}-due`} hint={dueHint}>
@@ -1184,6 +1205,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
 
                 {/* Move to Watch (WC only) */}
                 {userRole === "WC" && <Field label="Move to watch" htmlFor={`${uid}-watch`}>{watchSelect(`${uid}-watch`)}</Field>}
+                </>}
 
                 <div className="flex flex-col gap-1.5">
                   <span id={`${uid}-pri`} className="tdd-lbl">Priority</span>
