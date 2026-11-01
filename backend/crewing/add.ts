@@ -1,5 +1,6 @@
 import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
+import { requireRole } from "../auth/rbac";
 import db from "../db";
 import { logActivity } from "../logging/logger";
 import type { AddCrewingRequest, CrewingEntry } from "./types";
@@ -9,6 +10,8 @@ export const add = api<AddCrewingRequest, CrewingEntry>(
   { auth: true, expose: true, method: "POST", path: "/crewing" },
   async (req) => {
     const auth = getAuthData()!;
+    // Only WCs and CCs change the crewing board (John, Nov 2026); the UI matches.
+    requireRole(auth, "WC", "CC");
 
     if (!req.user_id && !req.external_name) {
       // invalidArgument → 400 to client, dropped by Sentry beforeSend (user error, not a bug)

@@ -1,5 +1,6 @@
 import { api } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
+import { requireRole } from "../auth/rbac";
 import db from "../db";
 import { logActivity } from "../logging/logger";
 import type { CopyPreviousRequest, ListCrewingResponse, CrewingEntry } from "./types";
@@ -12,6 +13,8 @@ export const copyPrevious = api<CopyPreviousRequest, ListCrewingResponse>(
   { auth: true, expose: true, method: "POST", path: "/crewing/copy-previous" },
   async (req) => {
     const auth = getAuthData()!;
+    // Only WCs and CCs change the crewing board (John, Nov 2026); the UI matches.
+    requireRole(auth, "WC", "CC");
 
     // Find the most recent shift_date before req.shift_date for this watch + shift_type
     const latestRow = await db.rawQueryRow<{ shift_date: string }>(

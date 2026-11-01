@@ -1,5 +1,6 @@
 import { api } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
+import { requireRole } from "../auth/rbac";
 import db from "../db";
 import type { CreateDetachmentRequest, Detachment } from "./types";
 
@@ -8,6 +9,8 @@ export const create = api<CreateDetachmentRequest, Detachment>(
   { auth: true, expose: true, method: "POST", path: "/api/detachments" },
   async (req) => {
     const auth = getAuthData()!;
+    // Only WCs and CCs change the crewing board (John, Nov 2026); the UI matches.
+    requireRole(auth, "WC", "CC");
 
     const inserted = await db.rawQueryRow<{ id: number }>(
       `INSERT INTO detachments

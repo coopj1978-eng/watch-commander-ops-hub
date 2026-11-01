@@ -1,5 +1,6 @@
 import { api } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
+import { requireRole } from "../auth/rbac";
 import db from "../db";
 import { logActivity } from "../logging/logger";
 
@@ -8,6 +9,8 @@ export const remove = api<{ id: number }, { ok: boolean }>(
   { auth: true, expose: true, method: "DELETE", path: "/crewing/:id" },
   async (req) => {
     const auth = getAuthData()!;
+    // Only WCs and CCs change the crewing board (John, Nov 2026); the UI matches.
+    requireRole(auth, "WC", "CC");
 
     // Capture identifying fields before the delete so the audit log is meaningful
     const existing = await db.rawQueryRow<{
