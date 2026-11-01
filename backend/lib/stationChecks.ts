@@ -1,6 +1,7 @@
 import db from "../db";
 import log from "encore.dev/log";
 import { rruleFiresOn } from "./rrule";
+import { routineRuleFires } from "./routine";
 import { addDaysIso, slotAt, ukInstant } from "./shiftRota";
 
 /**
@@ -43,6 +44,8 @@ export async function ensureStationChecks(now: Date = new Date()): Promise<{ cre
     per_shift: boolean;
     shift_only: "day" | "night" | null;
     routine_slot: string | null;
+    routine_rule: string | null;
+    cover: string | null;
     created_by: string;
     created_at: Date | null;
   }>(`SELECT * FROM task_templates WHERE is_active = true`);
@@ -52,6 +55,8 @@ export async function ensureStationChecks(now: Date = new Date()): Promise<{ cre
     if (!rruleFiresOn(t.rrule, slot.date, t.created_at)) continue;
     // A weekday's night routine isn't made on the day shift, and vice versa.
     if (t.per_shift && t.shift_only && t.shift_only !== slot.type) continue;
+    // Monthly / quarterly routine cards only come round in their week.
+    if (t.routine_slot && t.routine_slot !== "every" && !routineRuleFires(t.routine_rule, slot.date)) continue;
 
     const shiftKey = t.per_shift ? slot.type : "";
     let due: Date;
@@ -81,11 +86,11 @@ export async function ensureStationChecks(now: Date = new Date()): Promise<{ cre
     const tx = await db.begin();
     try {
       const task = await tx.rawQueryRow<{ id: number }>(
-        `INSERT INTO tasks (title, description, category, assigned_by, priority, checklist, rrule, status, watch_unit, source_type, due_at, tags)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, 'NotStarted', NULL, 'template', $8, $9)
+        `INSERT INTO tasks (title, description, category, assigned_by, priority, checklist, rrule, status, watch_unit, source_type, due_at, tags, cover_colour)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, 'NotStarted', NULL, 'template', $8, $9, $10)
          RETURNING id`,
         fillTitle(t.title_template, slot.date, slot.type, t.per_shift), t.task_description ?? null, t.category, t.created_by, t.priority, checklist, t.rrule, due,
-        t.routine_slot ? ["routine"] : null
+        t.routine_slot ? ["routine"] : null, t.cover ?? null
       );
       const instance = task && await tx.rawQueryRow<{ id: number }>(
         `INSERT INTO task_template_instances (template_id, task_id, generated_for_date, generated_for_shift)

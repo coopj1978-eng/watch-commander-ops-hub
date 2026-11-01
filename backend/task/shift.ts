@@ -37,6 +37,8 @@ export interface ShiftTask extends Task {
   check_freq?: string;
   /** Weekly routine cards: their planner slot, e.g. 'MO-day' or 'every'. */
   routine_slot?: string;
+  /** Which weeks a routine card comes round — for its header ('weekly', 'first'…). */
+  routine_rule?: string;
   completed_by_name?: string;
 }
 
@@ -85,7 +87,7 @@ export const shiftBoard = api<ShiftBoardRequest, ShiftBoardResponse>(
     }
 
     const rows = await db.rawQueryAll<any>(
-      `SELECT t.*, u.name AS completed_by_name, tt.per_shift, tt.rrule AS template_rrule, tt.routine_slot,
+      `SELECT t.*, u.name AS completed_by_name, tt.per_shift, tt.rrule AS template_rrule, tt.routine_slot, tt.routine_rule,
               ho.watch AS ho_watch, ho.shift_type AS ho_type, ho.shift_date AS ho_date
        FROM tasks t
        LEFT JOIN task_template_instances i ON i.task_id = t.id
@@ -107,7 +109,7 @@ export const shiftBoard = api<ShiftBoardRequest, ShiftBoardResponse>(
     );
 
     const tasks: ShiftTask[] = rows.map((t) => {
-      const { per_shift, template_rrule, routine_slot, ho_watch, ho_type, ho_date, ...rest } = t;
+      const { per_shift, template_rrule, routine_slot, routine_rule, ho_watch, ho_type, ho_date, ...rest } = t;
       const kind: ShiftTask["kind"] =
         t.source_type === "template" ? "check"
         : t.source_type === "handover" ? "handover"
@@ -122,6 +124,7 @@ export const shiftBoard = api<ShiftBoardRequest, ShiftBoardResponse>(
         kind,
         check_freq: kind === "check" ? checkFreq(per_shift, template_rrule ?? t.rrule, routine_slot) : undefined,
         routine_slot: kind === "check" ? (routine_slot ?? undefined) : undefined,
+        routine_rule: kind === "check" && routine_slot ? (routine_rule ?? "weekly") : undefined,
         handover_from: kind === "handover" && ho_watch
           ? `${ho_watch} Watch · ${ho_type} ${hoDate ? hoDate.toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "Europe/London" }) : ""}`.trim()
           : undefined,

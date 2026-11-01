@@ -1,8 +1,10 @@
 /**
  * The weekly routine (Nov 2026): a station's routine changes every day but
  * repeats each week, and some checks are done every shift. The Routines
- * planner keeps one template per slot — 'every' or a weekday + shift such as
- * 'MO-day' / 'MO-night' — and each slot makes one card on the shift board.
+ * planner keeps the cards for each slot — 'every' or a weekday + shift such as
+ * 'MO-day' / 'MO-night'. A slot can hold several cards (John's Trello board
+ * has "Monday weekly" and "Monday monthly"), each a template with a rule for
+ * which weeks it comes round.
  * No Encore imports, so it can be unit-tested directly.
  */
 
@@ -32,6 +34,28 @@ export function routineSlotSpec(slot: string): RoutineSlotSpec | null {
   const shift = m[2] as "day" | "night";
   const title = shift === "day" ? `${day} routine` : `${day} night routine`;
   return { name: title, title, rrule: `FREQ=WEEKLY;BYDAY=${m[1]};INTERVAL=1`, per_shift: true, shift_only: shift };
+}
+
+/** Which weeks a routine card comes round, on its slot's weekday. */
+export const ROUTINE_RULES = ["weekly", "first", "last", "quarter-last"] as const;
+export type RoutineRule = (typeof ROUTINE_RULES)[number];
+
+/**
+ * Whether a card with this rule is due on a date (its slot's weekday):
+ * weekly — every week; first — the first of that weekday in the month;
+ * last — the last of it in the month; quarter-last — the last of it in
+ * January, April, July and October (e.g. SWAH: last Tuesday of the quarter).
+ */
+export function routineRuleFires(rule: string | null | undefined, dateIso: string): boolean {
+  const [y, m, d] = dateIso.split("-").map(Number);
+  const daysInMonth = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  const isLast = d + 7 > daysInMonth;
+  switch (rule ?? "weekly") {
+    case "first": return d <= 7;
+    case "last": return isLast;
+    case "quarter-last": return isLast && [1, 4, 7, 10].includes(m);
+    default: return true;
+  }
 }
 
 /** Item labels from the planner: trimmed, no blanks, no repeats, at most 40. */

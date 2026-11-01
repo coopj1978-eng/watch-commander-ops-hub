@@ -64,6 +64,11 @@ export interface TaskTemplate {
   shift_only?: "day" | "night" | null;
   /** Weekly routine slot: 'every' or a weekday + shift, e.g. 'MO-day'. */
   routine_slot?: string | null;
+  /** Which weeks a routine card comes round: 'weekly' | 'first' | 'last' | 'quarter-last'. */
+  routine_rule?: string | null;
+  /** Header: null = automatic (day + how often); a colour id, image URL or uploaded picture. */
+  cover?: string | null;
+  routine_position?: number;
   is_active: boolean;
   created_by: string;
   created_at: Date;

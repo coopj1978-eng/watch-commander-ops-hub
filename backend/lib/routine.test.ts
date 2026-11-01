@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cleanRoutineItems, mergeChecklist, routineSlotSpec, stampChecklist } from "./routine";
+import { cleanRoutineItems, mergeChecklist, routineSlotSpec, stampChecklist, routineRuleFires } from "./routine";
 
 describe("routineSlotSpec", () => {
   it("makes a weekday's day and night routines", () => {
@@ -50,5 +50,28 @@ describe("stampChecklist", () => {
   it("clears the stamp when unticked, and won't take a client's stamp on a new tick", () => {
     expect(stampChecklist([{ label: "J4", done: true, done_by: "u1" }], [{ label: "J4", done: false, done_by: "u1" }], who, now)[0]).toEqual({ label: "J4", done: false });
     expect(stampChecklist([], [{ label: "New", done: true, done_by: "fake" }], who, now)[0].done_by).toBe("u2");
+  });
+});
+
+describe("routineRuleFires", () => {
+  it("weekly cards come every week", () => {
+    expect(routineRuleFires("weekly", "2026-11-30")).toBe(true);
+    expect(routineRuleFires(null, "2026-11-03")).toBe(true);
+  });
+  it("first = the first of that weekday in the month", () => {
+    expect(routineRuleFires("first", "2026-11-02")).toBe(true);  // Mon 2 Nov
+    expect(routineRuleFires("first", "2026-11-09")).toBe(false);
+    expect(routineRuleFires("first", "2026-11-07")).toBe(true);  // Sat 7 Nov
+  });
+  it("last = the last of that weekday in the month", () => {
+    expect(routineRuleFires("last", "2026-11-27")).toBe(true);   // Fri 27 Nov (4 Dec is next)
+    expect(routineRuleFires("last", "2026-11-20")).toBe(false);
+    expect(routineRuleFires("last", "2026-02-24")).toBe(true);   // Tue 24 Feb 2026, 28-day month
+  });
+  it("quarter-last = last of that weekday in Jan, Apr, Jul, Oct", () => {
+    expect(routineRuleFires("quarter-last", "2026-10-27")).toBe(true);  // last Tue of Oct
+    expect(routineRuleFires("quarter-last", "2026-11-24")).toBe(false); // last Tue of Nov
+    expect(routineRuleFires("quarter-last", "2027-01-26")).toBe(true);  // last Tue of Jan
+    expect(routineRuleFires("quarter-last", "2026-10-20")).toBe(false);
   });
 });

@@ -8,6 +8,7 @@ import backend from "@/lib/backend";
 import type { task } from "@/client";
 import { cn } from "@/lib/utils";
 import { getShiftForDate } from "@/lib/shiftRota";
+import { routineRuleFires } from "@/lib/routineRules";
 import { STATION_WATCHES } from "@/components/targets/StationComparison";
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -125,7 +126,10 @@ export function ShiftRunningOrder() {
       }
     } else if (!shift.on_duty) {
       const slot = `${DAYS[new Date(`${shift.date}T12:00:00`).getDay()]}-${shift.type}`;
-      for (const t of (templatesQ.data ?? []).filter((t) => t.is_active && (t.routine_slot === "every" || t.routine_slot === slot))) {
+      const due = (templatesQ.data ?? [])
+        .filter((t) => t.is_active && (t.routine_slot === "every" || (t.routine_slot === slot && routineRuleFires(t.routine_rule, shift.date))))
+        .sort((a, b) => Number(b.routine_slot === "every") - Number(a.routine_slot === "every") || (a.routine_position ?? 0) - (b.routine_position ?? 0));
+      for (const t of due) {
         const items = checklistOf(t.checklist);
         rows.push({
           key: `preview-${t.id}`, at: start + 1, time: null, Icon: ClipboardCheck, to: "/tasks",

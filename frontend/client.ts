@@ -4737,6 +4737,11 @@ export namespace task {
         "shift_only"?: "day" | "night" | null
         /** Weekly routine slot: 'every' or a weekday + shift, e.g. 'MO-day'. */
         "routine_slot"?: string | null
+        /** Which weeks a routine card comes round: 'weekly' | 'first' | 'last' | 'quarter-last'. */
+        "routine_rule"?: string | null
+        /** Header: null = automatic; a colour id, image URL or uploaded picture. */
+        cover?: string | null
+        "routine_position"?: number
         "is_active": boolean
         "created_by": string
         "created_at": string
@@ -4762,6 +4767,16 @@ export namespace task {
     }
 
     /** The shift board: what the watch on duty should see this shift. */
+    /** One card in a weekly-routine slot, as the planner sends it. */
+    export interface RoutineCardInput {
+        key?: string
+        id?: number
+        name: string
+        rule?: string
+        cover?: string | null
+        items: string[]
+    }
+
     export interface ShiftInfo {
         watch: string | null
         date: string
@@ -4777,6 +4792,7 @@ export namespace task {
         "handover_from"?: string
         "check_freq"?: string
         "routine_slot"?: string
+        "routine_rule"?: string
         "completed_by_name"?: string
     }
 
@@ -4819,10 +4835,10 @@ export namespace task {
             this.saveRoutine = this.saveRoutine.bind(this)
         }
 
-        /** Set one weekly-routine slot's items ('every', 'MO-day', 'MO-night'…). Empty switches it off. */
-        public async saveRoutine(slot: string, params: { items: string[] }): Promise<{ template: TaskTemplate | null }> {
+        /** Set one weekly-routine slot's cards ('every', 'MO-day', 'MO-night'…). Cards left out are removed. */
+        public async saveRoutine(slot: string, params: { cards: RoutineCardInput[] }): Promise<{ cards: TaskTemplate[]; keys: { key: string; id: number }[] }> {
             const resp = await this.baseClient.callTypedAPI("PUT", `/task-templates/routine/${encodeURIComponent(slot)}`, JSON.stringify(params))
-            return await resp.json() as { template: TaskTemplate | null }
+            return await resp.json() as { cards: TaskTemplate[]; keys: { key: string; id: number }[] }
         }
 
         public async create(params: CreateTaskRequest): Promise<Task> {

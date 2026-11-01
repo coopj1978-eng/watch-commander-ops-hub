@@ -1,3 +1,4 @@
+import { RoutineHeader } from "@/components/tasks/RoutineHeader";
 import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import * as Menu from "@radix-ui/react-dropdown-menu";
@@ -425,13 +426,18 @@ export default function TaskCard({ task, onTitleEdit, onClick, onChecklistToggle
   // A station check's tag already says it's routine work.
   const labelIds = (task.tags ?? []).filter((id) => getLabelById(id) && !(isCheck && id === "routine"));
   const coverStyle = getCoverStyle((task as any).cover_colour);
+  const routineSlot = (task as Task & { routine_slot?: string }).routine_slot;
+  const routineHeader = isCheck && routineSlot && !coverStyle
+    ? <RoutineHeader slot={routineSlot} rule={(task as Task & { routine_rule?: string }).routine_rule} name={task.title} />
+    : null;
   const recur = describeRRule(task.rrule);
   const assignee = task.assigned_to_user_id
     ? { id: task.assigned_to_user_id, initials: userMap?.[task.assigned_to_user_id]?.initials ?? task.assigned_to_user_id.slice(0, 2).toUpperCase() }
     : null;
   const done = task.status === "Done";
   const shiftTask = task as Task & { kind?: string; check_freq?: string; completed_by_name?: string };
-  const tag = shiftTask.kind ? <ShiftTag task={shiftTask} shiftStart={shiftStart} /> : null;
+  // A routine card's header already says it's a station check and how often.
+  const tag = shiftTask.kind && !routineSlot ? <ShiftTag task={shiftTask} shiftStart={shiftStart} /> : null;
   // On the shift board the tag says when it's for, so the due chip is only kept for plain watch tasks.
   const showDue = !!task.due_at && (!shiftTask.kind || (shiftTask.kind === "watch" && !(shiftStart && new Date(task.due_at) < new Date(shiftStart))));
   const footer = (done && !!shiftTask.completed_by_name) || showDue || (!!recur && !shiftTask.kind) || task.priority !== "Med" || !!assignee;
@@ -449,14 +455,15 @@ export default function TaskCard({ task, onTitleEdit, onClick, onChecklistToggle
       className="cal-focus"
       style={{
         background: "var(--cal-surface)", borderRadius: 16, boxShadow: "var(--cal-card-shadow)",
-        padding: coverStyle ? "8px 12px 12px" : "12px 12px 12px 14px",
+        padding: coverStyle || routineHeader ? "8px 12px 12px" : "12px 12px 12px 14px",
         display: "flex", flexDirection: "column", gap: 9, cursor: "pointer", color: "var(--cal-ink)",
         ...(done ? { opacity: 0.85 } : {}),
       }}
     >
       {coverStyle && <div style={{ ...coverStyle, height: 92, borderRadius: 11, margin: "0 -4px" }} />}
+      {routineHeader && <div style={{ margin: "0 -4px" }}>{routineHeader}</div>}
 
-      {(labelIds.length > 0 || tag) && (
+      {(labelIds.length > 0 || tag || (routineHeader && menu)) && (
         <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
           {tag}
           {labelIds.map((id) => <LabelTag key={id} id={id} />)}
