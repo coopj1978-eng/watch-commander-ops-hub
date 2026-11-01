@@ -18,17 +18,12 @@ export default function FFH4HBalanceWidget() {
   const iOwe     = data?.i_owe?.length     ?? 0;
   const total    = owedToMe + iOwe;
 
-  const accentColor = iOwe > 0
-    ? "border-t-amber-500"
-    : owedToMe > 0
-      ? "border-t-green-500"
-      : "border-t-purple-500";
 
   return (
-    <Card className={`border-t-2 ${accentColor}`}>
+    <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-3">
         <div className="flex items-center gap-2">
-          <ArrowLeftRight className="h-5 w-5 text-purple-500" />
+          <ArrowLeftRight className="h-4 w-4 text-muted-foreground" />
           <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
             H4H Balance
           </CardTitle>
@@ -39,11 +34,11 @@ export default function FFH4HBalanceWidget() {
         {isLoading ? (
           <p className="text-sm text-muted-foreground text-center py-3">Loading…</p>
         ) : total === 0 ? (
-          <div className="flex flex-col items-center py-4 gap-2 text-muted-foreground">
-            <CheckCircle2 className="h-8 w-8 text-green-500 opacity-70" />
-            <p className="text-sm font-medium text-foreground">All square</p>
-            <p className="text-xs text-muted-foreground text-center">No outstanding H4H shifts</p>
-          </div>
+          <p className="flex items-center gap-2 text-sm">
+            <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+            <span className="font-medium">All square</span>
+            <span className="text-muted-foreground">— no H4H shifts outstanding</span>
+          </p>
         ) : (
           <div className="space-y-3">
             {/* Stat row */}

@@ -54,7 +54,7 @@ export default function ToilWidget() {
     enabled: !!user?.id,
   });
   const entries = entriesData?.entries ?? [];
-  const recentEntries = entries.slice(0, 5);
+  const recentEntries = entries.slice(0, 3);
 
   // Pending approvals (WC/CC only — for the whole watch)
   const { data: pendingData } = useQuery({
@@ -128,47 +128,32 @@ export default function ToilWidget() {
 
   return (
     <>
-      <Card className="border-t-2 border-t-emerald-500">
+      <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-3">
           <div className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-emerald-500" />
+            <Clock className="h-4 w-4 text-muted-foreground" />
             <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
               TOIL
             </CardTitle>
           </div>
           <Button
             size="sm"
+            variant="outline"
             onClick={() => setEarnOpen(true)}
-            className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white gap-1"
+            className="h-7 text-xs gap-1"
           >
             <Plus className="h-3.5 w-3.5" /> Log Hours
           </Button>
         </CardHeader>
 
         <CardContent className="space-y-4">
-          {/* Balance summary */}
-          <div className="grid grid-cols-3 gap-2">
-            <div className="rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 p-2.5 text-center">
-              <TrendingUp className="h-4 w-4 mx-auto text-emerald-500 mb-1" />
-              <p className="text-lg font-bold text-emerald-700 dark:text-emerald-300">
-                {myBalance?.total_earned ?? 0}
-              </p>
-              <p className="text-[10px] text-muted-foreground">Earned {year}</p>
-            </div>
-            <div className="rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 p-2.5 text-center">
-              <TrendingDown className="h-4 w-4 mx-auto text-blue-500 mb-1" />
-              <p className="text-lg font-bold text-blue-700 dark:text-blue-300">
-                {myBalance?.total_spent ?? 0}
-              </p>
-              <p className="text-[10px] text-muted-foreground">Used {year}</p>
-            </div>
-            <div className="rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 p-2.5 text-center">
-              <Clock className="h-4 w-4 mx-auto text-indigo-500 mb-1" />
-              <p className="text-lg font-bold text-indigo-700 dark:text-indigo-300">
-                {myBalance?.balance ?? 0}
-              </p>
-              <p className="text-[10px] text-muted-foreground">Available</p>
-            </div>
+          {/* Balance — neutral; colour is kept for things that need doing. */}
+          <div className="flex items-baseline gap-2">
+            <span className="font-mono text-2xl font-semibold tabular-nums">{myBalance?.balance ?? 0}h</span>
+            <span className="text-sm text-muted-foreground">available</span>
+            <span className="ml-auto text-xs text-muted-foreground">
+              {myBalance?.total_earned ?? 0}h earned · {myBalance?.total_spent ?? 0}h used in {year}
+            </span>
           </div>
           {(myBalance?.pending_earned ?? 0) > 0 && (
             <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
@@ -225,8 +210,8 @@ export default function ToilWidget() {
                 <div key={b.user_id} className="flex items-center justify-between text-xs px-1">
                   <span className="text-foreground">{b.user_name}</span>
                   <div className="flex items-center gap-3">
-                    <span className="text-emerald-600">{b.total_earned}hrs earned</span>
-                    <span className="text-blue-600">{b.total_spent}hrs used</span>
+                    <span className="text-muted-foreground">{b.total_earned}hrs earned</span>
+                    <span className="text-muted-foreground">{b.total_spent}hrs used</span>
                     <Badge variant={b.balance > 0 ? "default" : "secondary"} className="text-[10px]">
                       {b.balance}hrs
                     </Badge>

@@ -96,17 +96,12 @@ export function WCContactsWidget() {
         <CardContent className="pt-0 space-y-0">
           {!hasAny ? (
             /* ── Empty state ── */
-            <div className="flex flex-col items-center gap-2 py-4 text-center">
-              <div className="h-10 w-10 rounded-xl bg-cyan-50 dark:bg-cyan-950/40 flex items-center justify-center">
-                <Phone className="h-5 w-5 text-cyan-400" />
-              </div>
-              <p className="text-sm text-muted-foreground">No contacts set</p>
+            <div className="flex items-center gap-2 text-sm">
+              <Phone className="h-4 w-4 text-muted-foreground" />
+              <span className="text-muted-foreground">No duty contacts yet.</span>
               {canEdit && (
-                <button
-                  onClick={startEdit}
-                  className="text-xs text-cyan-600 dark:text-cyan-400 hover:underline"
-                >
-                  Add duty contacts →
+                <button onClick={startEdit} className="font-medium text-brand hover:underline">
+                  Add →
                 </button>
               )}
             </div>

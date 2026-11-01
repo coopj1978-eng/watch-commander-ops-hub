@@ -38488,7 +38488,8 @@ function CrewOnWatchTable({ compact = false } = {}) {
   });
   const onDutyCount = rows.filter((r2) => r2.status.kind === "on_duty").length;
   if (compact) {
-    const list = [...rows].sort((a, b) => Number(a.status.kind === "on_duty") - Number(b.status.kind === "on_duty"));
+    const off = rows.filter((r2) => r2.status.kind !== "on_duty");
+    const here = rows.filter((r2) => r2.status.kind === "on_duty");
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { "aria-label": "Crew", className: "rounded-2xl border border-border/70 bg-card p-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline justify-between gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-sm font-semibold", children: [
@@ -38505,40 +38506,59 @@ function CrewOnWatchTable({ compact = false } = {}) {
           " available →"
         ] }) })
       ] }),
-      isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 space-y-1.5", children: [0, 1, 2, 3].map((i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-8 w-full" }, i)) }) : rows.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "mt-3 text-sm text-muted-foreground", children: [
+      isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 space-y-1.5", children: [0, 1, 2].map((i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-8 w-full" }, i)) }) : rows.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "mt-3 text-sm text-muted-foreground", children: [
         "No crew on ",
         watch || "this",
         " watch."
-      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "mt-2 divide-y divide-border/50", children: list.map((r2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-center gap-2.5 py-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Link, { to: `/people/${r2.id}`, className: "flex min-w-0 flex-1 items-center gap-2.5 hover:text-primary", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Avatar, { name: r2.name }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "min-w-0 truncate text-sm", children: r2.name })
-        ] }),
-        r2.stage3 && /* @__PURE__ */ jsxRuntimeExports.jsx(StatusBadge$1, { status: { kind: "stage3", label: "Triggers hit" } }),
-        r2.status.kind !== "on_duty" && /* @__PURE__ */ jsxRuntimeExports.jsx(StatusBadge$1, { status: r2.status }),
-        canLogSick && (r2.status.kind === "on_duty" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
-          {
-            onClick: () => openLogSickFor(r2.id, r2.name),
-            className: "grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30",
-            title: `Log ${r2.name} sick`,
-            "aria-label": `Log ${r2.name} sick`,
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(Stethoscope, { className: "h-3.5 w-3.5" })
-          }
-        ) : r2.status.kind === "sick" && r2.absence_id ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "button",
-          {
-            onClick: () => bookBackFit.mutate(r2.absence_id),
-            disabled: bookBackFit.isPending,
-            className: "inline-flex h-7 items-center gap-1 rounded-md px-2 text-[11px] font-medium text-green-700 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-950/30",
-            title: "Book back fit and close the sickness",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Heart, { className: "h-3 w-3" }),
-              " Fit"
-            ]
-          }
-        ) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-7" }))
-      ] }, r2.id)) }),
+      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        off.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "mt-2 divide-y divide-border/50", children: off.map((r2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-center gap-2 py-1.5", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Link, { to: `/people/${r2.id}`, className: "flex min-w-0 flex-1 items-center gap-2.5 hover:text-primary", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Avatar, { name: r2.name }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "min-w-0 truncate text-sm font-medium", children: r2.name })
+          ] }),
+          r2.stage3 && /* @__PURE__ */ jsxRuntimeExports.jsx(StatusBadge$1, { status: { kind: "stage3", label: "Triggers hit" } }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(StatusBadge$1, { status: r2.status }),
+          canLogSick && r2.status.kind === "sick" && r2.absence_id && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              onClick: () => bookBackFit.mutate(r2.absence_id),
+              disabled: bookBackFit.isPending,
+              className: "inline-flex h-7 items-center gap-1 rounded-md px-2 text-[11px] font-medium text-green-700 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-950/30",
+              title: "Book back fit and close the sickness",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Heart, { className: "h-3 w-3" }),
+                " Fit"
+              ]
+            }
+          )
+        ] }, r2.id)) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 flex flex-wrap gap-1.5", children: here.map((r2) => {
+          var _a4;
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            Link,
+            {
+              to: `/people/${r2.id}`,
+              className: "inline-flex items-center gap-1.5 rounded-full border border-border/70 py-0.5 pl-0.5 pr-2.5 text-xs hover:bg-muted",
+              title: `${r2.name}${r2.stage3 ? " — absence triggers hit" : ""}`,
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Avatar, { name: r2.name }),
+                r2.name.split(" ")[0],
+                " ",
+                (_a4 = r2.name.split(" ").slice(-1)[0]) == null ? void 0 : _a4[0],
+                r2.stage3 && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "h-1.5 w-1.5 rounded-full bg-red-500", "aria-label": "Absence triggers hit" })
+              ]
+            },
+            r2.id
+          );
+        }) }),
+        canLogSick && here.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenu, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuTrigger, { className: "mt-3 inline-flex h-8 items-center gap-1.5 rounded-lg border border-border px-2.5 text-xs font-medium hover:bg-muted", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Stethoscope, { className: "h-3.5 w-3.5" }),
+            " Log sick…"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuContent, { align: "start", className: "max-h-[50vh] overflow-y-auto", children: here.map((r2) => /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuItem, { onSelect: () => openLogSickFor(r2.id, r2.name), children: r2.name }, r2.id)) })
+        ] })
+      ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(LogSickDialog, { open: logSickOpen, onOpenChange: setLogSickOpen, person: logSickPerson })
     ] });
   }
@@ -38956,17 +38976,10 @@ function WCContactsWidget() {
       /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "pt-0 space-y-0", children: [
         !hasAny ? (
           /* ── Empty state ── */
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center gap-2 py-4 text-center", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-10 w-10 rounded-xl bg-cyan-50 dark:bg-cyan-950/40 flex items-center justify-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Phone, { className: "h-5 w-5 text-cyan-400" }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "No contacts set" }),
-            canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                onClick: startEdit,
-                className: "text-xs text-cyan-600 dark:text-cyan-400 hover:underline",
-                children: "Add duty contacts →"
-              }
-            )
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 text-sm", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Phone, { className: "h-4 w-4 text-muted-foreground" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "No duty contacts yet." }),
+            canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: startEdit, className: "font-medium text-brand hover:underline", children: "Add →" })
           ] })
         ) : (
           /* ── Contact rows ── */
@@ -42302,7 +42315,7 @@ function ToilWidget() {
     enabled: !!(user2 == null ? void 0 : user2.id)
   });
   const entries = (entriesData == null ? void 0 : entriesData.entries) ?? [];
-  const recentEntries = entries.slice(0, 5);
+  const recentEntries = entries.slice(0, 3);
   const { data: pendingData } = useQuery({
     queryKey: ["toil-pending", user2 == null ? void 0 : user2.watch_unit],
     queryFn: () => backendClient.toil.list({ watch_unit: user2.watch_unit, status: "pending" }),
@@ -42364,18 +42377,19 @@ function ToilWidget() {
     month: "short"
   });
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { className: "border-t-2 border-t-emerald-500", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(CardHeader, { className: "flex flex-row items-center justify-between pb-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: "h-5 w-5 text-emerald-500" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: "h-4 w-4 text-muted-foreground" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { className: "text-sm font-semibold text-muted-foreground uppercase tracking-wide", children: "TOIL" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           Button,
           {
             size: "sm",
+            variant: "outline",
             onClick: () => setEarnOpen(true),
-            className: "h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white gap-1",
+            className: "h-7 text-xs gap-1",
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-3.5 w-3.5" }),
               " Log Hours"
@@ -42384,27 +42398,18 @@ function ToilWidget() {
         )
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "space-y-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-3 gap-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 p-2.5 text-center", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingUp, { className: "h-4 w-4 mx-auto text-emerald-500 mb-1" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-lg font-bold text-emerald-700 dark:text-emerald-300", children: (myBalance == null ? void 0 : myBalance.total_earned) ?? 0 }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-[10px] text-muted-foreground", children: [
-              "Earned ",
-              year
-            ] })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono text-2xl font-semibold tabular-nums", children: [
+            (myBalance == null ? void 0 : myBalance.balance) ?? 0,
+            "h"
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 p-2.5 text-center", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingDown, { className: "h-4 w-4 mx-auto text-blue-500 mb-1" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-lg font-bold text-blue-700 dark:text-blue-300", children: (myBalance == null ? void 0 : myBalance.total_spent) ?? 0 }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-[10px] text-muted-foreground", children: [
-              "Used ",
-              year
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 p-2.5 text-center", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: "h-4 w-4 mx-auto text-indigo-500 mb-1" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-lg font-bold text-indigo-700 dark:text-indigo-300", children: (myBalance == null ? void 0 : myBalance.balance) ?? 0 }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[10px] text-muted-foreground", children: "Available" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-muted-foreground", children: "available" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ml-auto text-xs text-muted-foreground", children: [
+            (myBalance == null ? void 0 : myBalance.total_earned) ?? 0,
+            "h earned · ",
+            (myBalance == null ? void 0 : myBalance.total_spent) ?? 0,
+            "h used in ",
+            year
           ] })
         ] }),
         ((myBalance == null ? void 0 : myBalance.pending_earned) ?? 0) > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400", children: [
@@ -42456,11 +42461,11 @@ function ToilWidget() {
           watchBalances.map((b) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between text-xs px-1", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-foreground", children: b.user_name }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-emerald-600", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-muted-foreground", children: [
                 b.total_earned,
                 "hrs earned"
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-blue-600", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-muted-foreground", children: [
                 b.total_spent,
                 "hrs used"
               ] }),
@@ -42617,17 +42622,16 @@ function FFH4HBalanceWidget() {
   const owedToMe = ((_a3 = data == null ? void 0 : data.owed_to_me) == null ? void 0 : _a3.length) ?? 0;
   const iOwe = ((_b3 = data == null ? void 0 : data.i_owe) == null ? void 0 : _b3.length) ?? 0;
   const total = owedToMe + iOwe;
-  const accentColor = iOwe > 0 ? "border-t-amber-500" : owedToMe > 0 ? "border-t-green-500" : "border-t-purple-500";
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { className: `border-t-2 ${accentColor}`, children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(CardHeader, { className: "flex flex-row items-center justify-between pb-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeftRight, { className: "h-5 w-5 text-purple-500" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeftRight, { className: "h-4 w-4 text-muted-foreground" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { className: "text-sm font-semibold text-muted-foreground uppercase tracking-wide", children: "H4H Balance" })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { children: [
-      isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground text-center py-3", children: "Loading…" }) : total === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center py-4 gap-2 text-muted-foreground", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-8 w-8 text-green-500 opacity-70" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm font-medium text-foreground", children: "All square" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground text-center", children: "No outstanding H4H shifts" })
+      isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground text-center py-3", children: "Loading…" }) : total === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "flex items-center gap-2 text-sm", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-4 w-4 text-muted-foreground" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: "All square" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "— no H4H shifts outstanding" })
       ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-3", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-xl bg-green-50 dark:bg-green-950/40 border border-green-200 dark:border-green-800 p-3 text-center", children: [

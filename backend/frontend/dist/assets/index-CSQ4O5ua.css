@@ -1378,6 +1378,10 @@
     max-height: 45vh;
   }
 
+  .max-h-\[50vh\] {
+    max-height: 50vh;
+  }
+
   .max-h-\[60vh\] {
     max-height: 60vh;
   }
@@ -2974,20 +2978,12 @@
     border-top-color: var(--color-cyan-500);
   }
 
-  .border-t-emerald-500 {
-    border-top-color: var(--color-emerald-500);
-  }
-
   .border-t-green-500 {
     border-top-color: var(--color-green-500);
   }
 
   .border-t-orange-500 {
     border-top-color: var(--color-orange-500);
-  }
-
-  .border-t-purple-500 {
-    border-top-color: var(--color-purple-500);
   }
 
   .border-t-red-400 {
@@ -4273,6 +4269,10 @@
     padding-right: calc(var(--spacing) * 2);
   }
 
+  .pr-2\.5 {
+    padding-right: calc(var(--spacing) * 2.5);
+  }
+
   .pr-3 {
     padding-right: calc(var(--spacing) * 3);
   }
@@ -4335,6 +4335,10 @@
 
   .pb-\[max\(20px\,env\(safe-area-inset-bottom\)\)\] {
     padding-bottom: max(20px, env(safe-area-inset-bottom));
+  }
+
+  .pl-0\.5 {
+    padding-left: calc(var(--spacing) * .5);
   }
 
   .pl-1 {
@@ -4663,10 +4667,6 @@
 
   .text-current {
     color: currentColor;
-  }
-
-  .text-cyan-400 {
-    color: var(--color-cyan-400);
   }
 
   .text-cyan-500 {

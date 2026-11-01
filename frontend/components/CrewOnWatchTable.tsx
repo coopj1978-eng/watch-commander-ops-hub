@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LogSickDialog } from "@/components/LogSickDialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Users, ChevronRight, Stethoscope, Heart } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { invalidateAbsenceViews, latestAbsencePerPerson, useTodaysAbsences } from "@/lib/absences";
@@ -234,7 +235,8 @@ export function CrewOnWatchTable({ compact = false }: { compact?: boolean } = {}
   const onDutyCount = rows.filter((r) => r.status.kind === "on_duty").length;
 
   if (compact) {
-    const list = [...rows].sort((a, b) => Number(a.status.kind === "on_duty") - Number(b.status.kind === "on_duty"));
+    const off = rows.filter((r) => r.status.kind !== "on_duty");
+    const here = rows.filter((r) => r.status.kind === "on_duty");
     return (
       <section aria-label="Crew" className="rounded-2xl border border-border/70 bg-card p-4">
         <div className="flex items-baseline justify-between gap-2">
@@ -244,41 +246,64 @@ export function CrewOnWatchTable({ compact = false }: { compact?: boolean } = {}
           </Link>
         </div>
         {isLoading ? (
-          <div className="mt-3 space-y-1.5">{[0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-8 w-full" />)}</div>
+          <div className="mt-3 space-y-1.5">{[0, 1, 2].map((i) => <Skeleton key={i} className="h-8 w-full" />)}</div>
         ) : rows.length === 0 ? (
           <p className="mt-3 text-sm text-muted-foreground">No crew on {watch || "this"} watch.</p>
         ) : (
-          <ul className="mt-2 divide-y divide-border/50">
-            {list.map((r) => (
-              <li key={r.id} className="flex items-center gap-2.5 py-1.5">
-                <Link to={`/people/${r.id}`} className="flex min-w-0 flex-1 items-center gap-2.5 hover:text-primary">
+          <>
+            {/* Who's off — the part a WC needs to act on. */}
+            {off.length > 0 && (
+              <ul className="mt-2 divide-y divide-border/50">
+                {off.map((r) => (
+                  <li key={r.id} className="flex items-center gap-2 py-1.5">
+                    <Link to={`/people/${r.id}`} className="flex min-w-0 flex-1 items-center gap-2.5 hover:text-primary">
+                      <Avatar name={r.name} />
+                      <span className="min-w-0 truncate text-sm font-medium">{r.name}</span>
+                    </Link>
+                    {r.stage3 && <StatusBadge status={{ kind: "stage3", label: "Triggers hit" }} />}
+                    <StatusBadge status={r.status} />
+                    {canLogSick && r.status.kind === "sick" && r.absence_id && (
+                      <button
+                        onClick={() => bookBackFit.mutate(r.absence_id!)}
+                        disabled={bookBackFit.isPending}
+                        className="inline-flex h-7 items-center gap-1 rounded-md px-2 text-[11px] font-medium text-green-700 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-950/30"
+                        title="Book back fit and close the sickness"
+                      >
+                        <Heart className="h-3 w-3" /> Fit
+                      </button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+            {/* Everyone else, as names. */}
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {here.map((r) => (
+                <Link
+                  key={r.id}
+                  to={`/people/${r.id}`}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-border/70 py-0.5 pl-0.5 pr-2.5 text-xs hover:bg-muted"
+                  title={`${r.name}${r.stage3 ? " — absence triggers hit" : ""}`}
+                >
                   <Avatar name={r.name} />
-                  <span className="min-w-0 truncate text-sm">{r.name}</span>
+                  {r.name.split(" ")[0]} {r.name.split(" ").slice(-1)[0]?.[0]}
+                  {r.stage3 && <span className="h-1.5 w-1.5 rounded-full bg-red-500" aria-label="Absence triggers hit" />}
                 </Link>
-                {r.stage3 && <StatusBadge status={{ kind: "stage3", label: "Triggers hit" }} />}
-                {r.status.kind !== "on_duty" && <StatusBadge status={r.status} />}
-                {canLogSick && (r.status.kind === "on_duty" ? (
-                  <button
-                    onClick={() => openLogSickFor(r.id, r.name)}
-                    className="grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30"
-                    title={`Log ${r.name} sick`}
-                    aria-label={`Log ${r.name} sick`}
-                  >
-                    <Stethoscope className="h-3.5 w-3.5" />
-                  </button>
-                ) : r.status.kind === "sick" && r.absence_id ? (
-                  <button
-                    onClick={() => bookBackFit.mutate(r.absence_id!)}
-                    disabled={bookBackFit.isPending}
-                    className="inline-flex h-7 items-center gap-1 rounded-md px-2 text-[11px] font-medium text-green-700 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-950/30"
-                    title="Book back fit and close the sickness"
-                  >
-                    <Heart className="h-3 w-3" /> Fit
-                  </button>
-                ) : <span className="w-7" />)}
-              </li>
-            ))}
-          </ul>
+              ))}
+            </div>
+            {canLogSick && here.length > 0 && (
+              <DropdownMenu>
+                <DropdownMenuTrigger className="mt-3 inline-flex h-8 items-center gap-1.5 rounded-lg border border-border px-2.5 text-xs font-medium hover:bg-muted">
+                  <Stethoscope className="h-3.5 w-3.5" /> Log sick…
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="max-h-[50vh] overflow-y-auto">
+                  {here.map((r) => (
+                    <DropdownMenuItem key={r.id} onSelect={() => openLogSickFor(r.id, r.name)}>{r.name}</DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </>
         )}
         <LogSickDialog open={logSickOpen} onOpenChange={setLogSickOpen} person={logSickPerson} />
       </section>
