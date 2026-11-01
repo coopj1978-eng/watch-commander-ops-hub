@@ -60702,8 +60702,8 @@ function TargetCard({
   children,
   footer
 }) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "flex flex-col rounded-2xl border border-border/70 bg-card shadow-sm", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "flex items-start justify-between gap-3 px-5 pt-5", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "flex min-w-0 flex-col rounded-2xl border border-border/70 bg-card shadow-sm", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "flex items-start justify-between gap-3 px-4 pt-4 sm:px-5 sm:pt-5", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 items-center gap-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-muted text-foreground/80", children: icon }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
@@ -60711,13 +60711,13 @@ function TargetCard({
           subtitle && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-0.5 truncate text-xs text-muted-foreground", children: subtitle })
         ] })
       ] }),
-      pill
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "shrink-0", children: pill })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-1 flex-col gap-5 p-5 sm:flex-row sm:items-start", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-1 flex-col gap-5 p-4 sm:flex-row sm:items-start sm:p-5", children: [
       ring,
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-w-0 flex-1", children })
     ] }),
-    footer && /* @__PURE__ */ jsxRuntimeExports.jsx("footer", { className: "flex flex-wrap items-center gap-2 border-t border-border/60 px-5 py-3", children: footer })
+    footer && /* @__PURE__ */ jsxRuntimeExports.jsx("footer", { className: "flex flex-wrap items-center gap-2 border-t border-border/60 px-4 py-3 sm:px-5", children: footer })
   ] });
 }
 function PaceLines({

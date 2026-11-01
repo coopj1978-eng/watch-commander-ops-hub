@@ -90,8 +90,8 @@ export function TargetCard({
   icon: ReactNode; title: string; subtitle?: ReactNode; pill?: ReactNode; ring: ReactNode; children?: ReactNode; footer?: ReactNode;
 }) {
   return (
-    <section className="flex flex-col rounded-2xl border border-border/70 bg-card shadow-sm">
-      <header className="flex items-start justify-between gap-3 px-5 pt-5">
+    <section className="flex min-w-0 flex-col rounded-2xl border border-border/70 bg-card shadow-sm">
+      <header className="flex items-start justify-between gap-3 px-4 pt-4 sm:px-5 sm:pt-5">
         <div className="flex min-w-0 items-center gap-3">
           <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-muted text-foreground/80">{icon}</span>
           <div className="min-w-0">
@@ -99,13 +99,13 @@ export function TargetCard({
             {subtitle && <p className="mt-0.5 truncate text-xs text-muted-foreground">{subtitle}</p>}
           </div>
         </div>
-        {pill}
+        <div className="shrink-0">{pill}</div>
       </header>
-      <div className="flex flex-1 flex-col gap-5 p-5 sm:flex-row sm:items-start">
+      <div className="flex flex-1 flex-col gap-5 p-4 sm:flex-row sm:items-start sm:p-5">
         {ring}
         <div className="min-w-0 flex-1">{children}</div>
       </div>
-      {footer && <footer className="flex flex-wrap items-center gap-2 border-t border-border/60 px-5 py-3">{footer}</footer>}
+      {footer && <footer className="flex flex-wrap items-center gap-2 border-t border-border/60 px-4 py-3 sm:px-5">{footer}</footer>}
     </section>
   );
 }
