@@ -1739,10 +1739,6 @@
     min-width: 160px;
   }
 
-  .min-w-\[180px\] {
-    min-width: 180px;
-  }
-
   .min-w-\[200px\] {
     min-width: 200px;
   }
@@ -7458,10 +7454,6 @@
       display: inline-grid;
     }
 
-    .lg\:table-cell {
-      display: table-cell;
-    }
-
     .lg\:w-auto {
       width: auto;
     }
@@ -7523,6 +7515,12 @@
 
     .xl\:grid-cols-\[minmax\(0\,2fr\)_minmax\(380px\,1fr\)\] {
       grid-template-columns: minmax(0, 2fr) minmax(380px, 1fr);
+    }
+  }
+
+  @media (min-width: 96rem) {
+    .\32 xl\:table-cell {
+      display: table-cell;
     }
   }
 

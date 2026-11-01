@@ -272,7 +272,7 @@ export function CrewOnWatchTable() {
                 <tr className="border-t border-b border-border/60 bg-muted/30">
                   <th className="text-left font-medium text-[10px] uppercase tracking-widest text-muted-foreground pl-3 pr-2 sm:px-4 py-2">Name</th>
                   <th className="text-left font-medium text-[10px] uppercase tracking-widest text-muted-foreground px-3 py-2 hidden md:table-cell">Rank</th>
-                  <th className="text-left font-medium text-[10px] uppercase tracking-widest text-muted-foreground px-3 py-2 hidden lg:table-cell">Service #</th>
+                  <th className="text-left font-medium text-[10px] uppercase tracking-widest text-muted-foreground px-3 py-2 hidden 2xl:table-cell">Service #</th>
                   <th className="text-left font-medium text-[10px] uppercase tracking-widest text-muted-foreground px-3 py-2 hidden md:table-cell">Driver</th>
                   <th className="text-left font-medium text-[10px] uppercase tracking-widest text-muted-foreground px-3 py-2 hidden sm:table-cell">Quals</th>
                   <th className="text-left font-medium text-[10px] uppercase tracking-widest text-muted-foreground px-2 sm:px-4 py-2">Status</th>
@@ -313,7 +313,7 @@ export function CrewOnWatchTable() {
                       {r.rank}
                     </td>
                     <td
-                      className="px-3 hidden lg:table-cell"
+                      className="px-3 hidden 2xl:table-cell"
                       style={{ paddingBlock: "var(--pad-row)" }}
                     >
                       {r.service_number ? (
@@ -335,7 +335,7 @@ export function CrewOnWatchTable() {
                         <span className="text-muted-foreground/40 text-xs">—</span>
                       )}
                     </td>
-                    <td className="px-3 hidden sm:table-cell min-w-[180px]" style={{ paddingBlock: "var(--pad-row)" }}>
+                    <td className="px-3 hidden sm:table-cell min-w-[110px]" style={{ paddingBlock: "var(--pad-row)" }}>
                       {r.quals.length > 0 ? (
                         <div className="flex flex-wrap gap-1">
                           {r.quals.map((q) => (
@@ -356,7 +356,7 @@ export function CrewOnWatchTable() {
                       )}
                     </td>
                     <td className="px-2 sm:px-4" style={{ paddingBlock: "var(--pad-row)" }}>
-                      <span className="inline-flex flex-wrap items-center gap-1">
+                      <span className="inline-flex flex-wrap items-center gap-1 whitespace-nowrap">
                         <StatusBadge status={r.status} />
                         {r.stage3 && <StatusBadge status={{ kind: "stage3", label: "Triggers hit" }} />}
                       </span>

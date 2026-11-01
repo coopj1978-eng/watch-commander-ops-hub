@@ -43487,7 +43487,7 @@ function CrewOnWatchTable() {
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "border-t border-b border-border/60 bg-muted/30", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-left font-medium text-[10px] uppercase tracking-widest text-muted-foreground pl-3 pr-2 sm:px-4 py-2", children: "Name" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-left font-medium text-[10px] uppercase tracking-widest text-muted-foreground px-3 py-2 hidden md:table-cell", children: "Rank" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-left font-medium text-[10px] uppercase tracking-widest text-muted-foreground px-3 py-2 hidden lg:table-cell", children: "Service #" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-left font-medium text-[10px] uppercase tracking-widest text-muted-foreground px-3 py-2 hidden 2xl:table-cell", children: "Service #" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-left font-medium text-[10px] uppercase tracking-widest text-muted-foreground px-3 py-2 hidden md:table-cell", children: "Driver" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-left font-medium text-[10px] uppercase tracking-widest text-muted-foreground px-3 py-2 hidden sm:table-cell", children: "Quals" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-left font-medium text-[10px] uppercase tracking-widest text-muted-foreground px-2 sm:px-4 py-2", children: "Status" }),
@@ -43523,7 +43523,7 @@ function CrewOnWatchTable() {
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "td",
               {
-                className: "px-3 hidden lg:table-cell",
+                className: "px-3 hidden 2xl:table-cell",
                 style: { paddingBlock: "var(--pad-row)" },
                 children: r2.service_number ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono text-xs text-muted-foreground", children: r2.service_number }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground/40", children: "—" })
               }
@@ -43539,7 +43539,7 @@ function CrewOnWatchTable() {
                 ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground/40 text-xs", children: "—" })
               }
             ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-3 hidden sm:table-cell min-w-[180px]", style: { paddingBlock: "var(--pad-row)" }, children: r2.quals.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1", children: r2.quals.map((q) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-3 hidden sm:table-cell min-w-[110px]", style: { paddingBlock: "var(--pad-row)" }, children: r2.quals.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1", children: r2.quals.map((q) => /* @__PURE__ */ jsxRuntimeExports.jsx(
               Qual,
               {
                 label: q,
@@ -43547,7 +43547,7 @@ function CrewOnWatchTable() {
               },
               q
             )) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground/40 text-xs", children: "—" }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-2 sm:px-4", style: { paddingBlock: "var(--pad-row)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex flex-wrap items-center gap-1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-2 sm:px-4", style: { paddingBlock: "var(--pad-row)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex flex-wrap items-center gap-1 whitespace-nowrap", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(StatusBadge$1, { status: r2.status }),
               r2.stage3 && /* @__PURE__ */ jsxRuntimeExports.jsx(StatusBadge$1, { status: { kind: "stage3", label: "Triggers hit" } })
             ] }) }),
