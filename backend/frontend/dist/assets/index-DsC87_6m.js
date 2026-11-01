@@ -61111,6 +61111,8 @@ function HfsvCard({ watch, fq, canEdit }) {
       setLogging(false);
       toast2({
         title: `HFSV #${next.item_number} logged`,
+        duration: 1e4,
+        // long enough to reach Undo
         description: typed || void 0,
         action: /* @__PURE__ */ jsxRuntimeExports.jsx(
           ToastAction,

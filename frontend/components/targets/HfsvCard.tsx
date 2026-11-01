@@ -64,6 +64,7 @@ export function HfsvCard({ watch, fq, canEdit }: { watch: string; fq: FyQuarter;
       setLogging(false);
       toast({
         title: `HFSV #${next.item_number} logged`,
+        duration: 10_000, // long enough to reach Undo
         description: typed || undefined,
         action: (
           <ToastAction
