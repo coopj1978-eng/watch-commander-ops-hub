@@ -55,19 +55,23 @@ export function HfsvCard({ watch, fq, canEdit }: { watch: string; fq: FyQuarter;
         toast({ title: "All 36 visits are already logged" });
         return;
       }
+      const typed = address.trim();
+      const before = next.address ?? "";
       await backend.activity.toggle(next.id);
-      if (address.trim()) await backend.activity.update(next.id, { address: address.trim() });
+      if (typed) await backend.activity.update(next.id, { address: typed });
       await invalidateTargetViews(qc);
       setAddress("");
       setLogging(false);
       toast({
         title: `HFSV #${next.item_number} logged`,
-        description: address.trim() || undefined,
+        description: typed || undefined,
         action: (
           <ToastAction
             altText="Undo"
             onClick={async () => {
+              // Put the slot back as it was — unticked, with its old address.
               await backend.activity.toggle(next.id);
+              if (typed) await backend.activity.update(next.id, { address: before });
               invalidateTargetViews(qc);
             }}
           >

@@ -60852,7 +60852,7 @@ function QuarterStrip({
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-2 text-sm text-muted-foreground", children: fq.months })
               ] }),
-              isNow ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "rounded-full bg-foreground px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-background", children: "Now" }) : time.phase === "future" ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] font-medium uppercase tracking-wider text-muted-foreground", children: "Ahead" }) : null
+              isNow ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "rounded-full bg-foreground px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-background", children: "Now" }) : time.phase === "future" ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] font-medium uppercase tracking-wider text-muted-foreground", children: "Upcoming" }) : null
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 space-y-2", children: rows.map((r2) => {
               const p = pace(r2.done, r2.target, time.elapsed, time.phase, r2.extra);
@@ -61102,20 +61102,23 @@ function HfsvCard({ watch, fq, canEdit }) {
         toast2({ title: "All 36 visits are already logged" });
         return;
       }
+      const typed = address.trim();
+      const before = next.address ?? "";
       await backendClient.activity.toggle(next.id);
-      if (address.trim()) await backendClient.activity.update(next.id, { address: address.trim() });
+      if (typed) await backendClient.activity.update(next.id, { address: typed });
       await invalidateTargetViews(qc);
       setAddress("");
       setLogging(false);
       toast2({
         title: `HFSV #${next.item_number} logged`,
-        description: address.trim() || void 0,
+        description: typed || void 0,
         action: /* @__PURE__ */ jsxRuntimeExports.jsx(
           ToastAction,
           {
             altText: "Undo",
             onClick: async () => {
               await backendClient.activity.toggle(next.id);
+              if (typed) await backendClient.activity.update(next.id, { address: before });
               invalidateTargetViews(qc);
             },
             children: "Undo"

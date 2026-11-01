@@ -96,7 +96,7 @@ export function QuarterStrip({
                 {isNow ? (
                   <span className="rounded-full bg-foreground px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-background">Now</span>
                 ) : time.phase === "future" ? (
-                  <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Ahead</span>
+                  <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Upcoming</span>
                 ) : null}
               </div>
               <div className="mt-3 space-y-2">
