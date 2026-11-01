@@ -61490,7 +61490,14 @@ function StationComparison({
     const target = rows.reduce((n, r2) => n + r2[k].target, 0);
     const el = k === "hydrant" ? yElapsed : time.elapsed;
     const ph = k === "hydrant" ? yPhase : time.phase;
-    return { done, target, p: pace(done, target, el, ph) };
+    const p = pace(done, target, el, ph);
+    const behindBy = rows.reduce((n, r2) => n + r2[k].p.behindBy, 0);
+    const expected = rows.reduce((n, r2) => n + r2[k].p.expected, 0);
+    if (p.state === "behind" || p.state === "late" || p.state === "on" || p.state === "ahead") {
+      const state = behindBy === 0 ? done > expected ? "ahead" : "on" : el > 0.75 ? "late" : "behind";
+      return { done, target, p: { ...p, state, behindBy, expected } };
+    }
+    return { done, target, p };
   };
   const loading = results.some((r2) => r2.isLoading);
   const COLS2 = "sm:grid sm:grid-cols-[minmax(120px,1fr)_repeat(4,minmax(0,1.3fr))_20px] sm:items-center sm:gap-5";

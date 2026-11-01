@@ -98,12 +98,21 @@ export function StationComparison({
     };
   });
 
+  // Station totals add up each watch's own position, so the station is only
+  // "behind" by what the watches are behind — not by rounding the sum.
   const sum = (k: "hfsv" | "community" | "multistory" | "hydrant") => {
     const done = rows.reduce((n, r) => n + r[k].done, 0);
     const target = rows.reduce((n, r) => n + r[k].target, 0);
     const el = k === "hydrant" ? yElapsed : time.elapsed;
     const ph = k === "hydrant" ? yPhase : time.phase;
-    return { done, target, p: pace(done, target, el, ph) } as Cell;
+    const p = pace(done, target, el, ph);
+    const behindBy = rows.reduce((n, r) => n + r[k].p.behindBy, 0);
+    const expected = rows.reduce((n, r) => n + r[k].p.expected, 0);
+    if (p.state === "behind" || p.state === "late" || p.state === "on" || p.state === "ahead") {
+      const state = behindBy === 0 ? (done > expected ? "ahead" : "on") : el > 0.75 ? "late" : "behind";
+      return { done, target, p: { ...p, state, behindBy, expected } } as Cell;
+    }
+    return { done, target, p } as Cell;
   };
   const loading = results.some((r) => r.isLoading);
   const COLS = "sm:grid sm:grid-cols-[minmax(120px,1fr)_repeat(4,minmax(0,1.3fr))_20px] sm:items-center sm:gap-5";
