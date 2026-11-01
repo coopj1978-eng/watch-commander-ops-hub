@@ -66,8 +66,8 @@ function daysAgoLabel(dateStr: string | null): string {
   return `${days} days ago`;
 }
 
-function DetachmentsTabPanel({ watch }: { watch: string }) {
-  const [subTab, setSubTab] = useState<"rota" | "canteen" | "history">("rota");
+function DetachmentsTabPanel({ watch, initialSub = "rota" }: { watch: string; initialSub?: "rota" | "canteen" | "history" }) {
+  const [subTab, setSubTab] = useState<"rota" | "canteen" | "history">(initialSub);
   const [historyPage, setHistoryPage] = useState(0);
 
   const rotaQuery = useQuery({
@@ -93,6 +93,22 @@ function DetachmentsTabPanel({ watch }: { watch: string }) {
     enabled: !!watch && subTab === "canteen",
   });
   const canteenMembers = canteenQuery.data?.members ?? [];
+  const canteenHistQuery = useQuery({
+    queryKey: ["canteen-history", watch],
+    queryFn: () => backend.crewing.canteenHistory({ watch, limit: 60 }),
+    enabled: !!watch && subTab === "canteen",
+  });
+  // Group the history by shift: "Sun 1 Nov · 2nd Night — Andy James, Chris Wilson".
+  const canteenShifts = (() => {
+    const out: { key: string; date: string; type: string; names: string[] }[] = [];
+    for (const d of canteenHistQuery.data?.duties ?? []) {
+      const key = `${d.shift_date}|${d.shift_type}`;
+      const last = out[out.length - 1];
+      if (last && last.key === key) last.names.push(d.user_name ?? "Unknown");
+      else out.push({ key, date: d.shift_date, type: d.shift_type, names: [d.user_name ?? "Unknown"] });
+    }
+    return out;
+  })();
 
   const members = rotaQuery.data?.members ?? [];
   const records = historyQuery.data?.detachments ?? [];
@@ -218,7 +234,7 @@ function DetachmentsTabPanel({ watch }: { watch: string }) {
         <div className="space-y-3">
           <p className="text-xs text-muted-foreground flex items-center gap-1.5">
             <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-            Sorted by last canteen — <strong>top of the list = longest since, next up</strong>. Pick on the crewing board.
+            Sorted by last canteen — <strong>top of the list = longest since (or never), next up</strong>. Pick on the crewing board.
           </p>
           {canteenQuery.isLoading ? (
             <div className="space-y-2">
@@ -264,6 +280,31 @@ function DetachmentsTabPanel({ watch }: { watch: string }) {
               })}
             </div>
           )}
+
+          {/* Canteen history — who did it, shift by shift */}
+          <div className="pt-4">
+            <h3 className="mb-2 flex items-center gap-1.5 text-sm font-semibold">
+              <History className="h-4 w-4 text-muted-foreground" /> Canteen history
+            </h3>
+            {canteenHistQuery.isLoading ? (
+              <Skeleton className="h-24 w-full rounded-lg" />
+            ) : canteenShifts.length === 0 ? (
+              <p className="rounded-xl border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
+                Nobody has been put on canteen yet — pick them on the crewing board and they'll show here.
+              </p>
+            ) : (
+              <ul className="divide-y divide-border/60 rounded-xl border border-border/60">
+                {canteenShifts.map((sh) => (
+                  <li key={sh.key} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-4 py-2.5 text-sm">
+                    <span className="font-medium">
+                      {format(parseISO(sh.date), "EEE d MMM yyyy")} · <span className="text-muted-foreground">{sh.type}</span>
+                    </span>
+                    <span className="text-muted-foreground">{sh.names.join(", ")}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
       )}
 
@@ -330,6 +371,11 @@ export default function Handover() {
   const canWrite = role === "WC" || role === "CC";
 
   const [activeTab, setActiveTab]     = useState<Tab>((searchParams.get("tab") as Tab) ?? "crewing");
+  // Which rota the Rotas tab opens on — "?tab=detachments&rota=canteen" or the
+  // Canteen card's "Rota & history" link.
+  const [rotaSub, setRotaSub] = useState<"rota" | "canteen" | "history">(
+    searchParams.get("rota") === "canteen" ? "canteen" : searchParams.get("rota") === "history" ? "history" : "rota",
+  );
   const [showForm, setShowForm]       = useState(false);
   const [expandedId, setExpandedId]   = useState<number | null>(null);
   const [editingId, setEditingId]     = useState<number | null>(null);
@@ -506,11 +552,17 @@ export default function Handover() {
 
       {/* ── Tab content ─────────────────────────────────────────────────── */}
       {activeTab === "crewing" && (
-        <CrewingBoard />
+        <CrewingBoard
+          onOpenCanteenRota={() => {
+            setRotaSub("canteen");
+            setActiveTab("detachments");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+        />
       )}
 
       {activeTab === "detachments" && (
-        <DetachmentsTabPanel watch={user?.watch_unit ?? ""} />
+        <DetachmentsTabPanel key={rotaSub} initialSub={rotaSub} watch={user?.watch_unit ?? ""} />
       )}
 
       {activeTab === "handover" && (

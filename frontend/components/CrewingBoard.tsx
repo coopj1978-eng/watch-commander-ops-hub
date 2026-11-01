@@ -1742,7 +1742,7 @@ function DetachmentModal({
 // CrewingBoard — main component
 // ─────────────────────────────────────────────────────────────────────────────
 
-export default function CrewingBoard() {
+export default function CrewingBoard({ onOpenCanteenRota }: { onOpenCanteenRota?: () => void } = {}) {
   const { user }  = useAuth();
   const { toast } = useToast();
   const qc        = useQueryClient();
@@ -2463,7 +2463,7 @@ export default function CrewingBoard() {
                 onRemove={id => removeMut.mutate(id)}
                 planBySlot={planBySlot}
               />
-              <CanteenCard canteen={canteen} offDuty={offDuty} canEdit={canEdit} />
+              <CanteenCard canteen={canteen} offDuty={offDuty} canEdit={canEdit} onOpenRota={onOpenCanteenRota} />
               <DetachedCard
                 entries={detached}
                 roster={roster}

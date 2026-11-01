@@ -136,3 +136,21 @@ export const canteenRota = api<{ watch: string }, { members: CanteenRotaMember[]
     return { members };
   },
 );
+
+// GET /canteen-history — recent canteen duties for a watch, newest first
+export const canteenHistory = api<{ watch: string; limit?: number }, { duties: CanteenDuty[] }>(
+  { auth: true, expose: true, method: "GET", path: "/canteen-history" },
+  async (req) => {
+    const limit = Math.min(Math.max(Number(req.limit) || 40, 1), 200);
+    const duties = await db.rawQueryAll<CanteenDuty>(
+      `${SELECT_DUTY}
+       WHERE LOWER(cd.watch) = LOWER($1)
+       ORDER BY cd.shift_date DESC,
+                CASE cd.shift_type WHEN '2nd Night' THEN 4 WHEN '1st Night' THEN 3 WHEN '2nd Day' THEN 2 ELSE 1 END DESC,
+                cd.created_at
+       LIMIT $2`,
+      req.watch, limit,
+    );
+    return { duties };
+  },
+);

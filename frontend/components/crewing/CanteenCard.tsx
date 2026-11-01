@@ -97,8 +97,10 @@ export function CanteenToggle({ userId }: { userId?: string | null }) {
 }
 
 export function CanteenCard({
-  canteen, offDuty, canEdit,
+  canteen, offDuty, canEdit, onOpenRota,
 }: {
+  /** Opens the Canteen rota & history (Rotas tab). */
+  onOpenRota?: () => void;
   canteen: ReturnType<typeof useCanteen>;
   /** People who aren't working this shift → why (sick, leave, H4H…). */
   offDuty: Map<string, string>;
@@ -118,7 +120,14 @@ export function CanteenCard({
           <h3 className="text-sm font-semibold">Canteen</h3>
           <span className="text-xs text-muted-foreground">· 1–2 per shift, still riding</span>
         </div>
-        <span className="font-mono text-xs tabular-nums text-muted-foreground">{duties.length}/{MAX}</span>
+        <div className="flex items-center gap-3">
+          {onOpenRota && (
+            <button onClick={onOpenRota} className="text-xs font-medium text-brand hover:underline">
+              Rota &amp; history →
+            </button>
+          )}
+          <span className="font-mono text-xs tabular-nums text-muted-foreground">{duties.length}/{MAX}</span>
+        </div>
       </header>
 
       <div className="flex flex-wrap items-center gap-2 p-4">
@@ -150,7 +159,9 @@ export function CanteenCard({
               >
                 <Plus className="h-3.5 w-3.5" />
                 <span className="font-semibold">{next.name}</span>
-                <span className="text-xs opacity-75">· last {sinceLabel(next.last_date)}</span>
+                <span className="text-xs opacity-75">
+                  · {next.last_date ? `last canteen ${sinceLabel(next.last_date)}` : "not done canteen yet"}
+                </span>
               </button>
             )}
             <button
@@ -168,7 +179,7 @@ export function CanteenCard({
         <DialogContent className="max-h-[85vh] max-w-md overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Canteen</DialogTitle>
-            <DialogDescription>Longest since canteen first. Tap a name to put them on.</DialogDescription>
+            <DialogDescription>Fairest first — whoever has gone longest without canteen (or never done it) is at the top. Tap a name to put them on.</DialogDescription>
           </DialogHeader>
           <ul className="space-y-0.5">
             {rota.map((m, i) => {
@@ -193,7 +204,7 @@ export function CanteenCard({
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm font-medium">{m.name}</span>
                       <span className="block text-xs text-muted-foreground">
-                        Last canteen {sinceLabel(lastOf.get(m.user_id) ?? null)}
+                        {lastOf.get(m.user_id) ? `Last canteen ${sinceLabel(lastOf.get(m.user_id) ?? null)}` : "Not done canteen yet"}
                         {m.recent_count > 0 && ` · ${m.recent_count} in 90 days`}
                       </span>
                     </span>

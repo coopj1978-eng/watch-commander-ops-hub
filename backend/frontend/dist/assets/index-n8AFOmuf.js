@@ -27834,6 +27834,16 @@ var crewing;
       this.addCanteen = this.addCanteen.bind(this);
       this.removeCanteen = this.removeCanteen.bind(this);
       this.canteenRota = this.canteenRota.bind(this);
+      this.canteenHistory = this.canteenHistory.bind(this);
+    }
+    /** GET /canteen-history — recent canteen duties for a watch, newest first */
+    async canteenHistory(params) {
+      const query = makeRecord({
+        watch: params.watch,
+        limit: params.limit === void 0 ? void 0 : String(params.limit)
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/canteen-history`, void 0, { query });
+      return await resp.json();
     }
     /** GET /canteen — who's on canteen for one shift */
     async listCanteen(params) {
@@ -69745,7 +69755,8 @@ function CanteenToggle({ userId }) {
 function CanteenCard({
   canteen,
   offDuty,
-  canEdit
+  canEdit,
+  onOpenRota
 }) {
   const [picking, setPicking] = reactExports.useState(false);
   const { duties, rota, add: add2, remove, busy } = canteen;
@@ -69759,10 +69770,13 @@ function CanteenCard({
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-sm font-semibold", children: "Canteen" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-muted-foreground", children: "· 1–2 per shift, still riding" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono text-xs tabular-nums text-muted-foreground", children: [
-        duties.length,
-        "/",
-        MAX
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+        onOpenRota && /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onOpenRota, className: "text-xs font-medium text-brand hover:underline", children: "Rota & history →" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono text-xs tabular-nums text-muted-foreground", children: [
+          duties.length,
+          "/",
+          MAX
+        ] })
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2 p-4", children: [
@@ -69792,8 +69806,8 @@ function CanteenCard({
               /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-3.5 w-3.5" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold", children: next.name }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs opacity-75", children: [
-                "· last ",
-                sinceLabel(next.last_date)
+                "· ",
+                next.last_date ? `last canteen ${sinceLabel(next.last_date)}` : "not done canteen yet"
               ] })
             ]
           }
@@ -69812,7 +69826,7 @@ function CanteenCard({
     /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: picking, onOpenChange: setPicking, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-h-[85vh] max-w-md overflow-y-auto", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Canteen" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: "Longest since canteen first. Tap a name to put them on." })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: "Fairest first — whoever has gone longest without canteen (or never done it) is at the top. Tap a name to put them on." })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "space-y-0.5", children: rota.map((m, i) => {
         const reason = offDuty.get(m.user_id);
@@ -69837,8 +69851,7 @@ function CanteenCard({
               /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "min-w-0 flex-1", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block truncate text-sm font-medium", children: m.name }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "block text-xs text-muted-foreground", children: [
-                  "Last canteen ",
-                  sinceLabel(lastOf.get(m.user_id) ?? null),
+                  lastOf.get(m.user_id) ? `Last canteen ${sinceLabel(lastOf.get(m.user_id) ?? null)}` : "Not done canteen yet",
                   m.recent_count > 0 && ` · ${m.recent_count} in 90 days`
                 ] })
               ] }),
@@ -70970,7 +70983,7 @@ function DetachmentModal({
     ] })
   ] }) });
 }
-function CrewingBoard() {
+function CrewingBoard({ onOpenCanteenRota } = {}) {
   var _a2, _b2, _c2;
   const { user: user2 } = useAuth();
   const { toast: toast2 } = useToast();
@@ -71576,7 +71589,7 @@ function CrewingBoard() {
                 planBySlot
               }
             ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(CanteenCard, { canteen, offDuty, canEdit }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(CanteenCard, { canteen, offDuty, canEdit, onOpenRota: onOpenCanteenRota }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               DetachedCard,
               {
@@ -71855,9 +71868,9 @@ function daysAgoLabel(dateStr) {
   if (days < 0) return `In ${Math.abs(days)} days`;
   return `${days} days ago`;
 }
-function DetachmentsTabPanel({ watch }) {
+function DetachmentsTabPanel({ watch, initialSub = "rota" }) {
   var _a2, _b2, _c2, _d2;
-  const [subTab, setSubTab] = reactExports.useState("rota");
+  const [subTab, setSubTab] = reactExports.useState(initialSub);
   const [historyPage, setHistoryPage] = reactExports.useState(0);
   const rotaQuery = useQuery({
     queryKey: ["detachments-rota", watch],
@@ -71879,6 +71892,22 @@ function DetachmentsTabPanel({ watch }) {
     enabled: !!watch && subTab === "canteen"
   });
   const canteenMembers = ((_a2 = canteenQuery.data) == null ? void 0 : _a2.members) ?? [];
+  const canteenHistQuery = useQuery({
+    queryKey: ["canteen-history", watch],
+    queryFn: () => backendClient.crewing.canteenHistory({ watch, limit: 60 }),
+    enabled: !!watch && subTab === "canteen"
+  });
+  const canteenShifts = (() => {
+    var _a3;
+    const out = [];
+    for (const d of ((_a3 = canteenHistQuery.data) == null ? void 0 : _a3.duties) ?? []) {
+      const key2 = `${d.shift_date}|${d.shift_type}`;
+      const last = out[out.length - 1];
+      if (last && last.key === key2) last.names.push(d.user_name ?? "Unknown");
+      else out.push({ key: key2, date: d.shift_date, type: d.shift_type, names: [d.user_name ?? "Unknown"] });
+    }
+    return out;
+  })();
   const members = ((_b2 = rotaQuery.data) == null ? void 0 : _b2.members) ?? [];
   const records = ((_c2 = historyQuery.data) == null ? void 0 : _c2.detachments) ?? [];
   const total = ((_d2 = historyQuery.data) == null ? void 0 : _d2.total) ?? 0;
@@ -71973,7 +72002,7 @@ function DetachmentsTabPanel({ watch }) {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground flex items-center gap-1.5", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { className: "h-3.5 w-3.5 shrink-0" }),
         "Sorted by last canteen — ",
-        /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "top of the list = longest since, next up" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "top of the list = longest since (or never), next up" }),
         ". Pick on the crewing board."
       ] }),
       canteenQuery.isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: [...Array(6)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-14 w-full rounded-lg" }, i)) }) : canteenMembers.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "py-10 text-center text-sm text-muted-foreground", children: [
@@ -72007,7 +72036,21 @@ function DetachmentsTabPanel({ watch }) {
           },
           m.user_id
         );
-      }) })
+      }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "mb-2 flex items-center gap-1.5 text-sm font-semibold", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(History, { className: "h-4 w-4 text-muted-foreground" }),
+          " Canteen history"
+        ] }),
+        canteenHistQuery.isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-24 w-full rounded-lg" }) : canteenShifts.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "rounded-xl border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground", children: "Nobody has been put on canteen yet — pick them on the crewing board and they'll show here." }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "divide-y divide-border/60 rounded-xl border border-border/60", children: canteenShifts.map((sh) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-4 py-2.5 text-sm", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-medium", children: [
+            format(parseISO(sh.date), "EEE d MMM yyyy"),
+            " · ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: sh.type })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: sh.names.join(", ") })
+        ] }, sh.key)) })
+      ] })
     ] }),
     subTab === "history" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3", children: historyQuery.isLoading && historyPage === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: [...Array(5)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-16 w-full rounded-lg" }, i)) }) : records.length === 0 && !historyQuery.isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center gap-3 py-12 text-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(History, { className: "h-10 w-10 text-muted-foreground/30" }),
@@ -72068,6 +72111,9 @@ function Handover() {
   const [searchParams, setSearchParams] = useSearchParams();
   const canWrite = role === "WC" || role === "CC";
   const [activeTab, setActiveTab] = reactExports.useState(searchParams.get("tab") ?? "crewing");
+  const [rotaSub, setRotaSub] = reactExports.useState(
+    searchParams.get("rota") === "canteen" ? "canteen" : searchParams.get("rota") === "history" ? "history" : "rota"
+  );
   const [showForm, setShowForm] = reactExports.useState(false);
   const [expandedId, setExpandedId] = reactExports.useState(null);
   const [editingId, setEditingId] = reactExports.useState(null);
@@ -72228,8 +72274,17 @@ function Handover() {
         }
       )
     ] }),
-    activeTab === "crewing" && /* @__PURE__ */ jsxRuntimeExports.jsx(CrewingBoard, {}),
-    activeTab === "detachments" && /* @__PURE__ */ jsxRuntimeExports.jsx(DetachmentsTabPanel, { watch: (user2 == null ? void 0 : user2.watch_unit) ?? "" }),
+    activeTab === "crewing" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      CrewingBoard,
+      {
+        onOpenCanteenRota: () => {
+          setRotaSub("canteen");
+          setActiveTab("detachments");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+      }
+    ),
+    activeTab === "detachments" && /* @__PURE__ */ jsxRuntimeExports.jsx(DetachmentsTabPanel, { initialSub: rotaSub, watch: (user2 == null ? void 0 : user2.watch_unit) ?? "" }, rotaSub),
     activeTab === "handover" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
       !showForm && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold text-muted-foreground uppercase tracking-wide mr-1", children: "Filter:" }),

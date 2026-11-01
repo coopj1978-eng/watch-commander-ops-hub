@@ -1619,6 +1619,17 @@ export namespace crewing {
             this.addCanteen = this.addCanteen.bind(this)
             this.removeCanteen = this.removeCanteen.bind(this)
             this.canteenRota = this.canteenRota.bind(this)
+            this.canteenHistory = this.canteenHistory.bind(this)
+        }
+
+        /** GET /canteen-history — recent canteen duties for a watch, newest first */
+        public async canteenHistory(params: { watch: string, limit?: number }): Promise<{ duties: CanteenDuty[] }> {
+            const query = makeRecord<string, string | string[]>({
+                watch: params.watch,
+                limit: params.limit === undefined ? undefined : String(params.limit),
+            })
+            const resp = await this.baseClient.callTypedAPI("GET", `/canteen-history`, undefined, {query})
+            return await resp.json() as { duties: CanteenDuty[] }
         }
 
         /** GET /canteen — who's on canteen for one shift */
