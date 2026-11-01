@@ -31,6 +31,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "encore.dev": "^1.53.2",
+    "fflate": "0.8.2",
     "lucide-react": "^0.484.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

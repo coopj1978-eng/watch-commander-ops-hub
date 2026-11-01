@@ -321,7 +321,8 @@ export const setHydrantInUse = api(
 );
 
 // POST /hydrants/import — load or refresh the route sheets (WC/CC). Matches
-// on route + hydrant number, so inspections already recorded are kept.
+// on route + hydrant number, so inspections already recorded are kept, and a
+// hydrant someone marked not in use stays that way.
 export const importHydrants = api(
   { auth: true, expose: true, method: "POST", path: "/hydrants/import" },
   async (req: { hydrants: ImportHydrant[] }): Promise<{ created: number; updated: number }> => {
@@ -340,7 +341,7 @@ export const importHydrants = api(
            ON CONFLICT (route, seq) DO UPDATE SET
              ref = EXCLUDED.ref, street = EXCLUDED.street, location = EXCLUDED.location,
              main_size = EXCLUDED.main_size, surface = EXCLUDED.surface, marker = EXCLUDED.marker,
-             dist = EXCLUDED.dist, in_use = EXCLUDED.in_use, updated_at = NOW()
+             dist = EXCLUDED.dist, in_use = hydrants.in_use AND EXCLUDED.in_use, updated_at = NOW()
            RETURNING (xmax = 0) AS inserted`,
           h.route.trim().toUpperCase(), h.seq, h.ref?.trim() || null, h.street.trim(), h.location?.trim() || null,
           h.main_size?.trim() || null, h.surface?.trim() || null, h.marker?.trim() || null, h.dist?.trim() || null, h.in_use

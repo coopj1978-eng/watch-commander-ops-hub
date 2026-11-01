@@ -14,7 +14,7 @@ var __privateWrapper = (obj, member, setter, getter) => ({
     return __privateGet(obj, member, getter);
   }
 });
-var _provider, _providerCalled, _a, _focused, _cleanup, _setup, _b, _online, _cleanup2, _setup2, _c, _gcTimeout, _d, _initialState, _revertState, _cache, _client, _retryer, _defaultOptions, _abortSignalConsumed, _Query_instances, dispatch_fn, _e, _client2, _currentQuery, _currentQueryInitialState, _currentResult, _currentResultState, _currentResultOptions, _currentThenable, _selectError, _selectFn, _selectResult, _lastQueryWithDefinedData, _staleTimeoutId, _refetchIntervalId, _currentRefetchInterval, _trackedProps, _QueryObserver_instances, executeFetch_fn, updateStaleTimeout_fn, computeRefetchInterval_fn, updateRefetchInterval_fn, updateTimers_fn, clearStaleTimeout_fn, clearRefetchInterval_fn, updateQuery_fn, notify_fn, _f, _client3, _observers, _mutationCache, _retryer2, _Mutation_instances, dispatch_fn2, _g, _mutations, _scopes, _mutationId, _h, _client4, _currentResult2, _currentMutation, _mutateOptions, _MutationObserver_instances, updateResult_fn, notify_fn2, _i, _client5, _result, _queries, _options, _observers2, _combinedResult, _lastCombine, _lastResult, _lastQueryHashes, _observerMatches, _QueriesObserver_instances, trackResult_fn, combineResult_fn, findMatchingObservers_fn, onUpdate_fn, notify_fn3, _j, _queries2, _k, _queryCache, _mutationCache2, _defaultOptions2, _queryDefaults, _mutationDefaults, _mountCount, _unsubscribeFocus, _unsubscribeOnline, _l;
+var _provider, _providerCalled, _a2, _focused, _cleanup, _setup, _b2, _online, _cleanup2, _setup2, _c, _gcTimeout, _d, _initialState, _revertState, _cache, _client, _retryer, _defaultOptions, _abortSignalConsumed, _Query_instances, dispatch_fn, _e, _client2, _currentQuery, _currentQueryInitialState, _currentResult, _currentResultState, _currentResultOptions, _currentThenable, _selectError, _selectFn, _selectResult, _lastQueryWithDefinedData, _staleTimeoutId, _refetchIntervalId, _currentRefetchInterval, _trackedProps, _QueryObserver_instances, executeFetch_fn, updateStaleTimeout_fn, computeRefetchInterval_fn, updateRefetchInterval_fn, updateTimers_fn, clearStaleTimeout_fn, clearRefetchInterval_fn, updateQuery_fn, notify_fn, _f, _client3, _observers, _mutationCache, _retryer2, _Mutation_instances, dispatch_fn2, _g, _mutations, _scopes, _mutationId, _h, _client4, _currentResult2, _currentMutation, _mutateOptions, _MutationObserver_instances, updateResult_fn, notify_fn2, _i, _client5, _result, _queries, _options, _observers2, _combinedResult, _lastCombine, _lastResult, _lastQueryHashes, _observerMatches, _QueriesObserver_instances, trackResult_fn, combineResult_fn, findMatchingObservers_fn, onUpdate_fn, notify_fn3, _j, _queries2, _k, _queryCache, _mutationCache2, _defaultOptions2, _queryDefaults, _mutationDefaults, _mountCount, _unsubscribeFocus, _unsubscribeOnline, _l;
 function _mergeNamespaces(n, m) {
   for (var i = 0; i < m.length; i++) {
     const e = m[i];
@@ -1018,8 +1018,8 @@ function requireReactDom() {
     }
     try {
       __REACT_DEVTOOLS_GLOBAL_HOOK__.checkDCE(checkDCE);
-    } catch (err) {
-      console.error(err);
+    } catch (err2) {
+      console.error(err2);
     }
   }
   {
@@ -1422,7 +1422,7 @@ function requireReactDomClient_production() {
     if (injectedHook && "function" === typeof injectedHook.setStrictMode)
       try {
         injectedHook.setStrictMode(rendererID, newIsStrictMode);
-      } catch (err) {
+      } catch (err2) {
       }
   }
   var clz32 = Math.clz32 ? Math.clz32 : clz32Fallback, log = Math.log, LN2 = Math.LN2;
@@ -1949,15 +1949,15 @@ function requireReactDomClient_production() {
     children === defaultValue2 && "" !== children && null !== children && (element.value = children);
     track(element);
   }
-  function setTextContent(node, text) {
-    if (text) {
+  function setTextContent(node, text2) {
+    if (text2) {
       var firstChild = node.firstChild;
       if (firstChild && firstChild === node.lastChild && 3 === firstChild.nodeType) {
-        firstChild.nodeValue = text;
+        firstChild.nodeValue = text2;
         return;
       }
     }
-    node.textContent = text;
+    node.textContent = text2;
   }
   var unitlessNumbers = new Set(
     "animationIterationCount aspectRatio borderImageOutset borderImageSlice borderImageWidth boxFlex boxFlexGroup boxOrdinalGroup columnCount columns flex flexGrow flexPositive flexShrink flexNegative flexOrder gridArea gridRow gridRowEnd gridRowSpan gridRowStart gridColumn gridColumnEnd gridColumnSpan gridColumnStart fontWeight lineClamp lineHeight opacity order orphans scale tabSize widows zIndex zoom fillOpacity floodOpacity stopOpacity strokeDasharray strokeDashoffset strokeMiterlimit strokeOpacity strokeWidth MozAnimationIterationCount MozBoxFlex MozBoxFlexGroup MozLineClamp msAnimationIterationCount msFlex msZoom msFlexGrow msFlexNegative msFlexOrder msFlexPositive msFlexShrink msGridColumn msGridColumnSpan msGridRow msGridRowSpan WebkitAnimationIterationCount WebkitBoxFlex WebKitBoxFlexGroup WebkitBoxOrdinalGroup WebkitColumnCount WebkitColumns WebkitFlex WebkitFlexGrow WebkitFlexPositive WebkitFlexShrink WebkitLineClamp".split(
@@ -2612,7 +2612,7 @@ function requireReactDomClient_production() {
     for (var element = getActiveElement(containerInfo.document); element instanceof containerInfo.HTMLIFrameElement; ) {
       try {
         var JSCompiler_inline_result = "string" === typeof element.contentWindow.location.href;
-      } catch (err) {
+      } catch (err2) {
         JSCompiler_inline_result = false;
       }
       if (JSCompiler_inline_result) containerInfo = element.contentWindow;
@@ -7509,7 +7509,7 @@ function requireReactDomClient_production() {
     if (injectedHook && "function" === typeof injectedHook.onCommitFiberUnmount)
       try {
         injectedHook.onCommitFiberUnmount(rendererID, deletedFiber);
-      } catch (err) {
+      } catch (err2) {
       }
     switch (deletedFiber.tag) {
       case 26:
@@ -9390,7 +9390,7 @@ function requireReactDomClient_production() {
             void 0,
             128 === (finishedWork.current.flags & 128)
           );
-        } catch (err) {
+        } catch (err2) {
         }
       if (null !== recoverableErrors) {
         finishedWork = ReactSharedInternals.T;
@@ -9453,7 +9453,7 @@ function requireReactDomClient_production() {
       if (injectedHook && "function" === typeof injectedHook.onPostCommitFiberRoot)
         try {
           injectedHook.onPostCommitFiberRoot(rendererID, root$jscomp$0);
-        } catch (err) {
+        } catch (err2) {
         }
       return true;
     } finally {
@@ -11046,7 +11046,7 @@ function requireReactDomClient_production() {
   }
   function estimateBandwidth() {
     if ("function" === typeof performance.getEntriesByType) {
-      for (var count2 = 0, bits = 0, resourceEntries = performance.getEntriesByType("resource"), i = 0; i < resourceEntries.length; i++) {
+      for (var count2 = 0, bits2 = 0, resourceEntries = performance.getEntriesByType("resource"), i = 0; i < resourceEntries.length; i++) {
         var entry = resourceEntries[i], transferSize = entry.transferSize, initiatorType = entry.initiatorType, duration = entry.duration;
         if (transferSize && duration && isLikelyStaticResource(initiatorType)) {
           initiatorType = 0;
@@ -11058,12 +11058,12 @@ function requireReactDomClient_production() {
             overlapTransferSize && isLikelyStaticResource(overlapInitiatorType) && (overlapEntry = overlapEntry.responseEnd, initiatorType += overlapTransferSize * (overlapEntry < duration ? 1 : (duration - overlapStartTime) / (overlapEntry - overlapStartTime)));
           }
           --i;
-          bits += 8 * (transferSize + initiatorType) / (entry.duration / 1e3);
+          bits2 += 8 * (transferSize + initiatorType) / (entry.duration / 1e3);
           count2++;
           if (10 < count2) break;
         }
       }
-      if (0 < count2) return bits / count2 / 1e6;
+      if (0 < count2) return bits2 / count2 / 1e6;
     }
     return navigator.connection && (count2 = navigator.connection.downlink, "number" === typeof count2) ? count2 : 5;
   }
@@ -11226,8 +11226,8 @@ function requireReactDomClient_production() {
     }
     return null;
   }
-  function canHydrateTextInstance(instance, text, inRootOrSingleton) {
-    if ("" === text) return null;
+  function canHydrateTextInstance(instance, text2, inRootOrSingleton) {
+    if ("" === text2) return null;
     for (; 3 !== instance.nodeType; ) {
       if ((1 !== instance.nodeType || "INPUT" !== instance.nodeName || "hidden" !== instance.type) && !inRootOrSingleton)
         return null;
@@ -12493,7 +12493,7 @@ function requireReactDomClient_production() {
         rendererID = hook$jscomp$inline_2348.inject(
           internals$jscomp$inline_2347
         ), injectedHook = hook$jscomp$inline_2348;
-      } catch (err) {
+      } catch (err2) {
       }
   }
   reactDomClient_production.createRoot = function(container, options2) {
@@ -12564,8 +12564,8 @@ function requireClient() {
     }
     try {
       __REACT_DEVTOOLS_GLOBAL_HOOK__.checkDCE(checkDCE);
-    } catch (err) {
-      console.error(err);
+    } catch (err2) {
+      console.error(err2);
     }
   }
   {
@@ -12850,8 +12850,8 @@ function flattenRoutes(routes, branches = [], parentsMeta = [], parentPath = "",
     });
   };
   routes.forEach((route, index2) => {
-    var _a2;
-    if (route.path === "" || !((_a2 = route.path) == null ? void 0 : _a2.includes("?"))) {
+    var _a3;
+    if (route.path === "" || !((_a3 = route.path) == null ? void 0 : _a3.includes("?"))) {
       flattenRoute(route, index2);
     } else {
       for (let exploded of explodeOptionalSegments(route.path)) {
@@ -13403,7 +13403,7 @@ function useRoutes(routes, locationArg) {
   return useRoutesImpl(routes, locationArg);
 }
 function useRoutesImpl(routes, locationArg, dataRouterState, onError, future) {
-  var _a2;
+  var _a3;
   invariant(
     useInRouterContext(),
     // TODO: This error is probably because they somehow have 2 versions of the
@@ -13432,7 +13432,7 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
   if (locationArg) {
     let parsedLocationArg = typeof locationArg === "string" ? parsePath(locationArg) : locationArg;
     invariant(
-      parentPathnameBase === "/" || ((_a2 = parsedLocationArg.pathname) == null ? void 0 : _a2.startsWith(parentPathnameBase)),
+      parentPathnameBase === "/" || ((_a3 = parsedLocationArg.pathname) == null ? void 0 : _a3.startsWith(parentPathnameBase)),
       `When overriding the location using \`<Routes location>\` or \`useRoutes(routes, location)\`, the location pathname must begin with the portion of the URL pathname that was matched by all parent routes. The current pathname base is "${parentPathnameBase}" but pathname "${parsedLocationArg.pathname}" was given in the \`location\` prop.`
     );
     location = parsedLocationArg;
@@ -13681,10 +13681,10 @@ function _renderMatches(matches, parentMatches = [], dataRouterState = null, onE
     }
   }
   let onError = dataRouterState && onErrorHandler ? (error, errorInfo) => {
-    var _a2, _b2;
+    var _a3, _b3;
     onErrorHandler(error, {
       location: dataRouterState.location,
-      params: ((_b2 = (_a2 = dataRouterState.matches) == null ? void 0 : _a2[0]) == null ? void 0 : _b2.params) ?? {},
+      params: ((_b3 = (_a3 = dataRouterState.matches) == null ? void 0 : _a3[0]) == null ? void 0 : _b3.params) ?? {},
       unstable_pattern: getRoutePattern(dataRouterState.matches),
       errorInfo
     });
@@ -13790,7 +13790,7 @@ function useRouteId() {
   );
 }
 function useRouteError() {
-  var _a2;
+  var _a3;
   let error = reactExports.useContext(RouteErrorContext);
   let state = useDataRouterState(
     "useRouteError"
@@ -13803,7 +13803,7 @@ function useRouteError() {
   if (error !== void 0) {
     return error;
   }
-  return (_a2 = state.errors) == null ? void 0 : _a2[routeId];
+  return (_a3 = state.errors) == null ? void 0 : _a3[routeId];
 }
 function useNavigateStable() {
   let { router } = useDataRouterContext(
@@ -14217,12 +14217,12 @@ function getNewMatchesForLinks(page, nextMatches, currentMatches, manifest, loca
     return match2.route.id !== currentMatches[index2].route.id;
   };
   let matchPathChanged = (match2, index2) => {
-    var _a2;
+    var _a3;
     return (
       // param change, /users/123 -> /users/456
       currentMatches[index2].pathname !== match2.pathname || // splat param changed, which is not present in match.path
       // e.g. /files/images/avatar.jpg -> files/finances.xls
-      ((_a2 = currentMatches[index2].route.path) == null ? void 0 : _a2.endsWith("*")) && currentMatches[index2].params["*"] !== match2.params["*"]
+      ((_a3 = currentMatches[index2].route.path) == null ? void 0 : _a3.endsWith("*")) && currentMatches[index2].params["*"] !== match2.params["*"]
     );
   };
   if (mode === "assets") {
@@ -14232,7 +14232,7 @@ function getNewMatchesForLinks(page, nextMatches, currentMatches, manifest, loca
   }
   if (mode === "data") {
     return nextMatches.filter((match2, index2) => {
-      var _a2;
+      var _a3;
       let manifestRoute = manifest.routes[match2.route.id];
       if (!manifestRoute || !manifestRoute.hasLoader) {
         return false;
@@ -14246,7 +14246,7 @@ function getNewMatchesForLinks(page, nextMatches, currentMatches, manifest, loca
             location.pathname + location.search + location.hash,
             window.origin
           ),
-          currentParams: ((_a2 = currentMatches[0]) == null ? void 0 : _a2.params) || {},
+          currentParams: ((_a3 = currentMatches[0]) == null ? void 0 : _a3.params) || {},
           nextUrl: new URL(page, window.origin),
           nextParams: match2.params,
           defaultShouldRevalidate: true
@@ -14464,12 +14464,12 @@ function PrefetchPageLinksImpl({
     let routesParams = /* @__PURE__ */ new Set();
     let foundOptOutRoute = false;
     nextMatches.forEach((m) => {
-      var _a2;
+      var _a3;
       let manifestRoute = manifest.routes[m.route.id];
       if (!manifestRoute || !manifestRoute.hasLoader) {
         return;
       }
-      if (!newMatchesForData.some((m2) => m2.route.id === m.route.id) && m.route.id in loaderData && ((_a2 = routeModules[m.route.id]) == null ? void 0 : _a2.shouldRevalidate)) {
+      if (!newMatchesForData.some((m2) => m2.route.id === m.route.id) && m.route.id in loaderData && ((_a3 = routeModules[m.route.id]) == null ? void 0 : _a3.shouldRevalidate)) {
         foundOptOutRoute = true;
       } else if (manifestRoute.hasClientLoader) {
         foundOptOutRoute = true;
@@ -14988,7 +14988,7 @@ var defaultTimeoutProvider = {
   setInterval: (callback, delay) => setInterval(callback, delay),
   clearInterval: (intervalId) => clearInterval(intervalId)
 };
-var TimeoutManager = (_a = class {
+var TimeoutManager = (_a2 = class {
   constructor() {
     // We cannot have TimeoutManager<T> as we must instantiate it with a concrete
     // type at app boot; and if we leave that type, then any new timer provider
@@ -15014,7 +15014,7 @@ var TimeoutManager = (_a = class {
   clearInterval(intervalId) {
     __privateGet(this, _provider).clearInterval(intervalId);
   }
-}, _provider = new WeakMap(), _providerCalled = new WeakMap(), _a);
+}, _provider = new WeakMap(), _providerCalled = new WeakMap(), _a2);
 var timeoutManager = new TimeoutManager();
 function systemSetTimeoutZero(callback) {
   setTimeout(callback, 0);
@@ -15250,7 +15250,7 @@ function addConsumeAwareSignal(object, getSignal, onCancelled) {
   });
   return object;
 }
-var FocusManager = (_b = class extends Subscribable {
+var FocusManager = (_b2 = class extends Subscribable {
   constructor() {
     super();
     __privateAdd(this, _focused);
@@ -15273,16 +15273,16 @@ var FocusManager = (_b = class extends Subscribable {
     }
   }
   onUnsubscribe() {
-    var _a2;
+    var _a3;
     if (!this.hasListeners()) {
-      (_a2 = __privateGet(this, _cleanup)) == null ? void 0 : _a2.call(this);
+      (_a3 = __privateGet(this, _cleanup)) == null ? void 0 : _a3.call(this);
       __privateSet(this, _cleanup, void 0);
     }
   }
   setEventListener(setup) {
-    var _a2;
+    var _a3;
     __privateSet(this, _setup, setup);
-    (_a2 = __privateGet(this, _cleanup)) == null ? void 0 : _a2.call(this);
+    (_a3 = __privateGet(this, _cleanup)) == null ? void 0 : _a3.call(this);
     __privateSet(this, _cleanup, setup((focused) => {
       if (typeof focused === "boolean") {
         this.setFocused(focused);
@@ -15305,13 +15305,13 @@ var FocusManager = (_b = class extends Subscribable {
     });
   }
   isFocused() {
-    var _a2;
+    var _a3;
     if (typeof __privateGet(this, _focused) === "boolean") {
       return __privateGet(this, _focused);
     }
-    return ((_a2 = globalThis.document) == null ? void 0 : _a2.visibilityState) !== "hidden";
+    return ((_a3 = globalThis.document) == null ? void 0 : _a3.visibilityState) !== "hidden";
   }
-}, _focused = new WeakMap(), _cleanup = new WeakMap(), _setup = new WeakMap(), _b);
+}, _focused = new WeakMap(), _cleanup = new WeakMap(), _setup = new WeakMap(), _b2);
 var focusManager = new FocusManager();
 function pendingThenable() {
   let resolve;
@@ -15448,16 +15448,16 @@ var OnlineManager = (_c = class extends Subscribable {
     }
   }
   onUnsubscribe() {
-    var _a2;
+    var _a3;
     if (!this.hasListeners()) {
-      (_a2 = __privateGet(this, _cleanup2)) == null ? void 0 : _a2.call(this);
+      (_a3 = __privateGet(this, _cleanup2)) == null ? void 0 : _a3.call(this);
       __privateSet(this, _cleanup2, void 0);
     }
   }
   setEventListener(setup) {
-    var _a2;
+    var _a3;
     __privateSet(this, _setup2, setup);
-    (_a2 = __privateGet(this, _cleanup2)) == null ? void 0 : _a2.call(this);
+    (_a3 = __privateGet(this, _cleanup2)) == null ? void 0 : _a3.call(this);
     __privateSet(this, _cleanup2, setup(this.setOnline.bind(this)));
   }
   setOnline(online) {
@@ -15494,11 +15494,11 @@ function createRetryer(config) {
   const thenable = pendingThenable();
   const isResolved = () => thenable.status !== "pending";
   const cancel = (cancelOptions) => {
-    var _a2;
+    var _a3;
     if (!isResolved()) {
       const error = new CancelledError(cancelOptions);
       reject(error);
-      (_a2 = config.onCancel) == null ? void 0 : _a2.call(config, error);
+      (_a3 = config.onCancel) == null ? void 0 : _a3.call(config, error);
     }
   };
   const cancelRetry = () => {
@@ -15523,18 +15523,18 @@ function createRetryer(config) {
   };
   const pause = () => {
     return new Promise((continueResolve) => {
-      var _a2;
+      var _a3;
       continueFn = (value) => {
         if (isResolved() || canContinue()) {
           continueResolve(value);
         }
       };
-      (_a2 = config.onPause) == null ? void 0 : _a2.call(config);
+      (_a3 = config.onPause) == null ? void 0 : _a3.call(config);
     }).then(() => {
-      var _a2;
+      var _a3;
       continueFn = void 0;
       if (!isResolved()) {
-        (_a2 = config.onContinue) == null ? void 0 : _a2.call(config);
+        (_a3 = config.onContinue) == null ? void 0 : _a3.call(config);
       }
     });
   };
@@ -15550,7 +15550,7 @@ function createRetryer(config) {
       promiseOrValue = Promise.reject(error);
     }
     Promise.resolve(promiseOrValue).then(resolve).catch((error) => {
-      var _a2;
+      var _a3;
       if (isResolved()) {
         return;
       }
@@ -15563,7 +15563,7 @@ function createRetryer(config) {
         return;
       }
       failureCount++;
-      (_a2 = config.onFail) == null ? void 0 : _a2.call(config, failureCount, error);
+      (_a3 = config.onFail) == null ? void 0 : _a3.call(config, failureCount, error);
       sleep(delay).then(() => {
         return canContinue() ? void 0 : pause();
       }).then(() => {
@@ -15651,8 +15651,8 @@ var Query = (_e = class extends Removable {
     return this.options.meta;
   }
   get promise() {
-    var _a2;
-    return (_a2 = __privateGet(this, _retryer)) == null ? void 0 : _a2.promise;
+    var _a3;
+    return (_a3 = __privateGet(this, _retryer)) == null ? void 0 : _a3.promise;
   }
   setOptions(options) {
     this.options = { ...__privateGet(this, _defaultOptions), ...options };
@@ -15686,9 +15686,9 @@ var Query = (_e = class extends Removable {
     __privateMethod(this, _Query_instances, dispatch_fn).call(this, { type: "setState", state, setStateOptions });
   }
   cancel(options) {
-    var _a2, _b2;
-    const promise = (_a2 = __privateGet(this, _retryer)) == null ? void 0 : _a2.promise;
-    (_b2 = __privateGet(this, _retryer)) == null ? void 0 : _b2.cancel(options);
+    var _a3, _b3;
+    const promise = (_a3 = __privateGet(this, _retryer)) == null ? void 0 : _a3.promise;
+    (_b3 = __privateGet(this, _retryer)) == null ? void 0 : _b3.cancel(options);
     return promise ? promise.then(noop$2).catch(noop$2) : Promise.resolve();
   }
   destroy() {
@@ -15739,16 +15739,16 @@ var Query = (_e = class extends Removable {
     return !timeUntilStale(this.state.dataUpdatedAt, staleTime);
   }
   onFocus() {
-    var _a2;
+    var _a3;
     const observer = this.observers.find((x) => x.shouldFetchOnWindowFocus());
     observer == null ? void 0 : observer.refetch({ cancelRefetch: false });
-    (_a2 = __privateGet(this, _retryer)) == null ? void 0 : _a2.continue();
+    (_a3 = __privateGet(this, _retryer)) == null ? void 0 : _a3.continue();
   }
   onOnline() {
-    var _a2;
+    var _a3;
     const observer = this.observers.find((x) => x.shouldFetchOnReconnect());
     observer == null ? void 0 : observer.refetch({ cancelRefetch: false });
-    (_a2 = __privateGet(this, _retryer)) == null ? void 0 : _a2.continue();
+    (_a3 = __privateGet(this, _retryer)) == null ? void 0 : _a3.continue();
   }
   addObserver(observer) {
     if (!this.observers.includes(observer)) {
@@ -15782,11 +15782,11 @@ var Query = (_e = class extends Removable {
     }
   }
   async fetch(options, fetchOptions) {
-    var _a2, _b2, _c2, _d2, _e2, _f2, _g2, _h2, _i2, _j2, _k2, _l2;
+    var _a3, _b3, _c2, _d2, _e2, _f2, _g2, _h2, _i2, _j2, _k2, _l2;
     if (this.state.fetchStatus !== "idle" && // If the promise in the retryer is already rejected, we have to definitely
     // re-start the fetch; there is a chance that the query is still in a
     // pending state when that happens
-    ((_a2 = __privateGet(this, _retryer)) == null ? void 0 : _a2.status()) !== "rejected") {
+    ((_a3 = __privateGet(this, _retryer)) == null ? void 0 : _a3.status()) !== "rejected") {
       if (this.state.data !== void 0 && (fetchOptions == null ? void 0 : fetchOptions.cancelRefetch)) {
         this.cancel({ silent: true });
       } else if (__privateGet(this, _retryer)) {
@@ -15848,7 +15848,7 @@ var Query = (_e = class extends Removable {
       return context2;
     };
     const context = createFetchContext();
-    (_b2 = this.options.behavior) == null ? void 0 : _b2.onFetch(context, this);
+    (_b3 = this.options.behavior) == null ? void 0 : _b3.onFetch(context, this);
     __privateSet(this, _revertState, this.state);
     if (this.state.fetchStatus === "idle" || this.state.fetchMeta !== ((_c2 = context.fetchOptions) == null ? void 0 : _c2.meta)) {
       __privateMethod(this, _Query_instances, dispatch_fn).call(this, { type: "fetch", meta: (_d2 = context.fetchOptions) == null ? void 0 : _d2.meta });
@@ -16198,7 +16198,7 @@ var QueryObserver = (_f = class extends Subscribable {
     });
   }
   createResult(query, options) {
-    var _a2;
+    var _a3;
     const prevQuery = __privateGet(this, _currentQuery);
     const prevOptions = this.options;
     const prevResult = __privateGet(this, _currentResult);
@@ -16234,7 +16234,7 @@ var QueryObserver = (_f = class extends Subscribable {
         skipSelect = true;
       } else {
         placeholderData = typeof options.placeholderData === "function" ? options.placeholderData(
-          (_a2 = __privateGet(this, _lastQueryWithDefinedData)) == null ? void 0 : _a2.state.data,
+          (_a3 = __privateGet(this, _lastQueryWithDefinedData)) == null ? void 0 : _a3.state.data,
           __privateGet(this, _lastQueryWithDefinedData)
         ) : options.placeholderData;
       }
@@ -16484,9 +16484,9 @@ function shouldAssignObserverCurrentProperties(observer, optimisticResult) {
 function infiniteQueryBehavior(pages) {
   return {
     onFetch: (context, query) => {
-      var _a2, _b2, _c2, _d2, _e2;
+      var _a3, _b3, _c2, _d2, _e2;
       const options = context.options;
-      const direction = (_c2 = (_b2 = (_a2 = context.fetchOptions) == null ? void 0 : _a2.meta) == null ? void 0 : _b2.fetchMore) == null ? void 0 : _c2.direction;
+      const direction = (_c2 = (_b3 = (_a3 = context.fetchOptions) == null ? void 0 : _a3.meta) == null ? void 0 : _b3.fetchMore) == null ? void 0 : _c2.direction;
       const oldPages = ((_d2 = context.state.data) == null ? void 0 : _d2.pages) || [];
       const oldPageParams = ((_e2 = context.state.data) == null ? void 0 : _e2.pageParams) || [];
       let result = { pages: [], pageParams: [] };
@@ -16552,9 +16552,9 @@ function infiniteQueryBehavior(pages) {
       };
       if (context.options.persister) {
         context.fetchFn = () => {
-          var _a3, _b3;
-          return (_b3 = (_a3 = context.options).persister) == null ? void 0 : _b3.call(
-            _a3,
+          var _a4, _b4;
+          return (_b4 = (_a4 = context.options).persister) == null ? void 0 : _b4.call(
+            _a4,
             fetchFn,
             {
               client: context.client,
@@ -16581,8 +16581,8 @@ function getNextPageParam(options, { pages, pageParams }) {
   ) : void 0;
 }
 function getPreviousPageParam(options, { pages, pageParams }) {
-  var _a2;
-  return pages.length > 0 ? (_a2 = options.getPreviousPageParam) == null ? void 0 : _a2.call(options, pages[0], pages, pageParams[0], pageParams) : void 0;
+  var _a3;
+  return pages.length > 0 ? (_a3 = options.getPreviousPageParam) == null ? void 0 : _a3.call(options, pages[0], pages, pageParams[0], pageParams) : void 0;
 }
 var Mutation = (_g = class extends Removable {
   constructor(config) {
@@ -16637,12 +16637,12 @@ var Mutation = (_g = class extends Removable {
     }
   }
   continue() {
-    var _a2;
-    return ((_a2 = __privateGet(this, _retryer2)) == null ? void 0 : _a2.continue()) ?? // continuing a mutation assumes that variables are set, mutation must have been dehydrated before
+    var _a3;
+    return ((_a3 = __privateGet(this, _retryer2)) == null ? void 0 : _a3.continue()) ?? // continuing a mutation assumes that variables are set, mutation must have been dehydrated before
     this.execute(this.state.variables);
   }
   async execute(variables) {
-    var _a2, _b2, _c2, _d2, _e2, _f2, _g2, _h2, _i2, _j2, _k2, _l2, _m, _n, _o, _p, _q, _r;
+    var _a3, _b3, _c2, _d2, _e2, _f2, _g2, _h2, _i2, _j2, _k2, _l2, _m, _n, _o, _p, _q, _r;
     const onContinue = () => {
       __privateMethod(this, _Mutation_instances, dispatch_fn2).call(this, { type: "continue" });
     };
@@ -16684,8 +16684,8 @@ var Mutation = (_g = class extends Removable {
             mutationFnContext
           );
         }
-        const context = await ((_b2 = (_a2 = this.options).onMutate) == null ? void 0 : _b2.call(
-          _a2,
+        const context = await ((_b3 = (_a3 = this.options).onMutate) == null ? void 0 : _b3.call(
+          _a3,
           variables,
           mutationFnContext
         ));
@@ -16934,10 +16934,10 @@ var MutationCache = (_h = class extends Subscribable {
     }
   }
   runNext(mutation) {
-    var _a2;
+    var _a3;
     const scope = scopeFor(mutation);
     if (typeof scope === "string") {
-      const foundMutation = (_a2 = __privateGet(this, _scopes).get(scope)) == null ? void 0 : _a2.find((m) => m !== mutation && m.state.isPaused);
+      const foundMutation = (_a3 = __privateGet(this, _scopes).get(scope)) == null ? void 0 : _a3.find((m) => m !== mutation && m.state.isPaused);
       return (foundMutation == null ? void 0 : foundMutation.continue()) ?? Promise.resolve();
     } else {
       return Promise.resolve();
@@ -16981,8 +16981,8 @@ var MutationCache = (_h = class extends Subscribable {
   }
 }, _mutations = new WeakMap(), _scopes = new WeakMap(), _mutationId = new WeakMap(), _h);
 function scopeFor(mutation) {
-  var _a2;
-  return (_a2 = mutation.options.scope) == null ? void 0 : _a2.id;
+  var _a3;
+  return (_a3 = mutation.options.scope) == null ? void 0 : _a3.id;
 }
 var MutationObserver$1 = (_i = class extends Subscribable {
   constructor(client2, options) {
@@ -17002,7 +17002,7 @@ var MutationObserver$1 = (_i = class extends Subscribable {
     this.reset = this.reset.bind(this);
   }
   setOptions(options) {
-    var _a2;
+    var _a3;
     const prevOptions = this.options;
     this.options = __privateGet(this, _client4).defaultMutationOptions(options);
     if (!shallowEqualObjects(this.options, prevOptions)) {
@@ -17014,14 +17014,14 @@ var MutationObserver$1 = (_i = class extends Subscribable {
     }
     if ((prevOptions == null ? void 0 : prevOptions.mutationKey) && this.options.mutationKey && hashKey(prevOptions.mutationKey) !== hashKey(this.options.mutationKey)) {
       this.reset();
-    } else if (((_a2 = __privateGet(this, _currentMutation)) == null ? void 0 : _a2.state.status) === "pending") {
+    } else if (((_a3 = __privateGet(this, _currentMutation)) == null ? void 0 : _a3.state.status) === "pending") {
       __privateGet(this, _currentMutation).setOptions(this.options);
     }
   }
   onUnsubscribe() {
-    var _a2;
+    var _a3;
     if (!this.hasListeners()) {
-      (_a2 = __privateGet(this, _currentMutation)) == null ? void 0 : _a2.removeObserver(this);
+      (_a3 = __privateGet(this, _currentMutation)) == null ? void 0 : _a3.removeObserver(this);
     }
   }
   onMutationUpdate(action) {
@@ -17032,23 +17032,23 @@ var MutationObserver$1 = (_i = class extends Subscribable {
     return __privateGet(this, _currentResult2);
   }
   reset() {
-    var _a2;
-    (_a2 = __privateGet(this, _currentMutation)) == null ? void 0 : _a2.removeObserver(this);
+    var _a3;
+    (_a3 = __privateGet(this, _currentMutation)) == null ? void 0 : _a3.removeObserver(this);
     __privateSet(this, _currentMutation, void 0);
     __privateMethod(this, _MutationObserver_instances, updateResult_fn).call(this);
     __privateMethod(this, _MutationObserver_instances, notify_fn2).call(this);
   }
   mutate(variables, options) {
-    var _a2;
+    var _a3;
     __privateSet(this, _mutateOptions, options);
-    (_a2 = __privateGet(this, _currentMutation)) == null ? void 0 : _a2.removeObserver(this);
+    (_a3 = __privateGet(this, _currentMutation)) == null ? void 0 : _a3.removeObserver(this);
     __privateSet(this, _currentMutation, __privateGet(this, _client4).getMutationCache().build(__privateGet(this, _client4), this.options));
     __privateGet(this, _currentMutation).addObserver(this);
     return __privateGet(this, _currentMutation).execute(variables);
   }
 }, _client4 = new WeakMap(), _currentResult2 = new WeakMap(), _currentMutation = new WeakMap(), _mutateOptions = new WeakMap(), _MutationObserver_instances = new WeakSet(), updateResult_fn = function() {
-  var _a2;
-  const state = ((_a2 = __privateGet(this, _currentMutation)) == null ? void 0 : _a2.state) ?? getDefaultState();
+  var _a3;
+  const state = ((_a3 = __privateGet(this, _currentMutation)) == null ? void 0 : _a3.state) ?? getDefaultState();
   __privateSet(this, _currentResult2, {
     ...state,
     isPending: state.status === "pending",
@@ -17060,7 +17060,7 @@ var MutationObserver$1 = (_i = class extends Subscribable {
   });
 }, notify_fn2 = function(action) {
   notifyManager.batch(() => {
-    var _a2, _b2, _c2, _d2, _e2, _f2, _g2, _h2;
+    var _a3, _b3, _c2, _d2, _e2, _f2, _g2, _h2;
     if (__privateGet(this, _mutateOptions) && this.hasListeners()) {
       const variables = __privateGet(this, _currentResult2).variables;
       const onMutateResult = __privateGet(this, _currentResult2).context;
@@ -17071,8 +17071,8 @@ var MutationObserver$1 = (_i = class extends Subscribable {
       };
       if ((action == null ? void 0 : action.type) === "success") {
         try {
-          (_b2 = (_a2 = __privateGet(this, _mutateOptions)).onSuccess) == null ? void 0 : _b2.call(
-            _a2,
+          (_b3 = (_a3 = __privateGet(this, _mutateOptions)).onSuccess) == null ? void 0 : _b3.call(
+            _a3,
             action.data,
             variables,
             onMutateResult,
@@ -17284,9 +17284,9 @@ var QueriesObserver = (_j = class extends Subscribable {
   });
   const observers = [];
   queries.forEach((options) => {
-    var _a2;
+    var _a3;
     const defaultedOptions = __privateGet(this, _client5).defaultQueryOptions(options);
-    const match2 = (_a2 = prevObserversMap.get(defaultedOptions.queryHash)) == null ? void 0 : _a2.shift();
+    const match2 = (_a3 = prevObserversMap.get(defaultedOptions.queryHash)) == null ? void 0 : _a3.shift();
     const observer = match2 ?? new QueryObserver(__privateGet(this, _client5), defaultedOptions);
     observers.push({
       defaultedQueryOptions: defaultedOptions,
@@ -17301,11 +17301,11 @@ var QueriesObserver = (_j = class extends Subscribable {
     __privateMethod(this, _QueriesObserver_instances, notify_fn3).call(this);
   }
 }, notify_fn3 = function() {
-  var _a2;
+  var _a3;
   if (this.hasListeners()) {
     const previousResult = __privateGet(this, _combinedResult);
     const newTracked = __privateMethod(this, _QueriesObserver_instances, trackResult_fn).call(this, __privateGet(this, _result), __privateGet(this, _observerMatches));
-    const newResult = __privateMethod(this, _QueriesObserver_instances, combineResult_fn).call(this, newTracked, (_a2 = __privateGet(this, _options)) == null ? void 0 : _a2.combine);
+    const newResult = __privateMethod(this, _QueriesObserver_instances, combineResult_fn).call(this, newTracked, (_a3 = __privateGet(this, _options)) == null ? void 0 : _a3.combine);
     if (previousResult !== newResult) {
       notifyManager.batch(() => {
         this.listeners.forEach((listener) => {
@@ -17437,12 +17437,12 @@ var QueryClient = (_l = class {
     }));
   }
   unmount() {
-    var _a2, _b2;
+    var _a3, _b3;
     __privateWrapper(this, _mountCount)._--;
     if (__privateGet(this, _mountCount) !== 0) return;
-    (_a2 = __privateGet(this, _unsubscribeFocus)) == null ? void 0 : _a2.call(this);
+    (_a3 = __privateGet(this, _unsubscribeFocus)) == null ? void 0 : _a3.call(this);
     __privateSet(this, _unsubscribeFocus, void 0);
-    (_b2 = __privateGet(this, _unsubscribeOnline)) == null ? void 0 : _b2.call(this);
+    (_b3 = __privateGet(this, _unsubscribeOnline)) == null ? void 0 : _b3.call(this);
     __privateSet(this, _unsubscribeOnline, void 0);
   }
   isFetching(filters) {
@@ -17459,9 +17459,9 @@ var QueryClient = (_l = class {
    * Use `useQuery` to create a `QueryObserver` that subscribes to changes.
    */
   getQueryData(queryKey) {
-    var _a2;
+    var _a3;
     const options = this.defaultQueryOptions({ queryKey });
-    return (_a2 = __privateGet(this, _queryCache).get(options.queryHash)) == null ? void 0 : _a2.state.data;
+    return (_a3 = __privateGet(this, _queryCache).get(options.queryHash)) == null ? void 0 : _a3.state.data;
   }
   ensureQueryData(options) {
     const defaultedOptions = this.defaultQueryOptions(options);
@@ -17502,11 +17502,11 @@ var QueryClient = (_l = class {
     );
   }
   getQueryState(queryKey) {
-    var _a2;
+    var _a3;
     const options = this.defaultQueryOptions({ queryKey });
-    return (_a2 = __privateGet(this, _queryCache).get(
+    return (_a3 = __privateGet(this, _queryCache).get(
       options.queryHash
-    )) == null ? void 0 : _a2.state;
+    )) == null ? void 0 : _a3.state;
   }
   removeQueries(filters) {
     const queryCache = __privateGet(this, _queryCache);
@@ -17858,13 +17858,13 @@ function useQueries({
   return getCombinedResult(trackResult());
 }
 function useBaseQuery(options, Observer, queryClient2) {
-  var _a2, _b2, _c2, _d2;
+  var _a3, _b3, _c2, _d2;
   const isRestoring = useIsRestoring();
   const errorResetBoundary = useQueryErrorResetBoundary();
   const client2 = useQueryClient();
   const defaultedOptions = client2.defaultQueryOptions(options);
-  (_b2 = (_a2 = client2.getDefaultOptions().queries) == null ? void 0 : _a2._experimental_beforeQuery) == null ? void 0 : _b2.call(
-    _a2,
+  (_b3 = (_a3 = client2.getDefaultOptions().queries) == null ? void 0 : _a3._experimental_beforeQuery) == null ? void 0 : _b3.call(
+    _a3,
     defaultedOptions
   );
   const query = client2.getQueryCache().get(defaultedOptions.queryHash);
@@ -18141,16 +18141,16 @@ function createContextScope$1(scopeName, createContextScopeDeps = []) {
     const index2 = defaultContexts.length;
     defaultContexts = [...defaultContexts, defaultContext];
     const Provider2 = (props) => {
-      var _a2;
+      var _a3;
       const { scope, children, ...context } = props;
-      const Context2 = ((_a2 = scope == null ? void 0 : scope[scopeName]) == null ? void 0 : _a2[index2]) || BaseContext;
+      const Context2 = ((_a3 = scope == null ? void 0 : scope[scopeName]) == null ? void 0 : _a3[index2]) || BaseContext;
       const value = reactExports.useMemo(() => context, Object.values(context));
       return /* @__PURE__ */ jsxRuntimeExports.jsx(Context2.Provider, { value, children });
     };
     Provider2.displayName = rootComponentName + "Provider";
     function useContext2(consumerName, scope) {
-      var _a2;
-      const Context2 = ((_a2 = scope == null ? void 0 : scope[scopeName]) == null ? void 0 : _a2[index2]) || BaseContext;
+      var _a3;
+      const Context2 = ((_a3 = scope == null ? void 0 : scope[scopeName]) == null ? void 0 : _a3[index2]) || BaseContext;
       const context = reactExports.useContext(Context2);
       if (context) return context;
       if (defaultContext !== void 0) return defaultContext;
@@ -18272,13 +18272,13 @@ function mergeProps$1(slotProps, childProps) {
   return { ...slotProps, ...overrideProps };
 }
 function getElementRef$2(element) {
-  var _a2, _b2;
-  let getter = (_a2 = Object.getOwnPropertyDescriptor(element.props, "ref")) == null ? void 0 : _a2.get;
+  var _a3, _b3;
+  let getter = (_a3 = Object.getOwnPropertyDescriptor(element.props, "ref")) == null ? void 0 : _a3.get;
   let mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
   if (mayWarn) {
     return element.ref;
   }
-  getter = (_b2 = Object.getOwnPropertyDescriptor(element, "ref")) == null ? void 0 : _b2.get;
+  getter = (_b3 = Object.getOwnPropertyDescriptor(element, "ref")) == null ? void 0 : _b3.get;
   mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
   if (mayWarn) {
     return element.props.ref;
@@ -18388,8 +18388,8 @@ function useCallbackRef$1(callback) {
     callbackRef.current = callback;
   });
   return reactExports.useMemo(() => (...args) => {
-    var _a2;
-    return (_a2 = callbackRef.current) == null ? void 0 : _a2.call(callbackRef, ...args);
+    var _a3;
+    return (_a3 = callbackRef.current) == null ? void 0 : _a3.call(callbackRef, ...args);
   }, []);
 }
 function useEscapeKeydown(onEscapeKeyDownProp, ownerDocument = globalThis == null ? void 0 : globalThis.document) {
@@ -18611,11 +18611,11 @@ var useLayoutEffect2 = (globalThis == null ? void 0 : globalThis.document) ? rea
 };
 var PORTAL_NAME$6 = "Portal";
 var Portal$4 = reactExports.forwardRef((props, forwardedRef) => {
-  var _a2;
+  var _a3;
   const { container: containerProp, ...portalProps } = props;
   const [mounted, setMounted] = reactExports.useState(false);
   useLayoutEffect2(() => setMounted(true), []);
-  const container = containerProp || mounted && ((_a2 = globalThis == null ? void 0 : globalThis.document) == null ? void 0 : _a2.body);
+  const container = containerProp || mounted && ((_a3 = globalThis == null ? void 0 : globalThis.document) == null ? void 0 : _a3.body);
   return container ? ReactDOM.createPortal(/* @__PURE__ */ jsxRuntimeExports.jsx(Primitive$1.div, { ...portalProps, ref: forwardedRef }), container) : null;
 });
 Portal$4.displayName = PORTAL_NAME$6;
@@ -18729,13 +18729,13 @@ function getAnimationName(styles) {
   return (styles == null ? void 0 : styles.animationName) || "none";
 }
 function getElementRef$1(element) {
-  var _a2, _b2;
-  let getter = (_a2 = Object.getOwnPropertyDescriptor(element.props, "ref")) == null ? void 0 : _a2.get;
+  var _a3, _b3;
+  let getter = (_a3 = Object.getOwnPropertyDescriptor(element.props, "ref")) == null ? void 0 : _a3.get;
   let mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
   if (mayWarn) {
     return element.ref;
   }
-  getter = (_b2 = Object.getOwnPropertyDescriptor(element, "ref")) == null ? void 0 : _b2.get;
+  getter = (_b3 = Object.getOwnPropertyDescriptor(element, "ref")) == null ? void 0 : _b3.get;
   mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
   if (mayWarn) {
     return element.props.ref;
@@ -18772,11 +18772,11 @@ function useControllableState({
   }
   const setValue = reactExports.useCallback(
     (nextValue) => {
-      var _a2;
+      var _a3;
       if (isControlled) {
         const value2 = isFunction$1(nextValue) ? nextValue(prop) : nextValue;
         if (value2 !== prop) {
-          (_a2 = onChangeRef.current) == null ? void 0 : _a2.call(onChangeRef, value2);
+          (_a3 = onChangeRef.current) == null ? void 0 : _a3.call(onChangeRef, value2);
         }
       } else {
         setUncontrolledProp(nextValue);
@@ -18797,9 +18797,9 @@ function useUncontrolledState({
     onChangeRef.current = onChange;
   }, [onChange]);
   reactExports.useEffect(() => {
-    var _a2;
+    var _a3;
     if (prevValueRef.current !== value) {
-      (_a2 = onChangeRef.current) == null ? void 0 : _a2.call(onChangeRef, value);
+      (_a3 = onChangeRef.current) == null ? void 0 : _a3.call(onChangeRef, value);
       prevValueRef.current = value;
     }
   }, [value, prevValueRef]);
@@ -18901,9 +18901,9 @@ var ToastViewport$1 = reactExports.forwardRef(
     const hasToasts = context.toastCount > 0;
     reactExports.useEffect(() => {
       const handleKeyDown = (event) => {
-        var _a2;
+        var _a3;
         const isHotkeyPressed = hotkey.length !== 0 && hotkey.every((key2) => event[key2] || event.code === key2);
-        if (isHotkeyPressed) (_a2 = ref.current) == null ? void 0 : _a2.focus();
+        if (isHotkeyPressed) (_a3 = ref.current) == null ? void 0 : _a3.focus();
       };
       document.addEventListener("keydown", handleKeyDown);
       return () => document.removeEventListener("keydown", handleKeyDown);
@@ -18966,7 +18966,7 @@ var ToastViewport$1 = reactExports.forwardRef(
       const viewport = ref.current;
       if (viewport) {
         const handleKeyDown = (event) => {
-          var _a2, _b2, _c2;
+          var _a3, _b3, _c2;
           const isMetaKey = event.altKey || event.ctrlKey || event.metaKey;
           const isTabKey = event.key === "Tab" && !isMetaKey;
           if (isTabKey) {
@@ -18974,7 +18974,7 @@ var ToastViewport$1 = reactExports.forwardRef(
             const isTabbingBackwards = event.shiftKey;
             const targetIsViewport = event.target === viewport;
             if (targetIsViewport && isTabbingBackwards) {
-              (_a2 = headFocusProxyRef.current) == null ? void 0 : _a2.focus();
+              (_a3 = headFocusProxyRef.current) == null ? void 0 : _a3.focus();
               return;
             }
             const tabbingDirection = isTabbingBackwards ? "backwards" : "forwards";
@@ -18983,7 +18983,7 @@ var ToastViewport$1 = reactExports.forwardRef(
             if (focusFirst$3(sortedCandidates.slice(index2 + 1))) {
               event.preventDefault();
             } else {
-              isTabbingBackwards ? (_b2 = headFocusProxyRef.current) == null ? void 0 : _b2.focus() : (_c2 = tailFocusProxyRef.current) == null ? void 0 : _c2.focus();
+              isTabbingBackwards ? (_b3 = headFocusProxyRef.current) == null ? void 0 : _b3.focus() : (_c2 = tailFocusProxyRef.current) == null ? void 0 : _c2.focus();
             }
           }
         };
@@ -19044,9 +19044,9 @@ var FocusProxy = reactExports.forwardRef(
         ref: forwardedRef,
         style: { position: "fixed" },
         onFocus: (event) => {
-          var _a2;
+          var _a3;
           const prevFocusedElement = event.relatedTarget;
-          const isFocusFromOutsideViewport = !((_a2 = context.viewport) == null ? void 0 : _a2.contains(prevFocusedElement));
+          const isFocusFromOutsideViewport = !((_a3 = context.viewport) == null ? void 0 : _a3.contains(prevFocusedElement));
           if (isFocusFromOutsideViewport) onFocusFromOutsideViewport();
         }
       }
@@ -19139,9 +19139,9 @@ var ToastImpl = reactExports.forwardRef(
     const closeTimerRef = reactExports.useRef(0);
     const { onToastAdd, onToastRemove } = context;
     const handleClose = useCallbackRef$1(() => {
-      var _a2;
+      var _a3;
       const isFocusInToast = node == null ? void 0 : node.contains(document.activeElement);
-      if (isFocusInToast) (_a2 = context.viewport) == null ? void 0 : _a2.focus();
+      if (isFocusInToast) (_a3 = context.viewport) == null ? void 0 : _a3.focus();
       onClose();
     });
     const startTimer = reactExports.useCallback(
@@ -24602,7 +24602,7 @@ function useId(deterministicId) {
 }
 const sides = ["top", "right", "bottom", "left"];
 const min = Math.min;
-const max = Math.max;
+const max$1 = Math.max;
 const round = Math.round;
 const floor = Math.floor;
 const createCoords = (v) => ({
@@ -24620,7 +24620,7 @@ const oppositeAlignmentMap = {
   end: "start"
 };
 function clamp$1(start, value, end) {
-  return max(start, min(value, end));
+  return max$1(start, min(value, end));
 }
 function evaluate(value, param) {
   return typeof value === "function" ? value(param) : value;
@@ -25417,14 +25417,14 @@ const size$2 = function(options) {
         availableHeight = maximumClippingHeight;
       }
       if (noShift && !alignment) {
-        const xMin = max(overflow.left, 0);
-        const xMax = max(overflow.right, 0);
-        const yMin = max(overflow.top, 0);
-        const yMax = max(overflow.bottom, 0);
+        const xMin = max$1(overflow.left, 0);
+        const xMax = max$1(overflow.right, 0);
+        const yMin = max$1(overflow.top, 0);
+        const yMax = max$1(overflow.bottom, 0);
         if (isYAxis) {
-          availableWidth = width - 2 * (xMin !== 0 || xMax !== 0 ? xMin + xMax : max(overflow.left, overflow.right));
+          availableWidth = width - 2 * (xMin !== 0 || xMax !== 0 ? xMin + xMax : max$1(overflow.left, overflow.right));
         } else {
-          availableHeight = height - 2 * (yMin !== 0 || yMax !== 0 ? yMin + yMax : max(overflow.top, overflow.bottom));
+          availableHeight = height - 2 * (yMin !== 0 || yMax !== 0 ? yMin + yMax : max$1(overflow.top, overflow.bottom));
         }
       }
       await apply({
@@ -25774,12 +25774,12 @@ function getDocumentRect(element) {
   const html = getDocumentElement(element);
   const scroll = getNodeScroll(element);
   const body = element.ownerDocument.body;
-  const width = max(html.scrollWidth, html.clientWidth, body.scrollWidth, body.clientWidth);
-  const height = max(html.scrollHeight, html.clientHeight, body.scrollHeight, body.clientHeight);
+  const width = max$1(html.scrollWidth, html.clientWidth, body.scrollWidth, body.clientWidth);
+  const height = max$1(html.scrollHeight, html.clientHeight, body.scrollHeight, body.clientHeight);
   let x = -scroll.scrollLeft + getWindowScrollBarX(element);
   const y = -scroll.scrollTop;
   if (getComputedStyle$1(body).direction === "rtl") {
-    x += max(html.clientWidth, body.clientWidth) - width;
+    x += max$1(html.clientWidth, body.clientWidth) - width;
   }
   return {
     width,
@@ -25907,10 +25907,10 @@ function getClippingRect(_ref) {
   const firstClippingAncestor = clippingAncestors[0];
   const clippingRect = clippingAncestors.reduce((accRect, clippingAncestor) => {
     const rect = getClientRectFromClippingAncestor(element, clippingAncestor, strategy);
-    accRect.top = max(rect.top, accRect.top);
+    accRect.top = max$1(rect.top, accRect.top);
     accRect.right = min(rect.right, accRect.right);
     accRect.bottom = min(rect.bottom, accRect.bottom);
-    accRect.left = max(rect.left, accRect.left);
+    accRect.left = max$1(rect.left, accRect.left);
     return accRect;
   }, getClientRectFromClippingAncestor(element, firstClippingAncestor, strategy));
   return {
@@ -26078,7 +26078,7 @@ function observeMove(element, onMove) {
     const rootMargin = -insetTop + "px " + -insetRight + "px " + -insetBottom + "px " + -insetLeft + "px";
     const options = {
       rootMargin,
-      threshold: max(0, min(1, threshold)) || 1
+      threshold: max$1(0, min(1, threshold)) || 1
     };
     let isFirstUpdate = true;
     function handleObserve(entries) {
@@ -26567,7 +26567,7 @@ var CONTENT_NAME$7 = "PopperContent";
 var [PopperContentProvider, useContentContext] = createPopperContext(CONTENT_NAME$7);
 var PopperContent = reactExports.forwardRef(
   (props, forwardedRef) => {
-    var _a2, _b2, _c2, _d2, _e2, _f2;
+    var _a3, _b3, _c2, _d2, _e2, _f2;
     const {
       __scopePopper,
       side = "bottom",
@@ -26646,8 +26646,8 @@ var PopperContent = reactExports.forwardRef(
         handlePlaced == null ? void 0 : handlePlaced();
       }
     }, [isPositioned, handlePlaced]);
-    const arrowX = (_a2 = middlewareData.arrow) == null ? void 0 : _a2.x;
-    const arrowY = (_b2 = middlewareData.arrow) == null ? void 0 : _b2.y;
+    const arrowX = (_a3 = middlewareData.arrow) == null ? void 0 : _a3.x;
+    const arrowY = (_b3 = middlewareData.arrow) == null ? void 0 : _b3.y;
     const cannotCenterArrow = ((_c2 = middlewareData.arrow) == null ? void 0 : _c2.centerOffset) !== 0;
     const [contentZIndex, setContentZIndex] = reactExports.useState();
     useLayoutEffect2(() => {
@@ -26770,15 +26770,15 @@ var transformOrigin = (options) => ({
   name: "transformOrigin",
   options,
   fn(data) {
-    var _a2, _b2, _c2;
+    var _a3, _b3, _c2;
     const { placement, rects, middlewareData } = data;
-    const cannotCenterArrow = ((_a2 = middlewareData.arrow) == null ? void 0 : _a2.centerOffset) !== 0;
+    const cannotCenterArrow = ((_a3 = middlewareData.arrow) == null ? void 0 : _a3.centerOffset) !== 0;
     const isArrowHidden = cannotCenterArrow;
     const arrowWidth = isArrowHidden ? 0 : options.arrowWidth;
     const arrowHeight = isArrowHidden ? 0 : options.arrowHeight;
     const [placedSide, placedAlign] = getSideAndAlignFromPlacement(placement);
     const noArrowAlign = { start: "0%", center: "50%", end: "100%" }[placedAlign];
-    const arrowXCenter = (((_b2 = middlewareData.arrow) == null ? void 0 : _b2.x) ?? 0) + arrowWidth / 2;
+    const arrowXCenter = (((_b3 = middlewareData.arrow) == null ? void 0 : _b3.x) ?? 0) + arrowWidth / 2;
     const arrowYCenter = (((_c2 = middlewareData.arrow) == null ? void 0 : _c2.y) ?? 0) + arrowHeight / 2;
     let x = "";
     let y = "";
@@ -29486,16 +29486,16 @@ class BaseClient {
     if (!response.ok) {
       let body2 = { code: "unknown", message: `request failed: status ${response.status}` };
       try {
-        const text = await response.text();
+        const text2 = await response.text();
         try {
-          const jsonBody = JSON.parse(text);
+          const jsonBody = JSON.parse(text2);
           if (isAPIErrorResponse(jsonBody)) {
             body2 = jsonBody;
           } else {
             body2.message += ": " + JSON.stringify(jsonBody);
           }
         } catch {
-          body2.message += ": " + text;
+          body2.message += ": " + text2;
         }
       } catch (e) {
         body2.message += ": " + String(e);
@@ -29505,8 +29505,8 @@ class BaseClient {
     return response;
   }
 }
-function isAPIErrorResponse(err) {
-  return err !== void 0 && err !== null && isErrCode(err.code) && typeof err.message === "string" && (err.details === void 0 || err.details === null || typeof err.details === "object");
+function isAPIErrorResponse(err2) {
+  return err2 !== void 0 && err2 !== null && isErrCode(err2.code) && typeof err2.message === "string" && (err2.details === void 0 || err2.details === null || typeof err2.details === "object");
 }
 function isErrCode(code) {
   return code !== void 0 && Object.values(ErrCode).includes(code);
@@ -29594,8 +29594,8 @@ function FeatureFlagProvider({ children }) {
       if (settings2.feature_flags) {
         setFlags(settings2.feature_flags);
       }
-    } catch (err) {
-      console.error("Failed to load feature flags:", err);
+    } catch (err2) {
+      console.error("Failed to load feature flags:", err2);
     } finally {
       setIsLoaded(true);
     }
@@ -29900,13 +29900,13 @@ function mergeProps(slotProps, childProps) {
   return { ...slotProps, ...overrideProps };
 }
 function getElementRef(element) {
-  var _a2, _b2;
-  let getter = (_a2 = Object.getOwnPropertyDescriptor(element.props, "ref")) == null ? void 0 : _a2.get;
+  var _a3, _b3;
+  let getter = (_a3 = Object.getOwnPropertyDescriptor(element.props, "ref")) == null ? void 0 : _a3.get;
   let mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
   if (mayWarn) {
     return element.ref;
   }
-  getter = (_b2 = Object.getOwnPropertyDescriptor(element, "ref")) == null ? void 0 : _b2.get;
+  getter = (_b3 = Object.getOwnPropertyDescriptor(element, "ref")) == null ? void 0 : _b3.get;
   mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
   if (mayWarn) {
     return element.props.ref;
@@ -30172,9 +30172,9 @@ function createFocusScopesStack() {
       stack.unshift(focusScope);
     },
     remove(focusScope) {
-      var _a2;
+      var _a3;
       stack = arrayRemove(stack, focusScope);
-      (_a2 = stack[0]) == null ? void 0 : _a2.resume();
+      (_a3 = stack[0]) == null ? void 0 : _a3.resume();
     }
   };
 }
@@ -30701,8 +30701,8 @@ function createSidecarMedium(options) {
   medium.options = __assign({ async: true, ssr: false }, options);
   return medium;
 }
-var SideCar$1 = function(_a2) {
-  var sideCar = _a2.sideCar, rest = __rest(_a2, ["sideCar"]);
+var SideCar$1 = function(_a3) {
+  var sideCar = _a3.sideCar, rest = __rest(_a3, ["sideCar"]);
   if (!sideCar) {
     throw new Error("Sidecar: please provide `sideCar` property to import the right car");
   }
@@ -30723,12 +30723,12 @@ var nothing = function() {
 };
 var RemoveScroll = reactExports.forwardRef(function(props, parentRef) {
   var ref = reactExports.useRef(null);
-  var _a2 = reactExports.useState({
+  var _a3 = reactExports.useState({
     onScrollCapture: nothing,
     onWheelCapture: nothing,
     onTouchMoveCapture: nothing
-  }), callbacks = _a2[0], setCallbacks = _a2[1];
-  var forwardProps = props.forwardProps, children = props.children, className = props.className, removeScrollBar = props.removeScrollBar, enabled = props.enabled, shards = props.shards, sideCar = props.sideCar, noRelative = props.noRelative, noIsolation = props.noIsolation, inert = props.inert, allowPinchZoom = props.allowPinchZoom, _b2 = props.as, Container = _b2 === void 0 ? "div" : _b2, gapMode = props.gapMode, rest = __rest(props, ["forwardProps", "children", "className", "removeScrollBar", "enabled", "shards", "sideCar", "noRelative", "noIsolation", "inert", "allowPinchZoom", "as", "gapMode"]);
+  }), callbacks = _a3[0], setCallbacks = _a3[1];
+  var forwardProps = props.forwardProps, children = props.children, className = props.className, removeScrollBar = props.removeScrollBar, enabled = props.enabled, shards = props.shards, sideCar = props.sideCar, noRelative = props.noRelative, noIsolation = props.noIsolation, inert = props.inert, allowPinchZoom = props.allowPinchZoom, _b3 = props.as, Container = _b3 === void 0 ? "div" : _b3, gapMode = props.gapMode, rest = __rest(props, ["forwardProps", "children", "className", "removeScrollBar", "enabled", "shards", "sideCar", "noRelative", "noIsolation", "inert", "allowPinchZoom", "as", "gapMode"]);
   var SideCar2 = sideCar;
   var containerRef = useMergeRefs([ref, parentRef]);
   var containerProps = __assign(__assign({}, rest), callbacks);
@@ -30811,8 +30811,8 @@ var styleHookSingleton = function() {
 };
 var styleSingleton = function() {
   var useStyle = styleHookSingleton();
-  var Sheet = function(_a2) {
-    var styles = _a2.styles, dynamic = _a2.dynamic;
+  var Sheet = function(_a3) {
+    var styles = _a3.styles, dynamic = _a3.dynamic;
     useStyle(styles, dynamic);
     return null;
   };
@@ -30853,8 +30853,8 @@ var getGapWidth = function(gapMode) {
 };
 var Style = styleSingleton();
 var lockAttribute = "data-scroll-locked";
-var getStyles = function(_a2, allowRelative, gapMode, important) {
-  var left = _a2.left, top = _a2.top, right = _a2.right, gap = _a2.gap;
+var getStyles = function(_a3, allowRelative, gapMode, important) {
+  var left = _a3.left, top = _a3.top, right = _a3.right, gap = _a3.gap;
   if (gapMode === void 0) {
     gapMode = "margin";
   }
@@ -30881,8 +30881,8 @@ var useLockAttribute = function() {
     };
   }, []);
 };
-var RemoveScrollBar = function(_a2) {
-  var noRelative = _a2.noRelative, noImportant = _a2.noImportant, _b2 = _a2.gapMode, gapMode = _b2 === void 0 ? "margin" : _b2;
+var RemoveScrollBar = function(_a3) {
+  var noRelative = _a3.noRelative, noImportant = _a3.noImportant, _b3 = _a3.gapMode, gapMode = _b3 === void 0 ? "margin" : _b3;
   useLockAttribute();
   var gap = reactExports.useMemo(function() {
     return getGapWidth(gapMode);
@@ -30900,7 +30900,7 @@ if (typeof window !== "undefined") {
     });
     window.addEventListener("test", options, options);
     window.removeEventListener("test", options, options);
-  } catch (err) {
+  } catch (err2) {
     passiveSupported = false;
   }
 }
@@ -30934,7 +30934,7 @@ var locationCouldBeScrolled = function(axis, node) {
     }
     var isScrollable2 = elementCouldBeScrolled(axis, current);
     if (isScrollable2) {
-      var _a2 = getScrollVariables(axis, current), scrollHeight = _a2[1], clientHeight = _a2[2];
+      var _a3 = getScrollVariables(axis, current), scrollHeight = _a3[1], clientHeight = _a3[2];
       if (scrollHeight > clientHeight) {
         return true;
       }
@@ -30943,16 +30943,16 @@ var locationCouldBeScrolled = function(axis, node) {
   } while (current && current !== ownerDocument.body);
   return false;
 };
-var getVScrollVariables = function(_a2) {
-  var scrollTop = _a2.scrollTop, scrollHeight = _a2.scrollHeight, clientHeight = _a2.clientHeight;
+var getVScrollVariables = function(_a3) {
+  var scrollTop = _a3.scrollTop, scrollHeight = _a3.scrollHeight, clientHeight = _a3.clientHeight;
   return [
     scrollTop,
     scrollHeight,
     clientHeight
   ];
 };
-var getHScrollVariables = function(_a2) {
-  var scrollLeft = _a2.scrollLeft, scrollWidth = _a2.scrollWidth, clientWidth = _a2.clientWidth;
+var getHScrollVariables = function(_a3) {
+  var scrollLeft = _a3.scrollLeft, scrollWidth = _a3.scrollWidth, clientWidth = _a3.clientWidth;
   return [
     scrollLeft,
     scrollWidth,
@@ -30981,7 +30981,7 @@ var handleScroll = function(axis, endTarget, event, sourceDelta, noOverscroll) {
     if (!target) {
       break;
     }
-    var _a2 = getScrollVariables(axis, target), position = _a2[0], scroll_1 = _a2[1], capacity = _a2[2];
+    var _a3 = getScrollVariables(axis, target), position = _a3[0], scroll_1 = _a3[1], capacity = _a3[2];
     var elementScroll = scroll_1 - capacity - directionFactor * position;
     if (position || elementScroll) {
       if (elementCouldBeScrolled(axis, target)) {
@@ -31351,14 +31351,14 @@ var MenuContentImpl = reactExports.forwardRef(
     const ScrollLockWrapper = disableOutsideScroll ? ReactRemoveScroll : reactExports.Fragment;
     const scrollLockWrapperProps = disableOutsideScroll ? { as: Slot$2, allowPinchZoom: true } : void 0;
     const handleTypeaheadSearch = (key2) => {
-      var _a2, _b2;
+      var _a3, _b3;
       const search = searchRef.current + key2;
       const items = getItems().filter((item) => !item.disabled);
       const currentItem = document.activeElement;
-      const currentMatch = (_a2 = items.find((item) => item.ref.current === currentItem)) == null ? void 0 : _a2.textValue;
+      const currentMatch = (_a3 = items.find((item) => item.ref.current === currentItem)) == null ? void 0 : _a3.textValue;
       const values = items.map((item) => item.textValue);
       const nextMatch = getNextMatch(values, search, currentMatch);
-      const newItem = (_b2 = items.find((item) => item.textValue === nextMatch)) == null ? void 0 : _b2.ref.current;
+      const newItem = (_b3 = items.find((item) => item.textValue === nextMatch)) == null ? void 0 : _b3.ref.current;
       (function updateSearch(value) {
         searchRef.current = value;
         window.clearTimeout(timerRef.current);
@@ -31373,9 +31373,9 @@ var MenuContentImpl = reactExports.forwardRef(
     }, []);
     useFocusGuards();
     const isPointerMovingToSubmenu = reactExports.useCallback((event) => {
-      var _a2, _b2;
-      const isMovingTowards = pointerDirRef.current === ((_a2 = pointerGraceIntentRef.current) == null ? void 0 : _a2.side);
-      return isMovingTowards && isPointerInGraceArea(event, (_b2 = pointerGraceIntentRef.current) == null ? void 0 : _b2.area);
+      var _a3, _b3;
+      const isMovingTowards = pointerDirRef.current === ((_a3 = pointerGraceIntentRef.current) == null ? void 0 : _a3.side);
+      return isMovingTowards && isPointerInGraceArea(event, (_b3 = pointerGraceIntentRef.current) == null ? void 0 : _b3.area);
     }, []);
     return /* @__PURE__ */ jsxRuntimeExports.jsx(
       MenuContentProvider,
@@ -31390,9 +31390,9 @@ var MenuContentImpl = reactExports.forwardRef(
         ),
         onItemLeave: reactExports.useCallback(
           (event) => {
-            var _a2;
+            var _a3;
             if (isPointerMovingToSubmenu(event)) return;
-            (_a2 = contentRef.current) == null ? void 0 : _a2.focus();
+            (_a3 = contentRef.current) == null ? void 0 : _a3.focus();
             setCurrentItemId(null);
           },
           [isPointerMovingToSubmenu]
@@ -31413,9 +31413,9 @@ var MenuContentImpl = reactExports.forwardRef(
             asChild: true,
             trapped: trapFocus,
             onMountAutoFocus: composeEventHandlers(onOpenAutoFocus, (event) => {
-              var _a2;
+              var _a3;
               event.preventDefault();
-              (_a2 = contentRef.current) == null ? void 0 : _a2.focus({ preventScroll: true });
+              (_a3 = contentRef.current) == null ? void 0 : _a3.focus({ preventScroll: true });
             }),
             onUnmountAutoFocus: onCloseAutoFocus,
             children: /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -31550,13 +31550,13 @@ var MenuItem = reactExports.forwardRef(
         disabled,
         onClick: composeEventHandlers(props.onClick, handleSelect),
         onPointerDown: (event) => {
-          var _a2;
-          (_a2 = props.onPointerDown) == null ? void 0 : _a2.call(props, event);
+          var _a3;
+          (_a3 = props.onPointerDown) == null ? void 0 : _a3.call(props, event);
           isPointerDownRef.current = true;
         },
         onPointerUp: composeEventHandlers(props.onPointerUp, (event) => {
-          var _a2;
-          if (!isPointerDownRef.current) (_a2 = event.currentTarget) == null ? void 0 : _a2.click();
+          var _a3;
+          if (!isPointerDownRef.current) (_a3 = event.currentTarget) == null ? void 0 : _a3.click();
         }),
         onKeyDown: composeEventHandlers(props.onKeyDown, (event) => {
           const isTypingAhead = contentContext.searchRef.current !== "";
@@ -31680,8 +31680,8 @@ var MenuRadioItem = reactExports.forwardRef(
         onSelect: composeEventHandlers(
           radioItemProps.onSelect,
           () => {
-            var _a2;
-            return (_a2 = context.onValueChange) == null ? void 0 : _a2.call(context, value);
+            var _a3;
+            return (_a3 = context.onValueChange) == null ? void 0 : _a3.call(context, value);
           },
           { checkForDefaultPrevented: false }
         )
@@ -31776,8 +31776,8 @@ var MenuSubTrigger = reactExports.forwardRef(
         ...props,
         ref: composeRefs(forwardedRef, subContext.onTriggerChange),
         onClick: (event) => {
-          var _a2;
-          (_a2 = props.onClick) == null ? void 0 : _a2.call(props, event);
+          var _a3;
+          (_a3 = props.onClick) == null ? void 0 : _a3.call(props, event);
           if (props.disabled || event.defaultPrevented) return;
           event.currentTarget.focus();
           if (!context.open) context.onOpenChange(true);
@@ -31799,11 +31799,11 @@ var MenuSubTrigger = reactExports.forwardRef(
         onPointerLeave: composeEventHandlers(
           props.onPointerLeave,
           whenMouse((event) => {
-            var _a2, _b2;
+            var _a3, _b3;
             clearOpenTimer();
-            const contentRect = (_a2 = context.content) == null ? void 0 : _a2.getBoundingClientRect();
+            const contentRect = (_a3 = context.content) == null ? void 0 : _a3.getBoundingClientRect();
             if (contentRect) {
-              const side = (_b2 = context.content) == null ? void 0 : _b2.dataset.side;
+              const side = (_b3 = context.content) == null ? void 0 : _b3.dataset.side;
               const rightSide = side === "right";
               const bleed = rightSide ? -5 : 5;
               const contentNearEdge = contentRect[rightSide ? "left" : "right"];
@@ -31833,12 +31833,12 @@ var MenuSubTrigger = reactExports.forwardRef(
           })
         ),
         onKeyDown: composeEventHandlers(props.onKeyDown, (event) => {
-          var _a2;
+          var _a3;
           const isTypingAhead = contentContext.searchRef.current !== "";
           if (props.disabled || isTypingAhead && event.key === " ") return;
           if (SUB_OPEN_KEYS[rootContext.dir].includes(event.key)) {
             context.onOpenChange(true);
-            (_a2 = context.content) == null ? void 0 : _a2.focus();
+            (_a3 = context.content) == null ? void 0 : _a3.focus();
             event.preventDefault();
           }
         })
@@ -31870,8 +31870,8 @@ var MenuSubContent = reactExports.forwardRef(
         disableOutsideScroll: false,
         trapFocus: false,
         onOpenAutoFocus: (event) => {
-          var _a2;
-          if (rootContext.isUsingKeyboardRef.current) (_a2 = ref.current) == null ? void 0 : _a2.focus();
+          var _a3;
+          if (rootContext.isUsingKeyboardRef.current) (_a3 = ref.current) == null ? void 0 : _a3.focus();
           event.preventDefault();
         },
         onCloseAutoFocus: (event) => event.preventDefault(),
@@ -31883,12 +31883,12 @@ var MenuSubContent = reactExports.forwardRef(
           event.preventDefault();
         }),
         onKeyDown: composeEventHandlers(props.onKeyDown, (event) => {
-          var _a2;
+          var _a3;
           const isKeyDownInside = event.currentTarget.contains(event.target);
           const isCloseKey = SUB_CLOSE_KEYS[rootContext.dir].includes(event.key);
           if (isKeyDownInside && isCloseKey) {
             context.onOpenChange(false);
-            (_a2 = subContext.trigger) == null ? void 0 : _a2.focus();
+            (_a3 = subContext.trigger) == null ? void 0 : _a3.focus();
             event.preventDefault();
           }
         })
@@ -32067,8 +32067,8 @@ var DropdownMenuContent$1 = reactExports.forwardRef(
         ...contentProps,
         ref: forwardedRef,
         onCloseAutoFocus: composeEventHandlers(props.onCloseAutoFocus, (event) => {
-          var _a2;
-          if (!hasInteractedOutsideRef.current) (_a2 = context.triggerRef.current) == null ? void 0 : _a2.focus();
+          var _a3;
+          if (!hasInteractedOutsideRef.current) (_a3 = context.triggerRef.current) == null ? void 0 : _a3.focus();
           hasInteractedOutsideRef.current = false;
           event.preventDefault();
         }),
@@ -32430,9 +32430,9 @@ var DialogContentModal = reactExports.forwardRef(
         trapFocus: context.open,
         disableOutsidePointerEvents: true,
         onCloseAutoFocus: composeEventHandlers(props.onCloseAutoFocus, (event) => {
-          var _a2;
+          var _a3;
           event.preventDefault();
-          (_a2 = context.triggerRef.current) == null ? void 0 : _a2.focus();
+          (_a3 = context.triggerRef.current) == null ? void 0 : _a3.focus();
         }),
         onPointerDownOutside: composeEventHandlers(props.onPointerDownOutside, (event) => {
           const originalEvent = event.detail.originalEvent;
@@ -32461,18 +32461,18 @@ var DialogContentNonModal = reactExports.forwardRef(
         trapFocus: false,
         disableOutsidePointerEvents: false,
         onCloseAutoFocus: (event) => {
-          var _a2, _b2;
-          (_a2 = props.onCloseAutoFocus) == null ? void 0 : _a2.call(props, event);
+          var _a3, _b3;
+          (_a3 = props.onCloseAutoFocus) == null ? void 0 : _a3.call(props, event);
           if (!event.defaultPrevented) {
-            if (!hasInteractedOutsideRef.current) (_b2 = context.triggerRef.current) == null ? void 0 : _b2.focus();
+            if (!hasInteractedOutsideRef.current) (_b3 = context.triggerRef.current) == null ? void 0 : _b3.focus();
             event.preventDefault();
           }
           hasInteractedOutsideRef.current = false;
           hasPointerDownOutsideRef.current = false;
         },
         onInteractOutside: (event) => {
-          var _a2, _b2;
-          (_a2 = props.onInteractOutside) == null ? void 0 : _a2.call(props, event);
+          var _a3, _b3;
+          (_a3 = props.onInteractOutside) == null ? void 0 : _a3.call(props, event);
           if (!event.defaultPrevented) {
             hasInteractedOutsideRef.current = true;
             if (event.detail.originalEvent.type === "pointerdown") {
@@ -32480,7 +32480,7 @@ var DialogContentNonModal = reactExports.forwardRef(
             }
           }
           const target = event.target;
-          const targetIsTrigger = (_b2 = context.triggerRef.current) == null ? void 0 : _b2.contains(target);
+          const targetIsTrigger = (_b3 = context.triggerRef.current) == null ? void 0 : _b3.contains(target);
           if (targetIsTrigger) event.preventDefault();
           if (event.detail.originalEvent.type === "focusin" && hasPointerDownOutsideRef.current) {
             event.preventDefault();
@@ -32592,8 +32592,8 @@ var DescriptionWarning$1 = ({ contentRef, descriptionId }) => {
   const descriptionWarningContext = useWarningContext(DESCRIPTION_WARNING_NAME);
   const MESSAGE = `Warning: Missing \`Description\` or \`aria-describedby={undefined}\` for {${descriptionWarningContext.contentName}}.`;
   reactExports.useEffect(() => {
-    var _a2;
-    const describedById = (_a2 = contentRef.current) == null ? void 0 : _a2.getAttribute("aria-describedby");
+    var _a3;
+    const describedById = (_a3 = contentRef.current) == null ? void 0 : _a3.getAttribute("aria-describedby");
     if (descriptionId && describedById) {
       const hasDescription = document.getElementById(descriptionId);
       if (!hasDescription) console.warn(MESSAGE);
@@ -33034,7 +33034,7 @@ function shiftDisplay(watch, now = /* @__PURE__ */ new Date()) {
   return { main: s.label, sub: next ? `next ${next}` : "" };
 }
 function getNextShiftDate(watch) {
-  var _a2;
+  var _a3;
   const todayIso = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
   if (!watch || !hasRotaConfig(watch)) return todayIso;
   const now = /* @__PURE__ */ new Date();
@@ -33042,17 +33042,17 @@ function getNextShiftDate(watch) {
   const to = new Date(from);
   to.setDate(to.getDate() + 14);
   const shifts = getShiftsForDateRange(watch, from, to);
-  return ((_a2 = shifts.find((s) => s.isWorking)) == null ? void 0 : _a2.date) ?? todayIso;
+  return ((_a3 = shifts.find((s) => s.isWorking)) == null ? void 0 : _a3.date) ?? todayIso;
 }
 function handoverShiftFor(watch, now = /* @__PURE__ */ new Date()) {
-  var _a2;
+  var _a3;
   if (!hasRotaConfig(watch)) return null;
   const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   const h = now.getHours();
   let date = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (h < 8 ? 1 : 0));
   let type = h >= 8 && h < 18 ? "Day" : "Night";
   for (let i = 0; i < 2 * 80; i++) {
-    const s = (_a2 = getShiftForDate(watch, date)) == null ? void 0 : _a2.shiftType;
+    const s = (_a3 = getShiftForDate(watch, date)) == null ? void 0 : _a3.shiftType;
     if (type === "Day" ? s === "1st Day" || s === "2nd Day" : s === "1st Night" || s === "2nd Night") return { date: iso(date), type };
     if (type === "Night") type = "Day";
     else {
@@ -33118,10 +33118,10 @@ var Label$1 = reactExports.forwardRef((props, forwardedRef) => {
       ...props,
       ref: forwardedRef,
       onMouseDown: (event) => {
-        var _a2;
+        var _a3;
         const target = event.target;
         if (target.closest("button, input, select, textarea")) return;
-        (_a2 = props.onMouseDown) == null ? void 0 : _a2.call(props, event);
+        (_a3 = props.onMouseDown) == null ? void 0 : _a3.call(props, event);
         if (!event.defaultPrevented && event.detail > 1) event.preventDefault();
       }
     }
@@ -33173,8 +33173,8 @@ function ChangePasswordDialog({ open, onOpenChange }) {
       localStorage.setItem("auth_token", res.token);
       toast2({ title: "Password changed", description: "Any other devices signed in as you have been signed out." });
       close(false);
-    } catch (err) {
-      setError((err == null ? void 0 : err.message) || "Couldn't change your password. Please try again.");
+    } catch (err2) {
+      setError((err2 == null ? void 0 : err2.message) || "Couldn't change your password. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -33306,7 +33306,7 @@ function getBreadcrumbLabel(pathname) {
   return (match2 == null ? void 0 : match2.name) ?? pathname;
 }
 function WatchShiftPill() {
-  var _a2, _b2, _c2;
+  var _a3, _b3, _c2;
   const { user: user2 } = useAuth();
   const watch = (user2 == null ? void 0 : user2.watch_unit) ?? "";
   const profilesQ = useQuery({
@@ -33315,8 +33315,8 @@ function WatchShiftPill() {
     enabled: !!watch
   });
   const absencesQ = useTodaysAbsences(!!watch);
-  const total = ((_a2 = profilesQ.data) == null ? void 0 : _a2.total) ?? 0;
-  const absences = [...latestAbsencePerPerson(((_b2 = absencesQ.data) == null ? void 0 : _b2.absences) ?? []).values()];
+  const total = ((_a3 = profilesQ.data) == null ? void 0 : _a3.total) ?? 0;
+  const absences = [...latestAbsencePerPerson(((_b3 = absencesQ.data) == null ? void 0 : _b3.absences) ?? []).values()];
   const watchUserIds = new Set((((_c2 = profilesQ.data) == null ? void 0 : _c2.profiles) ?? []).map((p) => p.user_id));
   const watchAbsences = watch ? absences.filter((a) => watchUserIds.has(a.firefighter_id)) : absences;
   const off = watchAbsences.length;
@@ -33352,18 +33352,18 @@ function JumpSearch() {
   reactExports.useEffect(() => {
     if (!open) return;
     const onDown = (e) => {
-      var _a2;
-      if (!((_a2 = containerRef.current) == null ? void 0 : _a2.contains(e.target))) setOpen(false);
+      var _a3;
+      if (!((_a3 = containerRef.current) == null ? void 0 : _a3.contains(e.target))) setOpen(false);
     };
     document.addEventListener("mousedown", onDown);
     return () => document.removeEventListener("mousedown", onDown);
   }, [open]);
   reactExports.useEffect(() => {
     const onKey = (e) => {
-      var _a2;
+      var _a3;
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
-        (_a2 = inputRef.current) == null ? void 0 : _a2.focus();
+        (_a3 = inputRef.current) == null ? void 0 : _a3.focus();
       }
     };
     window.addEventListener("keydown", onKey);
@@ -33375,11 +33375,11 @@ function JumpSearch() {
     return ROUTES.filter((r2) => r2.name.toLowerCase().includes(q));
   }, [query]);
   const go = (path) => {
-    var _a2;
+    var _a3;
     navigate(path);
     setQuery("");
     setOpen(false);
-    (_a2 = inputRef.current) == null ? void 0 : _a2.blur();
+    (_a3 = inputRef.current) == null ? void 0 : _a3.blur();
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { ref: containerRef, className: "relative hidden md:block", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
@@ -33397,11 +33397,11 @@ function JumpSearch() {
           },
           onFocus: () => setOpen(true),
           onKeyDown: (e) => {
-            var _a2;
+            var _a3;
             if (e.key === "Enter" && results[0]) go(results[0].path);
             if (e.key === "Escape") {
               setOpen(false);
-              (_a2 = inputRef.current) == null ? void 0 : _a2.blur();
+              (_a3 = inputRef.current) == null ? void 0 : _a3.blur();
             }
           },
           className: "h-8 w-56 pl-8 pr-10 rounded text-xs bg-muted/60 border border-transparent\n                     focus:bg-background focus:border-border focus:outline-none\n                     focus-visible:ring-2 focus-visible:ring-indigo-400/40\n                     placeholder:text-muted-foreground",
@@ -33429,7 +33429,7 @@ function JumpSearch() {
   ] });
 }
 function TopBar({ onMenuClick }) {
-  var _a2, _b2;
+  var _a3, _b3;
   const { user: user2, signOut } = useAuth();
   const [changePasswordOpen, setChangePasswordOpen] = reactExports.useState(false);
   const queryClient2 = useQueryClient();
@@ -33642,8 +33642,8 @@ function TopBar({ onMenuClick }) {
               variant: "ghost",
               className: "h-9 px-1.5 md:px-2 rounded hover:bg-muted",
               children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-7 w-7 rounded bg-brand text-brand-foreground flex items-center justify-center font-mono font-semibold text-xs shrink-0", children: ((_a2 = user2 == null ? void 0 : user2.name) == null ? void 0 : _a2.charAt(0).toUpperCase()) || "U" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:block text-sm font-medium", children: ((_b2 = user2 == null ? void 0 : user2.name) == null ? void 0 : _b2.split(" ")[0]) || "User" })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-7 w-7 rounded bg-brand text-brand-foreground flex items-center justify-center font-mono font-semibold text-xs shrink-0", children: ((_a3 = user2 == null ? void 0 : user2.name) == null ? void 0 : _a3.charAt(0).toUpperCase()) || "U" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:block text-sm font-medium", children: ((_b3 = user2 == null ? void 0 : user2.name) == null ? void 0 : _b3.split(" ")[0]) || "User" })
               ] })
             }
           ) }),
@@ -33836,9 +33836,9 @@ const DISMISS_DAYS = 7;
 const MIN_VIEWS_KEY = "pwa-install-view-count";
 const MIN_VIEWS = 3;
 function detectVariant() {
-  var _a2;
+  var _a3;
   if (typeof window === "undefined") return null;
-  if ((_a2 = window.matchMedia) == null ? void 0 : _a2.call(window, "(display-mode: standalone)").matches) return null;
+  if ((_a3 = window.matchMedia) == null ? void 0 : _a3.call(window, "(display-mode: standalone)").matches) return null;
   if (window.navigator.standalone === true) return null;
   const ua = window.navigator.userAgent.toLowerCase();
   const isIOS = /iphone|ipad|ipod/.test(ua) && !window.MSStream;
@@ -34141,9 +34141,9 @@ function getWindow(target) {
 }
 function isDocument(node) {
   const {
-    Document
+    Document: Document2
   } = getWindow(node);
-  return node instanceof Document;
+  return node instanceof Document2;
 }
 function isHTMLElement(node) {
   if (isWindow(node)) {
@@ -38651,9 +38651,9 @@ function getDefaultOptions() {
   return defaultOptions;
 }
 function startOfWeek(date, options) {
-  var _a2, _b2, _c2, _d2;
+  var _a3, _b3, _c2, _d2;
   const defaultOptions2 = getDefaultOptions();
-  const weekStartsOn = (options == null ? void 0 : options.weekStartsOn) ?? ((_b2 = (_a2 = options == null ? void 0 : options.locale) == null ? void 0 : _a2.options) == null ? void 0 : _b2.weekStartsOn) ?? defaultOptions2.weekStartsOn ?? ((_d2 = (_c2 = defaultOptions2.locale) == null ? void 0 : _c2.options) == null ? void 0 : _d2.weekStartsOn) ?? 0;
+  const weekStartsOn = (options == null ? void 0 : options.weekStartsOn) ?? ((_b3 = (_a3 = options == null ? void 0 : options.locale) == null ? void 0 : _a3.options) == null ? void 0 : _b3.weekStartsOn) ?? defaultOptions2.weekStartsOn ?? ((_d2 = (_c2 = defaultOptions2.locale) == null ? void 0 : _c2.options) == null ? void 0 : _d2.weekStartsOn) ?? 0;
   const _date = toDate(date, options == null ? void 0 : options.in);
   const day = _date.getDay();
   const diff = (day < weekStartsOn ? 7 : 0) + day - weekStartsOn;
@@ -39345,11 +39345,11 @@ function getISOWeek(date, options) {
   return Math.round(diff / millisecondsInWeek) + 1;
 }
 function getWeekYear(date, options) {
-  var _a2, _b2, _c2, _d2;
+  var _a3, _b3, _c2, _d2;
   const _date = toDate(date, options == null ? void 0 : options.in);
   const year = _date.getFullYear();
   const defaultOptions2 = getDefaultOptions();
-  const firstWeekContainsDate = (options == null ? void 0 : options.firstWeekContainsDate) ?? ((_b2 = (_a2 = options == null ? void 0 : options.locale) == null ? void 0 : _a2.options) == null ? void 0 : _b2.firstWeekContainsDate) ?? defaultOptions2.firstWeekContainsDate ?? ((_d2 = (_c2 = defaultOptions2.locale) == null ? void 0 : _c2.options) == null ? void 0 : _d2.firstWeekContainsDate) ?? 1;
+  const firstWeekContainsDate = (options == null ? void 0 : options.firstWeekContainsDate) ?? ((_b3 = (_a3 = options == null ? void 0 : options.locale) == null ? void 0 : _a3.options) == null ? void 0 : _b3.firstWeekContainsDate) ?? defaultOptions2.firstWeekContainsDate ?? ((_d2 = (_c2 = defaultOptions2.locale) == null ? void 0 : _c2.options) == null ? void 0 : _d2.firstWeekContainsDate) ?? 1;
   const firstWeekOfNextYear = constructFrom((options == null ? void 0 : options.in) || date, 0);
   firstWeekOfNextYear.setFullYear(year + 1, 0, firstWeekContainsDate);
   firstWeekOfNextYear.setHours(0, 0, 0, 0);
@@ -39367,9 +39367,9 @@ function getWeekYear(date, options) {
   }
 }
 function startOfWeekYear(date, options) {
-  var _a2, _b2, _c2, _d2;
+  var _a3, _b3, _c2, _d2;
   const defaultOptions2 = getDefaultOptions();
-  const firstWeekContainsDate = (options == null ? void 0 : options.firstWeekContainsDate) ?? ((_b2 = (_a2 = options == null ? void 0 : options.locale) == null ? void 0 : _a2.options) == null ? void 0 : _b2.firstWeekContainsDate) ?? defaultOptions2.firstWeekContainsDate ?? ((_d2 = (_c2 = defaultOptions2.locale) == null ? void 0 : _c2.options) == null ? void 0 : _d2.firstWeekContainsDate) ?? 1;
+  const firstWeekContainsDate = (options == null ? void 0 : options.firstWeekContainsDate) ?? ((_b3 = (_a3 = options == null ? void 0 : options.locale) == null ? void 0 : _a3.options) == null ? void 0 : _b3.firstWeekContainsDate) ?? defaultOptions2.firstWeekContainsDate ?? ((_d2 = (_c2 = defaultOptions2.locale) == null ? void 0 : _c2.options) == null ? void 0 : _d2.firstWeekContainsDate) ?? 1;
   const year = getWeekYear(date, options);
   const firstWeek = constructFrom((options == null ? void 0 : options.in) || date, 0);
   firstWeek.setFullYear(year, 0, firstWeekContainsDate);
@@ -40166,10 +40166,10 @@ const escapedStringRegExp = /^'([^]*?)'?$/;
 const doubleQuoteRegExp = /''/g;
 const unescapedLatinCharacterRegExp = /[a-zA-Z]/;
 function format(date, formatStr, options) {
-  var _a2, _b2, _c2, _d2;
+  var _a3, _b3, _c2, _d2;
   const defaultOptions2 = getDefaultOptions();
   const locale = defaultOptions2.locale ?? enUS;
-  const firstWeekContainsDate = defaultOptions2.firstWeekContainsDate ?? ((_b2 = (_a2 = defaultOptions2.locale) == null ? void 0 : _a2.options) == null ? void 0 : _b2.firstWeekContainsDate) ?? 1;
+  const firstWeekContainsDate = defaultOptions2.firstWeekContainsDate ?? ((_b3 = (_a3 = defaultOptions2.locale) == null ? void 0 : _a3.options) == null ? void 0 : _b3.firstWeekContainsDate) ?? 1;
   const weekStartsOn = defaultOptions2.weekStartsOn ?? ((_d2 = (_c2 = defaultOptions2.locale) == null ? void 0 : _c2.options) == null ? void 0 : _d2.weekStartsOn) ?? 0;
   const originalDate = toDate(date, options == null ? void 0 : options.in);
   if (!isValid(originalDate)) {
@@ -40647,9 +40647,9 @@ function SicknessTriggerList({ profiles, max: max2 = 5 }) {
     staleTime: 5 * 60 * 1e3
   });
   const nameOf = (id) => {
-    var _a2;
+    var _a3;
     const p = (people ?? []).find((x) => x.user.id === id);
-    return (p == null ? void 0 : p.user.name) || ((_a2 = p == null ? void 0 : p.user.email) == null ? void 0 : _a2.split("@")[0]) || "Unknown";
+    return (p == null ? void 0 : p.user.name) || ((_a3 = p == null ? void 0 : p.user.email) == null ? void 0 : _a3.split("@")[0]) || "Unknown";
   };
   const flagged = profiles.filter((p) => p.trigger_stage && p.trigger_stage in STAGE_STYLE).sort((a, b) => String(b.trigger_stage).localeCompare(String(a.trigger_stage)));
   if (flagged.length === 0) return null;
@@ -41405,9 +41405,9 @@ function WCAlertBanner() {
     staleTime: 5 * 60 * 1e3
   });
   const nameOf = (id) => {
-    var _a2;
+    var _a3;
     const p = (peopleData ?? []).find((x) => x.user.id === id);
-    return (p == null ? void 0 : p.user.name) || ((_a2 = p == null ? void 0 : p.user.email) == null ? void 0 : _a2.split("@")[0]) || "Unknown";
+    return (p == null ? void 0 : p.user.name) || ((_a3 = p == null ? void 0 : p.user.email) == null ? void 0 : _a3.split("@")[0]) || "Unknown";
   };
   const { data: profilesData } = useQuery({
     queryKey: ["wc-sickness-triggers"],
@@ -41585,9 +41585,9 @@ function WCAlertBanner() {
           }
         ),
         expanded && /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "divide-y divide-border/60 border-t border-border/60", children: alerts.map((alert) => {
-          var _a2, _b2, _c2;
+          var _a3, _b3, _c2;
           const Icon2 = alert.Icon;
-          const action = ((_a2 = alert.people) == null ? void 0 : _a2.length) === 1 ? "See profile" : ((_b2 = alert.people) == null ? void 0 : _b2.length) ? "See all" : "Open";
+          const action = ((_a3 = alert.people) == null ? void 0 : _a3.length) === 1 ? "See profile" : ((_b3 = alert.people) == null ? void 0 : _b3.length) ? "See all" : "Open";
           return /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: cn("relative flex items-center gap-3 pl-5 pr-3 py-3 transition-colors group", rowHover[alert.severity]), children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn("absolute left-0 inset-y-0 w-[3px]", rail[alert.severity]), "aria-hidden": "true" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn("grid h-8 w-8 shrink-0 place-items-center rounded-lg", tile[alert.severity]), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "h-4 w-4", "aria-hidden": "true" }) }),
@@ -41954,9 +41954,9 @@ function formatSpan(ms) {
 }
 const hhmm$3 = (d) => d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
 function initials$2(name) {
-  var _a2;
+  var _a3;
   const parts = name.trim().split(/\s+/);
-  return ((((_a2 = parts[0]) == null ? void 0 : _a2[0]) ?? "") + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase() || "?";
+  return ((((_a3 = parts[0]) == null ? void 0 : _a3[0]) ?? "") + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase() || "?";
 }
 function ShiftTimeline({ shift: shift2, now }) {
   const { start, end } = shiftBounds(shift2);
@@ -42066,7 +42066,7 @@ const CREW_ACTIONS = [
   { label: "My profile", to: "/profile", Icon: UserRound }
 ];
 function ShiftHero() {
-  var _a2, _b2, _c2, _d2;
+  var _a3, _b3, _c2, _d2;
   const { user: user2 } = useAuth();
   const now = useNow();
   const watch = (user2 == null ? void 0 : user2.watch_unit) ?? "";
@@ -42089,8 +42089,8 @@ function ShiftHero() {
   const isNight = (shown == null ? void 0 : shown.startTime) === "18:00";
   const state = (status == null ? void 0 : status.state) ?? "rest";
   const accent = state === "on" ? isNight ? "#818cf8" : "#fbbf24" : state === "off" ? "#94a3b8" : state === "leave" ? "#34d399" : "#64748b";
-  const total = ((_a2 = statsQ.data) == null ? void 0 : _a2.total_watch_members) ?? 0;
-  const memberIds = new Set(((_b2 = statsQ.data) == null ? void 0 : _b2.watch_member_ids) ?? []);
+  const total = ((_a3 = statsQ.data) == null ? void 0 : _a3.total_watch_members) ?? 0;
+  const memberIds = new Set(((_b3 = statsQ.data) == null ? void 0 : _b3.watch_member_ids) ?? []);
   const absent = [...latestAbsencePerPerson(((_c2 = absencesQ.data) == null ? void 0 : _c2.absences) ?? []).values()].filter(
     (a) => memberIds.has(a.firefighter_id)
   );
@@ -42240,7 +42240,7 @@ const KIND = {
   watch: { label: "Watch task", Icon: UsersRound, cls: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300" }
 };
 function ThisShiftCard() {
-  var _a2, _b2, _c2;
+  var _a3, _b3, _c2;
   const { user: user2 } = useAuth();
   const watch = user2 == null ? void 0 : user2.watch_unit;
   const boardQ = useQuery({
@@ -42256,11 +42256,11 @@ function ThisShiftCard() {
     refetchInterval: 6e4
   });
   if (!watch) return null;
-  const tasks = ((_a2 = boardQ.data) == null ? void 0 : _a2.tasks) ?? [];
+  const tasks = ((_a3 = boardQ.data) == null ? void 0 : _a3.tasks) ?? [];
   const open = tasks.filter((t) => t.status !== "Done");
   const done = tasks.length - open.length;
   const pct = tasks.length ? Math.round(done / tasks.length * 100) : 0;
-  const notes = (((_b2 = notesQ.data) == null ? void 0 : _b2.notes) ?? []).filter((n) => n.unread && n.items.some((i) => i.kind === "info"));
+  const notes = (((_b3 = notesQ.data) == null ? void 0 : _b3.notes) ?? []).filter((n) => n.unread && n.items.some((i) => i.kind === "info"));
   const shift2 = (_c2 = boardQ.data) == null ? void 0 : _c2.shift;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-xl border border-border/70 bg-card p-4 sm:p-5", children: [
@@ -42392,7 +42392,7 @@ function LatestHandoverBanner() {
   );
 }
 function BulletinsTile() {
-  var _a2, _b2, _c2;
+  var _a3, _b3, _c2;
   const q = useQuery({
     queryKey: ["bulletin-tile"],
     // Ask for top N unread items — the card is compact, no pagination.
@@ -42414,8 +42414,8 @@ function BulletinsTile() {
       ] })
     ] });
   }
-  const bulletins = ((_a2 = q.data) == null ? void 0 : _a2.bulletins) ?? [];
-  const unreadCount = ((_b2 = q.data) == null ? void 0 : _b2.unread_count) ?? 0;
+  const bulletins = ((_a3 = q.data) == null ? void 0 : _a3.bulletins) ?? [];
+  const unreadCount = ((_b3 = q.data) == null ? void 0 : _b3.unread_count) ?? 0;
   const unackedCount = ((_c2 = q.data) == null ? void 0 : _c2.unacked_count) ?? 0;
   if (bulletins.length === 0 && unreadCount === 0) {
     return null;
@@ -42498,7 +42498,7 @@ function BulletinsTile() {
   ] });
 }
 function PolicyAcksTile() {
-  var _a2, _b2;
+  var _a3, _b3;
   const q = useQuery({
     queryKey: ["policies"],
     queryFn: () => backendClient.policy.list({ limit: 100 })
@@ -42512,9 +42512,9 @@ function PolicyAcksTile() {
       /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-3 w-full" }) })
     ] });
   }
-  const unackedCount = ((_a2 = q.data) == null ? void 0 : _a2.unacked_required_count) ?? 0;
+  const unackedCount = ((_a3 = q.data) == null ? void 0 : _a3.unacked_required_count) ?? 0;
   if (unackedCount === 0) return null;
-  const unackedPolicies = ((_b2 = q.data) == null ? void 0 : _b2.policies.filter(
+  const unackedPolicies = ((_b3 = q.data) == null ? void 0 : _b3.policies.filter(
     (p) => p.requires_ack && !p.is_acknowledged
   )) ?? [];
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { className: "border-t-2 border-t-red-500 bg-red-50/40 dark:bg-red-950/15", children: [
@@ -42627,7 +42627,7 @@ function timeLabel(iso) {
   return format(parseISO(iso), "HH:mm");
 }
 function ScheduledTodayTomorrow() {
-  var _a2;
+  var _a3;
   const { from, to } = reactExports.useMemo(() => {
     const now = startOfDay$3(/* @__PURE__ */ new Date());
     const fromStr = format(now, "yyyy-MM-dd");
@@ -42641,7 +42641,7 @@ function ScheduledTodayTomorrow() {
     queryFn: () => backendClient.schedule.list({ from, to }),
     refetchInterval: 5 * 6e4
   });
-  const events2 = ((_a2 = q.data) == null ? void 0 : _a2.events) ?? [];
+  const events2 = ((_a3 = q.data) == null ? void 0 : _a3.events) ?? [];
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(CardHeader, { className: "flex flex-row items-center justify-between space-y-0 pb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
@@ -42747,10 +42747,10 @@ function AbsenceTriggersCard() {
   });
   const isLoading = profilesQ.isLoading || absencesQ.isLoading || statsQ.isLoading;
   const items = reactExports.useMemo(() => {
-    var _a2, _b2, _c2;
+    var _a3, _b3, _c2;
     if (isLoading) return [];
-    const watchMemberIds = new Set(((_a2 = statsQ.data) == null ? void 0 : _a2.watch_member_ids) ?? []);
-    const profiles = (((_b2 = profilesQ.data) == null ? void 0 : _b2.people) ?? []).filter(
+    const watchMemberIds = new Set(((_a3 = statsQ.data) == null ? void 0 : _a3.watch_member_ids) ?? []);
+    const profiles = (((_b3 = profilesQ.data) == null ? void 0 : _b3.people) ?? []).filter(
       (p) => !watch || watchMemberIds.has(p.user.id)
     );
     const stage3 = [];
@@ -42920,7 +42920,7 @@ function KPITile({
   return /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { className: toneCls, children: body });
 }
 function DashboardKPIs() {
-  var _a2, _b2, _c2, _d2, _e2, _f2, _g2, _h2;
+  var _a3, _b3, _c2, _d2, _e2, _f2, _g2, _h2;
   const { user: user2 } = useAuth();
   const watch = (user2 == null ? void 0 : user2.watch_unit) ?? "";
   const { financial_year, quarter, label: hfsvPeriodLabel } = getCurrentFinancialPeriod();
@@ -42947,8 +42947,8 @@ function DashboardKPIs() {
     queryKey: ["wc-skills-expiring"],
     queryFn: async () => backendClient.skill.listExpiring()
   });
-  const totalTasks = ((_a2 = statsQ.data) == null ? void 0 : _a2.total_tasks) ?? 0;
-  const completedTasks = ((_b2 = statsQ.data) == null ? void 0 : _b2.completed_tasks) ?? 0;
+  const totalTasks = ((_a3 = statsQ.data) == null ? void 0 : _a3.total_tasks) ?? 0;
+  const completedTasks = ((_b3 = statsQ.data) == null ? void 0 : _b3.completed_tasks) ?? 0;
   const overdueTasks = ((_c2 = statsQ.data) == null ? void 0 : _c2.overdue_tasks) ?? 0;
   const activeTasks = Math.max(0, totalTasks - completedTasks);
   const tasksDetail = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
@@ -43381,18 +43381,18 @@ function LogSickDialog({ open, onOpenChange, person }) {
       queryClient2.invalidateQueries({ queryKey: ["notifications"] });
       onOpenChange(false);
     },
-    onError: (err) => {
-      console.error("LogSickDialog: backend.absence.create failed", err);
+    onError: (err2) => {
+      console.error("LogSickDialog: backend.absence.create failed", err2);
     }
   });
   const errorDetail = (() => {
-    const err = mutation.error;
-    if (!err) return null;
-    if (err.message && typeof err.message === "string") return err.message;
+    const err2 = mutation.error;
+    if (!err2) return null;
+    if (err2.message && typeof err2.message === "string") return err2.message;
     try {
-      return JSON.stringify(err);
+      return JSON.stringify(err2);
     } catch {
-      return String(err);
+      return String(err2);
     }
   })();
   reactExports.useEffect(() => {
@@ -43588,7 +43588,7 @@ function shortRank(m) {
   return "Firefighter";
 }
 function CrewOnWatchTable() {
-  var _a2, _b2, _c2;
+  var _a3, _b3, _c2;
   const { user: user2 } = useAuth();
   const watch = (user2 == null ? void 0 : user2.watch_unit) ?? "";
   const canLogSick = useIsCrewCommander();
@@ -43610,9 +43610,9 @@ function CrewOnWatchTable() {
         description: res.back_to_work_due ? `Back to work interview due on their first shift back: ${res.back_to_work_due}.` : void 0
       });
     },
-    onError: (err) => toast2({
+    onError: (err2) => toast2({
       title: "Couldn't book back fit",
-      description: (err == null ? void 0 : err.message) ?? "Please try again.",
+      description: (err2 == null ? void 0 : err2.message) ?? "Please try again.",
       variant: "destructive"
     })
   });
@@ -43628,8 +43628,8 @@ function CrewOnWatchTable() {
   });
   const absencesQ = useTodaysAbsences();
   const isLoading = rosterQ.isLoading || profilesQ.isLoading || absencesQ.isLoading;
-  const members = ((_a2 = rosterQ.data) == null ? void 0 : _a2.members) ?? [];
-  const profiles = ((_b2 = profilesQ.data) == null ? void 0 : _b2.profiles) ?? [];
+  const members = ((_a3 = rosterQ.data) == null ? void 0 : _a3.members) ?? [];
+  const profiles = ((_b3 = profilesQ.data) == null ? void 0 : _b3.profiles) ?? [];
   const absences = ((_c2 = absencesQ.data) == null ? void 0 : _c2.absences) ?? [];
   const profileByUser = new Map(profiles.map((p) => [p.user_id, p]));
   const absenceByUser = latestAbsencePerPerson(absences);
@@ -43907,7 +43907,7 @@ function TargetRow({
   );
 }
 function TargetsCompact() {
-  var _a2, _b2, _c2, _d2, _e2, _f2, _g2, _h2, _i2, _j2, _k2;
+  var _a3, _b3, _c2, _d2, _e2, _f2, _g2, _h2, _i2, _j2, _k2;
   const { user: user2 } = useAuth();
   const watch = (user2 == null ? void 0 : user2.watch_unit) ?? "";
   const { financial_year, quarter, label: periodLabel } = getCurrentFinancialPeriod();
@@ -43950,9 +43950,9 @@ function TargetsCompact() {
     }),
     enabled: !!watch
   });
-  const hfsvActual = ((_a2 = hfsvQ.data) == null ? void 0 : _a2.total_completed) ?? 0;
+  const hfsvActual = ((_a3 = hfsvQ.data) == null ? void 0 : _a3.total_completed) ?? 0;
   const hfsvTarget = HFSV_TARGET_Q;
-  const communityActual = ((_b2 = communityQ.data) == null ? void 0 : _b2.total_completed) ?? 0;
+  const communityActual = ((_b3 = communityQ.data) == null ? void 0 : _b3.total_completed) ?? 0;
   const communityTap = ((_c2 = communityQ.data) == null ? void 0 : _c2.total_tap_completed) ?? 0;
   const communityTarget = COMMUNITY_TARGET_Q;
   const msActual = ((_e2 = (_d2 = multistoryQ.data) == null ? void 0 : _d2.totals) == null ? void 0 : _e2.complete) ?? 0;
@@ -44063,16 +44063,16 @@ function createContextScope(scopeName, createContextScopeDeps = []) {
     const index2 = defaultContexts.length;
     defaultContexts = [...defaultContexts, defaultContext];
     const Provider2 = (props) => {
-      var _a2;
+      var _a3;
       const { scope, children, ...context } = props;
-      const Context2 = ((_a2 = scope == null ? void 0 : scope[scopeName]) == null ? void 0 : _a2[index2]) || BaseContext;
+      const Context2 = ((_a3 = scope == null ? void 0 : scope[scopeName]) == null ? void 0 : _a3[index2]) || BaseContext;
       const value = reactExports.useMemo(() => context, Object.values(context));
       return /* @__PURE__ */ jsxRuntimeExports.jsx(Context2.Provider, { value, children });
     };
     Provider2.displayName = rootComponentName + "Provider";
     function useContext2(consumerName, scope) {
-      var _a2;
-      const Context2 = ((_a2 = scope == null ? void 0 : scope[scopeName]) == null ? void 0 : _a2[index2]) || BaseContext;
+      var _a3;
+      const Context2 = ((_a3 = scope == null ? void 0 : scope[scopeName]) == null ? void 0 : _a3[index2]) || BaseContext;
       const context = reactExports.useContext(Context2);
       if (context) return context;
       if (defaultContext !== void 0) return defaultContext;
@@ -44374,7 +44374,7 @@ function CCDashboard() {
   ] });
 }
 function PersonalDashboard() {
-  var _a2;
+  var _a3;
   const { user: user2 } = useAuth();
   const { data: tasks, isLoading: tasksLoading } = useQuery({
     queryKey: ["my-tasks", user2 == null ? void 0 : user2.id],
@@ -44418,7 +44418,7 @@ function PersonalDashboard() {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-2xl font-bold text-foreground", children: [
         "Welcome back, ",
-        ((_a2 = user2 == null ? void 0 : user2.name) == null ? void 0 : _a2.split(" ")[0]) || "Firefighter"
+        ((_a3 = user2 == null ? void 0 : user2.name) == null ? void 0 : _a3.split(" ")[0]) || "Firefighter"
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground mt-1", children: "Here's your overview for today" })
     ] }),
@@ -44677,8 +44677,8 @@ function FFSickReportWidget() {
     onError: () => toast2({ title: "Failed to update", variant: "destructive" })
   });
   const handleFileUpload = async (e, mode) => {
-    var _a2;
-    const file = (_a2 = e.target.files) == null ? void 0 : _a2[0];
+    var _a3;
+    const file = (_a3 = e.target.files) == null ? void 0 : _a3[0];
     if (!file) return;
     setUploadingDoc(true);
     try {
@@ -44813,8 +44813,8 @@ function FFSickReportWidget() {
             {
               type: "button",
               onClick: () => {
-                var _a2;
-                return (_a2 = fileInputRef.current) == null ? void 0 : _a2.click();
+                var _a3;
+                return (_a3 = fileInputRef.current) == null ? void 0 : _a3.click();
               },
               disabled: uploadingDoc,
               className: "w-full flex items-center justify-center gap-2 h-16 rounded-xl border-2 border-dashed border-border text-sm text-muted-foreground hover:border-red-400 hover:text-foreground hover:bg-red-50/30 transition-all",
@@ -44936,8 +44936,8 @@ function FFSickReportWidget() {
                   {
                     type: "button",
                     onClick: () => {
-                      var _a2;
-                      return (_a2 = editFileRef.current) == null ? void 0 : _a2.click();
+                      var _a3;
+                      return (_a3 = editFileRef.current) == null ? void 0 : _a3.click();
                     },
                     className: "w-full flex items-center justify-center gap-1.5 h-10 rounded-lg border-2 border-dashed border-border text-xs text-muted-foreground hover:border-indigo-400 hover:bg-indigo-50/30 transition-all",
                     children: [
@@ -45313,10 +45313,10 @@ var SelectContentImpl = reactExports.forwardRef(
       if (content) {
         let pointerMoveDelta = { x: 0, y: 0 };
         const handlePointerMove = (event) => {
-          var _a2, _b2;
+          var _a3, _b3;
           pointerMoveDelta = {
-            x: Math.abs(Math.round(event.pageX) - (((_a2 = triggerPointerDownPosRef.current) == null ? void 0 : _a2.x) ?? 0)),
-            y: Math.abs(Math.round(event.pageY) - (((_b2 = triggerPointerDownPosRef.current) == null ? void 0 : _b2.y) ?? 0))
+            x: Math.abs(Math.round(event.pageX) - (((_a3 = triggerPointerDownPosRef.current) == null ? void 0 : _a3.x) ?? 0)),
+            y: Math.abs(Math.round(event.pageY) - (((_b3 = triggerPointerDownPosRef.current) == null ? void 0 : _b3.y) ?? 0))
           };
         };
         const handlePointerUp = (event) => {
@@ -45417,8 +45417,8 @@ var SelectContentImpl = reactExports.forwardRef(
               event.preventDefault();
             },
             onUnmountAutoFocus: composeEventHandlers(onCloseAutoFocus, (event) => {
-              var _a2;
-              (_a2 = context.trigger) == null ? void 0 : _a2.focus({ preventScroll: true });
+              var _a3;
+              (_a3 = context.trigger) == null ? void 0 : _a3.focus({ preventScroll: true });
               event.preventDefault();
             }),
             children: /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -45785,8 +45785,8 @@ var SelectItem$1 = reactExports.forwardRef(
     const composedRefs = useComposedRefs(
       forwardedRef,
       (node) => {
-        var _a2;
-        return (_a2 = contentContext.itemRefCallback) == null ? void 0 : _a2.call(contentContext, node, value, disabled);
+        var _a3;
+        return (_a3 = contentContext.itemRefCallback) == null ? void 0 : _a3.call(contentContext, node, value, disabled);
       }
     );
     const textId = useId();
@@ -45845,23 +45845,23 @@ var SelectItem$1 = reactExports.forwardRef(
                   pointerTypeRef.current = event.pointerType;
                 }),
                 onPointerMove: composeEventHandlers(itemProps.onPointerMove, (event) => {
-                  var _a2;
+                  var _a3;
                   pointerTypeRef.current = event.pointerType;
                   if (disabled) {
-                    (_a2 = contentContext.onItemLeave) == null ? void 0 : _a2.call(contentContext);
+                    (_a3 = contentContext.onItemLeave) == null ? void 0 : _a3.call(contentContext);
                   } else if (pointerTypeRef.current === "mouse") {
                     event.currentTarget.focus({ preventScroll: true });
                   }
                 }),
                 onPointerLeave: composeEventHandlers(itemProps.onPointerLeave, (event) => {
-                  var _a2;
+                  var _a3;
                   if (event.currentTarget === document.activeElement) {
-                    (_a2 = contentContext.onItemLeave) == null ? void 0 : _a2.call(contentContext);
+                    (_a3 = contentContext.onItemLeave) == null ? void 0 : _a3.call(contentContext);
                   }
                 }),
                 onKeyDown: composeEventHandlers(itemProps.onKeyDown, (event) => {
-                  var _a2;
-                  const isTypingAhead = ((_a2 = contentContext.searchRef) == null ? void 0 : _a2.current) !== "";
+                  var _a3;
+                  const isTypingAhead = ((_a3 = contentContext.searchRef) == null ? void 0 : _a3.current) !== "";
                   if (isTypingAhead && event.key === " ") return;
                   if (SELECTION_KEYS.includes(event.key)) handleSelect();
                   if (event.key === " ") event.preventDefault();
@@ -45889,8 +45889,8 @@ var SelectItemText = reactExports.forwardRef(
       (node) => setItemTextNode(node),
       itemContext.onItemTextChange,
       (node) => {
-        var _a2;
-        return (_a2 = contentContext.itemTextRefCallback) == null ? void 0 : _a2.call(contentContext, node, itemContext.value, itemContext.disabled);
+        var _a3;
+        return (_a3 = contentContext.itemTextRefCallback) == null ? void 0 : _a3.call(contentContext, node, itemContext.value, itemContext.disabled);
       }
     );
     const textContent = itemTextNode == null ? void 0 : itemTextNode.textContent;
@@ -46001,9 +46001,9 @@ var SelectScrollButtonImpl = reactExports.forwardRef((props, forwardedRef) => {
     return () => clearAutoScrollTimer();
   }, [clearAutoScrollTimer]);
   useLayoutEffect2(() => {
-    var _a2;
+    var _a3;
     const activeItem = getItems().find((item) => item.ref.current === document.activeElement);
-    (_a2 = activeItem == null ? void 0 : activeItem.ref.current) == null ? void 0 : _a2.scrollIntoView({ block: "nearest" });
+    (_a3 = activeItem == null ? void 0 : activeItem.ref.current) == null ? void 0 : _a3.scrollIntoView({ block: "nearest" });
   }, [getItems]);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
     Primitive$1.div,
@@ -46018,8 +46018,8 @@ var SelectScrollButtonImpl = reactExports.forwardRef((props, forwardedRef) => {
         }
       }),
       onPointerMove: composeEventHandlers(scrollIndicatorProps.onPointerMove, () => {
-        var _a2;
-        (_a2 = contentContext.onItemLeave) == null ? void 0 : _a2.call(contentContext);
+        var _a3;
+        (_a3 = contentContext.onItemLeave) == null ? void 0 : _a3.call(contentContext);
         if (autoScrollTimerRef.current === null) {
           autoScrollTimerRef.current = window.setInterval(onAutoScroll, 50);
         }
@@ -46404,9 +46404,9 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
   };
   const createMutation = useMutation({
     mutationFn: () => {
-      var _a2;
+      var _a3;
       const covering_user_id = coverMode === "roster" && coverUserId ? coverUserId : void 0;
-      const covering_name = coverMode === "roster" && coverUserId ? (_a2 = coverRoster.find((m) => m.id === coverUserId)) == null ? void 0 : _a2.name : coverMode === "freetext" && coverName.trim() ? coverName.trim() : void 0;
+      const covering_name = coverMode === "roster" && coverUserId ? (_a3 = coverRoster.find((m) => m.id === coverUserId)) == null ? void 0 : _a3.name : coverMode === "freetext" && coverName.trim() ? coverName.trim() : void 0;
       const isFlexiPayback = type === "flexi_payback";
       const isOrangeDay = type === "orange_day";
       const isToil = type === "toil";
@@ -46440,7 +46440,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
       });
       onClose();
     },
-    onError: (err) => toast2({ title: "Failed to log", description: (err == null ? void 0 : err.message) ?? String(err), variant: "destructive" })
+    onError: (err2) => toast2({ title: "Failed to log", description: (err2 == null ? void 0 : err2.message) ?? String(err2), variant: "destructive" })
   });
   const deleteMutation = useMutation({
     mutationFn: (id) => backendClient.shift_adjustments.deleteAdjustment(id),
@@ -46448,13 +46448,13 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
       invalidateAdjustmentViews();
       toast2({ title: "Shift adjustment removed" });
     },
-    onError: (err) => toast2({ title: "Failed to remove", description: (err == null ? void 0 : err.message) ?? String(err), variant: "destructive" })
+    onError: (err2) => toast2({ title: "Failed to remove", description: (err2 == null ? void 0 : err2.message) ?? String(err2), variant: "destructive" })
   });
   const updateMutation = useMutation({
     mutationFn: () => {
-      var _a2;
+      var _a3;
       const covering_user_id = coverMode === "roster" && coverUserId ? coverUserId : void 0;
-      const covering_name = coverMode === "roster" && coverUserId ? (_a2 = coverRoster.find((m) => m.id === coverUserId)) == null ? void 0 : _a2.name : coverMode === "freetext" && coverName.trim() ? coverName.trim() : void 0;
+      const covering_name = coverMode === "roster" && coverUserId ? (_a3 = coverRoster.find((m) => m.id === coverUserId)) == null ? void 0 : _a3.name : coverMode === "freetext" && coverName.trim() ? coverName.trim() : void 0;
       return backendClient.shift_adjustments.update(editingId, {
         start_date: `${startDate}T00:00:00.000Z`,
         end_date: `${endDate}T00:00:00.000Z`,
@@ -46471,7 +46471,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
       toast2({ title: "Shift adjustment updated" });
       finishEditing();
     },
-    onError: (err) => toast2({ title: "Failed to update", description: (err == null ? void 0 : err.message) ?? String(err), variant: "destructive" })
+    onError: (err2) => toast2({ title: "Failed to update", description: (err2 == null ? void 0 : err2.message) ?? String(err2), variant: "destructive" })
   });
   const finishEditing = () => {
     if (editAdjustment) {
@@ -47068,7 +47068,7 @@ function FFShiftAdjustmentWidget() {
 }
 const WATCHES$c = ["Red", "White", "Green", "Blue", "Amber"];
 function ToilWidget() {
-  var _a2;
+  var _a3;
   const { user: user2 } = useAuth();
   const userRole = useUserRole();
   const isManager = ["WC", "CC"].includes(userRole);
@@ -47088,7 +47088,7 @@ function ToilWidget() {
     queryFn: () => backendClient.toil.balance({ user_id: user2.id, year }),
     enabled: !!(user2 == null ? void 0 : user2.id)
   });
-  const myBalance = (_a2 = balanceData == null ? void 0 : balanceData.balances) == null ? void 0 : _a2[0];
+  const myBalance = (_a3 = balanceData == null ? void 0 : balanceData.balances) == null ? void 0 : _a3[0];
   const { data: entriesData } = useQuery({
     queryKey: ["toil-entries", user2 == null ? void 0 : user2.id],
     queryFn: () => backendClient.toil.list({ user_id: user2.id }),
@@ -47139,7 +47139,7 @@ function ToilWidget() {
       setEarnForWatch("");
       setEarnForUserId("");
     },
-    onError: (err) => toast2({ title: "Failed", description: (err == null ? void 0 : err.message) ?? String(err), variant: "destructive" })
+    onError: (err2) => toast2({ title: "Failed", description: (err2 == null ? void 0 : err2.message) ?? String(err2), variant: "destructive" })
   });
   const approveMutation = useMutation({
     mutationFn: ({ id, action }) => backendClient.toil.approve(id, { action }),
@@ -47150,7 +47150,7 @@ function ToilWidget() {
       queryClient2.invalidateQueries({ queryKey: ["toil-watch-balance"] });
       toast2({ title: vars.action === "approved" ? "TOIL approved" : "TOIL rejected" });
     },
-    onError: (err) => toast2({ title: "Failed", description: (err == null ? void 0 : err.message) ?? String(err), variant: "destructive" })
+    onError: (err2) => toast2({ title: "Failed", description: (err2 == null ? void 0 : err2.message) ?? String(err2), variant: "destructive" })
   });
   const fmt2 = (d) => (/* @__PURE__ */ new Date(String(d).split("T")[0] + "T12:00:00")).toLocaleDateString("en-GB", {
     day: "numeric",
@@ -47400,15 +47400,15 @@ function ToilWidget() {
   ] });
 }
 function FFH4HBalanceWidget() {
-  var _a2, _b2;
+  var _a3, _b3;
   const { user: user2 } = useAuth();
   const { data, isLoading } = useQuery({
     queryKey: ["h4h-balance", user2 == null ? void 0 : user2.id],
     queryFn: () => backendClient.h4h.list({ user_id: user2.id, status: "pending" }),
     enabled: !!(user2 == null ? void 0 : user2.id)
   });
-  const owedToMe = ((_a2 = data == null ? void 0 : data.owed_to_me) == null ? void 0 : _a2.length) ?? 0;
-  const iOwe = ((_b2 = data == null ? void 0 : data.i_owe) == null ? void 0 : _b2.length) ?? 0;
+  const owedToMe = ((_a3 = data == null ? void 0 : data.owed_to_me) == null ? void 0 : _a3.length) ?? 0;
+  const iOwe = ((_b3 = data == null ? void 0 : data.i_owe) == null ? void 0 : _b3.length) ?? 0;
   const total = owedToMe + iOwe;
   const accentColor = iOwe > 0 ? "border-t-amber-500" : owedToMe > 0 ? "border-t-green-500" : "border-t-purple-500";
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { className: `border-t-2 ${accentColor}`, children: [
@@ -47759,13 +47759,13 @@ function WatchCommanderDashboard() {
   ] });
 }
 function FirefighterDashboard() {
-  var _a2;
+  var _a3;
   const { user: user2 } = useAuth();
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-8 space-y-6", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-3xl font-bold text-foreground", children: [
         "Welcome back, ",
-        ((_a2 = user2 == null ? void 0 : user2.name) == null ? void 0 : _a2.split(" ")[0]) || "Firefighter"
+        ((_a3 = user2 == null ? void 0 : user2.name) == null ? void 0 : _a3.split(" ")[0]) || "Firefighter"
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground mt-1", children: "Your personal overview" })
     ] }),
@@ -47947,7 +47947,7 @@ function AddPersonModal({ isOpen, onClose }) {
       });
     },
     onSuccess: async (data) => {
-      var _a2;
+      var _a3;
       if (driverPathwayStatus || niNumber) {
         try {
           const updateData = {};
@@ -47960,7 +47960,7 @@ function AddPersonModal({ isOpen, onClose }) {
           if (niNumber) {
             updateData.customFields = { niNumber };
           }
-          if ((_a2 = data.profile) == null ? void 0 : _a2.id) {
+          if ((_a3 = data.profile) == null ? void 0 : _a3.id) {
             await client2.profile.update(data.profile.id, updateData);
           }
         } catch (error) {
@@ -48785,7 +48785,7 @@ const DRIVER_PATHWAY_COLORS = {
   passed: "bg-emerald-500/10 text-emerald-500"
 };
 function People() {
-  var _a2, _b2, _c2;
+  var _a3, _b3, _c2;
   const backend = useBackend();
   const navigate = useNavigate();
   const canView = useCanViewPeople();
@@ -48802,10 +48802,10 @@ function People() {
   );
   const [showFilterPanel, setShowFilterPanel] = reactExports.useState(false);
   const [watchFilters, setWatchFilters] = reactExports.useState(
-    ((_a2 = searchParams.get("watch")) == null ? void 0 : _a2.split(",").filter(Boolean)) || []
+    ((_a3 = searchParams.get("watch")) == null ? void 0 : _a3.split(",").filter(Boolean)) || []
   );
   const [rankFilters, setRankFilters] = reactExports.useState(
-    ((_b2 = searchParams.get("rank")) == null ? void 0 : _b2.split(",").filter(Boolean)) || []
+    ((_b3 = searchParams.get("rank")) == null ? void 0 : _b3.split(",").filter(Boolean)) || []
   );
   const [skillFilters, setSkillFilters] = reactExports.useState(
     ((_c2 = searchParams.get("skills")) == null ? void 0 : _c2.split(",").filter(Boolean)) || []
@@ -48887,18 +48887,18 @@ function People() {
         description: res.back_to_work_due ? `Back to work interview due on their first shift back: ${res.back_to_work_due}.` : void 0
       });
     },
-    onError: (err) => toast2({
+    onError: (err2) => toast2({
       title: "Couldn't book back fit",
-      description: (err == null ? void 0 : err.message) ?? "Please try again.",
+      description: (err2 == null ? void 0 : err2.message) ?? "Please try again.",
       variant: "destructive"
     })
   });
   const people = (peopleData == null ? void 0 : peopleData.people) || [];
   reactExports.useEffect(() => {
-    var _a3, _b3;
+    var _a4, _b4;
     if (peopleData && authUser && !stationFilter && !searchParams.get("station")) {
-      const myProfile = (_a3 = peopleData.people) == null ? void 0 : _a3.find((p) => p.user.id === authUser.id);
-      if ((_b3 = myProfile == null ? void 0 : myProfile.profile) == null ? void 0 : _b3.station) {
+      const myProfile = (_a4 = peopleData.people) == null ? void 0 : _a4.find((p) => p.user.id === authUser.id);
+      if ((_b4 = myProfile == null ? void 0 : myProfile.profile) == null ? void 0 : _b4.station) {
         setStationFilter(myProfile.profile.station);
       }
     }
@@ -48911,11 +48911,11 @@ function People() {
   }, [skillsData]);
   const filteredAndSortedPeople = reactExports.useMemo(() => {
     let filtered = people.filter((person) => {
-      var _a3, _b3, _c3;
+      var _a4, _b4, _c3;
       const { user: user2, profile: profile2 } = person;
       if (debouncedSearch) {
         const search = debouncedSearch.toLowerCase();
-        const matchesSearch = user2.name.toLowerCase().includes(search) || user2.email.toLowerCase().includes(search) || ((_a3 = profile2 == null ? void 0 : profile2.service_number) == null ? void 0 : _a3.toLowerCase().includes(search)) || ((_b3 = profile2 == null ? void 0 : profile2.skills) == null ? void 0 : _b3.some((s) => s.toLowerCase().includes(search)));
+        const matchesSearch = user2.name.toLowerCase().includes(search) || user2.email.toLowerCase().includes(search) || ((_a4 = profile2 == null ? void 0 : profile2.service_number) == null ? void 0 : _a4.toLowerCase().includes(search)) || ((_b4 = profile2 == null ? void 0 : profile2.skills) == null ? void 0 : _b4.some((s) => s.toLowerCase().includes(search)));
         if (!matchesSearch) return false;
       }
       const effectiveWatch = user2.watch_unit || (profile2 == null ? void 0 : profile2.watch) || "";
@@ -48924,18 +48924,18 @@ function People() {
       if (stationFilter && stationFilter.trim() && effectiveStation !== stationFilter) return false;
       if (rankFilters.length && !rankFilters.includes((profile2 == null ? void 0 : profile2.rank) || "")) return false;
       if (skillFilters.length && !skillFilters.some((sf) => {
-        var _a4;
-        return (_a4 = profile2 == null ? void 0 : profile2.skills) == null ? void 0 : _a4.includes(sf);
+        var _a5;
+        return (_a5 = profile2 == null ? void 0 : profile2.skills) == null ? void 0 : _a5.includes(sf);
       })) return false;
       if (driverPathwayFilter && ((_c3 = profile2 == null ? void 0 : profile2.driverPathway) == null ? void 0 : _c3.status) !== driverPathwayFilter) return false;
       return true;
     });
     filtered.sort((a, b) => {
-      var _a3, _b3, _c3, _d2, _e2, _f2, _g2, _h2, _i2, _j2, _k2, _l2, _m, _n;
+      var _a4, _b4, _c3, _d2, _e2, _f2, _g2, _h2, _i2, _j2, _k2, _l2, _m, _n;
       let comparison = 0;
       if (sortField === "watch") {
-        const watchA = a.user.watch_unit || ((_a3 = a.profile) == null ? void 0 : _a3.watch) || "";
-        const watchB = b.user.watch_unit || ((_b3 = b.profile) == null ? void 0 : _b3.watch) || "";
+        const watchA = a.user.watch_unit || ((_a4 = a.profile) == null ? void 0 : _a4.watch) || "";
+        const watchB = b.user.watch_unit || ((_b4 = b.profile) == null ? void 0 : _b4.watch) || "";
         comparison = watchA.localeCompare(watchB);
         if (comparison === 0) {
           const rankA = RANK_ORDER[(_c3 = a.profile) == null ? void 0 : _c3.rank] || 999;
@@ -49198,10 +49198,10 @@ function People() {
     ] }),
     isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: [...Array(5)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-16 w-full" }, i)) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "md:hidden space-y-2", children: filteredAndSortedPeople.map((person) => {
-        var _a3;
+        var _a4;
         const { user: user2, profile: profile2 } = person;
         const watch = user2.watch_unit || (profile2 == null ? void 0 : profile2.watch);
-        const initials2 = ((_a3 = user2.name) == null ? void 0 : _a3.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase()) ?? "?";
+        const initials2 = ((_a4 = user2.name) == null ? void 0 : _a4.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase()) ?? "?";
         return /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
@@ -49266,7 +49266,7 @@ function People() {
           canLogSick && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "w-28", children: "Actions" })
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableBody, { children: filteredAndSortedPeople.map((person) => {
-          var _a3;
+          var _a4;
           const { user: user2, profile: profile2 } = person;
           return /* @__PURE__ */ jsxRuntimeExports.jsxs(
             TableRow,
@@ -49287,7 +49287,7 @@ function People() {
                 visibleColumns.email && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "text-sm", children: user2.email }),
                 visibleColumns.rank && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: (profile2 == null ? void 0 : profile2.rank) || "-" }),
                 visibleColumns.staffNumber && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "font-mono text-xs tabular-nums text-muted-foreground", children: (profile2 == null ? void 0 : profile2.service_number) || "—" }),
-                visibleColumns.niNumber && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: ((_a3 = profile2 == null ? void 0 : profile2.customFields) == null ? void 0 : _a3.niNumber) || "-" }),
+                visibleColumns.niNumber && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: ((_a4 = profile2 == null ? void 0 : profile2.customFields) == null ? void 0 : _a4.niNumber) || "-" }),
                 visibleColumns.skills && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1 max-w-xs", children: (profile2 == null ? void 0 : profile2.skills) && profile2.skills.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                   profile2.skills.slice(0, 3).map((skill2, idx) => /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-xs", children: skill2 }, idx)),
                   profile2.skills.length > 3 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-muted-foreground", children: [
@@ -50299,7 +50299,7 @@ function ProfileToilSection({
   profileUserId,
   profileName
 }) {
-  var _a2, _b2, _c2;
+  var _a3, _b3, _c2;
   const { user: user2 } = useAuth();
   const role = useUserRole();
   const { toast: toast2 } = useToast();
@@ -50314,7 +50314,7 @@ function ProfileToilSection({
     queryFn: () => backendClient.toil.balance({ user_id: profileUserId, year }),
     enabled: canView
   });
-  const balance = (_b2 = (_a2 = balanceQ.data) == null ? void 0 : _a2.balances) == null ? void 0 : _b2[0];
+  const balance = (_b3 = (_a3 = balanceQ.data) == null ? void 0 : _a3.balances) == null ? void 0 : _b3[0];
   const entriesQ = useQuery({
     // Every year, so the ledger's running balance matches "Available".
     queryKey: ["toil-entries", profileUserId],
@@ -50337,9 +50337,9 @@ function ProfileToilSection({
         title: vars.action === "approved" ? "TOIL approved" : "TOIL rejected"
       });
     },
-    onError: (err) => toast2({
+    onError: (err2) => toast2({
       title: "Failed",
-      description: (err == null ? void 0 : err.message) ?? String(err),
+      description: (err2 == null ? void 0 : err2.message) ?? String(err2),
       variant: "destructive"
     })
   });
@@ -50367,9 +50367,9 @@ function ProfileToilSection({
       invalidateAll();
       toast2({ title: "TOIL entry updated" });
     },
-    onError: (err) => toast2({
+    onError: (err2) => toast2({
       title: "Failed to update",
-      description: (err == null ? void 0 : err.message) ?? String(err),
+      description: (err2 == null ? void 0 : err2.message) ?? String(err2),
       variant: "destructive"
     })
   });
@@ -50379,9 +50379,9 @@ function ProfileToilSection({
       invalidateAll();
       toast2({ title: "TOIL entry deleted" });
     },
-    onError: (err) => toast2({
+    onError: (err2) => toast2({
       title: "Failed to delete",
-      description: (err == null ? void 0 : err.message) ?? String(err),
+      description: (err2 == null ? void 0 : err2.message) ?? String(err2),
       variant: "destructive"
     })
   });
@@ -50788,9 +50788,9 @@ function AddHoursDialog({
       setIncidentDate((/* @__PURE__ */ new Date()).toISOString().split("T")[0]);
       onOpenChange(false);
     },
-    onError: (err) => toast2({
+    onError: (err2) => toast2({
       title: "Failed to log TOIL",
-      description: (err == null ? void 0 : err.message) ?? String(err),
+      description: (err2 == null ? void 0 : err2.message) ?? String(err2),
       variant: "destructive"
     })
   });
@@ -50933,7 +50933,7 @@ const fmtDate = (d) => format(parseISO(String(d).split("T")[0]), "d MMM yyyy");
 function ProfileShiftAdjustmentsSection({
   profileUserId
 }) {
-  var _a2;
+  var _a3;
   const { user: user2 } = useAuth();
   const role = useUserRole();
   const { toast: toast2 } = useToast();
@@ -50972,13 +50972,13 @@ function ProfileShiftAdjustmentsSection({
         description: "Calendar events removed and any TOIL hours have been refunded."
       });
     },
-    onError: (err) => toast2({
+    onError: (err2) => toast2({
       title: "Failed to delete",
-      description: (err == null ? void 0 : err.message) ?? String(err),
+      description: (err2 == null ? void 0 : err2.message) ?? String(err2),
       variant: "destructive"
     })
   });
-  const adjustments = ((_a2 = adjustmentsQ.data) == null ? void 0 : _a2.adjustments) ?? [];
+  const adjustments = ((_a3 = adjustmentsQ.data) == null ? void 0 : _a3.adjustments) ?? [];
   const sorted = adjustments.slice().sort(
     (a, b) => new Date(b.start_date).getTime() - new Date(a.start_date).getTime()
   );
@@ -51204,8 +51204,8 @@ function AbsenceHistorySection({
     const w = watch ? watch[0].toUpperCase() + watch.slice(1).toLowerCase() : "";
     if (!w || !hasRotaConfig(w)) return void 0;
     return (iso) => {
-      var _a2;
-      const s = (_a2 = getShiftForDate(w, /* @__PURE__ */ new Date(`${iso}T12:00:00`))) == null ? void 0 : _a2.shiftType;
+      var _a3;
+      const s = (_a3 = getShiftForDate(w, /* @__PURE__ */ new Date(`${iso}T12:00:00`))) == null ? void 0 : _a3.shiftType;
       return s === "1st Day" || s === "2nd Day" || s === "1st Night" || s === "2nd Night";
     };
   }, [watch]);
@@ -51221,7 +51221,7 @@ function AbsenceHistorySection({
       toast2({ title: "Back to work interview recorded" });
       queryClient2.invalidateQueries({ queryKey: ["back-to-work"] });
     },
-    onError: (err) => toast2({ title: "Couldn't record the interview", description: err == null ? void 0 : err.message, variant: "destructive" })
+    onError: (err2) => toast2({ title: "Couldn't record the interview", description: err2 == null ? void 0 : err2.message, variant: "destructive" })
   });
   const totals = reactExports.useMemo(
     () => rollingSickness(
@@ -51248,10 +51248,10 @@ function AbsenceHistorySection({
       invalidateAbsenceViews(queryClient2);
       setEditing(null);
     },
-    onError: (err) => {
+    onError: (err2) => {
       toast2({
         title: "Could not update absence",
-        description: (err == null ? void 0 : err.message) ?? "Please try again.",
+        description: (err2 == null ? void 0 : err2.message) ?? "Please try again.",
         variant: "destructive"
       });
     }
@@ -51262,10 +51262,10 @@ function AbsenceHistorySection({
       toast2({ title: "Absence deleted" });
       invalidateAbsenceViews(queryClient2);
     },
-    onError: (err) => {
+    onError: (err2) => {
       toast2({
         title: "Could not delete absence",
-        description: (err == null ? void 0 : err.message) ?? "Please try again.",
+        description: (err2 == null ? void 0 : err2.message) ?? "Please try again.",
         variant: "destructive"
       });
     }
@@ -51280,10 +51280,10 @@ function AbsenceHistorySection({
       invalidateAbsenceViews(queryClient2);
       queryClient2.invalidateQueries({ queryKey: ["back-to-work"] });
     },
-    onError: (err) => {
+    onError: (err2) => {
       toast2({
         title: "Could not book back fit",
-        description: (err == null ? void 0 : err.message) ?? "Please try again.",
+        description: (err2 == null ? void 0 : err2.message) ?? "Please try again.",
         variant: "destructive"
       });
     }
@@ -51475,7 +51475,7 @@ function AbsenceHistorySection({
   ] });
 }
 function ProfileDetail() {
-  var _a2, _b2, _c2, _d2, _e2, _f2, _g2, _h2;
+  var _a3, _b3, _c2, _d2, _e2, _f2, _g2, _h2;
   const { userId: paramUserId } = useParams();
   const { toast: toast2 } = useToast();
   const queryClient2 = useQueryClient();
@@ -51735,8 +51735,8 @@ function ProfileDetail() {
     return editMode && !canEditField(fieldName);
   };
   const handleFileUpload = (e) => {
-    var _a3;
-    const file = (_a3 = e.target.files) == null ? void 0 : _a3[0];
+    var _a4;
+    const file = (_a4 = e.target.files) == null ? void 0 : _a4[0];
     if (file) {
       uploadDocumentMutation.mutate(file);
     }
@@ -52073,14 +52073,14 @@ function ProfileDetail() {
               editMode && canEditField("driverPathway") ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 Select,
                 {
-                  value: ((_a2 = getDisplayValue("driverPathway")) == null ? void 0 : _a2.status) || "",
+                  value: ((_a3 = getDisplayValue("driverPathway")) == null ? void 0 : _a3.status) || "",
                   onValueChange: (value) => {
-                    var _a3;
+                    var _a4;
                     return setEditedProfile({
                       ...editedProfile,
                       driverPathway: {
                         status: value,
-                        lgvPassedDate: (_a3 = getDisplayValue("driverPathway")) == null ? void 0 : _a3.lgvPassedDate
+                        lgvPassedDate: (_a4 = getDisplayValue("driverPathway")) == null ? void 0 : _a4.lgvPassedDate
                       }
                     });
                   },
@@ -52089,9 +52089,9 @@ function ProfileDetail() {
                     /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: driverPathwayStatuses.map((status) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: status.value, children: status.label }, status.value)) })
                   ]
                 }
-              ) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-1", children: ((_b2 = profile2 == null ? void 0 : profile2.driverPathway) == null ? void 0 : _b2.status) ? /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { children: ((_c2 = driverPathwayStatuses.find((s) => {
-                var _a3;
-                return s.value === ((_a3 = profile2.driverPathway) == null ? void 0 : _a3.status);
+              ) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-1", children: ((_b3 = profile2 == null ? void 0 : profile2.driverPathway) == null ? void 0 : _b3.status) ? /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { children: ((_c2 = driverPathwayStatuses.find((s) => {
+                var _a4;
+                return s.value === ((_a4 = profile2.driverPathway) == null ? void 0 : _a4.status);
               })) == null ? void 0 : _c2.label) || profile2.driverPathway.status }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "-" }) })
             ] }),
             (((_d2 = getDisplayValue("driverPathway")) == null ? void 0 : _d2.status) === "passed_LGV" || ((_e2 = getDisplayValue("driverPathway")) == null ? void 0 : _e2.status) === "awaiting_ERD" || ((_f2 = getDisplayValue("driverPathway")) == null ? void 0 : _f2.status) === "passed") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
@@ -52102,11 +52102,11 @@ function ProfileDetail() {
                   type: "date",
                   value: ((_g2 = getDisplayValue("driverPathway")) == null ? void 0 : _g2.lgvPassedDate) || "",
                   onChange: (e) => {
-                    var _a3;
+                    var _a4;
                     return setEditedProfile({
                       ...editedProfile,
                       driverPathway: {
-                        status: ((_a3 = getDisplayValue("driverPathway")) == null ? void 0 : _a3.status) || "passed_LGV",
+                        status: ((_a4 = getDisplayValue("driverPathway")) == null ? void 0 : _a4.status) || "passed_LGV",
                         lgvPassedDate: e.target.value
                       }
                     });
@@ -52127,7 +52127,7 @@ function ProfileDetail() {
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { children: [
             (() => {
-              var _a3;
+              var _a4;
               const quals = [
                 { key: "oic", label: "OIC", desc: "Officer in Charge" },
                 { key: "ba", label: "BA", desc: "Breathing Apparatus" },
@@ -52136,7 +52136,7 @@ function ProfileDetail() {
                 { key: "hooklift_operator", label: "Hooklift", desc: "Hooklift / prime mover operator" }
               ];
               const canEdit2 = editMode && canEditField("qualifications");
-              const driverVal = !!((_a3 = getDisplayValue("driver")) == null ? void 0 : _a3.lgv);
+              const driverVal = !!((_a4 = getDisplayValue("driver")) == null ? void 0 : _a4.lgv);
               return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-2", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs(
                   "button",
@@ -52144,12 +52144,12 @@ function ProfileDetail() {
                     type: "button",
                     disabled: !canEdit2,
                     onClick: () => {
-                      var _a4;
+                      var _a5;
                       return setEditedProfile({
                         ...editedProfile,
                         driver: {
                           lgv: !driverVal,
-                          erd: ((_a4 = getDisplayValue("driver")) == null ? void 0 : _a4.erd) ?? false
+                          erd: ((_a5 = getDisplayValue("driver")) == null ? void 0 : _a5.erd) ?? false
                         }
                       });
                     },
@@ -52438,8 +52438,8 @@ function ProfileDetail() {
                 Button,
                 {
                   onClick: () => {
-                    var _a3;
-                    return (_a3 = fileInputRef.current) == null ? void 0 : _a3.click();
+                    var _a4;
+                    return (_a4 = fileInputRef.current) == null ? void 0 : _a4.click();
                   },
                   disabled: uploadDocumentMutation.isPending,
                   className: "bg-indigo-600 hover:bg-indigo-700",
@@ -52600,8 +52600,8 @@ function eventData(item) {
 }
 const isReadOnly = (item) => item.type === "task" || item.type === "inspection";
 const isPrivate = (item) => {
-  var _a2;
-  return ((_a2 = eventData(item)) == null ? void 0 : _a2.event_type) === "reminder";
+  var _a3;
+  return ((_a3 = eventData(item)) == null ? void 0 : _a3.event_type) === "reminder";
 };
 function itemTooltip(item) {
   const ev = eventData(item);
@@ -52782,7 +52782,7 @@ function StateBadges({ item }) {
   ] });
 }
 function titleStyle(item) {
-  var _a2;
+  var _a3;
   return {
     fontSize: 12.5,
     fontWeight: 600,
@@ -52791,13 +52791,13 @@ function titleStyle(item) {
     overflow: "hidden",
     textOverflow: "ellipsis",
     minWidth: 0,
-    ...((_a2 = eventData(item)) == null ? void 0 : _a2.cancelled_at) ? { textDecoration: "line-through" } : {}
+    ...((_a3 = eventData(item)) == null ? void 0 : _a3.cancelled_at) ? { textDecoration: "line-through" } : {}
   };
 }
 function blockBg(item) {
-  var _a2;
+  var _a3;
   const k = calKey(item);
-  return ((_a2 = eventData(item)) == null ? void 0 : _a2.cancelled_at) ? `repeating-linear-gradient(135deg, ${tok(k, "bg")} 0 7px, var(--cal-surface-2) 7px 11px)` : tok(k, "bg");
+  return ((_a3 = eventData(item)) == null ? void 0 : _a3.cancelled_at) ? `repeating-linear-gradient(135deg, ${tok(k, "bg")} 0 7px, var(--cal-surface-2) 7px 11px)` : tok(k, "bg");
 }
 function EventPill({
   item,
@@ -53759,7 +53759,7 @@ function whenLabel(d, allDay) {
 }
 const CAL_NAME = { station: "Station", watch: "Watch", personal: "Personal" };
 function NextUp({ myWatch, upcoming }) {
-  var _a2, _b2;
+  var _a3, _b3;
   const status = myWatch ? getWatchShiftStatus(myWatch) : null;
   const now = Date.now();
   const todayStart = startOfDay$1(/* @__PURE__ */ new Date()).getTime();
@@ -53788,7 +53788,7 @@ function NextUp({ myWatch, upcoming }) {
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: eyebrow, children: status.state === "on" ? "On shift now" : status.state === "off" ? "Off now" : status.state === "rest" ? "Rest day" : "Annual leave" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 14, fontWeight: 600 }, children: cur ? cur.shiftType : status.next ? `Next: ${status.next.shiftType}` : `${myWatch} Watch` }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 12 }, children: cur ? `${cur.startTime} → ${cur.endTime}${endsNextDay ? ` ${endDay}` : ""}` : ((_b2 = status.nextLabel) == null ? void 0 : _b2.replace(`${(_a2 = status.next) == null ? void 0 : _a2.shiftType} `, "")) ?? "" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 12 }, children: cur ? `${cur.startTime} → ${cur.endTime}${endsNextDay ? ` ${endDay}` : ""}` : ((_b3 = status.nextLabel) == null ? void 0 : _b3.replace(`${(_a3 = status.next) == null ? void 0 : _a3.shiftType} `, "")) ?? "" })
           ] })
         ]
       }
@@ -54033,8 +54033,8 @@ function EventForm({
   const cancelled = !!(initialData == null ? void 0 : initialData.cancelled_at);
   const canStrike = isEditing && !!onStrike && !(initialData == null ? void 0 : initialData.shift_adjustment_id);
   reactExports.useEffect(() => {
-    var _a2;
-    (_a2 = titleRef.current) == null ? void 0 : _a2.focus();
+    var _a3;
+    (_a3 = titleRef.current) == null ? void 0 : _a3.focus();
   }, []);
   const keepEndAfter = (newStart) => {
     if (parseDateTimeInputs(endDate, endTime) <= newStart) {
@@ -54357,7 +54357,7 @@ const TEMPLATES = [
   { type: "activity", label: "Activity / Custom", description: "Any other event — free text title and description", icon: CalendarPlus, color: "bg-gray-100 text-gray-700 border-gray-200", accent: "border-gray-400", eventColor: "#6b7280" }
 ];
 function InspectionEventModal({ open, onClose, defaultDate, editingEvent }) {
-  var _a2, _b2, _c2;
+  var _a3, _b3, _c2;
   const { user: user2 } = useAuth();
   const { toast: toast2 } = useToast();
   const queryClient2 = useQueryClient();
@@ -54395,10 +54395,10 @@ function InspectionEventModal({ open, onClose, defaultDate, editingEvent }) {
       setStep(2);
       setAddress(editingEvent.location ?? "");
       const st = new Date(editingEvent.start_time);
-      const et = new Date(editingEvent.end_time);
+      const et2 = new Date(editingEvent.end_time);
       setDate(format(st, "yyyy-MM-dd"));
       setStartTime(format(st, "HH:mm"));
-      setEndTime(format(et, "HH:mm"));
+      setEndTime(format(et2, "HH:mm"));
       setVisibility(editingEvent.calendar_visibility === "station" ? "station" : "watch");
     }
   }, [open, editingEvent == null ? void 0 : editingEvent.id]);
@@ -54418,7 +54418,7 @@ function InspectionEventModal({ open, onClose, defaultDate, editingEvent }) {
     },
     enabled: open && isEditing && (template == null ? void 0 : template.type) === "hfsv" && !!(editingEvent == null ? void 0 : editingEvent.source_id) && !!watch
   });
-  const nextHfsv = !isEditing ? ((_a2 = hfsvQuery.data) == null ? void 0 : _a2[0]) ?? null : null;
+  const nextHfsv = !isEditing ? ((_a3 = hfsvQuery.data) == null ? void 0 : _a3[0]) ?? null : null;
   reactExports.useEffect(() => {
     if (!isEditing && (template == null ? void 0 : template.type) === "hfsv" && nextHfsv) {
       setSelectedAssignmentId(nextHfsv.id);
@@ -54440,7 +54440,7 @@ function InspectionEventModal({ open, onClose, defaultDate, editingEvent }) {
     },
     enabled: open && !isEditing && !!template && template.type !== "hfsv" && template.type !== "activity" && !!watch
   });
-  const assignments = ((_b2 = assignmentQuery.data) == null ? void 0 : _b2.items) ?? [];
+  const assignments = ((_b3 = assignmentQuery.data) == null ? void 0 : _b3.items) ?? [];
   reactExports.useEffect(() => {
     if (!isEditing && selectedAssignmentId && assignments.length) {
       const a = assignments.find((x) => x.id === selectedAssignmentId);
@@ -54486,7 +54486,7 @@ function InspectionEventModal({ open, onClose, defaultDate, editingEvent }) {
       toast2({ title: "Event & task created", description: "Added to your calendar and the task board." });
       onClose();
     },
-    onError: (err) => toast2({ title: "Failed to create event", description: (err == null ? void 0 : err.message) ?? String(err), variant: "destructive" })
+    onError: (err2) => toast2({ title: "Failed to create event", description: (err2 == null ? void 0 : err2.message) ?? String(err2), variant: "destructive" })
   });
   const updateMutation = useMutation({
     mutationFn: async () => {
@@ -54519,7 +54519,7 @@ function InspectionEventModal({ open, onClose, defaultDate, editingEvent }) {
       toast2({ title: "Event updated", description: "Inspection event saved." });
       onClose();
     },
-    onError: (err) => toast2({ title: "Failed to save", description: (err == null ? void 0 : err.message) ?? String(err), variant: "destructive" })
+    onError: (err2) => toast2({ title: "Failed to save", description: (err2 == null ? void 0 : err2.message) ?? String(err2), variant: "destructive" })
   });
   const deleteMutation = useMutation({
     mutationFn: async () => {
@@ -54534,7 +54534,7 @@ function InspectionEventModal({ open, onClose, defaultDate, editingEvent }) {
       queryClient2.invalidateQueries({ queryKey: ["hfsv-pending"] });
       onClose();
     },
-    onError: (err) => toast2({ title: "Failed to delete", description: (err == null ? void 0 : err.message) ?? String(err), variant: "destructive" })
+    onError: (err2) => toast2({ title: "Failed to delete", description: (err2 == null ? void 0 : err2.message) ?? String(err2), variant: "destructive" })
   });
   const isPending = isEditing ? updateMutation.isPending : createMutation.isPending;
   const canSubmit = (() => {
@@ -55101,7 +55101,7 @@ function UnifiedCalendar() {
       toast2({ title: "Event struck through", description: "It stays on the calendar with your reason." });
       closeForm();
     },
-    onError: (err) => toast2({ title: "Couldn't cancel event", description: err == null ? void 0 : err.message, variant: "destructive" })
+    onError: (err2) => toast2({ title: "Couldn't cancel event", description: err2 == null ? void 0 : err2.message, variant: "destructive" })
   });
   const reinstateMutation = useMutation({
     mutationFn: (id) => backendClient.calendar.reinstateEvent(id),
@@ -55111,7 +55111,7 @@ function UnifiedCalendar() {
       toast2({ title: "Event reinstated" });
       closeForm();
     },
-    onError: (err) => toast2({ title: "Couldn't reinstate event", description: err == null ? void 0 : err.message, variant: "destructive" })
+    onError: (err2) => toast2({ title: "Couldn't reinstate event", description: err2 == null ? void 0 : err2.message, variant: "destructive" })
   });
   function invalidateCalendarQueries() {
     queryClient2.invalidateQueries({ queryKey: ["cal-station"] });
@@ -55162,7 +55162,7 @@ function UnifiedCalendar() {
     setPendingSlot(null);
   };
   const handleEventClick = async (item, anchor) => {
-    var _a2, _b2;
+    var _a3, _b3;
     if (item.type === "task" || item.type === "inspection") return;
     const eventData2 = item.data;
     if (eventData2 == null ? void 0 : eventData2.shift_adjustment_id) {
@@ -55180,8 +55180,8 @@ function UnifiedCalendar() {
         source_type: eventData2.source_type,
         source_id: eventData2.source_id ?? null,
         location: eventData2.location ?? null,
-        start_time: typeof eventData2.start_time === "string" ? eventData2.start_time : (_a2 = eventData2.start_time) == null ? void 0 : _a2.toISOString(),
-        end_time: typeof eventData2.end_time === "string" ? eventData2.end_time : (_b2 = eventData2.end_time) == null ? void 0 : _b2.toISOString(),
+        start_time: typeof eventData2.start_time === "string" ? eventData2.start_time : (_a3 = eventData2.start_time) == null ? void 0 : _a3.toISOString(),
+        end_time: typeof eventData2.end_time === "string" ? eventData2.end_time : (_b3 = eventData2.end_time) == null ? void 0 : _b3.toISOString(),
         calendar_visibility: eventData2.calendar_visibility ?? "watch",
         color: eventData2.color ?? null
       });
@@ -55203,9 +55203,9 @@ function UnifiedCalendar() {
     }
   };
   const handleDelete = () => {
-    var _a2;
+    var _a3;
     if (!editingEvent) return;
-    const isBooking = !!((_a2 = editingEvent.data) == null ? void 0 : _a2.shift_adjustment_id);
+    const isBooking = !!((_a3 = editingEvent.data) == null ? void 0 : _a3.shift_adjustment_id);
     const message2 = isBooking ? `Delete "${editingEvent.title}"?
 
 This cancels the whole booking (TOIL/H4H/Flexi): any TOIL hours are refunded and the cover entries are removed.` : `Delete "${editingEvent.title}"? This cannot be undone.`;
@@ -55526,11 +55526,11 @@ function PriorityChip({ priority }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(Chip, { k: priorityKey(priority), children: priorityLabel(priority) });
 }
 function describeRRule(rrule) {
-  var _a2, _b2, _c2;
+  var _a3, _b3, _c2;
   if (!rrule) return null;
   try {
-    const freq = (_a2 = rrule.match(/FREQ=([^;]+)/)) == null ? void 0 : _a2[1];
-    const interval = parseInt(((_b2 = rrule.match(/INTERVAL=(\d+)/)) == null ? void 0 : _b2[1]) ?? "1");
+    const freq = (_a3 = rrule.match(/FREQ=([^;]+)/)) == null ? void 0 : _a3[1];
+    const interval = parseInt(((_b3 = rrule.match(/INTERVAL=(\d+)/)) == null ? void 0 : _b3[1]) ?? "1");
     const byDay = (_c2 = rrule.match(/BYDAY=([^;]+)/)) == null ? void 0 : _c2[1];
     if (!freq) return "Recurring";
     if (freq === "DAILY") return interval === 1 ? "Daily" : `Every ${interval} days`;
@@ -56064,7 +56064,7 @@ function CardChecklist({ task: task2, onToggle }) {
   );
 }
 function TaskCard({ task: task2, onTitleEdit, onClick, onChecklistToggle, userMap, columns, columnCounts, onMove, onSetPriority, onDelete, shiftStart: shiftStart2 }) {
-  var _a2, _b2;
+  var _a3, _b3;
   const [editingTitle, setEditingTitle] = reactExports.useState(false);
   const [titleValue, setTitleValue] = reactExports.useState(task2.title);
   const titleInputRef = reactExports.useRef(null);
@@ -56074,8 +56074,8 @@ function TaskCard({ task: task2, onTitleEdit, onClick, onChecklistToggle, userMa
     setTitleValue(task2.title);
     setEditingTitle(true);
     setTimeout(() => {
-      var _a3;
-      return (_a3 = titleInputRef.current) == null ? void 0 : _a3.select();
+      var _a4;
+      return (_a4 = titleInputRef.current) == null ? void 0 : _a4.select();
     }, 10);
   };
   const handleTitleSave = () => {
@@ -56088,7 +56088,7 @@ function TaskCard({ task: task2, onTitleEdit, onClick, onChecklistToggle, userMa
   const labelIds = (task2.tags ?? []).filter((id) => getLabelById(id) && !(isCheck && id === "routine"));
   const coverStyle = getCoverStyle(task2.cover_colour);
   const recur = describeRRule(task2.rrule);
-  const assignee = task2.assigned_to_user_id ? { id: task2.assigned_to_user_id, initials: ((_a2 = userMap == null ? void 0 : userMap[task2.assigned_to_user_id]) == null ? void 0 : _a2.initials) ?? task2.assigned_to_user_id.slice(0, 2).toUpperCase() } : null;
+  const assignee = task2.assigned_to_user_id ? { id: task2.assigned_to_user_id, initials: ((_a3 = userMap == null ? void 0 : userMap[task2.assigned_to_user_id]) == null ? void 0 : _a3.initials) ?? task2.assigned_to_user_id.slice(0, 2).toUpperCase() } : null;
   const done = task2.status === "Done";
   const shiftTask = task2;
   const tag = shiftTask.kind ? /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftTag, { task: shiftTask, shiftStart: shiftStart2 }) : null;
@@ -56179,7 +56179,7 @@ function TaskCard({ task: task2, onTitleEdit, onClick, onChecklistToggle, userMa
           labelIds.length === 0 && !tag && menu && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { marginTop: -4, display: "flex" }, children: menu })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(ChecklistBar, { task: task2 }),
-        onChecklistToggle && !done && (((_b2 = task2.checklist) == null ? void 0 : _b2.length) ?? 0) > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(CardChecklist, { task: task2, onToggle: (label2, next) => onChecklistToggle(task2.id, label2, next) }),
+        onChecklistToggle && !done && (((_b3 = task2.checklist) == null ? void 0 : _b3.length) ?? 0) > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(CardChecklist, { task: task2, onToggle: (label2, next) => onChecklistToggle(task2.id, label2, next) }),
         footer && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }, children: [
           done && shiftTask.completed_by_name ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 600, color: "var(--cal-leave-fg)" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-3 w-3", strokeWidth: 3 }),
@@ -56204,16 +56204,16 @@ function QuickAddCard({ columnStatusKey, onAdd, isLoading, open: openProp, onOpe
   const [title, setTitle] = reactExports.useState("");
   const inputRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
-    var _a2;
-    if (open) (_a2 = inputRef.current) == null ? void 0 : _a2.focus();
+    var _a3;
+    if (open) (_a3 = inputRef.current) == null ? void 0 : _a3.focus();
   }, [open]);
   const handleSubmit = () => {
-    var _a2;
+    var _a3;
     const trimmed = title.trim();
     if (!trimmed || isLoading) return;
     onAdd(trimmed, columnStatusKey);
     setTitle("");
-    (_a2 = inputRef.current) == null ? void 0 : _a2.focus();
+    (_a3 = inputRef.current) == null ? void 0 : _a3.focus();
   };
   const handleCancel = () => {
     setOpen(false);
@@ -56530,12 +56530,12 @@ function TaskBoard({
       return backendClient.task.update(id, rest);
     },
     onSuccess: () => queryClient2.invalidateQueries({ queryKey: ["tasks"] }),
-    onError: (err) => toast2({ title: "Couldn't change the task", description: err.message, variant: "destructive" })
+    onError: (err2) => toast2({ title: "Couldn't change the task", description: err2.message, variant: "destructive" })
   });
   const deleteTaskMutation = useMutation({
     mutationFn: async (id) => backendClient.task.deleteTask(id),
     onSuccess: () => queryClient2.invalidateQueries({ queryKey: ["tasks"] }),
-    onError: (err) => toast2({ title: "Couldn't delete the task", description: err.message, variant: "destructive" })
+    onError: (err2) => toast2({ title: "Couldn't delete the task", description: err2.message, variant: "destructive" })
   });
   const handleAddColumn = () => {
     const trimmed = newColName.trim();
@@ -56593,9 +56593,9 @@ function TaskBoard({
     allTasksByColumn[col.status_key] = liveTasks.filter((t) => t.status === col.status_key);
   }
   const moveTask = (task2, colKey, position) => {
-    var _a2;
+    var _a3;
     const colTasks = tasksByColumn[colKey] ?? [];
-    const newPosition = position ?? (((_a2 = colTasks[colTasks.length - 1]) == null ? void 0 : _a2.position) ?? 0) + 1;
+    const newPosition = position ?? (((_a3 = colTasks[colTasks.length - 1]) == null ? void 0 : _a3.position) ?? 0) + 1;
     updateTaskMutation.mutate({ id: task2.id, position: newPosition, status: colKey });
     if (task2.status !== colKey) {
       onStatusChange == null ? void 0 : onStatusChange(task2.id, colKey);
@@ -56632,7 +56632,7 @@ function TaskBoard({
     setDragOverTaskId(taskId);
   };
   const handleDrop = (e, colKey) => {
-    var _a2, _b2;
+    var _a3, _b3;
     e.preventDefault();
     if (!canEdit || !draggedTask) return;
     const colTasks = tasksByColumn[colKey] ?? [];
@@ -56640,8 +56640,8 @@ function TaskBoard({
     if (dragOverTaskId !== null && dragOverTaskId !== draggedTask.id) {
       const overIdx = colTasks.findIndex((t) => t.id === dragOverTaskId);
       if (overIdx !== -1) {
-        const before = ((_a2 = colTasks[overIdx - 1]) == null ? void 0 : _a2.position) ?? (colTasks[overIdx].position ?? 0) - 1;
-        newPosition = (before + (((_b2 = colTasks[overIdx]) == null ? void 0 : _b2.position) ?? 0)) / 2;
+        const before = ((_a3 = colTasks[overIdx - 1]) == null ? void 0 : _a3.position) ?? (colTasks[overIdx].position ?? 0) - 1;
+        newPosition = (before + (((_b3 = colTasks[overIdx]) == null ? void 0 : _b3.position) ?? 0)) / 2;
       }
     }
     moveTask(draggedTask, colKey, newPosition);
@@ -57022,8 +57022,8 @@ function Pill({ tone, size: size2, mono, children }) {
 const PriorityDot = ({ priority }) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "aria-hidden": true, style: { width: 8, height: 8, borderRadius: "50%", flex: "none", background: `var(--cal-${priorityKey(priority)}-dot)` } });
 function RecurIcon({ rrule }) {
   if (!rrule) return null;
-  const text = describeRRule(rrule) ?? "Recurring";
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { role: "img", "aria-label": text, title: text, style: { display: "inline-flex", flex: "none", color: "var(--cal-brand-text)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat, { className: "h-3.5 w-3.5", strokeWidth: 2.2 }) });
+  const text2 = describeRRule(rrule) ?? "Recurring";
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { role: "img", "aria-label": text2, title: text2, style: { display: "inline-flex", flex: "none", color: "var(--cal-brand-text)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat, { className: "h-3.5 w-3.5", strokeWidth: 2.2 }) });
 }
 function FilterSelect({
   id,
@@ -57034,9 +57034,9 @@ function FilterSelect({
   allLabel,
   shortLabel
 }) {
-  var _a2;
+  var _a3;
   const active = value !== "all";
-  const current = ((_a2 = options.find((o) => o.value === value)) == null ? void 0 : _a2.label) ?? value;
+  const current = ((_a3 = options.find((o) => o.value === value)) == null ? void 0 : _a3.label) ?? value;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Root2$2, { value, onValueChange: onChange, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(
       Trigger$1,
@@ -57593,7 +57593,7 @@ function ProgressBar({ pct, className }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className, "aria-hidden": "true", style: { height: 6, borderRadius: 3, background: "var(--cal-surface-3)", overflow: "hidden" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: `${pct}%`, height: "100%", borderRadius: 3, background: pct === 100 ? "var(--cal-leave-dot)" : "var(--cal-brand)", transition: "width .3s" } }) });
 }
 function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: canWork = false, isNewTask = false, onCompleted, onOpenRoutine }) {
-  var _a2, _b2, _c2, _d2, _e2;
+  var _a3, _b3, _c2, _d2, _e2;
   const { user: user2 } = useAuth();
   const userRole = useUserRole();
   const canEdit = canWork && (isNewTask || canEditTaskDetails(task2, user2, userRole));
@@ -57662,11 +57662,11 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
     el.style.height = `${el.scrollHeight + (el.offsetHeight - el.clientHeight)}px`;
   }, [title, task2 == null ? void 0 : task2.id]);
   reactExports.useEffect(() => {
-    var _a3, _b3;
+    var _a4, _b4;
     if (!task2 || !isNewTask || !canEdit || focusedNewRef.current === task2.id || title !== task2.title) return;
     focusedNewRef.current = task2.id;
-    (_a3 = titleRef.current) == null ? void 0 : _a3.focus();
-    (_b3 = titleRef.current) == null ? void 0 : _b3.select();
+    (_a4 = titleRef.current) == null ? void 0 : _a4.focus();
+    (_b4 = titleRef.current) == null ? void 0 : _b4.select();
   }, [task2 == null ? void 0 : task2.id, isNewTask, canEdit, title]);
   reactExports.useEffect(() => {
     if (!showCoverPicker) return;
@@ -57676,10 +57676,10 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
   const updateMutation = useMutation({
     mutationFn: async (updates) => backendClient.task.update(task2.id, updates),
     onSuccess: () => queryClient2.invalidateQueries({ queryKey: ["tasks"] }),
-    onError: (err) => {
+    onError: (err2) => {
       toast2({
         title: "That change wasn't saved",
-        description: /permission/i.test(err.message ?? "") ? "Only the person who set this task, the person it's assigned to, or a WC/CC on its watch can change that." : err.message || "Please try again.",
+        description: /permission/i.test(err2.message ?? "") ? "Only the person who set this task, the person it's assigned to, or a WC/CC on its watch can change that." : err2.message || "Please try again.",
         variant: "destructive"
       });
       resetFields();
@@ -57693,7 +57693,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
       onClose();
       toast2({ title: "Task deleted" });
     },
-    onError: (err) => toast2({ title: "Couldn't delete the task", description: err.message, variant: "destructive" })
+    onError: (err2) => toast2({ title: "Couldn't delete the task", description: err2.message, variant: "destructive" })
   });
   if (!task2) return null;
   const save = async (updates) => {
@@ -57705,9 +57705,9 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
     }
   };
   const isDoneStatus = (k) => {
-    var _a3;
+    var _a4;
     if (k === "Done") return true;
-    const name = ((_a3 = columns.find((c) => c.status_key === k)) == null ? void 0 : _a3.name.toLowerCase()) ?? "";
+    const name = ((_a4 = columns.find((c) => c.status_key === k)) == null ? void 0 : _a4.name.toLowerCase()) ?? "";
     return name.includes("done") || name.includes("complete");
   };
   const handleTitleBlur = () => {
@@ -57790,8 +57790,8 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
     }
   };
   const handleFileUpload = (e) => {
-    var _a3;
-    const file = (_a3 = e.target.files) == null ? void 0 : _a3[0];
+    var _a4;
+    const file = (_a4 = e.target.files) == null ? void 0 : _a4[0];
     if (!file) return;
     const img = new Image();
     const url = URL.createObjectURL(file);
@@ -57827,13 +57827,13 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
     save({ checklist: updated });
   };
   const handleAddChecklistItem = () => {
-    var _a3;
+    var _a4;
     if (!newChecklistItem.trim()) return;
     const updated = [...checklist, { label: newChecklistItem.trim(), done: false }];
     setChecklist(updated);
     save({ checklist: updated });
     setNewChecklistItem("");
-    (_a3 = newItemInputRef.current) == null ? void 0 : _a3.focus();
+    (_a4 = newItemInputRef.current) == null ? void 0 : _a4.focus();
   };
   const cancelAddItem = () => {
     setAddingItem(false);
@@ -57842,7 +57842,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
   const handleDelete = () => {
     if (confirm(`Delete "${task2.title}"? This cannot be undone.`)) deleteMutation.mutate();
   };
-  const customDays = ((_b2 = (_a2 = customRrule.match(/BYDAY=([^;]+)/)) == null ? void 0 : _a2[1]) == null ? void 0 : _b2.split(",").filter(Boolean)) ?? [];
+  const customDays = ((_b3 = (_a3 = customRrule.match(/BYDAY=([^;]+)/)) == null ? void 0 : _a3[1]) == null ? void 0 : _b3.split(",").filter(Boolean)) ?? [];
   const customInterval = Math.max(1, parseInt(((_c2 = customRrule.match(/INTERVAL=(\d+)/)) == null ? void 0 : _c2[1]) ?? "1", 10) || 1);
   const applyWeekly = (days, interval) => {
     const ordered = WEEKDAYS.map((d) => d.code).filter((c) => days.includes(c));
@@ -57851,13 +57851,13 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
     save({ rrule: rule });
   };
   const onPriorityKeyDown = (e) => {
-    var _a3;
+    var _a4;
     if (!canEdit || !["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"].includes(e.key)) return;
     e.preventDefault();
     const step = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : -1;
     const i = (PRIORITY_OPTIONS$1.findIndex((p) => p.value === priority) + step + PRIORITY_OPTIONS$1.length) % PRIORITY_OPTIONS$1.length;
     handlePriorityChange(PRIORITY_OPTIONS$1[i].value);
-    (_a3 = e.currentTarget.querySelectorAll('[role="radio"]')[i]) == null ? void 0 : _a3.focus();
+    (_a4 = e.currentTarget.querySelectorAll('[role="radio"]')[i]) == null ? void 0 : _a4.focus();
   };
   const uid = `tdd-${task2.id}`;
   const completedCount = checklist.filter((i) => i.done).length;
@@ -58350,8 +58350,8 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
                                 className: "tdd-drop cal-focus flex flex-col items-center justify-center gap-2",
                                 style: { padding: "22px 12px", borderRadius: 14, fontSize: 13, fontWeight: 600 },
                                 onClick: () => {
-                                  var _a3;
-                                  return (_a3 = fileInputRef.current) == null ? void 0 : _a3.click();
+                                  var _a4;
+                                  return (_a4 = fileInputRef.current) == null ? void 0 : _a4.click();
                                 },
                                 children: [
                                   /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { className: "h-5 w-5" }),
@@ -58706,7 +58706,7 @@ function Segmented({
   const refs = reactExports.useRef([]);
   const current = options.findIndex((o) => o.value === value);
   const onKey = (e, i) => {
-    var _a2;
+    var _a3;
     let next = -1;
     if (e.key === "ArrowRight" || e.key === "ArrowDown") next = (i + 1) % options.length;
     else if (e.key === "ArrowLeft" || e.key === "ArrowUp") next = (i - 1 + options.length) % options.length;
@@ -58715,7 +58715,7 @@ function Segmented({
     if (next < 0) return;
     e.preventDefault();
     onChange(options[next].value);
-    (_a2 = refs.current[next]) == null ? void 0 : _a2.focus();
+    (_a3 = refs.current[next]) == null ? void 0 : _a3.focus();
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { role: "radiogroup", "aria-label": label2, className: `ttm-seg ${className ?? ""}`, children: options.map((o, i) => {
     const on = o.value === value;
@@ -58742,7 +58742,7 @@ function Tag({ bg, fg, weight = 600, children }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ttm-tag", style: { background: bg, color: fg, fontWeight: weight }, children });
 }
 function TaskTemplateManager({ isOpen, onClose, onUseTemplate, canManage }) {
-  var _a2, _b2;
+  var _a3, _b3;
   const { toast: toast2 } = useToast();
   const { user: user2 } = useAuth();
   const queryClient2 = useQueryClient();
@@ -58837,18 +58837,18 @@ function TaskTemplateManager({ isOpen, onClose, onUseTemplate, canManage }) {
     onSettled: () => queryClient2.invalidateQueries({ queryKey: ["task-templates"] })
   });
   reactExports.useEffect(() => {
-    var _a3;
+    var _a4;
     if (!isOpen) return;
     const opener = document.activeElement;
-    (_a3 = dialogRef.current) == null ? void 0 : _a3.focus({ preventScroll: true });
+    (_a4 = dialogRef.current) == null ? void 0 : _a4.focus({ preventScroll: true });
     const onKey = (e) => {
       if (e.key === "Escape" && !e.defaultPrevented) onCloseRef.current();
     };
     document.addEventListener("keydown", onKey);
     return () => {
-      var _a4;
+      var _a5;
       document.removeEventListener("keydown", onKey);
-      (_a4 = opener == null ? void 0 : opener.focus) == null ? void 0 : _a4.call(opener, { preventScroll: true });
+      (_a5 = opener == null ? void 0 : opener.focus) == null ? void 0 : _a5.call(opener, { preventScroll: true });
     };
   }, [isOpen]);
   if (!isOpen) return null;
@@ -58892,8 +58892,8 @@ function TaskTemplateManager({ isOpen, onClose, onUseTemplate, canManage }) {
     else if (mode === "edit" && editingId !== null) updateMutation.mutate({ id: editingId, f: form });
   };
   const scrollFormTop = () => {
-    var _a3;
-    return (_a3 = formRef.current) == null ? void 0 : _a3.scrollTo({ top: 0 });
+    var _a4;
+    return (_a4 = formRef.current) == null ? void 0 : _a4.scrollTo({ top: 0 });
   };
   const handleNew = () => {
     setForm(emptyForm$1());
@@ -58924,8 +58924,8 @@ function TaskTemplateManager({ isOpen, onClose, onUseTemplate, canManage }) {
   const inForm = mode === "create" || mode === "edit";
   const editing = mode === "edit" ? templates.find((t) => t.id === editingId) : void 0;
   const formActive = editing ? editing.is_active !== false : form.is_active;
-  const firstColName = ((_a2 = columns[0]) == null ? void 0 : _a2.name) ?? "To Do";
-  const generatedColName = ((_b2 = columns.find((c) => c.status_key === "NotStarted")) == null ? void 0 : _b2.name) ?? firstColName;
+  const firstColName = ((_a3 = columns[0]) == null ? void 0 : _a3.name) ?? "To Do";
+  const generatedColName = ((_b3 = columns.find((c) => c.status_key === "NotStarted")) == null ? void 0 : _b3.name) ?? firstColName;
   const phrase = schedulePhrase(form);
   const cardTitle = form.title_template.trim();
   const intervalUnit = form.freq === "DAILY" ? "days" : form.freq === "MONTHLY" ? "months" : "weeks";
@@ -58968,9 +58968,9 @@ function TaskTemplateManager({ isOpen, onClose, onUseTemplate, canManage }) {
                   /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 15, fontWeight: 600, color: "var(--cal-ink)" }, children: "No templates yet" }),
                   canManage && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 13 }, children: "Use “New template” to set up your first recurring card." })
                 ] }) : templates.map((t) => {
-                  var _a3;
+                  var _a4;
                   const active = t.is_active !== false;
-                  const count2 = ((_a3 = t.checklist) == null ? void 0 : _a3.length) ?? 0;
+                  const count2 = ((_a4 = t.checklist) == null ? void 0 : _a4.length) ?? 0;
                   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
                     "article",
                     {
@@ -59518,12 +59518,12 @@ function useWatchCalendar(tasks, from, to) {
   return { events: events2, byDay };
 }
 function ShiftPill({ watch, small }) {
-  var _a2, _b2;
+  var _a3, _b3;
   const s = getWatchShiftStatus(watch);
   if (!s) return null;
   const k = s.state === "on" && s.current ? s.current.startTime === "18:00" ? "night" : "day" : s.state === "leave" ? "leave" : null;
   const main = s.state === "on" && s.current ? s.current.shiftType : s.label;
-  const sub = s.state === "on" && s.current ? small ? `${(_a2 = s.current.startTime) == null ? void 0 : _a2.slice(0, 2)}–${(_b2 = s.current.endTime) == null ? void 0 : _b2.slice(0, 2)}` : `${s.current.startTime}–${s.current.endTime}` : small ? "" : s.nextLabel ? `next ${s.nextLabel}` : "";
+  const sub = s.state === "on" && s.current ? small ? `${(_a3 = s.current.startTime) == null ? void 0 : _a3.slice(0, 2)}–${(_b3 = s.current.endTime) == null ? void 0 : _b3.slice(0, 2)}` : `${s.current.startTime}–${s.current.endTime}` : small ? "" : s.nextLabel ? `next ${s.nextLabel}` : "";
   const Icon2 = k === "night" ? Moon : k === "day" ? Sun : null;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "span",
@@ -59762,14 +59762,14 @@ const UPCOMING_COLOURS = {
   plain: { background: "var(--cal-surface)", color: "var(--cal-ink)" }
 };
 function buildUpcoming(tasks, events2) {
-  var _a2;
+  var _a3;
   const now = Date.now();
   const items = [];
   for (const t of tasks) {
     if (!t.due_at || t.status === "Done") continue;
     const due = new Date(t.due_at);
     const diff = daysFromToday(due);
-    const label2 = ((_a2 = (t.tags ?? []).map(getLabelById).find(Boolean)) == null ? void 0 : _a2.name) ?? (t.category && t.category !== "Other" ? t.category : "Task");
+    const label2 = ((_a3 = (t.tags ?? []).map(getLabelById).find(Boolean)) == null ? void 0 : _a3.name) ?? (t.category && t.category !== "Other" ? t.category : "Task");
     const rel = diff < 0 ? `Overdue ${-diff}d` : diff === 0 ? "Today" : diff <= 3 ? `In ${diff}d` : "";
     items.push({
       key: `t${t.id}`,
@@ -59971,18 +59971,18 @@ function RoutinePlanner({ open, onClose, canManage, onOpenOtherChecks }) {
   const now = currentSlot();
   const [phoneDay, setPhoneDay] = reactExports.useState(now.slice(0, 2));
   reactExports.useEffect(() => {
-    var _a2;
+    var _a3;
     if (!open) return;
     const opener = document.activeElement;
-    (_a2 = dialogRef.current) == null ? void 0 : _a2.focus({ preventScroll: true });
+    (_a3 = dialogRef.current) == null ? void 0 : _a3.focus({ preventScroll: true });
     const onKey = (e) => {
       if (e.key === "Escape" && !e.defaultPrevented) onCloseRef.current();
     };
     document.addEventListener("keydown", onKey);
     return () => {
-      var _a3;
+      var _a4;
       document.removeEventListener("keydown", onKey);
-      (_a3 = opener == null ? void 0 : opener.focus) == null ? void 0 : _a3.call(opener, { preventScroll: true });
+      (_a4 = opener == null ? void 0 : opener.focus) == null ? void 0 : _a4.call(opener, { preventScroll: true });
     };
   }, [open]);
   if (!open) return null;
@@ -60157,10 +60157,10 @@ function SlotList({
   onDrop
 }) {
   const [adding, setAdding] = reactExports.useState(false);
-  const [text, setText] = reactExports.useState("");
+  const [text2, setText] = reactExports.useState("");
   const isPhone = useIsPhone();
   const commit = (keepOpen) => {
-    const label2 = text.trim();
+    const label2 = text2.trim();
     if (label2) onAdd(label2);
     setText("");
     if (!keepOpen) setAdding(false);
@@ -60267,7 +60267,7 @@ function SlotList({
             autoFocus: true,
             "aria-label": "New item",
             placeholder: slot === "every" ? "e.g. BA sets checked" : "e.g. Hydrant inspections",
-            value: text,
+            value: text2,
             onChange: (e) => setText(e.target.value),
             onKeyDown: (e) => {
               if (e.key === "Enter") {
@@ -60444,7 +60444,7 @@ function ShiftProgress({ shift: shift2, stats, carriedOnly, onToggleCarried, com
   );
 }
 function Tasks() {
-  var _a2;
+  var _a3;
   const { user: user2 } = useAuth();
   const userRole = useUserRole();
   const { toast: toast2 } = useToast();
@@ -60533,10 +60533,10 @@ function Tasks() {
   });
   const initialsOf2 = (name) => name.split(/\s+/).filter(Boolean).map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "?";
   const userMap = reactExports.useMemo(() => {
-    var _a3;
+    var _a4;
     const map = {};
     for (const p of peopleData ?? []) {
-      const name = p.user.name || ((_a3 = p.user.email) == null ? void 0 : _a3.split("@")[0]) || "?";
+      const name = p.user.name || ((_a4 = p.user.email) == null ? void 0 : _a4.split("@")[0]) || "?";
       map[p.user.id] = { initials: initialsOf2(name), colour: "" };
     }
     return map;
@@ -60544,8 +60544,8 @@ function Tasks() {
   const people = reactExports.useMemo(() => {
     const watch = ((user2 == null ? void 0 : user2.watch_unit) ?? "").toLowerCase();
     return (peopleData ?? []).filter((p) => watch && (p.user.watch_unit ?? "").toLowerCase() === watch).map((p) => {
-      var _a3;
-      const name = p.user.name || ((_a3 = p.user.email) == null ? void 0 : _a3.split("@")[0]) || "?";
+      var _a4;
+      const name = p.user.name || ((_a4 = p.user.email) == null ? void 0 : _a4.split("@")[0]) || "?";
       return { id: p.user.id, name, initials: initialsOf2(name) };
     }).sort((a, b) => a.id === (user2 == null ? void 0 : user2.id) ? -1 : b.id === (user2 == null ? void 0 : user2.id) ? 1 : a.name.localeCompare(b.name));
   }, [peopleData, user2 == null ? void 0 : user2.id, user2 == null ? void 0 : user2.watch_unit]);
@@ -60819,10 +60819,10 @@ function Tasks() {
     ] })
   ] });
   const activeChips = [
-    ...filterAssignee ? [{ key: "p", label: ((_a2 = people.find((p) => p.id === filterAssignee)) == null ? void 0 : _a2.name) ?? "Person", clear: () => setFilterAssignee("") }] : [],
+    ...filterAssignee ? [{ key: "p", label: ((_a3 = people.find((p) => p.id === filterAssignee)) == null ? void 0 : _a3.name) ?? "Person", clear: () => setFilterAssignee("") }] : [],
     ...filterLabels.map((id) => {
-      var _a3;
-      return { key: `l-${id}`, label: ((_a3 = TASK_LABELS.find((l) => l.id === id)) == null ? void 0 : _a3.name) ?? id, clear: () => toggleLabel(id) };
+      var _a4;
+      return { key: `l-${id}`, label: ((_a4 = TASK_LABELS.find((l) => l.id === id)) == null ? void 0 : _a4.name) ?? id, clear: () => toggleLabel(id) };
     }),
     ...filterOverdue ? [{ key: "o", label: "Overdue / carried over", clear: () => setFilterOverdue(false) }] : []
   ];
@@ -61232,9 +61232,9 @@ function Popover({ onClose, children }) {
   const ref = reactExports.useRef(null);
   reactExports.useEffect(() => {
     const onDown = (e) => {
-      var _a2;
+      var _a3;
       const el = ref.current;
-      if (el && !el.contains(e.target) && !((_a2 = el.parentElement) == null ? void 0 : _a2.contains(e.target))) onClose();
+      if (el && !el.contains(e.target) && !((_a3 = el.parentElement) == null ? void 0 : _a3.contains(e.target))) onClose();
     };
     const onKey = (e) => {
       if (e.key === "Escape") onClose();
@@ -61365,7 +61365,7 @@ function SectionCard$1({
   ] });
 }
 function InspectionAssignments({ financialYear, quarter, year, exclude = [] }) {
-  var _a2, _b2;
+  var _a3, _b3;
   const sections = SECTION_CONFIG.filter((c) => !exclude.includes(c.type));
   const annualOnly = exclude.includes("multistory");
   const { toast: toast2 } = useToast();
@@ -61390,7 +61390,7 @@ function InspectionAssignments({ financialYear, quarter, year, exclude = [] }) {
     queryFn: () => backendClient.inspection_plans.listAssignments({ year, quarter: 0, watch: watchParam })
   });
   const isLoading = !annualOnly && msQ.isLoading || annualQ.isLoading;
-  const data = { items: [...((_a2 = msQ.data) == null ? void 0 : _a2.items) ?? [], ...((_b2 = annualQ.data) == null ? void 0 : _b2.items) ?? []] };
+  const data = { items: [...((_a3 = msQ.data) == null ? void 0 : _a3.items) ?? [], ...((_b3 = annualQ.data) == null ? void 0 : _b3.items) ?? []] };
   const generateMutation = useMutation({
     // Multi-story for the financial year, annual items for the calendar year
     // (one call when they're the same year, Apr–Dec).
@@ -61797,14 +61797,14 @@ function QuarterStrip({
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-4 sm:overflow-visible sm:px-0 [scrollbar-width:none]", children: QS.map((q, i) => {
-      var _a2, _b2;
+      var _a3, _b3;
       const fq = fyQuarter(fy, q);
       const time = quarterTime(fq);
       const hf = results[i * 3].data;
       const cm = results[i * 3 + 1].data;
       const ms = results[i * 3 + 2].data;
-      const msDone = ((_a2 = ms == null ? void 0 : ms.totals) == null ? void 0 : _a2.complete) ?? 0;
-      const msTotal = msDone + (((_b2 = ms == null ? void 0 : ms.totals) == null ? void 0 : _b2.pending) ?? 0);
+      const msDone = ((_a3 = ms == null ? void 0 : ms.totals) == null ? void 0 : _a3.complete) ?? 0;
+      const msTotal = msDone + (((_b3 = ms == null ? void 0 : ms.totals) == null ? void 0 : _b3.pending) ?? 0);
       const rows = [
         { k: "HFSV", done: (hf == null ? void 0 : hf.total_completed) ?? 0, target: HFSV_TARGET_Q, extra: true },
         { k: "Community", done: (cm == null ? void 0 : cm.total_completed) ?? 0, target: COMMUNITY_TARGET_Q, extra: ((cm == null ? void 0 : cm.total_tap_completed) ?? 0) >= COMMUNITY_TAP_MIN },
@@ -61859,11 +61859,11 @@ function ActivityDrawer({
   open,
   onClose
 }) {
-  var _a2, _b2;
+  var _a3, _b3;
   const qc = useQueryClient();
   const { toast: toast2 } = useToast();
   const auth = useAuth();
-  const isWCOrCC = ((_a2 = auth.user) == null ? void 0 : _a2.role) === "WC" || ((_b2 = auth.user) == null ? void 0 : _b2.role) === "CC";
+  const isWCOrCC = ((_a3 = auth.user) == null ? void 0 : _a3.role) === "WC" || ((_b3 = auth.user) == null ? void 0 : _b3.role) === "CC";
   const actKey = ["activities", type, watch, financial_year, quarter];
   const { data, isLoading } = useQuery({
     queryKey: actKey,
@@ -62440,7 +62440,7 @@ function StationComparison({
     queryFn: () => backendClient.hydrants.getHydrantSummary({ year })
   });
   const rows = STATION_WATCHES.map((w, i) => {
-    var _a2, _b2;
+    var _a3, _b3;
     const hf = results[i * 3].data;
     const cm = results[i * 3 + 1].data;
     const ms = results[i * 3 + 2].data;
@@ -62448,8 +62448,8 @@ function StationComparison({
     const hfDone = (hf == null ? void 0 : hf.total_completed) ?? 0;
     const cmDone = (cm == null ? void 0 : cm.total_completed) ?? 0;
     const tap = (cm == null ? void 0 : cm.total_tap_completed) ?? 0;
-    const msDone = ((_a2 = ms == null ? void 0 : ms.totals) == null ? void 0 : _a2.complete) ?? 0;
-    const msTotal = msDone + (((_b2 = ms == null ? void 0 : ms.totals) == null ? void 0 : _b2.pending) ?? 0);
+    const msDone = ((_a3 = ms == null ? void 0 : ms.totals) == null ? void 0 : _a3.complete) ?? 0;
+    const msTotal = msDone + (((_b3 = ms == null ? void 0 : ms.totals) == null ? void 0 : _b3.pending) ?? 0);
     const hyDone = (hy == null ? void 0 : hy.done) ?? 0;
     const hyTotal = (hy == null ? void 0 : hy.total) ?? 0;
     return {
@@ -62674,6 +62674,516 @@ function Targets() {
     ] })
   ] });
 }
+var u8 = Uint8Array, u16 = Uint16Array, i32 = Int32Array;
+var fleb = new u8([
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  1,
+  1,
+  1,
+  1,
+  2,
+  2,
+  2,
+  2,
+  3,
+  3,
+  3,
+  3,
+  4,
+  4,
+  4,
+  4,
+  5,
+  5,
+  5,
+  5,
+  0,
+  /* unused */
+  0,
+  0,
+  /* impossible */
+  0
+]);
+var fdeb = new u8([
+  0,
+  0,
+  0,
+  0,
+  1,
+  1,
+  2,
+  2,
+  3,
+  3,
+  4,
+  4,
+  5,
+  5,
+  6,
+  6,
+  7,
+  7,
+  8,
+  8,
+  9,
+  9,
+  10,
+  10,
+  11,
+  11,
+  12,
+  12,
+  13,
+  13,
+  /* unused */
+  0,
+  0
+]);
+var clim = new u8([16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15]);
+var freb = function(eb, start) {
+  var b = new u16(31);
+  for (var i = 0; i < 31; ++i) {
+    b[i] = start += 1 << eb[i - 1];
+  }
+  var r2 = new i32(b[30]);
+  for (var i = 1; i < 30; ++i) {
+    for (var j = b[i]; j < b[i + 1]; ++j) {
+      r2[j] = j - b[i] << 5 | i;
+    }
+  }
+  return { b, r: r2 };
+};
+var _a = freb(fleb, 2), fl = _a.b, revfl = _a.r;
+fl[28] = 258, revfl[258] = 28;
+var _b = freb(fdeb, 0), fd = _b.b;
+var rev = new u16(32768);
+for (var i = 0; i < 32768; ++i) {
+  var x = (i & 43690) >> 1 | (i & 21845) << 1;
+  x = (x & 52428) >> 2 | (x & 13107) << 2;
+  x = (x & 61680) >> 4 | (x & 3855) << 4;
+  rev[i] = ((x & 65280) >> 8 | (x & 255) << 8) >> 1;
+}
+var hMap = (function(cd, mb, r2) {
+  var s = cd.length;
+  var i = 0;
+  var l = new u16(mb);
+  for (; i < s; ++i) {
+    if (cd[i])
+      ++l[cd[i] - 1];
+  }
+  var le = new u16(mb);
+  for (i = 1; i < mb; ++i) {
+    le[i] = le[i - 1] + l[i - 1] << 1;
+  }
+  var co;
+  if (r2) {
+    co = new u16(1 << mb);
+    var rvb = 15 - mb;
+    for (i = 0; i < s; ++i) {
+      if (cd[i]) {
+        var sv = i << 4 | cd[i];
+        var r_1 = mb - cd[i];
+        var v = le[cd[i] - 1]++ << r_1;
+        for (var m = v | (1 << r_1) - 1; v <= m; ++v) {
+          co[rev[v] >> rvb] = sv;
+        }
+      }
+    }
+  } else {
+    co = new u16(s);
+    for (i = 0; i < s; ++i) {
+      if (cd[i]) {
+        co[i] = rev[le[cd[i] - 1]++] >> 15 - cd[i];
+      }
+    }
+  }
+  return co;
+});
+var flt = new u8(288);
+for (var i = 0; i < 144; ++i)
+  flt[i] = 8;
+for (var i = 144; i < 256; ++i)
+  flt[i] = 9;
+for (var i = 256; i < 280; ++i)
+  flt[i] = 7;
+for (var i = 280; i < 288; ++i)
+  flt[i] = 8;
+var fdt = new u8(32);
+for (var i = 0; i < 32; ++i)
+  fdt[i] = 5;
+var flrm = /* @__PURE__ */ hMap(flt, 9, 1);
+var fdrm = /* @__PURE__ */ hMap(fdt, 5, 1);
+var max = function(a) {
+  var m = a[0];
+  for (var i = 1; i < a.length; ++i) {
+    if (a[i] > m)
+      m = a[i];
+  }
+  return m;
+};
+var bits = function(d, p, m) {
+  var o = p / 8 | 0;
+  return (d[o] | d[o + 1] << 8) >> (p & 7) & m;
+};
+var bits16 = function(d, p) {
+  var o = p / 8 | 0;
+  return (d[o] | d[o + 1] << 8 | d[o + 2] << 16) >> (p & 7);
+};
+var shft = function(p) {
+  return (p + 7) / 8 | 0;
+};
+var slc = function(v, s, e) {
+  if (s == null || s < 0)
+    s = 0;
+  if (e == null || e > v.length)
+    e = v.length;
+  return new u8(v.subarray(s, e));
+};
+var ec = [
+  "unexpected EOF",
+  "invalid block type",
+  "invalid length/literal",
+  "invalid distance",
+  "stream finished",
+  "no stream handler",
+  ,
+  "no callback",
+  "invalid UTF-8 data",
+  "extra field too long",
+  "date not in range 1980-2099",
+  "filename too long",
+  "stream finishing",
+  "invalid zip data"
+  // determined by unknown compression method
+];
+var err = function(ind, msg, nt) {
+  var e = new Error(msg || ec[ind]);
+  e.code = ind;
+  if (Error.captureStackTrace)
+    Error.captureStackTrace(e, err);
+  if (!nt)
+    throw e;
+  return e;
+};
+var inflt = function(dat, st, buf, dict) {
+  var sl = dat.length, dl = dict ? dict.length : 0;
+  if (!sl || st.f && !st.l)
+    return buf || new u8(0);
+  var noBuf = !buf;
+  var resize = noBuf || st.i != 2;
+  var noSt = st.i;
+  if (noBuf)
+    buf = new u8(sl * 3);
+  var cbuf = function(l2) {
+    var bl = buf.length;
+    if (l2 > bl) {
+      var nbuf = new u8(Math.max(bl * 2, l2));
+      nbuf.set(buf);
+      buf = nbuf;
+    }
+  };
+  var final = st.f || 0, pos = st.p || 0, bt = st.b || 0, lm = st.l, dm = st.d, lbt = st.m, dbt = st.n;
+  var tbts = sl * 8;
+  do {
+    if (!lm) {
+      final = bits(dat, pos, 1);
+      var type = bits(dat, pos + 1, 3);
+      pos += 3;
+      if (!type) {
+        var s = shft(pos) + 4, l = dat[s - 4] | dat[s - 3] << 8, t = s + l;
+        if (t > sl) {
+          if (noSt)
+            err(0);
+          break;
+        }
+        if (resize)
+          cbuf(bt + l);
+        buf.set(dat.subarray(s, t), bt);
+        st.b = bt += l, st.p = pos = t * 8, st.f = final;
+        continue;
+      } else if (type == 1)
+        lm = flrm, dm = fdrm, lbt = 9, dbt = 5;
+      else if (type == 2) {
+        var hLit = bits(dat, pos, 31) + 257, hcLen = bits(dat, pos + 10, 15) + 4;
+        var tl = hLit + bits(dat, pos + 5, 31) + 1;
+        pos += 14;
+        var ldt = new u8(tl);
+        var clt = new u8(19);
+        for (var i = 0; i < hcLen; ++i) {
+          clt[clim[i]] = bits(dat, pos + i * 3, 7);
+        }
+        pos += hcLen * 3;
+        var clb = max(clt), clbmsk = (1 << clb) - 1;
+        var clm = hMap(clt, clb, 1);
+        for (var i = 0; i < tl; ) {
+          var r2 = clm[bits(dat, pos, clbmsk)];
+          pos += r2 & 15;
+          var s = r2 >> 4;
+          if (s < 16) {
+            ldt[i++] = s;
+          } else {
+            var c = 0, n = 0;
+            if (s == 16)
+              n = 3 + bits(dat, pos, 3), pos += 2, c = ldt[i - 1];
+            else if (s == 17)
+              n = 3 + bits(dat, pos, 7), pos += 3;
+            else if (s == 18)
+              n = 11 + bits(dat, pos, 127), pos += 7;
+            while (n--)
+              ldt[i++] = c;
+          }
+        }
+        var lt = ldt.subarray(0, hLit), dt = ldt.subarray(hLit);
+        lbt = max(lt);
+        dbt = max(dt);
+        lm = hMap(lt, lbt, 1);
+        dm = hMap(dt, dbt, 1);
+      } else
+        err(1);
+      if (pos > tbts) {
+        if (noSt)
+          err(0);
+        break;
+      }
+    }
+    if (resize)
+      cbuf(bt + 131072);
+    var lms = (1 << lbt) - 1, dms = (1 << dbt) - 1;
+    var lpos = pos;
+    for (; ; lpos = pos) {
+      var c = lm[bits16(dat, pos) & lms], sym = c >> 4;
+      pos += c & 15;
+      if (pos > tbts) {
+        if (noSt)
+          err(0);
+        break;
+      }
+      if (!c)
+        err(2);
+      if (sym < 256)
+        buf[bt++] = sym;
+      else if (sym == 256) {
+        lpos = pos, lm = null;
+        break;
+      } else {
+        var add2 = sym - 254;
+        if (sym > 264) {
+          var i = sym - 257, b = fleb[i];
+          add2 = bits(dat, pos, (1 << b) - 1) + fl[i];
+          pos += b;
+        }
+        var d = dm[bits16(dat, pos) & dms], dsym = d >> 4;
+        if (!d)
+          err(3);
+        pos += d & 15;
+        var dt = fd[dsym];
+        if (dsym > 3) {
+          var b = fdeb[dsym];
+          dt += bits16(dat, pos) & (1 << b) - 1, pos += b;
+        }
+        if (pos > tbts) {
+          if (noSt)
+            err(0);
+          break;
+        }
+        if (resize)
+          cbuf(bt + 131072);
+        var end = bt + add2;
+        if (bt < dt) {
+          var shift2 = dl - dt, dend = Math.min(dt, end);
+          if (shift2 + bt < 0)
+            err(3);
+          for (; bt < dend; ++bt)
+            buf[bt] = dict[shift2 + bt];
+        }
+        for (; bt < end; ++bt)
+          buf[bt] = buf[bt - dt];
+      }
+    }
+    st.l = lm, st.p = lpos, st.b = bt, st.f = final;
+    if (lm)
+      final = 1, st.m = lbt, st.d = dm, st.n = dbt;
+  } while (!final);
+  return bt != buf.length && noBuf ? slc(buf, 0, bt) : buf.subarray(0, bt);
+};
+var et = /* @__PURE__ */ new u8(0);
+var b2 = function(d, b) {
+  return d[b] | d[b + 1] << 8;
+};
+var b4 = function(d, b) {
+  return (d[b] | d[b + 1] << 8 | d[b + 2] << 16 | d[b + 3] << 24) >>> 0;
+};
+var b8 = function(d, b) {
+  return b4(d, b) + b4(d, b + 4) * 4294967296;
+};
+function inflateSync(data, opts) {
+  return inflt(data, { i: 2 }, opts && opts.out, opts && opts.dictionary);
+}
+var td = typeof TextDecoder != "undefined" && /* @__PURE__ */ new TextDecoder();
+var tds = 0;
+try {
+  td.decode(et, { stream: true });
+  tds = 1;
+} catch (e) {
+}
+var dutf8 = function(d) {
+  for (var r2 = "", i = 0; ; ) {
+    var c = d[i++];
+    var eb = (c > 127) + (c > 223) + (c > 239);
+    if (i + eb > d.length)
+      return { s: r2, r: slc(d, i - 1) };
+    if (!eb)
+      r2 += String.fromCharCode(c);
+    else if (eb == 3) {
+      c = ((c & 15) << 18 | (d[i++] & 63) << 12 | (d[i++] & 63) << 6 | d[i++] & 63) - 65536, r2 += String.fromCharCode(55296 | c >> 10, 56320 | c & 1023);
+    } else if (eb & 1)
+      r2 += String.fromCharCode((c & 31) << 6 | d[i++] & 63);
+    else
+      r2 += String.fromCharCode((c & 15) << 12 | (d[i++] & 63) << 6 | d[i++] & 63);
+  }
+};
+function strFromU8(dat, latin1) {
+  if (latin1) {
+    var r2 = "";
+    for (var i = 0; i < dat.length; i += 16384)
+      r2 += String.fromCharCode.apply(null, dat.subarray(i, i + 16384));
+    return r2;
+  } else if (td) {
+    return td.decode(dat);
+  } else {
+    var _a3 = dutf8(dat), s = _a3.s, r2 = _a3.r;
+    if (r2.length)
+      err(8);
+    return s;
+  }
+}
+var slzh = function(d, b) {
+  return b + 30 + b2(d, b + 26) + b2(d, b + 28);
+};
+var zh = function(d, b, z) {
+  var fnl = b2(d, b + 28), fn = strFromU8(d.subarray(b + 46, b + 46 + fnl), !(b2(d, b + 8) & 2048)), es = b + 46 + fnl, bs = b4(d, b + 20);
+  var _a3 = z && bs == 4294967295 ? z64e(d, es) : [bs, b4(d, b + 24), b4(d, b + 42)], sc = _a3[0], su = _a3[1], off = _a3[2];
+  return [b2(d, b + 10), sc, su, fn, es + b2(d, b + 30) + b2(d, b + 32), off];
+};
+var z64e = function(d, b) {
+  for (; b2(d, b) != 1; b += 4 + b2(d, b + 2))
+    ;
+  return [b8(d, b + 12), b8(d, b + 4), b8(d, b + 20)];
+};
+function unzipSync(data, opts) {
+  var files = {};
+  var e = data.length - 22;
+  for (; b4(data, e) != 101010256; --e) {
+    if (!e || data.length - e > 65558)
+      err(13);
+  }
+  var c = b2(data, e + 8);
+  if (!c)
+    return {};
+  var o = b4(data, e + 16);
+  var z = o == 4294967295 || c == 65535;
+  if (z) {
+    var ze = b4(data, e - 12);
+    z = b4(data, ze) == 101075792;
+    if (z) {
+      c = b4(data, ze + 32);
+      o = b4(data, ze + 48);
+    }
+  }
+  for (var i = 0; i < c; ++i) {
+    var _a3 = zh(data, o, z), c_2 = _a3[0], sc = _a3[1], su = _a3[2], fn = _a3[3], no = _a3[4], off = _a3[5], b = slzh(data, off);
+    o = no;
+    {
+      if (!c_2)
+        files[fn] = slc(data, b, b + sc);
+      else if (c_2 == 8)
+        files[fn] = inflateSync(data.subarray(b, b + sc), { out: new u8(su) });
+      else
+        err(14, "unknown compression type " + c_2);
+    }
+  }
+  return files;
+}
+const GONE = /* @__PURE__ */ new Set(["abandoned", "removed", "remaoved", "no longer in use"]);
+const COL = { hyd: "A", ref: "B", street: "D", location: "F", main: "H", surface: "I", marker: "J", dist: "K", comment: "X" };
+function xml(files, path) {
+  const f = files[path];
+  return f ? new DOMParser().parseFromString(strFromU8(f), "application/xml") : null;
+}
+const byTag = (n, tag) => {
+  const ns = n.getElementsByTagNameNS("*", tag);
+  return Array.from(ns.length ? ns : n.getElementsByTagName(tag));
+};
+const text = (n) => byTag(n, "t").map((t) => t.textContent ?? "").join("");
+function routeFromSheet(name) {
+  const m = /^S\.?\s*P[\s.]*(\d+)[\s.]*(.*)$/i.exec(name.trim());
+  return m ? m[1] + m[2].replace(/[^A-Za-z+]/g, "").toUpperCase() : null;
+}
+function readHydrantWorkbook(buf) {
+  var _a3;
+  const files = unzipSync(new Uint8Array(buf));
+  const book = xml(files, "xl/workbook.xml");
+  const rels = xml(files, "xl/_rels/workbook.xml.rels");
+  if (!book || !rels) throw new Error("This isn't an Excel workbook");
+  const shared = byTag(xml(files, "xl/sharedStrings.xml") ?? new Document(), "si").map(text);
+  const target = new Map(byTag(rels, "Relationship").map((r2) => [r2.getAttribute("Id"), r2.getAttribute("Target") ?? ""]));
+  const out = [];
+  for (const sheet of byTag(book, "sheet")) {
+    const route = routeFromSheet(sheet.getAttribute("name") ?? "");
+    const rid = sheet.getAttribute("r:id") ?? sheet.getAttributeNS("http://schemas.openxmlformats.org/officeDocument/2006/relationships", "id");
+    const path = (target.get(rid) ?? "").replace(/^\/?(xl\/)?/, "xl/");
+    const doc = route ? xml(files, path) : null;
+    if (!route || !doc) continue;
+    for (const row of byTag(doc, "row")) {
+      const cells = {};
+      for (const c of byTag(row, "c")) {
+        const col = (c.getAttribute("r") ?? "").replace(/\d+/g, "");
+        const t = c.getAttribute("t");
+        const v = ((_a3 = byTag(c, "v")[0]) == null ? void 0 : _a3.textContent) ?? "";
+        cells[col] = (t === "s" ? shared[Number(v)] ?? "" : t === "inlineStr" ? text(c) : v).trim();
+      }
+      const seq = Number(cells[COL.hyd]);
+      if (cells[COL.hyd] === "" || !Number.isInteger(seq) || seq < 0 || !cells[COL.street]) continue;
+      const ref = cells[COL.ref] || null;
+      const deadRef = !!ref && GONE.has(ref.toLowerCase());
+      const deadNote = GONE.has((cells[COL.comment] ?? "").toLowerCase());
+      const opt = (k) => cells[COL[k]] && cells[COL[k]] !== "None" ? cells[COL[k]] : null;
+      out.push({
+        route,
+        seq,
+        ref: deadRef ? null : ref,
+        street: cells[COL.street],
+        location: opt("location"),
+        main_size: opt("main"),
+        surface: opt("surface"),
+        marker: opt("marker"),
+        dist: opt("dist"),
+        in_use: !deadRef && !deadNote
+      });
+    }
+  }
+  return out;
+}
+async function readHydrantWorkbooks(files) {
+  const seen = /* @__PURE__ */ new Set();
+  const all = [];
+  for (const f of files) {
+    for (const h of readHydrantWorkbook(await f.arrayBuffer())) {
+      const k = `${h.route}#${h.seq}`;
+      if (seen.has(k)) continue;
+      seen.add(k);
+      all.push(h);
+    }
+  }
+  return all;
+}
 const INSPECTION_CODES = {
   1: "Fully functional",
   2: "Unable to inspect – assistance required",
@@ -62750,9 +63260,9 @@ function Hydrants() {
     qc.invalidateQueries({ queryKey: ["hydrants"] });
     invalidateTargetViews(qc);
   };
-  const failed = (err) => {
+  const failed = (err2) => {
     qc.invalidateQueries({ queryKey: key2 });
-    toast2({ title: "Couldn't save the hydrant", description: err instanceof Error ? err.message : void 0, variant: "destructive" });
+    toast2({ title: "Couldn't save the hydrant", description: err2 instanceof Error ? err2.message : void 0, variant: "destructive" });
   };
   const save = useMutation({
     mutationFn: ({ h, patch }) => backendClient.hydrants.saveHydrantInspection(h.id, patch),
@@ -62787,6 +63297,53 @@ function Hydrants() {
     onError: failed,
     onSettled: refresh
   });
+  const fileInput = reactExports.useRef(null);
+  const importBooks = useMutation({
+    mutationFn: async (files) => {
+      const list = await readHydrantWorkbooks(files);
+      if (list.length === 0) throw new Error("No route sheets found — pick the 'COG Hydrant Records' workbooks.");
+      const res = await backendClient.hydrants.importHydrants({ hydrants: list });
+      return { ...res, routes: new Set(list.map((h) => h.route)).size };
+    },
+    onSuccess: (r2) => toast2({ title: `Loaded ${r2.created + r2.updated} hydrants on ${r2.routes} routes`, description: r2.updated ? `${r2.created} new, ${r2.updated} updated. Ticks already made are kept.` : void 0 }),
+    onError: (err2) => toast2({ title: "Couldn't load the workbooks", description: err2 instanceof Error ? err2.message : void 0, variant: "destructive" }),
+    onSettled: refresh
+  });
+  const loadButton = isManager && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "input",
+      {
+        ref: fileInput,
+        type: "file",
+        multiple: true,
+        accept: ".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        className: "hidden",
+        "aria-label": "Route workbooks",
+        onChange: (e) => {
+          const files = Array.from(e.target.files ?? []);
+          e.target.value = "";
+          if (files.length) importBooks.mutate(files);
+        }
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "button",
+      {
+        type: "button",
+        onClick: () => {
+          var _a3;
+          return (_a3 = fileInput.current) == null ? void 0 : _a3.click();
+        },
+        disabled: importBooks.isPending,
+        className: "inline-flex h-9 items-center gap-2 rounded-lg border border-border px-3 text-sm font-medium hover:bg-muted disabled:opacity-60",
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { className: "h-4 w-4" }),
+          " ",
+          importBooks.isPending ? "Loading…" : (data == null ? void 0 : data.loaded) ? "Update routes from workbooks" : "Load route workbooks"
+        ]
+      }
+    )
+  ] });
   const tick = (h) => {
     if (!h.inspection) {
       save.mutate({ h, patch: { year } });
@@ -62884,7 +63441,13 @@ function Hydrants() {
         w
       )) })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("section", { className: "rounded-2xl border border-border/70 bg-card p-4 sm:p-5", children: isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "Loading…" }) : isError || !data ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "Couldn't load the hydrant route." }) : !data.loaded ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "The hydrant routes haven't been loaded yet." }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-3", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("section", { className: "rounded-2xl border border-border/70 bg-card p-4 sm:p-5", children: isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "Loading…" }) : isError || !data ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "Couldn't load the hydrant route." }) : !data.loaded ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-start gap-3 text-sm", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-muted-foreground", children: [
+        "The hydrant routes haven't been loaded yet.",
+        isManager ? " Pick the four 'COG Hydrant Records' workbooks (1-10, 11-20, 21-30, 31-40) from SharePoint." : " A WC or CC loads them from the route workbooks."
+      ] }),
+      loadButton
+    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-x-4 gap-y-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono text-3xl font-semibold tabular-nums leading-none", children: [
           done,
@@ -62997,7 +63560,11 @@ function Hydrants() {
             h.id
           )) })
         ] }, r2.route);
-      }) })
+      }) }),
+      loadButton && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-3 text-xs text-muted-foreground", children: [
+        loadButton,
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Re-load the SharePoint workbooks when a route changes; ticks are kept." })
+      ] })
     ] })
   ] });
 }
@@ -63166,14 +63733,14 @@ function YesNo({
   ] });
 }
 function CommentBox({ initial, wanted, disabled, onSave }) {
-  const [text, setText] = reactExports.useState(initial);
+  const [text2, setText] = reactExports.useState(initial);
   const commit = () => {
-    if (text.trim() !== initial.trim()) onSave(text.trim() || null);
+    if (text2.trim() !== initial.trim()) onSave(text2.trim() || null);
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
     "input",
     {
-      value: text,
+      value: text2,
       disabled,
       onChange: (e) => setText(e.target.value),
       onBlur: commit,
@@ -63266,8 +63833,8 @@ function PolicyUpload({ open, onOpenChange }) {
     }
   });
   const handleFileSelect = (e) => {
-    var _a2;
-    const file = (_a2 = e.target.files) == null ? void 0 : _a2[0];
+    var _a3;
+    const file = (_a3 = e.target.files) == null ? void 0 : _a3[0];
     if (file) {
       if (file.type !== "application/pdf") {
         toast2({
@@ -63880,11 +64447,11 @@ function NewReportDialog({
       onClose();
       navigate(`/reports/quarterly/${data.report.id}`);
     },
-    onError: (err) => {
-      var _a2;
+    onError: (err2) => {
+      var _a3;
       toast2({
         title: "Failed to create report",
-        description: ((_a2 = err.message) == null ? void 0 : _a2.includes("already exists")) ? "A report for this watch/quarter already exists." : err.message,
+        description: ((_a3 = err2.message) == null ? void 0 : _a3.includes("already exists")) ? "A report for this watch/quarter already exists." : err2.message,
         variant: "destructive"
       });
     }
@@ -64061,13 +64628,13 @@ function Reports() {
     onError: () => toast2({ title: "Error", description: "Failed to import", variant: "destructive" })
   });
   const handleFileUpload = (event) => {
-    var _a2;
-    const file = (_a2 = event.target.files) == null ? void 0 : _a2[0];
+    var _a3;
+    const file = (_a3 = event.target.files) == null ? void 0 : _a3[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (e) => {
-      var _a3;
-      return setCsvData((_a3 = e.target) == null ? void 0 : _a3.result);
+      var _a4;
+      return setCsvData((_a4 = e.target) == null ? void 0 : _a4.result);
     };
     reader.readAsText(file);
   };
@@ -64430,14 +64997,14 @@ function QuarterlyReportPage() {
     [updateItemMut]
   );
   const handleRationale = reactExports.useCallback(
-    (itemId, text) => {
-      updateItemMut.mutate({ itemId, params: { rationale: text } });
+    (itemId, text2) => {
+      updateItemMut.mutate({ itemId, params: { rationale: text2 } });
     },
     [updateItemMut]
   );
   const handleTargetText = reactExports.useCallback(
-    (itemId, text) => {
-      updateItemMut.mutate({ itemId, params: { target_text: text } });
+    (itemId, text2) => {
+      updateItemMut.mutate({ itemId, params: { target_text: text2 } });
     },
     [updateItemMut]
   );
@@ -64774,7 +65341,7 @@ function QuarterlyReportPrint() {
   ] });
 }
 function OffboardingWizard({ user: user2, open, onClose, onComplete }) {
-  var _a2;
+  var _a3;
   const [step, setStep] = reactExports.useState(1);
   const [deactivationDate, setDeactivationDate] = reactExports.useState(
     (/* @__PURE__ */ new Date()).toISOString().split("T")[0]
@@ -65000,7 +65567,7 @@ function OffboardingWizard({ user: user2, open, onClose, onComplete }) {
         ] }),
         replacementUserId && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "Replacement:" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: (_a2 = activeUsers.find((u) => u.id === replacementUserId)) == null ? void 0 : _a2.name })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: (_a3 = activeUsers.find((u) => u.id === replacementUserId)) == null ? void 0 : _a3.name })
         ] }),
         hasAssetsToReassign && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2 border-t border-border", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground mb-1", children: "Assets to reassign:" }),
@@ -65213,9 +65780,9 @@ var AlertDialogContent$1 = reactExports.forwardRef(
             ...contentProps,
             ref: composedRefs,
             onOpenAutoFocus: composeEventHandlers(contentProps.onOpenAutoFocus, (event) => {
-              var _a2;
+              var _a3;
               event.preventDefault();
-              (_a2 = cancelRef.current) == null ? void 0 : _a2.focus({ preventScroll: true });
+              (_a3 = cancelRef.current) == null ? void 0 : _a3.focus({ preventScroll: true });
             }),
             onPointerDownOutside: (event) => event.preventDefault(),
             onInteractOutside: (event) => event.preventDefault(),
@@ -65275,9 +65842,9 @@ Alternatively, you can use your own component as a description by assigning it a
 
 For more information, see https://radix-ui.com/primitives/docs/components/alert-dialog`;
   reactExports.useEffect(() => {
-    var _a2;
+    var _a3;
     const hasDescription = document.getElementById(
-      (_a2 = contentRef.current) == null ? void 0 : _a2.getAttribute("aria-describedby")
+      (_a3 = contentRef.current) == null ? void 0 : _a3.getAttribute("aria-describedby")
     );
     if (!hasDescription) console.warn(MESSAGE);
   }, [MESSAGE, contentRef]);
@@ -66508,7 +67075,7 @@ const TABLE_OPTIONS = [
   { value: "policy_documents", label: "Policy Documents" }
 ];
 function CSVExportUtility() {
-  var _a2;
+  var _a3;
   const { toast: toast2 } = useToast();
   const [selectedTable, setSelectedTable] = reactExports.useState("users");
   const exportMutation = useMutation({
@@ -66586,7 +67153,7 @@ function CSVExportUtility() {
           ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { className: "mr-2 h-4 w-4" }),
             "Export ",
-            (_a2 = TABLE_OPTIONS.find((t) => t.value === selectedTable)) == null ? void 0 : _a2.label,
+            (_a3 = TABLE_OPTIONS.find((t) => t.value === selectedTable)) == null ? void 0 : _a3.label,
             " to CSV"
           ] })
         }
@@ -67363,7 +67930,7 @@ function ApplianceCard({
   onManageEquipment,
   canManage
 }) {
-  var _a2, _b2, _c2;
+  var _a3, _b3, _c2;
   const { data: equipmentData } = useQuery({
     queryKey: ["equipment", appliance2.id],
     queryFn: async () => {
@@ -67393,8 +67960,8 @@ function ApplianceCard({
       return result;
     }
   });
-  const equipmentCount = ((_a2 = equipmentData == null ? void 0 : equipmentData.items) == null ? void 0 : _a2.length) || 0;
-  const latestCheck = (_b2 = checksData == null ? void 0 : checksData.checks) == null ? void 0 : _b2[0];
+  const equipmentCount = ((_a3 = equipmentData == null ? void 0 : equipmentData.items) == null ? void 0 : _a3.length) || 0;
+  const latestCheck = (_b3 = checksData == null ? void 0 : checksData.checks) == null ? void 0 : _b3[0];
   const openDefects = ((_c2 = defectsData == null ? void 0 : defectsData.defects) == null ? void 0 : _c2.length) || 0;
   const typeIcon = appliance2.type === "Decon" ? Shield : Truck;
   const TypeIcon = typeIcon;
@@ -67768,8 +68335,8 @@ function CheckHistory({ appliances }) {
   });
   const checks = (checksData == null ? void 0 : checksData.checks) || [];
   const getApplianceCallSign = (applianceId2) => {
-    var _a2;
-    return ((_a2 = appliances.find((a) => a.id === applianceId2)) == null ? void 0 : _a2.call_sign) || "Unknown";
+    var _a3;
+    return ((_a3 = appliances.find((a) => a.id === applianceId2)) == null ? void 0 : _a3.call_sign) || "Unknown";
   };
   const handleViewDetail = (checkId) => {
     setSelectedCheckId(checkId);
@@ -68174,8 +68741,8 @@ function EquipmentManager({
   });
   const items = (equipmentData == null ? void 0 : equipmentData.items) || [];
   const categoryLabel = (cat) => {
-    var _a2;
-    return ((_a2 = CATEGORIES$1.find((c) => c.value === cat)) == null ? void 0 : _a2.label) || cat;
+    var _a3;
+    return ((_a3 = CATEGORIES$1.find((c) => c.value === cat)) == null ? void 0 : _a3.label) || cat;
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-3xl max-h-[85vh] overflow-y-auto", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
@@ -68527,7 +69094,7 @@ function ReportDefectDialog({
   defaultApplianceId,
   onReported
 }) {
-  var _a2, _b2;
+  var _a3, _b3;
   const { toast: toast2 } = useToast();
   const queryClient2 = useQueryClient();
   const [defectType, setDefectType] = reactExports.useState("equipment");
@@ -68551,13 +69118,13 @@ function ReportDefectDialog({
     queryFn: async () => backendClient.appliance.listAppliances({}),
     enabled: open && defectType !== "station"
   });
-  const appliances = ((_a2 = appliancesQuery.data) == null ? void 0 : _a2.appliances) ?? [];
+  const appliances = ((_a3 = appliancesQuery.data) == null ? void 0 : _a3.appliances) ?? [];
   const equipmentQuery = useQuery({
     queryKey: ["equipment-items", applianceId],
     queryFn: async () => backendClient.appliance.listEquipment({ appliance_id: Number(applianceId) }),
     enabled: open && defectType === "equipment" && !!applianceId
   });
-  const equipmentItems = ((_b2 = equipmentQuery.data) == null ? void 0 : _b2.items) ?? [];
+  const equipmentItems = ((_b3 = equipmentQuery.data) == null ? void 0 : _b3.items) ?? [];
   const valid = reactExports.useMemo(() => {
     if (!title.trim() || !description.trim()) return false;
     if (defectType === "equipment") return !!applianceId && !!equipmentId;
@@ -68747,7 +69314,7 @@ function TypePill({
   );
 }
 function EquipmentChecks() {
-  var _a2, _b2;
+  var _a3, _b3;
   const isWC = useIsWatchCommander();
   const isCC = useIsCrewCommander();
   const [activeTab, setActiveTab] = reactExports.useState("appliances");
@@ -68869,7 +69436,7 @@ function EquipmentChecks() {
         open: checkFormOpen,
         onOpenChange: setCheckFormOpen,
         applianceId: selectedApplianceId,
-        applianceName: ((_a2 = appliances.find((a) => a.id === selectedApplianceId)) == null ? void 0 : _a2.call_sign) || ""
+        applianceName: ((_a3 = appliances.find((a) => a.id === selectedApplianceId)) == null ? void 0 : _a3.call_sign) || ""
       }
     ),
     selectedApplianceId && /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -68878,7 +69445,7 @@ function EquipmentChecks() {
         open: manageEquipmentOpen,
         onOpenChange: setManageEquipmentOpen,
         applianceId: selectedApplianceId,
-        applianceName: ((_b2 = appliances.find((a) => a.id === selectedApplianceId)) == null ? void 0 : _b2.call_sign) || ""
+        applianceName: ((_b3 = appliances.find((a) => a.id === selectedApplianceId)) == null ? void 0 : _b3.call_sign) || ""
       }
     ),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -69298,7 +69865,7 @@ function MyCalendar() {
   ] });
 }
 function MyProfile() {
-  var _a2, _b2, _c2, _d2;
+  var _a3, _b3, _c2, _d2;
   const { user: user2 } = useAuth();
   const { toast: toast2 } = useToast();
   const queryClient2 = useQueryClient();
@@ -69513,7 +70080,7 @@ function MyProfile() {
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "LGV Driver" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: ((_a2 = profile2 == null ? void 0 : profile2.driver) == null ? void 0 : _a2.lgv) ? "default" : "outline", children: ((_b2 = profile2 == null ? void 0 : profile2.driver) == null ? void 0 : _b2.lgv) ? "Yes" : "No" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: ((_a3 = profile2 == null ? void 0 : profile2.driver) == null ? void 0 : _a3.lgv) ? "default" : "outline", children: ((_b3 = profile2 == null ? void 0 : profile2.driver) == null ? void 0 : _b3.lgv) ? "Yes" : "No" })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "ERD Driver" }),
@@ -69858,14 +70425,14 @@ function SickAbsenceRow({
     onError: () => toast2({ title: "Failed to upload sick line", variant: "destructive" })
   });
   const handleFileChange = async (e) => {
-    var _a2;
-    const file = (_a2 = e.target.files) == null ? void 0 : _a2[0];
+    var _a3;
+    const file = (_a3 = e.target.files) == null ? void 0 : _a3[0];
     if (!file) return;
     setUploading(true);
     try {
       const compressed = await compressImage(file);
       await mutation.mutateAsync(compressed);
-    } catch (err) {
+    } catch (err2) {
       toast2({ title: "Couldn't process that image", variant: "destructive" });
     } finally {
       setUploading(false);
@@ -69929,8 +70496,8 @@ function SickAbsenceRow({
           className: hasSickLine ? "shrink-0 h-8 text-xs" : "shrink-0 h-8 text-xs bg-brand hover:bg-brand/90 text-brand-foreground",
           disabled: uploading || mutation.isPending,
           onClick: () => {
-            var _a2;
-            return (_a2 = fileRef.current) == null ? void 0 : _a2.click();
+            var _a3;
+            return (_a3 = fileRef.current) == null ? void 0 : _a3.click();
           },
           children: uploading || mutation.isPending ? /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "h-3.5 w-3.5 animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Camera, { className: "h-3.5 w-3.5 mr-1" }),
@@ -70980,7 +71547,7 @@ function sinceLabel(date) {
   return d === 0 ? "today" : d === 1 ? "yesterday" : `${d} days ago`;
 }
 function useCanteen(watch, shiftDate, shiftType) {
-  var _a2, _b2;
+  var _a3, _b3;
   const qc = useQueryClient();
   const { toast: toast2 } = useToast();
   const key2 = ["canteen", watch, shiftDate, shiftType];
@@ -71008,7 +71575,7 @@ function useCanteen(watch, shiftDate, shiftType) {
     onSuccess: refresh,
     onError: () => toast2({ title: "Couldn't take them off canteen", variant: "destructive" })
   });
-  const duties = ((_a2 = dutiesQ.data) == null ? void 0 : _a2.duties) ?? [];
+  const duties = ((_a3 = dutiesQ.data) == null ? void 0 : _a3.duties) ?? [];
   const byUser = new Map(duties.map((d) => [d.user_id, d.id]));
   const toggle = (userId) => {
     const id = byUser.get(userId);
@@ -71019,7 +71586,7 @@ function useCanteen(watch, shiftDate, shiftType) {
     }
     add2.mutate(userId);
   };
-  return { duties, byUser, rota: ((_b2 = rotaQ.data) == null ? void 0 : _b2.members) ?? [], add: add2, remove, toggle, busy: add2.isPending || remove.isPending };
+  return { duties, byUser, rota: ((_b3 = rotaQ.data) == null ? void 0 : _b3.members) ?? [], add: add2, remove, toggle, busy: add2.isPending || remove.isPending };
 }
 const CanteenContext = reactExports.createContext(null);
 function CanteenToggle({ userId }) {
@@ -71288,9 +71855,9 @@ const ADJ_BADGE = {
   toil: { label: "TOIL", cls: "text-emerald-600" }
 };
 function TileCard({ member, assignedEntry, isAbsent, adjustment, isDragging, isOverlay }) {
-  var _a2;
+  var _a3;
   const sickIds = reactExports.useContext(SickIdsContext);
-  const onCanteen = !!((_a2 = reactExports.useContext(CanteenContext)) == null ? void 0 : _a2.byUser.has(member.id));
+  const onCanteen = !!((_a3 = reactExports.useContext(CanteenContext)) == null ? void 0 : _a3.byUser.has(member.id));
   member.system_role === "WC" ? "Watch Commander" : member.system_role === "CC" ? "Crew Commander" : "Firefighter";
   const isAssigned = !!assignedEntry;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -72280,7 +72847,7 @@ function DetachmentModal({
   ] }) });
 }
 function CrewingBoard({ onOpenCanteenRota } = {}) {
-  var _a2, _b2, _c2;
+  var _a3, _b3, _c2;
   const { user: user2 } = useAuth();
   const { toast: toast2 } = useToast();
   const qc = useQueryClient();
@@ -72608,21 +73175,21 @@ function CrewingBoard({ onOpenCanteenRota } = {}) {
     useSensor(KeyboardSensor)
   );
   const handleDragStart = (event) => {
-    var _a3, _b3;
-    const member = (_a3 = event.active.data.current) == null ? void 0 : _a3.member;
-    const entry = (_b3 = event.active.data.current) == null ? void 0 : _b3.entry;
+    var _a4, _b4;
+    const member = (_a4 = event.active.data.current) == null ? void 0 : _a4.member;
+    const entry = (_b4 = event.active.data.current) == null ? void 0 : _b4.entry;
     if (member) setDraggingMember(member);
     if (entry) setDraggingEntry(entry);
     setActiveSlotId(null);
   };
   const handleDragEnd = (event) => {
-    var _a3, _b3, _c3, _d2, _e2, _f2, _g2;
+    var _a4, _b4, _c3, _d2, _e2, _f2, _g2;
     setDraggingMember(null);
     setDraggingEntry(null);
     const { active, over } = event;
     if (!over) return;
-    if (((_a3 = over.data.current) == null ? void 0 : _a3.zone) === "detached") {
-      const member2 = (_b3 = active.data.current) == null ? void 0 : _b3.member;
+    if (((_a4 = over.data.current) == null ? void 0 : _a4.zone) === "detached") {
+      const member2 = (_b4 = active.data.current) == null ? void 0 : _b4.member;
       const entry2 = (_c3 = active.data.current) == null ? void 0 : _c3.entry;
       const alreadyDetached = (entry2 == null ? void 0 : entry2.appliance) === "detached";
       if ((member2 || entry2) && !alreadyDetached) {
@@ -72934,9 +73501,9 @@ function CrewingBoard({ onOpenCanteenRota } = {}) {
       draggingEntry && /* @__PURE__ */ jsxRuntimeExports.jsx(SlotDragOverlay, { entry: draggingEntry })
     ] }),
     activeSlotId && (() => {
-      var _a3, _b3;
+      var _a4, _b4;
       const [, appl, idx] = activeSlotId.split("-");
-      const slot = (_a3 = APPLIANCE_SLOTS[appl]) == null ? void 0 : _a3[Number(idx)];
+      const slot = (_a4 = APPLIANCE_SLOTS[appl]) == null ? void 0 : _a4[Number(idx)];
       if (!slot) return null;
       return /* @__PURE__ */ jsxRuntimeExports.jsx(
         PersonPicker,
@@ -72946,7 +73513,7 @@ function CrewingBoard({ onOpenCanteenRota } = {}) {
           role: slot.role,
           roster,
           unavailable,
-          suggestedId: (_b3 = planBySlot.get(activeSlotId)) == null ? void 0 : _b3.id,
+          suggestedId: (_b4 = planBySlot.get(activeSlotId)) == null ? void 0 : _b4.id,
           busy: addMut.isPending,
           onPick: (uid) => handleSlotAssign(activeSlotId, uid, void 0, slot.role),
           onExternal: (name) => handleSlotAssign(activeSlotId, void 0, name, slot.role),
@@ -72977,7 +73544,7 @@ function CrewingBoard({ onOpenCanteenRota } = {}) {
       DetachmentModal,
       {
         open: !!pendingDetach,
-        name: ((_a2 = pendingDetach == null ? void 0 : pendingDetach.member) == null ? void 0 : _a2.name) ?? ((_b2 = pendingDetach == null ? void 0 : pendingDetach.entry) == null ? void 0 : _b2.user_name) ?? ((_c2 = pendingDetach == null ? void 0 : pendingDetach.entry) == null ? void 0 : _c2.external_name) ?? "Unknown",
+        name: ((_a3 = pendingDetach == null ? void 0 : pendingDetach.member) == null ? void 0 : _a3.name) ?? ((_b3 = pendingDetach == null ? void 0 : pendingDetach.entry) == null ? void 0 : _b3.user_name) ?? ((_c2 = pendingDetach == null ? void 0 : pendingDetach.entry) == null ? void 0 : _c2.external_name) ?? "Unknown",
         shiftDate,
         isPending: detachMut.isPending,
         onConfirm: (toStation, reason, notes) => {
@@ -73006,8 +73573,8 @@ const HANDOVER_TAGS = [
   { id: "staff", label: "Staff" }
 ];
 const tagLabel = (id) => {
-  var _a2;
-  return (_a2 = HANDOVER_TAGS.find((t) => t.id === id)) == null ? void 0 : _a2.label;
+  var _a3;
+  return (_a3 = HANDOVER_TAGS.find((t) => t.id === id)) == null ? void 0 : _a3.label;
 };
 const chip = (on) => ({
   height: 30,
@@ -73032,12 +73599,12 @@ function KindBadge({ kind }) {
   ] });
 }
 function HandoverItemsEditor({ items, onChange }) {
-  const [text, setText] = reactExports.useState("");
+  const [text2, setText] = reactExports.useState("");
   const [kind, setKind] = reactExports.useState("action");
   const [tag, setTag] = reactExports.useState();
   const [until, setUntil] = reactExports.useState("");
   const add2 = () => {
-    const t = text.trim();
+    const t = text2.trim();
     if (!t) return;
     onChange([...items, { kind, tag, text: t, show_until: kind === "info" && until ? until : void 0 }]);
     setText("");
@@ -73106,7 +73673,7 @@ function HandoverItemsEditor({ items, onChange }) {
           {
             "aria-label": "New handover line",
             placeholder: kind === "action" ? "e.g. FF Smith's kitbag to Stn 12 for his next shift" : "e.g. A82 closed at the bridge until Friday",
-            value: text,
+            value: text2,
             onChange: (e) => setText(e.target.value),
             onKeyDown: (e) => {
               if (e.key === "Enter") {
@@ -73123,9 +73690,9 @@ function HandoverItemsEditor({ items, onChange }) {
           {
             type: "button",
             onClick: add2,
-            disabled: !text.trim(),
+            disabled: !text2.trim(),
             className: "cal-focus",
-            style: { height: 40, padding: "0 14px", borderRadius: 10, border: "none", background: "var(--cal-brand)", color: "#fff", font: "inherit", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, opacity: text.trim() ? 1 : 0.5 },
+            style: { height: 40, padding: "0 14px", borderRadius: 10, border: "none", background: "var(--cal-brand)", color: "#fff", font: "inherit", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, opacity: text2.trim() ? 1 : 0.5 },
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4" }),
               " Add"
@@ -73165,7 +73732,7 @@ function daysAgoLabel(dateStr) {
   return `${days} days ago`;
 }
 function DetachmentsTabPanel({ watch, initialSub = "rota" }) {
-  var _a2, _b2, _c2, _d2;
+  var _a3, _b3, _c2, _d2;
   const [subTab, setSubTab] = reactExports.useState(initialSub);
   const [historyPage, setHistoryPage] = reactExports.useState(0);
   const rotaQuery = useQuery({
@@ -73187,16 +73754,16 @@ function DetachmentsTabPanel({ watch, initialSub = "rota" }) {
     queryFn: () => backendClient.crewing.canteenRota({ watch }),
     enabled: !!watch && subTab === "canteen"
   });
-  const canteenMembers = ((_a2 = canteenQuery.data) == null ? void 0 : _a2.members) ?? [];
+  const canteenMembers = ((_a3 = canteenQuery.data) == null ? void 0 : _a3.members) ?? [];
   const canteenHistQuery = useQuery({
     queryKey: ["canteen-history", watch],
     queryFn: () => backendClient.crewing.canteenHistory({ watch, limit: 60 }),
     enabled: !!watch && subTab === "canteen"
   });
   const canteenShifts = (() => {
-    var _a3;
+    var _a4;
     const out = [];
-    for (const d of ((_a3 = canteenHistQuery.data) == null ? void 0 : _a3.duties) ?? []) {
+    for (const d of ((_a4 = canteenHistQuery.data) == null ? void 0 : _a4.duties) ?? []) {
       const key2 = `${d.shift_date}|${d.shift_type}`;
       const last = out[out.length - 1];
       if (last && last.key === key2) last.names.push(d.user_name ?? "Unknown");
@@ -73204,7 +73771,7 @@ function DetachmentsTabPanel({ watch, initialSub = "rota" }) {
     }
     return out;
   })();
-  const members = ((_b2 = rotaQuery.data) == null ? void 0 : _b2.members) ?? [];
+  const members = ((_b3 = rotaQuery.data) == null ? void 0 : _b3.members) ?? [];
   const records = ((_c2 = historyQuery.data) == null ? void 0 : _c2.detachments) ?? [];
   const total = ((_d2 = historyQuery.data) == null ? void 0 : _d2.total) ?? 0;
   const hasMore = (historyPage + 1) * DET_PAGE_SIZE < total;
@@ -74193,7 +74760,7 @@ const emptyLogForm = {
   competencies: []
 };
 function Training() {
-  var _a2, _b2, _c2, _d2, _e2;
+  var _a3, _b3, _c2, _d2, _e2;
   const { user: user2 } = useAuth();
   const role = useUserRole();
   const queryClient2 = useQueryClient();
@@ -74292,8 +74859,8 @@ function Training() {
     setLogForm(emptyLogForm);
     setLogOpen(true);
   };
-  const upcoming = ((_a2 = upcomingQuery.data) == null ? void 0 : _a2.records) ?? [];
-  const upcomingTotal = ((_b2 = upcomingQuery.data) == null ? void 0 : _b2.total) ?? 0;
+  const upcoming = ((_a3 = upcomingQuery.data) == null ? void 0 : _a3.records) ?? [];
+  const upcomingTotal = ((_b3 = upcomingQuery.data) == null ? void 0 : _b3.total) ?? 0;
   const history = ((_c2 = historyQuery.data) == null ? void 0 : _c2.records) ?? [];
   const historyTotal = ((_d2 = historyQuery.data) == null ? void 0 : _d2.total) ?? 0;
   const roster = ((_e2 = rosterQuery.data) == null ? void 0 : _e2.members) ?? [];
@@ -74509,7 +75076,7 @@ function Training() {
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-px bg-border/50 my-1" }),
             roster.map((member) => {
-              var _a3;
+              var _a4;
               const checked = logForm.selectedUserIds.includes(member.id);
               return /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "button",
@@ -74522,7 +75089,7 @@ function Training() {
                   className: `w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors ${checked ? "bg-teal-50 dark:bg-teal-950/20" : "hover:bg-muted/50"}`,
                   children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx(Checkbox, { checked, className: "pointer-events-none" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-7 w-7 rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 flex items-center justify-center text-white text-[10px] font-bold shrink-0", children: ((_a3 = member.name) == null ? void 0 : _a3.split(" ").map((n) => n[0]).slice(0, 2).join("")) ?? "?" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-7 w-7 rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 flex items-center justify-center text-white text-[10px] font-bold shrink-0", children: ((_a4 = member.name) == null ? void 0 : _a4.split(" ").map((n) => n[0]).slice(0, 2).join("")) ?? "?" }),
                     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 text-left min-w-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium truncate block", children: member.name }) }),
                     /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-[10px] py-0 shrink-0", children: member.system_role ?? member.role })
                   ]
@@ -74760,13 +75327,13 @@ function HistoryPanel({
   ] });
 }
 function HistoryCard({ record: r2, isExpanded, onToggle }) {
-  var _a2;
+  var _a3;
   const detailQuery = useQuery({
     queryKey: ["training-detail", r2.id],
     queryFn: () => backendClient.training.get(r2.id),
     enabled: isExpanded
   });
-  const attendees = ((_a2 = detailQuery.data) == null ? void 0 : _a2.attendees) ?? [];
+  const attendees = ((_a3 = detailQuery.data) == null ? void 0 : _a3.attendees) ?? [];
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { className: `border-t-2 transition-all ${r2.status === "cancelled" ? "border-t-red-400 opacity-70" : "border-t-teal-500"}`, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       CardHeader,
@@ -74806,9 +75373,9 @@ function HistoryCard({ record: r2, isExpanded, onToggle }) {
           "Attendees"
         ] }),
         detailQuery.isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: [...Array(3)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-8 w-48" }, i)) }) : attendees.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "No attendance recorded" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: attendees.map((a, idx) => {
-          var _a3, _b2;
+          var _a4, _b3;
           return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-wrap", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `h-6 w-6 rounded-full flex items-center justify-center text-white text-[9px] font-bold shrink-0 ${a.is_external ? "bg-gradient-to-br from-amber-400 to-orange-500" : "bg-gradient-to-br from-indigo-400 to-purple-600"}`, children: ((_a3 = a.user_name) == null ? void 0 : _a3.split(" ").map((n) => n[0]).slice(0, 2).join("")) ?? "?" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `h-6 w-6 rounded-full flex items-center justify-center text-white text-[9px] font-bold shrink-0 ${a.is_external ? "bg-gradient-to-br from-amber-400 to-orange-500" : "bg-gradient-to-br from-indigo-400 to-purple-600"}`, children: ((_a4 = a.user_name) == null ? void 0 : _a4.split(" ").map((n) => n[0]).slice(0, 2).join("")) ?? "?" }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-sm font-medium", children: [
               a.external_rank ? `${a.external_rank} ` : "",
               a.user_name
@@ -74817,7 +75384,7 @@ function HistoryCard({ record: r2, isExpanded, onToggle }) {
               "External",
               a.external_station ? ` · ${a.external_station}` : ""
             ] }),
-            ((_b2 = a.competencies_covered) == null ? void 0 : _b2.length) > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-1 flex-wrap", children: a.competencies_covered.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-[10px] py-0 px-1.5 text-teal-600 border-teal-300", children: c }, c)) })
+            ((_b3 = a.competencies_covered) == null ? void 0 : _b3.length) > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-1 flex-wrap", children: a.competencies_covered.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-[10px] py-0 px-1.5 text-teal-600 border-teal-300", children: c }, c)) })
           ] }, a.user_id ?? `ext-${idx}`);
         }) })
       ] })
@@ -74966,7 +75533,7 @@ function BulletinList({
   expandedId,
   onToggle
 }) {
-  var _a2;
+  var _a3;
   const includeRead = mode === "history";
   const q = useQuery({
     queryKey: ["bulletins", includeRead],
@@ -74975,7 +75542,7 @@ function BulletinList({
   if (q.isLoading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: [...Array(3)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-20 w-full rounded-lg" }, i)) });
   }
-  const bulletins = ((_a2 = q.data) == null ? void 0 : _a2.bulletins) ?? [];
+  const bulletins = ((_a3 = q.data) == null ? void 0 : _a3.bulletins) ?? [];
   if (bulletins.length === 0) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "py-10 text-center text-muted-foreground", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Megaphone, { className: "h-10 w-10 mx-auto opacity-30 mb-3" }),
@@ -75269,10 +75836,10 @@ function NewBulletinForm({ onPosted }) {
       setRequiresAck(false);
       onPosted();
     },
-    onError: (err) => {
+    onError: (err2) => {
       toast2({
         title: "Failed to post bulletin",
-        description: (err == null ? void 0 : err.message) ?? "Please try again.",
+        description: (err2 == null ? void 0 : err2.message) ?? "Please try again.",
         variant: "destructive"
       });
     }
@@ -75443,17 +76010,17 @@ function NewBulletinForm({ onPosted }) {
 }
 const WATCHES = ["Red", "White", "Green", "Blue", "Amber"];
 function BrandPanel() {
-  var _a2, _b2, _c2, _d2;
+  var _a3, _b3, _c2, _d2;
   const [now, setNow] = reactExports.useState(() => /* @__PURE__ */ new Date());
   reactExports.useEffect(() => {
     const id = setInterval(() => setNow(/* @__PURE__ */ new Date()), 15e3);
     return () => clearInterval(id);
   }, []);
   const onDuty = WATCHES.map((w) => ({ w, s: getWatchShiftStatus(w, now) })).find((x) => {
-    var _a3;
-    return ((_a3 = x.s) == null ? void 0 : _a3.state) === "on";
+    var _a4;
+    return ((_a4 = x.s) == null ? void 0 : _a4.state) === "on";
   });
-  const night = ((_b2 = (_a2 = onDuty == null ? void 0 : onDuty.s) == null ? void 0 : _a2.current) == null ? void 0 : _b2.startTime) === "18:00";
+  const night = ((_b3 = (_a3 = onDuty == null ? void 0 : onDuty.s) == null ? void 0 : _a3.current) == null ? void 0 : _b3.startTime) === "18:00";
   const accent = onDuty ? night ? "#818cf8" : "#fbbf24" : "#94a3b8";
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative isolate overflow-hidden bg-neutral-950 text-white", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -75512,8 +76079,8 @@ function SignIn() {
         body: JSON.stringify({ email, password })
       });
       if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || "Invalid email or password");
+        const err2 = await res.json().catch(() => ({}));
+        throw new Error(err2.message || "Invalid email or password");
       }
       const response = await res.json();
       localStorage.setItem("auth_token", response.token);
@@ -75706,7 +76273,7 @@ function SignUp() {
     if (inviteEmail) setEmail(inviteEmail);
   }, [inviteEmail]);
   const handleSignUp = async (e) => {
-    var _a2;
+    var _a3;
     e.preventDefault();
     if (password !== confirmPassword) {
       toast2({ title: "Passwords don't match", variant: "destructive" });
@@ -75727,7 +76294,7 @@ function SignUp() {
       window.location.href = "/";
     } catch (error) {
       console.error("Sign up error:", error);
-      if ((_a2 = error == null ? void 0 : error.message) == null ? void 0 : _a2.toLowerCase().includes("already exists")) {
+      if ((_a3 = error == null ? void 0 : error.message) == null ? void 0 : _a3.toLowerCase().includes("already exists")) {
         toast2({ title: "Account already set up", description: "Your account is ready — please sign in." });
         navigate(`/sign-in?email=${encodeURIComponent(email)}`);
         return;
@@ -75870,8 +76437,8 @@ function ResetPassword() {
     try {
       await backendClient.localauth.resetPassword({ token, new_password: password });
       setDone(true);
-    } catch (err) {
-      const msg = (err == null ? void 0 : err.message) || "Failed to reset password";
+    } catch (err2) {
+      const msg = (err2 == null ? void 0 : err2.message) || "Failed to reset password";
       if (msg.toLowerCase().includes("expired")) {
         setError(isInvite ? "This invite has expired. Ask your Watch Commander for a new one, or use 'Forgot password' on the sign-in page." : "This reset link has expired. Please go back and request a new one.");
       } else if (msg.toLowerCase().includes("invalid")) {
@@ -76104,8 +76671,8 @@ if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("/sw.js").then((reg) => {
       console.log("SW registered:", reg.scope);
-    }).catch((err) => {
-      console.log("SW registration failed:", err);
+    }).catch((err2) => {
+      console.log("SW registration failed:", err2);
     });
   });
 }

@@ -1,7 +1,7 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, Check, ChevronDown, ChevronLeft, ChevronRight, MoreHorizontal, Search } from "lucide-react";
+import { AlertTriangle, Check, ChevronDown, ChevronLeft, ChevronRight, MoreHorizontal, Search, Upload } from "lucide-react";
 import backend from "@/lib/backend";
 import type { hydrants } from "@/client";
 import { useAuth } from "@/App";
@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { invalidateTargetViews } from "@/lib/targetsCache";
 import { pace as paceOf } from "@/lib/quarters";
 import { initialsOf } from "@/lib/taskUi";
+import { readHydrantWorkbooks } from "@/lib/hydrantWorkbook";
 import { ACTION_CODES, INSPECTION_CODES, NEEDS_COMMENT, isDefect, isUnable } from "@/lib/hydrantCodes";
 import { PaceLines, PacePill } from "@/components/targets/TargetParts";
 import { STATION_WATCHES } from "@/components/targets/StationComparison";
@@ -115,6 +116,45 @@ export default function Hydrants() {
     onSettled: refresh,
   });
 
+  // WC/CC: load or refresh the hydrant list from the SharePoint route workbooks.
+  const fileInput = useRef<HTMLInputElement>(null);
+  const importBooks = useMutation({
+    mutationFn: async (files: File[]) => {
+      const list = await readHydrantWorkbooks(files);
+      if (list.length === 0) throw new Error("No route sheets found — pick the 'COG Hydrant Records' workbooks.");
+      const res = await backend.hydrants.importHydrants({ hydrants: list });
+      return { ...res, routes: new Set(list.map((h) => h.route)).size };
+    },
+    onSuccess: (r) => toast({ title: `Loaded ${r.created + r.updated} hydrants on ${r.routes} routes`, description: r.updated ? `${r.created} new, ${r.updated} updated. Ticks already made are kept.` : undefined }),
+    onError: (err) => toast({ title: "Couldn't load the workbooks", description: err instanceof Error ? err.message : undefined, variant: "destructive" }),
+    onSettled: refresh,
+  });
+  const loadButton = isManager && (
+    <>
+      <input
+        ref={fileInput}
+        type="file"
+        multiple
+        accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        className="hidden"
+        aria-label="Route workbooks"
+        onChange={(e) => {
+          const files = Array.from(e.target.files ?? []);
+          e.target.value = "";
+          if (files.length) importBooks.mutate(files);
+        }}
+      />
+      <button
+        type="button"
+        onClick={() => fileInput.current?.click()}
+        disabled={importBooks.isPending}
+        className="inline-flex h-9 items-center gap-2 rounded-lg border border-border px-3 text-sm font-medium hover:bg-muted disabled:opacity-60"
+      >
+        <Upload className="h-4 w-4" /> {importBooks.isPending ? "Loading…" : data?.loaded ? "Update routes from workbooks" : "Load route workbooks"}
+      </button>
+    </>
+  );
+
   const tick = (h: RouteHydrant) => {
     if (!h.inspection) {
       save.mutate({ h, patch: { year } });
@@ -211,7 +251,13 @@ export default function Hydrants() {
         ) : isError || !data ? (
           <p className="text-sm text-muted-foreground">Couldn't load the hydrant route.</p>
         ) : !data.loaded ? (
-          <p className="text-sm text-muted-foreground">The hydrant routes haven't been loaded yet.</p>
+          <div className="flex flex-col items-start gap-3 text-sm">
+            <p className="text-muted-foreground">
+              The hydrant routes haven't been loaded yet.
+              {isManager ? " Pick the four 'COG Hydrant Records' workbooks (1-10, 11-20, 21-30, 31-40) from SharePoint." : " A WC or CC loads them from the route workbooks."}
+            </p>
+            {loadButton}
+          </div>
         ) : (
           <div className="flex flex-col gap-3">
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -317,6 +363,12 @@ export default function Hydrants() {
               );
             })}
           </div>
+          {loadButton && (
+            <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+              {loadButton}
+              <span>Re-load the SharePoint workbooks when a route changes; ticks are kept.</span>
+            </div>
+          )}
         </>
       )}
     </div>
