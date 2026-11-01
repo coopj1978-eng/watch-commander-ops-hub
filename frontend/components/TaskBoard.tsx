@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { invalidateTargetViews } from "@/lib/targetsCache";
 import * as Menu from "@radix-ui/react-dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, Check, X, ChevronsLeft, ChevronsRight, MoreHorizontal } from "lucide-react";
@@ -355,12 +356,7 @@ export default function TaskBoard({
       // Cascade: if inspection task, invalidate related queries
       if ((task as any).source_type) {
         setTimeout(() => {
-          queryClient.invalidateQueries({ queryKey: ["hfsv"] });
-          queryClient.invalidateQueries({ queryKey: ["hfsv-pending"] });
-          queryClient.invalidateQueries({ queryKey: ["inspection-assignments-pending"] });
-          queryClient.invalidateQueries({ queryKey: ["inspection-assignments"] });
-          queryClient.invalidateQueries({ queryKey: ["targets"] });
-          queryClient.invalidateQueries({ queryKey: ["activity"] });
+          invalidateTargetViews(queryClient);
         }, 500);
         const isDone = colKey === "Done";
         toast({

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { invalidateTargetViews } from "@/lib/targetsCache";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -286,8 +287,7 @@ export default function InspectionEventModal({ open, onClose, defaultDate, editi
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       queryClient.invalidateQueries({ queryKey: ["cal-watch"] });
       queryClient.invalidateQueries({ queryKey: ["cal-station"] });
-      queryClient.invalidateQueries({ queryKey: ["hfsv-pending"] });
-      queryClient.invalidateQueries({ queryKey: ["hfsv-slot", editingEvent?.source_id] });
+      invalidateTargetViews(queryClient);
       toast({ title: "Event updated", description: "Inspection event saved." });
       onClose();
     },

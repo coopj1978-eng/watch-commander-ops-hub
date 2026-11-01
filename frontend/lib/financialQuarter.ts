@@ -30,3 +30,22 @@ export function getCurrentFinancialPeriod(date: Date = new Date()): FinancialPer
   const label = `Q${quarter} ${financial_year}/${String(financial_year + 1).slice(2)}`;
   return { financial_year, quarter, label };
 }
+
+const CAL_QUARTER_MONTHS = ["Jan–Mar", "Apr–Jun", "Jul–Sep", "Oct–Dec"];
+
+/**
+ * Inspection plans (multi-story) store CALENDAR quarters (Q4 = Oct–Dec).
+ * Name the months and the matching financial quarter so they line up with
+ * the HFSV / community targets, e.g. "Oct–Dec 2026 (Q3 2026/27)".
+ */
+export function calendarQuarterLabel(year: number, calQuarter: number): string {
+  const months = CAL_QUARTER_MONTHS[calQuarter - 1] ?? `Q${calQuarter}`;
+  const fy = calQuarter === 1 ? year - 1 : year;
+  const fq = calQuarter === 1 ? 4 : calQuarter - 1;
+  return `${months} ${year} (Q${fq} ${fy}/${String(fy + 1).slice(2)})`;
+}
+
+/** Just the months of a calendar quarter, e.g. "Oct–Dec". */
+export function calendarQuarterMonths(calQuarter: number): string {
+  return CAL_QUARTER_MONTHS[calQuarter - 1] ?? `Q${calQuarter}`;
+}

@@ -246,6 +246,19 @@ html[data-density="airy"] {
   }
 }
 
+/* ── Colour only for problems (Nov 2026) ─────────────────────────────────────
+ * Like a control-room screen: cards keep a neutral top edge, so the only
+ * coloured tops left are warnings (amber) and critical items (red) — they
+ * stand out instead of competing with a colour per card. Replaces the
+ * per-widget category colours (indigo staffing, blue tasks, teal community…).
+ * Unlayered, so it beats the Tailwind utility classes on the cards. Delete
+ * this block to bring the category colours back.
+ * --------------------------------------------------------------------------- */
+[data-slot="card"].border-t-2:not(.border-t-red-500):not(.border-t-red-400):not(.border-t-amber-500) {
+  border-top-width: 1px;
+  border-top-color: var(--border);
+}
+
 /* ── Visual-refresh primitives ────────────────────────────────────────────────
  * Reusable class-based primitives that mirror the Claude Design refresh
  * (watch-commanders-visual-refresh) so People / Tasks / Calendar can adopt

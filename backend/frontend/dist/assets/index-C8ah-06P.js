@@ -42657,6 +42657,16 @@ function getCurrentFinancialPeriod(date = /* @__PURE__ */ new Date()) {
   const label2 = `Q${quarter} ${financial_year}/${String(financial_year + 1).slice(2)}`;
   return { financial_year, quarter, label: label2 };
 }
+const CAL_QUARTER_MONTHS = ["Jan–Mar", "Apr–Jun", "Jul–Sep", "Oct–Dec"];
+function calendarQuarterLabel(year, calQuarter) {
+  const months = CAL_QUARTER_MONTHS[calQuarter - 1] ?? `Q${calQuarter}`;
+  const fy = calQuarter === 1 ? year - 1 : year;
+  const fq = calQuarter === 1 ? 4 : calQuarter - 1;
+  return `${months} ${year} (Q${fq} ${fy}/${String(fy + 1).slice(2)})`;
+}
+function calendarQuarterMonths(calQuarter) {
+  return CAL_QUARTER_MONTHS[calQuarter - 1] ?? `Q${calQuarter}`;
+}
 const HFSV_TARGET = 36;
 function KPITile({
   label: label2,
@@ -54082,6 +54092,27 @@ function EventForm({
     }
   );
 }
+const TARGET_QUERY_ROOTS = /* @__PURE__ */ new Set([
+  "activities",
+  "activities-q",
+  "activity",
+  "hfsv",
+  "hfsv-pending",
+  "hfsv-slot",
+  "assignments",
+  "ms-assignments-q",
+  "inspection-assignments",
+  "inspection-assignments-pending",
+  "targets",
+  "wc-targets",
+  "wc-hfsv",
+  "wc-community",
+  "wc-multistory",
+  "wc-hydrant"
+]);
+function invalidateTargetViews(qc) {
+  return qc.invalidateQueries({ predicate: (q) => TARGET_QUERY_ROOTS.has(String(q.queryKey[0])) });
+}
 function currentFinancialYear() {
   const now = /* @__PURE__ */ new Date();
   return now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
@@ -54266,8 +54297,7 @@ function InspectionEventModal({ open, onClose, defaultDate, editingEvent }) {
       queryClient2.invalidateQueries({ queryKey: ["tasks"] });
       queryClient2.invalidateQueries({ queryKey: ["cal-watch"] });
       queryClient2.invalidateQueries({ queryKey: ["cal-station"] });
-      queryClient2.invalidateQueries({ queryKey: ["hfsv-pending"] });
-      queryClient2.invalidateQueries({ queryKey: ["hfsv-slot", editingEvent == null ? void 0 : editingEvent.source_id] });
+      invalidateTargetViews(queryClient2);
       toast2({ title: "Event updated", description: "Inspection event saved." });
       onClose();
     },
@@ -56235,12 +56265,7 @@ function TaskBoard({
       onStatusChange == null ? void 0 : onStatusChange(task2.id, colKey);
       if (task2.source_type) {
         setTimeout(() => {
-          queryClient2.invalidateQueries({ queryKey: ["hfsv"] });
-          queryClient2.invalidateQueries({ queryKey: ["hfsv-pending"] });
-          queryClient2.invalidateQueries({ queryKey: ["inspection-assignments-pending"] });
-          queryClient2.invalidateQueries({ queryKey: ["inspection-assignments"] });
-          queryClient2.invalidateQueries({ queryKey: ["targets"] });
-          queryClient2.invalidateQueries({ queryKey: ["activity"] });
+          invalidateTargetViews(queryClient2);
         }, 500);
         const isDone = colKey === "Done";
         toast2({
@@ -60310,37 +60335,33 @@ function ActivityDrawer({
   const items = (data == null ? void 0 : data.items) ?? [];
   const seedMut = useMutation({
     mutationFn: () => backendClient.activity.seedHfsv({ watch, financial_year, quarter }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: actKey }),
+    onSuccess: () => invalidateTargetViews(qc),
     onError: () => toast2({ title: "Error", description: "Failed to seed HFSV records", variant: "destructive" })
   });
   const toggleMut = useMutation({
     mutationFn: (id) => backendClient.activity.toggle(id),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: actKey });
-      qc.invalidateQueries({ queryKey: ["activities"] });
+      invalidateTargetViews(qc);
     },
     onError: () => toast2({ title: "Error", description: "Failed to update record", variant: "destructive" })
   });
   const updateMut = useMutation({
     mutationFn: ({ id, ...fields }) => backendClient.activity.update(id, fields),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: actKey });
-      qc.invalidateQueries({ queryKey: ["activities"] });
+      invalidateTargetViews(qc);
     }
   });
   const createMut = useMutation({
     mutationFn: (req) => backendClient.activity.create(req),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: actKey });
-      qc.invalidateQueries({ queryKey: ["activities"] });
+      invalidateTargetViews(qc);
     },
     onError: () => toast2({ title: "Error", description: "Failed to create record", variant: "destructive" })
   });
   const deleteMut = useMutation({
     mutationFn: (id) => backendClient.activity.remove(id),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: actKey });
-      qc.invalidateQueries({ queryKey: ["activities"] });
+      invalidateTargetViews(qc);
     },
     onError: () => toast2({ title: "Error", description: "Failed to delete record", variant: "destructive" })
   });
@@ -60832,7 +60853,7 @@ function SectionCard$1({
             ) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `py-2 ${item.status === "complete" ? "line-through text-muted-foreground" : ""}`, children: item.label }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "py-2 px-3 text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(WatchBadge$1, { watch: item.watch }) }),
-            config.isQuarterly && showQuarterCol && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "py-2 px-3 text-center text-xs text-muted-foreground", children: item.quarter ? `Q${item.quarter}` : "—" }),
+            config.isQuarterly && showQuarterCol && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "py-2 px-3 text-center text-xs text-muted-foreground", children: item.quarter ? calendarQuarterMonths(item.quarter) : "—" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "py-2 px-3 text-center", children: item.status === "complete" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-xs bg-green-500/10 text-green-600 border-green-400/30", children: "Complete" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-xs bg-amber-500/10 text-amber-600 border-amber-400/30", children: "Pending" }) })
           ]
         },
@@ -60851,7 +60872,7 @@ function InspectionAssignments({ year, quarter }) {
   const [watchFilter, setWatchFilter] = reactExports.useState(userWatch ?? "all");
   const [togglingId, setTogglingId] = reactExports.useState(null);
   const effectiveWatch = canManage ? watchFilter : userWatch ?? "all";
-  const periodLabel = quarter ? `Q${quarter} ${year}` : `${year}`;
+  const periodLabel = quarter ? calendarQuarterLabel(year, quarter) : `${year}`;
   const watchLabel = effectiveWatch === "all" ? "All Watches" : `${effectiveWatch} Watch`;
   const queryKey = ["inspection-assignments", year, effectiveWatch];
   const { data, isLoading } = useQuery({
@@ -60868,7 +60889,7 @@ function InspectionAssignments({ year, quarter }) {
         title: "Assignments generated",
         description: `${res.created} created, ${res.skipped} already existed.`
       });
-      qc.invalidateQueries({ queryKey: ["inspection-assignments"] });
+      invalidateTargetViews(qc);
     },
     onError: () => toast2({ title: "Error", description: "Failed to generate assignments", variant: "destructive" })
   });
@@ -60877,7 +60898,7 @@ function InspectionAssignments({ year, quarter }) {
       status: status === "complete" ? "pending" : "complete"
     }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["inspection-assignments"] });
+      invalidateTargetViews(qc);
     },
     onError: () => toast2({ title: "Error", description: "Failed to update assignment", variant: "destructive" }),
     onSettled: () => setTogglingId(null)
@@ -64922,6 +64943,7 @@ function MultistorySection({ canEdit }) {
     onSuccess: () => {
       toast2({ title: "Entry added" });
       qc.invalidateQueries({ queryKey: ["inspection-plans-multistory"] });
+      invalidateTargetViews(qc);
       setAdding(false);
       setNewAddr("");
       setNewQ1(null);
@@ -64942,6 +64964,7 @@ function MultistorySection({ canEdit }) {
     onSuccess: () => {
       toast2({ title: "Updated" });
       qc.invalidateQueries({ queryKey: ["inspection-plans-multistory"] });
+      invalidateTargetViews(qc);
       setEditId(null);
     },
     onError: () => toast2({ title: "Error", description: "Failed to update", variant: "destructive" })
@@ -64951,6 +64974,7 @@ function MultistorySection({ canEdit }) {
     onSuccess: () => {
       toast2({ title: "Deleted" });
       qc.invalidateQueries({ queryKey: ["inspection-plans-multistory"] });
+      invalidateTargetViews(qc);
       setConfirmDelete(null);
     },
     onError: () => toast2({ title: "Error", description: "Failed to delete", variant: "destructive" })
@@ -64966,6 +64990,7 @@ function MultistorySection({ canEdit }) {
       await backendClient.inspection_plans.updateMultistory(items2[index2].id, { position: posB });
       await backendClient.inspection_plans.updateMultistory(items2[targetIndex].id, { position: posA });
       qc.invalidateQueries({ queryKey: ["inspection-plans-multistory"] });
+      invalidateTargetViews(qc);
     } catch {
       toast2({ title: "Error", description: "Failed to reorder", variant: "destructive" });
     } finally {
@@ -64978,10 +65003,22 @@ function MultistorySection({ canEdit }) {
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "border-b border-border bg-muted/40", children: [
         canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "w-[36px]" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-left px-4 py-2.5 font-medium text-muted-foreground", children: "Address" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-center px-3 py-2.5 font-medium text-muted-foreground w-[115px]", children: "Q1" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-center px-3 py-2.5 font-medium text-muted-foreground w-[115px]", children: "Q2" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-center px-3 py-2.5 font-medium text-muted-foreground w-[115px]", children: "Q3" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-center px-3 py-2.5 font-medium text-muted-foreground w-[115px]", children: "Q4" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "text-center px-3 py-2.5 font-medium text-muted-foreground w-[115px]", children: [
+          "Q1",
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block text-[10px] font-normal", children: "Jan–Mar" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "text-center px-3 py-2.5 font-medium text-muted-foreground w-[115px]", children: [
+          "Q2",
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block text-[10px] font-normal", children: "Apr–Jun" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "text-center px-3 py-2.5 font-medium text-muted-foreground w-[115px]", children: [
+          "Q3",
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block text-[10px] font-normal", children: "Jul–Sep" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "text-center px-3 py-2.5 font-medium text-muted-foreground w-[115px]", children: [
+          "Q4",
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block text-[10px] font-normal", children: "Oct–Dec" })
+        ] }),
         canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "w-[80px]" })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("tbody", { children: [
@@ -65057,6 +65094,7 @@ function CareHomeSection({ canEdit }) {
     onSuccess: () => {
       toast2({ title: "Care home added" });
       qc.invalidateQueries({ queryKey: ["inspection-plans-care-homes"] });
+      invalidateTargetViews(qc);
       setAdding(false);
       setNewAddr("");
     },
@@ -65067,6 +65105,7 @@ function CareHomeSection({ canEdit }) {
     onSuccess: () => {
       toast2({ title: "Updated" });
       qc.invalidateQueries({ queryKey: ["inspection-plans-care-homes"] });
+      invalidateTargetViews(qc);
       setEditId(null);
     },
     onError: () => toast2({ title: "Error", description: "Failed to update", variant: "destructive" })
@@ -65076,6 +65115,7 @@ function CareHomeSection({ canEdit }) {
     onSuccess: () => {
       toast2({ title: "Deleted" });
       qc.invalidateQueries({ queryKey: ["inspection-plans-care-homes"] });
+      invalidateTargetViews(qc);
       setConfirmDelete(null);
     },
     onError: () => toast2({ title: "Error", description: "Failed to delete", variant: "destructive" })
@@ -65091,6 +65131,7 @@ function CareHomeSection({ canEdit }) {
       await backendClient.inspection_plans.updateCareHome(items2[index2].id, { position: posB });
       await backendClient.inspection_plans.updateCareHome(items2[targetIndex].id, { position: posA });
       qc.invalidateQueries({ queryKey: ["inspection-plans-care-homes"] });
+      invalidateTargetViews(qc);
     } catch {
       toast2({ title: "Error", description: "Failed to reorder", variant: "destructive" });
     } finally {
@@ -65181,6 +65222,7 @@ function HydrantSection({ canEdit }) {
     onSuccess: () => {
       toast2({ title: "Hydrant added" });
       qc.invalidateQueries({ queryKey: ["inspection-plans-hydrants"] });
+      invalidateTargetViews(qc);
       setAdding(false);
       setNewFields({ area_code: "", street: "", section: "", year: (/* @__PURE__ */ new Date()).getFullYear(), watch: null });
     },
@@ -65197,6 +65239,7 @@ function HydrantSection({ canEdit }) {
     onSuccess: () => {
       toast2({ title: "Updated" });
       qc.invalidateQueries({ queryKey: ["inspection-plans-hydrants"] });
+      invalidateTargetViews(qc);
       setEditId(null);
     },
     onError: () => toast2({ title: "Error", description: "Failed to update", variant: "destructive" })
@@ -65206,6 +65249,7 @@ function HydrantSection({ canEdit }) {
     onSuccess: () => {
       toast2({ title: "Deleted" });
       qc.invalidateQueries({ queryKey: ["inspection-plans-hydrants"] });
+      invalidateTargetViews(qc);
       setConfirmDelete(null);
     },
     onError: () => toast2({ title: "Error", description: "Failed to delete", variant: "destructive" })
@@ -65221,6 +65265,7 @@ function HydrantSection({ canEdit }) {
       await backendClient.inspection_plans.updateHydrant(items2[index2].id, { position: posB });
       await backendClient.inspection_plans.updateHydrant(items2[targetIndex].id, { position: posA });
       qc.invalidateQueries({ queryKey: ["inspection-plans-hydrants"] });
+      invalidateTargetViews(qc);
     } catch {
       toast2({ title: "Error", description: "Failed to reorder", variant: "destructive" });
     } finally {
@@ -65322,6 +65367,7 @@ function OperationalSection({ canEdit }) {
     onSuccess: () => {
       toast2({ title: "Entry added", description: "Operational inspection added" });
       qc.invalidateQueries({ queryKey: ["inspection-plans-operational"] });
+      invalidateTargetViews(qc);
       setAdding(false);
       setNewFields({ address: "", uprn: "", watch: null });
     },
@@ -65336,6 +65382,7 @@ function OperationalSection({ canEdit }) {
     onSuccess: () => {
       toast2({ title: "Updated" });
       qc.invalidateQueries({ queryKey: ["inspection-plans-operational"] });
+      invalidateTargetViews(qc);
       setEditId(null);
     },
     onError: () => toast2({ title: "Error", description: "Failed to update", variant: "destructive" })
@@ -65345,6 +65392,7 @@ function OperationalSection({ canEdit }) {
     onSuccess: () => {
       toast2({ title: "Deleted" });
       qc.invalidateQueries({ queryKey: ["inspection-plans-operational"] });
+      invalidateTargetViews(qc);
       setConfirmDelete(null);
     },
     onError: () => toast2({ title: "Error", description: "Failed to delete", variant: "destructive" })
@@ -65360,6 +65408,7 @@ function OperationalSection({ canEdit }) {
       await backendClient.inspection_plans.updateOperational(items2[index2].id, { position: posB });
       await backendClient.inspection_plans.updateOperational(items2[targetIndex].id, { position: posA });
       qc.invalidateQueries({ queryKey: ["inspection-plans-operational"] });
+      invalidateTargetViews(qc);
     } catch {
       toast2({ title: "Error", description: "Failed to reorder", variant: "destructive" });
     } finally {

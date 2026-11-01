@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { invalidateTargetViews } from "@/lib/targetsCache";
 import backend from "@/lib/backend";
 import type { activity } from "@/client";
 import {
@@ -108,15 +109,14 @@ function ActivityDrawer({
   const seedMut = useMutation({
     mutationFn: () =>
       backend.activity.seedHfsv({ watch, financial_year, quarter: quarter! }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: actKey }),
+    onSuccess: () => invalidateTargetViews(qc),
     onError: () => toast({ title: "Error", description: "Failed to seed HFSV records", variant: "destructive" }),
   });
 
   const toggleMut = useMutation({
     mutationFn: (id: number) => backend.activity.toggle(id),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: actKey });
-      qc.invalidateQueries({ queryKey: ["activities"] }); // refresh metric cards
+      invalidateTargetViews(qc); // every card, Year at a Glance and the dashboard
     },
     onError: () => toast({ title: "Error", description: "Failed to update record", variant: "destructive" }),
   });
@@ -125,8 +125,7 @@ function ActivityDrawer({
     mutationFn: ({ id, ...fields }: { id: number; address?: string; title?: string; engagement_date?: string; details?: string; is_tap?: boolean }) =>
       backend.activity.update(id, fields),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: actKey });
-      qc.invalidateQueries({ queryKey: ["activities"] });
+      invalidateTargetViews(qc); // every card, Year at a Glance and the dashboard
     },
   });
 
@@ -134,8 +133,7 @@ function ActivityDrawer({
     mutationFn: (req: { type: ActivityType; watch: string; financial_year: number; quarter: number; title?: string }) =>
       backend.activity.create(req),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: actKey });
-      qc.invalidateQueries({ queryKey: ["activities"] });
+      invalidateTargetViews(qc); // every card, Year at a Glance and the dashboard
     },
     onError: () => toast({ title: "Error", description: "Failed to create record", variant: "destructive" }),
   });
@@ -143,8 +141,7 @@ function ActivityDrawer({
   const deleteMut = useMutation({
     mutationFn: (id: number) => backend.activity.remove(id),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: actKey });
-      qc.invalidateQueries({ queryKey: ["activities"] });
+      invalidateTargetViews(qc); // every card, Year at a Glance and the dashboard
     },
     onError: () => toast({ title: "Error", description: "Failed to delete record", variant: "destructive" }),
   });

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { invalidateTargetViews } from "@/lib/targetsCache";
 import backend from "@/lib/backend";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -204,6 +205,7 @@ function MultistorySection({ canEdit }: { canEdit: boolean }) {
     onSuccess: () => {
       toast({ title: "Entry added" });
       qc.invalidateQueries({ queryKey: ["inspection-plans-multistory"] });
+      invalidateTargetViews(qc);
       setAdding(false);
       setNewAddr(""); setNewQ1(null); setNewQ2(null); setNewQ3(null); setNewQ4(null);
     },
@@ -222,6 +224,7 @@ function MultistorySection({ canEdit }: { canEdit: boolean }) {
     onSuccess: () => {
       toast({ title: "Updated" });
       qc.invalidateQueries({ queryKey: ["inspection-plans-multistory"] });
+      invalidateTargetViews(qc);
       setEditId(null);
     },
     onError: () => toast({ title: "Error", description: "Failed to update", variant: "destructive" }),
@@ -232,6 +235,7 @@ function MultistorySection({ canEdit }: { canEdit: boolean }) {
     onSuccess: () => {
       toast({ title: "Deleted" });
       qc.invalidateQueries({ queryKey: ["inspection-plans-multistory"] });
+      invalidateTargetViews(qc);
       setConfirmDelete(null);
     },
     onError: () => toast({ title: "Error", description: "Failed to delete", variant: "destructive" }),
@@ -248,6 +252,7 @@ function MultistorySection({ canEdit }: { canEdit: boolean }) {
       await backend.inspection_plans.updateMultistory(items[index].id, { position: posB });
       await backend.inspection_plans.updateMultistory(items[targetIndex].id, { position: posA });
       qc.invalidateQueries({ queryKey: ["inspection-plans-multistory"] });
+      invalidateTargetViews(qc);
     } catch {
       toast({ title: "Error", description: "Failed to reorder", variant: "destructive" });
     } finally {
@@ -265,10 +270,10 @@ function MultistorySection({ canEdit }: { canEdit: boolean }) {
             <tr className="border-b border-border bg-muted/40">
               {canEdit && <th className="w-[36px]" />}
               <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">Address</th>
-              <th className="text-center px-3 py-2.5 font-medium text-muted-foreground w-[115px]">Q1</th>
-              <th className="text-center px-3 py-2.5 font-medium text-muted-foreground w-[115px]">Q2</th>
-              <th className="text-center px-3 py-2.5 font-medium text-muted-foreground w-[115px]">Q3</th>
-              <th className="text-center px-3 py-2.5 font-medium text-muted-foreground w-[115px]">Q4</th>
+              <th className="text-center px-3 py-2.5 font-medium text-muted-foreground w-[115px]">Q1<span className="block text-[10px] font-normal">Jan–Mar</span></th>
+              <th className="text-center px-3 py-2.5 font-medium text-muted-foreground w-[115px]">Q2<span className="block text-[10px] font-normal">Apr–Jun</span></th>
+              <th className="text-center px-3 py-2.5 font-medium text-muted-foreground w-[115px]">Q3<span className="block text-[10px] font-normal">Jul–Sep</span></th>
+              <th className="text-center px-3 py-2.5 font-medium text-muted-foreground w-[115px]">Q4<span className="block text-[10px] font-normal">Oct–Dec</span></th>
               {canEdit && <th className="w-[80px]" />}
             </tr>
           </thead>
@@ -397,6 +402,7 @@ function CareHomeSection({ canEdit }: { canEdit: boolean }) {
     onSuccess: () => {
       toast({ title: "Care home added" });
       qc.invalidateQueries({ queryKey: ["inspection-plans-care-homes"] });
+      invalidateTargetViews(qc);
       setAdding(false); setNewAddr("");
     },
     onError: () => toast({ title: "Error", description: "Failed to add entry", variant: "destructive" }),
@@ -407,6 +413,7 @@ function CareHomeSection({ canEdit }: { canEdit: boolean }) {
     onSuccess: () => {
       toast({ title: "Updated" });
       qc.invalidateQueries({ queryKey: ["inspection-plans-care-homes"] });
+      invalidateTargetViews(qc);
       setEditId(null);
     },
     onError: () => toast({ title: "Error", description: "Failed to update", variant: "destructive" }),
@@ -417,6 +424,7 @@ function CareHomeSection({ canEdit }: { canEdit: boolean }) {
     onSuccess: () => {
       toast({ title: "Deleted" });
       qc.invalidateQueries({ queryKey: ["inspection-plans-care-homes"] });
+      invalidateTargetViews(qc);
       setConfirmDelete(null);
     },
     onError: () => toast({ title: "Error", description: "Failed to delete", variant: "destructive" }),
@@ -433,6 +441,7 @@ function CareHomeSection({ canEdit }: { canEdit: boolean }) {
       await backend.inspection_plans.updateCareHome(items[index].id, { position: posB });
       await backend.inspection_plans.updateCareHome(items[targetIndex].id, { position: posA });
       qc.invalidateQueries({ queryKey: ["inspection-plans-care-homes"] });
+      invalidateTargetViews(qc);
     } catch {
       toast({ title: "Error", description: "Failed to reorder", variant: "destructive" });
     } finally {
@@ -575,6 +584,7 @@ function HydrantSection({ canEdit }: { canEdit: boolean }) {
     onSuccess: () => {
       toast({ title: "Hydrant added" });
       qc.invalidateQueries({ queryKey: ["inspection-plans-hydrants"] });
+      invalidateTargetViews(qc);
       setAdding(false);
       setNewFields({ area_code: "", street: "", section: "", year: new Date().getFullYear(), watch: null });
     },
@@ -592,6 +602,7 @@ function HydrantSection({ canEdit }: { canEdit: boolean }) {
     onSuccess: () => {
       toast({ title: "Updated" });
       qc.invalidateQueries({ queryKey: ["inspection-plans-hydrants"] });
+      invalidateTargetViews(qc);
       setEditId(null);
     },
     onError: () => toast({ title: "Error", description: "Failed to update", variant: "destructive" }),
@@ -602,6 +613,7 @@ function HydrantSection({ canEdit }: { canEdit: boolean }) {
     onSuccess: () => {
       toast({ title: "Deleted" });
       qc.invalidateQueries({ queryKey: ["inspection-plans-hydrants"] });
+      invalidateTargetViews(qc);
       setConfirmDelete(null);
     },
     onError: () => toast({ title: "Error", description: "Failed to delete", variant: "destructive" }),
@@ -618,6 +630,7 @@ function HydrantSection({ canEdit }: { canEdit: boolean }) {
       await backend.inspection_plans.updateHydrant(items[index].id, { position: posB });
       await backend.inspection_plans.updateHydrant(items[targetIndex].id, { position: posA });
       qc.invalidateQueries({ queryKey: ["inspection-plans-hydrants"] });
+      invalidateTargetViews(qc);
     } catch {
       toast({ title: "Error", description: "Failed to reorder", variant: "destructive" });
     } finally {
@@ -767,6 +780,7 @@ function OperationalSection({ canEdit }: { canEdit: boolean }) {
     onSuccess: () => {
       toast({ title: "Entry added", description: "Operational inspection added" });
       qc.invalidateQueries({ queryKey: ["inspection-plans-operational"] });
+      invalidateTargetViews(qc);
       setAdding(false);
       setNewFields({ address: "", uprn: "", watch: null });
     },
@@ -782,6 +796,7 @@ function OperationalSection({ canEdit }: { canEdit: boolean }) {
     onSuccess: () => {
       toast({ title: "Updated" });
       qc.invalidateQueries({ queryKey: ["inspection-plans-operational"] });
+      invalidateTargetViews(qc);
       setEditId(null);
     },
     onError: () => toast({ title: "Error", description: "Failed to update", variant: "destructive" }),
@@ -792,6 +807,7 @@ function OperationalSection({ canEdit }: { canEdit: boolean }) {
     onSuccess: () => {
       toast({ title: "Deleted" });
       qc.invalidateQueries({ queryKey: ["inspection-plans-operational"] });
+      invalidateTargetViews(qc);
       setConfirmDelete(null);
     },
     onError: () => toast({ title: "Error", description: "Failed to delete", variant: "destructive" }),
@@ -808,6 +824,7 @@ function OperationalSection({ canEdit }: { canEdit: boolean }) {
       await backend.inspection_plans.updateOperational(items[index].id, { position: posB });
       await backend.inspection_plans.updateOperational(items[targetIndex].id, { position: posA });
       qc.invalidateQueries({ queryKey: ["inspection-plans-operational"] });
+      invalidateTargetViews(qc);
     } catch {
       toast({ title: "Error", description: "Failed to reorder", variant: "destructive" });
     } finally {

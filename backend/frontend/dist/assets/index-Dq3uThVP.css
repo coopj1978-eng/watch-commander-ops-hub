@@ -9249,6 +9249,11 @@ html[data-density="airy"] {
   --sidebar-ring: oklch(43.9% 0 0);
 }
 
+[data-slot="card"].border-t-2:not(.border-t-red-500):not(.border-t-red-400):not(.border-t-amber-500) {
+  border-top-width: 1px;
+  border-top-color: var(--border);
+}
+
 .eyebrow {
   font-family: var(--font-mono);
   letter-spacing: .14em;

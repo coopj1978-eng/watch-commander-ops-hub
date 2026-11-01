@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { invalidateTargetViews } from "@/lib/targetsCache";
+import { calendarQuarterLabel, calendarQuarterMonths } from "@/lib/financialQuarter";
 import {
   Card, CardContent, CardHeader, CardTitle, CardDescription,
 } from "@/components/ui/card";
@@ -155,7 +157,7 @@ function SectionCard({
                       </td>
                       {config.isQuarterly && showQuarterCol && (
                         <td className="py-2 px-3 text-center text-xs text-muted-foreground">
-                          {item.quarter ? `Q${item.quarter}` : "—"}
+                          {item.quarter ? calendarQuarterMonths(item.quarter) : "—"}
                         </td>
                       )}
                       <td className="py-2 px-3 text-center">
@@ -204,8 +206,9 @@ export default function InspectionAssignments({ year, quarter }: Props) {
   // Non-managers always see their own watch regardless of the dropdown state.
   const effectiveWatch = canManage ? watchFilter : (userWatch ?? "all");
 
-  // Quarter label for display (e.g. "Q1 2026" or "2026")
-  const periodLabel = quarter ? `Q${quarter} ${year}` : `${year}`;
+  // Quarter label for display — plan quarters are calendar quarters, so name
+  // the months and the financial quarter: "Oct–Dec 2026 (Q3 2026/27)".
+  const periodLabel = quarter ? calendarQuarterLabel(year, quarter) : `${year}`;
 
   // Watch label for display
   const watchLabel = effectiveWatch === "all" ? "All Watches" : `${effectiveWatch} Watch`;
@@ -230,7 +233,7 @@ export default function InspectionAssignments({ year, quarter }: Props) {
         title: "Assignments generated",
         description: `${res.created} created, ${res.skipped} already existed.`,
       });
-      qc.invalidateQueries({ queryKey: ["inspection-assignments"] });
+      invalidateTargetViews(qc);
     },
     onError: () => toast({ title: "Error", description: "Failed to generate assignments", variant: "destructive" }),
   });
@@ -241,7 +244,7 @@ export default function InspectionAssignments({ year, quarter }: Props) {
         status: status === "complete" ? "pending" : "complete",
       }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["inspection-assignments"] });
+      invalidateTargetViews(qc);
     },
     onError: () => toast({ title: "Error", description: "Failed to update assignment", variant: "destructive" }),
     onSettled: () => setTogglingId(null),
