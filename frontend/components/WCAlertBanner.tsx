@@ -16,6 +16,7 @@ import {
   UserX,
   XCircle,
   MessageSquare,
+  Flame,
 } from "lucide-react";
 import { isBefore, parseISO, startOfDay } from "date-fns";
 import { crewingShiftFor } from "@/lib/shiftRota";
@@ -83,6 +84,14 @@ export function WCAlertBanner() {
     queryKey: ["back-to-work", "due"],
     queryFn: () => backend.absence.listBackToWork({}),
     staleTime: 60_000,
+  });
+  // Hydrant faults found on this watch's route and not yet emailed away.
+  const hydrantYear = new Date().getFullYear();
+  const { data: hydrantData } = useQuery({
+    queryKey: ["hydrants", "route", watch, hydrantYear],
+    queryFn: () => backend.hydrants.getHydrantRoute({ watch: watch || undefined, year: hydrantYear }),
+    enabled: !!watch,
+    staleTime: 5 * 60_000,
   });
   const { data: missedData } = useQuery({
     queryKey: ["missed-checks"],
@@ -244,6 +253,19 @@ export function WCAlertBanner() {
       label: missedMine === 1 ? "Station check missed (7 days)" : "Station checks missed (7 days)",
       count: missedMine,
       href:  "/tasks",
+    });
+  }
+
+  // WARNING: Hydrant faults not yet sent in a fault report
+  const hydrantFaults = hydrantData?.to_report ?? 0;
+  if (hydrantFaults > 0) {
+    alerts.push({
+      id:    "hydrant-faults",
+      severity: "warning",
+      Icon:  Flame,
+      label: hydrantFaults === 1 ? "Hydrant fault to report" : "Hydrant faults to report",
+      count: hydrantFaults,
+      href:  "/hydrants",
     });
   }
 

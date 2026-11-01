@@ -117,7 +117,8 @@ function shortRank(m: { rank?: string; system_role: string }): string {
   return "Firefighter";
 }
 
-export function CrewOnWatchTable() {
+/** `compact`: the dashboard's narrow crew list — who's off first, one line each. */
+export function CrewOnWatchTable({ compact = false }: { compact?: boolean } = {}) {
   const { user } = useAuth();
   const watch = user?.watch_unit ?? "";
   const canLogSick = useIsCrewCommander(); // WC or CC
@@ -231,6 +232,58 @@ export function CrewOnWatchTable() {
   });
 
   const onDutyCount = rows.filter((r) => r.status.kind === "on_duty").length;
+
+  if (compact) {
+    const list = [...rows].sort((a, b) => Number(a.status.kind === "on_duty") - Number(b.status.kind === "on_duty"));
+    return (
+      <section aria-label="Crew" className="rounded-2xl border border-border/70 bg-card p-4">
+        <div className="flex items-baseline justify-between gap-2">
+          <h2 className="text-sm font-semibold">Crew · {watch} Watch</h2>
+          <Link to="/people" className="text-xs text-muted-foreground hover:text-foreground">
+            {isLoading ? "…" : <><span className="font-mono tabular-nums text-foreground">{onDutyCount}/{rows.length}</span> available →</>}
+          </Link>
+        </div>
+        {isLoading ? (
+          <div className="mt-3 space-y-1.5">{[0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-8 w-full" />)}</div>
+        ) : rows.length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">No crew on {watch || "this"} watch.</p>
+        ) : (
+          <ul className="mt-2 divide-y divide-border/50">
+            {list.map((r) => (
+              <li key={r.id} className="flex items-center gap-2.5 py-1.5">
+                <Link to={`/people/${r.id}`} className="flex min-w-0 flex-1 items-center gap-2.5 hover:text-primary">
+                  <Avatar name={r.name} />
+                  <span className="min-w-0 truncate text-sm">{r.name}</span>
+                </Link>
+                {r.stage3 && <StatusBadge status={{ kind: "stage3", label: "Triggers hit" }} />}
+                {r.status.kind !== "on_duty" && <StatusBadge status={r.status} />}
+                {canLogSick && (r.status.kind === "on_duty" ? (
+                  <button
+                    onClick={() => openLogSickFor(r.id, r.name)}
+                    className="grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30"
+                    title={`Log ${r.name} sick`}
+                    aria-label={`Log ${r.name} sick`}
+                  >
+                    <Stethoscope className="h-3.5 w-3.5" />
+                  </button>
+                ) : r.status.kind === "sick" && r.absence_id ? (
+                  <button
+                    onClick={() => bookBackFit.mutate(r.absence_id!)}
+                    disabled={bookBackFit.isPending}
+                    className="inline-flex h-7 items-center gap-1 rounded-md px-2 text-[11px] font-medium text-green-700 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-950/30"
+                    title="Book back fit and close the sickness"
+                  >
+                    <Heart className="h-3 w-3" /> Fit
+                  </button>
+                ) : <span className="w-7" />)}
+              </li>
+            ))}
+          </ul>
+        )}
+        <LogSickDialog open={logSickOpen} onOpenChange={setLogSickOpen} person={logSickPerson} />
+      </section>
+    );
+  }
 
   return (
     <Card className="border-t-2 border-t-brand">

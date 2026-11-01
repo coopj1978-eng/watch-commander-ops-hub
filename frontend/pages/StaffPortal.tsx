@@ -8,7 +8,7 @@ import AbsenceRequest from "@/components/AbsenceRequest";
 import FFSickLineUpload from "@/components/FFSickLineUpload";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ShiftHero } from "@/components/ShiftHero";
-import { ThisShiftCard } from "@/components/ThisShiftCard";
+import { ShiftRunningOrder } from "@/components/home/ShiftRunningOrder";
 import { 
   LayoutDashboard,
   ListTodo, 
@@ -38,7 +38,7 @@ export default function StaffPortal() {
     <div>
       <div className="space-y-6">
         <ShiftHero />
-        <ThisShiftCard />
+        <ShiftRunningOrder />
 
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabValue)}>
           <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
