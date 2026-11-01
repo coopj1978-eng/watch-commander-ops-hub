@@ -141,7 +141,7 @@ export function HydrantCard({ watch, fq, canEdit }: { watch: string; fq: FyQuart
       ) : (
         <>
           <PaceLines pace={p} noun="hydrants" shifts={null} watch={watch} />
-          <p className="mt-3 text-xs text-muted-foreground">Tick hydrants in Annual inspections below.</p>
+          {canEdit && <p className="mt-3 text-xs text-muted-foreground">Tick hydrants in Annual inspections below.</p>}
         </>
       )}
     </TargetCard>

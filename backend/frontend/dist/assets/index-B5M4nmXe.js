@@ -61404,7 +61404,7 @@ function HydrantCard({ watch, fq, canEdit }) {
         canEdit && !isLoading && /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: "/settings?tab=inspection-plans", className: "inline-block text-xs font-medium text-brand hover:underline", children: "Add the route in Settings → Inspection plans →" })
       ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(PaceLines, { pace: p, noun: "hydrants", shifts: null, watch }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-3 text-xs text-muted-foreground", children: "Tick hydrants in Annual inspections below." })
+        canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-3 text-xs text-muted-foreground", children: "Tick hydrants in Annual inspections below." })
       ] })
     }
   );
