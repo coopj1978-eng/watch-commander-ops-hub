@@ -2191,6 +2191,8 @@ export namespace hydrants {
         "inspected_by": string
         "inspected_by_name": string | null
         "inspected_at": string
+        "reported_at": string | null
+        "reported_by_name": string | null
     }
 
     export interface RouteHydrant extends Hydrant {
@@ -2212,6 +2214,8 @@ export namespace hydrants {
         done: number
         unable: number
         defects: number
+        faults: number
+        "to_report": number
         loaded: boolean
         "can_edit": boolean
     }
@@ -2222,6 +2226,7 @@ export namespace hydrants {
         total: number
         done: number
         defects: number
+        faults: number
     }
 
     export interface HydrantSummaryResponse {
@@ -2263,6 +2268,7 @@ export namespace hydrants {
             this.saveHydrantInspection = this.saveHydrantInspection.bind(this)
             this.clearHydrantInspection = this.clearHydrantInspection.bind(this)
             this.setHydrantInUse = this.setHydrantInUse.bind(this)
+            this.markHydrantsReported = this.markHydrantsReported.bind(this)
             this.importHydrants = this.importHydrants.bind(this)
         }
 
@@ -2295,6 +2301,12 @@ export namespace hydrants {
         public async clearHydrantInspection(id: number, params: { year: number }): Promise<void> {
             const query = makeRecord<string, string | string[]>({ year: String(params.year) })
             await this.baseClient.callTypedAPI("DELETE", `/hydrants/${encodeURIComponent(id)}/inspection`, undefined, {query})
+        }
+
+        /** After the fault report is emailed: mark those hydrants reported (WC/CC). */
+        public async markHydrantsReported(params: { year: number; "hydrant_ids": number[] }): Promise<{ marked: number }> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/hydrants/reported`, JSON.stringify(params))
+            return await resp.json() as { marked: number }
         }
 
         /** Mark a hydrant abandoned/removed, or back in use (WC/CC). */

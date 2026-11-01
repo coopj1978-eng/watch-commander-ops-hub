@@ -136,8 +136,8 @@ export function HydrantCard({ watch, fq }: { watch: string; fq: FyQuarter }) {
       ) : (
         <>
           <PaceLines pace={p} noun="hydrants" shifts={null} watch={watch} />
-          {!!mine?.defects && (
-            <p className="mt-2 text-sm font-medium text-amber-800 dark:text-amber-300">{mine.defects} unsatisfactory — see the route</p>
+          {!!mine?.faults && (
+            <p className="mt-2 text-sm font-medium text-red-700 dark:text-red-300">{mine.faults} not fully functional — fault report on the route</p>
           )}
         </>
       )}

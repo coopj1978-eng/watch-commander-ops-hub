@@ -28151,6 +28151,7 @@ var hydrants;
       this.saveHydrantInspection = this.saveHydrantInspection.bind(this);
       this.clearHydrantInspection = this.clearHydrantInspection.bind(this);
       this.setHydrantInUse = this.setHydrantInUse.bind(this);
+      this.markHydrantsReported = this.markHydrantsReported.bind(this);
       this.importHydrants = this.importHydrants.bind(this);
     }
     /** One watch's hydrant routes for a year, hydrant by hydrant. */
@@ -28179,6 +28180,11 @@ var hydrants;
     async clearHydrantInspection(id, params) {
       const query = makeRecord({ year: String(params.year) });
       await this.baseClient.callTypedAPI("DELETE", `/hydrants/${encodeURIComponent(id)}/inspection`, void 0, { query });
+    }
+    /** After the fault report is emailed: mark those hydrants reported (WC/CC). */
+    async markHydrantsReported(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/hydrants/reported`, JSON.stringify(params));
+      return await resp.json();
     }
     /** Mark a hydrant abandoned/removed, or back in use (WC/CC). */
     async setHydrantInUse(id, params) {
@@ -32876,11 +32882,11 @@ function latestAbsencePerPerson(absences) {
   }
   return byPerson;
 }
-function useSickOn(date, enabled = true) {
+function useSickOn(date2, enabled = true) {
   return useQuery({
-    queryKey: ["absences-today-sick", date],
+    queryKey: ["absences-today-sick", date2],
     queryFn: async () => {
-      const r2 = await backendClient.absence.todaySick({ date });
+      const r2 = await backendClient.absence.todaySick({ date: date2 });
       return {
         ids: new Set(r2.sick_staff.map((s) => s.user_id)),
         // Open sickness per person, for "Mark fit" by whichever WC/CC takes the call.
@@ -32909,8 +32915,8 @@ const REFERENCE_MONDAYS = {
   Red: "2026-03-23",
   White: "2026-04-06"
 };
-function diffDays(date, base) {
-  const a = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+function diffDays(date2, base) {
+  const a = Date.UTC(date2.getFullYear(), date2.getMonth(), date2.getDate());
   const b = Date.UTC(base.getFullYear(), base.getMonth(), base.getDate());
   return Math.round((a - b) / 864e5);
 }
@@ -32918,16 +32924,16 @@ function toDateOnly(iso) {
   const [y, m, d] = iso.split("-").map(Number);
   return new Date(y, m - 1, d);
 }
-function isoString(date) {
+function isoString(date2) {
   return [
-    date.getFullYear(),
-    String(date.getMonth() + 1).padStart(2, "0"),
-    String(date.getDate()).padStart(2, "0")
+    date2.getFullYear(),
+    String(date2.getMonth() + 1).padStart(2, "0"),
+    String(date2.getDate()).padStart(2, "0")
   ].join("-");
 }
-function computeShiftForDate(date, refMonday) {
-  const dateStr = isoString(date);
-  const diff = diffDays(date, refMonday);
+function computeShiftForDate(date2, refMonday) {
+  const dateStr = isoString(date2);
+  const diff = diffDays(date2, refMonday);
   const pos = (diff % MEGA_CYCLE + MEGA_CYCLE) % MEGA_CYCLE;
   if (pos >= LEAVE_START) {
     return { date: dateStr, shiftType: "Annual Leave", isWorking: false, isLeave: true };
@@ -32939,11 +32945,11 @@ function computeShiftForDate(date, refMonday) {
   if (inRepeat === 3) return { date: dateStr, shiftType: "2nd Night", isWorking: true, isLeave: false, startTime: "18:00", endTime: "08:00" };
   return { date: dateStr, shiftType: "Rest", isWorking: false, isLeave: false };
 }
-function getShiftForDate(watch, date) {
+function getShiftForDate(watch, date2) {
   const refIso = REFERENCE_MONDAYS[watch];
   if (!refIso) return null;
   const refMonday = toDateOnly(refIso);
-  const localMidnight = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const localMidnight = new Date(date2.getFullYear(), date2.getMonth(), date2.getDate());
   return computeShiftForDate(localMidnight, refMonday);
 }
 function getShiftsForDateRange(watch, from, to) {
@@ -33049,15 +33055,15 @@ function handoverShiftFor(watch, now = /* @__PURE__ */ new Date()) {
   if (!hasRotaConfig(watch)) return null;
   const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   const h = now.getHours();
-  let date = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (h < 8 ? 1 : 0));
+  let date2 = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (h < 8 ? 1 : 0));
   let type = h >= 8 && h < 18 ? "Day" : "Night";
   for (let i = 0; i < 2 * 80; i++) {
-    const s = (_a3 = getShiftForDate(watch, date)) == null ? void 0 : _a3.shiftType;
-    if (type === "Day" ? s === "1st Day" || s === "2nd Day" : s === "1st Night" || s === "2nd Night") return { date: iso(date), type };
+    const s = (_a3 = getShiftForDate(watch, date2)) == null ? void 0 : _a3.shiftType;
+    if (type === "Day" ? s === "1st Day" || s === "2nd Day" : s === "1st Night" || s === "2nd Night") return { date: iso(date2), type };
     if (type === "Night") type = "Day";
     else {
       type = "Night";
-      date = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1);
+      date2 = new Date(date2.getFullYear(), date2.getMonth(), date2.getDate() - 1);
     }
   }
   return null;
@@ -33290,8 +33296,8 @@ function groupNotifications(notifications) {
 }
 function timeAgo(dateStr) {
   const now = /* @__PURE__ */ new Date();
-  const date = new Date(dateStr);
-  const diffMs = now.getTime() - date.getTime();
+  const date2 = new Date(dateStr);
+  const diffMs = now.getTime() - date2.getTime();
   const diffMins = Math.floor(diffMs / 6e4);
   const diffHours = Math.floor(diffMs / 36e5);
   const diffDays2 = Math.floor(diffMs / 864e5);
@@ -38629,19 +38635,19 @@ const minutesInYear = 525600;
 const minutesInMonth = 43200;
 const minutesInDay = 1440;
 const constructFromSymbol = Symbol.for("constructDateFrom");
-function constructFrom(date, value) {
-  if (typeof date === "function") return date(value);
-  if (date && typeof date === "object" && constructFromSymbol in date)
-    return date[constructFromSymbol](value);
-  if (date instanceof Date) return new date.constructor(value);
+function constructFrom(date2, value) {
+  if (typeof date2 === "function") return date2(value);
+  if (date2 && typeof date2 === "object" && constructFromSymbol in date2)
+    return date2[constructFromSymbol](value);
+  if (date2 instanceof Date) return new date2.constructor(value);
   return new Date(value);
 }
 function toDate(argument, context) {
   return constructFrom(context || argument, argument);
 }
-function addDays$1(date, amount, options) {
-  const _date = toDate(date, options == null ? void 0 : options.in);
-  if (isNaN(amount)) return constructFrom(date, NaN);
+function addDays$1(date2, amount, options) {
+  const _date = toDate(date2, options == null ? void 0 : options.in);
+  if (isNaN(amount)) return constructFrom(date2, NaN);
   if (!amount) return _date;
   _date.setDate(_date.getDate() + amount);
   return _date;
@@ -38650,22 +38656,22 @@ let defaultOptions = {};
 function getDefaultOptions() {
   return defaultOptions;
 }
-function startOfWeek(date, options) {
+function startOfWeek(date2, options) {
   var _a3, _b3, _c2, _d2;
   const defaultOptions2 = getDefaultOptions();
   const weekStartsOn = (options == null ? void 0 : options.weekStartsOn) ?? ((_b3 = (_a3 = options == null ? void 0 : options.locale) == null ? void 0 : _a3.options) == null ? void 0 : _b3.weekStartsOn) ?? defaultOptions2.weekStartsOn ?? ((_d2 = (_c2 = defaultOptions2.locale) == null ? void 0 : _c2.options) == null ? void 0 : _d2.weekStartsOn) ?? 0;
-  const _date = toDate(date, options == null ? void 0 : options.in);
+  const _date = toDate(date2, options == null ? void 0 : options.in);
   const day = _date.getDay();
   const diff = (day < weekStartsOn ? 7 : 0) + day - weekStartsOn;
   _date.setDate(_date.getDate() - diff);
   _date.setHours(0, 0, 0, 0);
   return _date;
 }
-function startOfISOWeek(date, options) {
-  return startOfWeek(date, { ...options, weekStartsOn: 1 });
+function startOfISOWeek(date2, options) {
+  return startOfWeek(date2, { ...options, weekStartsOn: 1 });
 }
-function getISOWeekYear(date, options) {
-  const _date = toDate(date, options == null ? void 0 : options.in);
+function getISOWeekYear(date2, options) {
+  const _date = toDate(date2, options == null ? void 0 : options.in);
   const year = _date.getFullYear();
   const fourthOfJanuaryOfNextYear = constructFrom(_date, 0);
   fourthOfJanuaryOfNextYear.setFullYear(year + 1, 0, 4);
@@ -38683,8 +38689,8 @@ function getISOWeekYear(date, options) {
     return year - 1;
   }
 }
-function getTimezoneOffsetInMilliseconds(date) {
-  const _date = toDate(date);
+function getTimezoneOffsetInMilliseconds(date2) {
+  const _date = toDate(date2);
   const utcDate = new Date(
     Date.UTC(
       _date.getFullYear(),
@@ -38697,17 +38703,17 @@ function getTimezoneOffsetInMilliseconds(date) {
     )
   );
   utcDate.setUTCFullYear(_date.getFullYear());
-  return +date - +utcDate;
+  return +date2 - +utcDate;
 }
 function normalizeDates(context, ...dates) {
   const normalize = constructFrom.bind(
     null,
-    context || dates.find((date) => typeof date === "object")
+    context || dates.find((date2) => typeof date2 === "object")
   );
   return dates.map(normalize);
 }
-function startOfDay$3(date, options) {
-  const _date = toDate(date, options == null ? void 0 : options.in);
+function startOfDay$3(date2, options) {
+  const _date = toDate(date2, options == null ? void 0 : options.in);
   _date.setHours(0, 0, 0, 0);
   return _date;
 }
@@ -38723,9 +38729,9 @@ function differenceInCalendarDays(laterDate, earlierDate, options) {
   const earlierTimestamp = +earlierStartOfDay - getTimezoneOffsetInMilliseconds(earlierStartOfDay);
   return Math.round((laterTimestamp - earlierTimestamp) / millisecondsInDay);
 }
-function startOfISOWeekYear(date, options) {
-  const year = getISOWeekYear(date, options);
-  const fourthOfJanuary = constructFrom(date, 0);
+function startOfISOWeekYear(date2, options) {
+  const year = getISOWeekYear(date2, options);
+  const fourthOfJanuary = constructFrom(date2, 0);
   fourthOfJanuary.setFullYear(year, 0, 4);
   fourthOfJanuary.setHours(0, 0, 0, 0);
   return startOfISOWeek(fourthOfJanuary);
@@ -38736,8 +38742,8 @@ function compareAsc(dateLeft, dateRight) {
   else if (diff > 0) return 1;
   return diff;
 }
-function constructNow(date) {
-  return constructFrom(date, Date.now());
+function constructNow(date2) {
+  return constructFrom(date2, Date.now());
 }
 function isSameDay(laterDate, earlierDate, options) {
   const [dateLeft_, dateRight_] = normalizeDates(
@@ -38750,8 +38756,8 @@ function isSameDay(laterDate, earlierDate, options) {
 function isDate(value) {
   return value instanceof Date || typeof value === "object" && Object.prototype.toString.call(value) === "[object Date]";
 }
-function isValid(date) {
-  return !(!isDate(date) && typeof date !== "number" || isNaN(+toDate(date)));
+function isValid(date2) {
+  return !(!isDate(date2) && typeof date2 !== "number" || isNaN(+toDate(date2)));
 }
 function differenceInCalendarMonths(laterDate, earlierDate, options) {
   const [laterDate_, earlierDate_] = normalizeDates(
@@ -38796,20 +38802,20 @@ function getRoundingMethod(method) {
 function differenceInMilliseconds(laterDate, earlierDate) {
   return +toDate(laterDate) - +toDate(earlierDate);
 }
-function endOfDay(date, options) {
-  const _date = toDate(date, options == null ? void 0 : options.in);
+function endOfDay(date2, options) {
+  const _date = toDate(date2, options == null ? void 0 : options.in);
   _date.setHours(23, 59, 59, 999);
   return _date;
 }
-function endOfMonth(date, options) {
-  const _date = toDate(date, options == null ? void 0 : options.in);
+function endOfMonth(date2, options) {
+  const _date = toDate(date2, options == null ? void 0 : options.in);
   const month = _date.getMonth();
   _date.setFullYear(_date.getFullYear(), month + 1, 0);
   _date.setHours(23, 59, 59, 999);
   return _date;
 }
-function isLastDayOfMonth(date, options) {
-  const _date = toDate(date, options == null ? void 0 : options.in);
+function isLastDayOfMonth(date2, options) {
+  const _date = toDate(date2, options == null ? void 0 : options.in);
   return +endOfDay(_date, options) === +endOfMonth(_date, options);
 }
 function differenceInMonths(laterDate, earlierDate, options) {
@@ -38838,8 +38844,8 @@ function differenceInSeconds(laterDate, earlierDate, options) {
   const diff = differenceInMilliseconds(laterDate, earlierDate) / 1e3;
   return getRoundingMethod(options == null ? void 0 : options.roundingMethod)(diff);
 }
-function startOfYear(date, options) {
-  const date_ = toDate(date, options == null ? void 0 : options.in);
+function startOfYear(date2, options) {
+  const date_ = toDate(date2, options == null ? void 0 : options.in);
   date_.setFullYear(date_.getFullYear(), 0, 1);
   date_.setHours(0, 0, 0, 0);
   return date_;
@@ -39333,28 +39339,28 @@ const enUS = {
     firstWeekContainsDate: 1
   }
 };
-function getDayOfYear(date, options) {
-  const _date = toDate(date, options == null ? void 0 : options.in);
+function getDayOfYear(date2, options) {
+  const _date = toDate(date2, options == null ? void 0 : options.in);
   const diff = differenceInCalendarDays(_date, startOfYear(_date));
   const dayOfYear = diff + 1;
   return dayOfYear;
 }
-function getISOWeek(date, options) {
-  const _date = toDate(date, options == null ? void 0 : options.in);
+function getISOWeek(date2, options) {
+  const _date = toDate(date2, options == null ? void 0 : options.in);
   const diff = +startOfISOWeek(_date) - +startOfISOWeekYear(_date);
   return Math.round(diff / millisecondsInWeek) + 1;
 }
-function getWeekYear(date, options) {
+function getWeekYear(date2, options) {
   var _a3, _b3, _c2, _d2;
-  const _date = toDate(date, options == null ? void 0 : options.in);
+  const _date = toDate(date2, options == null ? void 0 : options.in);
   const year = _date.getFullYear();
   const defaultOptions2 = getDefaultOptions();
   const firstWeekContainsDate = (options == null ? void 0 : options.firstWeekContainsDate) ?? ((_b3 = (_a3 = options == null ? void 0 : options.locale) == null ? void 0 : _a3.options) == null ? void 0 : _b3.firstWeekContainsDate) ?? defaultOptions2.firstWeekContainsDate ?? ((_d2 = (_c2 = defaultOptions2.locale) == null ? void 0 : _c2.options) == null ? void 0 : _d2.firstWeekContainsDate) ?? 1;
-  const firstWeekOfNextYear = constructFrom((options == null ? void 0 : options.in) || date, 0);
+  const firstWeekOfNextYear = constructFrom((options == null ? void 0 : options.in) || date2, 0);
   firstWeekOfNextYear.setFullYear(year + 1, 0, firstWeekContainsDate);
   firstWeekOfNextYear.setHours(0, 0, 0, 0);
   const startOfNextYear = startOfWeek(firstWeekOfNextYear, options);
-  const firstWeekOfThisYear = constructFrom((options == null ? void 0 : options.in) || date, 0);
+  const firstWeekOfThisYear = constructFrom((options == null ? void 0 : options.in) || date2, 0);
   firstWeekOfThisYear.setFullYear(year, 0, firstWeekContainsDate);
   firstWeekOfThisYear.setHours(0, 0, 0, 0);
   const startOfThisYear = startOfWeek(firstWeekOfThisYear, options);
@@ -39366,19 +39372,19 @@ function getWeekYear(date, options) {
     return year - 1;
   }
 }
-function startOfWeekYear(date, options) {
+function startOfWeekYear(date2, options) {
   var _a3, _b3, _c2, _d2;
   const defaultOptions2 = getDefaultOptions();
   const firstWeekContainsDate = (options == null ? void 0 : options.firstWeekContainsDate) ?? ((_b3 = (_a3 = options == null ? void 0 : options.locale) == null ? void 0 : _a3.options) == null ? void 0 : _b3.firstWeekContainsDate) ?? defaultOptions2.firstWeekContainsDate ?? ((_d2 = (_c2 = defaultOptions2.locale) == null ? void 0 : _c2.options) == null ? void 0 : _d2.firstWeekContainsDate) ?? 1;
-  const year = getWeekYear(date, options);
-  const firstWeek = constructFrom((options == null ? void 0 : options.in) || date, 0);
+  const year = getWeekYear(date2, options);
+  const firstWeek = constructFrom((options == null ? void 0 : options.in) || date2, 0);
   firstWeek.setFullYear(year, 0, firstWeekContainsDate);
   firstWeek.setHours(0, 0, 0, 0);
   const _date = startOfWeek(firstWeek, options);
   return _date;
 }
-function getWeek(date, options) {
-  const _date = toDate(date, options == null ? void 0 : options.in);
+function getWeek(date2, options) {
+  const _date = toDate(date2, options == null ? void 0 : options.in);
   const diff = +startOfWeek(_date, options) - +startOfWeekYear(_date, options);
   return Math.round(diff / millisecondsInWeek) + 1;
 }
@@ -39389,23 +39395,23 @@ function addLeadingZeros(number, targetLength) {
 }
 const lightFormatters = {
   // Year
-  y(date, token) {
-    const signedYear = date.getFullYear();
+  y(date2, token) {
+    const signedYear = date2.getFullYear();
     const year = signedYear > 0 ? signedYear : 1 - signedYear;
     return addLeadingZeros(token === "yy" ? year % 100 : year, token.length);
   },
   // Month
-  M(date, token) {
-    const month = date.getMonth();
+  M(date2, token) {
+    const month = date2.getMonth();
     return token === "M" ? String(month + 1) : addLeadingZeros(month + 1, 2);
   },
   // Day of the month
-  d(date, token) {
-    return addLeadingZeros(date.getDate(), token.length);
+  d(date2, token) {
+    return addLeadingZeros(date2.getDate(), token.length);
   },
   // AM or PM
-  a(date, token) {
-    const dayPeriodEnumValue = date.getHours() / 12 >= 1 ? "pm" : "am";
+  a(date2, token) {
+    const dayPeriodEnumValue = date2.getHours() / 12 >= 1 ? "pm" : "am";
     switch (token) {
       case "a":
       case "aa":
@@ -39420,25 +39426,25 @@ const lightFormatters = {
     }
   },
   // Hour [1-12]
-  h(date, token) {
-    return addLeadingZeros(date.getHours() % 12 || 12, token.length);
+  h(date2, token) {
+    return addLeadingZeros(date2.getHours() % 12 || 12, token.length);
   },
   // Hour [0-23]
-  H(date, token) {
-    return addLeadingZeros(date.getHours(), token.length);
+  H(date2, token) {
+    return addLeadingZeros(date2.getHours(), token.length);
   },
   // Minute
-  m(date, token) {
-    return addLeadingZeros(date.getMinutes(), token.length);
+  m(date2, token) {
+    return addLeadingZeros(date2.getMinutes(), token.length);
   },
   // Second
-  s(date, token) {
-    return addLeadingZeros(date.getSeconds(), token.length);
+  s(date2, token) {
+    return addLeadingZeros(date2.getSeconds(), token.length);
   },
   // Fraction of second
-  S(date, token) {
+  S(date2, token) {
     const numberOfDigits = token.length;
-    const milliseconds = date.getMilliseconds();
+    const milliseconds = date2.getMilliseconds();
     const fractionalSeconds = Math.trunc(
       milliseconds * Math.pow(10, numberOfDigits - 3)
     );
@@ -39455,8 +39461,8 @@ const dayPeriodEnum = {
 };
 const formatters = {
   // Era
-  G: function(date, token, localize2) {
-    const era = date.getFullYear() > 0 ? 1 : 0;
+  G: function(date2, token, localize2) {
+    const era = date2.getFullYear() > 0 ? 1 : 0;
     switch (token) {
       // AD, BC
       case "G":
@@ -39473,17 +39479,17 @@ const formatters = {
     }
   },
   // Year
-  y: function(date, token, localize2) {
+  y: function(date2, token, localize2) {
     if (token === "yo") {
-      const signedYear = date.getFullYear();
+      const signedYear = date2.getFullYear();
       const year = signedYear > 0 ? signedYear : 1 - signedYear;
       return localize2.ordinalNumber(year, { unit: "year" });
     }
-    return lightFormatters.y(date, token);
+    return lightFormatters.y(date2, token);
   },
   // Local week-numbering year
-  Y: function(date, token, localize2, options) {
-    const signedWeekYear = getWeekYear(date, options);
+  Y: function(date2, token, localize2, options) {
+    const signedWeekYear = getWeekYear(date2, options);
     const weekYear = signedWeekYear > 0 ? signedWeekYear : 1 - signedWeekYear;
     if (token === "YY") {
       const twoDigitYear = weekYear % 100;
@@ -39495,8 +39501,8 @@ const formatters = {
     return addLeadingZeros(weekYear, token.length);
   },
   // ISO week-numbering year
-  R: function(date, token) {
-    const isoWeekYear = getISOWeekYear(date);
+  R: function(date2, token) {
+    const isoWeekYear = getISOWeekYear(date2);
     return addLeadingZeros(isoWeekYear, token.length);
   },
   // Extended year. This is a single number designating the year of this calendar system.
@@ -39508,13 +39514,13 @@ const formatters = {
   // | BC 2 |   2 |  -1 |
   // Also `yy` always returns the last two digits of a year,
   // while `uu` pads single digit years to 2 characters and returns other years unchanged.
-  u: function(date, token) {
-    const year = date.getFullYear();
+  u: function(date2, token) {
+    const year = date2.getFullYear();
     return addLeadingZeros(year, token.length);
   },
   // Quarter
-  Q: function(date, token, localize2) {
-    const quarter = Math.ceil((date.getMonth() + 1) / 3);
+  Q: function(date2, token, localize2) {
+    const quarter = Math.ceil((date2.getMonth() + 1) / 3);
     switch (token) {
       // 1, 2, 3, 4
       case "Q":
@@ -39547,8 +39553,8 @@ const formatters = {
     }
   },
   // Stand-alone quarter
-  q: function(date, token, localize2) {
-    const quarter = Math.ceil((date.getMonth() + 1) / 3);
+  q: function(date2, token, localize2) {
+    const quarter = Math.ceil((date2.getMonth() + 1) / 3);
     switch (token) {
       // 1, 2, 3, 4
       case "q":
@@ -39581,12 +39587,12 @@ const formatters = {
     }
   },
   // Month
-  M: function(date, token, localize2) {
-    const month = date.getMonth();
+  M: function(date2, token, localize2) {
+    const month = date2.getMonth();
     switch (token) {
       case "M":
       case "MM":
-        return lightFormatters.M(date, token);
+        return lightFormatters.M(date2, token);
       // 1st, 2nd, ..., 12th
       case "Mo":
         return localize2.ordinalNumber(month + 1, { unit: "month" });
@@ -39609,8 +39615,8 @@ const formatters = {
     }
   },
   // Stand-alone month
-  L: function(date, token, localize2) {
-    const month = date.getMonth();
+  L: function(date2, token, localize2) {
+    const month = date2.getMonth();
     switch (token) {
       // 1, 2, ..., 12
       case "L":
@@ -39640,39 +39646,39 @@ const formatters = {
     }
   },
   // Local week of year
-  w: function(date, token, localize2, options) {
-    const week = getWeek(date, options);
+  w: function(date2, token, localize2, options) {
+    const week = getWeek(date2, options);
     if (token === "wo") {
       return localize2.ordinalNumber(week, { unit: "week" });
     }
     return addLeadingZeros(week, token.length);
   },
   // ISO week of year
-  I: function(date, token, localize2) {
-    const isoWeek = getISOWeek(date);
+  I: function(date2, token, localize2) {
+    const isoWeek = getISOWeek(date2);
     if (token === "Io") {
       return localize2.ordinalNumber(isoWeek, { unit: "week" });
     }
     return addLeadingZeros(isoWeek, token.length);
   },
   // Day of the month
-  d: function(date, token, localize2) {
+  d: function(date2, token, localize2) {
     if (token === "do") {
-      return localize2.ordinalNumber(date.getDate(), { unit: "date" });
+      return localize2.ordinalNumber(date2.getDate(), { unit: "date" });
     }
-    return lightFormatters.d(date, token);
+    return lightFormatters.d(date2, token);
   },
   // Day of year
-  D: function(date, token, localize2) {
-    const dayOfYear = getDayOfYear(date);
+  D: function(date2, token, localize2) {
+    const dayOfYear = getDayOfYear(date2);
     if (token === "Do") {
       return localize2.ordinalNumber(dayOfYear, { unit: "dayOfYear" });
     }
     return addLeadingZeros(dayOfYear, token.length);
   },
   // Day of week
-  E: function(date, token, localize2) {
-    const dayOfWeek = date.getDay();
+  E: function(date2, token, localize2) {
+    const dayOfWeek = date2.getDay();
     switch (token) {
       // Tue
       case "E":
@@ -39704,8 +39710,8 @@ const formatters = {
     }
   },
   // Local day of week
-  e: function(date, token, localize2, options) {
-    const dayOfWeek = date.getDay();
+  e: function(date2, token, localize2, options) {
+    const dayOfWeek = date2.getDay();
     const localDayOfWeek = (dayOfWeek - options.weekStartsOn + 8) % 7 || 7;
     switch (token) {
       // Numerical value (Nth day of week with current locale or weekStartsOn)
@@ -39744,8 +39750,8 @@ const formatters = {
     }
   },
   // Stand-alone local day of week
-  c: function(date, token, localize2, options) {
-    const dayOfWeek = date.getDay();
+  c: function(date2, token, localize2, options) {
+    const dayOfWeek = date2.getDay();
     const localDayOfWeek = (dayOfWeek - options.weekStartsOn + 8) % 7 || 7;
     switch (token) {
       // Numerical value (same as in `e`)
@@ -39784,8 +39790,8 @@ const formatters = {
     }
   },
   // ISO day of week
-  i: function(date, token, localize2) {
-    const dayOfWeek = date.getDay();
+  i: function(date2, token, localize2) {
+    const dayOfWeek = date2.getDay();
     const isoDayOfWeek = dayOfWeek === 0 ? 7 : dayOfWeek;
     switch (token) {
       // 2
@@ -39825,8 +39831,8 @@ const formatters = {
     }
   },
   // AM or PM
-  a: function(date, token, localize2) {
-    const hours = date.getHours();
+  a: function(date2, token, localize2) {
+    const hours = date2.getHours();
     const dayPeriodEnumValue = hours / 12 >= 1 ? "pm" : "am";
     switch (token) {
       case "a":
@@ -39854,8 +39860,8 @@ const formatters = {
     }
   },
   // AM, PM, midnight, noon
-  b: function(date, token, localize2) {
-    const hours = date.getHours();
+  b: function(date2, token, localize2) {
+    const hours = date2.getHours();
     let dayPeriodEnumValue;
     if (hours === 12) {
       dayPeriodEnumValue = dayPeriodEnum.noon;
@@ -39890,8 +39896,8 @@ const formatters = {
     }
   },
   // in the morning, in the afternoon, in the evening, at night
-  B: function(date, token, localize2) {
-    const hours = date.getHours();
+  B: function(date2, token, localize2) {
+    const hours = date2.getHours();
     let dayPeriodEnumValue;
     if (hours >= 17) {
       dayPeriodEnumValue = dayPeriodEnum.evening;
@@ -39924,32 +39930,32 @@ const formatters = {
     }
   },
   // Hour [1-12]
-  h: function(date, token, localize2) {
+  h: function(date2, token, localize2) {
     if (token === "ho") {
-      let hours = date.getHours() % 12;
+      let hours = date2.getHours() % 12;
       if (hours === 0) hours = 12;
       return localize2.ordinalNumber(hours, { unit: "hour" });
     }
-    return lightFormatters.h(date, token);
+    return lightFormatters.h(date2, token);
   },
   // Hour [0-23]
-  H: function(date, token, localize2) {
+  H: function(date2, token, localize2) {
     if (token === "Ho") {
-      return localize2.ordinalNumber(date.getHours(), { unit: "hour" });
+      return localize2.ordinalNumber(date2.getHours(), { unit: "hour" });
     }
-    return lightFormatters.H(date, token);
+    return lightFormatters.H(date2, token);
   },
   // Hour [0-11]
-  K: function(date, token, localize2) {
-    const hours = date.getHours() % 12;
+  K: function(date2, token, localize2) {
+    const hours = date2.getHours() % 12;
     if (token === "Ko") {
       return localize2.ordinalNumber(hours, { unit: "hour" });
     }
     return addLeadingZeros(hours, token.length);
   },
   // Hour [1-24]
-  k: function(date, token, localize2) {
-    let hours = date.getHours();
+  k: function(date2, token, localize2) {
+    let hours = date2.getHours();
     if (hours === 0) hours = 24;
     if (token === "ko") {
       return localize2.ordinalNumber(hours, { unit: "hour" });
@@ -39957,26 +39963,26 @@ const formatters = {
     return addLeadingZeros(hours, token.length);
   },
   // Minute
-  m: function(date, token, localize2) {
+  m: function(date2, token, localize2) {
     if (token === "mo") {
-      return localize2.ordinalNumber(date.getMinutes(), { unit: "minute" });
+      return localize2.ordinalNumber(date2.getMinutes(), { unit: "minute" });
     }
-    return lightFormatters.m(date, token);
+    return lightFormatters.m(date2, token);
   },
   // Second
-  s: function(date, token, localize2) {
+  s: function(date2, token, localize2) {
     if (token === "so") {
-      return localize2.ordinalNumber(date.getSeconds(), { unit: "second" });
+      return localize2.ordinalNumber(date2.getSeconds(), { unit: "second" });
     }
-    return lightFormatters.s(date, token);
+    return lightFormatters.s(date2, token);
   },
   // Fraction of second
-  S: function(date, token) {
-    return lightFormatters.S(date, token);
+  S: function(date2, token) {
+    return lightFormatters.S(date2, token);
   },
   // Timezone (ISO-8601. If offset is 0, output is always `'Z'`)
-  X: function(date, token, _localize) {
-    const timezoneOffset = date.getTimezoneOffset();
+  X: function(date2, token, _localize) {
+    const timezoneOffset = date2.getTimezoneOffset();
     if (timezoneOffset === 0) {
       return "Z";
     }
@@ -40001,8 +40007,8 @@ const formatters = {
     }
   },
   // Timezone (ISO-8601. If offset is 0, output is `'+00:00'` or equivalent)
-  x: function(date, token, _localize) {
-    const timezoneOffset = date.getTimezoneOffset();
+  x: function(date2, token, _localize) {
+    const timezoneOffset = date2.getTimezoneOffset();
     switch (token) {
       // Hours and optional minutes
       case "x":
@@ -40024,8 +40030,8 @@ const formatters = {
     }
   },
   // Timezone (GMT)
-  O: function(date, token, _localize) {
-    const timezoneOffset = date.getTimezoneOffset();
+  O: function(date2, token, _localize) {
+    const timezoneOffset = date2.getTimezoneOffset();
     switch (token) {
       // Short
       case "O":
@@ -40039,8 +40045,8 @@ const formatters = {
     }
   },
   // Timezone (specific non-location)
-  z: function(date, token, _localize) {
-    const timezoneOffset = date.getTimezoneOffset();
+  z: function(date2, token, _localize) {
+    const timezoneOffset = date2.getTimezoneOffset();
     switch (token) {
       // Short
       case "z":
@@ -40054,13 +40060,13 @@ const formatters = {
     }
   },
   // Seconds timestamp
-  t: function(date, token, _localize) {
-    const timestamp = Math.trunc(+date / 1e3);
+  t: function(date2, token, _localize) {
+    const timestamp = Math.trunc(+date2 / 1e3);
     return addLeadingZeros(timestamp, token.length);
   },
   // Milliseconds timestamp
-  T: function(date, token, _localize) {
-    return addLeadingZeros(+date, token.length);
+  T: function(date2, token, _localize) {
+    return addLeadingZeros(+date2, token.length);
   }
 };
 function formatTimezoneShort(offset2, delimiter = "") {
@@ -40165,13 +40171,13 @@ const longFormattingTokensRegExp = /P+p+|P+|p+|''|'(''|[^'])+('|$)|./g;
 const escapedStringRegExp = /^'([^]*?)'?$/;
 const doubleQuoteRegExp = /''/g;
 const unescapedLatinCharacterRegExp = /[a-zA-Z]/;
-function format(date, formatStr, options) {
+function format(date2, formatStr, options) {
   var _a3, _b3, _c2, _d2;
   const defaultOptions2 = getDefaultOptions();
   const locale = defaultOptions2.locale ?? enUS;
   const firstWeekContainsDate = defaultOptions2.firstWeekContainsDate ?? ((_b3 = (_a3 = defaultOptions2.locale) == null ? void 0 : _a3.options) == null ? void 0 : _b3.firstWeekContainsDate) ?? 1;
   const weekStartsOn = defaultOptions2.weekStartsOn ?? ((_d2 = (_c2 = defaultOptions2.locale) == null ? void 0 : _c2.options) == null ? void 0 : _d2.weekStartsOn) ?? 0;
-  const originalDate = toDate(date, options == null ? void 0 : options.in);
+  const originalDate = toDate(date2, options == null ? void 0 : options.in);
   if (!isValid(originalDate)) {
     throw new RangeError("Invalid time value");
   }
@@ -40212,7 +40218,7 @@ function format(date, formatStr, options) {
     if (!part.isToken) return part.value;
     const token = part.value;
     if (isProtectedWeekYearToken(token) || isProtectedDayOfYearToken(token)) {
-      warnOrThrowProtectedError(token, formatStr, String(date));
+      warnOrThrowProtectedError(token, formatStr, String(date2));
     }
     const formatter = formatters[token[0]];
     return formatter(originalDate, token, locale.localize, formatterOptions);
@@ -40356,28 +40362,28 @@ function formatDistanceStrict(laterDate, earlierDate, options) {
     return locale.formatDistance("xYears", years, localizeOptions);
   }
 }
-function formatDistanceToNow(date, options) {
-  return formatDistance(date, constructNow(date), options);
+function formatDistanceToNow(date2, options) {
+  return formatDistance(date2, constructNow(date2), options);
 }
-function formatDistanceToNowStrict(date, options) {
-  return formatDistanceStrict(date, constructNow(date), options);
+function formatDistanceToNowStrict(date2, options) {
+  return formatDistanceStrict(date2, constructNow(date2), options);
 }
-function isAfter(date, dateToCompare) {
-  return +toDate(date) > +toDate(dateToCompare);
+function isAfter(date2, dateToCompare) {
+  return +toDate(date2) > +toDate(dateToCompare);
 }
-function isBefore(date, dateToCompare) {
-  return +toDate(date) < +toDate(dateToCompare);
+function isBefore(date2, dateToCompare) {
+  return +toDate(date2) < +toDate(dateToCompare);
 }
-function isToday(date, options) {
+function isToday(date2, options) {
   return isSameDay(
-    constructFrom(date, date),
-    constructNow(date)
+    constructFrom(date2, date2),
+    constructNow(date2)
   );
 }
-function isTomorrow(date, options) {
+function isTomorrow(date2, options) {
   return isSameDay(
-    date,
-    addDays$1(constructNow(date), 1),
+    date2,
+    addDays$1(constructNow(date2), 1),
     options
   );
 }
@@ -40385,13 +40391,13 @@ function parseISO(argument, options) {
   const invalidDate = () => constructFrom(options == null ? void 0 : options.in, NaN);
   const additionalDigits = 2;
   const dateStrings = splitDateString(argument);
-  let date;
+  let date2;
   if (dateStrings.date) {
     const parseYearResult = parseYear(dateStrings.date, additionalDigits);
-    date = parseDate(parseYearResult.restDateString, parseYearResult.year);
+    date2 = parseDate(parseYearResult.restDateString, parseYearResult.year);
   }
-  if (!date || isNaN(+date)) return invalidDate();
-  const timestamp = +date;
+  if (!date2 || isNaN(+date2)) return invalidDate();
+  const timestamp = +date2;
   let time = 0;
   let offset2;
   if (dateStrings.time) {
@@ -40487,12 +40493,12 @@ function parseDate(dateString, year) {
     }
     return dayOfISOWeekYear(year, week, dayOfWeek);
   } else {
-    const date = /* @__PURE__ */ new Date(0);
+    const date2 = /* @__PURE__ */ new Date(0);
     if (!validateDate(year, month, day) || !validateDayOfYearDate(year, dayOfYear)) {
       return /* @__PURE__ */ new Date(NaN);
     }
-    date.setUTCFullYear(year, month, Math.max(dayOfYear, day));
-    return date;
+    date2.setUTCFullYear(year, month, Math.max(dayOfYear, day));
+    return date2;
   }
 }
 function parseDateUnit(value) {
@@ -40525,19 +40531,19 @@ function parseTimezone(timezoneString) {
   return sign * (hours * millisecondsInHour + minutes * millisecondsInMinute);
 }
 function dayOfISOWeekYear(isoWeekYear, week, day) {
-  const date = /* @__PURE__ */ new Date(0);
-  date.setUTCFullYear(isoWeekYear, 0, 4);
-  const fourthOfJanuaryDay = date.getUTCDay() || 7;
+  const date2 = /* @__PURE__ */ new Date(0);
+  date2.setUTCFullYear(isoWeekYear, 0, 4);
+  const fourthOfJanuaryDay = date2.getUTCDay() || 7;
   const diff = (week - 1) * 7 + day + 1 - fourthOfJanuaryDay;
-  date.setUTCDate(date.getUTCDate() + diff);
-  return date;
+  date2.setUTCDate(date2.getUTCDate() + diff);
+  return date2;
 }
 const daysInMonths = [31, null, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 function isLeapYearIndex(year) {
   return year % 400 === 0 || year % 4 === 0 && year % 100 !== 0;
 }
-function validateDate(year, month, date) {
-  return month >= 0 && month <= 11 && date >= 1 && date <= (daysInMonths[month] || (isLeapYearIndex(year) ? 29 : 28));
+function validateDate(year, month, date2) {
+  return month >= 0 && month <= 11 && date2 >= 1 && date2 <= (daysInMonths[month] || (isLeapYearIndex(year) ? 29 : 28));
 }
 function validateDayOfYearDate(year, dayOfYear) {
   return dayOfYear >= 1 && dayOfYear <= (isLeapYearIndex(year) ? 366 : 365);
@@ -40565,8 +40571,8 @@ function WCInspectionsWidget() {
   const upcoming = inspections.filter((i) => {
     if (i.status === "Complete") return false;
     if (!i.scheduled_for) return false;
-    const date = parseISO(i.scheduled_for);
-    return !isBefore(date, now) && !isAfter(date, in14Days);
+    const date2 = parseISO(i.scheduled_for);
+    return !isBefore(date2, now) && !isAfter(date2, in14Days);
   });
   const overdue = inspections.filter((i) => {
     if (i.status === "Complete") return false;
@@ -40979,7 +40985,7 @@ function WCWeatherWidget() {
       ] })
     ] }),
     alert && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `px-3 py-2 text-xs font-medium border-b ${alert.red ? "bg-red-50   dark:bg-red-950/40   text-red-700   dark:text-red-300   border-red-200   dark:border-red-800" : "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800"}`, children: alert.text }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex divide-x divide-border/50", children: daily.time.map((date, i) => {
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex divide-x divide-border/50", children: daily.time.map((date2, i) => {
       const rain = daily.precipitation_probability_max[i];
       const active = selectedDay === i;
       return /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -40989,7 +40995,7 @@ function WCWeatherWidget() {
           className: `flex-1 flex flex-col items-center gap-0.5 py-2.5 px-0.5 transition-colors cursor-pointer
                 ${active ? "bg-sky-50 dark:bg-sky-950/40 border-b-2 border-sky-500" : "hover:bg-muted/50 border-b-2 border-transparent"}`,
           children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `text-[10px] font-bold uppercase tracking-wide ${active ? "text-sky-600 dark:text-sky-400" : i === 0 ? "text-foreground" : "text-muted-foreground"}`, children: dayLabel$1(date, i) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `text-[10px] font-bold uppercase tracking-wide ${active ? "text-sky-600 dark:text-sky-400" : i === 0 ? "text-foreground" : "text-muted-foreground"}`, children: dayLabel$1(date2, i) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-lg leading-none", children: weatherEmoji(daily.weather_code[i]) }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: `text-[10px] font-medium h-3.5 flex items-center gap-0.5 ${rain >= 20 ? "text-sky-500" : "text-transparent"}`, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Droplets, { className: "h-2 w-2" }),
@@ -41006,7 +41012,7 @@ function WCWeatherWidget() {
             ] })
           ]
         },
-        date
+        date2
       );
     }) }),
     selectedDay !== null && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "border-t border-border/60", children: [
@@ -41633,9 +41639,9 @@ function sameDay$2(a, b) {
 function toDateKey(d) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
-function getDaysInMonthGrid$1(date) {
-  const year = date.getFullYear();
-  const month = date.getMonth();
+function getDaysInMonthGrid$1(date2) {
+  const year = date2.getFullYear();
+  const month = date2.getMonth();
   const firstDayOfWeek = (new Date(year, month, 1).getDay() + 6) % 7;
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const cells = [];
@@ -42857,9 +42863,9 @@ function AbsenceTriggersCard() {
     ) }, `${item.user_id}-${i}`)) }) })
   ] });
 }
-function getCurrentFinancialPeriod(date = /* @__PURE__ */ new Date()) {
-  const m = date.getMonth();
-  const y = date.getFullYear();
+function getCurrentFinancialPeriod(date2 = /* @__PURE__ */ new Date()) {
+  const m = date2.getMonth();
+  const y = date2.getFullYear();
   let financial_year;
   let quarter;
   if (m >= 3 && m <= 5) {
@@ -52612,13 +52618,13 @@ function itemTooltip(item) {
   if (isPrivate(item)) parts.push("Private reminder from Notes");
   return parts.join("\n");
 }
-function getShiftsForDay(shiftSchedule, date, userWatch) {
+function getShiftsForDay(shiftSchedule, date2, userWatch) {
   if (userWatch) {
-    const shift2 = getShiftForDate(userWatch, date);
+    const shift2 = getShiftForDate(userWatch, date2);
     if (shift2 && shift2.shiftType !== "Rest") return [shift2];
     return [];
   }
-  const dateStr = isoDate(date);
+  const dateStr = isoDate(date2);
   return shiftSchedule.filter((s) => s.date === dateStr);
 }
 function shiftKind$2(s) {
@@ -52691,14 +52697,14 @@ function spansDay(item, day) {
   d.setHours(12, 0, 0, 0);
   return d >= start && d <= end;
 }
-function getWeekDays(date) {
-  const day = date.getDay();
-  const monday = addDays(startOfDay$2(date), day === 0 ? -6 : 1 - day);
+function getWeekDays(date2) {
+  const day = date2.getDay();
+  const monday = addDays(startOfDay$2(date2), day === 0 ? -6 : 1 - day);
   return Array.from({ length: 7 }, (_, i) => addDays(monday, i));
 }
-function getDaysInMonthGrid(date) {
-  const year = date.getFullYear();
-  const month = date.getMonth();
+function getDaysInMonthGrid(date2) {
+  const year = date2.getFullYear();
+  const month = date2.getMonth();
   const first = (new Date(year, month, 1).getDay() + 6) % 7;
   const n = new Date(year, month + 1, 0).getDate();
   const cells = [];
@@ -53191,7 +53197,7 @@ function TimeGridCard({
   ] }) });
 }
 function MonthView({
-  date,
+  date: date2,
   items,
   shiftSchedule,
   userWatch,
@@ -53200,7 +53206,7 @@ function MonthView({
   onDayNavigate
 }) {
   const today = /* @__PURE__ */ new Date();
-  const cells = getDaysInMonthGrid(date);
+  const cells = getDaysInMonthGrid(date2);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "cal-card", style: { borderRadius: 24, padding: 16 }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: 6, marginBottom: 6 }, children: DOW$1.map((d) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 12, fontWeight: 600, color: "var(--cal-muted)", padding: "2px 8px" }, children: d }, d)) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: 6 }, children: cells.map((day, i) => {
@@ -53336,7 +53342,7 @@ function YearView({ year, items, onMonthClick }) {
   }) });
 }
 function MobileMonth({
-  date,
+  date: date2,
   items,
   shiftSchedule,
   userWatch,
@@ -53350,15 +53356,15 @@ function MobileMonth({
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": "Previous month", onClick: onPrev, className: "cal-btn", style: { width: 40, height: 40, padding: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronLeft, { className: "h-4 w-4" }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { style: { margin: 0, fontSize: 17, fontWeight: 600 }, children: [
-        MONTH_NAMES[date.getMonth()],
+        MONTH_NAMES[date2.getMonth()],
         " ",
-        date.getFullYear()
+        date2.getFullYear()
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": "Next month", onClick: onNext, className: "cal-btn", style: { width: 40, height: 40, padding: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-4 w-4" }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", textAlign: "center", rowGap: 4 }, children: [
       ["M", "T", "W", "T", "F", "S", "S"].map((d, i) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 11, fontWeight: 600, color: "var(--cal-muted)", padding: "2px 0" }, children: d }, i)),
-      getDaysInMonthGrid(date).map((day, i) => {
+      getDaysInMonthGrid(date2).map((day, i) => {
         if (!day) return /* @__PURE__ */ jsxRuntimeExports.jsx("span", {}, i);
         const isToday2 = sameDay$1(day, today);
         const selected = sameDay$1(day, selectedDay);
@@ -53400,19 +53406,19 @@ function MobileMonth({
   ] });
 }
 function MobileAgenda({
-  date,
+  date: date2,
   items,
   shiftSchedule,
   userWatch,
   onNewEvent,
   onEventClick
 }) {
-  const shift2 = getShiftsForDay(shiftSchedule, date, userWatch)[0];
-  const dayItems = items.filter((it) => spansDay(it, date)).sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.startTime.getTime() - b.startTime.getTime());
+  const shift2 = getShiftsForDay(shiftSchedule, date2, userWatch)[0];
+  const dayItems = items.filter((it) => spansDay(it, date2)).sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.startTime.getTime() - b.startTime.getTime());
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "cal-card", style: { padding: 14, display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 4, minWidth: 0 }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 15, fontWeight: 600 }, children: date.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 15, fontWeight: 600 }, children: date2.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }) }),
         (!!userWatch || shiftSchedule.length > 0) && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftChip, { shift: shift2 }),
           (shift2 == null ? void 0 : shift2.startTime) && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: { fontSize: 11, color: "var(--cal-muted)", marginLeft: 6 }, children: [
@@ -53427,7 +53433,7 @@ function MobileAgenda({
         {
           type: "button",
           onClick: () => {
-            const at = new Date(date);
+            const at = new Date(date2);
             at.setHours(9, 0, 0, 0);
             onNewEvent(at);
           },
@@ -53992,13 +53998,13 @@ function toInputDate(d) {
 function toInputTime(d) {
   return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
-function parseDateTimeInputs(date, time) {
-  return /* @__PURE__ */ new Date(`${date}T${time}:00`);
+function parseDateTimeInputs(date2, time) {
+  return /* @__PURE__ */ new Date(`${date2}T${time}:00`);
 }
 const fmtDay = (d) => new Date(d).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
 const label = { fontSize: 12, color: "var(--cal-muted)" };
 function EventForm({
-  date,
+  date: date2,
   initialData,
   defaultCalendar = "station",
   watchName,
@@ -54012,7 +54018,7 @@ function EventForm({
   const titleRef = reactExports.useRef(null);
   const isEditing = !!initialData;
   const defaultStart = (() => {
-    const d = new Date(date);
+    const d = new Date(date2);
     const minutes = Math.round(d.getMinutes() / 30) * 30;
     d.setMinutes(minutes, 0, 0);
     return d;
@@ -54372,7 +54378,7 @@ function InspectionEventModal({ open, onClose, defaultDate, editingEvent }) {
   const [selectedAssignmentId, setSelectedAssignmentId] = reactExports.useState(null);
   const [customTitle, setCustomTitle] = reactExports.useState("");
   const [address, setAddress] = reactExports.useState("");
-  const [date, setDate] = reactExports.useState(defaultDate ? format(defaultDate, "yyyy-MM-dd") : format(/* @__PURE__ */ new Date(), "yyyy-MM-dd"));
+  const [date2, setDate] = reactExports.useState(defaultDate ? format(defaultDate, "yyyy-MM-dd") : format(/* @__PURE__ */ new Date(), "yyyy-MM-dd"));
   const [startTime, setStartTime] = reactExports.useState("09:00");
   const [endTime, setEndTime] = reactExports.useState("11:00");
   const [visibility, setVisibility] = reactExports.useState("watch");
@@ -54450,8 +54456,8 @@ function InspectionEventModal({ open, onClose, defaultDate, editingEvent }) {
   const createMutation = useMutation({
     mutationFn: async () => {
       const t = template;
-      const startDt = /* @__PURE__ */ new Date(`${date}T${startTime}:00`);
-      const endDt = /* @__PURE__ */ new Date(`${date}T${endTime}:00`);
+      const startDt = /* @__PURE__ */ new Date(`${date2}T${startTime}:00`);
+      const endDt = /* @__PURE__ */ new Date(`${date2}T${endTime}:00`);
       const sourceType = t.type === "activity" ? null : t.type;
       let sourceId = selectedAssignmentId;
       let title = "";
@@ -54490,8 +54496,8 @@ function InspectionEventModal({ open, onClose, defaultDate, editingEvent }) {
   });
   const updateMutation = useMutation({
     mutationFn: async () => {
-      const startDt = /* @__PURE__ */ new Date(`${date}T${startTime}:00`);
-      const endDt = /* @__PURE__ */ new Date(`${date}T${endTime}:00`);
+      const startDt = /* @__PURE__ */ new Date(`${date2}T${startTime}:00`);
+      const endDt = /* @__PURE__ */ new Date(`${date2}T${endTime}:00`);
       let newTitle;
       if ((template == null ? void 0 : template.type) === "hfsv" && editingEvent) {
         const slotMatch = editingEvent.title.match(/^(HFSV #\d+)/);
@@ -54539,10 +54545,10 @@ function InspectionEventModal({ open, onClose, defaultDate, editingEvent }) {
   const isPending = isEditing ? updateMutation.isPending : createMutation.isPending;
   const canSubmit = (() => {
     if (!template) return false;
-    if (isEditing) return !!date;
-    if (template.type === "activity") return customTitle.trim().length > 0 && !!date;
-    if (template.type === "hfsv") return !!date;
-    return !!date;
+    if (isEditing) return !!date2;
+    if (template.type === "activity") return customTitle.trim().length > 0 && !!date2;
+    if (template.type === "hfsv") return !!date2;
+    return !!date2;
   })();
   return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: () => onClose(), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-lg", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { className: "flex items-center gap-2 text-base font-semibold", children: [
@@ -54695,7 +54701,7 @@ function InspectionEventModal({ open, onClose, defaultDate, editingEvent }) {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-3 gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "col-span-1 space-y-1.5", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs", children: "Date" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { type: "date", value: date, onChange: (e) => setDate(e.target.value), className: "text-sm" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { type: "date", value: date2, onChange: (e) => setDate(e.target.value), className: "text-sm" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs", children: "Start" }),
@@ -55137,12 +55143,12 @@ function UnifiedCalendar() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [formOpen]);
-  const handleSlotClick = (date, anchor) => {
-    setFormDate(date);
+  const handleSlotClick = (date2, anchor) => {
+    setFormDate(date2);
     setEditingEvent(null);
     setDefaultCalendar(lastCalendar());
     setFormAnchor(anchor ?? null);
-    setPendingSlot(view === "week" || view === "day" ? date : null);
+    setPendingSlot(view === "week" || view === "day" ? date2 : null);
     setFormOpen(true);
   };
   reactExports.useEffect(() => {
@@ -62379,9 +62385,9 @@ function HydrantCard({ watch, fq }) {
       children: [
         total === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: isLoading ? "Loading…" : (data == null ? void 0 : data.loaded) ? `No hydrants on ${watch} Watch's ${year} route.` : "The hydrant routes haven't been loaded yet." }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(PaceLines, { pace: p, noun: "hydrants", shifts: null, watch }),
-          !!(mine == null ? void 0 : mine.defects) && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "mt-2 text-sm font-medium text-amber-800 dark:text-amber-300", children: [
-            mine.defects,
-            " unsatisfactory — see the route"
+          !!(mine == null ? void 0 : mine.faults) && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "mt-2 text-sm font-medium text-red-700 dark:text-red-300", children: [
+            mine.faults,
+            " not fully functional — fault report on the route"
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: link, className: "mt-3 inline-block text-sm font-medium text-brand hover:underline", children: "Open the route →" })
@@ -63211,8 +63217,166 @@ const ACTION_CODES = {
   9: "Capped"
 };
 const NEEDS_COMMENT = [8, 13];
-const isUnable = (codes) => codes.some((c) => c >= 2 && c <= 5);
-const isDefect = (codes) => codes.some((c) => c >= 7 && c <= 13);
+const isFault = (i) => i.inspection_codes.some((c) => c !== 1 && c !== 6) || i.lid_ok === false || i.trip_hazard === true;
+const STATION = "B10 Springburn";
+const MAILTO_SAFE = 1800;
+const date = (iso) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+const yn = (v) => v === null ? "–" : v ? "Y" : "N";
+const codeList = (codes, names) => codes.map((c) => `${c} ${names[c] ?? ""}`.trim()).join("; ");
+function reportText(rows, watch, label2, year) {
+  const lines = [
+    `Hydrant fault report — ${STATION}, ${watch} Watch`,
+    `Route ${label2} · ${year} · ${rows.length} hydrant${rows.length === 1 ? "" : "s"} not fully functional`,
+    ""
+  ];
+  rows.forEach((h, n) => {
+    const i = h.inspection;
+    lines.push(`${n + 1}. SP ${h.route} #${h.seq} — ${h.street}${h.location ? `, ${h.location}` : ""}${h.ref ? ` (ID ${h.ref})` : ""}`);
+    lines.push(`   Inspection: ${codeList(i.inspection_codes, INSPECTION_CODES)}`);
+    lines.push(`   Action: ${codeList(i.action_codes, ACTION_CODES) || "–"}`);
+    lines.push(`   Lid secured and level: ${yn(i.lid_ok)} · Trip hazard: ${yn(i.trip_hazard)}`);
+    if (i.comment) lines.push(`   Comment: ${i.comment}`);
+    lines.push(`   Inspected ${date(i.inspected_at)}${i.inspected_by_name ? ` by ${i.inspected_by_name}` : ""}`);
+    lines.push("");
+  });
+  return lines.join("\n");
+}
+const csvCell = (v) => {
+  const s = v === null || v === void 0 ? "" : String(v);
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+};
+function reportCsv(rows) {
+  const head = [
+    "Route",
+    "Hydrant",
+    "ID",
+    "Street",
+    "Location",
+    "Inspection codes",
+    "Inspection",
+    "Action codes",
+    "Action",
+    "Lid secured",
+    "Trip hazard",
+    "Comment",
+    "Inspected",
+    "Inspected by"
+  ];
+  const body = rows.map((h) => {
+    const i = h.inspection;
+    return [
+      `SP ${h.route}`,
+      h.seq,
+      h.ref,
+      h.street,
+      h.location,
+      i.inspection_codes.join(" "),
+      codeList(i.inspection_codes, INSPECTION_CODES),
+      i.action_codes.join(" "),
+      codeList(i.action_codes, ACTION_CODES),
+      yn(i.lid_ok),
+      yn(i.trip_hazard),
+      i.comment,
+      date(i.inspected_at),
+      i.inspected_by_name
+    ].map(csvCell).join(",");
+  });
+  return [head.join(","), ...body].join("\r\n");
+}
+function HydrantReport({
+  open,
+  onOpenChange,
+  data,
+  canMark
+}) {
+  const qc = useQueryClient();
+  const { toast: toast2 } = useToast();
+  const faults = reactExports.useMemo(
+    () => data.routes.flatMap((r2) => r2.hydrants).filter((h) => !!h.inspection && h.in_use && isFault(h.inspection)),
+    [data]
+  );
+  const fresh = faults.filter((h) => !h.inspection.reported_at);
+  const [which, setWhich] = reactExports.useState(fresh.length ? "new" : "all");
+  const rows = which === "new" ? fresh : faults;
+  const label2 = data.label ?? "";
+  const text2 = reportText(rows, data.watch, label2, data.year);
+  const subject = `Hydrant fault report — ${STATION}, ${data.watch} Watch, ${label2}, ${data.year}`;
+  const mark = useMutation({
+    mutationFn: () => backendClient.hydrants.markHydrantsReported({ year: data.year, hydrant_ids: fresh.map((h) => h.id) }),
+    onSuccess: (r2) => {
+      toast2({ title: `Marked ${r2.marked} hydrant${r2.marked === 1 ? "" : "s"} as reported` });
+      qc.invalidateQueries({ queryKey: ["hydrants"] });
+      onOpenChange(false);
+    },
+    onError: (err2) => toast2({ title: "Couldn't mark them reported", description: err2 instanceof Error ? err2.message : void 0, variant: "destructive" })
+  });
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(text2);
+      toast2({ title: "Report copied", description: "Paste it into your email." });
+    } catch {
+      toast2({ title: "Couldn't copy — select the text and copy it instead", variant: "destructive" });
+    }
+  };
+  const download = () => {
+    const url = URL.createObjectURL(new Blob([reportCsv(rows)], { type: "text/csv" }));
+    const a = Object.assign(document.createElement("a"), { href: url, download: `Hydrant faults ${data.watch} ${label2.replace(/\s+/g, "")} ${data.year}.csv` });
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+  const mailto = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text2)}`;
+  const long = text2.length > MAILTO_SAFE;
+  const btn = "inline-flex h-9 items-center gap-2 rounded-lg border border-border px-3 text-sm font-medium hover:bg-muted";
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-2xl", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Hydrant fault report" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogDescription, { children: [
+        data.watch,
+        " Watch · ",
+        label2,
+        " · ",
+        data.year,
+        " — every hydrant that isn't fully functional, ready to email."
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "seg w-full sm:w-[320px]", role: "group", "aria-label": "Which hydrants", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { "data-on": which === "new", onClick: () => setWhich("new"), children: [
+        "Not reported yet (",
+        fresh.length,
+        ")"
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { "data-on": which === "all", onClick: () => setWhich("all"), children: [
+        "All ",
+        data.year,
+        " (",
+        faults.length,
+        ")"
+      ] })
+    ] }),
+    rows.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "rounded-xl bg-muted/50 p-4 text-sm text-muted-foreground", children: which === "new" ? "Nothing new to report — every fault has been reported." : "No faults on this route this year." }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "max-h-[45vh] overflow-auto whitespace-pre-wrap rounded-xl border border-border bg-muted/40 p-3 font-mono text-xs leading-relaxed", children: text2 }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("a", { href: mailto, className: `${btn} border-foreground/70 bg-foreground text-background hover:bg-foreground/90`, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Mail, { className: "h-4 w-4" }),
+          " Open in email"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: copy, className: btn, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "h-4 w-4" }),
+          " Copy"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: download, className: btn, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { className: "h-4 w-4" }),
+          " Download (.csv)"
+        ] })
+      ] }),
+      long && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "It's a long report — if your email arrives cut short, use Copy and paste it in, or attach the .csv." })
+    ] }),
+    canMark && fresh.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3 text-sm", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "Sent it? Mark these so the next report only has new ones." }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => mark.mutate(), disabled: mark.isPending, className: btn, children: mark.isPending ? "Marking…" : `Mark ${fresh.length} as reported` })
+    ] })
+  ] }) });
+}
 const FIRST_YEAR = 2019;
 const thisYear = () => (/* @__PURE__ */ new Date()).getFullYear();
 function yearPace(year) {
@@ -63236,6 +63400,7 @@ function Hydrants() {
   const [search, setSearch] = reactExports.useState("");
   const [filter, setFilter] = reactExports.useState("all");
   const [closed, setClosed] = reactExports.useState(/* @__PURE__ */ new Set());
+  const [reportOpen, setReportOpen] = reactExports.useState(false);
   const select = (next) => {
     const p2 = new URLSearchParams(params);
     const w = next.watch ?? watch;
@@ -63278,7 +63443,9 @@ function Hydrants() {
         comment: null,
         inspected_by: (user2 == null ? void 0 : user2.id) ?? "",
         inspected_by_name: (user2 == null ? void 0 : user2.name) ?? null,
-        inspected_at: (/* @__PURE__ */ new Date()).toISOString()
+        inspected_at: (/* @__PURE__ */ new Date()).toISOString(),
+        reported_at: null,
+        reported_by_name: null
       };
       patchCache(h.id, { ...base, ...patch, year });
     },
@@ -63375,7 +63542,7 @@ function Hydrants() {
       const i = h.inspection;
       if (filter === "todo") return h.in_use && !i;
       if (filter === "done") return !!i;
-      if (filter === "issues") return !!i && (isDefect(i.inspection_codes) || isUnable(i.inspection_codes) || i.lid_ok === false || i.trip_hazard === true);
+      if (filter === "faults") return !!i && isFault(i);
       return true;
     })
   })), [data, q, filter]);
@@ -63478,16 +63645,26 @@ function Hydrants() {
         yp.phase === "now" && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "absolute -inset-y-1 w-0.5 rounded bg-foreground", style: { left: `calc(${yp.elapsed * 100}% - 1px)` }, title: `${Math.round(yp.elapsed * 100)}% of ${year} gone` })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(PaceLines, { pace: p, noun: "hydrants", shifts: null, watch }),
-      (data.defects > 0 || data.unable > 0 || notInUse > 0) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-1.5 text-xs font-medium", children: [
-        data.defects > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => setFilter("issues"), className: "inline-flex items-center gap-1 rounded-lg bg-amber-100 px-2 py-1 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "h-3.5 w-3.5" }),
-          " ",
-          data.defects,
-          " unsatisfactory"
-        ] }),
-        data.unable > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => setFilter("issues"), className: "rounded-lg bg-amber-100 px-2 py-1 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300", children: [
-          data.unable,
-          " couldn't be inspected"
+      (data.faults > 0 || notInUse > 0) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-1.5 text-xs font-medium", children: [
+        data.faults > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => setFilter("faults"), className: "inline-flex h-8 items-center gap-1.5 rounded-lg bg-red-100 px-2.5 text-red-800 dark:bg-red-500/15 dark:text-red-300", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "h-3.5 w-3.5" }),
+            " ",
+            data.faults,
+            " not fully functional"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              onClick: () => setReportOpen(true),
+              className: "inline-flex h-8 items-center gap-1.5 rounded-lg border border-red-300 px-2.5 text-red-800 hover:bg-red-50 dark:border-red-500/40 dark:text-red-300 dark:hover:bg-red-500/10",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Mail, { className: "h-3.5 w-3.5" }),
+                " Fault report",
+                data.to_report > 0 ? ` · ${data.to_report} to send` : " · all reported"
+              ]
+            }
+          )
         ] }),
         notInUse > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "rounded-lg bg-muted px-2 py-1 text-muted-foreground", children: [
           notInUse,
@@ -63510,7 +63687,7 @@ function Hydrants() {
             }
           )
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "seg w-full sm:w-[300px]", role: "group", "aria-label": "Show", children: [["all", "All"], ["todo", "To do"], ["done", "Done"], ["issues", "Issues"]].map(([k, label2]) => /* @__PURE__ */ jsxRuntimeExports.jsx("button", { "data-on": filter === k, onClick: () => setFilter(k), children: label2 }, k)) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "seg w-full sm:w-[300px]", role: "group", "aria-label": "Show", children: [["all", "All"], ["todo", "To do"], ["done", "Done"], ["faults", "Faults"]].map(([k, label2]) => /* @__PURE__ */ jsxRuntimeExports.jsx("button", { "data-on": filter === k, onClick: () => setFilter(k), children: label2 }, k)) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-col gap-4", children: routes.map((r2) => {
         const live = r2.hydrants.filter((h) => h.in_use);
@@ -63561,6 +63738,7 @@ function Hydrants() {
           )) })
         ] }, r2.route);
       }) }),
+      reportOpen && data && /* @__PURE__ */ jsxRuntimeExports.jsx(HydrantReport, { open: reportOpen, onOpenChange: setReportOpen, data, canMark: isManager }),
       loadButton && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-3 text-xs text-muted-foreground", children: [
         loadButton,
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Re-load the SharePoint workbooks when a route changes; ticks are kept." })
@@ -63577,7 +63755,7 @@ function HydrantRow({
   onInUse
 }) {
   const i = h.inspection;
-  const issue = !!i && (isDefect(i.inspection_codes) || isUnable(i.inspection_codes) || i.lid_ok === false || i.trip_hazard === true);
+  const fault = !!i && isFault(i);
   const wantsComment = !!i && i.inspection_codes.some((c) => NEEDS_COMMENT.includes(c)) && !i.comment;
   const details = [h.main_size && `${h.main_size}mm`, h.surface, h.marker, h.dist && `dist ${h.dist}`].filter(Boolean).join(" · ");
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -63586,7 +63764,7 @@ function HydrantRow({
       className: cn(
         "rounded-xl px-2 py-2 sm:px-3",
         !h.in_use && "opacity-60",
-        issue ? "bg-amber-50 ring-1 ring-amber-300/70 dark:bg-amber-500/10 dark:ring-amber-500/30" : i ? "bg-muted/40" : ""
+        fault ? "bg-red-50 ring-1 ring-red-300 dark:bg-red-500/10 dark:ring-red-500/40" : i ? "bg-muted/40" : ""
       ),
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-3", children: [
@@ -63600,8 +63778,8 @@ function HydrantRow({
               "aria-label": i ? `Untick hydrant ${h.seq}, ${h.street}` : `Tick hydrant ${h.seq}, ${h.street} as inspected`,
               className: cn(
                 "grid h-10 w-10 shrink-0 place-items-center rounded-xl border-2 transition-colors sm:h-9 sm:w-9",
-                i ? "border-emerald-500 bg-emerald-500 text-white" : "border-muted-foreground/40 bg-background",
-                canEdit ? i ? "hover:bg-emerald-600" : "hover:border-emerald-500" : "cursor-default"
+                fault ? "border-red-600 bg-red-600 text-white" : i ? "border-emerald-500 bg-emerald-500 text-white" : "border-muted-foreground/40 bg-background",
+                canEdit ? fault ? "hover:bg-red-700" : i ? "hover:bg-emerald-600" : "hover:border-emerald-500" : "cursor-default"
               ),
               children: i && /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-5 w-5", strokeWidth: 3 })
             }
@@ -63618,6 +63796,10 @@ function HydrantRow({
                 h.ref
               ] }),
               !h.in_use && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px] font-medium text-muted-foreground", children: "Not in use" })
+            ] }),
+            fault && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-0.5 flex flex-wrap items-center gap-1.5 text-[11px] font-semibold", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "rounded bg-red-600 px-1.5 py-0.5 text-white", children: "Not fully functional" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-red-800 dark:text-red-300", children: i.reported_at ? `Reported ${shortDate(i.reported_at)}` : "Not reported yet" })
             ] }),
             h.location && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-muted-foreground", children: h.location }),
             details && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] text-muted-foreground", children: details })
@@ -63640,7 +63822,7 @@ function HydrantRow({
               codes: i.inspection_codes,
               names: INSPECTION_CODES,
               disabled: !canEdit,
-              problem: isDefect(i.inspection_codes) || isUnable(i.inspection_codes),
+              problem: i.inspection_codes.some((c) => c !== 1 && c !== 6),
               onChange: (codes, picked) => onSave({ inspection_codes: withoutContradictions(codes, picked) })
             }
           ),
@@ -63684,7 +63866,7 @@ function CodePicker({
         disabled,
         className: cn(
           "col-span-2 flex h-10 min-w-0 items-center gap-1.5 rounded-lg border bg-background px-2.5 text-left text-sm disabled:cursor-default sm:col-span-1 sm:h-9",
-          problem ? "border-amber-400 text-amber-900 dark:border-amber-500/60 dark:text-amber-200" : "border-border"
+          problem ? "border-red-400 text-red-900 dark:border-red-500/60 dark:text-red-200" : "border-border"
         ),
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "shrink-0 text-[11px] text-muted-foreground", children: label2 }),
@@ -63735,7 +63917,7 @@ function YesNo({
 }) {
   const problem = value === problemWhen;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-2 sm:justify-start", role: "group", "aria-label": label2, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn("text-xs", problem ? "font-semibold text-amber-800 dark:text-amber-300" : "text-muted-foreground"), children: label2 }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn("text-xs", problem ? "font-semibold text-red-700 dark:text-red-300" : "text-muted-foreground"), children: label2 }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "seg", style: { width: 76 }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { "data-on": value === true, disabled, onClick: () => onChange(true), children: "Y" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { "data-on": value === false, disabled, onClick: () => onChange(false), children: "N" })
@@ -63762,7 +63944,7 @@ function CommentBox({ initial, wanted, disabled, onSave }) {
       maxLength: 500,
       className: cn(
         "col-span-2 h-10 rounded-lg border bg-background px-2.5 text-sm outline-none focus:ring-2 focus:ring-brand/40 sm:col-span-4 sm:h-9",
-        wanted ? "border-amber-400 placeholder:text-amber-700 dark:placeholder:text-amber-300" : "border-border"
+        wanted ? "border-red-400 placeholder:text-red-700 dark:placeholder:text-red-300" : "border-border"
       )
     }
   );
@@ -66032,9 +66214,9 @@ function AdminUsers() {
       });
     }
   };
-  const formatDate = (date) => {
-    if (!date) return "Never";
-    return new Date(date).toLocaleDateString();
+  const formatDate = (date2) => {
+    if (!date2) return "Never";
+    return new Date(date2).toLocaleDateString();
   };
   return (
     // Shown inside the Admin page, which Layout already wraps — so no PageContainer here.
@@ -70983,8 +71165,8 @@ function CrewUpcomingInspections() {
         return "bg-gray-500";
     }
   };
-  const isOverdue = (date) => {
-    return new Date(date) < /* @__PURE__ */ new Date();
+  const isOverdue = (date2) => {
+    return new Date(date2) < /* @__PURE__ */ new Date();
   };
   if (isLoading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
@@ -71100,8 +71282,8 @@ function CrewOneToOnes() {
     },
     enabled: !!crewMembers && crewMembers.length > 0
   });
-  const getStatusBadge = (date) => {
-    const daysUntil = differenceInDays(new Date(date), /* @__PURE__ */ new Date());
+  const getStatusBadge = (date2) => {
+    const daysUntil = differenceInDays(new Date(date2), /* @__PURE__ */ new Date());
     if (daysUntil < 0) {
       return {
         label: `${Math.abs(daysUntil)} days overdue`,
@@ -71378,8 +71560,8 @@ function PersonPicker({
 }
 const WATCHES$6 = ["Red", "White", "Green", "Blue", "Amber"];
 const TYPES = ["1st Day", "2nd Day", "1st Night", "2nd Night"];
-function stepShift(watch, date, type, dir) {
-  const d = /* @__PURE__ */ new Date(`${date}T12:00:00`);
+function stepShift(watch, date2, type, dir) {
+  const d = /* @__PURE__ */ new Date(`${date2}T12:00:00`);
   if (hasRotaConfig(watch)) {
     for (let i = 1; i <= 60; i++) {
       const t2 = new Date(d);
@@ -71392,15 +71574,15 @@ function stepShift(watch, date, type, dir) {
   t.setDate(d.getDate() + dir);
   return { date: format(t, "yyyy-MM-dd"), type };
 }
-function rotaTypeFor(watch, date) {
-  const s = hasRotaConfig(watch) ? getShiftForDate(watch, /* @__PURE__ */ new Date(`${date}T12:00:00`)) : null;
+function rotaTypeFor(watch, date2) {
+  const s = hasRotaConfig(watch) ? getShiftForDate(watch, /* @__PURE__ */ new Date(`${date2}T12:00:00`)) : null;
   return (s == null ? void 0 : s.isWorking) ? s.shiftType : null;
 }
 function ShiftNavigator({
   watch,
   onWatch,
   canChangeWatch,
-  date,
+  date: date2,
   type,
   onChange,
   isNow,
@@ -71415,7 +71597,7 @@ function ShiftNavigator({
   const night = type.includes("Night");
   const hasRota = hasRotaConfig(watch);
   const go = (dir) => {
-    const n = stepShift(watch, date, type, dir);
+    const n = stepShift(watch, date2, type, dir);
     onChange(n.date, n.type);
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-3", children: [
@@ -71439,7 +71621,7 @@ function ShiftNavigator({
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn("grid h-8 w-8 shrink-0 place-items-center rounded-lg", night ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300" : "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300"), children: night ? /* @__PURE__ */ jsxRuntimeExports.jsx(Moon, { className: "h-4 w-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Sun, { className: "h-4 w-4" }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "min-w-0", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "block truncate text-sm font-semibold leading-tight", children: [
-                format(parseISO(date), "EEE d MMM"),
+                format(parseISO(date2), "EEE d MMM"),
                 " · ",
                 type
               ] }),
@@ -71458,7 +71640,7 @@ function ShiftNavigator({
         {
           ref: dateRef,
           type: "date",
-          value: date,
+          value: date2,
           onChange: (e) => {
             if (e.target.value) onChange(e.target.value, rotaTypeFor(watch, e.target.value) ?? type);
           },
@@ -71470,7 +71652,7 @@ function ShiftNavigator({
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => go(1), className: "grid h-11 w-10 place-items-center rounded-r-xl hover:bg-muted", "aria-label": "Next shift", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-4 w-4" }) })
     ] }),
     !isNow && /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", size: "sm", onClick: onNow, className: "h-9", children: "Now" }),
-    !hasRota && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "seg", style: { width: 300 }, children: TYPES.map((t) => /* @__PURE__ */ jsxRuntimeExports.jsx("button", { "data-on": t === type, onClick: () => onChange(date, t), children: t }, t)) }),
+    !hasRota && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "seg", style: { width: 300 }, children: TYPES.map((t) => /* @__PURE__ */ jsxRuntimeExports.jsx("button", { "data-on": t === type, onClick: () => onChange(date2, t), children: t }, t)) }),
     canChangeWatch && /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watch, onValueChange: onWatch, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-9 w-32", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$6.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
@@ -71550,9 +71732,9 @@ function AutoCrewDialog({
   ] }) });
 }
 const MAX = 2;
-function sinceLabel(date) {
-  if (!date) return "never";
-  const d = differenceInCalendarDays(/* @__PURE__ */ new Date(), parseISO(date));
+function sinceLabel(date2) {
+  if (!date2) return "never";
+  const d = differenceInCalendarDays(/* @__PURE__ */ new Date(), parseISO(date2));
   if (d < 0) return d === -1 ? "tomorrow" : `in ${-d} days`;
   return d === 0 ? "today" : d === 1 ? "yesterday" : `${d} days ago`;
 }

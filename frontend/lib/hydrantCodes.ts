@@ -35,3 +35,11 @@ export const NEEDS_COMMENT = [8, 13];
 
 export const isUnable = (codes: number[]) => codes.some((c) => c >= 2 && c <= 5);
 export const isDefect = (codes: number[]) => codes.some((c) => c >= 7 && c <= 13);
+
+/**
+ * Not fully functional — goes in the fault report that's emailed away: any
+ * code but 1 Fully functional or 6 New hydrant adopted, a lid that isn't
+ * secured and level, or a trip hazard. Same rule as the server's isFault.
+ */
+export const isFault = (i: { inspection_codes: number[]; lid_ok: boolean | null; trip_hazard: boolean | null }) =>
+  i.inspection_codes.some((c) => c !== 1 && c !== 6) || i.lid_ok === false || i.trip_hazard === true;

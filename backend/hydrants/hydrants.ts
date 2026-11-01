@@ -39,6 +39,9 @@ export interface HydrantInspection {
   inspected_by: string;
   inspected_by_name: string | null;
   inspected_at: string;
+  /** When it went in a fault report (not fully functional only); null = not yet. */
+  reported_at: string | null;
+  reported_by_name: string | null;
 }
 
 export interface RouteHydrant {
@@ -76,6 +79,10 @@ export interface HydrantRouteResponse {
   unable: number;
   /** Ticked with an unsatisfactory code (7–13). */
   defects: number;
+  /** Not fully functional — a problem code, lid not secured or a trip hazard. */
+  faults: number;
+  /** Faults not yet in a report. */
+  to_report: number;
   /** False until the routes have been imported. */
   loaded: boolean;
   can_edit: boolean;
@@ -87,6 +94,7 @@ export interface HydrantWatchSummary {
   total: number;
   done: number;
   defects: number;
+  faults: number;
 }
 
 export interface HydrantSummaryResponse {
@@ -119,7 +127,7 @@ export interface ImportHydrant {
   in_use: boolean;
 }
 
-type InspectionRow = Omit<HydrantInspection, "inspected_at"> & { inspected_at: Date | string };
+type InspectionRow = Omit<HydrantInspection, "inspected_at" | "reported_at"> & { inspected_at: Date | string; reported_at: Date | string | null };
 
 const iso = (d: Date | string) => (d instanceof Date ? d.toISOString() : d);
 // jsonb comes back parsed. The codes are sent as JSON text cast in SQL
@@ -140,10 +148,15 @@ const toInspection = (r: InspectionRow): HydrantInspection => ({
   inspected_by: r.inspected_by,
   inspected_by_name: r.inspected_by_name,
   inspected_at: iso(r.inspected_at),
+  reported_at: r.reported_at ? iso(r.reported_at) : null,
+  reported_by_name: r.reported_by_name ?? null,
 });
 
 const isUnable = (i: HydrantInspection) => i.inspection_codes.some((c) => UNABLE_CODES.includes(c));
 const isDefect = (i: HydrantInspection) => i.inspection_codes.some((c) => DEFECT_CODES.includes(c));
+/** Goes in the fault report: anything but fully functional (1) or newly adopted (6), lid not secured, or a trip hazard. */
+const isFault = (i: HydrantInspection) =>
+  i.inspection_codes.some((c) => c !== 1 && c !== 6) || i.lid_ok === false || i.trip_hazard === true;
 
 function checkYear(year: number): number {
   const y = Number(year);
@@ -167,7 +180,7 @@ async function allHydrants(): Promise<Hydrant[]> {
 async function inspectionsFor(year: number): Promise<Map<number, HydrantInspection>> {
   const rows = await db.rawQueryAll<InspectionRow>(
     `SELECT hydrant_id, year, watch, lid_ok, trip_hazard, inspection_codes, action_codes, comment,
-            inspected_by, inspected_by_name, inspected_at
+            inspected_by, inspected_by_name, inspected_at, reported_at, reported_by_name
      FROM hydrant_inspections WHERE year = $1`,
     year
   );
@@ -184,12 +197,12 @@ export const getHydrantRoute = api(
     const group = groupFor(watch, year);
     const base = { year, cycle_year: cycleYear(year), watch, can_edit: group !== null && canRecord(watch) };
     if (group === null) {
-      return { ...base, label: null, routes: [], total: 0, done: 0, unable: 0, defects: 0, loaded: false };
+      return { ...base, label: null, routes: [], total: 0, done: 0, unable: 0, defects: 0, faults: 0, to_report: 0, loaded: false };
     }
 
     const [hydrants, inspections] = await Promise.all([allHydrants(), inspectionsFor(year)]);
     const byRoute = new Map<string, RouteHydrant[]>();
-    let total = 0, done = 0, unable = 0, defects = 0;
+    let total = 0, done = 0, unable = 0, defects = 0, faults = 0, toReport = 0;
     for (const h of hydrants) {
       if (!routeInGroup(h.route, group)) continue;
       const inspection = inspections.get(h.id) ?? null;
@@ -200,13 +213,17 @@ export const getHydrantRoute = api(
         done++;
         if (isUnable(inspection)) unable++;
         if (isDefect(inspection)) defects++;
+        if (isFault(inspection)) {
+          faults++;
+          if (!inspection.reported_at) toReport++;
+        }
       }
     }
     const routes = [...byRoute.entries()]
       .sort(([a], [b]) => compareRoutes(a, b))
       .map(([route, list]) => ({ route, hydrants: list.sort((a, b) => a.seq - b.seq) }));
 
-    return { ...base, label: groupLabel(group), routes, total, done, unable, defects, loaded: hydrants.length > 0 };
+    return { ...base, label: groupLabel(group), routes, total, done, unable, defects, faults, to_report: toReport, loaded: hydrants.length > 0 };
   }
 );
 
@@ -218,7 +235,7 @@ export const getHydrantSummary = api(
     const [hydrants, inspections] = await Promise.all([allHydrants(), inspectionsFor(year)]);
     const watches = HYDRANT_WATCHES.map((watch) => {
       const group = groupFor(watch, year)!;
-      let total = 0, done = 0, defects = 0;
+      let total = 0, done = 0, defects = 0, faults = 0;
       for (const h of hydrants) {
         if (!h.in_use || !routeInGroup(h.route, group)) continue;
         total++;
@@ -226,9 +243,10 @@ export const getHydrantSummary = api(
         if (i) {
           done++;
           if (isDefect(i)) defects++;
+          if (isFault(i)) faults++;
         }
       }
-      return { watch, label: groupLabel(group), total, done, defects };
+      return { watch, label: groupLabel(group), total, done, defects, faults };
     });
     return { year, cycle_year: cycleYear(year), watches, loaded: hydrants.length > 0 };
   }
@@ -273,7 +291,7 @@ export const saveHydrantInspection = api(
 
     const before = await db.rawQueryRow<InspectionRow>(
       `SELECT hydrant_id, year, watch, lid_ok, trip_hazard, inspection_codes, action_codes, comment,
-              inspected_by, inspected_by_name, inspected_at
+              inspected_by, inspected_by_name, inspected_at, reported_at, reported_by_name
        FROM hydrant_inspections WHERE hydrant_id = $1 AND year = $2`,
       hydrant.id, year
     );
@@ -284,9 +302,16 @@ export const saveHydrantInspection = api(
        ON CONFLICT (hydrant_id, year) DO UPDATE SET
          lid_ok = EXCLUDED.lid_ok, trip_hazard = EXCLUDED.trip_hazard,
          inspection_codes = EXCLUDED.inspection_codes, action_codes = EXCLUDED.action_codes,
-         comment = EXCLUDED.comment, updated_at = NOW()
+         comment = EXCLUDED.comment, updated_at = NOW(),
+         -- a result that changes after it was reported goes in the next report
+         reported_at = CASE WHEN hydrant_inspections.lid_ok IS NOT DISTINCT FROM EXCLUDED.lid_ok
+                              AND hydrant_inspections.trip_hazard IS NOT DISTINCT FROM EXCLUDED.trip_hazard
+                              AND hydrant_inspections.inspection_codes = EXCLUDED.inspection_codes
+                              AND hydrant_inspections.action_codes = EXCLUDED.action_codes
+                              AND hydrant_inspections.comment IS NOT DISTINCT FROM EXCLUDED.comment
+                            THEN hydrant_inspections.reported_at END
        RETURNING hydrant_id, year, watch, lid_ok, trip_hazard, inspection_codes, action_codes, comment,
-                 inspected_by, inspected_by_name, inspected_at`,
+                 inspected_by, inspected_by_name, inspected_at, reported_at, reported_by_name`,
       hydrant.id, year, watch,
       req.lid_ok !== undefined ? req.lid_ok : before ? before.lid_ok : true,
       req.trip_hazard !== undefined ? req.trip_hazard : before ? before.trip_hazard : false,
@@ -307,6 +332,27 @@ export const clearHydrantInspection = api(
     const year = checkYear(Number(req.year));
     const { hydrant } = await hydrantWatch(req.id, year);
     await db.rawExec(`DELETE FROM hydrant_inspections WHERE hydrant_id = $1 AND year = $2`, hydrant.id, year);
+  }
+);
+
+// POST /hydrants/reported — after the fault report is emailed, mark those
+// hydrants reported so the next report has only new ones (WC/CC).
+export const markHydrantsReported = api(
+  { auth: true, expose: true, method: "POST", path: "/hydrants/reported" },
+  async (req: { year: number; hydrant_ids: number[] }): Promise<{ marked: number }> => {
+    const auth = getAuthData()!;
+    requireRole(auth, "WC", "CC");
+    const year = checkYear(req.year);
+    const ids = (req.hydrant_ids ?? []).map(Number).filter(Number.isInteger);
+    if (ids.length === 0) return { marked: 0 };
+    const rows = await db.rawQueryAll<{ hydrant_id: number }>(
+      `UPDATE hydrant_inspections
+       SET reported_at = NOW(), reported_by_name = (SELECT name FROM users WHERE id = $3)
+       WHERE year = $1 AND hydrant_id = ANY($2::int[]) AND reported_at IS NULL
+       RETURNING hydrant_id`,
+      year, ids, auth.userID
+    );
+    return { marked: rows.length };
   }
 );
 

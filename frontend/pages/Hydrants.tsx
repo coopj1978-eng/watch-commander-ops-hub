@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, Check, ChevronDown, ChevronLeft, ChevronRight, MoreHorizontal, Search, Upload } from "lucide-react";
+import { AlertTriangle, Check, ChevronDown, ChevronLeft, ChevronRight, Mail, MoreHorizontal, Search, Upload } from "lucide-react";
 import backend from "@/lib/backend";
 import type { hydrants } from "@/client";
 import { useAuth } from "@/App";
@@ -10,7 +10,8 @@ import { invalidateTargetViews } from "@/lib/targetsCache";
 import { pace as paceOf } from "@/lib/quarters";
 import { initialsOf } from "@/lib/taskUi";
 import { readHydrantWorkbooks } from "@/lib/hydrantWorkbook";
-import { ACTION_CODES, INSPECTION_CODES, NEEDS_COMMENT, isDefect, isUnable } from "@/lib/hydrantCodes";
+import { ACTION_CODES, INSPECTION_CODES, NEEDS_COMMENT, isFault } from "@/lib/hydrantCodes";
+import { HydrantReport } from "@/components/hydrants/HydrantReport";
 import { PaceLines, PacePill } from "@/components/targets/TargetParts";
 import { STATION_WATCHES } from "@/components/targets/StationComparison";
 import { WatchDot } from "@/components/WatchBadge";
@@ -24,11 +25,13 @@ import {
 // route sheets and the 15-year rota on the station board. One tick per
 // hydrant records the usual result (1 Fully functional, 1 Tested, lid
 // secured, no trip hazard); the drop-downs change it when something's wrong.
+// Anything not fully functional shows red and goes in the fault report that's
+// emailed away (components/hydrants/HydrantReport.tsx).
 // The year and watch live in the URL (?year=2026&watch=Blue).
 
 type RouteHydrant = hydrants.RouteHydrant;
 type Inspection = hydrants.HydrantInspection;
-type Filter = "all" | "todo" | "done" | "issues";
+type Filter = "all" | "todo" | "done" | "faults";
 
 const FIRST_YEAR = 2019;
 const thisYear = () => new Date().getFullYear();
@@ -56,6 +59,7 @@ export default function Hydrants() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [closed, setClosed] = useState<Set<string>>(new Set());
+  const [reportOpen, setReportOpen] = useState(false);
 
   const select = (next: { watch?: string; year?: number }) => {
     const p = new URLSearchParams(params);
@@ -95,6 +99,7 @@ export default function Hydrants() {
       const base: Inspection = h.inspection ?? {
         hydrant_id: h.id, year, watch, lid_ok: true, trip_hazard: false, inspection_codes: [1], action_codes: [1],
         comment: null, inspected_by: user?.id ?? "", inspected_by_name: user?.name ?? null, inspected_at: new Date().toISOString(),
+        reported_at: null, reported_by_name: null,
       };
       patchCache(h.id, { ...base, ...(patch as Partial<Inspection>), year });
     },
@@ -186,7 +191,7 @@ export default function Hydrants() {
       const i = h.inspection;
       if (filter === "todo") return h.in_use && !i;
       if (filter === "done") return !!i;
-      if (filter === "issues") return !!i && (isDefect(i.inspection_codes) || isUnable(i.inspection_codes) || i.lid_ok === false || i.trip_hazard === true);
+      if (filter === "faults") return !!i && isFault(i);
       return true;
     }),
   })), [data, q, filter]);
@@ -283,17 +288,20 @@ export default function Hydrants() {
               )}
             </div>
             <PaceLines pace={p} noun="hydrants" shifts={null} watch={watch} />
-            {(data.defects > 0 || data.unable > 0 || notInUse > 0) && (
-              <div className="flex flex-wrap gap-1.5 text-xs font-medium">
-                {data.defects > 0 && (
-                  <button onClick={() => setFilter("issues")} className="inline-flex items-center gap-1 rounded-lg bg-amber-100 px-2 py-1 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300">
-                    <AlertTriangle className="h-3.5 w-3.5" /> {data.defects} unsatisfactory
-                  </button>
-                )}
-                {data.unable > 0 && (
-                  <button onClick={() => setFilter("issues")} className="rounded-lg bg-amber-100 px-2 py-1 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300">
-                    {data.unable} couldn't be inspected
-                  </button>
+            {(data.faults > 0 || notInUse > 0) && (
+              <div className="flex flex-wrap items-center gap-1.5 text-xs font-medium">
+                {data.faults > 0 && (
+                  <>
+                    <button onClick={() => setFilter("faults")} className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-red-100 px-2.5 text-red-800 dark:bg-red-500/15 dark:text-red-300">
+                      <AlertTriangle className="h-3.5 w-3.5" /> {data.faults} not fully functional
+                    </button>
+                    <button
+                      onClick={() => setReportOpen(true)}
+                      className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-red-300 px-2.5 text-red-800 hover:bg-red-50 dark:border-red-500/40 dark:text-red-300 dark:hover:bg-red-500/10"
+                    >
+                      <Mail className="h-3.5 w-3.5" /> Fault report{data.to_report > 0 ? ` · ${data.to_report} to send` : " · all reported"}
+                    </button>
+                  </>
                 )}
                 {notInUse > 0 && <span className="rounded-lg bg-muted px-2 py-1 text-muted-foreground">{notInUse} not in use (not counted)</span>}
               </div>
@@ -317,7 +325,7 @@ export default function Hydrants() {
               />
             </label>
             <div className="seg w-full sm:w-[300px]" role="group" aria-label="Show">
-              {([["all", "All"], ["todo", "To do"], ["done", "Done"], ["issues", "Issues"]] as [Filter, string][]).map(([k, label]) => (
+              {([["all", "All"], ["todo", "To do"], ["done", "Done"], ["faults", "Faults"]] as [Filter, string][]).map(([k, label]) => (
                 <button key={k} data-on={filter === k} onClick={() => setFilter(k)}>{label}</button>
               ))}
             </div>
@@ -363,6 +371,9 @@ export default function Hydrants() {
               );
             })}
           </div>
+          {reportOpen && data && (
+            <HydrantReport open={reportOpen} onOpenChange={setReportOpen} data={data} canMark={isManager} />
+          )}
           {loadButton && (
             <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
               {loadButton}
@@ -386,7 +397,7 @@ function HydrantRow({
   onInUse: (inUse: boolean) => void;
 }) {
   const i = h.inspection;
-  const issue = !!i && (isDefect(i.inspection_codes) || isUnable(i.inspection_codes) || i.lid_ok === false || i.trip_hazard === true);
+  const fault = !!i && isFault(i);
   const wantsComment = !!i && i.inspection_codes.some((c) => NEEDS_COMMENT.includes(c)) && !i.comment;
   const details = [h.main_size && `${h.main_size}mm`, h.surface, h.marker, h.dist && `dist ${h.dist}`].filter(Boolean).join(" · ");
 
@@ -395,7 +406,7 @@ function HydrantRow({
       className={cn(
         "rounded-xl px-2 py-2 sm:px-3",
         !h.in_use && "opacity-60",
-        issue ? "bg-amber-50 ring-1 ring-amber-300/70 dark:bg-amber-500/10 dark:ring-amber-500/30" : i ? "bg-muted/40" : "",
+        fault ? "bg-red-50 ring-1 ring-red-300 dark:bg-red-500/10 dark:ring-red-500/40" : i ? "bg-muted/40" : "",
       )}
     >
       <div className="flex items-start gap-3">
@@ -408,8 +419,8 @@ function HydrantRow({
             aria-label={i ? `Untick hydrant ${h.seq}, ${h.street}` : `Tick hydrant ${h.seq}, ${h.street} as inspected`}
             className={cn(
               "grid h-10 w-10 shrink-0 place-items-center rounded-xl border-2 transition-colors sm:h-9 sm:w-9",
-              i ? "border-emerald-500 bg-emerald-500 text-white" : "border-muted-foreground/40 bg-background",
-              canEdit ? (i ? "hover:bg-emerald-600" : "hover:border-emerald-500") : "cursor-default",
+              fault ? "border-red-600 bg-red-600 text-white" : i ? "border-emerald-500 bg-emerald-500 text-white" : "border-muted-foreground/40 bg-background",
+              canEdit ? (fault ? "hover:bg-red-700" : i ? "hover:bg-emerald-600" : "hover:border-emerald-500") : "cursor-default",
             )}
           >
             {i && <Check className="h-5 w-5" strokeWidth={3} />}
@@ -424,6 +435,14 @@ function HydrantRow({
             {h.ref && <span className="font-mono text-[11px] text-muted-foreground">ID {h.ref}</span>}
             {!h.in_use && <span className="text-[11px] font-medium text-muted-foreground">Not in use</span>}
           </div>
+          {fault && (
+            <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[11px] font-semibold">
+              <span className="rounded bg-red-600 px-1.5 py-0.5 text-white">Not fully functional</span>
+              <span className="text-red-800 dark:text-red-300">
+                {i!.reported_at ? `Reported ${shortDate(i!.reported_at)}` : "Not reported yet"}
+              </span>
+            </div>
+          )}
           {h.location && <div className="text-sm text-muted-foreground">{h.location}</div>}
           {details && <div className="text-[11px] text-muted-foreground">{details}</div>}
         </div>
@@ -453,7 +472,7 @@ function HydrantRow({
             codes={i.inspection_codes}
             names={INSPECTION_CODES}
             disabled={!canEdit}
-            problem={isDefect(i.inspection_codes) || isUnable(i.inspection_codes)}
+            problem={i.inspection_codes.some((c) => c !== 1 && c !== 6)}
             onChange={(codes, picked) => onSave({ inspection_codes: withoutContradictions(codes, picked) })}
           />
           <CodePicker label="Action" codes={i.action_codes} names={ACTION_CODES} disabled={!canEdit} onChange={(codes) => onSave({ action_codes: codes })} />
@@ -498,7 +517,7 @@ function CodePicker({
         disabled={disabled}
         className={cn(
           "col-span-2 flex h-10 min-w-0 items-center gap-1.5 rounded-lg border bg-background px-2.5 text-left text-sm disabled:cursor-default sm:col-span-1 sm:h-9",
-          problem ? "border-amber-400 text-amber-900 dark:border-amber-500/60 dark:text-amber-200" : "border-border",
+          problem ? "border-red-400 text-red-900 dark:border-red-500/60 dark:text-red-200" : "border-border",
         )}
       >
         <span className="shrink-0 text-[11px] text-muted-foreground">{label}</span>
@@ -542,7 +561,7 @@ function YesNo({
   const problem = value === problemWhen;
   return (
     <div className="flex items-center justify-between gap-2 sm:justify-start" role="group" aria-label={label}>
-      <span className={cn("text-xs", problem ? "font-semibold text-amber-800 dark:text-amber-300" : "text-muted-foreground")}>{label}</span>
+      <span className={cn("text-xs", problem ? "font-semibold text-red-700 dark:text-red-300" : "text-muted-foreground")}>{label}</span>
       <div className="seg" style={{ width: 76 }}>
         <button data-on={value === true} disabled={disabled} onClick={() => onChange(true)}>Y</button>
         <button data-on={value === false} disabled={disabled} onClick={() => onChange(false)}>N</button>
@@ -566,7 +585,7 @@ function CommentBox({ initial, wanted, disabled, onSave }: { initial: string; wa
       maxLength={500}
       className={cn(
         "col-span-2 h-10 rounded-lg border bg-background px-2.5 text-sm outline-none focus:ring-2 focus:ring-brand/40 sm:col-span-4 sm:h-9",
-        wanted ? "border-amber-400 placeholder:text-amber-700 dark:placeholder:text-amber-300" : "border-border",
+        wanted ? "border-red-400 placeholder:text-red-700 dark:placeholder:text-red-300" : "border-border",
       )}
     />
   );
