@@ -55510,6 +55510,7 @@ function autoStatusFor(status, checklist, columnKeys) {
   if (all && (status === "NotStarted" || status === "InProgress") && has("Done")) return "Done";
   if (!all && status === "Done" && has("InProgress")) return "InProgress";
   if (any && !all && status === "NotStarted" && has("InProgress")) return "InProgress";
+  if (!any && status === "InProgress" && has("NotStarted")) return "NotStarted";
   return null;
 }
 const initialsOf = (name) => (name ?? "").split(/\s+/).filter(Boolean).map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "?";
@@ -59997,7 +59998,7 @@ function RoutinePlanner({ open, onClose, canManage, onOpenOtherChecks }) {
                   DAYS.map((d) => cell(`${d.key}-${s.key}`, { minHeight: s.key === "day" ? 190 : 130 }))
                 ] }, s.key))
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: 0, fontSize: 13, color: "var(--cal-muted)", maxWidth: 820 }, children: canManage ? "Changes save as you go and reach today's cards straight away (ticks are kept). Drag an item to move it to another day. Anything not done when the shift ends is marked missed and shows on the WC dashboard." : "Only Watch and Crew Commanders can change the routine." })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: 0, fontSize: 13, color: "var(--cal-muted)", maxWidth: 820 }, children: canManage ? `Changes save as you go and reach today's cards straight away (ticks are kept). ${isPhone ? "Use ⋯ to copy a list to another day." : "Drag an item to move it to another day."} Anything not done when the shift ends is marked missed and shows on the WC dashboard.` : "Only Watch and Crew Commanders can change the routine." })
             ] }) })
           ]
         }

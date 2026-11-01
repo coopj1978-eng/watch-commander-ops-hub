@@ -21,4 +21,7 @@ describe("autoStatusFor", () => {
     expect(autoStatusFor("NotStarted", items(true, false), ["NotStarted", "Done"])).toBeNull();
     expect(autoStatusFor("InProgress", items(true, false), cols)).toBeNull();
   });
+  it("puts a card back in To Do when everything is unticked", () => {
+    expect(autoStatusFor("InProgress", items(false, false), cols)).toBe("NotStarted");
+  });
 });

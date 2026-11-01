@@ -284,7 +284,7 @@ export default function RoutinePlanner({ open, onClose, canManage, onOpenOtherCh
 
               <p style={{ margin: 0, fontSize: 13, color: "var(--cal-muted)", maxWidth: 820 }}>
                 {canManage
-                  ? "Changes save as you go and reach today's cards straight away (ticks are kept). Drag an item to move it to another day. Anything not done when the shift ends is marked missed and shows on the WC dashboard."
+                  ? `Changes save as you go and reach today's cards straight away (ticks are kept). ${isPhone ? "Use ⋯ to copy a list to another day." : "Drag an item to move it to another day."} Anything not done when the shift ends is marked missed and shows on the WC dashboard.`
                   : "Only Watch and Crew Commanders can change the routine."}
               </p>
             </>
