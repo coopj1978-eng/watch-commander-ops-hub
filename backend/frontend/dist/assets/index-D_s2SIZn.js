@@ -28939,12 +28939,12 @@ var references;
     }
     /** Every station reference's title and duties (0 = all watches). */
     async listReferences() {
-      const resp = await this.baseClient.callTypedAPI("GET", `/references`);
+      const resp = await this.baseClient.callTypedAPI("GET", `/station-references`);
       return await resp.json();
     }
     /** Set a reference's title and duties (WC/CC). */
     async saveReference(ref, params) {
-      const resp = await this.baseClient.callTypedAPI("PUT", `/references/${encodeURIComponent(ref)}`, JSON.stringify(params));
+      const resp = await this.baseClient.callTypedAPI("PUT", `/station-references/${encodeURIComponent(ref)}`, JSON.stringify(params));
       return await resp.json();
     }
   }

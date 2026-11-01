@@ -4141,13 +4141,13 @@ export namespace references {
 
         /** Every station reference's title and duties (0 = all watches). */
         public async listReferences(): Promise<{ references: StationReference[] }> {
-            const resp = await this.baseClient.callTypedAPI("GET", `/references`)
+            const resp = await this.baseClient.callTypedAPI("GET", `/station-references`)
             return await resp.json() as { references: StationReference[] }
         }
 
         /** Set a reference's title and duties (WC/CC). */
         public async saveReference(ref: number, params: { title: string; sections: ReferenceSection[] }): Promise<StationReference> {
-            const resp = await this.baseClient.callTypedAPI("PUT", `/references/${encodeURIComponent(ref)}`, JSON.stringify(params))
+            const resp = await this.baseClient.callTypedAPI("PUT", `/station-references/${encodeURIComponent(ref)}`, JSON.stringify(params))
             return await resp.json() as StationReference
         }
     }

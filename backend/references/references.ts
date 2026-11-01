@@ -26,9 +26,9 @@ const parseSections = (v: unknown): ReferenceSection[] => {
   return Array.isArray(arr) ? arr : [];
 };
 
-// GET /references — every reference's title and duties.
+// GET /station-references — every reference's title and duties.
 export const listReferences = api(
-  { auth: true, expose: true, method: "GET", path: "/references" },
+  { auth: true, expose: true, method: "GET", path: "/station-references" },
   async (): Promise<{ references: StationReference[] }> => {
     const rows = await db.rawQueryAll<{ ref: number; title: string; sections: unknown; updated_at: Date | string }>(
       `SELECT ref, title, sections, updated_at FROM station_references ORDER BY ref`
@@ -37,9 +37,9 @@ export const listReferences = api(
   }
 );
 
-// PUT /references/:ref — set a reference's title and duties (WC/CC).
+// PUT /station-references/:ref — set a reference's title and duties (WC/CC).
 export const saveReference = api(
-  { auth: true, expose: true, method: "PUT", path: "/references/:ref" },
+  { auth: true, expose: true, method: "PUT", path: "/station-references/:ref" },
   async (req: { ref: number; title: string; sections: ReferenceSection[] }): Promise<StationReference> => {
     const auth = getAuthData()!;
     requireRole(auth, "WC", "CC");
