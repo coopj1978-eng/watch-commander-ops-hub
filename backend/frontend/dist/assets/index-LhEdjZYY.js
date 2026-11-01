@@ -63814,7 +63814,7 @@ function HydrantRow({
             /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuContent, { align: "end", children: /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuItem, { onSelect: () => onInUse(!h.in_use), children: h.in_use ? "Mark not in use (abandoned / removed)" : "Mark back in use" }) })
           ] })
         ] }),
-        i && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 grid grid-cols-2 gap-2 sm:ml-12 sm:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_auto_auto] sm:items-center", children: [
+        i && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 grid grid-cols-2 gap-2 sm:ml-12 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_auto_auto] lg:items-center", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             CodePicker,
             {
@@ -63828,7 +63828,16 @@ function HydrantRow({
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx(CodePicker, { label: "Action", codes: i.action_codes, names: ACTION_CODES, disabled: !canEdit, onChange: (codes) => onSave({ action_codes: codes }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(YesNo, { label: "Lid secured", value: i.lid_ok, problemWhen: false, disabled: !canEdit, onChange: (v) => onSave({ lid_ok: v }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(YesNo, { label: "Trip hazard", value: i.trip_hazard, problemWhen: true, disabled: !canEdit, onChange: (v) => onSave({ trip_hazard: v }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            YesNo,
+            {
+              label: "Trip hazard",
+              value: i.trip_hazard,
+              problemWhen: true,
+              disabled: !canEdit,
+              onChange: (v) => onSave(v && !i.inspection_codes.includes(8) ? { trip_hazard: true, inspection_codes: withoutContradictions([...i.inspection_codes, 8].sort((a, b) => a - b), 8) } : { trip_hazard: v })
+            }
+          ),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             CommentBox,
             {
@@ -63943,7 +63952,7 @@ function CommentBox({ initial, wanted, disabled, onSave }) {
       "aria-label": "Comment",
       maxLength: 500,
       className: cn(
-        "col-span-2 h-10 rounded-lg border bg-background px-2.5 text-sm outline-none focus:ring-2 focus:ring-brand/40 sm:col-span-4 sm:h-9",
+        "col-span-2 h-10 rounded-lg border bg-background px-2.5 text-sm outline-none focus:ring-2 focus:ring-brand/40 sm:h-9 lg:col-span-4",
         wanted ? "border-red-400 placeholder:text-red-700 dark:placeholder:text-red-300" : "border-border"
       )
     }
