@@ -1,525 +1,94 @@
-import { useState, useMemo } from "react";
-import { useQueries, useQuery } from "@tanstack/react-query";
-import TargetsDashboard from "@/components/TargetsDashboard";
-import InspectionAssignments from "@/components/InspectionAssignments";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { BarChart3, Calendar, Target } from "lucide-react";
-import backend from "@/lib/backend";
+import { useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useAuth } from "@/App";
-import { COMMUNITY_TAP_MIN, COMMUNITY_TARGET_Q, HFSV_TARGET_Q, communityMet } from "@/lib/targets";
+import InspectionAssignments from "@/components/InspectionAssignments";
+import { QuarterStrip } from "@/components/targets/QuarterStrip";
+import { HfsvCard } from "@/components/targets/HfsvCard";
+import { CommunityCard } from "@/components/targets/CommunityCard";
+import { HydrantCard, MultiStoryCard } from "@/components/targets/InspectionCards";
+import { currentFyQuarter, fyLabel, fyQuarter, quarterTime, shiftsLeft, type QuarterNo } from "@/lib/quarters";
 
-type PeriodType = "month" | "quarter" | "year" | "custom";
-
-// ── Quarterly Year-at-a-Glance ───────────────────────────────────────────────
-
-// Hydrants aren't quarterly activities — they're an annual route on the
-// Hydrant Register, shown as their own row below.
-const ACTIVITY_METRICS = [
-  { key: "hfsv",      label: "HFSV",      target: HFSV_TARGET_Q,      colour: "orange" },
-  { key: "community", label: "Community", target: COMMUNITY_TARGET_Q, colour: "teal"   },
-] as const;
-
-const QUARTER_LABELS = ["Q1 Apr–Jun", "Q2 Jul–Sep", "Q3 Oct–Dec", "Q4 Jan–Mar"];
-
-function QuarterlyOverview({ watch }: { watch: string }) {
-  const now = new Date();
-  const fy = now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
-  // Q1=Apr-Jun=1, Q2=Jul-Sep=2, Q3=Oct-Dec=3, Q4=Jan-Mar=4
-  const currentQ = Math.floor(((now.getMonth() + 9) % 12) / 3) + 1;
-
-  // Activity-based queries: 3 metrics × 4 quarters = 12
-  const activityResults = useQueries({
-    queries: ACTIVITY_METRICS.flatMap((metric) =>
-      [1, 2, 3, 4].map((q) => ({
-        queryKey: ["activities-q", metric.key, watch, fy, q],
-        queryFn: () =>
-          backend.activity.list({
-            type: metric.key,
-            watch: watch || undefined,
-            financial_year: fy,
-            quarter: q,
-          }),
-        enabled: !!watch,
-      }))
-    ),
-  });
-
-  // Multi-story: the plan's quarters are financial quarters, same as above.
-  const msResults = useQueries({
-    queries: [1, 2, 3, 4].map((fq) => ({
-      queryKey: ["ms-assignments-q", watch, fy, fq],
-      queryFn: () =>
-        backend.inspection_plans.listAssignments({
-          watch: watch || undefined,
-          year: fy,
-          quarter: fq,
-          plan_type: "multistory",
-        }),
-      enabled: !!watch,
-    })),
-  });
-
-  // Annual hydrant route for the current calendar year (same source as the
-  // Hydrant Inspections card).
-  const hydrantYear = now.getFullYear();
-  const hydrantQ = useQuery({
-    queryKey: ["assignments", "hydrant", watch, hydrantYear],
-    queryFn: () =>
-      backend.inspection_plans.listAssignments({
-        plan_type: "hydrant",
-        watch: watch || undefined,
-        year: hydrantYear,
-        quarter: 0,
-      }),
-    enabled: !!watch,
-  });
-  const hydrantDone = hydrantQ.data?.totals?.complete ?? 0;
-  const hydrantTotal = hydrantDone + (hydrantQ.data?.totals?.pending ?? 0);
-
-  function getActivityResult(metricIdx: number, q: number) {
-    return activityResults[metricIdx * 4 + (q - 1)];
-  }
-
-  function getMsResult(q: number) {
-    return msResults[q - 1];
-  }
-
-  function barColour(pct: number, isFuture: boolean, colourKey: string) {
-    if (isFuture) return "bg-muted";
-    if (pct >= 100) return "bg-green-500";
-    if (pct >= 50)  return "bg-amber-400";
-    return "bg-red-500";
-  }
-
-  function textColour(pct: number, isFuture: boolean) {
-    if (isFuture) return "text-muted-foreground";
-    if (pct >= 100) return "text-green-600 dark:text-green-400";
-    if (pct >= 50)  return "text-amber-600 dark:text-amber-400";
-    return "text-red-600 dark:text-red-400";
-  }
-
-  const isLoading = activityResults.some((r) => r.isLoading) || msResults.some((r) => r.isLoading);
-
-  return (
-    <Card className="border-t-2 border-t-brand">
-      <CardHeader className="pb-3">
-        <div className="flex items-center gap-2">
-          <BarChart3 className="h-5 w-5 text-brand" />
-          <CardTitle className="text-base">Year at a Glance — FY {fy}/{String(fy + 1).slice(2)}</CardTitle>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {isLoading ? (
-          <div className="text-sm text-muted-foreground animate-pulse">Loading quarterly data…</div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr>
-                  <th className="text-left font-medium text-muted-foreground pb-2 pr-4 w-24">Metric</th>
-                  {QUARTER_LABELS.map((label, idx) => {
-                    const q = idx + 1;
-                    const isCurrent = q === currentQ;
-                    return (
-                      <th
-                        key={q}
-                        className={`text-center font-medium pb-2 px-2 ${
-                          isCurrent
-                            ? "text-indigo-600 dark:text-indigo-400"
-                            : "text-muted-foreground"
-                        }`}
-                      >
-                        <span className="block text-xs">{label}</span>
-                        {isCurrent && (
-                          <span className="inline-block mt-0.5 text-[10px] font-semibold bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 px-1.5 py-0.5 rounded-full leading-none">
-                            current
-                          </span>
-                        )}
-                      </th>
-                    );
-                  })}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {ACTIVITY_METRICS.map((metric, mIdx) => (
-                  <tr key={metric.key}>
-                    <td className="py-3 pr-4 font-medium text-foreground">{metric.label}</td>
-                    {[1, 2, 3, 4].map((q) => {
-                      const result = getActivityResult(mIdx, q);
-                      const completed = result.data?.total_completed ?? 0;
-                      const tap = result.data?.total_tap_completed ?? 0;
-                      const isCommunity = metric.key === "community";
-                      const isFuture = q > currentQ && (result.data?.total ?? 0) === 0;
-                      const rawPct = Math.min(100, Math.round((completed / metric.target) * 100));
-                      // Community isn't met until the TAP minimum is reached too.
-                      const pct = isCommunity && !communityMet(completed, tap) ? Math.min(rawPct, 99) : rawPct;
-                      const isCurrent = q === currentQ;
-
-                      return (
-                        <td
-                          key={q}
-                          className={`py-3 px-2 ${isCurrent ? "bg-indigo-50/50 dark:bg-indigo-950/20 rounded" : ""}`}
-                        >
-                          <div className="flex flex-col items-center gap-1.5 min-w-[72px]">
-                            <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
-                              <div
-                                className={`h-full rounded-full transition-all duration-500 ${barColour(pct, isFuture, metric.colour)}`}
-                                style={{ width: isFuture ? "0%" : `${pct}%` }}
-                              />
-                            </div>
-                            <span className={`text-xs font-semibold tabular-nums ${textColour(pct, isFuture)}`}>
-                              {isFuture ? "–" : `${completed}/${metric.target}`}
-                            </span>
-                            {isCommunity && !isFuture && (
-                              <span
-                                className={`text-[10px] tabular-nums ${tap >= COMMUNITY_TAP_MIN ? "text-green-600 dark:text-green-400" : "text-muted-foreground"}`}
-                              >
-                                TAP {tap}/{COMMUNITY_TAP_MIN}
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-                {/* Hydrants — one annual route, not a quarterly target */}
-                <tr>
-                  <td className="py-3 pr-4 font-medium text-foreground">Hydrant</td>
-                  <td colSpan={4} className="py-3 px-2">
-                    {hydrantTotal === 0 ? (
-                      <span className="text-xs text-muted-foreground">
-                        No {hydrantYear} hydrant route uploaded yet
-                      </span>
-                    ) : (
-                      <div className="flex items-center gap-3">
-                        <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
-                          <div
-                            className={`h-full rounded-full transition-all duration-500 ${barColour(Math.round((hydrantDone / hydrantTotal) * 100), false, "purple")}`}
-                            style={{ width: `${Math.round((hydrantDone / hydrantTotal) * 100)}%` }}
-                          />
-                        </div>
-                        <span className="text-xs font-semibold tabular-nums whitespace-nowrap">
-                          {hydrantDone}/{hydrantTotal} · {hydrantYear} route
-                        </span>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-                {/* Multi-Story row — from inspection_plans assignments */}
-                <tr>
-                  <td className="py-3 pr-4 font-medium text-foreground">Multi-Story</td>
-                  {[1, 2, 3, 4].map((q) => {
-                    const result = getMsResult(q);
-                    const total = result.data?.items?.length ?? 0;
-                    const completed = result.data?.totals?.complete ?? 0;
-                    // No buildings for this watch that quarter → nothing to do, not "0/0" in red.
-                    const isFuture = total === 0 || (q > currentQ && completed === 0);
-                    const pct = total > 0 ? Math.min(100, Math.round((completed / total) * 100)) : 0;
-                    const isCurrent = q === currentQ;
-
-                    return (
-                      <td
-                        key={q}
-                        className={`py-3 px-2 ${isCurrent ? "bg-indigo-50/50 dark:bg-indigo-950/20 rounded" : ""}`}
-                      >
-                        <div className="flex flex-col items-center gap-1.5 min-w-[72px]">
-                          <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
-                            <div
-                              className={`h-full rounded-full transition-all duration-500 ${barColour(pct, isFuture, "blue")}`}
-                              style={{ width: isFuture ? "0%" : `${pct}%` }}
-                            />
-                          </div>
-                          <span className={`text-xs font-semibold tabular-nums ${textColour(pct, isFuture)}`}>
-                            {total === 0 ? "None" : isFuture ? `0/${total}` : `${completed}/${total}`}
-                          </span>
-                        </div>
-                      </td>
-                    );
-                  })}
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
-}
+// Targets — one financial quarter at a time (Nov 2026 redesign).
+//
+// The quarter strip picks the quarter and shows the whole year at a glance;
+// the four cards below show each target against an even pace through the
+// quarter, with the actions to log progress right on them; annual inspections
+// sit at the bottom. Replaces Year at a Glance + Period Selection + Overall
+// Progress + metric cards, which showed the same numbers three ways (and a
+// Monthly/Custom period that only ever showed quarter totals).
+// The quarter lives in the URL (?fy=2026&q=3) so Back and links work.
 
 export default function Targets() {
   const { user } = useAuth();
-  const [periodType, setPeriodType] = useState<PeriodType>("quarter");
-  const [selectedQuarter, setSelectedQuarter] = useState<string>(""); // start date of selected quarter
-  const [selectedMonth, setSelectedMonth] = useState<string>("");     // start date of selected month
-  const [customStart, setCustomStart] = useState("");
-  const [customEnd, setCustomEnd] = useState("");
+  const watch = user?.watch_unit ?? "";
+  const canEdit = user?.role === "WC" || user?.role === "CC";
 
-  // Timezone-safe YYYY-MM-DD formatter (avoids UTC shift from toISOString)
-  const toLocalDate = (d: Date) =>
-    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const now = currentFyQuarter();
+  const [params, setParams] = useSearchParams();
+  const fy = Number(params.get("fy")) || now.fy;
+  const qParam = Number(params.get("q"));
+  const q = (qParam >= 1 && qParam <= 4 ? qParam : fy === now.fy ? now.q : 1) as QuarterNo;
+  const fq = useMemo(() => fyQuarter(fy, q), [fy, q]);
+  const time = quarterTime(fq);
+  const shifts = time.phase === "past" ? null : shiftsLeft(watch, fq);
 
-  // ── Must be defined BEFORE getPeriodDates which references them ──────────
-  const quarters = useMemo(() => {
-    const now = new Date();
-    const month = now.getMonth();
-    // Use financial year quarters: Q1=Apr-Jun, Q2=Jul-Sep, Q3=Oct-Dec, Q4=Jan-Mar
-    const currentFY = month >= 3 ? now.getFullYear() : now.getFullYear() - 1;
-    const result = [];
-
-    // Show current FY and previous FY quarters
-    for (const fy of [currentFY, currentFY - 1]) {
-      // FY Q1 = Apr of fy, Q2 = Jul of fy, Q3 = Oct of fy, Q4 = Jan of fy+1
-      const fyQuarters = [
-        { q: 1, start: new Date(fy, 3, 1),  end: new Date(fy, 5, 30),    label: `Q1 ${fy}/${String(fy + 1).slice(2)} (Apr–Jun)` },
-        { q: 2, start: new Date(fy, 6, 1),  end: new Date(fy, 8, 30),    label: `Q2 ${fy}/${String(fy + 1).slice(2)} (Jul–Sep)` },
-        { q: 3, start: new Date(fy, 9, 1),  end: new Date(fy, 11, 31),   label: `Q3 ${fy}/${String(fy + 1).slice(2)} (Oct–Dec)` },
-        { q: 4, start: new Date(fy + 1, 0, 1), end: new Date(fy + 1, 2, 31), label: `Q4 ${fy}/${String(fy + 1).slice(2)} (Jan–Mar)` },
-      ];
-      for (const fq of fyQuarters) {
-        result.push({
-          label: fq.label,
-          start: toLocalDate(fq.start),
-          end: toLocalDate(fq.end),
-        });
-      }
-    }
-
-    return result;
-  }, []);
-
-  const months = useMemo(() => {
-    const now = new Date();
-    const result = [];
-
-    for (let i = 0; i < 12; i++) {
-      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const year = date.getFullYear();
-      const month = date.getMonth();
-      const start = new Date(year, month, 1);
-      const end = new Date(year, month + 1, 0);
-
-      result.push({
-        label: start.toLocaleDateString("en-US", { month: "long", year: "numeric" }),
-        start: toLocalDate(start),
-        end: toLocalDate(end),
-      });
-    }
-
-    return result;
-  }, []);
-
-  // ── Compute period start/end/label from current selections ────────────────
-  const getPeriodDates = useMemo(() => {
-    switch (periodType) {
-      case "quarter": {
-        if (selectedQuarter) {
-          const match = quarters.find((q) => q.start === selectedQuarter);
-          if (match) return { start: match.start, end: match.end, label: match.label };
-        }
-        // Default: current FY quarter
-        const now = new Date();
-        const m = now.getMonth(); // 0-based
-        // FY quarter index: Apr-Jun=0, Jul-Sep=1, Oct-Dec=2, Jan-Mar=3
-        const fyQIdx = m >= 3 ? Math.floor((m - 3) / 3) : 3;
-        const defaultQ = quarters[fyQIdx]; // first 4 entries are current FY
-        return defaultQ
-          ? { start: defaultQ.start, end: defaultQ.end, label: defaultQ.label }
-          : { start: "", end: "", label: "" };
-      }
-      case "month": {
-        if (selectedMonth) {
-          const match = months.find((m) => m.start === selectedMonth);
-          if (match) return { start: match.start, end: match.end, label: match.label };
-        }
-        // Default: current month
-        const defaultM = months[0];
-        return defaultM
-          ? { start: defaultM.start, end: defaultM.end, label: defaultM.label }
-          : { start: "", end: "", label: "" };
-      }
-      case "year": {
-        const now = new Date();
-        const fy = now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
-        const start = `${fy}-04-01`;
-        const end = `${fy + 1}-03-31`;
-        return { start, end, label: `FY ${fy}/${String(fy + 1).slice(2)}` };
-      }
-      case "custom":
-        return {
-          start: customStart,
-          end: customEnd,
-          label: customStart && customEnd ? "Custom Range" : "Select dates",
-        };
-      default:
-        return { start: "", end: "", label: "" };
-    }
-  }, [periodType, selectedQuarter, selectedMonth, customStart, customEnd, quarters, months]);
-
-  // Year + quarter for InspectionAssignments: multi-story by financial year
-  // and quarter (Apr–Jun = Q1); the annual items by calendar year.
-  const { inspFY, inspYear, inspQuarter } = useMemo(() => {
-    const start = getPeriodDates.start;
-    const d = start ? new Date(start + "T00:00:00") : new Date(); // timezone-safe parse
-    const m = d.getMonth();
-    const fy = m >= 3 ? d.getFullYear() : d.getFullYear() - 1;
-    const fq = m >= 3 ? Math.floor((m - 3) / 3) + 1 : 4;
-    return {
-      inspFY: fy,
-      inspYear: d.getFullYear(),
-      inspQuarter: start && periodType !== "year" ? fq : null as number | null,
-    };
-  }, [getPeriodDates, periodType]);
+  const select = (next: { fy?: number; q?: QuarterNo }) => {
+    const p = new URLSearchParams(params);
+    p.set("fy", String(next.fy ?? fy));
+    p.set("q", String(next.q ?? q));
+    setParams(p, { replace: true });
+  };
 
   return (
-    <div className="p-4 md:p-8 space-y-6">
-      {/* Visual-refresh page header: h1 + eyebrow context line.
-          Targets are auto-derived from activity records and inspection
-          assignments — no add/manage button needed here. */}
-      <div className="flex items-baseline flex-wrap gap-x-4 gap-y-1">
-        <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-          <Target className="h-7 w-7 text-brand shrink-0" />
-          Performance Targets
-        </h1>
-        <span className="eyebrow">
-          Track and manage quarterly performance metrics
-        </span>
+    <div className="flex flex-col" style={{ gap: "var(--gap-section)" }}>
+      {/* ── Header ─────────────────────────────────────────────────────── */}
+      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
+        <div>
+          <div className="eyebrow">{watch ? `${watch} Watch` : "No watch set"} · FY {fyLabel(fy)}</div>
+          <h1 className="mt-1 text-3xl font-semibold tracking-tight">Targets</h1>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          <span className="font-medium text-foreground">{fq.label} · {fq.months}</span>
+          {time.phase === "now" && (
+            <>
+              {" "}— day {time.dayOf} of {time.totalDays} ·{" "}
+              <span className="font-mono tabular-nums text-foreground">{time.daysLeft}</span> days
+              {shifts !== null && (
+                <>
+                  , <span className="font-mono tabular-nums text-foreground">{shifts}</span> {watch} shifts left
+                </>
+              )}
+            </>
+          )}
+          {time.phase === "past" && " — finished"}
+          {time.phase === "future" && " — not started"}
+        </p>
       </div>
 
-      <QuarterlyOverview watch={user?.watch_unit ?? ""} />
-
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-muted-foreground" />
-              <CardTitle className="text-base">Period Selection</CardTitle>
-            </div>
-            <CardDescription>{getPeriodDates.label}</CardDescription>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <label className="text-sm font-medium mb-2 block">Period Type</label>
-              <Select value={periodType} onValueChange={(value: PeriodType) => setPeriodType(value)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="month">Monthly</SelectItem>
-                  <SelectItem value="quarter">Quarterly</SelectItem>
-                  <SelectItem value="year">Yearly</SelectItem>
-                  <SelectItem value="custom">Custom Range</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {periodType === "quarter" && (
-              <div>
-                <label className="text-sm font-medium mb-2 block">Select Quarter</label>
-                <Select
-                  value={selectedQuarter || getPeriodDates.start}
-                  onValueChange={(value) => setSelectedQuarter(value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {quarters.map((q) => (
-                      <SelectItem key={q.start} value={q.start}>
-                        {q.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
-            {periodType === "month" && (
-              <div>
-                <label className="text-sm font-medium mb-2 block">Select Month</label>
-                <Select
-                  value={selectedMonth || getPeriodDates.start}
-                  onValueChange={(value) => setSelectedMonth(value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {months.map((m) => (
-                      <SelectItem key={m.start} value={m.start}>
-                        {m.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
-            {periodType === "custom" && (
-              <>
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Start Date</label>
-                  <input
-                    type="date"
-                    value={customStart}
-                    onChange={(e) => setCustomStart(e.target.value)}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-2 block">End Date</label>
-                  <input
-                    type="date"
-                    value={customEnd}
-                    onChange={(e) => setCustomEnd(e.target.value)}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  />
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Date range summary */}
-          {getPeriodDates.start && getPeriodDates.end && (
-            <div className="mt-4 flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900">
-              <Calendar className="h-3.5 w-3.5 text-indigo-500 shrink-0" />
-              <span className="text-xs font-medium text-indigo-700 dark:text-indigo-300">
-                {new Date(getPeriodDates.start + "T00:00:00").toLocaleDateString("en-GB", {
-                  day: "numeric", month: "long", year: "numeric",
-                })}
-                {" – "}
-                {new Date(getPeriodDates.end + "T00:00:00").toLocaleDateString("en-GB", {
-                  day: "numeric", month: "long", year: "numeric",
-                })}
-              </span>
-              <span className="ml-auto text-xs font-semibold text-indigo-500">{getPeriodDates.label}</span>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      <TargetsDashboard
-        periodStart={getPeriodDates.start}
-        periodEnd={getPeriodDates.end}
-        showPeriodSelector={false}
+      {/* ── The year: pick a quarter ───────────────────────────────────── */}
+      <QuarterStrip
+        watch={watch}
+        fy={fy}
+        selected={q}
+        onSelect={(next) => select({ q: next })}
+        onFy={(next) => select({ fy: next, q: next === now.fy ? now.q : 4 })}
       />
 
-      <InspectionAssignments financialYear={inspFY} quarter={inspQuarter} year={inspYear} />
+      {/* ── This quarter's targets ─────────────────────────────────────── */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <HfsvCard watch={watch} fq={fq} canEdit={canEdit} />
+        <CommunityCard watch={watch} fq={fq} canEdit={canEdit} />
+        <MultiStoryCard watch={watch} fq={fq} canEdit={canEdit} />
+        <HydrantCard watch={watch} fq={fq} canEdit={canEdit} />
+      </div>
+
+      {/* ── Annual inspections (care homes, hydrant route, operational) ── */}
+      <InspectionAssignments
+        financialYear={fy}
+        quarter={q}
+        year={fq.start.getFullYear()}
+        exclude={["multistory"]}
+      />
     </div>
   );
 }

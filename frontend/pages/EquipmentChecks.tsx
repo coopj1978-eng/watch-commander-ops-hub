@@ -71,7 +71,7 @@ export default function EquipmentChecks() {
 
   if (isLoading) {
     return (
-      <div className="p-4 md:p-8 space-y-6">
+      <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="space-y-2">
             <Skeleton className="h-9 w-64" />
@@ -88,7 +88,7 @@ export default function EquipmentChecks() {
   }
 
   return (
-    <div className="p-4 md:p-8 space-y-6">
+    <div className="space-y-6">
       {/* Visual-refresh page header: h1 + eyebrow + action buttons. */}
       <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-3">
         <div className="flex items-baseline flex-wrap gap-x-4 gap-y-1">

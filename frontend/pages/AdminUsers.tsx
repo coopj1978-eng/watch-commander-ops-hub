@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import backend from "@/lib/backend";
 import type { User, UserRole } from "~backend/user/types";
-import { PageContainer } from "@/components/PageContainer";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -124,7 +123,9 @@ export function AdminUsers() {
   };
 
   return (
-    <PageContainer title="User Management">
+    // Shown inside the Admin page, which Layout already wraps — so no PageContainer here.
+    <div className="space-y-6">
+      <h2 className="text-xl font-semibold">User Management</h2>
       <div className="flex justify-between items-center mb-6">
         <p className="text-muted-foreground">
           Manage user roles, permissions, and account status
@@ -266,6 +267,6 @@ export function AdminUsers() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </PageContainer>
+    </div>
   );
 }

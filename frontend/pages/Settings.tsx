@@ -1,4 +1,4 @@
-import PageContainer from "@/components/PageContainer";
+import { useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DictionariesManager } from "@/components/DictionaryManager";
 import { AbsenceThresholds } from "@/components/AbsenceThresholds";
@@ -8,10 +8,15 @@ import { InspectionPlans } from "@/components/InspectionPlans";
 import { AppearanceSettings } from "@/components/AppearanceSettings";
 import { Settings as SettingsIcon, FileSpreadsheet, Palette, AlertTriangle, Database, ClipboardList, Sparkles } from "lucide-react";
 
+const TABS = ["appearance", "dictionaries", "absence", "branding", "export", "inspection-plans"];
+
 export default function Settings() {
+  // "?tab=inspection-plans" (e.g. from the Targets page's hydrant card) opens that tab.
+  const [params] = useSearchParams();
+  const initialTab = TABS.includes(params.get("tab") ?? "") ? params.get("tab")! : "appearance";
+  // Layout already wraps every page in PageContainer.
   return (
-    <PageContainer>
-      <div className="p-6 space-y-6">
+      <div className="space-y-6">
         {/* Visual-refresh page header: h1 + eyebrow context line. */}
         <div className="flex items-baseline flex-wrap gap-x-4 gap-y-1">
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
@@ -23,7 +28,7 @@ export default function Settings() {
           </span>
         </div>
 
-        <Tabs defaultValue="appearance" className="space-y-6">
+        <Tabs defaultValue={initialTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="appearance" className="gap-2">
               <Sparkles className="h-4 w-4" />
@@ -76,6 +81,6 @@ export default function Settings() {
           </TabsContent>
         </Tabs>
       </div>
-    </PageContainer>
+    
   );
 }

@@ -330,7 +330,7 @@ export default function People() {
   };
 
   return (
-    <div className="p-4 md:p-8 space-y-6">
+    <div className="space-y-6">
       {/* ── Page header ──────────────────────────────────────────────────────
           Visual-refresh pattern: heading + eyebrow context line + spacer +
           action buttons. The eyebrow surfaces the active watch, station and

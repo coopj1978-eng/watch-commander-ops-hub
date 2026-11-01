@@ -43656,7 +43656,7 @@ function TargetRow({
     );
   }
   const pct = target > 0 ? Math.min(incomplete ? 99 : 100, Math.round(actual / target * 100)) : 0;
-  const pace = incomplete && actual >= target ? { tone: "amber", label: "Needs TAP" } : computePace(actual, target, timePct);
+  const pace2 = incomplete && actual >= target ? { tone: "amber", label: "Needs TAP" } : computePace(actual, target, timePct);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
@@ -43673,11 +43673,11 @@ function TargetRow({
             note2
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "shrink-0", children: pacePill(pace.tone, pace.label) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "shrink-0", children: pacePill(pace2.tone, pace2.label) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "basis-full min-w-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "relative h-1.5 rounded-full bg-muted overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           "div",
           {
-            className: `absolute left-0 top-0 bottom-0 ${pctCss(pace.tone)} transition-[width] duration-300`,
+            className: `absolute left-0 top-0 bottom-0 ${pctCss(pace2.tone)} transition-[width] duration-300`,
             style: { width: `${pct}%` }
           }
         ) }) })
@@ -48773,7 +48773,7 @@ function People() {
       setFilters([...filters, value]);
     }
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 md:p-8 space-y-6", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-baseline justify-between gap-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline flex-wrap gap-x-4 gap-y-1", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-3xl font-bold text-foreground flex items-center gap-3", children: [
@@ -51540,7 +51540,7 @@ function ProfileDetail() {
     return renderInput();
   };
   if (userLoading || profileLoading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 md:p-8 space-y-6", children: [
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-12 w-64" }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid gap-6 md:grid-cols-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-64 w-full" }),
@@ -51557,7 +51557,7 @@ function ProfileDetail() {
     { value: "awaiting_ERD", label: "Awaiting ERD" },
     { value: "passed", label: "Passed" }
   ];
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 md:p-8 space-y-6", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-16 w-16 rounded-full bg-brand text-brand-foreground flex items-center justify-center text-2xl font-mono font-semibold shrink-0", children: user2 == null ? void 0 : user2.name.charAt(0) }),
@@ -53438,7 +53438,7 @@ function CalendarWidget({
     ] })
   ] });
 }
-const MONTHS$1 = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const MONTHS$2 = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const WATCHES$a = ["Red", "White", "Green", "Blue", "Amber"];
 const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 const startOfDay$1 = (d) => {
@@ -53476,7 +53476,7 @@ function MiniMonth({
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "cal-card", style: { padding: 18 }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { style: sectionTitle, children: [
-        MONTHS$1[m],
+        MONTHS$2[m],
         " ",
         y
       ] }),
@@ -53501,7 +53501,7 @@ function MiniMonth({
             type: "button",
             onClick: () => onPickDay(d),
             className: "cal-focus cal-mono",
-            "aria-label": `${d.getDate()} ${MONTHS$1[m]}${k ? `, ${k === "leave" ? "annual leave" : `${k} shift`}` : ""}${isToday2 ? ", today" : ""}`,
+            "aria-label": `${d.getDate()} ${MONTHS$2[m]}${k ? `, ${k === "leave" ? "annual leave" : `${k} shift`}` : ""}${isToday2 ? ", today" : ""}`,
             style: {
               height: 38,
               border: "none",
@@ -59104,7 +59104,7 @@ select.ttm-input{appearance:none;-webkit-appearance:none;padding-right:36px;curs
 }
 @media (prefers-reduced-motion:reduce){.ttm-skel{animation:none}.ttm-knob,.ttm-switch{transition:none}}
 `;
-const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const MONTHS$1 = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const DOW = ["M", "T", "W", "T", "F", "S", "S"];
 const dayKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
@@ -59211,7 +59211,7 @@ function TaskSidePanel({ watch, tasks, selectedDay, onPickDay, onOpenTask }) {
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { height: 1, background: "var(--cal-line)", margin: "4px 0" } }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { style: { margin: 0, fontSize: 15, fontWeight: 600 }, children: [
-          MONTHS[m],
+          MONTHS$1[m],
           " ",
           y
         ] }),
@@ -59235,7 +59235,7 @@ function TaskSidePanel({ watch, tasks, selectedDay, onPickDay, onOpenTask }) {
               type: "button",
               onClick: () => onPickDay(isSel ? null : d),
               "aria-pressed": isSel,
-              "aria-label": `${d.getDate()} ${MONTHS[m]}${k ? `, ${k === "leave" ? "annual leave" : `${k} shift`}` : ", rest day"}${(info == null ? void 0 : info.overdue) ? ", overdue tasks" : (info == null ? void 0 : info.task) ? ", tasks due" : ""}${(info == null ? void 0 : info.event) ? ", watch event" : ""}${isToday2 ? ", today" : ""}`,
+              "aria-label": `${d.getDate()} ${MONTHS$1[m]}${k ? `, ${k === "leave" ? "annual leave" : `${k} shift`}` : ", rest day"}${(info == null ? void 0 : info.overdue) ? ", overdue tasks" : (info == null ? void 0 : info.task) ? ", tasks due" : ""}${(info == null ? void 0 : info.event) ? ", watch event" : ""}${isToday2 ? ", today" : ""}`,
               className: "cal-focus",
               style: {
                 height: 40,
@@ -60282,27 +60282,595 @@ function FilterSheet({ onClose, onClear, children }) {
     document.body
   );
 }
-function toFinancialPeriod(periodStart, periodEnd) {
-  if (!periodStart) return null;
-  const start = /* @__PURE__ */ new Date(periodStart + "T00:00:00");
-  const end = /* @__PURE__ */ new Date((periodEnd || periodStart) + "T00:00:00");
-  const m = start.getMonth();
-  const y = start.getFullYear();
-  const daySpan = (end.getTime() - start.getTime()) / (1e3 * 60 * 60 * 24);
-  if (daySpan > 95) return { financial_year: y, quarter: null };
-  if (m >= 3 && m <= 5) return { financial_year: y, quarter: 1 };
-  if (m >= 6 && m <= 8) return { financial_year: y, quarter: 2 };
-  if (m >= 9 && m <= 11) return { financial_year: y, quarter: 3 };
-  return { financial_year: y - 1, quarter: 4 };
+const ALL_WATCHES = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCH_COLORS = {
+  Red: "bg-red-500/10 text-red-600 border-red-400/30",
+  White: "bg-gray-100 text-gray-700 border-gray-300 dark:bg-gray-700/40 dark:text-gray-200 dark:border-gray-500",
+  Green: "bg-green-500/10 text-green-600 border-green-400/30",
+  Blue: "bg-blue-500/10 text-blue-600 border-blue-400/30",
+  Amber: "bg-amber-500/10 text-amber-600 border-amber-400/30"
+};
+const SECTION_CONFIG = [
+  { type: "multistory", label: "Multi-Story Inspections", icon: Building2, description: "Premises requiring quarterly inspection", isQuarterly: true },
+  { type: "care_home", label: "Care Home Validations", icon: House, description: "Annual validation visits by all watches", isQuarterly: false },
+  { type: "hydrant", label: "Hydrant Register", icon: Flame, description: "Annual hydrant inspections by watch", isQuarterly: false },
+  { type: "operational", label: "Operational Inspections", icon: Wrench, description: "Annual operational inspection programme", isQuarterly: false }
+];
+function WatchBadge$1({ watch }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${WATCH_COLORS[watch]}`, children: watch });
 }
-function toCalendarPeriod(periodStart, periodEnd) {
-  if (!periodStart) return { year: (/* @__PURE__ */ new Date()).getFullYear(), quarter: null };
-  const d = /* @__PURE__ */ new Date(periodStart + "T00:00:00");
-  const y = d.getFullYear();
-  const startMonth = d.getMonth();
-  const endMonth = periodEnd ? (/* @__PURE__ */ new Date(periodEnd + "T00:00:00")).getMonth() : 11;
-  if (startMonth === 0 && endMonth === 11) return { year: y, quarter: null };
-  return { year: y, quarter: Math.floor(startMonth / 3) + 1 };
+function SectionCard$1({
+  config,
+  items,
+  canComplete,
+  onToggle,
+  isToggling,
+  showQuarterCol
+}) {
+  const [expanded, setExpanded] = reactExports.useState(true);
+  const Icon2 = config.icon;
+  const total = items.length;
+  const complete = items.filter((i) => i.status === "complete").length;
+  const pct = total > 0 ? Math.round(complete / total * 100) : 0;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      CardHeader,
+      {
+        className: "cursor-pointer select-none pb-3",
+        onClick: () => setExpanded((e) => !e),
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-2 rounded-lg bg-red-500/10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "h-4 w-4 text-red-600" }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { className: "text-base", children: config.label }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { className: "text-xs mt-0.5", children: config.description })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-right", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-sm font-semibold", children: [
+                  complete,
+                  " / ",
+                  total
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-muted-foreground", children: "complete" })
+              ] }),
+              expanded ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "h-4 w-4 text-muted-foreground" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-4 w-4 text-muted-foreground" })
+            ] })
+          ] }),
+          total > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 space-y-1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Progress, { value: pct, className: "h-1.5" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between text-xs text-muted-foreground", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                pct,
+                "% complete"
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                total - complete,
+                " remaining"
+              ] })
+            ] })
+          ] })
+        ]
+      }
+    ),
+    expanded && /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { className: "pt-0", children: items.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground text-center py-4", children: "No assignments for this type — click Generate to create them." }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full text-sm", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "border-b border-border text-xs text-muted-foreground", children: [
+        canComplete && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "pb-2 w-8" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "pb-2 text-left font-medium", children: "Location" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "pb-2 text-center font-medium px-3", children: "Watch" }),
+        config.isQuarterly && showQuarterCol && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "pb-2 text-center font-medium px-3", children: "Quarter" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "pb-2 text-center font-medium px-3", children: "Status" })
+      ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: items.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "tr",
+        {
+          className: `border-b border-border last:border-0 transition-colors ${item.status === "complete" ? "opacity-60" : "hover:bg-muted/30"}`,
+          children: [
+            canComplete && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "py-2 pr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Checkbox,
+              {
+                checked: item.status === "complete",
+                disabled: isToggling === item.id,
+                onCheckedChange: () => onToggle(item.id, item.status),
+                className: "cursor-pointer"
+              }
+            ) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `py-2 ${item.status === "complete" ? "line-through text-muted-foreground" : ""}`, children: item.label }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "py-2 px-3 text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(WatchBadge$1, { watch: item.watch }) }),
+            config.isQuarterly && showQuarterCol && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "py-2 px-3 text-center text-xs text-muted-foreground", children: item.quarter ? financialQuarterMonths(item.quarter) : "—" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "py-2 px-3 text-center", children: item.status === "complete" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-xs bg-green-500/10 text-green-600 border-green-400/30", children: "Complete" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-xs bg-amber-500/10 text-amber-600 border-amber-400/30", children: "Pending" }) })
+          ]
+        },
+        item.id
+      )) })
+    ] }) }) })
+  ] });
+}
+function InspectionAssignments({ financialYear, quarter, year, exclude = [] }) {
+  var _a2, _b2;
+  const sections = SECTION_CONFIG.filter((c) => !exclude.includes(c.type));
+  const annualOnly = exclude.includes("multistory");
+  const { toast: toast2 } = useToast();
+  const qc = useQueryClient();
+  const isWC = useIsWC();
+  const { user: user2 } = useAuth();
+  const canManage = isWC || (user2 == null ? void 0 : user2.role) === "CC";
+  const userWatch = (user2 == null ? void 0 : user2.watch_unit) ?? null;
+  const [watchFilter, setWatchFilter] = reactExports.useState(userWatch ?? "all");
+  const [togglingId, setTogglingId] = reactExports.useState(null);
+  const effectiveWatch = canManage ? watchFilter : userWatch ?? "all";
+  const periodLabel = quarter ? financialQuarterLabel(financialYear, quarter) : financialYearLabel(financialYear);
+  const watchLabel = effectiveWatch === "all" ? "All Watches" : `${effectiveWatch} Watch`;
+  const watchParam = effectiveWatch !== "all" ? effectiveWatch : void 0;
+  const msQ = useQuery({
+    queryKey: ["inspection-assignments", "multistory", financialYear, effectiveWatch],
+    queryFn: () => backendClient.inspection_plans.listAssignments({ year: financialYear, plan_type: "multistory", watch: watchParam }),
+    enabled: !annualOnly
+  });
+  const annualQ = useQuery({
+    queryKey: ["inspection-assignments", "annual", year, effectiveWatch],
+    queryFn: () => backendClient.inspection_plans.listAssignments({ year, quarter: 0, watch: watchParam })
+  });
+  const isLoading = !annualOnly && msQ.isLoading || annualQ.isLoading;
+  const data = { items: [...((_a2 = msQ.data) == null ? void 0 : _a2.items) ?? [], ...((_b2 = annualQ.data) == null ? void 0 : _b2.items) ?? []] };
+  const generateMutation = useMutation({
+    // Multi-story for the financial year, annual items for the calendar year
+    // (one call when they're the same year, Apr–Dec).
+    mutationFn: async () => {
+      const a = await backendClient.inspection_plans.generateAssignments({ year: financialYear });
+      if (year === financialYear) return a;
+      const b = await backendClient.inspection_plans.generateAssignments({ year });
+      return { ...a, created: a.created + b.created, skipped: a.skipped + b.skipped };
+    },
+    onSuccess: (res) => {
+      toast2({
+        title: "Assignments generated",
+        description: `${res.created} created, ${res.skipped} already existed.`
+      });
+      invalidateTargetViews(qc);
+    },
+    onError: () => toast2({ title: "Error", description: "Failed to generate assignments", variant: "destructive" })
+  });
+  const toggleMutation = useMutation({
+    mutationFn: ({ id, status }) => backendClient.inspection_plans.updateAssignment(id, {
+      status: status === "complete" ? "pending" : "complete"
+    }),
+    onSuccess: () => {
+      invalidateTargetViews(qc);
+    },
+    onError: () => toast2({ title: "Error", description: "Failed to update assignment", variant: "destructive" }),
+    onSettled: () => setTogglingId(null)
+  });
+  const handleToggle = (id, current) => {
+    setTogglingId(id);
+    toggleMutation.mutate({ id, status: current });
+  };
+  const allItems = (data == null ? void 0 : data.items) ?? [];
+  const getItemsForSection = (type) => {
+    if (type === "multistory") {
+      return allItems.filter(
+        (i) => i.plan_type === "multistory" && (quarter === null || i.quarter === quarter)
+      );
+    }
+    return allItems.filter((i) => i.plan_type === type);
+  };
+  const visibleItems = sections.flatMap((cfg) => getItemsForSection(cfg.type));
+  const totalComplete = visibleItems.filter((i) => i.status === "complete").length;
+  const totalAll = visibleItems.length;
+  const overallPct = totalAll > 0 ? Math.round(totalComplete / totalAll * 100) : 0;
+  const showQuarterCol = quarter === null;
+  const hasAnyAssignments = allItems.length > 0;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-center justify-between gap-3", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-lg font-semibold", children: annualOnly ? "Annual inspections" : "Inspection Workload" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: annualOnly ? `${watchLabel} — care homes, hydrant route and operational inspections for ${year}` : quarter ? `${watchLabel} — ${periodLabel} multi-story assignments plus annual items` : `${watchLabel} — all inspections for ${financialYearLabel(financialYear)}` })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
+        canManage && /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watchFilter, onValueChange: setWatchFilter, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "w-36", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select watch" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "all", children: "All watches" }),
+            ALL_WATCHES.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+              w,
+              " Watch"
+            ] }, w))
+          ] })
+        ] }),
+        canManage && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          Button,
+          {
+            variant: "outline",
+            size: "sm",
+            className: "gap-2",
+            disabled: generateMutation.isPending,
+            onClick: () => {
+              if (confirm(`Generate inspection assignments for ${financialYearLabel(financialYear)}? Existing assignments will not be duplicated.`)) {
+                generateMutation.mutate();
+              }
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: `h-3.5 w-3.5 ${generateMutation.isPending ? "animate-spin" : ""}` }),
+              "Generate ",
+              financialYearLabel(financialYear)
+            ]
+          }
+        )
+      ] })
+    ] }),
+    hasAnyAssignments && totalAll > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { className: "bg-muted/30", children: /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { className: "pt-4 pb-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between text-sm mb-1.5", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-medium", children: [
+            "Overall progress — ",
+            watchLabel,
+            ", ",
+            annualOnly ? year : periodLabel
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-muted-foreground", children: [
+            totalComplete,
+            " / ",
+            totalAll,
+            " complete"
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Progress, { value: overallPct, className: "h-2" })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-2xl font-bold text-right", children: [
+        overallPct,
+        "%"
+      ] })
+    ] }) }) }),
+    isLoading && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-muted-foreground text-center py-8", children: "Loading assignments…" }),
+    !isLoading && !hasAnyAssignments && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { className: "border-dashed", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "py-16 text-center", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Building2, { className: "h-10 w-10 text-muted-foreground/40 mx-auto mb-3" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "font-medium text-foreground", children: [
+        "No assignments for ",
+        year
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground mt-1", children: canManage ? `Click "Generate ${financialYearLabel(financialYear)}" to create assignments from the Inspection Plans.` : "No inspection assignments have been generated for this period yet." })
+    ] }) }),
+    !isLoading && hasAnyAssignments && sections.map((config) => {
+      const sectionItems = getItemsForSection(config.type);
+      if (sectionItems.length === 0 && effectiveWatch !== "all") return null;
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(
+        SectionCard$1,
+        {
+          config,
+          items: sectionItems,
+          canComplete: canManage,
+          onToggle: handleToggle,
+          isToggling: togglingId,
+          showQuarterCol
+        },
+        config.type
+      );
+    })
+  ] });
+}
+const MONTHS = ["Apr–Jun", "Jul–Sep", "Oct–Dec", "Jan–Mar"];
+const fyLabel = (fy) => `${fy}/${String(fy + 1).slice(2)}`;
+function fyQuarter(fy, q) {
+  const startMonth = [3, 6, 9, 0][q - 1];
+  const year = q === 4 ? fy + 1 : fy;
+  return {
+    fy,
+    q,
+    start: new Date(year, startMonth, 1),
+    end: new Date(year, startMonth + 3, 0),
+    months: MONTHS[q - 1],
+    label: `Q${q} ${fyLabel(fy)}`
+  };
+}
+function currentFyQuarter(now = /* @__PURE__ */ new Date()) {
+  const m = now.getMonth();
+  const fy = m >= 3 ? now.getFullYear() : now.getFullYear() - 1;
+  const q = m >= 3 ? Math.floor((m - 3) / 3) + 1 : 4;
+  return fyQuarter(fy, q);
+}
+const DAY = 864e5;
+const midnight = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+function quarterTime(fq, now = /* @__PURE__ */ new Date()) {
+  const today = midnight(now);
+  const totalDays = Math.round((fq.end.getTime() - fq.start.getTime()) / DAY) + 1;
+  if (today < fq.start) return { phase: "future", elapsed: 0, dayOf: 0, totalDays, daysLeft: totalDays };
+  if (today > fq.end) return { phase: "past", elapsed: 1, dayOf: totalDays, totalDays, daysLeft: 0 };
+  const dayOf = Math.round((today.getTime() - fq.start.getTime()) / DAY) + 1;
+  return { phase: "now", elapsed: dayOf / totalDays, dayOf, totalDays, daysLeft: totalDays - dayOf + 1 };
+}
+function shiftsLeft(watch, fq, now = /* @__PURE__ */ new Date()) {
+  if (!watch) return null;
+  const from = midnight(now) > fq.start ? midnight(now) : fq.start;
+  if (from > fq.end) return 0;
+  const days = getShiftsForDateRange(watch, from, fq.end);
+  if (days.length === 0 && !getShiftsForDateRange(watch, fq.start, fq.end).length) return null;
+  return days.filter((d) => d.isWorking).length;
+}
+function pace(actual, target, elapsed, phase, extraMet = true) {
+  const remaining = Math.max(0, target - actual);
+  if (target <= 0) return { state: "none", expected: 0, behindBy: 0, remaining: 0 };
+  if (actual >= target && extraMet) return { state: "done", expected: target, behindBy: 0, remaining: 0 };
+  if (phase === "future") return { state: "upcoming", expected: 0, behindBy: 0, remaining };
+  if (phase === "past") return { state: "missed", expected: target, behindBy: remaining, remaining };
+  const expected = Math.floor(target * elapsed);
+  const behindBy = Math.max(0, expected - actual);
+  if (behindBy === 0) return { state: actual > expected ? "ahead" : "on", expected, behindBy, remaining };
+  return { state: elapsed > 0.75 ? "late" : "behind", expected, behindBy, remaining };
+}
+const PACE_LABEL = {
+  done: "Done",
+  ahead: "Ahead",
+  on: "On pace",
+  behind: "Behind",
+  late: "Behind",
+  missed: "Missed",
+  upcoming: "Not started",
+  none: "No target"
+};
+const RING_COLOUR = {
+  done: "text-emerald-500",
+  ahead: "text-foreground",
+  on: "text-foreground",
+  behind: "text-amber-500",
+  late: "text-red-500",
+  missed: "text-red-500",
+  upcoming: "text-muted-foreground/40",
+  none: "text-muted-foreground/40"
+};
+const PILL = {
+  done: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300",
+  ahead: "bg-muted text-foreground",
+  on: "bg-muted text-foreground",
+  behind: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300",
+  late: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
+  missed: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
+  upcoming: "bg-muted text-muted-foreground",
+  none: "bg-muted text-muted-foreground"
+};
+const BAR_COLOUR = {
+  done: "bg-emerald-500",
+  ahead: "bg-foreground/70",
+  on: "bg-foreground/70",
+  behind: "bg-amber-500",
+  late: "bg-red-500",
+  missed: "bg-red-500",
+  upcoming: "bg-muted-foreground/30",
+  none: "bg-muted-foreground/30"
+};
+function PacePill({ state, label: label2 }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn("inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold", PILL[state]), children: label2 ?? PACE_LABEL[state] });
+}
+function TargetRing({
+  actual,
+  target,
+  pace: pace2,
+  size: size2 = 116,
+  stroke = 10,
+  children
+}) {
+  const r2 = (size2 - stroke) / 2;
+  const c = 2 * Math.PI * r2;
+  const pct = target > 0 ? Math.min(1, actual / target) : 0;
+  const showTick = target > 0 && (pace2.state === "behind" || pace2.state === "late" || pace2.state === "on" || pace2.state === "ahead") && pace2.expected > 0;
+  const tickAngle = (Math.min(1, pace2.expected / Math.max(1, target)) * 360 - 90) * (Math.PI / 180);
+  const inner = r2 - stroke / 2 - 2;
+  const outer = r2 + stroke / 2 + 2;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative shrink-0", style: { width: size2, height: size2 }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("svg", { width: size2, height: size2, "aria-hidden": true, className: "block", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: size2 / 2, cy: size2 / 2, r: r2, fill: "none", stroke: "currentColor", strokeWidth: stroke, className: "text-muted-foreground/15" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "circle",
+        {
+          cx: size2 / 2,
+          cy: size2 / 2,
+          r: r2,
+          fill: "none",
+          stroke: "currentColor",
+          strokeWidth: stroke,
+          strokeLinecap: "round",
+          strokeDasharray: c,
+          strokeDashoffset: c * (1 - pct),
+          transform: `rotate(-90 ${size2 / 2} ${size2 / 2})`,
+          className: cn("transition-[stroke-dashoffset] duration-700 ease-out", RING_COLOUR[pace2.state])
+        }
+      ),
+      showTick && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "line",
+        {
+          x1: size2 / 2 + inner * Math.cos(tickAngle),
+          y1: size2 / 2 + inner * Math.sin(tickAngle),
+          x2: size2 / 2 + outer * Math.cos(tickAngle),
+          y2: size2 / 2 + outer * Math.sin(tickAngle),
+          stroke: "currentColor",
+          strokeWidth: 2.5,
+          strokeLinecap: "round",
+          className: "text-foreground/60"
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-0 grid place-items-center text-center", children })
+  ] });
+}
+function TargetCard({
+  icon,
+  title,
+  subtitle,
+  pill,
+  ring,
+  children,
+  footer
+}) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "flex flex-col rounded-2xl border border-border/70 bg-card shadow-sm", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "flex items-start justify-between gap-3 px-5 pt-5", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 items-center gap-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-muted text-foreground/80", children: icon }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "truncate text-[15px] font-semibold leading-tight", children: title }),
+          subtitle && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-0.5 truncate text-xs text-muted-foreground", children: subtitle })
+        ] })
+      ] }),
+      pill
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-1 flex-col gap-5 p-5 sm:flex-row sm:items-start", children: [
+      ring,
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-w-0 flex-1", children })
+    ] }),
+    footer && /* @__PURE__ */ jsxRuntimeExports.jsx("footer", { className: "flex flex-wrap items-center gap-2 border-t border-border/60 px-5 py-3", children: footer })
+  ] });
+}
+function PaceLines({
+  pace: pace2,
+  noun,
+  shifts,
+  watch
+}) {
+  const perShift = shifts && shifts > 0 && pace2.remaining > 0 ? pace2.remaining / shifts : null;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1 text-sm", children: [
+    (pace2.state === "behind" || pace2.state === "late") && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: pace2.state === "late" ? "font-semibold text-red-600 dark:text-red-400" : "font-semibold text-amber-700 dark:text-amber-400", children: [
+        pace2.behindBy,
+        " behind"
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-muted-foreground", children: [
+        " — should be ",
+        pace2.expected,
+        " by today"
+      ] })
+    ] }),
+    (pace2.state === "on" || pace2.state === "ahead") && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-muted-foreground", children: [
+      pace2.state === "ahead" ? "Ahead of" : "On",
+      " pace — ",
+      pace2.expected,
+      " expected by today"
+    ] }),
+    pace2.state === "missed" && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "font-semibold text-red-600 dark:text-red-400", children: [
+      "Missed by ",
+      pace2.behindBy
+    ] }),
+    pace2.state === "done" && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-semibold text-emerald-700 dark:text-emerald-400", children: "Target reached" }),
+    pace2.remaining > 0 && pace2.state !== "missed" && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-muted-foreground", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono tabular-nums text-foreground", children: pace2.remaining }),
+      " ",
+      noun,
+      " to go",
+      shifts !== null && pace2.state !== "upcoming" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        " · ",
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono tabular-nums text-foreground", children: shifts }),
+        " ",
+        watch,
+        " shift",
+        shifts === 1 ? "" : "s",
+        " left",
+        perShift !== null && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-foreground", children: [
+          " ≈ ",
+          perShift < 1 ? "1 every " + Math.round(1 / perShift) + " shifts" : `${Math.ceil(perShift)} a shift`
+        ] })
+      ] })
+    ] })
+  ] });
+}
+const QS = [1, 2, 3, 4];
+function QuarterStrip({
+  watch,
+  fy,
+  selected,
+  onSelect,
+  onFy
+}) {
+  const now = currentFyQuarter();
+  const results = useQueries({
+    queries: QS.flatMap((q) => [
+      {
+        queryKey: ["activities", "hfsv", watch, fy, q],
+        queryFn: () => backendClient.activity.list({ type: "hfsv", watch: watch || void 0, financial_year: fy, quarter: q }),
+        enabled: !!watch
+      },
+      {
+        queryKey: ["activities", "community", watch, fy, q],
+        queryFn: () => backendClient.activity.list({ type: "community", watch: watch || void 0, financial_year: fy, quarter: q }),
+        enabled: !!watch
+      },
+      {
+        queryKey: ["assignments", "multistory", watch, fy, q],
+        queryFn: () => backendClient.inspection_plans.listAssignments({ plan_type: "multistory", watch: watch || void 0, year: fy, quarter: q }),
+        enabled: !!watch
+      }
+    ])
+  });
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-2 flex items-center justify-between", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "eyebrow", children: "Financial year" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onFy(fy - 1), className: "grid h-7 w-7 place-items-center rounded-md hover:bg-muted", "aria-label": "Previous year", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronLeft, { className: "h-4 w-4" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "min-w-[64px] text-center font-mono text-sm font-semibold tabular-nums", children: fyLabel(fy) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            onClick: () => onFy(fy + 1),
+            disabled: fy >= now.fy,
+            className: "grid h-7 w-7 place-items-center rounded-md hover:bg-muted disabled:opacity-30",
+            "aria-label": "Next year",
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-4 w-4" })
+          }
+        )
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-4 sm:overflow-visible sm:px-0 [scrollbar-width:none]", children: QS.map((q, i) => {
+      var _a2, _b2;
+      const fq = fyQuarter(fy, q);
+      const time = quarterTime(fq);
+      const hf = results[i * 3].data;
+      const cm = results[i * 3 + 1].data;
+      const ms = results[i * 3 + 2].data;
+      const msDone = ((_a2 = ms == null ? void 0 : ms.totals) == null ? void 0 : _a2.complete) ?? 0;
+      const msTotal = msDone + (((_b2 = ms == null ? void 0 : ms.totals) == null ? void 0 : _b2.pending) ?? 0);
+      const rows = [
+        { k: "HFSV", done: (hf == null ? void 0 : hf.total_completed) ?? 0, target: HFSV_TARGET_Q, extra: true },
+        { k: "Community", done: (cm == null ? void 0 : cm.total_completed) ?? 0, target: COMMUNITY_TARGET_Q, extra: ((cm == null ? void 0 : cm.total_tap_completed) ?? 0) >= COMMUNITY_TAP_MIN },
+        { k: "Multi-story", done: msDone, target: msTotal, extra: true }
+      ];
+      const isNow = fy === now.fy && q === now.q;
+      const isSel = q === selected;
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "button",
+        {
+          type: "button",
+          onClick: () => onSelect(q),
+          "aria-pressed": isSel,
+          className: cn(
+            "group min-w-[220px] snap-start rounded-2xl border bg-card p-4 text-left transition-all sm:min-w-0",
+            isSel ? "border-foreground shadow-md ring-1 ring-foreground" : "border-border/70 hover:border-foreground/30 hover:shadow-sm"
+          ),
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline justify-between gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-lg font-semibold", children: [
+                  "Q",
+                  q
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-2 text-sm text-muted-foreground", children: fq.months })
+              ] }),
+              isNow ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "rounded-full bg-foreground px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-background", children: "Now" }) : time.phase === "future" ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] font-medium uppercase tracking-wider text-muted-foreground", children: "Ahead" }) : null
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 space-y-2", children: rows.map((r2) => {
+              const p = pace(r2.done, r2.target, time.elapsed, time.phase, r2.extra);
+              const pct = r2.target > 0 ? Math.min(100, r2.done / r2.target * 100) : 0;
+              return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline justify-between text-[11px]", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: r2.k }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono tabular-nums", children: r2.target === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "—" }) : `${r2.done}/${r2.target}` })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-1 h-1.5 overflow-hidden rounded-full bg-muted", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: cn("h-full rounded-full transition-[width] duration-700", BAR_COLOUR[p.state]), style: { width: `${pct}%` } }) })
+              ] }, r2.k);
+            }) })
+          ]
+        },
+        q
+      );
+    }) })
+  ] });
 }
 function ActivityDrawer({
   type,
@@ -60501,931 +61069,419 @@ function ActivityDrawer({
     ] }) })
   ] }) });
 }
-function TargetsDashboard({
-  periodStart,
-  periodEnd
-}) {
-  const [openDrawer, setOpenDrawer] = reactExports.useState(null);
-  const { user: user2 } = useAuth();
-  const userWatch = (user2 == null ? void 0 : user2.watch_unit) ?? "";
-  const activePeriodStart = periodStart || (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
-  const activePeriodEnd = periodEnd || activePeriodStart;
-  const financialPeriod = reactExports.useMemo(
-    () => toFinancialPeriod(activePeriodStart, activePeriodEnd),
-    [activePeriodStart, activePeriodEnd]
-  );
-  const calPeriod = reactExports.useMemo(
-    () => toCalendarPeriod(activePeriodStart, activePeriodEnd),
-    [activePeriodStart, activePeriodEnd]
-  );
-  const { data: hfsvData, isFetching: hfsvFetching } = useQuery({
-    queryKey: ["activities", "hfsv", userWatch, financialPeriod == null ? void 0 : financialPeriod.financial_year, financialPeriod == null ? void 0 : financialPeriod.quarter],
-    queryFn: () => backendClient.activity.list({
-      type: "hfsv",
-      watch: userWatch || void 0,
-      financial_year: (financialPeriod == null ? void 0 : financialPeriod.financial_year) ?? void 0,
-      quarter: (financialPeriod == null ? void 0 : financialPeriod.quarter) ?? void 0
-    }),
-    enabled: !!financialPeriod,
-    // Don't retry on failure — show 0 immediately if activity service is unreachable
-    retry: false
+function HfsvCard({ watch, fq, canEdit }) {
+  const qc = useQueryClient();
+  const { toast: toast2 } = useToast();
+  const [logging, setLogging] = reactExports.useState(false);
+  const [address, setAddress] = reactExports.useState("");
+  const [busy, setBusy] = reactExports.useState(false);
+  const [drawer, setDrawer] = reactExports.useState(false);
+  const params = { type: "hfsv", watch: watch || void 0, financial_year: fq.fy, quarter: fq.q };
+  const { data, isLoading } = useQuery({
+    queryKey: ["activities", "hfsv", watch, fq.fy, fq.q],
+    queryFn: () => backendClient.activity.list(params),
+    enabled: !!watch
   });
-  const { data: communityData, isFetching: communityFetching } = useQuery({
-    queryKey: ["activities", "community", userWatch, financialPeriod == null ? void 0 : financialPeriod.financial_year, financialPeriod == null ? void 0 : financialPeriod.quarter],
-    queryFn: () => backendClient.activity.list({
-      type: "community",
-      watch: userWatch || void 0,
-      financial_year: (financialPeriod == null ? void 0 : financialPeriod.financial_year) ?? void 0,
-      quarter: (financialPeriod == null ? void 0 : financialPeriod.quarter) ?? void 0
-    }),
-    enabled: !!financialPeriod,
-    retry: false
-  });
-  const { data: multiStoryData, isFetching: multiStoryFetching } = useQuery({
-    queryKey: ["assignments", "multistory", userWatch, financialPeriod == null ? void 0 : financialPeriod.financial_year, financialPeriod == null ? void 0 : financialPeriod.quarter],
-    queryFn: () => backendClient.inspection_plans.listAssignments({
-      plan_type: "multistory",
-      watch: userWatch || void 0,
-      year: financialPeriod == null ? void 0 : financialPeriod.financial_year,
-      quarter: (financialPeriod == null ? void 0 : financialPeriod.quarter) ?? void 0
-    }),
-    retry: false
-  });
-  const { data: hydrantData, isFetching: hydrantFetching } = useQuery({
-    queryKey: ["assignments", "hydrant", userWatch, calPeriod.year],
-    queryFn: () => backendClient.inspection_plans.listAssignments({
-      plan_type: "hydrant",
-      watch: userWatch || void 0,
-      year: calPeriod.year,
-      quarter: 0
-      // annual
-    }),
-    retry: false
-  });
-  const metrics = reactExports.useMemo(() => {
-    var _a2, _b2, _c2, _d2;
-    const hfsvComplete = (hfsvData == null ? void 0 : hfsvData.total_completed) ?? 0;
-    const hfsvTotal = HFSV_TARGET_Q;
-    const communityComplete = (communityData == null ? void 0 : communityData.total_completed) ?? 0;
-    const communityTap = (communityData == null ? void 0 : communityData.total_tap_completed) ?? 0;
-    const communityTotal = COMMUNITY_TARGET_Q;
-    const msComplete = ((_a2 = multiStoryData == null ? void 0 : multiStoryData.totals) == null ? void 0 : _a2.complete) ?? 0;
-    const msTotal = (((_b2 = multiStoryData == null ? void 0 : multiStoryData.totals) == null ? void 0 : _b2.pending) ?? 0) + msComplete;
-    const hydrantComplete = ((_c2 = hydrantData == null ? void 0 : hydrantData.totals) == null ? void 0 : _c2.complete) ?? 0;
-    const hydrantTotal = (((_d2 = hydrantData == null ? void 0 : hydrantData.totals) == null ? void 0 : _d2.pending) ?? 0) + hydrantComplete;
-    return [
-      {
-        key: "hfsv",
-        label: "Home Fire Safety Visits",
-        icon: House,
-        iconColor: "text-red-500",
-        target: hfsvTotal,
-        actual: hfsvComplete,
-        isFetching: hfsvFetching,
-        clickable: true,
-        drawerType: "hfsv"
-      },
-      {
-        key: "multistory",
-        label: "Multi-Story Inspections",
-        icon: Building2,
-        iconColor: "text-blue-500",
-        target: msTotal,
-        actual: msComplete,
-        isFetching: multiStoryFetching,
-        clickable: false,
-        subtitle: "Managed in Inspection Assignments below"
-      },
-      {
-        key: "hydrant",
-        label: "Hydrant Inspections",
-        icon: Flame,
-        iconColor: "text-orange-500",
-        target: hydrantTotal,
-        actual: hydrantComplete,
-        isFetching: hydrantFetching,
-        clickable: false,
-        subtitle: "Annual route — managed via Hydrant Register below",
-        noTargetLabel: "No route uploaded"
-      },
-      {
-        key: "community",
-        label: "Community Engagement",
-        icon: Users,
-        iconColor: "text-purple-500",
-        target: communityTotal,
-        actual: communityComplete,
-        tap: { done: communityTap, min: COMMUNITY_TAP_MIN },
-        isFetching: communityFetching,
-        clickable: true,
-        drawerType: "community"
+  const items = (data == null ? void 0 : data.items) ?? [];
+  const done = (data == null ? void 0 : data.total_completed) ?? items.filter((i) => i.completed).length;
+  const time = quarterTime(fq);
+  const p = pace(done, HFSV_TARGET_Q, time.elapsed, time.phase);
+  const shifts = time.phase === "past" ? null : shiftsLeft(watch, fq);
+  const recent = items.filter((i) => i.completed).sort((a, b) => String(b.completed_at ?? "").localeCompare(String(a.completed_at ?? ""))).slice(0, 3);
+  const logVisit = async () => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      let slots = items;
+      if (slots.length === 0) {
+        await backendClient.activity.seedHfsv({ watch, financial_year: fq.fy, quarter: fq.q });
+        slots = (await backendClient.activity.list(params)).items ?? [];
       }
-    ];
-  }, [hfsvData, communityData, multiStoryData, hydrantData, hfsvFetching, communityFetching, multiStoryFetching, hydrantFetching]);
-  const overallStats = reactExports.useMemo(() => {
-    const totalTarget = metrics.reduce((sum, m) => sum + m.target, 0);
-    const totalActual = metrics.reduce((sum, m) => sum + m.actual, 0);
-    const pct = totalTarget > 0 ? totalActual / totalTarget * 100 : 0;
-    return { totalTarget, totalActual, pct };
-  }, [metrics]);
-  const getStatusBadge = (pct) => {
-    if (pct >= 100) return /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: "bg-green-500/10 text-green-500", children: "completed" });
-    if (pct >= 75) return /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: "bg-blue-500/10 text-blue-500", children: "on track" });
-    if (pct >= 40) return /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: "bg-yellow-500/10 text-yellow-500", children: "in progress" });
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: "bg-red-500/10 text-red-500", children: "action needed" });
-  };
-  const getProgressColor = (pct) => {
-    if (pct >= 100) return "bg-green-500";
-    if (pct >= 75) return "bg-blue-500";
-    if (pct >= 40) return "bg-yellow-500";
-    return "bg-red-500";
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(CardHeader, { className: "pb-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(CardTitle, { className: "text-base flex items-center gap-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Target, { className: "h-5 w-5" }),
-          "Overall Progress"
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-sm font-semibold", children: [
-          overallStats.totalActual,
-          " / ",
-          overallStats.totalTarget
-        ] })
-      ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-3 rounded-full bg-muted overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "div",
+      const next = slots.filter((i) => !i.completed).sort((a, b) => (a.item_number ?? 0) - (b.item_number ?? 0))[0];
+      if (!next) {
+        toast2({ title: "All 36 visits are already logged" });
+        return;
+      }
+      await backendClient.activity.toggle(next.id);
+      if (address.trim()) await backendClient.activity.update(next.id, { address: address.trim() });
+      await invalidateTargetViews(qc);
+      setAddress("");
+      setLogging(false);
+      toast2({
+        title: `HFSV #${next.item_number} logged`,
+        description: address.trim() || void 0,
+        action: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          ToastAction,
           {
-            className: `h-full rounded-full transition-all duration-500 ${getProgressColor(overallStats.pct)}`,
-            style: { width: `${Math.min(overallStats.pct, 100)}%` }
+            altText: "Undo",
+            onClick: async () => {
+              await backendClient.activity.toggle(next.id);
+              invalidateTargetViews(qc);
+            },
+            children: "Undo"
           }
-        ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground mt-2", children: [
-          overallStats.pct.toFixed(1),
-          "% complete"
-        ] })
-      ] })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid gap-6 md:grid-cols-2", children: metrics.map((m) => {
-      const rawPct = m.target > 0 ? m.actual / m.target * 100 : 0;
-      const tapShort = "tap" in m && m.tap ? m.tap.done < m.tap.min : false;
-      const pct = tapShort ? Math.min(rawPct, 99) : rawPct;
-      const noTarget = m.target === 0 && "noTargetLabel" in m;
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        Card,
-        {
-          className: m.clickable ? "cursor-pointer hover:border-indigo-400/60 transition-colors" : "",
-          onClick: () => m.clickable && m.drawerType && setOpenDrawer(m.drawerType),
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(CardHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(m.icon, { className: `h-5 w-5 ${m.iconColor}` }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs(CardTitle, { className: "text-base flex items-center gap-2", children: [
-                    m.label,
-                    m.isFetching && /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "h-3.5 w-3.5 animate-spin text-muted-foreground" })
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs(CardDescription, { className: "mt-1", children: [
-                    m.actual,
-                    " / ",
-                    m.target,
-                    " complete",
-                    m.clickable && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-2 text-xs text-red-500 font-medium", children: "Click to manage →" }),
-                    !m.clickable && m.subtitle && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ml-1 text-xs text-muted-foreground", children: [
-                      "• ",
-                      m.subtitle
-                    ] })
-                  ] })
-                ] })
-              ] }),
-              noTarget ? /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: "bg-muted text-muted-foreground", children: m.noTargetLabel }) : getStatusBadge(pct)
-            ] }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-3 rounded-full bg-muted overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "div",
-                {
-                  className: `h-full rounded-full transition-all duration-500 ${getProgressColor(pct)}`,
-                  style: { width: `${Math.min(pct, 100)}%` }
-                }
-              ) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between text-sm", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "Progress" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-semibold", children: [
-                  pct.toFixed(1),
-                  "%"
-                ] })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between text-sm", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "Remaining" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: Math.max(0, m.target - m.actual) })
-              ] }),
-              "tap" in m && m.tap && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between text-sm", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "TAP engagements" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: `font-medium ${m.tap.done < m.tap.min ? "text-red-600 dark:text-red-400" : "text-green-600 dark:text-green-400"}`, children: [
-                  m.tap.done,
-                  " / ",
-                  m.tap.min,
-                  " minimum"
-                ] })
-              ] }),
-              pct >= 100 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 text-sm text-green-500", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-4 w-4" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Target achieved!" })
-              ] })
-            ] }) })
-          ]
-        },
-        m.key
-      );
-    }) }),
-    openDrawer && financialPeriod && /* @__PURE__ */ jsxRuntimeExports.jsx(
-      ActivityDrawer,
-      {
-        type: openDrawer,
-        watch: userWatch,
-        financial_year: financialPeriod.financial_year,
-        quarter: financialPeriod.quarter ?? 1,
-        open: !!openDrawer,
-        onClose: () => setOpenDrawer(null)
-      }
-    )
-  ] });
-}
-const ALL_WATCHES = ["Red", "White", "Green", "Blue", "Amber"];
-const WATCH_COLORS = {
-  Red: "bg-red-500/10 text-red-600 border-red-400/30",
-  White: "bg-gray-100 text-gray-700 border-gray-300 dark:bg-gray-700/40 dark:text-gray-200 dark:border-gray-500",
-  Green: "bg-green-500/10 text-green-600 border-green-400/30",
-  Blue: "bg-blue-500/10 text-blue-600 border-blue-400/30",
-  Amber: "bg-amber-500/10 text-amber-600 border-amber-400/30"
-};
-const SECTION_CONFIG = [
-  { type: "multistory", label: "Multi-Story Inspections", icon: Building2, description: "Premises requiring quarterly inspection", isQuarterly: true },
-  { type: "care_home", label: "Care Home Validations", icon: House, description: "Annual validation visits by all watches", isQuarterly: false },
-  { type: "hydrant", label: "Hydrant Register", icon: Flame, description: "Annual hydrant inspections by watch", isQuarterly: false },
-  { type: "operational", label: "Operational Inspections", icon: Wrench, description: "Annual operational inspection programme", isQuarterly: false }
-];
-function WatchBadge$1({ watch }) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${WATCH_COLORS[watch]}`, children: watch });
-}
-function SectionCard$1({
-  config,
-  items,
-  canComplete,
-  onToggle,
-  isToggling,
-  showQuarterCol
-}) {
-  const [expanded, setExpanded] = reactExports.useState(true);
-  const Icon2 = config.icon;
-  const total = items.length;
-  const complete = items.filter((i) => i.status === "complete").length;
-  const pct = total > 0 ? Math.round(complete / total * 100) : 0;
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
+        )
+      });
+    } catch {
+      toast2({ title: "Couldn't log the visit", description: "Check your connection and try again.", variant: "destructive" });
+    } finally {
+      setBusy(false);
+    }
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      CardHeader,
+      TargetCard,
       {
-        className: "cursor-pointer select-none pb-3",
-        onClick: () => setExpanded((e) => !e),
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-2 rounded-lg bg-red-500/10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "h-4 w-4 text-red-600" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { className: "text-base", children: config.label }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { className: "text-xs mt-0.5", children: config.description })
-              ] })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-right", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-sm font-semibold", children: [
-                  complete,
-                  " / ",
-                  total
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-muted-foreground", children: "complete" })
-              ] }),
-              expanded ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "h-4 w-4 text-muted-foreground" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-4 w-4 text-muted-foreground" })
-            ] })
-          ] }),
-          total > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 space-y-1", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Progress, { value: pct, className: "h-1.5" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between text-xs text-muted-foreground", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-                pct,
-                "% complete"
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-                total - complete,
-                " remaining"
-              ] })
-            ] })
+        icon: /* @__PURE__ */ jsxRuntimeExports.jsx(House, { className: "h-[18px] w-[18px]" }),
+        title: "Home fire safety visits",
+        subtitle: `${HFSV_TARGET_Q} a quarter · ${fq.months}`,
+        pill: /* @__PURE__ */ jsxRuntimeExports.jsx(PacePill, { state: p.state }),
+        ring: /* @__PURE__ */ jsxRuntimeExports.jsx(TargetRing, { actual: done, target: HFSV_TARGET_Q, pace: p, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono text-3xl font-semibold tabular-nums leading-none", children: isLoading ? "…" : done }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-1 text-xs text-muted-foreground", children: [
+            "of ",
+            HFSV_TARGET_Q
           ] })
+        ] }) }),
+        footer: /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          canEdit && time.phase !== "future" && !logging && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { size: "sm", onClick: () => setLogging(true), className: "bg-brand text-brand-foreground hover:bg-brand/90", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "mr-1 h-4 w-4" }),
+            " Log a visit"
+          ] }),
+          logging && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "form",
+            {
+              className: "flex w-full flex-wrap items-center gap-2",
+              onSubmit: (e) => {
+                e.preventDefault();
+                logVisit();
+              },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  Input,
+                  {
+                    autoFocus: true,
+                    value: address,
+                    onChange: (e) => setAddress(e.target.value),
+                    onKeyDown: (e) => {
+                      if (e.key === "Escape") setLogging(false);
+                    },
+                    placeholder: "Address (optional)",
+                    className: "h-9 min-w-0 flex-1"
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { type: "submit", size: "sm", disabled: busy, className: "bg-brand text-brand-foreground hover:bg-brand/90", children: [
+                  busy && /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "mr-1 h-3.5 w-3.5 animate-spin" }),
+                  " Log"
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "button", size: "sm", variant: "ghost", onClick: () => setLogging(false), children: "Cancel" })
+              ]
+            }
+          ),
+          !logging && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => setDrawer(true), className: "ml-auto text-xs font-medium text-muted-foreground hover:text-foreground", children: [
+            "All ",
+            items.length || HFSV_TARGET_Q,
+            " visits →"
+          ] })
+        ] }),
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(PaceLines, { pace: p, noun: "visits", shifts, watch }),
+          recent.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "mt-4 space-y-1.5 border-t border-border/60 pt-3", children: recent.map((r2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-center gap-2 text-xs", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono text-muted-foreground", children: [
+              "#",
+              r2.item_number
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "min-w-0 flex-1 truncate", children: r2.address || /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "No address" }) }),
+            r2.completed_at && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "shrink-0 text-muted-foreground", children: new Date(r2.completed_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) })
+          ] }, r2.id)) })
         ]
       }
     ),
-    expanded && /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { className: "pt-0", children: items.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground text-center py-4", children: "No assignments for this type — click Generate to create them." }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full text-sm", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "border-b border-border text-xs text-muted-foreground", children: [
-        canComplete && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "pb-2 w-8" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "pb-2 text-left font-medium", children: "Location" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "pb-2 text-center font-medium px-3", children: "Watch" }),
-        config.isQuarterly && showQuarterCol && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "pb-2 text-center font-medium px-3", children: "Quarter" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "pb-2 text-center font-medium px-3", children: "Status" })
-      ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: items.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "tr",
-        {
-          className: `border-b border-border last:border-0 transition-colors ${item.status === "complete" ? "opacity-60" : "hover:bg-muted/30"}`,
-          children: [
-            canComplete && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "py-2 pr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Checkbox,
-              {
-                checked: item.status === "complete",
-                disabled: isToggling === item.id,
-                onCheckedChange: () => onToggle(item.id, item.status),
-                className: "cursor-pointer"
-              }
-            ) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `py-2 ${item.status === "complete" ? "line-through text-muted-foreground" : ""}`, children: item.label }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "py-2 px-3 text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(WatchBadge$1, { watch: item.watch }) }),
-            config.isQuarterly && showQuarterCol && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "py-2 px-3 text-center text-xs text-muted-foreground", children: item.quarter ? financialQuarterMonths(item.quarter) : "—" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "py-2 px-3 text-center", children: item.status === "complete" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-xs bg-green-500/10 text-green-600 border-green-400/30", children: "Complete" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-xs bg-amber-500/10 text-amber-600 border-amber-400/30", children: "Pending" }) })
-          ]
-        },
-        item.id
-      )) })
-    ] }) }) })
+    drawer && /* @__PURE__ */ jsxRuntimeExports.jsx(ActivityDrawer, { type: "hfsv", watch, financial_year: fq.fy, quarter: fq.q, open: drawer, onClose: () => setDrawer(false) })
   ] });
 }
-function InspectionAssignments({ financialYear, quarter, year }) {
-  var _a2, _b2;
-  const { toast: toast2 } = useToast();
+function CommunityCard({ watch, fq, canEdit }) {
   const qc = useQueryClient();
-  const isWC = useIsWC();
-  const { user: user2 } = useAuth();
-  const canManage = isWC || (user2 == null ? void 0 : user2.role) === "CC";
-  const userWatch = (user2 == null ? void 0 : user2.watch_unit) ?? null;
-  const [watchFilter, setWatchFilter] = reactExports.useState(userWatch ?? "all");
-  const [togglingId, setTogglingId] = reactExports.useState(null);
-  const effectiveWatch = canManage ? watchFilter : userWatch ?? "all";
-  const periodLabel = quarter ? financialQuarterLabel(financialYear, quarter) : financialYearLabel(financialYear);
-  const watchLabel = effectiveWatch === "all" ? "All Watches" : `${effectiveWatch} Watch`;
-  const watchParam = effectiveWatch !== "all" ? effectiveWatch : void 0;
-  const msQ = useQuery({
-    queryKey: ["inspection-assignments", "multistory", financialYear, effectiveWatch],
-    queryFn: () => backendClient.inspection_plans.listAssignments({ year: financialYear, plan_type: "multistory", watch: watchParam })
-  });
-  const annualQ = useQuery({
-    queryKey: ["inspection-assignments", "annual", year, effectiveWatch],
-    queryFn: () => backendClient.inspection_plans.listAssignments({ year, quarter: 0, watch: watchParam })
-  });
-  const isLoading = msQ.isLoading || annualQ.isLoading;
-  const data = { items: [...((_a2 = msQ.data) == null ? void 0 : _a2.items) ?? [], ...((_b2 = annualQ.data) == null ? void 0 : _b2.items) ?? []] };
-  const generateMutation = useMutation({
-    // Multi-story for the financial year, annual items for the calendar year
-    // (one call when they're the same year, Apr–Dec).
-    mutationFn: async () => {
-      const a = await backendClient.inspection_plans.generateAssignments({ year: financialYear });
-      if (year === financialYear) return a;
-      const b = await backendClient.inspection_plans.generateAssignments({ year });
-      return { ...a, created: a.created + b.created, skipped: a.skipped + b.skipped };
-    },
-    onSuccess: (res) => {
-      toast2({
-        title: "Assignments generated",
-        description: `${res.created} created, ${res.skipped} already existed.`
-      });
-      invalidateTargetViews(qc);
-    },
-    onError: () => toast2({ title: "Error", description: "Failed to generate assignments", variant: "destructive" })
-  });
-  const toggleMutation = useMutation({
-    mutationFn: ({ id, status }) => backendClient.inspection_plans.updateAssignment(id, {
-      status: status === "complete" ? "pending" : "complete"
-    }),
-    onSuccess: () => {
-      invalidateTargetViews(qc);
-    },
-    onError: () => toast2({ title: "Error", description: "Failed to update assignment", variant: "destructive" }),
-    onSettled: () => setTogglingId(null)
-  });
-  const handleToggle = (id, current) => {
-    setTogglingId(id);
-    toggleMutation.mutate({ id, status: current });
-  };
-  const allItems = (data == null ? void 0 : data.items) ?? [];
-  const getItemsForSection = (type) => {
-    if (type === "multistory") {
-      return allItems.filter(
-        (i) => i.plan_type === "multistory" && (quarter === null || i.quarter === quarter)
-      );
-    }
-    return allItems.filter((i) => i.plan_type === type);
-  };
-  const visibleItems = SECTION_CONFIG.flatMap((cfg) => getItemsForSection(cfg.type));
-  const totalComplete = visibleItems.filter((i) => i.status === "complete").length;
-  const totalAll = visibleItems.length;
-  const overallPct = totalAll > 0 ? Math.round(totalComplete / totalAll * 100) : 0;
-  const showQuarterCol = quarter === null;
-  const hasAnyAssignments = allItems.length > 0;
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-center justify-between gap-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-lg font-semibold", children: "Inspection Workload" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: quarter ? `${watchLabel} — ${periodLabel} multi-story assignments plus annual items` : `${watchLabel} — all inspections for ${financialYearLabel(financialYear)}` })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
-        canManage && /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watchFilter, onValueChange: setWatchFilter, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "w-36", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select watch" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "all", children: "All watches" }),
-            ALL_WATCHES.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
-              w,
-              " Watch"
-            ] }, w))
-          ] })
-        ] }),
-        canManage && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Button,
-          {
-            variant: "outline",
-            size: "sm",
-            className: "gap-2",
-            disabled: generateMutation.isPending,
-            onClick: () => {
-              if (confirm(`Generate inspection assignments for ${financialYearLabel(financialYear)}? Existing assignments will not be duplicated.`)) {
-                generateMutation.mutate();
-              }
-            },
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: `h-3.5 w-3.5 ${generateMutation.isPending ? "animate-spin" : ""}` }),
-              "Generate ",
-              financialYearLabel(financialYear)
-            ]
-          }
-        )
-      ] })
-    ] }),
-    hasAnyAssignments && totalAll > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { className: "bg-muted/30", children: /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { className: "pt-4 pb-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between text-sm mb-1.5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-medium", children: [
-            "Overall progress — ",
-            watchLabel,
-            ", ",
-            periodLabel
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-muted-foreground", children: [
-            totalComplete,
-            " / ",
-            totalAll,
-            " complete"
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Progress, { value: overallPct, className: "h-2" })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-2xl font-bold text-right", children: [
-        overallPct,
-        "%"
-      ] })
-    ] }) }) }),
-    isLoading && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-muted-foreground text-center py-8", children: "Loading assignments…" }),
-    !isLoading && !hasAnyAssignments && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { className: "border-dashed", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "py-16 text-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Building2, { className: "h-10 w-10 text-muted-foreground/40 mx-auto mb-3" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "font-medium text-foreground", children: [
-        "No assignments for ",
-        year
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground mt-1", children: canManage ? `Click "Generate ${financialYearLabel(financialYear)}" to create assignments from the Inspection Plans.` : "No inspection assignments have been generated for this period yet." })
-    ] }) }),
-    !isLoading && hasAnyAssignments && SECTION_CONFIG.map((config) => {
-      const sectionItems = getItemsForSection(config.type);
-      if (sectionItems.length === 0 && effectiveWatch !== "all") return null;
-      return /* @__PURE__ */ jsxRuntimeExports.jsx(
-        SectionCard$1,
-        {
-          config,
-          items: sectionItems,
-          canComplete: canManage,
-          onToggle: handleToggle,
-          isToggling: togglingId,
-          showQuarterCol
-        },
-        config.type
-      );
-    })
-  ] });
-}
-const ACTIVITY_METRICS = [
-  { key: "hfsv", label: "HFSV", target: HFSV_TARGET_Q, colour: "orange" },
-  { key: "community", label: "Community", target: COMMUNITY_TARGET_Q, colour: "teal" }
-];
-const QUARTER_LABELS = ["Q1 Apr–Jun", "Q2 Jul–Sep", "Q3 Oct–Dec", "Q4 Jan–Mar"];
-function QuarterlyOverview({ watch }) {
-  var _a2, _b2, _c2, _d2;
-  const now = /* @__PURE__ */ new Date();
-  const fy = now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
-  const currentQ = Math.floor((now.getMonth() + 9) % 12 / 3) + 1;
-  const activityResults = useQueries({
-    queries: ACTIVITY_METRICS.flatMap(
-      (metric) => [1, 2, 3, 4].map((q) => ({
-        queryKey: ["activities-q", metric.key, watch, fy, q],
-        queryFn: () => backendClient.activity.list({
-          type: metric.key,
-          watch: watch || void 0,
-          financial_year: fy,
-          quarter: q
-        }),
-        enabled: !!watch
-      }))
-    )
-  });
-  const msResults = useQueries({
-    queries: [1, 2, 3, 4].map((fq) => ({
-      queryKey: ["ms-assignments-q", watch, fy, fq],
-      queryFn: () => backendClient.inspection_plans.listAssignments({
-        watch: watch || void 0,
-        year: fy,
-        quarter: fq,
-        plan_type: "multistory"
-      }),
-      enabled: !!watch
-    }))
-  });
-  const hydrantYear = now.getFullYear();
-  const hydrantQ = useQuery({
-    queryKey: ["assignments", "hydrant", watch, hydrantYear],
-    queryFn: () => backendClient.inspection_plans.listAssignments({
-      plan_type: "hydrant",
-      watch: watch || void 0,
-      year: hydrantYear,
-      quarter: 0
-    }),
+  const { toast: toast2 } = useToast();
+  const [drawer, setDrawer] = reactExports.useState(false);
+  const { data, isLoading } = useQuery({
+    queryKey: ["activities", "community", watch, fq.fy, fq.q],
+    queryFn: () => backendClient.activity.list({ type: "community", watch: watch || void 0, financial_year: fq.fy, quarter: fq.q }),
     enabled: !!watch
   });
-  const hydrantDone = ((_b2 = (_a2 = hydrantQ.data) == null ? void 0 : _a2.totals) == null ? void 0 : _b2.complete) ?? 0;
-  const hydrantTotal = hydrantDone + (((_d2 = (_c2 = hydrantQ.data) == null ? void 0 : _c2.totals) == null ? void 0 : _d2.pending) ?? 0);
-  function getActivityResult(metricIdx, q) {
-    return activityResults[metricIdx * 4 + (q - 1)];
-  }
-  function getMsResult(q) {
-    return msResults[q - 1];
-  }
-  function barColour(pct, isFuture, colourKey) {
-    if (isFuture) return "bg-muted";
-    if (pct >= 100) return "bg-green-500";
-    if (pct >= 50) return "bg-amber-400";
-    return "bg-red-500";
-  }
-  function textColour(pct, isFuture) {
-    if (isFuture) return "text-muted-foreground";
-    if (pct >= 100) return "text-green-600 dark:text-green-400";
-    if (pct >= 50) return "text-amber-600 dark:text-amber-400";
-    return "text-red-600 dark:text-red-400";
-  }
-  const isLoading = activityResults.some((r2) => r2.isLoading) || msResults.some((r2) => r2.isLoading);
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { className: "border-t-2 border-t-brand", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(CardHeader, { className: "pb-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(ChartColumn, { className: "h-5 w-5 text-brand" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(CardTitle, { className: "text-base", children: [
-        "Year at a Glance — FY ",
-        fy,
-        "/",
-        String(fy + 1).slice(2)
-      ] })
-    ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { children: isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-muted-foreground animate-pulse", children: "Loading quarterly data…" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full text-sm", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-left font-medium text-muted-foreground pb-2 pr-4 w-24", children: "Metric" }),
-        QUARTER_LABELS.map((label2, idx) => {
-          const q = idx + 1;
-          const isCurrent = q === currentQ;
-          return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "th",
-            {
-              className: `text-center font-medium pb-2 px-2 ${isCurrent ? "text-indigo-600 dark:text-indigo-400" : "text-muted-foreground"}`,
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block text-xs", children: label2 }),
-                isCurrent && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "inline-block mt-0.5 text-[10px] font-semibold bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 px-1.5 py-0.5 rounded-full leading-none", children: "current" })
-              ]
-            },
-            q
-          );
-        })
-      ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("tbody", { className: "divide-y divide-border", children: [
-        ACTIVITY_METRICS.map((metric, mIdx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "py-3 pr-4 font-medium text-foreground", children: metric.label }),
-          [1, 2, 3, 4].map((q) => {
-            var _a3, _b3, _c3;
-            const result = getActivityResult(mIdx, q);
-            const completed = ((_a3 = result.data) == null ? void 0 : _a3.total_completed) ?? 0;
-            const tap = ((_b3 = result.data) == null ? void 0 : _b3.total_tap_completed) ?? 0;
-            const isCommunity = metric.key === "community";
-            const isFuture = q > currentQ && (((_c3 = result.data) == null ? void 0 : _c3.total) ?? 0) === 0;
-            const rawPct = Math.min(100, Math.round(completed / metric.target * 100));
-            const pct = isCommunity && !communityMet(completed, tap) ? Math.min(rawPct, 99) : rawPct;
-            const isCurrent = q === currentQ;
-            return /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "td",
-              {
-                className: `py-3 px-2 ${isCurrent ? "bg-indigo-50/50 dark:bg-indigo-950/20 rounded" : ""}`,
-                children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center gap-1.5 min-w-[72px]", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-full h-2 rounded-full bg-muted overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "div",
-                    {
-                      className: `h-full rounded-full transition-all duration-500 ${barColour(pct, isFuture, metric.colour)}`,
-                      style: { width: isFuture ? "0%" : `${pct}%` }
-                    }
-                  ) }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `text-xs font-semibold tabular-nums ${textColour(pct, isFuture)}`, children: isFuture ? "–" : `${completed}/${metric.target}` }),
-                  isCommunity && !isFuture && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                    "span",
-                    {
-                      className: `text-[10px] tabular-nums ${tap >= COMMUNITY_TAP_MIN ? "text-green-600 dark:text-green-400" : "text-muted-foreground"}`,
-                      children: [
-                        "TAP ",
-                        tap,
-                        "/",
-                        COMMUNITY_TAP_MIN
-                      ]
-                    }
-                  )
-                ] })
-              },
-              q
-            );
-          })
-        ] }, metric.key)),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "py-3 pr-4 font-medium text-foreground", children: "Hydrant" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 4, className: "py-3 px-2", children: hydrantTotal === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-muted-foreground", children: [
-            "No ",
-            hydrantYear,
-            " hydrant route uploaded yet"
-          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 h-2 rounded-full bg-muted overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "div",
-              {
-                className: `h-full rounded-full transition-all duration-500 ${barColour(Math.round(hydrantDone / hydrantTotal * 100), false)}`,
-                style: { width: `${Math.round(hydrantDone / hydrantTotal * 100)}%` }
-              }
-            ) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-semibold tabular-nums whitespace-nowrap", children: [
-              hydrantDone,
-              "/",
-              hydrantTotal,
-              " · ",
-              hydrantYear,
-              " route"
-            ] })
-          ] }) })
+  const items = (data == null ? void 0 : data.items) ?? [];
+  const done = (data == null ? void 0 : data.total_completed) ?? items.filter((i) => i.completed).length;
+  const tap = (data == null ? void 0 : data.total_tap_completed) ?? items.filter((i) => i.completed && i.is_tap).length;
+  const time = quarterTime(fq);
+  const p = pace(done, COMMUNITY_TARGET_Q, time.elapsed, time.phase, tap >= COMMUNITY_TAP_MIN);
+  const toggle = useMutation({
+    mutationFn: (id) => backendClient.activity.toggle(id),
+    onSuccess: () => invalidateTargetViews(qc),
+    onError: () => toast2({ title: "Couldn't update the engagement", variant: "destructive" })
+  });
+  const add2 = useMutation({
+    mutationFn: () => backendClient.activity.create({ type: "community", watch, financial_year: fq.fy, quarter: fq.q }),
+    onSuccess: () => {
+      invalidateTargetViews(qc);
+      setDrawer(true);
+    },
+    onError: () => toast2({ title: "Couldn't add an engagement", variant: "destructive" })
+  });
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      TargetCard,
+      {
+        icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { className: "h-[18px] w-[18px]" }),
+        title: "Community engagement",
+        subtitle: `${COMMUNITY_TARGET_Q} a quarter, ${COMMUNITY_TAP_MIN}+ TAP · ${fq.months}`,
+        pill: /* @__PURE__ */ jsxRuntimeExports.jsx(PacePill, { state: p.state, label: p.state === "done" ? "Done" : done >= COMMUNITY_TARGET_Q && tap < COMMUNITY_TAP_MIN ? "Needs TAP" : void 0 }),
+        ring: /* @__PURE__ */ jsxRuntimeExports.jsx(TargetRing, { actual: done, target: COMMUNITY_TARGET_Q, pace: p, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono text-3xl font-semibold tabular-nums leading-none", children: isLoading ? "…" : done }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-1 text-xs text-muted-foreground", children: [
+            "of ",
+            COMMUNITY_TARGET_Q
+          ] })
+        ] }) }),
+        footer: /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          canEdit && time.phase !== "future" && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { size: "sm", variant: "outline", disabled: add2.isPending, onClick: () => add2.mutate(), children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "mr-1 h-4 w-4" }),
+            " Add engagement"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setDrawer(true), className: "ml-auto text-xs font-medium text-muted-foreground hover:text-foreground", children: "Details →" })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "py-3 pr-4 font-medium text-foreground", children: "Multi-Story" }),
-          [1, 2, 3, 4].map((q) => {
-            var _a3, _b3, _c3, _d3;
-            const result = getMsResult(q);
-            const total = ((_b3 = (_a3 = result.data) == null ? void 0 : _a3.items) == null ? void 0 : _b3.length) ?? 0;
-            const completed = ((_d3 = (_c3 = result.data) == null ? void 0 : _c3.totals) == null ? void 0 : _d3.complete) ?? 0;
-            const isFuture = total === 0 || q > currentQ && completed === 0;
-            const pct = total > 0 ? Math.min(100, Math.round(completed / total * 100)) : 0;
-            const isCurrent = q === currentQ;
-            return /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "td",
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-3 flex items-center gap-2 text-xs", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "TAP" }),
+            Array.from({ length: COMMUNITY_TAP_MIN }, (_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "span",
               {
-                className: `py-3 px-2 ${isCurrent ? "bg-indigo-50/50 dark:bg-indigo-950/20 rounded" : ""}`,
-                children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center gap-1.5 min-w-[72px]", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-full h-2 rounded-full bg-muted overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "div",
-                    {
-                      className: `h-full rounded-full transition-all duration-500 ${barColour(pct, isFuture)}`,
-                      style: { width: isFuture ? "0%" : `${pct}%` }
-                    }
-                  ) }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `text-xs font-semibold tabular-nums ${textColour(pct, isFuture)}`, children: total === 0 ? "None" : isFuture ? `0/${total}` : `${completed}/${total}` })
-                ] })
+                className: cn(
+                  "h-2.5 w-2.5 rounded-full",
+                  i < tap ? "bg-emerald-500" : time.phase === "past" ? "bg-red-400" : "border border-muted-foreground/40"
+                )
               },
-              q
-            );
-          })
-        ] })
-      ] })
-    ] }) }) })
+              i
+            )),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono tabular-nums text-muted-foreground", children: [
+              tap,
+              "/",
+              COMMUNITY_TAP_MIN
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(PaceLines, { pace: p, noun: "engagements", shifts: null, watch }),
+          items.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "mt-4 space-y-1 border-t border-border/60 pt-3", children: items.slice(0, 6).map((it) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-center gap-2.5 text-sm", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                type: "button",
+                disabled: !canEdit || toggle.isPending,
+                onClick: () => toggle.mutate(it.id),
+                "aria-label": it.completed ? "Mark not done" : "Mark done",
+                className: cn(
+                  "grid h-5 w-5 shrink-0 place-items-center rounded-md border transition-colors",
+                  it.completed ? "border-emerald-500 bg-emerald-500 text-white" : "border-muted-foreground/40 hover:border-foreground"
+                ),
+                children: it.completed && /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-3.5 w-3.5", strokeWidth: 3 })
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn("min-w-0 flex-1 truncate", it.completed && "text-muted-foreground line-through"), children: it.title || "Untitled engagement" }),
+            it.is_tap && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300", children: "TAP" }),
+            it.engagement_date && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "shrink-0 text-xs text-muted-foreground", children: new Date(it.engagement_date).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) })
+          ] }, it.id)) })
+        ]
+      }
+    ),
+    drawer && /* @__PURE__ */ jsxRuntimeExports.jsx(ActivityDrawer, { type: "community", watch, financial_year: fq.fy, quarter: fq.q, open: drawer, onClose: () => setDrawer(false) })
   ] });
+}
+function MultiStoryCard({ watch, fq, canEdit }) {
+  const qc = useQueryClient();
+  const { toast: toast2 } = useToast();
+  const { data, isLoading } = useQuery({
+    queryKey: ["assignments", "multistory", watch, fq.fy, fq.q],
+    queryFn: () => backendClient.inspection_plans.listAssignments({ plan_type: "multistory", watch: watch || void 0, year: fq.fy, quarter: fq.q }),
+    enabled: !!watch
+  });
+  const items = [...(data == null ? void 0 : data.items) ?? []].sort((a, b) => a.label.localeCompare(b.label));
+  const done = items.filter((i) => i.status === "complete").length;
+  const total = items.length;
+  const time = quarterTime(fq);
+  const p = pace(done, total, time.elapsed, time.phase);
+  const shifts = time.phase === "past" ? null : shiftsLeft(watch, fq);
+  const toggle = useMutation({
+    mutationFn: (it) => backendClient.inspection_plans.updateAssignment(it.id, { status: it.status === "complete" ? "pending" : "complete" }),
+    onSuccess: () => invalidateTargetViews(qc),
+    onError: () => toast2({ title: "Couldn't update the inspection", variant: "destructive" })
+  });
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    TargetCard,
+    {
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Building2, { className: "h-[18px] w-[18px]" }),
+      title: "Multi-story inspections",
+      subtitle: `From the inspection plan · ${fq.months}`,
+      pill: /* @__PURE__ */ jsxRuntimeExports.jsx(PacePill, { state: p.state, label: total === 0 && !isLoading ? "None this quarter" : void 0 }),
+      ring: /* @__PURE__ */ jsxRuntimeExports.jsx(TargetRing, { actual: done, target: total, pace: p, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono text-3xl font-semibold tabular-nums leading-none", children: isLoading ? "…" : done }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-1 text-xs text-muted-foreground", children: [
+          "of ",
+          total
+        ] })
+      ] }) }),
+      children: total === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: isLoading ? "Loading…" : `No multi-story buildings for ${watch} Watch in ${fq.months}.` }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(PaceLines, { pace: p, noun: "buildings", shifts, watch }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "mt-4 grid gap-1 border-t border-border/60 pt-3 sm:grid-cols-2", children: items.map((it) => {
+          const complete = it.status === "complete";
+          return /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              disabled: !canEdit || toggle.isPending,
+              onClick: () => toggle.mutate(it),
+              className: cn(
+                "flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-sm transition-colors",
+                canEdit && "hover:bg-muted/60"
+              ),
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "span",
+                  {
+                    className: cn(
+                      "grid h-5 w-5 shrink-0 place-items-center rounded-md border",
+                      complete ? "border-emerald-500 bg-emerald-500 text-white" : "border-muted-foreground/40"
+                    ),
+                    children: complete && /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-3.5 w-3.5", strokeWidth: 3 })
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn("truncate", complete && "text-muted-foreground line-through"), children: it.label })
+              ]
+            }
+          ) }, it.id);
+        }) })
+      ] })
+    }
+  );
+}
+function HydrantCard({ watch, fq, canEdit }) {
+  var _a2, _b2;
+  const year = fq.start.getFullYear();
+  const { data, isLoading } = useQuery({
+    queryKey: ["assignments", "hydrant", watch, year],
+    queryFn: () => backendClient.inspection_plans.listAssignments({ plan_type: "hydrant", watch: watch || void 0, year, quarter: 0 }),
+    enabled: !!watch
+  });
+  const done = ((_a2 = data == null ? void 0 : data.totals) == null ? void 0 : _a2.complete) ?? 0;
+  const total = done + (((_b2 = data == null ? void 0 : data.totals) == null ? void 0 : _b2.pending) ?? 0);
+  const now = /* @__PURE__ */ new Date();
+  const yStart = new Date(year, 0, 1);
+  const yEnd = new Date(year, 11, 31);
+  const phase = now < yStart ? "future" : now > yEnd ? "past" : "now";
+  const elapsed = phase === "now" ? (now.getTime() - yStart.getTime()) / (yEnd.getTime() - yStart.getTime()) : phase === "past" ? 1 : 0;
+  const p = pace(done, total, elapsed, phase);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    TargetCard,
+    {
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Flame, { className: "h-[18px] w-[18px]" }),
+      title: "Hydrant inspections",
+      subtitle: `Annual route · ${year}`,
+      pill: /* @__PURE__ */ jsxRuntimeExports.jsx(PacePill, { state: p.state, label: total === 0 && !isLoading ? "No route" : void 0 }),
+      ring: /* @__PURE__ */ jsxRuntimeExports.jsx(TargetRing, { actual: done, target: total, pace: p, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono text-3xl font-semibold tabular-nums leading-none", children: isLoading ? "…" : done }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-1 text-xs text-muted-foreground", children: [
+          "of ",
+          total
+        ] })
+      ] }) }),
+      children: total === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2 text-sm", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground", children: isLoading ? "Loading…" : `No ${year} hydrant route for ${watch} Watch yet. The target comes from the route — however many hydrants it has.` }),
+        canEdit && !isLoading && /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: "/settings?tab=inspection-plans", className: "inline-block text-xs font-medium text-brand hover:underline", children: "Add the route in Settings → Inspection plans →" })
+      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(PaceLines, { pace: p, noun: "hydrants", shifts: null, watch }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-3 text-xs text-muted-foreground", children: "Tick hydrants in Annual inspections below." })
+      ] })
+    }
+  );
 }
 function Targets() {
   const { user: user2 } = useAuth();
-  const [periodType, setPeriodType] = reactExports.useState("quarter");
-  const [selectedQuarter, setSelectedQuarter] = reactExports.useState("");
-  const [selectedMonth, setSelectedMonth] = reactExports.useState("");
-  const [customStart, setCustomStart] = reactExports.useState("");
-  const [customEnd, setCustomEnd] = reactExports.useState("");
-  const toLocalDate = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-  const quarters = reactExports.useMemo(() => {
-    const now = /* @__PURE__ */ new Date();
-    const month = now.getMonth();
-    const currentFY = month >= 3 ? now.getFullYear() : now.getFullYear() - 1;
-    const result = [];
-    for (const fy of [currentFY, currentFY - 1]) {
-      const fyQuarters = [
-        { q: 1, start: new Date(fy, 3, 1), end: new Date(fy, 5, 30), label: `Q1 ${fy}/${String(fy + 1).slice(2)} (Apr–Jun)` },
-        { q: 2, start: new Date(fy, 6, 1), end: new Date(fy, 8, 30), label: `Q2 ${fy}/${String(fy + 1).slice(2)} (Jul–Sep)` },
-        { q: 3, start: new Date(fy, 9, 1), end: new Date(fy, 11, 31), label: `Q3 ${fy}/${String(fy + 1).slice(2)} (Oct–Dec)` },
-        { q: 4, start: new Date(fy + 1, 0, 1), end: new Date(fy + 1, 2, 31), label: `Q4 ${fy}/${String(fy + 1).slice(2)} (Jan–Mar)` }
-      ];
-      for (const fq of fyQuarters) {
-        result.push({
-          label: fq.label,
-          start: toLocalDate(fq.start),
-          end: toLocalDate(fq.end)
-        });
-      }
-    }
-    return result;
-  }, []);
-  const months = reactExports.useMemo(() => {
-    const now = /* @__PURE__ */ new Date();
-    const result = [];
-    for (let i = 0; i < 12; i++) {
-      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const year = date.getFullYear();
-      const month = date.getMonth();
-      const start = new Date(year, month, 1);
-      const end = new Date(year, month + 1, 0);
-      result.push({
-        label: start.toLocaleDateString("en-US", { month: "long", year: "numeric" }),
-        start: toLocalDate(start),
-        end: toLocalDate(end)
-      });
-    }
-    return result;
-  }, []);
-  const getPeriodDates = reactExports.useMemo(() => {
-    switch (periodType) {
-      case "quarter": {
-        if (selectedQuarter) {
-          const match2 = quarters.find((q) => q.start === selectedQuarter);
-          if (match2) return { start: match2.start, end: match2.end, label: match2.label };
-        }
-        const now = /* @__PURE__ */ new Date();
-        const m = now.getMonth();
-        const fyQIdx = m >= 3 ? Math.floor((m - 3) / 3) : 3;
-        const defaultQ = quarters[fyQIdx];
-        return defaultQ ? { start: defaultQ.start, end: defaultQ.end, label: defaultQ.label } : { start: "", end: "", label: "" };
-      }
-      case "month": {
-        if (selectedMonth) {
-          const match2 = months.find((m) => m.start === selectedMonth);
-          if (match2) return { start: match2.start, end: match2.end, label: match2.label };
-        }
-        const defaultM = months[0];
-        return defaultM ? { start: defaultM.start, end: defaultM.end, label: defaultM.label } : { start: "", end: "", label: "" };
-      }
-      case "year": {
-        const now = /* @__PURE__ */ new Date();
-        const fy = now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
-        const start = `${fy}-04-01`;
-        const end = `${fy + 1}-03-31`;
-        return { start, end, label: `FY ${fy}/${String(fy + 1).slice(2)}` };
-      }
-      case "custom":
-        return {
-          start: customStart,
-          end: customEnd,
-          label: customStart && customEnd ? "Custom Range" : "Select dates"
-        };
-      default:
-        return { start: "", end: "", label: "" };
-    }
-  }, [periodType, selectedQuarter, selectedMonth, customStart, customEnd, quarters, months]);
-  const { inspFY, inspYear, inspQuarter } = reactExports.useMemo(() => {
-    const start = getPeriodDates.start;
-    const d = start ? /* @__PURE__ */ new Date(start + "T00:00:00") : /* @__PURE__ */ new Date();
-    const m = d.getMonth();
-    const fy = m >= 3 ? d.getFullYear() : d.getFullYear() - 1;
-    const fq = m >= 3 ? Math.floor((m - 3) / 3) + 1 : 4;
-    return {
-      inspFY: fy,
-      inspYear: d.getFullYear(),
-      inspQuarter: start && periodType !== "year" ? fq : null
-    };
-  }, [getPeriodDates, periodType]);
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 md:p-8 space-y-6", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline flex-wrap gap-x-4 gap-y-1", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-3xl font-bold text-foreground flex items-center gap-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Target, { className: "h-7 w-7 text-brand shrink-0" }),
-        "Performance Targets"
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eyebrow", children: "Track and manage quarterly performance metrics" })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(QuarterlyOverview, { watch: (user2 == null ? void 0 : user2.watch_unit) ?? "" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(CardHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Calendar, { className: "h-5 w-5 text-muted-foreground" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { className: "text-base", children: "Period Selection" })
+  const watch = (user2 == null ? void 0 : user2.watch_unit) ?? "";
+  const canEdit = (user2 == null ? void 0 : user2.role) === "WC" || (user2 == null ? void 0 : user2.role) === "CC";
+  const now = currentFyQuarter();
+  const [params, setParams] = useSearchParams();
+  const fy = Number(params.get("fy")) || now.fy;
+  const qParam = Number(params.get("q"));
+  const q = qParam >= 1 && qParam <= 4 ? qParam : fy === now.fy ? now.q : 1;
+  const fq = reactExports.useMemo(() => fyQuarter(fy, q), [fy, q]);
+  const time = quarterTime(fq);
+  const shifts = time.phase === "past" ? null : shiftsLeft(watch, fq);
+  const select = (next) => {
+    const p = new URLSearchParams(params);
+    p.set("fy", String(next.fy ?? fy));
+    p.set("q", String(next.q ?? q));
+    setParams(p, { replace: true });
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", style: { gap: "var(--gap-section)" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-end justify-between gap-x-6 gap-y-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eyebrow", children: [
+          watch ? `${watch} Watch` : "No watch set",
+          " · FY ",
+          fyLabel(fy)
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { children: getPeriodDates.label })
-      ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 md:grid-cols-4 gap-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-sm font-medium mb-2 block", children: "Period Type" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: periodType, onValueChange: (value) => setPeriodType(value), children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "month", children: "Monthly" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "quarter", children: "Quarterly" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "year", children: "Yearly" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "custom", children: "Custom Range" })
-              ] })
-            ] })
-          ] }),
-          periodType === "quarter" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-sm font-medium mb-2 block", children: "Select Quarter" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              Select,
-              {
-                value: selectedQuarter || getPeriodDates.start,
-                onValueChange: (value) => setSelectedQuarter(value),
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: quarters.map((q) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: q.start, children: q.label }, q.start)) })
-                ]
-              }
-            )
-          ] }),
-          periodType === "month" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-sm font-medium mb-2 block", children: "Select Month" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              Select,
-              {
-                value: selectedMonth || getPeriodDates.start,
-                onValueChange: (value) => setSelectedMonth(value),
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: months.map((m) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: m.start, children: m.label }, m.start)) })
-                ]
-              }
-            )
-          ] }),
-          periodType === "custom" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-sm font-medium mb-2 block", children: "Start Date" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
-                {
-                  type: "date",
-                  value: customStart,
-                  onChange: (e) => setCustomStart(e.target.value),
-                  className: "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                }
-              )
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-sm font-medium mb-2 block", children: "End Date" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
-                {
-                  type: "date",
-                  value: customEnd,
-                  onChange: (e) => setCustomEnd(e.target.value),
-                  className: "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                }
-              )
-            ] })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "mt-1 text-3xl font-semibold tracking-tight", children: "Targets" })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-muted-foreground", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-medium text-foreground", children: [
+          fq.label,
+          " · ",
+          fq.months
+        ] }),
+        time.phase === "now" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          " ",
+          "— day ",
+          time.dayOf,
+          " of ",
+          time.totalDays,
+          " ·",
+          " ",
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono tabular-nums text-foreground", children: time.daysLeft }),
+          " days",
+          shifts !== null && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            ", ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono tabular-nums text-foreground", children: shifts }),
+            " ",
+            watch,
+            " shifts left"
           ] })
         ] }),
-        getPeriodDates.start && getPeriodDates.end && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Calendar, { className: "h-3.5 w-3.5 text-indigo-500 shrink-0" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-medium text-indigo-700 dark:text-indigo-300", children: [
-            (/* @__PURE__ */ new Date(getPeriodDates.start + "T00:00:00")).toLocaleDateString("en-GB", {
-              day: "numeric",
-              month: "long",
-              year: "numeric"
-            }),
-            " – ",
-            (/* @__PURE__ */ new Date(getPeriodDates.end + "T00:00:00")).toLocaleDateString("en-GB", {
-              day: "numeric",
-              month: "long",
-              year: "numeric"
-            })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-auto text-xs font-semibold text-indigo-500", children: getPeriodDates.label })
-        ] })
+        time.phase === "past" && " — finished",
+        time.phase === "future" && " — not started"
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
-      TargetsDashboard,
+      QuarterStrip,
       {
-        periodStart: getPeriodDates.start,
-        periodEnd: getPeriodDates.end,
-        showPeriodSelector: false
+        watch,
+        fy,
+        selected: q,
+        onSelect: (next) => select({ q: next }),
+        onFy: (next) => select({ fy: next, q: next === now.fy ? now.q : 4 })
       }
     ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(InspectionAssignments, { financialYear: inspFY, quarter: inspQuarter, year: inspYear })
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid gap-4 lg:grid-cols-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(HfsvCard, { watch, fq, canEdit }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(CommunityCard, { watch, fq, canEdit }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(MultiStoryCard, { watch, fq, canEdit }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(HydrantCard, { watch, fq, canEdit })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      InspectionAssignments,
+      {
+        financialYear: fy,
+        quarter: q,
+        year: fq.start.getFullYear(),
+        exclude: ["multistory"]
+      }
+    )
   ] });
 }
 const DOC_CATEGORIES = [
@@ -61879,7 +61935,7 @@ function Policies() {
     return /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: "bg-yellow-500/10 text-yellow-500", children: "Processing" });
   };
   const activeFiltersCount = [categoryFilter !== "all" ? categoryFilter : ""].filter(Boolean).length;
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 md:p-8 space-y-6", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-baseline justify-between gap-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline flex-wrap gap-x-4 gap-y-1", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-3xl font-bold text-foreground flex items-center gap-3", children: [
@@ -62309,7 +62365,7 @@ function Reports() {
     };
     reader.readAsText(file);
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 md:p-8 space-y-6", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline flex-wrap gap-x-4 gap-y-1", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-3xl font-bold text-foreground flex items-center gap-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(ChartNoAxesColumn, { className: "h-7 w-7 text-brand shrink-0" }),
@@ -62710,7 +62766,7 @@ function QuarterlyReportPage() {
   }
   const metCount = report2.items.filter((i) => i.met).length + report2.custom_items.filter((i) => i.met).length;
   const totalCount = report2.items.length + report2.custom_items.length;
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 md:p-8 space-y-6", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start justify-between gap-4 flex-wrap", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -63697,125 +63753,129 @@ function AdminUsers() {
     if (!date) return "Never";
     return new Date(date).toLocaleDateString();
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(PageContainer, { title: "User Management", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-6", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground", children: "Manage user roles, permissions, and account status" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { onClick: () => setShowInviteDialog(true), children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(UserPlus, { className: "w-4 h-4 mr-2" }),
-        "Add Staff Member"
-      ] })
-    ] }),
-    loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: [...Array(8)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-12 w-full" }, i)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-card rounded-lg border", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TableHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Name" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Email" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Role" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Status" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Last Login" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "text-right", children: "Actions" })
-      ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TableBody, { children: users.map((user2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "font-medium", children: user2.name }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: user2.email }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: user2.is_active ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Select,
-          {
-            value: user2.role,
-            onValueChange: (value) => handleRoleChange(user2.id, value),
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "w-32", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "WC", children: "WC" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "CC", children: "CC" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "FF", children: "FF" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "RO", children: "RO" })
-              ] })
-            ]
-          }
-        ) : /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", children: user2.role }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: user2.is_active ? /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: "bg-green-500", children: "Active" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "destructive", children: "Deactivated" }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: formatDate(user2.last_login_at) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "text-right", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 justify-end", children: [
-          user2.is_active ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            Button,
-            {
-              size: "sm",
-              variant: "destructive",
-              onClick: () => setOffboardingUser(user2),
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(UserX, { className: "w-4 h-4 mr-1" }),
-                "Deactivate"
-              ]
-            }
-          ) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            Button,
-            {
-              size: "sm",
-              variant: "outline",
-              onClick: () => handleReactivate(user2.id),
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(UserCheck, { className: "w-4 h-4 mr-1" }),
-                "Reactivate"
-              ]
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Button,
-            {
-              size: "sm",
-              variant: "ghost",
-              className: "text-red-600 hover:text-red-700 hover:bg-red-50",
-              onClick: () => setDeleteUser(user2),
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" })
-            }
-          )
-        ] }) })
-      ] }, user2.id)) })
-    ] }) }) }),
-    offboardingUser && /* @__PURE__ */ jsxRuntimeExports.jsx(
-      OffboardingWizard,
-      {
-        user: offboardingUser,
-        open: !!offboardingUser,
-        onClose: () => setOffboardingUser(null),
-        onComplete: () => {
-          setOffboardingUser(null);
-          loadUsers();
-        }
-      }
-    ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      InviteUserDialog,
-      {
-        open: showInviteDialog,
-        onClose: () => setShowInviteDialog(false),
-        onSuccess: loadUsers
-      }
-    ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialog, { open: !!deleteUser, onOpenChange: (open) => !open && setDeleteUser(null), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogContent, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogHeader, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogTitle, { children: "Permanently Delete User" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogDescription, { children: [
-          "Are you sure you want to permanently delete ",
-          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: deleteUser == null ? void 0 : deleteUser.name }),
-          " (",
-          deleteUser == null ? void 0 : deleteUser.email,
-          ")? This action cannot be undone. All associated data including profiles, activity logs, and records will be removed."
+  return (
+    // Shown inside the Admin page, which Layout already wraps — so no PageContainer here.
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl font-semibold", children: "User Management" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-6", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground", children: "Manage user roles, permissions, and account status" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { onClick: () => setShowInviteDialog(true), children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(UserPlus, { className: "w-4 h-4 mr-2" }),
+          "Add Staff Member"
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogFooter, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogCancel, { children: "Cancel" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          AlertDialogAction,
-          {
-            onClick: () => deleteUser && handleDelete(deleteUser.id),
-            className: "bg-red-600 hover:bg-red-700 focus:ring-red-600",
-            children: "Delete Permanently"
+      loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: [...Array(8)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-12 w-full" }, i)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-card rounded-lg border", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Name" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Email" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Role" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Status" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Last Login" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "text-right", children: "Actions" })
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TableBody, { children: users.map((user2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "font-medium", children: user2.name }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: user2.email }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: user2.is_active ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            Select,
+            {
+              value: user2.role,
+              onValueChange: (value) => handleRoleChange(user2.id, value),
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "w-32", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "WC", children: "WC" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "CC", children: "CC" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "FF", children: "FF" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "RO", children: "RO" })
+                ] })
+              ]
+            }
+          ) : /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", children: user2.role }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: user2.is_active ? /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: "bg-green-500", children: "Active" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "destructive", children: "Deactivated" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: formatDate(user2.last_login_at) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "text-right", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 justify-end", children: [
+            user2.is_active ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              Button,
+              {
+                size: "sm",
+                variant: "destructive",
+                onClick: () => setOffboardingUser(user2),
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(UserX, { className: "w-4 h-4 mr-1" }),
+                  "Deactivate"
+                ]
+              }
+            ) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              Button,
+              {
+                size: "sm",
+                variant: "outline",
+                onClick: () => handleReactivate(user2.id),
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(UserCheck, { className: "w-4 h-4 mr-1" }),
+                  "Reactivate"
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Button,
+              {
+                size: "sm",
+                variant: "ghost",
+                className: "text-red-600 hover:text-red-700 hover:bg-red-50",
+                onClick: () => setDeleteUser(user2),
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" })
+              }
+            )
+          ] }) })
+        ] }, user2.id)) })
+      ] }) }) }),
+      offboardingUser && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        OffboardingWizard,
+        {
+          user: offboardingUser,
+          open: !!offboardingUser,
+          onClose: () => setOffboardingUser(null),
+          onComplete: () => {
+            setOffboardingUser(null);
+            loadUsers();
           }
-        )
-      ] })
-    ] }) })
-  ] });
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        InviteUserDialog,
+        {
+          open: showInviteDialog,
+          onClose: () => setShowInviteDialog(false),
+          onSuccess: loadUsers
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialog, { open: !!deleteUser, onOpenChange: (open) => !open && setDeleteUser(null), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogContent, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogHeader, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogTitle, { children: "Permanently Delete User" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogDescription, { children: [
+            "Are you sure you want to permanently delete ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: deleteUser == null ? void 0 : deleteUser.name }),
+            " (",
+            deleteUser == null ? void 0 : deleteUser.email,
+            ")? This action cannot be undone. All associated data including profiles, activity logs, and records will be removed."
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogFooter, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogCancel, { children: "Cancel" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            AlertDialogAction,
+            {
+              onClick: () => deleteUser && handleDelete(deleteUser.id),
+              className: "bg-red-600 hover:bg-red-700 focus:ring-red-600",
+              children: "Delete Permanently"
+            }
+          )
+        ] })
+      ] }) })
+    ] })
+  );
 }
 const FEATURE_CONFIG = [
   { key: "dashboard", label: "Dashboard", description: "Main dashboard with operational overview", icon: LayoutDashboard, phase: "Phase 1" },
@@ -63834,7 +63894,7 @@ const FEATURE_CONFIG = [
 function AdminPanel() {
   const [activeTab, setActiveTab] = reactExports.useState("features");
   const isAdmin = useIsAdmin();
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 md:p-8 space-y-6", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldCheck, { className: "h-7 w-7 text-indigo-500 shrink-0" }),
@@ -65686,8 +65746,11 @@ function DensityCard({
     }
   );
 }
+const TABS = ["appearance", "dictionaries", "absence", "branding", "export", "inspection-plans"];
 function Settings() {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(PageContainer, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-6 space-y-6", children: [
+  const [params] = useSearchParams();
+  const initialTab = TABS.includes(params.get("tab") ?? "") ? params.get("tab") : "appearance";
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline flex-wrap gap-x-4 gap-y-1", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-3xl font-bold text-foreground flex items-center gap-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { className: "h-7 w-7 text-brand shrink-0" }),
@@ -65695,7 +65758,7 @@ function Settings() {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eyebrow", children: "Configure system settings and export data" })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Tabs, { defaultValue: "appearance", className: "space-y-6", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Tabs, { defaultValue: initialTab, className: "space-y-6", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(TabsList, { className: "grid w-full grid-cols-6", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(TabsTrigger, { value: "appearance", className: "gap-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, { className: "h-4 w-4" }),
@@ -65729,7 +65792,7 @@ function Settings() {
       /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "export", className: "space-y-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(CSVExportUtility, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "inspection-plans", className: "space-y-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(InspectionPlans, {}) })
     ] })
-  ] }) });
+  ] });
 }
 function ApplianceCard({
   appliance: appliance2,
@@ -67156,7 +67219,7 @@ function EquipmentChecks() {
     setManageEquipmentOpen(true);
   };
   if (isLoading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 md:p-8 space-y-6", children: [
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-col sm:flex-row sm:items-center justify-between gap-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-9 w-64" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-5 w-48" })
@@ -67164,7 +67227,7 @@ function EquipmentChecks() {
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6", children: [...Array(3)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-52 w-full rounded-xl" }, i)) })
     ] });
   }
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 md:p-8 space-y-6", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-baseline justify-between gap-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline flex-wrap gap-x-4 gap-y-1", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-3xl font-bold flex items-center gap-3", children: [
@@ -71116,7 +71179,7 @@ function Handover() {
     setActiveTab("handover");
     handleNewHandover();
   }, [wantsNewHandover]);
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 md:p-8 space-y-6 max-w-5xl mx-auto", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6 max-w-5xl mx-auto", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-baseline justify-between gap-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline flex-wrap gap-x-4 gap-y-1", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-3xl font-bold text-foreground flex items-center gap-3", children: [
@@ -71925,7 +71988,7 @@ function Training() {
     month: "short",
     year: "numeric"
   });
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 md:p-8 space-y-6 max-w-5xl mx-auto", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6 max-w-5xl mx-auto", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-baseline justify-between gap-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline flex-wrap gap-x-4 gap-y-1", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-3xl font-bold text-foreground flex items-center gap-3", children: [
@@ -72501,7 +72564,7 @@ const QUICK_LINKS = [
   // },
 ];
 function Resources() {
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 md:p-8 space-y-6", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline flex-wrap gap-x-4 gap-y-1", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-3xl font-bold text-foreground flex items-center gap-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(BookOpen, { className: "h-7 w-7 text-brand shrink-0" }),
@@ -72541,7 +72604,7 @@ function Bulletins() {
   const canPost = (user2 == null ? void 0 : user2.role) === "WC" || (user2 == null ? void 0 : user2.role) === "CC";
   const [tab, setTab] = reactExports.useState("open");
   const [expandedId, setExpandedId] = reactExports.useState(null);
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 md:p-8 max-w-5xl mx-auto space-y-6", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-w-5xl mx-auto space-y-6", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "flex items-baseline flex-wrap gap-x-4 gap-y-1", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-3xl font-bold text-foreground flex items-center gap-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Megaphone, { className: "h-7 w-7 text-brand shrink-0" }),

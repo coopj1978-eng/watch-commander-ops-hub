@@ -64,7 +64,7 @@ export default function Bulletins() {
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
   return (
-    <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto space-y-6">
       {/* Visual-refresh page header: h1 + eyebrow context line. */}
       <header className="flex items-baseline flex-wrap gap-x-4 gap-y-1">
         <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">

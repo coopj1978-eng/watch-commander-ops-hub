@@ -69,7 +69,7 @@ export default function AdminPanel() {
   const isAdmin = useIsAdmin();
 
   return (
-    <div className="p-4 md:p-8 space-y-6">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
           <ShieldCheck className="h-7 w-7 text-indigo-500 shrink-0" />

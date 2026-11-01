@@ -26,7 +26,7 @@ const QUICK_LINKS = [
 
 export default function Resources() {
   return (
-    <div className="p-4 md:p-8 space-y-6">
+    <div className="space-y-6">
       {/* Visual-refresh page header: h1 + eyebrow context line. */}
       <div className="flex items-baseline flex-wrap gap-x-4 gap-y-1">
         <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">

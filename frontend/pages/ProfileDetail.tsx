@@ -456,7 +456,7 @@ export default function ProfileDetail() {
 
   if (userLoading || profileLoading) {
     return (
-      <div className="p-4 md:p-8 space-y-6">
+      <div className="space-y-6">
         <Skeleton className="h-12 w-64" />
         <div className="grid gap-6 md:grid-cols-2">
           <Skeleton className="h-64 w-full" />
@@ -491,7 +491,7 @@ export default function ProfileDetail() {
   ];
 
   return (
-    <div className="p-4 md:p-8 space-y-6">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         {/* Visual-refresh profile header: large brand-coloured initials
             avatar + h1 with the name + eyebrow context line carrying

@@ -189,9 +189,13 @@ interface Props {
   quarter: number | null;
   /** Calendar year for the annual items (care homes, hydrant route, operational). */
   year: number;
+  /** Plan types shown elsewhere — the Targets page lists multi-story in its own card. */
+  exclude?: PlanType[];
 }
 
-export default function InspectionAssignments({ financialYear, quarter, year }: Props) {
+export default function InspectionAssignments({ financialYear, quarter, year, exclude = [] }: Props) {
+  const sections = SECTION_CONFIG.filter((c) => !exclude.includes(c.type));
+  const annualOnly = exclude.includes("multistory");
   const { toast } = useToast();
   const qc        = useQueryClient();
   const isWC      = useIsWC();
@@ -221,12 +225,13 @@ export default function InspectionAssignments({ financialYear, quarter, year }: 
   const msQ = useQuery({
     queryKey: ["inspection-assignments", "multistory", financialYear, effectiveWatch],
     queryFn: () => backend.inspection_plans.listAssignments({ year: financialYear, plan_type: "multistory", watch: watchParam }),
+    enabled: !annualOnly,
   });
   const annualQ = useQuery({
     queryKey: ["inspection-assignments", "annual", year, effectiveWatch],
     queryFn: () => backend.inspection_plans.listAssignments({ year, quarter: 0, watch: watchParam }),
   });
-  const isLoading = msQ.isLoading || annualQ.isLoading;
+  const isLoading = (!annualOnly && msQ.isLoading) || annualQ.isLoading;
   const data = { items: [...(msQ.data?.items ?? []), ...(annualQ.data?.items ?? [])] };
 
   const generateMutation = useMutation({
@@ -280,7 +285,7 @@ export default function InspectionAssignments({ financialYear, quarter, year }: 
   };
 
   // Overall totals are based on what's currently visible
-  const visibleItems = SECTION_CONFIG.flatMap(cfg => getItemsForSection(cfg.type));
+  const visibleItems = sections.flatMap(cfg => getItemsForSection(cfg.type));
   const totalComplete = visibleItems.filter(i => i.status === "complete").length;
   const totalAll      = visibleItems.length;
   const overallPct    = totalAll > 0 ? Math.round((totalComplete / totalAll) * 100) : 0;
@@ -296,9 +301,11 @@ export default function InspectionAssignments({ financialYear, quarter, year }: 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold">Inspection Workload</h2>
+          <h2 className="text-lg font-semibold">{annualOnly ? "Annual inspections" : "Inspection Workload"}</h2>
           <p className="text-sm text-muted-foreground">
-            {quarter
+            {annualOnly
+              ? `${watchLabel} — care homes, hydrant route and operational inspections for ${year}`
+              : quarter
               ? `${watchLabel} — ${periodLabel} multi-story assignments plus annual items`
               : `${watchLabel} — all inspections for ${financialYearLabel(financialYear)}`}
           </p>
@@ -346,7 +353,7 @@ export default function InspectionAssignments({ financialYear, quarter, year }: 
             <div className="flex items-center gap-4">
               <div className="flex-1">
                 <div className="flex justify-between text-sm mb-1.5">
-                  <span className="font-medium">Overall progress — {watchLabel}, {periodLabel}</span>
+                  <span className="font-medium">Overall progress — {watchLabel}, {annualOnly ? year : periodLabel}</span>
                   <span className="text-muted-foreground">{totalComplete} / {totalAll} complete</span>
                 </div>
                 <Progress value={overallPct} className="h-2" />
@@ -380,7 +387,7 @@ export default function InspectionAssignments({ financialYear, quarter, year }: 
       )}
 
       {/* Section cards */}
-      {!isLoading && hasAnyAssignments && SECTION_CONFIG.map(config => {
+      {!isLoading && hasAnyAssignments && sections.map(config => {
         const sectionItems = getItemsForSection(config.type);
         // Hide sections with no items when a specific watch is active
         if (sectionItems.length === 0 && effectiveWatch !== "all") return null;

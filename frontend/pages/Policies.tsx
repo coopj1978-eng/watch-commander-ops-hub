@@ -96,7 +96,7 @@ export default function Policies() {
   const activeFiltersCount = [categoryFilter !== "all" ? categoryFilter : ""].filter(Boolean).length;
 
   return (
-    <div className="p-4 md:p-8 space-y-6">
+    <div className="space-y-6">
       {/* Visual-refresh page header: h1 + eyebrow + view toggle. */}
       <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-3">
         <div className="flex items-baseline flex-wrap gap-x-4 gap-y-1">
