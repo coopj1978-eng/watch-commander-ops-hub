@@ -19601,12 +19601,25 @@ const createLucideIcon = (iconName, iconNode) => {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$22 = [
+const __iconNode$23 = [
   ["path", { d: "M15 12H3", key: "6jk70r" }],
   ["path", { d: "M17 18H3", key: "1amg6g" }],
   ["path", { d: "M21 6H3", key: "1jwq7v" }]
 ];
-const AlignLeft = createLucideIcon("align-left", __iconNode$22);
+const AlignLeft = createLucideIcon("align-left", __iconNode$23);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$22 = [
+  ["path", { d: "M8 3 4 7l4 4", key: "9rb6wj" }],
+  ["path", { d: "M4 7h16", key: "6tx8e3" }],
+  ["path", { d: "m16 21 4-4-4-4", key: "siv7j2" }],
+  ["path", { d: "M20 17H4", key: "h6l3hr" }]
+];
+const ArrowLeftRight = createLucideIcon("arrow-left-right", __iconNode$22);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19614,12 +19627,10 @@ const AlignLeft = createLucideIcon("align-left", __iconNode$22);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$21 = [
-  ["path", { d: "M8 3 4 7l4 4", key: "9rb6wj" }],
-  ["path", { d: "M4 7h16", key: "6tx8e3" }],
-  ["path", { d: "m16 21 4-4-4-4", key: "siv7j2" }],
-  ["path", { d: "M20 17H4", key: "h6l3hr" }]
+  ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
+  ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowLeftRight = createLucideIcon("arrow-left-right", __iconNode$21);
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$21);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19627,10 +19638,12 @@ const ArrowLeftRight = createLucideIcon("arrow-left-right", __iconNode$21);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$20 = [
-  ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
-  ["path", { d: "M19 12H5", key: "x3x0zl" }]
+  ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
+  ["path", { d: "M20 7H4", key: "zbl0bi" }],
+  ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
+  ["path", { d: "M4 17h16", key: "g4d7ey" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$20);
+const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$20);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19638,12 +19651,10 @@ const ArrowLeft = createLucideIcon("arrow-left", __iconNode$20);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1$ = [
-  ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
-  ["path", { d: "M20 7H4", key: "zbl0bi" }],
-  ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
-  ["path", { d: "M4 17h16", key: "g4d7ey" }]
+  ["path", { d: "M5 12h14", key: "1ays0h" }],
+  ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1$);
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$1$);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19651,17 +19662,6 @@ const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1$);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1_ = [
-  ["path", { d: "M5 12h14", key: "1ays0h" }],
-  ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
-];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$1_);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1Z = [
   [
     "path",
     {
@@ -19671,7 +19671,18 @@ const __iconNode$1Z = [
   ],
   ["circle", { cx: "12", cy: "8", r: "6", key: "1vp47v" }]
 ];
-const Award = createLucideIcon("award", __iconNode$1Z);
+const Award = createLucideIcon("award", __iconNode$1_);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1Z = [
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["path", { d: "m4.9 4.9 14.2 14.2", key: "1m5liu" }]
+];
+const Ban = createLucideIcon("ban", __iconNode$1Z);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19679,10 +19690,12 @@ const Award = createLucideIcon("award", __iconNode$1Z);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1Y = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["path", { d: "m4.9 4.9 14.2 14.2", key: "1m5liu" }]
+  ["path", { d: "M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8", key: "1k78r4" }],
+  ["path", { d: "M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4", key: "fb3tl2" }],
+  ["path", { d: "M12 4v6", key: "1dcgq2" }],
+  ["path", { d: "M2 18h20", key: "ajqnye" }]
 ];
-const Ban = createLucideIcon("ban", __iconNode$1Y);
+const BedDouble = createLucideIcon("bed-double", __iconNode$1Y);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19690,19 +19703,6 @@ const Ban = createLucideIcon("ban", __iconNode$1Y);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1X = [
-  ["path", { d: "M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8", key: "1k78r4" }],
-  ["path", { d: "M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4", key: "fb3tl2" }],
-  ["path", { d: "M12 4v6", key: "1dcgq2" }],
-  ["path", { d: "M2 18h20", key: "ajqnye" }]
-];
-const BedDouble = createLucideIcon("bed-double", __iconNode$1X);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1W = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -19712,14 +19712,14 @@ const __iconNode$1W = [
     }
   ]
 ];
-const Bell = createLucideIcon("bell", __iconNode$1W);
+const Bell = createLucideIcon("bell", __iconNode$1X);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1V = [
+const __iconNode$1W = [
   ["path", { d: "M12 7v14", key: "1akyts" }],
   [
     "path",
@@ -19729,7 +19729,18 @@ const __iconNode$1V = [
     }
   ]
 ];
-const BookOpen = createLucideIcon("book-open", __iconNode$1V);
+const BookOpen = createLucideIcon("book-open", __iconNode$1W);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1V = [
+  ["path", { d: "M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16", key: "jecpp" }],
+  ["rect", { width: "20", height: "14", x: "2", y: "6", rx: "2", key: "i6l2r4" }]
+];
+const Briefcase = createLucideIcon("briefcase", __iconNode$1V);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19737,17 +19748,6 @@ const BookOpen = createLucideIcon("book-open", __iconNode$1V);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1U = [
-  ["path", { d: "M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16", key: "jecpp" }],
-  ["rect", { width: "20", height: "14", x: "2", y: "6", rx: "2", key: "i6l2r4" }]
-];
-const Briefcase = createLucideIcon("briefcase", __iconNode$1U);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1T = [
   ["path", { d: "M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z", key: "1b4qmf" }],
   ["path", { d: "M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2", key: "i71pzd" }],
   ["path", { d: "M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2", key: "10jefs" }],
@@ -19756,7 +19756,21 @@ const __iconNode$1T = [
   ["path", { d: "M10 14h4", key: "kelpxr" }],
   ["path", { d: "M10 18h4", key: "1ulq68" }]
 ];
-const Building2 = createLucideIcon("building-2", __iconNode$1T);
+const Building2 = createLucideIcon("building-2", __iconNode$1U);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1T = [
+  ["path", { d: "M8 2v4", key: "1cmpym" }],
+  ["path", { d: "M16 2v4", key: "4m81vk" }],
+  ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
+  ["path", { d: "M3 10h18", key: "8toen8" }],
+  ["path", { d: "m9 16 2 2 4-4", key: "19s6y9" }]
+];
+const CalendarCheck = createLucideIcon("calendar-check", __iconNode$1T);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19764,20 +19778,6 @@ const Building2 = createLucideIcon("building-2", __iconNode$1T);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1S = [
-  ["path", { d: "M8 2v4", key: "1cmpym" }],
-  ["path", { d: "M16 2v4", key: "4m81vk" }],
-  ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
-  ["path", { d: "M3 10h18", key: "8toen8" }],
-  ["path", { d: "m9 16 2 2 4-4", key: "19s6y9" }]
-];
-const CalendarCheck = createLucideIcon("calendar-check", __iconNode$1S);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1R = [
   ["path", { d: "M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5", key: "1osxxc" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["path", { d: "M8 2v4", key: "1cmpym" }],
@@ -19785,14 +19785,14 @@ const __iconNode$1R = [
   ["path", { d: "M17.5 17.5 16 16.3V14", key: "akvzfd" }],
   ["circle", { cx: "16", cy: "16", r: "6", key: "qoo3c4" }]
 ];
-const CalendarClock = createLucideIcon("calendar-clock", __iconNode$1R);
+const CalendarClock = createLucideIcon("calendar-clock", __iconNode$1S);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1Q = [
+const __iconNode$1R = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
@@ -19804,7 +19804,22 @@ const __iconNode$1Q = [
   ["path", { d: "M12 18h.01", key: "mhygvu" }],
   ["path", { d: "M16 18h.01", key: "kzsmim" }]
 ];
-const CalendarDays = createLucideIcon("calendar-days", __iconNode$1Q);
+const CalendarDays = createLucideIcon("calendar-days", __iconNode$1R);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1Q = [
+  ["path", { d: "M8 2v4", key: "1cmpym" }],
+  ["path", { d: "M16 2v4", key: "4m81vk" }],
+  ["path", { d: "M21 13V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8", key: "3spt84" }],
+  ["path", { d: "M3 10h18", key: "8toen8" }],
+  ["path", { d: "M16 19h6", key: "xwg31i" }],
+  ["path", { d: "M19 16v6", key: "tddt3s" }]
+];
+const CalendarPlus = createLucideIcon("calendar-plus", __iconNode$1Q);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19814,12 +19829,10 @@ const CalendarDays = createLucideIcon("calendar-days", __iconNode$1Q);
 const __iconNode$1P = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
-  ["path", { d: "M21 13V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8", key: "3spt84" }],
-  ["path", { d: "M3 10h18", key: "8toen8" }],
-  ["path", { d: "M16 19h6", key: "xwg31i" }],
-  ["path", { d: "M19 16v6", key: "tddt3s" }]
+  ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
+  ["path", { d: "M3 10h18", key: "8toen8" }]
 ];
-const CalendarPlus = createLucideIcon("calendar-plus", __iconNode$1P);
+const Calendar = createLucideIcon("calendar", __iconNode$1P);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19827,19 +19840,6 @@ const CalendarPlus = createLucideIcon("calendar-plus", __iconNode$1P);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1O = [
-  ["path", { d: "M8 2v4", key: "1cmpym" }],
-  ["path", { d: "M16 2v4", key: "4m81vk" }],
-  ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
-  ["path", { d: "M3 10h18", key: "8toen8" }]
-];
-const Calendar = createLucideIcon("calendar", __iconNode$1O);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1N = [
   [
     "path",
     {
@@ -19849,7 +19849,20 @@ const __iconNode$1N = [
   ],
   ["circle", { cx: "12", cy: "13", r: "3", key: "1vg3eu" }]
 ];
-const Camera = createLucideIcon("camera", __iconNode$1N);
+const Camera = createLucideIcon("camera", __iconNode$1O);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1N = [
+  ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
+  ["path", { d: "M18 17V9", key: "2bz60n" }],
+  ["path", { d: "M13 17V5", key: "1frdt8" }],
+  ["path", { d: "M8 17v-3", key: "17ska0" }]
+];
+const ChartColumn = createLucideIcon("chart-column", __iconNode$1N);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19857,12 +19870,11 @@ const Camera = createLucideIcon("camera", __iconNode$1N);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1M = [
-  ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
-  ["path", { d: "M18 17V9", key: "2bz60n" }],
-  ["path", { d: "M13 17V5", key: "1frdt8" }],
-  ["path", { d: "M8 17v-3", key: "17ska0" }]
+  ["line", { x1: "18", x2: "18", y1: "20", y2: "10", key: "1xfpm4" }],
+  ["line", { x1: "12", x2: "12", y1: "20", y2: "4", key: "be30l9" }],
+  ["line", { x1: "6", x2: "6", y1: "20", y2: "14", key: "1r4le6" }]
 ];
-const ChartColumn = createLucideIcon("chart-column", __iconNode$1M);
+const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1M);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19870,11 +19882,10 @@ const ChartColumn = createLucideIcon("chart-column", __iconNode$1M);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1L = [
-  ["line", { x1: "18", x2: "18", y1: "20", y2: "10", key: "1xfpm4" }],
-  ["line", { x1: "12", x2: "12", y1: "20", y2: "4", key: "be30l9" }],
-  ["line", { x1: "6", x2: "6", y1: "20", y2: "14", key: "1r4le6" }]
+  ["path", { d: "M18 6 7 17l-5-5", key: "116fxf" }],
+  ["path", { d: "m22 10-7.5 7.5L13 16", key: "ke71qq" }]
 ];
-const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1L);
+const CheckCheck = createLucideIcon("check-check", __iconNode$1L);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19882,10 +19893,16 @@ const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1L
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1K = [
-  ["path", { d: "M18 6 7 17l-5-5", key: "116fxf" }],
-  ["path", { d: "m22 10-7.5 7.5L13 16", key: "ke71qq" }]
+  [
+    "path",
+    {
+      d: "M17 21a1 1 0 0 0 1-1v-5.35c0-.457.316-.844.727-1.041a4 4 0 0 0-2.134-7.589 5 5 0 0 0-9.186 0 4 4 0 0 0-2.134 7.588c.411.198.727.585.727 1.041V20a1 1 0 0 0 1 1Z",
+      key: "1qvrer"
+    }
+  ],
+  ["path", { d: "M6 17h12", key: "1jwigz" }]
 ];
-const CheckCheck = createLucideIcon("check-check", __iconNode$1K);
+const ChefHat = createLucideIcon("chef-hat", __iconNode$1K);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -27813,6 +27830,36 @@ var crewing;
       this.list = this.list.bind(this);
       this.remove = this.remove.bind(this);
       this.roster = this.roster.bind(this);
+      this.listCanteen = this.listCanteen.bind(this);
+      this.addCanteen = this.addCanteen.bind(this);
+      this.removeCanteen = this.removeCanteen.bind(this);
+      this.canteenRota = this.canteenRota.bind(this);
+    }
+    /** GET /canteen — who's on canteen for one shift */
+    async listCanteen(params) {
+      const query = makeRecord({
+        watch: params.watch,
+        "shift_date": params["shift_date"],
+        "shift_type": params["shift_type"]
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/canteen`, void 0, { query });
+      return await resp.json();
+    }
+    /** POST /canteen — put someone on canteen for a shift (WC/CC, at most two) */
+    async addCanteen(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/canteen`, JSON.stringify(params));
+      return await resp.json();
+    }
+    /** DELETE /canteen/:id — take someone off canteen (WC/CC) */
+    async removeCanteen(id) {
+      const resp = await this.baseClient.callTypedAPI("DELETE", `/canteen/${encodeURIComponent(id)}`);
+      return await resp.json();
+    }
+    /** GET /canteen-rota — the watch, longest since canteen first */
+    async canteenRota(params) {
+      const query = makeRecord({ watch: params.watch });
+      const resp = await this.baseClient.callTypedAPI("GET", `/canteen-rota`, void 0, { query });
+      return await resp.json();
     }
     /**
      * POST /crewing — add a crew member to an appliance for a shift
@@ -69619,6 +69666,189 @@ function AutoCrewDialog({
     ] })
   ] }) });
 }
+const MAX = 2;
+function sinceLabel(date) {
+  if (!date) return "never";
+  const d = differenceInCalendarDays(/* @__PURE__ */ new Date(), parseISO(date));
+  return d <= 0 ? "today" : d === 1 ? "yesterday" : `${d} days ago`;
+}
+function useCanteen(watch, shiftDate, shiftType) {
+  var _a2, _b2;
+  const qc = useQueryClient();
+  const { toast: toast2 } = useToast();
+  const key2 = ["canteen", watch, shiftDate, shiftType];
+  const dutiesQ = useQuery({
+    queryKey: key2,
+    queryFn: () => backendClient.crewing.listCanteen({ watch, shift_date: shiftDate, shift_type: shiftType }),
+    enabled: !!watch
+  });
+  const rotaQ = useQuery({
+    queryKey: ["canteen-rota", watch],
+    queryFn: () => backendClient.crewing.canteenRota({ watch }),
+    enabled: !!watch
+  });
+  const refresh = () => {
+    qc.invalidateQueries({ queryKey: key2 });
+    qc.invalidateQueries({ queryKey: ["canteen-rota", watch] });
+  };
+  const add2 = useMutation({
+    mutationFn: (userId) => backendClient.crewing.addCanteen({ watch, shift_date: shiftDate, shift_type: shiftType, user_id: userId }),
+    onSuccess: refresh,
+    onError: (e) => toast2({ title: "Couldn't add to canteen", description: e instanceof Error ? e.message : void 0, variant: "destructive" })
+  });
+  const remove = useMutation({
+    mutationFn: (id) => backendClient.crewing.removeCanteen(id),
+    onSuccess: refresh,
+    onError: () => toast2({ title: "Couldn't take them off canteen", variant: "destructive" })
+  });
+  const duties = ((_a2 = dutiesQ.data) == null ? void 0 : _a2.duties) ?? [];
+  const byUser = new Map(duties.map((d) => [d.user_id, d.id]));
+  const toggle = (userId) => {
+    const id = byUser.get(userId);
+    if (id) return remove.mutate(id);
+    if (duties.length >= MAX) {
+      toast2({ title: `Canteen already has ${MAX}`, description: "Take someone off first." });
+      return;
+    }
+    add2.mutate(userId);
+  };
+  return { duties, byUser, rota: ((_b2 = rotaQ.data) == null ? void 0 : _b2.members) ?? [], add: add2, remove, toggle, busy: add2.isPending || remove.isPending };
+}
+const CanteenContext = reactExports.createContext(null);
+function CanteenToggle({ userId }) {
+  const ctx = reactExports.useContext(CanteenContext);
+  if (!ctx || !userId) return null;
+  const on = ctx.byUser.has(userId);
+  if (!ctx.canEdit && !on) return null;
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "button",
+    {
+      type: "button",
+      onPointerDown: (e) => e.stopPropagation(),
+      onClick: (e) => {
+        e.stopPropagation();
+        if (ctx.canEdit) ctx.toggle(userId);
+      },
+      disabled: !ctx.canEdit,
+      title: on ? "On canteen — tap to take off" : "Put on canteen",
+      "aria-pressed": on,
+      "aria-label": on ? "On canteen" : "Put on canteen",
+      className: cn(
+        "grid h-6 w-6 shrink-0 place-items-center rounded-md transition-colors",
+        on ? "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300" : "text-muted-foreground/40 hover:bg-muted hover:text-foreground sm:opacity-0 sm:group-hover:opacity-100"
+      ),
+      children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChefHat, { className: "h-3.5 w-3.5" })
+    }
+  );
+}
+function CanteenCard({
+  canteen,
+  offDuty,
+  canEdit
+}) {
+  const [picking, setPicking] = reactExports.useState(false);
+  const { duties, rota, add: add2, remove, busy } = canteen;
+  const lastOf = new Map(rota.map((m) => [m.user_id, m.last_date]));
+  const free = rota.filter((m) => !offDuty.has(m.user_id) && !canteen.byUser.has(m.user_id));
+  const next = free[0];
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "rounded-xl border border-border/70 bg-card", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "flex items-center justify-between gap-3 px-4 pt-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(ChefHat, { className: "h-4 w-4 text-amber-600 dark:text-amber-400" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-sm font-semibold", children: "Canteen" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-muted-foreground", children: "· 1–2 per shift, still riding" })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono text-xs tabular-nums text-muted-foreground", children: [
+        duties.length,
+        "/",
+        MAX
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2 p-4", children: [
+      duties.map((d) => /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-2 rounded-full bg-amber-100 py-1 pl-3 pr-1 text-sm font-medium text-amber-900 dark:bg-amber-900/40 dark:text-amber-200", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(ChefHat, { className: "h-3.5 w-3.5" }),
+        d.user_name ?? "Unknown",
+        canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            onClick: () => remove.mutate(d.id),
+            disabled: busy,
+            className: "grid h-6 w-6 place-items-center rounded-full hover:bg-amber-200/70 dark:hover:bg-amber-800/50",
+            "aria-label": `Take ${d.user_name ?? "them"} off canteen`,
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" })
+          }
+        )
+      ] }, d.id)),
+      canEdit && duties.length < MAX && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        next && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            onClick: () => add2.mutate(next.user_id),
+            disabled: busy,
+            className: "inline-flex items-center gap-2 rounded-full border border-emerald-300/80 bg-emerald-50/70 px-3 py-1 text-sm text-emerald-900 transition-colors hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-200",
+            title: "Longest since canteen",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-3.5 w-3.5" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold", children: next.name }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs opacity-75", children: [
+                "· last ",
+                sinceLabel(next.last_date)
+              ] })
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            onClick: () => setPicking(true),
+            className: "rounded-full border border-dashed border-border px-3 py-1 text-sm text-muted-foreground hover:border-foreground/30 hover:text-foreground",
+            children: next ? "Other…" : "Choose…"
+          }
+        )
+      ] }),
+      !duties.length && !canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-muted-foreground", children: "Nobody on canteen yet." })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: picking, onOpenChange: setPicking, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-h-[85vh] max-w-md overflow-y-auto", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Canteen" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: "Longest since canteen first. Tap a name to put them on." })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "space-y-0.5", children: rota.map((m, i) => {
+        const reason = offDuty.get(m.user_id);
+        const already = canteen.byUser.has(m.user_id);
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            disabled: !!reason || already || busy,
+            onClick: () => {
+              add2.mutate(m.user_id);
+              setPicking(false);
+            },
+            className: cn(
+              "flex w-full items-center gap-3 rounded-xl px-2.5 py-2 text-left",
+              reason || already ? "cursor-not-allowed opacity-50" : "hover:bg-muted"
+            ),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn(
+                "grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-semibold",
+                i === 0 && !reason && !already ? "bg-amber-500 text-white" : "bg-muted text-muted-foreground"
+              ), children: i + 1 }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "min-w-0 flex-1", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block truncate text-sm font-medium", children: m.name }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "block text-xs text-muted-foreground", children: [
+                  "Last canteen ",
+                  sinceLabel(lastOf.get(m.user_id) ?? null),
+                  m.recent_count > 0 && ` · ${m.recent_count} in 90 days`
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "shrink-0 text-[11px] text-muted-foreground", children: already ? "On canteen" : reason ?? "" })
+            ]
+          }
+        ) }, m.user_id);
+      }) })
+    ] }) })
+  ] });
+}
 const WATCHES$5 = ["Red", "White", "Green", "Blue", "Amber"];
 const EMPTY_IDS = /* @__PURE__ */ new Set();
 const SickIdsContext = reactExports.createContext(EMPTY_IDS);
@@ -69748,7 +69978,9 @@ const ADJ_BADGE = {
   toil: { label: "TOIL", cls: "text-emerald-600" }
 };
 function TileCard({ member, assignedEntry, isAbsent, adjustment, isDragging, isOverlay }) {
+  var _a2;
   const sickIds = reactExports.useContext(SickIdsContext);
+  const onCanteen = !!((_a2 = reactExports.useContext(CanteenContext)) == null ? void 0 : _a2.byUser.has(member.id));
   member.system_role === "WC" ? "Watch Commander" : member.system_role === "CC" ? "Crew Commander" : "Firefighter";
   const isAssigned = !!assignedEntry;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -69765,7 +69997,8 @@ function TileCard({ member, assignedEntry, isAbsent, adjustment, isDragging, isO
           h-8 w-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0
           ${isAbsent ? "bg-muted-foreground/30" : isAssigned ? "bg-gradient-to-br from-teal-400 to-blue-500" : "bg-gradient-to-br from-indigo-400 to-purple-500"}
         `, children: initials(member.name) }),
-          !isAssigned && !isAbsent && !isOverlay && /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "h-3.5 w-3.5 text-muted-foreground/40 shrink-0" })
+          !isAssigned && !isAbsent && !isOverlay && /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "h-3.5 w-3.5 text-muted-foreground/40 shrink-0" }),
+          onCanteen && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-auto grid h-5 w-5 place-items-center rounded-md bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300", title: "On canteen", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChefHat, { className: "h-3 w-3" }) })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs font-semibold leading-tight truncate", children: member.name }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-[10px] text-muted-foreground leading-tight truncate", children: [
@@ -69959,6 +70192,7 @@ function DraggableFilledSlot({
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate", children: qualWarning })
           ] })
         ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(CanteenToggle, { userId: entry.user_id }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0 ${ROLE_BADGE[entry.crew_role]}`, children: slot.label }),
         canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
@@ -71008,6 +71242,11 @@ function CrewingBoard() {
     }
     return map;
   }, [roster, assignedByUserId, pendingAssignIds, sickIds, absentIds, adjustmentByUserId]);
+  const canteen = useCanteen(watch, shiftDate, shiftType);
+  const offDuty = reactExports.useMemo(
+    () => new Map([...unavailable].filter(([, why]) => !/^On B10P|^Being added/.test(why))),
+    [unavailable]
+  );
   const { openSeats, plan, planBySlot } = reactExports.useMemo(() => {
     const seats = [];
     ["b10p1", "b10p2"].forEach((appl) => {
@@ -71198,7 +71437,7 @@ function CrewingBoard() {
     setShowExtDialog(false);
   };
   const tapSelectedMember = tapSelectedId ? roster.find((m) => m.id === tapSelectedId) : null;
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(SickIdsContext.Provider, { value: sickIds ?? EMPTY_IDS, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DndContext, { sensors, onDragStart: handleDragStart, onDragEnd: handleDragEnd, children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(SickIdsContext.Provider, { value: sickIds ?? EMPTY_IDS, children: /* @__PURE__ */ jsxRuntimeExports.jsx(CanteenContext.Provider, { value: { byUser: canteen.byUser, toggle: canteen.toggle, canEdit }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DndContext, { sensors, onDragStart: handleDragStart, onDragEnd: handleDragEnd, children: [
     tapSelectedMember && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "sticky top-16 z-20 md:top-20 mx-auto max-w-sm mb-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 rounded-full bg-indigo-600 text-white shadow-lg px-4 py-2.5", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-7 w-7 rounded-full bg-white/20 flex items-center justify-center text-[11px] font-bold shrink-0", children: initials(tapSelectedMember.name) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
@@ -71336,6 +71575,7 @@ function CrewingBoard() {
                 planBySlot
               }
             ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(CanteenCard, { canteen, offDuty, canEdit }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               DetachedCard,
               {
@@ -71446,7 +71686,7 @@ function CrewingBoard() {
         onCancel: () => setPendingDetach(null)
       }
     )
-  ] }) });
+  ] }) }) });
 }
 const HANDOVER_TAGS = [
   { id: "incident", label: "Incident" },
@@ -71614,7 +71854,7 @@ function daysAgoLabel(dateStr) {
   return `${days} days ago`;
 }
 function DetachmentsTabPanel({ watch }) {
-  var _a2, _b2, _c2;
+  var _a2, _b2, _c2, _d2;
   const [subTab, setSubTab] = reactExports.useState("rota");
   const [historyPage, setHistoryPage] = reactExports.useState(0);
   const rotaQuery = useQuery({
@@ -71631,9 +71871,15 @@ function DetachmentsTabPanel({ watch }) {
     }),
     enabled: !!watch
   });
-  const members = ((_a2 = rotaQuery.data) == null ? void 0 : _a2.members) ?? [];
-  const records = ((_b2 = historyQuery.data) == null ? void 0 : _b2.detachments) ?? [];
-  const total = ((_c2 = historyQuery.data) == null ? void 0 : _c2.total) ?? 0;
+  const canteenQuery = useQuery({
+    queryKey: ["canteen-rota", watch],
+    queryFn: () => backendClient.crewing.canteenRota({ watch }),
+    enabled: !!watch && subTab === "canteen"
+  });
+  const canteenMembers = ((_a2 = canteenQuery.data) == null ? void 0 : _a2.members) ?? [];
+  const members = ((_b2 = rotaQuery.data) == null ? void 0 : _b2.members) ?? [];
+  const records = ((_c2 = historyQuery.data) == null ? void 0 : _c2.detachments) ?? [];
+  const total = ((_d2 = historyQuery.data) == null ? void 0 : _d2.total) ?? 0;
   const hasMore = (historyPage + 1) * DET_PAGE_SIZE < total;
   if (!watch) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "py-12 text-center text-sm text-muted-foreground", children: "No watch assigned to your profile" });
@@ -71647,7 +71893,18 @@ function DetachmentsTabPanel({ watch }) {
           className: `flex items-center gap-1.5 px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${subTab === "rota" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`,
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Trophy, { className: "h-3.5 w-3.5" }),
-            "Fairness Rota"
+            "Detachment rota"
+          ]
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "button",
+        {
+          onClick: () => setSubTab("canteen"),
+          className: `flex items-center gap-1.5 px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${subTab === "canteen" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`,
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(ChefHat, { className: "h-3.5 w-3.5" }),
+            "Canteen rota"
           ]
         }
       ),
@@ -71658,7 +71915,7 @@ function DetachmentsTabPanel({ watch }) {
           className: `flex items-center gap-1.5 px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${subTab === "history" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`,
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(History, { className: "h-3.5 w-3.5" }),
-            "History"
+            "Detachment history"
           ]
         }
       )
@@ -71707,6 +71964,46 @@ function DetachmentsTabPanel({ watch }) {
             ]
           },
           m.firefighter_id
+        );
+      }) })
+    ] }),
+    subTab === "canteen" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground flex items-center gap-1.5", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { className: "h-3.5 w-3.5 shrink-0" }),
+        "Sorted by last canteen — ",
+        /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "top of the list = longest since, next up" }),
+        ". Pick on the crewing board."
+      ] }),
+      canteenQuery.isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: [...Array(6)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-14 w-full rounded-lg" }, i)) }) : canteenMembers.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "py-10 text-center text-sm text-muted-foreground", children: [
+        "No members found for ",
+        watch,
+        " Watch"
+      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: canteenMembers.map((m, idx) => {
+        const isNext = idx === 0;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            className: `flex items-center gap-3 px-4 py-3 rounded-xl border transition-colors ${isNext ? "bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-700" : "bg-background border-border/50 hover:bg-muted/30"}`,
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${isNext ? "bg-amber-500 text-white" : "bg-muted text-muted-foreground"}`, children: idx + 1 }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-wrap", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium truncate", children: m.name }),
+                  isNext && /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: "text-[10px] py-0 px-1.5 bg-amber-500 text-white border-0 shrink-0", children: "Next up" }),
+                  !m.last_date && /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-[10px] py-0 px-1.5 text-muted-foreground shrink-0", children: "Never" })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground mt-0.5", children: m.rank || m.system_role })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-right shrink-0", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs font-medium text-foreground", children: m.last_date ? `${format(parseISO(m.last_date), "dd MMM yyyy")} · ${m.last_shift_type}` : "—" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-[11px] text-muted-foreground", children: [
+                  daysAgoLabel(m.last_date),
+                  m.recent_count > 0 && ` · ${m.recent_count}× in 90 days`
+                ] })
+              ] })
+            ]
+          },
+          m.user_id
         );
       }) })
     ] }),
@@ -71925,7 +72222,7 @@ function Handover() {
           active: activeTab === "detachments",
           onClick: () => setActiveTab("detachments"),
           icon: /* @__PURE__ */ jsxRuntimeExports.jsx(MapPin, { className: "h-4 w-4" }),
-          label: "Detachments"
+          label: "Rotas"
         }
       )
     ] }),

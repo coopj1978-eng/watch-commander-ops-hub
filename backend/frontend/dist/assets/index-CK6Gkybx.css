@@ -4685,6 +4685,10 @@
     color: var(--color-amber-800);
   }
 
+  .text-amber-900 {
+    color: var(--color-amber-900);
+  }
+
   .text-background {
     color: var(--background);
   }
@@ -5948,6 +5952,16 @@
 
     .hover\:bg-amber-100:hover {
       background-color: var(--color-amber-100);
+    }
+
+    .hover\:bg-amber-200\/70:hover {
+      background-color: #fee685b3;
+    }
+
+    @supports (color: color-mix(in lab, red, red)) {
+      .hover\:bg-amber-200\/70:hover {
+        background-color: color-mix(in oklab, var(--color-amber-200) 70%, transparent);
+      }
     }
 
     .hover\:bg-amber-700:hover {
@@ -7380,6 +7394,16 @@
       line-height: var(--tw-leading, var(--text-sm--line-height));
     }
 
+    .sm\:opacity-0 {
+      opacity: 0;
+    }
+
+    @media (hover: hover) {
+      .sm\:group-hover\:opacity-100:is(:where(.group):hover *) {
+        opacity: 1;
+      }
+    }
+
     .data-\[state\=open\]\:sm\:slide-in-from-bottom-full[data-state="open"] {
       --tw-enter-translate-y: calc(1 * 100%);
     }
@@ -8601,6 +8625,10 @@
     --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
   }
 
+  .dark\:text-amber-200:is(.dark *) {
+    color: var(--color-amber-200);
+  }
+
   .dark\:text-amber-300:is(.dark *) {
     color: var(--color-amber-300);
   }
@@ -8797,6 +8825,16 @@
     @supports (color: color-mix(in lab, red, red)) {
       .dark\:hover\:bg-accent\/50:is(.dark *):hover {
         background-color: color-mix(in oklab, var(--accent) 50%, transparent);
+      }
+    }
+
+    .dark\:hover\:bg-amber-800\/50:is(.dark *):hover {
+      background-color: #953d0080;
+    }
+
+    @supports (color: color-mix(in lab, red, red)) {
+      .dark\:hover\:bg-amber-800\/50:is(.dark *):hover {
+        background-color: color-mix(in oklab, var(--color-amber-800) 50%, transparent);
       }
     }
 

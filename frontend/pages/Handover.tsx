@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
-import { ClipboardList, Users, Plus, ChevronDown, ChevronUp, Trash2, Pencil, Shield, Clock, Calendar, Printer, Wand2, MapPin, Trophy, History, AlertCircle } from "lucide-react";
+import { ChefHat, ClipboardList, Users, Plus, ChevronDown, ChevronUp, Trash2, Pencil, Shield, Clock, Calendar, Printer, Wand2, MapPin, Trophy, History, AlertCircle } from "lucide-react";
 import { formatDistanceToNow, parseISO, format, differenceInDays } from "date-fns";
 import { useUserRole } from "@/lib/rbac";
 import CrewingBoard from "@/components/CrewingBoard";
@@ -66,7 +66,7 @@ function daysAgoLabel(dateStr: string | null): string {
 }
 
 function DetachmentsTabPanel({ watch }: { watch: string }) {
-  const [subTab, setSubTab] = useState<"rota" | "history">("rota");
+  const [subTab, setSubTab] = useState<"rota" | "canteen" | "history">("rota");
   const [historyPage, setHistoryPage] = useState(0);
 
   const rotaQuery = useQuery({
@@ -84,6 +84,14 @@ function DetachmentsTabPanel({ watch }: { watch: string }) {
     }),
     enabled: !!watch,
   });
+
+  // Canteen fairness rota (Nov 2026) — same idea: longest since canteen first.
+  const canteenQuery = useQuery({
+    queryKey: ["canteen-rota", watch],
+    queryFn: () => backend.crewing.canteenRota({ watch }),
+    enabled: !!watch && subTab === "canteen",
+  });
+  const canteenMembers = canteenQuery.data?.members ?? [];
 
   const members = rotaQuery.data?.members ?? [];
   const records = historyQuery.data?.detachments ?? [];
@@ -111,7 +119,18 @@ function DetachmentsTabPanel({ watch }: { watch: string }) {
           }`}
         >
           <Trophy className="h-3.5 w-3.5" />
-          Fairness Rota
+          Detachment rota
+        </button>
+        <button
+          onClick={() => setSubTab("canteen")}
+          className={`flex items-center gap-1.5 px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+            subTab === "canteen"
+              ? "bg-background shadow-sm text-foreground"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <ChefHat className="h-3.5 w-3.5" />
+          Canteen rota
         </button>
         <button
           onClick={() => setSubTab("history")}
@@ -122,7 +141,7 @@ function DetachmentsTabPanel({ watch }: { watch: string }) {
           }`}
         >
           <History className="h-3.5 w-3.5" />
-          History
+          Detachment history
         </button>
       </div>
 
@@ -183,6 +202,60 @@ function DetachmentsTabPanel({ watch }: { watch: string }) {
                       <p className={`text-[11px] ${days !== null && days < 30 ? "text-green-600 dark:text-green-400" : "text-muted-foreground"}`}>
                         {daysAgoLabel(m.last_detachment_date)}
                         {m.total_detachments > 0 && ` · ${m.total_detachments}× total`}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Canteen rota ── */}
+      {subTab === "canteen" && (
+        <div className="space-y-3">
+          <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+            Sorted by last canteen — <strong>top of the list = longest since, next up</strong>. Pick on the crewing board.
+          </p>
+          {canteenQuery.isLoading ? (
+            <div className="space-y-2">
+              {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-14 w-full rounded-lg" />)}
+            </div>
+          ) : canteenMembers.length === 0 ? (
+            <div className="py-10 text-center text-sm text-muted-foreground">No members found for {watch} Watch</div>
+          ) : (
+            <div className="space-y-1.5">
+              {canteenMembers.map((m, idx) => {
+                const isNext = idx === 0;
+                return (
+                  <div
+                    key={m.user_id}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-colors ${
+                      isNext
+                        ? "bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-700"
+                        : "bg-background border-border/50 hover:bg-muted/30"
+                    }`}
+                  >
+                    <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                      isNext ? "bg-amber-500 text-white" : "bg-muted text-muted-foreground"
+                    }`}>{idx + 1}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-medium truncate">{m.name}</span>
+                        {isNext && <Badge className="text-[10px] py-0 px-1.5 bg-amber-500 text-white border-0 shrink-0">Next up</Badge>}
+                        {!m.last_date && <Badge variant="outline" className="text-[10px] py-0 px-1.5 text-muted-foreground shrink-0">Never</Badge>}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">{m.rank || m.system_role}</p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-xs font-medium text-foreground">
+                        {m.last_date ? `${format(parseISO(m.last_date), "dd MMM yyyy")} · ${m.last_shift_type}` : "—"}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground">
+                        {daysAgoLabel(m.last_date)}
+                        {m.recent_count > 0 && ` · ${m.recent_count}× in 90 days`}
                       </p>
                     </div>
                   </div>
@@ -426,7 +499,7 @@ export default function Handover() {
           active={activeTab === "detachments"}
           onClick={() => setActiveTab("detachments")}
           icon={<MapPin className="h-4 w-4" />}
-          label="Detachments"
+          label="Rotas"
         />
       </div>
 

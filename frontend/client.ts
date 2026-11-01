@@ -1582,6 +1582,29 @@ export namespace crewing {
 
     export type ShiftType = "1st Day" | "2nd Day" | "1st Night" | "2nd Night"
 
+    /** Someone on canteen for a shift (they still ride). */
+    export interface CanteenDuty {
+        id: number
+        watch: string
+        "shift_date": string
+        "shift_type": ShiftType
+        "user_id": string
+        "user_name": string | null
+        "created_at": string
+    }
+
+    export interface CanteenRotaMember {
+        "user_id": string
+        name: string
+        "system_role": string
+        rank: string | null
+        /** Last canteen (YYYY-MM-DD), null if never. */
+        "last_date": string | null
+        "last_shift_type": string | null
+        /** Canteen shifts in the last 90 days. */
+        "recent_count": number
+    }
+
     export class ServiceClient {
         private baseClient: BaseClient
 
@@ -1592,6 +1615,40 @@ export namespace crewing {
             this.list = this.list.bind(this)
             this.remove = this.remove.bind(this)
             this.roster = this.roster.bind(this)
+            this.listCanteen = this.listCanteen.bind(this)
+            this.addCanteen = this.addCanteen.bind(this)
+            this.removeCanteen = this.removeCanteen.bind(this)
+            this.canteenRota = this.canteenRota.bind(this)
+        }
+
+        /** GET /canteen — who's on canteen for one shift */
+        public async listCanteen(params: { watch: string, "shift_date": string, "shift_type": ShiftType }): Promise<{ duties: CanteenDuty[] }> {
+            const query = makeRecord<string, string | string[]>({
+                watch: params.watch,
+                "shift_date": params["shift_date"],
+                "shift_type": params["shift_type"],
+            })
+            const resp = await this.baseClient.callTypedAPI("GET", `/canteen`, undefined, {query})
+            return await resp.json() as { duties: CanteenDuty[] }
+        }
+
+        /** POST /canteen — put someone on canteen for a shift (WC/CC, at most two) */
+        public async addCanteen(params: { watch: string, "shift_date": string, "shift_type": ShiftType, "user_id": string }): Promise<CanteenDuty> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/canteen`, JSON.stringify(params))
+            return await resp.json() as CanteenDuty
+        }
+
+        /** DELETE /canteen/:id — take someone off canteen (WC/CC) */
+        public async removeCanteen(id: number): Promise<{ ok: boolean }> {
+            const resp = await this.baseClient.callTypedAPI("DELETE", `/canteen/${encodeURIComponent(id)}`)
+            return await resp.json() as { ok: boolean }
+        }
+
+        /** GET /canteen-rota — the watch, longest since canteen first */
+        public async canteenRota(params: { watch: string }): Promise<{ members: CanteenRotaMember[] }> {
+            const query = makeRecord<string, string | string[]>({ watch: params.watch })
+            const resp = await this.baseClient.callTypedAPI("GET", `/canteen-rota`, undefined, {query})
+            return await resp.json() as { members: CanteenRotaMember[] }
         }
 
         /**

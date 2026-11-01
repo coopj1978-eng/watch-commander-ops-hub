@@ -41,6 +41,7 @@ import { canTakeCharge, suggestCrew, type Seat, type SeatRole } from "@/lib/auto
 import { PersonPicker } from "@/components/crewing/PersonPicker";
 import { ShiftNavigator } from "@/components/crewing/ShiftNavigator";
 import { AutoCrewDialog } from "@/components/crewing/AutoCrewDialog";
+import { CanteenCard, CanteenContext, CanteenToggle, useCanteen } from "@/components/crewing/CanteenCard";
 import type { crewing } from "@/client";
 import { useAuth } from "@/App";
 import { useToast } from "@/components/ui/use-toast";
@@ -56,7 +57,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  AlertTriangle, CheckCircle2, Copy, GripVertical, Loader2,
+  AlertTriangle, CheckCircle2, ChefHat, Copy, GripVertical, Loader2,
   MapPin, Plus, Truck, Users, X,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -308,6 +309,7 @@ interface TileCardProps {
 
 function TileCard({ member, assignedEntry, isAbsent, adjustment, isDragging, isOverlay }: TileCardProps) {
   const sickIds = useContext(SickIdsContext);
+  const onCanteen = !!useContext(CanteenContext)?.byUser.has(member.id);
   const systemLabel =
     member.system_role === "WC" ? "Watch Commander"
     : member.system_role === "CC" ? "Crew Commander"
@@ -342,6 +344,11 @@ function TileCard({ member, assignedEntry, isAbsent, adjustment, isDragging, isO
         </div>
         {!isAssigned && !isAbsent && !isOverlay && (
           <GripVertical className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" />
+        )}
+        {onCanteen && (
+          <span className="ml-auto grid h-5 w-5 place-items-center rounded-md bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300" title="On canteen">
+            <ChefHat className="h-3 w-3" />
+          </span>
         )}
       </div>
 
@@ -693,6 +700,7 @@ function DraggableFilledSlot({
           </p>
         )}
       </div>
+      <CanteenToggle userId={entry.user_id} />
       <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0 ${ROLE_BADGE[entry.crew_role]}`}>
         {slot.label}
       </span>
@@ -2090,6 +2098,14 @@ export default function CrewingBoard() {
     return map;
   }, [roster, assignedByUserId, pendingAssignIds, sickIds, absentIds, adjustmentByUserId]);
 
+  // Canteen for this shift. Riding doesn't stop someone doing canteen, but
+  // being off sick, on leave, away or detached does.
+  const canteen = useCanteen(watch, shiftDate, shiftType);
+  const offDuty = useMemo(
+    () => new Map([...unavailable].filter(([, why]) => !/^On B10P|^Being added/.test(why))),
+    [unavailable],
+  );
+
   // Empty seats on both pumps, and auto-crew's proposal for them — the same
   // proposal shows as the one-tap suggestion in each empty seat.
   const { openSeats, plan, planBySlot } = useMemo(() => {
@@ -2308,6 +2324,7 @@ export default function CrewingBoard() {
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <SickIdsContext.Provider value={sickIds ?? EMPTY_IDS}>
+    <CanteenContext.Provider value={{ byUser: canteen.byUser, toggle: canteen.toggle, canEdit }}>
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       {/* Tap-to-assign banner — appears when a roster member has been tapped
           on mobile.  Sticks to the top of the viewport so the WC can scroll
@@ -2446,6 +2463,7 @@ export default function CrewingBoard() {
                 onRemove={id => removeMut.mutate(id)}
                 planBySlot={planBySlot}
               />
+              <CanteenCard canteen={canteen} offDuty={offDuty} canEdit={canEdit} />
               <DetachedCard
                 entries={detached}
                 roster={roster}
@@ -2556,6 +2574,7 @@ export default function CrewingBoard() {
         onCancel={() => setPendingDetach(null)}
       />
     </DndContext>
+    </CanteenContext.Provider>
     </SickIdsContext.Provider>
   );
 }
