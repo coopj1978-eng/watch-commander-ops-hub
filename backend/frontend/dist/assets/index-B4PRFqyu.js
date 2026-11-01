@@ -37942,24 +37942,31 @@ function ShiftRunningOrder() {
       ] })
     });
     const checks = tasks.filter((t) => t.kind === "check");
-    if (checks.length) {
-      for (const t of checks) {
-        const list = checklistOf(t.checklist);
-        const d = list.filter((i) => i.done).length;
-        rows.push({
-          key: `check-${t.id}`,
-          at: start + 1,
-          time: null,
-          Icon: ClipboardCheck,
-          to: "/tasks",
-          tone: t.status === "Done" ? "done" : void 0,
-          title: t.title,
-          body: list.length ? /* @__PURE__ */ jsxRuntimeExports.jsx(Bar, { done: d, total: list.length }) : t.status === "Done" ? "Done" : t.check_freq
-        });
-      }
-    } else if (!shift2.on_duty) {
+    for (const t of checks) {
+      const list = checklistOf(t.checklist);
+      const d = list.filter((i) => i.done).length;
+      const carried = t.routine_rule && t.routine_rule !== "weekly" && t.status !== "Done" && new Date(t.created_at).getTime() < start;
+      rows.push({
+        key: `check-${t.id}`,
+        at: start + 1,
+        time: null,
+        Icon: ClipboardCheck,
+        to: "/tasks",
+        tone: t.status === "Done" ? "done" : carried ? "warn" : void 0,
+        title: t.title,
+        body: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex flex-wrap items-center gap-2", children: [
+          list.length ? /* @__PURE__ */ jsxRuntimeExports.jsx(Bar, { done: d, total: list.length }) : t.status === "Done" ? "Done" : t.check_freq,
+          carried && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-semibold text-amber-700 dark:text-amber-400", children: [
+            "Carried from ",
+            new Date(t.created_at).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })
+          ] })
+        ] })
+      });
+    }
+    if (!shift2.on_duty) {
+      const onBoard = new Set(checks.map((t) => t.title.trim().toLowerCase()));
       const slot = `${DAYS$1[(/* @__PURE__ */ new Date(`${shift2.date}T12:00:00`)).getDay()]}-${shift2.type}`;
-      const due2 = (templatesQ.data ?? []).filter((t) => t.is_active && (t.routine_slot === "every" || t.routine_slot === slot && routineRuleFires(t.routine_rule, shift2.date))).sort((a, b) => Number(b.routine_slot === "every") - Number(a.routine_slot === "every") || (a.routine_position ?? 0) - (b.routine_position ?? 0));
+      const due2 = (templatesQ.data ?? []).filter((t) => t.is_active && (t.routine_slot === "every" || t.routine_slot === slot && routineRuleFires(t.routine_rule, shift2.date))).filter((t) => !onBoard.has(t.name.trim().toLowerCase())).sort((a, b) => Number(b.routine_slot === "every") - Number(a.routine_slot === "every") || (a.routine_position ?? 0) - (b.routine_position ?? 0));
       for (const t of due2) {
         const items = checklistOf(t.checklist);
         rows.push({
@@ -51383,7 +51390,13 @@ function TaskCard({ task: task2, onTitleEdit, onClick, onChecklistToggle, userMa
   const assignee = task2.assigned_to_user_id ? { id: task2.assigned_to_user_id, initials: ((_a3 = userMap == null ? void 0 : userMap[task2.assigned_to_user_id]) == null ? void 0 : _a3.initials) ?? task2.assigned_to_user_id.slice(0, 2).toUpperCase() } : null;
   const done = task2.status === "Done";
   const shiftTask = task2;
-  const tag = shiftTask.kind && !routineSlot ? /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftTag, { task: shiftTask, shiftStart: shiftStart2 }) : null;
+  const routineRule = task2.routine_rule;
+  const carriedSince = routineSlot && routineRule && routineRule !== "weekly" && !done && shiftStart2 && new Date(task2.created_at) < new Date(shiftStart2) ? new Date(task2.created_at).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" }) : null;
+  const tag = shiftTask.kind && !routineSlot ? /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftTag, { task: shiftTask, shiftStart: shiftStart2 }) : carriedSince ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: tagStyle("var(--cal-day-bg)", "var(--cal-day-fg)"), title: "Not done yet — it stays on the board until it is", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat, { className: "h-3 w-3" }),
+    " Carried from ",
+    carriedSince
+  ] }) : null;
   const showDue = !!task2.due_at && (!shiftTask.kind || shiftTask.kind === "watch" && !(shiftStart2 && new Date(task2.due_at) < new Date(shiftStart2)));
   const footer = done && !!shiftTask.completed_by_name || showDue || !!recur && !shiftTask.kind || task2.priority !== "Med" || !!assignee;
   const menu = onMove && columns && columns.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(CardMenu, { task: task2, columns, columnCounts, onOpen: onClick, onMove, onSetPriority, onDelete }) : null;

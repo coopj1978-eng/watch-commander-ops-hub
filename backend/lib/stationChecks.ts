@@ -2,7 +2,7 @@ import db from "../db";
 import log from "encore.dev/log";
 import { rruleFiresOn } from "./rrule";
 import { routineRuleFires } from "./routine";
-import { addDaysIso, slotAt, ukInstant } from "./shiftRota";
+import { addDaysIso, shiftSlot, slotAt, ukInstant } from "./shiftRota";
 
 /**
  * Station checks from templates (shift board, Oct 2026). Each active template
@@ -15,7 +15,9 @@ import { addDaysIso, slotAt, ukInstant } from "./shiftRota";
  *     08:00), due when the next one is made — so a weekly/monthly/quarterly
  *     check stays on every shift until it's done, and a daily one lasts the day.
  * Making a check's next card — or its due time passing — marks its earlier
- * unfinished card Missed, so missed checks never pile up. Idempotent (unique template + date + shift),
+ * unfinished card Missed, so missed checks never pile up. Weekly routine and
+ * every-shift cards are due when their shift ends; monthly and quarterly
+ * routine cards stay on the board until done, due when the next one comes. Idempotent (unique template + date + shift),
  * so it runs hourly and whenever the shift board is opened.
  */
 /** "{date}" and "{shift}" in a template's card title become the day and shift, e.g. "Mon 2 Nov" / "Night". */
@@ -60,7 +62,18 @@ export async function ensureStationChecks(now: Date = new Date()): Promise<{ cre
 
     const shiftKey = t.per_shift ? slot.type : "";
     let due: Date;
-    if (t.per_shift) {
+    const monthlyRoutine = !!t.routine_slot && t.routine_slot !== "every" && !!t.routine_rule && t.routine_rule !== "weekly";
+    if (monthlyRoutine) {
+      // A monthly or quarterly routine card stays on the board until it's done
+      // (John, Nov 2026) — whichever watch is on — and only counts as missed
+      // when its next one comes round.
+      let next: string | null = null;
+      for (let i = 1; i <= 400 && !next; i++) {
+        const d = addDaysIso(slot.date, i);
+        if (rruleFiresOn(t.rrule, d, t.created_at) && routineRuleFires(t.routine_rule, d)) next = d;
+      }
+      due = next ? shiftSlot(next, slot.type).start : ukInstant(addDaysIso(slot.date, 120), 8);
+    } else if (t.per_shift) {
       due = slot.end;
     } else {
       // Due when the next one is made (08:00 on the rule's next day), or by

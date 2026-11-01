@@ -111,23 +111,36 @@ export function ShiftRunningOrder() {
       body: <span>Riding positions and duties — <Link to="/handover" className="font-medium text-foreground hover:underline">crewing board</Link></span>,
     });
 
-    // ── Station checks: the real cards, or a preview from the weekly routine.
+    // ── Station checks: the cards on the board (a monthly or quarterly one
+    //    stays until done), and before the shift starts a preview of the
+    //    routine cards due that haven't been made yet.
     const checks = tasks.filter((t) => t.kind === "check");
-    if (checks.length) {
-      for (const t of checks) {
-        const list = checklistOf(t.checklist);
-        const d = list.filter((i) => i.done).length;
-        rows.push({
-          key: `check-${t.id}`, at: start + 1, time: null, Icon: ClipboardCheck, to: "/tasks",
-          tone: t.status === "Done" ? "done" : undefined,
-          title: t.title,
-          body: list.length ? <Bar done={d} total={list.length} /> : t.status === "Done" ? "Done" : t.check_freq,
-        });
-      }
-    } else if (!shift.on_duty) {
+    for (const t of checks) {
+      const list = checklistOf(t.checklist);
+      const d = list.filter((i) => i.done).length;
+      const carried = t.routine_rule && t.routine_rule !== "weekly" && t.status !== "Done" && new Date(t.created_at).getTime() < start;
+      rows.push({
+        key: `check-${t.id}`, at: start + 1, time: null, Icon: ClipboardCheck, to: "/tasks",
+        tone: t.status === "Done" ? "done" : carried ? "warn" : undefined,
+        title: t.title,
+        body: (
+          <span className="flex flex-wrap items-center gap-2">
+            {list.length ? <Bar done={d} total={list.length} /> : t.status === "Done" ? "Done" : t.check_freq}
+            {carried && (
+              <span className="font-semibold text-amber-700 dark:text-amber-400">
+                Carried from {new Date(t.created_at).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}
+              </span>
+            )}
+          </span>
+        ),
+      });
+    }
+    if (!shift.on_duty) {
+      const onBoard = new Set(checks.map((t) => t.title.trim().toLowerCase()));
       const slot = `${DAYS[new Date(`${shift.date}T12:00:00`).getDay()]}-${shift.type}`;
       const due = (templatesQ.data ?? [])
         .filter((t) => t.is_active && (t.routine_slot === "every" || (t.routine_slot === slot && routineRuleFires(t.routine_rule, shift.date))))
+        .filter((t) => !onBoard.has(t.name.trim().toLowerCase()))
         .sort((a, b) => Number(b.routine_slot === "every") - Number(a.routine_slot === "every") || (a.routine_position ?? 0) - (b.routine_position ?? 0));
       for (const t of due) {
         const items = checklistOf(t.checklist);
