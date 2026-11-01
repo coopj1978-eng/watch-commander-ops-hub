@@ -37,6 +37,10 @@ import { format, parseISO } from "date-fns";
 import backend from "@/lib/backend";
 import { useSickOn } from "@/lib/absences";
 import { getTodayShift, getShiftsForDateRange, hasRotaConfig, crewingShiftFor } from "@/lib/shiftRota";
+import { suggestCrew, type Seat, type SeatRole } from "@/lib/autoCrew";
+import { PersonPicker } from "@/components/crewing/PersonPicker";
+import { ShiftNavigator } from "@/components/crewing/ShiftNavigator";
+import { AutoCrewDialog } from "@/components/crewing/AutoCrewDialog";
 import type { crewing } from "@/client";
 import { useAuth } from "@/App";
 import { useToast } from "@/components/ui/use-toast";
@@ -502,9 +506,14 @@ function SlotDropZone({
   dragQualifies,
   onClick,
   canEdit,
+  suggestion,
+  onQuickAssign,
 }: {
   id: string;
   slot: ApplianceSlot;
+  /** Auto-crew's pick for this seat — one tap puts them in. */
+  suggestion?: RosterMember;
+  onQuickAssign?: () => void;
   isDragActive: boolean;   // true while any tile is being dragged
   /**
    * When a roster tile is being dragged:
@@ -528,12 +537,25 @@ function SlotDropZone({
   const qualLabel     = qualLabelForRole(slot.role);
 
   return (
-    <div ref={setNodeRef} className="flex-1">
+    <div ref={setNodeRef} className="flex-1 flex items-stretch gap-2 min-w-0">
+      {canEdit && suggestion && onQuickAssign && !isDragActive && (
+        <button
+          type="button"
+          onClick={onQuickAssign}
+          title={`Put ${suggestion.name} in ${slot.label}`}
+          className="flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-emerald-300/80 bg-emerald-50/70 px-2.5 py-1.5 text-left text-xs text-emerald-900 transition-colors hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-200 dark:hover:bg-emerald-900/40"
+        >
+          <Plus className="h-3.5 w-3.5 shrink-0" />
+          <span className="truncate font-semibold">{suggestion.name}</span>
+          <span className="ml-auto hidden shrink-0 text-[10px] font-medium uppercase tracking-wider opacity-70 sm:inline">Suggested</span>
+        </button>
+      )}
       {canEdit ? (
         <button
           onClick={onClick}
+          aria-label={`Choose someone for ${slot.label}`}
           className={`
-            w-full flex items-center justify-center gap-1.5 rounded-lg border-2 border-dashed
+            ${suggestion && !isDragActive ? "shrink-0 w-auto" : "w-full"} flex items-center justify-center gap-1.5 rounded-lg border-2 border-dashed
             py-2 px-3 text-xs transition-all duration-150
             ${highlight && dragQualifies === false
               ? "border-red-500 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 scale-[1.02] shadow-sm"
@@ -560,6 +582,8 @@ function SlotDropZone({
               ? `Not ${qualLabel} qualified — drop to assign anyway`
               : highlight
               ? "Drop here"
+              : suggestion
+              ? "Other…"
               : slot.required
               ? "Assign (required)"
               : "Optional — assign"}
@@ -830,7 +854,11 @@ function SlotRow({
   isLast,
   qualWarning,
   dragQualifies,
+  suggestion,
+  onQuickAssign,
 }: {
+  suggestion?: RosterMember;
+  onQuickAssign?: () => void;
   slotId: string;
   slot: ApplianceSlot;
   entry: CrewingEntry | undefined;
@@ -872,28 +900,10 @@ function SlotRow({
     );
   }
 
-  // ── Active inline picker ──────────────────────────────────────────────────
-  if (isActive) {
-    return (
-      <div className={`flex items-start gap-2 px-3 py-2 ${borderB} bg-indigo-50/60 dark:bg-indigo-950/20 rounded-lg`}>
-        <span className={`${labelCls} text-indigo-600 dark:text-indigo-400`}>{slot.label}</span>
-        <div className="flex-1">
-          <InlinePicker
-            roster={roster}
-            alreadyAssignedIds={alreadyAssignedIds}
-            isPending={isPending}
-            slotRole={slot.role}
-            onAssign={onAssign}
-            onCancel={onDeactivate}
-          />
-        </div>
-      </div>
-    );
-  }
-
   // ── Empty slot ────────────────────────────────────────────────────────────
+  // (Choosing someone opens the PersonPicker dialog — see CrewingBoard.)
   return (
-    <div className={`flex items-start gap-2 px-3 py-2 ${borderB}`}>
+    <div className={`flex items-start gap-2 px-3 py-2 ${borderB} ${isActive ? "bg-muted/40" : ""}`}>
       <span className={labelCls}>{slot.label}</span>
       <SlotDropZone
         id={slotId}
@@ -902,6 +912,8 @@ function SlotRow({
         dragQualifies={dragQualifies}
         onClick={onActivate}
         canEdit={canEdit}
+        suggestion={suggestion}
+        onQuickAssign={onQuickAssign}
       />
     </div>
   );
@@ -924,7 +936,10 @@ function ApplianceSlotsCard({
   onDeactivateSlot,
   onSlotAssign,
   onRemove,
+  planBySlot,
 }: {
+  /** Auto-crew's pick for each empty seat, by slot id. */
+  planBySlot: Map<string, RosterMember>;
   appliance: "b10p1" | "b10p2";
   entries: CrewingEntry[];
   roster: RosterMember[];
@@ -1045,6 +1060,11 @@ function ApplianceSlotsCard({
               isLast={idx === slots.length - 1}
               qualWarning={qualWarnings[idx]}
               dragQualifies={dragQualifies}
+              suggestion={planBySlot.get(slotId)}
+              onQuickAssign={() => {
+                const m = planBySlot.get(slotId);
+                if (m) onSlotAssign(slotId, m.id, undefined, slot.role);
+              }}
             />
           );
         })}
@@ -1730,6 +1750,8 @@ export default function CrewingBoard() {
   const [activeSlotId,   setActiveSlotId]   = useState<string | null>(null);
   const [showDetached,   setShowDetached]   = useState(false);
   const [showExtDialog,  setShowExtDialog]  = useState(false);
+  const [autoOpen,       setAutoOpen]       = useState(false);
+  const [autoBusy,       setAutoBusy]       = useState(false);
 
   // User IDs currently mid-mutation (optimistic disable to prevent double-assign)
   const [pendingAssignIds, setPendingAssignIds] = useState<Set<string>>(new Set());
@@ -1797,6 +1819,13 @@ export default function CrewingBoard() {
     retry: false,
   });
 
+  // The board, plus the dashboard's riding panel and crew-gap alert, which
+  // read the same crewing under their own key.
+  const refreshBoard = () => {
+    qc.invalidateQueries({ queryKey: crewingKey });
+    qc.invalidateQueries({ queryKey: ["wc-shift-crewing"] });
+  };
+
   // ── Mutations ─────────────────────────────────────────────────────────────
   const addMut = useMutation({
     mutationFn: (req: crewing.AddCrewingRequest) => backend.crewing.add(req),
@@ -1807,7 +1836,7 @@ export default function CrewingBoard() {
       }
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: crewingKey });
+      refreshBoard();
       setActiveSlotId(null);
       setShowDetached(false);
       setShowExtDialog(false);
@@ -1837,7 +1866,7 @@ export default function CrewingBoard() {
 
   const removeMut = useMutation({
     mutationFn: (id: number) => backend.crewing.remove(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: crewingKey }),
+    onSuccess: () => refreshBoard(),
     onError: () => toast({ title: "Error", description: "Failed to remove crew member.", variant: "destructive" }),
   });
 
@@ -1847,7 +1876,7 @@ export default function CrewingBoard() {
       await backend.crewing.remove(removeId);
       return backend.crewing.add(addReq);
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: crewingKey }),
+    onSuccess: () => refreshBoard(),
     onError: () => toast({ title: "Error", description: "Failed to move crew member.", variant: "destructive" }),
   });
 
@@ -1886,7 +1915,7 @@ export default function CrewingBoard() {
       });
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: crewingKey });
+      refreshBoard();
       qc.invalidateQueries({ queryKey: ["detachments-rota"] });
       setPendingDetach(null);
       toast({ title: "Detachment recorded", description: "Crew member added to detached list and detachment logged." });
@@ -1897,7 +1926,7 @@ export default function CrewingBoard() {
   const copyMut = useMutation({
     mutationFn: () => backend.crewing.copyPrevious({ watch, shift_date: shiftDate, shift_type: shiftType }),
     onSuccess: (data) => {
-      qc.invalidateQueries({ queryKey: crewingKey });
+      refreshBoard();
       if (!data.entries.length) {
         toast({ title: "No previous shift found", description: "No earlier crewing record to copy from." });
       } else {
@@ -2040,6 +2069,71 @@ export default function CrewingBoard() {
     return result;
   }, [inboundAdjData, currentShiftDN]);
 
+  // ── Who can't ride this shift, and why — for the picker and auto-crew ────
+  const unavailable = useMemo(() => {
+    const ADJ_NAME: Record<ShiftAdjType, string> = { flexi: "Flexi", training: "Training", h4h: "H4H", toil: "TOIL" };
+    const sick = sickIds ?? EMPTY_IDS;
+    const map = new Map<string, string>();
+    for (const m of roster) {
+      const e = assignedByUserId.get(m.id);
+      if (e) {
+        const seat = e.appliance === "detached" ? "Detached" : `On ${e.appliance.toUpperCase()}`;
+        map.set(m.id, seat);
+        continue;
+      }
+      if (pendingAssignIds.has(m.id)) { map.set(m.id, "Being added"); continue; }
+      if (sick.has(m.id)) { map.set(m.id, "Off sick"); continue; }
+      if (absentIds.has(m.id)) { map.set(m.id, "On leave"); continue; }
+      const adj = adjustmentByUserId.get(m.id);
+      if (adj) map.set(m.id, ADJ_NAME[adj]);
+    }
+    return map;
+  }, [roster, assignedByUserId, pendingAssignIds, sickIds, absentIds, adjustmentByUserId]);
+
+  // Empty seats on both pumps, and auto-crew's proposal for them — the same
+  // proposal shows as the one-tap suggestion in each empty seat.
+  const { openSeats, plan, planBySlot } = useMemo(() => {
+    const seats: Seat[] = [];
+    (["b10p1", "b10p2"] as const).forEach(appl => {
+      APPLIANCE_SLOTS[appl].forEach((slot, idx) => {
+        const id = `slot-${appl}-${idx}`;
+        if (!slotEntryMap.get(id)) {
+          seats.push({ key: id, appliance: appl, role: slot.role as SeatRole, required: slot.required, label: slot.label });
+        }
+      });
+    });
+    const free = roster.filter(m => !unavailable.has(m.id));
+    const p = suggestCrew(seats, free);
+    const bySlot = new Map<string, RosterMember>();
+    p.picks.forEach(({ seat, member }) => {
+      const m = roster.find(r => r.id === member.id);
+      if (m) bySlot.set(seat.key, m);
+    });
+    return { openSeats: seats, plan: p, planBySlot: bySlot };
+  }, [roster, unavailable, slotEntryMap]);
+
+  const applyAutoCrew = async () => {
+    setAutoBusy(true);
+    let ok = 0;
+    for (const { seat, member } of plan.picks) {
+      try {
+        await backend.crewing.add({
+          watch, shift_date: shiftDate, shift_type: shiftType,
+          appliance: seat.appliance, crew_role: seat.role,
+          user_id: member.id, is_change_of_shift: false,
+        });
+        ok++;
+      } catch { /* someone else changed the board — reported below */ }
+    }
+    refreshBoard();
+    setAutoBusy(false);
+    setAutoOpen(false);
+    toast({
+      title: `Crewed ${ok} seat${ok === 1 ? "" : "s"}`,
+      description: ok < plan.picks.length ? `${plan.picks.length - ok} couldn't be added — check the board.` : "Swap anyone by dragging, or remove with ✕.",
+    });
+  };
+
   // ── DnD sensors ───────────────────────────────────────────────────────────
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -2177,12 +2271,13 @@ export default function CrewingBoard() {
   ) => {
     const meta = slotMetaRef.current.get(slotId);
     if (!meta) return;
-    if (userId && (role === "ba" || role === "baeco")) {
+    if (userId) {
       const member = roster.find(m => m.id === userId);
-      if (member && !member.ba) {
+      const qual = qualLabelForRole(role);
+      if (member && qual && memberMeetsSlotRole(member, role) === false) {
         toast({
-          title: "BA qualification warning",
-          description: `${member.name} is not BA qualified for this slot. Review before turnout.`,
+          title: `${qual} qualification warning`,
+          description: `${member.name} is not ${qual} qualified for this slot. Review before turnout.`,
         });
       }
     }
@@ -2241,66 +2336,67 @@ export default function CrewingBoard() {
 
       <div className="space-y-5">
 
-        {/* ── Controls ───────────────────────────────────────────────────── */}
-        <div className="flex flex-wrap items-end gap-3">
+        {/* ── Which board: ‹ shift › Now · watch · copy · auto-crew ────────── */}
+        <ShiftNavigator
+          watch={watch}
+          onWatch={v => {
+            const d = getSmartDefaults(v);
+            setWatch(v); setShiftDate(d.shiftDate); setShiftType(d.shiftType); setActiveSlotId(null);
+          }}
+          canChangeWatch={canEdit}
+          date={shiftDate}
+          type={shiftType}
+          onChange={(d, t) => { setShiftDate(d); setShiftType(t); setActiveSlotId(null); setTapSelectedId(null); }}
+          isNow={(() => { const d = getSmartDefaults(watch); return d.shiftDate === shiftDate && d.shiftType === shiftType; })()}
+          onNow={() => { const d = getSmartDefaults(watch); setShiftDate(d.shiftDate); setShiftType(d.shiftType); }}
+          canEdit={canEdit}
+          onCopy={() => copyMut.mutate()}
+          copyPending={copyMut.isPending}
+          onAutoCrew={() => setAutoOpen(true)}
+          openSeats={plan.picks.length}
+        />
 
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Watch</label>
-            <Select value={watch} onValueChange={v => { setWatch(v); setActiveSlotId(null); }} disabled={!canEdit}>
-              <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {WATCHES.map(w => <SelectItem key={w} value={w}>{w} Watch</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Shift Date</label>
-            <input
-              type="date"
-              className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              value={shiftDate}
-              onChange={e => setShiftDate(e.target.value)}
-            />
-          </div>
-
-          {/* 4-type shift selector — on mobile this goes full-width as a
-              4-across row, so each button is always readable and the grid
-              doesn't get squeezed between the other controls. */}
-          <div className="space-y-1 w-full sm:w-auto">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Shift</label>
-            <div className="grid grid-cols-4 sm:grid-cols-2 gap-px rounded-md border overflow-hidden text-sm bg-border">
-              {SHIFT_TYPES.map(s => (
-                <button
-                  key={s.value}
-                  onClick={() => { setShiftType(s.value); setShiftDate(currentShiftDate()); }}
-                  className={`px-2 sm:px-3 py-2 transition-colors font-medium whitespace-nowrap ${
-                    shiftType === s.value
-                      ? s.day ? "bg-sky-600 text-white" : "bg-indigo-700 text-white"
-                      : "bg-background text-muted-foreground hover:bg-muted"
-                  }`}
-                >
-                  {s.label}
-                </button>
-              ))}
+        {/* ── Ready to ride? ───────────────────────────────────────────────── */}
+        {!crewingLoading && (() => {
+          const pumps = (["b10p1", "b10p2"] as const).map(a => {
+            const slots = APPLIANCE_SLOTS[a];
+            const req = slots.filter(sl => sl.required).length;
+            const filled = slots.filter((sl, i) => sl.required && slotEntryMap.get(`slot-${a}-${i}`)).length;
+            return { a, req, filled };
+          });
+          const toFill = pumps.reduce((n, p) => n + (p.req - p.filled), 0);
+          const sickOnBoard = entries.filter(e => e.user_id && (sickIds ?? EMPTY_IDS).has(e.user_id)).length;
+          return (
+            <div className="flex flex-wrap items-center gap-2 text-sm">
+              {pumps.map(p => {
+                const done = p.filled >= p.req;
+                return (
+                  <span
+                    key={p.a}
+                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium ${
+                      done ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"
+                      : p.filled > 0 ? "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300"
+                      : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {done ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Truck className="h-3.5 w-3.5" />}
+                    <span className="font-mono text-xs">{p.a.toUpperCase()}</span>
+                    <span className="font-mono text-xs tabular-nums">{p.filled}/{p.req}</span>
+                  </span>
+                );
+              })}
+              <span className="text-muted-foreground">
+                {toFill === 0 ? "Both pumps crewed" : `${toFill} seat${toFill === 1 ? "" : "s"} to fill`}
+                {plan.unfilled.some(u => u.required) && toFill > 0 && " · not enough qualified crew free — use External / CoS"}
+              </span>
+              {sickOnBoard > 0 && (
+                <span className="inline-flex items-center gap-1 font-medium text-red-600 dark:text-red-400">
+                  <AlertTriangle className="h-3.5 w-3.5" /> {sickOnBoard} on the board off sick
+                </span>
+              )}
             </div>
-          </div>
-
-          {canEdit && (
-            <Button variant="outline" size="sm" className="gap-2 sm:ml-auto" onClick={() => copyMut.mutate()} disabled={copyMut.isPending}>
-              {copyMut.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Copy className="h-3.5 w-3.5" />}
-              Copy Previous
-            </Button>
-          )}
-        </div>
-
-        {/* ── Shift header ─────────────────────────────────────────────────── */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <h2 className="text-sm font-semibold">
-            {format(parseISO(shiftDate), "EEEE d MMMM yyyy")} — {shiftType} Shift — {watch} Watch
-          </h2>
-          <Badge variant="secondary" className="text-xs">{entries.length} crew assigned</Badge>
-        </div>
+          );
+        })()}
 
         {/* ── Loading ───────────────────────────────────────────────────────── */}
         {crewingLoading ? (
@@ -2333,6 +2429,7 @@ export default function CrewingBoard() {
                 onDeactivateSlot={() => setActiveSlotId(null)}
                 onSlotAssign={handleSlotAssign}
                 onRemove={id => removeMut.mutate(id)}
+                planBySlot={planBySlot}
               />
               <ApplianceSlotsCard
                 appliance="b10p2"
@@ -2347,6 +2444,7 @@ export default function CrewingBoard() {
                 onDeactivateSlot={() => setActiveSlotId(null)}
                 onSlotAssign={handleSlotAssign}
                 onRemove={id => removeMut.mutate(id)}
+                planBySlot={planBySlot}
               />
               <DetachedCard
                 entries={detached}
@@ -2392,6 +2490,36 @@ export default function CrewingBoard() {
         {draggingMember && <TileCard member={draggingMember} isOverlay />}
         {draggingEntry  && <SlotDragOverlay entry={draggingEntry} />}
       </DragOverlay>
+
+      {/* ── Choose someone for a seat ──────────────────────────────────── */}
+      {activeSlotId && (() => {
+        const [, appl, idx] = activeSlotId.split("-");
+        const slot = APPLIANCE_SLOTS[appl as "b10p1" | "b10p2"]?.[Number(idx)];
+        if (!slot) return null;
+        return (
+          <PersonPicker
+            open
+            title={`${appl.toUpperCase()} · ${slot.label.replace(" (Optional)", "")}`}
+            role={slot.role as SeatRole}
+            roster={roster}
+            unavailable={unavailable}
+            suggestedId={planBySlot.get(activeSlotId)?.id}
+            busy={addMut.isPending}
+            onPick={uid => handleSlotAssign(activeSlotId, uid, undefined, slot.role)}
+            onExternal={name => handleSlotAssign(activeSlotId, undefined, name, slot.role)}
+            onClose={() => setActiveSlotId(null)}
+          />
+        );
+      })()}
+
+      {/* ── Auto-crew review ───────────────────────────────────────────── */}
+      <AutoCrewDialog
+        open={autoOpen}
+        plan={plan}
+        busy={autoBusy}
+        onApply={applyAutoCrew}
+        onClose={() => setAutoOpen(false)}
+      />
 
       {/* ── External / CoS dialog ──────────────────────────────────────── */}
       <ExternalDialog

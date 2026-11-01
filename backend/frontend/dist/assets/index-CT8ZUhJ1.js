@@ -41698,7 +41698,7 @@ function WCPersonalCalendarWidget() {
   ] });
 }
 const MIN_CREW = { b10p1: 5, b10p2: 4 };
-const ROLE_ORDER = ["oic", "driver", "ba", "baeco", "ff"];
+const ROLE_ORDER$1 = ["oic", "driver", "ba", "baeco", "ff"];
 const ROLE_LABEL = {
   oic: "OIC",
   driver: "Driver",
@@ -41732,7 +41732,7 @@ function formatSpan(ms) {
   return `${m}m`;
 }
 const hhmm$2 = (d) => d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
-function initials$1(name) {
+function initials$2(name) {
   var _a2;
   const parts = name.trim().split(/\s+/);
   return ((((_a2 = parts[0]) == null ? void 0 : _a2[0]) ?? "") + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase() || "?";
@@ -41790,7 +41790,7 @@ function RidingBoard({
   loading
 }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3", children: ["b10p1", "b10p2"].map((app) => {
-    const seats = entries.filter((e) => e.appliance === app).sort((a, b) => ROLE_ORDER.indexOf(a.crew_role) - ROLE_ORDER.indexOf(b.crew_role));
+    const seats = entries.filter((e) => e.appliance === app).sort((a, b) => ROLE_ORDER$1.indexOf(a.crew_role) - ROLE_ORDER$1.indexOf(b.crew_role));
     const target = MIN_CREW[app];
     const short = Math.max(0, target - seats.length);
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
@@ -41820,7 +41820,7 @@ function RidingBoard({
                 mine ? "bg-white text-neutral-900 ring-2 ring-[var(--hero-accent)]" : "bg-white/15 text-white"
               ),
               children: [
-                initials$1(name),
+                initials$2(name),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "absolute -bottom-1 left-1/2 -translate-x-1/2 rounded bg-neutral-950 px-1 font-mono text-[8px] leading-3 text-white/70 ring-1 ring-white/10", children: ROLE_LABEL[s.crew_role] ?? s.crew_role })
               ]
             },
@@ -46097,7 +46097,7 @@ const TYPE_CONFIG = {
     description: "Use your banked TOIL hours for a shift off. Someone covers for you and receives payment (min 4hrs)."
   }
 };
-const WATCHES$c = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$d = ["Red", "White", "Green", "Blue", "Amber"];
 function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
   const { user: user2 } = useAuth();
   const userRole = useUserRole();
@@ -46322,7 +46322,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
   })();
   const userWatch = (editingAdj == null ? void 0 : editingAdj.watch_unit) ?? (user2 == null ? void 0 : user2.watch_unit) ?? "";
   const subjectName = (editingAdj == null ? void 0 : editingAdj.user_name) ?? (user2 == null ? void 0 : user2.name);
-  const otherWatches = WATCHES$c.filter((w) => w !== userWatch);
+  const otherWatches = WATCHES$d.filter((w) => w !== userWatch);
   const fmt2 = (d) => (/* @__PURE__ */ new Date(d + "T12:00:00")).toLocaleDateString("en-GB", {
     day: "numeric",
     month: "short",
@@ -46602,7 +46602,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
               setForUserId("");
             }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select their watch…" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$c.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$d.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
                 w,
                 " Watch"
               ] }, w)) })
@@ -46845,7 +46845,7 @@ function FFShiftAdjustmentWidget() {
     )
   ] });
 }
-const WATCHES$b = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$c = ["Red", "White", "Green", "Blue", "Amber"];
 function ToilWidget() {
   var _a2;
   const { user: user2 } = useAuth();
@@ -47150,7 +47150,7 @@ function ToilWidget() {
               setEarnForUserId("");
             }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select watch…" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$b.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$c.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
                 w,
                 " Watch"
               ] }, w)) })
@@ -53439,7 +53439,7 @@ function CalendarWidget({
   ] });
 }
 const MONTHS$2 = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-const WATCHES$a = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$b = ["Red", "White", "Green", "Blue", "Amber"];
 const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 const startOfDay$1 = (d) => {
   const x = new Date(d);
@@ -53704,7 +53704,7 @@ function Calendars({
           "aria-label": "Which watch's calendar to show",
           className: "cal-field",
           style: { height: 36, fontSize: 13 },
-          children: WATCHES$a.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: w, children: [
+          children: WATCHES$b.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: w, children: [
             w,
             w === userWatch ? " (yours)" : ""
           ] }, w))
@@ -54555,7 +54555,7 @@ const TRAINING_TYPE_LABELS$1 = {
   assessment: "Assessment",
   other: "Other"
 };
-const SHIFT_TYPES$1 = [
+const SHIFT_TYPES = [
   { value: "1st Day", label: "1st Day" },
   { value: "2nd Day", label: "2nd Day" },
   { value: "1st Night", label: "1st Night" },
@@ -54634,7 +54634,7 @@ function ScheduleTrainingDialog({
               onValueChange: (v) => setForm((f) => ({ ...f, shift_type: v })),
               children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Any shift" }) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: SHIFT_TYPES$1.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: s.value, children: s.label }, s.value)) })
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: SHIFT_TYPES.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: s.value, children: s.label }, s.value)) })
               ]
             }
           )
@@ -57172,7 +57172,7 @@ function parseRRuleLabel(rrule) {
   const p = RRULE_PRESETS.find((p2) => p2.value === rrule && p2.value !== "__custom__" && p2.value !== "__none__");
   return p ? p.label : "Custom";
 }
-const WATCHES$9 = ["Amber", "Green", "Blue", "Red", "White"];
+const WATCHES$a = ["Amber", "Green", "Blue", "Red", "White"];
 const ITEM_CLS = "rounded-[10px] py-2 pl-3 text-sm focus:bg-[var(--cal-surface-2)] focus:text-[var(--cal-ink)]";
 const CSS$1 = `
 .tdd-lbl{font-size:12px;font-weight:600;color:var(--cal-muted);letter-spacing:.06em;text-transform:uppercase}
@@ -57552,7 +57552,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
     /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id, className: "tdd-field cal-focus", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Assign watch…" }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { className: "cal-menu", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "__none__", className: ITEM_CLS, children: "— None —" }),
-      WATCHES$9.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, className: ITEM_CLS, children: [
+      WATCHES$a.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, className: ITEM_CLS, children: [
         w,
         " Watch"
       ] }, w))
@@ -62347,7 +62347,7 @@ function quarterLabel$2(q, fy) {
   const periods = ["Apr–Jun", "Jul–Sep", "Oct–Dec", "Jan–Mar"];
   return `Q${q} ${periods[q - 1]} ${fy}/${String(fy + 1).slice(2)}`;
 }
-const WATCHES$8 = ["Blue", "Red", "Green", "Amber", "White"];
+const WATCHES$9 = ["Blue", "Red", "Green", "Amber", "White"];
 const EXPORT_TABLES = [
   { value: "users", label: "Users" },
   { value: "firefighter_profiles", label: "Firefighter Profiles" },
@@ -62400,7 +62400,7 @@ function NewReportDialog({
         /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Watch" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watch, onValueChange: setWatch, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$8.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$9.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
             w,
             " Watch"
           ] }, w)) })
@@ -63535,7 +63535,7 @@ function OffboardingWizard({ user: user2, open, onClose, onComplete }) {
     ] })
   ] }) });
 }
-const WATCHES$7 = ["Red", "White", "Blue", "Green", "Amber"];
+const WATCHES$8 = ["Red", "White", "Blue", "Green", "Amber"];
 const RANKS = ["Firefighter", "Leading Firefighter", "Crew Commander", "Watch Commander"];
 function InviteUserDialog({ open, onClose, onSuccess }) {
   const [name, setName] = reactExports.useState("");
@@ -63646,7 +63646,7 @@ function InviteUserDialog({ open, onClose, onSuccess }) {
           /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Watch" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watchUnit, onValueChange: setWatchUnit, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Choose…" }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$7.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$8.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
           ] })
         ] })
       ] }),
@@ -65098,7 +65098,7 @@ function CSVExportUtility() {
     ] })
   ] });
 }
-const WATCHES$6 = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$7 = ["Red", "White", "Green", "Blue", "Amber"];
 const watchBadgeClass = {
   Red: "bg-red-500/10 text-red-600 border-red-400/30",
   White: "bg-gray-100 text-gray-700 border-gray-300 dark:bg-gray-700/40 dark:text-gray-200 dark:border-gray-500",
@@ -65124,7 +65124,7 @@ function WatchSelect({
         /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs w-[110px]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "__none__", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "None" }) }),
-          WATCHES$6.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: w }) }, w))
+          WATCHES$7.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: w }) }, w))
         ] })
       ]
     }
@@ -69273,15 +69273,352 @@ function CrewCommanderHome() {
     /* @__PURE__ */ jsxRuntimeExports.jsx(QuickAssignTasks, {})
   ] });
 }
+function qualifiesFor(c, role) {
+  return role === "oic" ? c.oic : role === "driver" ? c.driver_lgv : c.ba;
+}
+function officerLevel(c) {
+  const r2 = `${c.system_role ?? ""} ${c.rank ?? ""}`.toLowerCase();
+  if (/\bwc\b|watch commander/.test(r2)) return 0;
+  if (/\bcc\b|crew commander/.test(r2)) return 1;
+  return 2;
+}
+const ROLE_ORDER = { oic: 0, driver: 1, ba: 2, baeco: 3 };
+function seatCost(c, seat) {
+  if (seat.role === "oic") {
+    const lvl = officerLevel(c);
+    const pref = seat.appliance === "b10p1" ? lvl : lvl === 1 ? 0 : lvl === 0 ? 1 : 2;
+    return pref * 10 + (c.driver_lgv ? 1 : 0);
+  }
+  let cost = 0;
+  if (c.oic) cost += 4;
+  if (officerLevel(c) < 2) cost += 4;
+  if (seat.role !== "driver" && c.driver_lgv) cost += 2;
+  if (seat.role === "driver" && !c.ba) cost -= 1;
+  return cost;
+}
+function suggestCrew(seats, candidates) {
+  const order = [...seats].sort(
+    (a, b) => Number(b.required) - Number(a.required) || ROLE_ORDER[a.role] - ROLE_ORDER[b.role] || a.appliance.localeCompare(b.appliance)
+  );
+  const used = /* @__PURE__ */ new Set();
+  const picks = [];
+  const unfilled = [];
+  for (const seat of order) {
+    const best = candidates.filter((c) => !used.has(c.id) && qualifiesFor(c, seat.role)).sort((a, b) => seatCost(a, seat) - seatCost(b, seat) || a.name.localeCompare(b.name))[0];
+    if (best) {
+      used.add(best.id);
+      picks.push({ seat, member: best });
+    } else {
+      unfilled.push(seat);
+    }
+  }
+  return { picks, unfilled };
+}
+const QUAL = { oic: "OIC", driver: "LGV", ba: "BA", baeco: "BA" };
+function initials$1(name) {
+  return name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
+}
+function Quals({ m }) {
+  const q = [m.oic && "OIC", m.driver_lgv && "LGV", m.ba && "BA"].filter(Boolean);
+  if (!q.length) return null;
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono text-[10px] text-muted-foreground", children: q.join(" · ") });
+}
+function PersonPicker({
+  open,
+  title,
+  role,
+  roster,
+  unavailable,
+  suggestedId,
+  busy,
+  onPick,
+  onExternal,
+  onClose
+}) {
+  const [q, setQ] = reactExports.useState("");
+  const [ext, setExt] = reactExports.useState("");
+  reactExports.useEffect(() => {
+    if (open) {
+      setQ("");
+      setExt("");
+    }
+  }, [open]);
+  const { qualified, other, away } = reactExports.useMemo(() => {
+    const match2 = (m) => !q || m.name.toLowerCase().includes(q.toLowerCase());
+    const free = roster.filter((m) => !unavailable.has(m.id) && match2(m));
+    const byName = (a, b) => a.id === suggestedId ? -1 : b.id === suggestedId ? 1 : a.name.localeCompare(b.name);
+    return {
+      qualified: free.filter((m) => qualifiesFor(m, role)).sort(byName),
+      other: free.filter((m) => !qualifiesFor(m, role)).sort(byName),
+      away: roster.filter((m) => unavailable.has(m.id) && match2(m)).sort((a, b) => a.name.localeCompare(b.name))
+    };
+  }, [roster, unavailable, q, role, suggestedId]);
+  const Row2 = ({ m, warn, reason }) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "button",
+    {
+      type: "button",
+      disabled: !!reason || busy,
+      onClick: () => onPick(m.id),
+      className: cn(
+        "flex w-full items-center gap-3 rounded-xl px-2.5 py-2 text-left transition-colors",
+        reason ? "cursor-not-allowed opacity-50" : "hover:bg-muted active:bg-muted"
+      ),
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn(
+          "grid h-9 w-9 shrink-0 place-items-center rounded-full text-xs font-semibold",
+          m.id === suggestedId ? "bg-foreground text-background" : "bg-muted text-foreground"
+        ), children: initials$1(m.name) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "min-w-0 flex-1", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center gap-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate text-sm font-medium", children: m.name }),
+            m.id === suggestedId && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "shrink-0 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300", children: "Suggested" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center gap-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate text-xs text-muted-foreground", children: m.rank || m.system_role }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Quals, { m })
+          ] })
+        ] }),
+        warn && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex shrink-0 items-center gap-1 text-[11px] font-medium text-amber-700 dark:text-amber-400", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "h-3.5 w-3.5" }),
+          " No ",
+          QUAL[role]
+        ] }),
+        reason && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "shrink-0 text-[11px] text-muted-foreground", children: reason })
+      ]
+    }
+  ) });
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: (v) => !v && onClose(), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "flex max-h-[85vh] max-w-md flex-col gap-3 overflow-hidden p-0 sm:p-0", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { className: "space-y-1 px-5 pt-5", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: title }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogDescription, { children: [
+        "Needs ",
+        QUAL[role],
+        ". Tap someone to put them in this seat."
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative px-5", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "pointer-events-none absolute left-8 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { value: q, onChange: (e) => setQ(e.target.value), placeholder: "Search the watch", className: "h-10 pl-9" })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-h-0 flex-1 space-y-3 overflow-y-auto px-3 pb-2", children: [
+      qualified.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eyebrow px-2.5 pb-1", children: [
+          QUAL[role],
+          " qualified"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { children: qualified.map((m) => /* @__PURE__ */ jsxRuntimeExports.jsx(Row2, { m }, m.id)) })
+      ] }),
+      other.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eyebrow px-2.5 pb-1", children: [
+          "Not ",
+          QUAL[role],
+          " qualified"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { children: other.map((m) => /* @__PURE__ */ jsxRuntimeExports.jsx(Row2, { m, warn: true }, m.id)) })
+      ] }),
+      away.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "eyebrow px-2.5 pb-1", children: "Can't ride this shift" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { children: away.map((m) => /* @__PURE__ */ jsxRuntimeExports.jsx(Row2, { m, reason: unavailable.get(m.id) }, m.id)) })
+      ] }),
+      !qualified.length && !other.length && !away.length && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "px-2.5 py-6 text-center text-sm text-muted-foreground", children: [
+        "Nobody on the watch matches “",
+        q,
+        "”."
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "form",
+      {
+        className: "flex items-center gap-2 border-t border-border/70 bg-muted/30 px-5 py-3",
+        onSubmit: (e) => {
+          e.preventDefault();
+          if (ext.trim()) onExternal(ext.trim());
+        },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(UserPlus, { className: "h-4 w-4 shrink-0 text-muted-foreground" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { value: ext, onChange: (e) => setExt(e.target.value), placeholder: "External / change of shift name", className: "h-9 flex-1" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "submit", size: "sm", variant: "outline", disabled: !ext.trim() || busy, children: "Add" })
+        ]
+      }
+    )
+  ] }) });
+}
+const WATCHES$6 = ["Red", "White", "Green", "Blue", "Amber"];
+const TYPES = ["1st Day", "2nd Day", "1st Night", "2nd Night"];
+function stepShift(watch, date, type, dir) {
+  const d = /* @__PURE__ */ new Date(`${date}T12:00:00`);
+  if (hasRotaConfig(watch)) {
+    for (let i = 1; i <= 60; i++) {
+      const t2 = new Date(d);
+      t2.setDate(d.getDate() + dir * i);
+      const s = getShiftForDate(watch, t2);
+      if (s == null ? void 0 : s.isWorking) return { date: s.date, type: s.shiftType };
+    }
+  }
+  const t = new Date(d);
+  t.setDate(d.getDate() + dir);
+  return { date: format(t, "yyyy-MM-dd"), type };
+}
+function rotaTypeFor(watch, date) {
+  const s = hasRotaConfig(watch) ? getShiftForDate(watch, /* @__PURE__ */ new Date(`${date}T12:00:00`)) : null;
+  return (s == null ? void 0 : s.isWorking) ? s.shiftType : null;
+}
+function ShiftNavigator({
+  watch,
+  onWatch,
+  canChangeWatch,
+  date,
+  type,
+  onChange,
+  isNow,
+  onNow,
+  canEdit,
+  onCopy,
+  copyPending,
+  onAutoCrew,
+  openSeats
+}) {
+  const dateRef = reactExports.useRef(null);
+  const night = type.includes("Night");
+  const hasRota = hasRotaConfig(watch);
+  const go = (dir) => {
+    const n = stepShift(watch, date, type, dir);
+    onChange(n.date, n.type);
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-3", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative flex min-w-0 items-center rounded-xl border border-border/80 bg-card shadow-sm", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => go(-1), className: "grid h-11 w-10 place-items-center rounded-l-xl hover:bg-muted", "aria-label": "Previous shift", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronLeft, { className: "h-4 w-4" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "button",
+        {
+          onClick: () => {
+            const el = dateRef.current;
+            if (!el) return;
+            try {
+              el.showPicker();
+            } catch {
+              el.focus();
+            }
+          },
+          className: "flex min-w-0 items-center gap-2.5 border-x border-border/60 px-3 py-1.5 text-left hover:bg-muted/50",
+          "aria-label": "Choose a date",
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn("grid h-8 w-8 shrink-0 place-items-center rounded-lg", night ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300" : "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300"), children: night ? /* @__PURE__ */ jsxRuntimeExports.jsx(Moon, { className: "h-4 w-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Sun, { className: "h-4 w-4" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "min-w-0", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "block truncate text-sm font-semibold leading-tight", children: [
+                format(parseISO(date), "EEE d MMM"),
+                " · ",
+                type
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "block truncate text-[11px] text-muted-foreground", children: [
+                watch,
+                " Watch · ",
+                night ? "18:00–08:00" : "08:00–18:00"
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarDays, { className: "ml-1 hidden h-4 w-4 shrink-0 text-muted-foreground sm:block" })
+          ]
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "input",
+        {
+          ref: dateRef,
+          type: "date",
+          value: date,
+          onChange: (e) => {
+            if (e.target.value) onChange(e.target.value, rotaTypeFor(watch, e.target.value) ?? type);
+          },
+          className: "pointer-events-none absolute h-0 w-0 opacity-0",
+          tabIndex: -1,
+          "aria-hidden": true
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => go(1), className: "grid h-11 w-10 place-items-center rounded-r-xl hover:bg-muted", "aria-label": "Next shift", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-4 w-4" }) })
+    ] }),
+    !isNow && /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", size: "sm", onClick: onNow, className: "h-9", children: "Now" }),
+    !hasRota && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "seg", style: { width: 300 }, children: TYPES.map((t) => /* @__PURE__ */ jsxRuntimeExports.jsx("button", { "data-on": t === type, onClick: () => onChange(date, t), children: t }, t)) }),
+    canChangeWatch && /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watch, onValueChange: onWatch, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-9 w-32", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$6.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+        w,
+        " Watch"
+      ] }, w)) })
+    ] }),
+    canEdit && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 sm:ml-auto", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline", size: "sm", className: "h-9 gap-1.5", onClick: onCopy, disabled: copyPending, children: [
+        copyPending ? /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "h-3.5 w-3.5 animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "h-3.5 w-3.5" }),
+        "Copy last ",
+        type
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { size: "sm", className: "h-9 gap-1.5 bg-brand text-brand-foreground hover:bg-brand/90", onClick: onAutoCrew, disabled: openSeats === 0, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, { className: "h-3.5 w-3.5" }),
+        "Auto-crew",
+        openSeats > 0 ? ` ${openSeats}` : ""
+      ] })
+    ] })
+  ] });
+}
+const APPLIANCES = [
+  { key: "b10p1", label: "B10P1 — 1st Pump" },
+  { key: "b10p2", label: "B10P2 — 2nd Pump" }
+];
+function AutoCrewDialog({
+  open,
+  plan,
+  busy,
+  onApply,
+  onClose
+}) {
+  const required = plan.unfilled.filter((s) => s.required);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: (v) => !v && !busy && onClose(), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-md", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Auto-crew" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: "Qualified people who are free this shift, officers in charge, drivers with LGV, BA wearers in BA seats. Nothing is saved until you apply — you can still swap anyone afterwards." })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+      APPLIANCES.map((a) => {
+        const picks = plan.picks.filter((p) => p.seat.appliance === a.key);
+        const gaps = plan.unfilled.filter((s) => s.appliance === a.key);
+        if (!picks.length && !gaps.length) return null;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-1.5 flex items-center gap-2 text-sm font-semibold", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Truck, { className: "h-4 w-4 text-muted-foreground" }),
+            " ",
+            a.label
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { className: "divide-y divide-border/60 rounded-xl border border-border/70", children: [
+            picks.map(({ seat, member }) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-center justify-between gap-3 px-3 py-2 text-sm", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-28 shrink-0 text-muted-foreground", children: seat.label }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "min-w-0 flex-1 truncate text-right font-medium", children: member.name })
+            ] }, seat.key)),
+            gaps.map((seat) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-center justify-between gap-3 px-3 py-2 text-sm", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-28 shrink-0 text-muted-foreground", children: seat.label }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center gap-1.5 text-right text-xs font-medium text-amber-700 dark:text-amber-400", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "h-3.5 w-3.5" }),
+                " Nobody qualified free"
+              ] })
+            ] }, seat.key))
+          ] })
+        ] }, a.key);
+      }),
+      required.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "Seats left empty need cover — an external or change of shift from the seat's picker, or a Head for Head." })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogFooter, { className: "gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", onClick: onClose, disabled: busy, children: "Cancel" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { onClick: onApply, disabled: busy || plan.picks.length === 0, className: "bg-brand text-brand-foreground hover:bg-brand/90", children: [
+        busy && /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "mr-1.5 h-4 w-4 animate-spin" }),
+        "Crew ",
+        plan.picks.length,
+        " seat",
+        plan.picks.length === 1 ? "" : "s"
+      ] })
+    ] })
+  ] }) });
+}
 const WATCHES$5 = ["Red", "White", "Green", "Blue", "Amber"];
 const EMPTY_IDS = /* @__PURE__ */ new Set();
 const SickIdsContext = reactExports.createContext(EMPTY_IDS);
-const SHIFT_TYPES = [
-  { value: "1st Day", label: "1st Day", day: true },
-  { value: "2nd Day", label: "2nd Day", day: true },
-  { value: "1st Night", label: "1st Night", day: false },
-  { value: "2nd Night", label: "2nd Night", day: false }
-];
 const B10P1_SLOTS = [
   { role: "oic", label: "OIC", required: true },
   { role: "driver", label: "Driver", required: true },
@@ -69521,30 +69858,49 @@ function SlotDropZone({
   isDragActive,
   dragQualifies,
   onClick,
-  canEdit
+  canEdit,
+  suggestion,
+  onQuickAssign
 }) {
   const { setNodeRef, isOver } = useDroppable({ id, data: { slotId: id } });
   const highlight = isOver && isDragActive;
   const unqualForDrag = isDragActive && dragQualifies === false;
   const qualLabel = qualLabelForRole(slot.role);
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { ref: setNodeRef, className: "flex-1", children: canEdit ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
-    "button",
-    {
-      onClick,
-      className: `
-            w-full flex items-center justify-center gap-1.5 rounded-lg border-2 border-dashed
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { ref: setNodeRef, className: "flex-1 flex items-stretch gap-2 min-w-0", children: [
+    canEdit && suggestion && onQuickAssign && !isDragActive && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "button",
+      {
+        type: "button",
+        onClick: onQuickAssign,
+        title: `Put ${suggestion.name} in ${slot.label}`,
+        className: "flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-emerald-300/80 bg-emerald-50/70 px-2.5 py-1.5 text-left text-xs text-emerald-900 transition-colors hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-200 dark:hover:bg-emerald-900/40",
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-3.5 w-3.5 shrink-0" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate font-semibold", children: suggestion.name }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-auto hidden shrink-0 text-[10px] font-medium uppercase tracking-wider opacity-70 sm:inline", children: "Suggested" })
+        ]
+      }
+    ),
+    canEdit ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "button",
+      {
+        onClick,
+        "aria-label": `Choose someone for ${slot.label}`,
+        className: `
+            ${suggestion && !isDragActive ? "shrink-0 w-auto" : "w-full"} flex items-center justify-center gap-1.5 rounded-lg border-2 border-dashed
             py-2 px-3 text-xs transition-all duration-150
             ${highlight && dragQualifies === false ? "border-red-500 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 scale-[1.02] shadow-sm" : highlight ? "border-green-500 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 scale-[1.02] shadow-sm" : unqualForDrag ? "border-red-300/70 bg-red-50/40 dark:bg-red-950/20 text-red-500/80" : isDragActive ? "border-brand/40 bg-brand/10 text-brand animate-pulse" : slot.required ? "border-amber-300/70 bg-amber-50/40 dark:bg-amber-950/10 text-amber-600/70 dark:text-amber-400/60 hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/20 hover:text-amber-700 dark:hover:text-amber-400" : "border-muted-foreground/20 text-muted-foreground/40 hover:border-brand/50 hover:text-brand hover:bg-brand/5"}
           `,
-      children: [
-        highlight && dragQualifies === false ? /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "h-3.5 w-3.5" }) : highlight ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-3.5 w-3.5" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-3 w-3" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: highlight && dragQualifies === false && qualLabel ? `Not ${qualLabel} qualified — drop to assign anyway` : highlight ? "Drop here" : slot.required ? "Assign (required)" : "Optional — assign" })
-      ]
-    }
-  ) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `flex items-center gap-1.5 py-2 px-3 rounded-lg text-xs ${slot.required ? "text-amber-600/70 dark:text-amber-400/60" : "text-muted-foreground/40"}`, children: [
-    slot.required && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "inline-block w-1.5 h-1.5 rounded-full bg-amber-400/70 shrink-0" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "italic", children: slot.required ? "Not assigned" : "Not assigned (optional)" })
-  ] }) });
+        children: [
+          highlight && dragQualifies === false ? /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "h-3.5 w-3.5" }) : highlight ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-3.5 w-3.5" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-3 w-3" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: highlight && dragQualifies === false && qualLabel ? `Not ${qualLabel} qualified — drop to assign anyway` : highlight ? "Drop here" : suggestion ? "Other…" : slot.required ? "Assign (required)" : "Optional — assign" })
+        ]
+      }
+    ) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `flex items-center gap-1.5 py-2 px-3 rounded-lg text-xs ${slot.required ? "text-amber-600/70 dark:text-amber-400/60" : "text-muted-foreground/40"}`, children: [
+      slot.required && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "inline-block w-1.5 h-1.5 rounded-full bg-amber-400/70 shrink-0" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "italic", children: slot.required ? "Not assigned" : "Not assigned (optional)" })
+    ] })
+  ] });
 }
 function SlotDragOverlay({ entry }) {
   const name = entry.user_name ?? entry.external_name ?? "Unknown";
@@ -69729,7 +70085,9 @@ function SlotRow({
   onRemove,
   isLast,
   qualWarning,
-  dragQualifies
+  dragQualifies,
+  suggestion,
+  onQuickAssign
 }) {
   const borderB = !isLast ? "border-b border-border/40" : "";
   const labelCls = `
@@ -69752,23 +70110,7 @@ function SlotRow({
       )
     ] });
   }
-  if (isActive) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `flex items-start gap-2 px-3 py-2 ${borderB} bg-indigo-50/60 dark:bg-indigo-950/20 rounded-lg`, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `${labelCls} text-indigo-600 dark:text-indigo-400`, children: slot.label }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        InlinePicker,
-        {
-          roster,
-          alreadyAssignedIds,
-          isPending,
-          slotRole: slot.role,
-          onAssign,
-          onCancel: onDeactivate
-        }
-      ) })
-    ] });
-  }
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `flex items-start gap-2 px-3 py-2 ${borderB}`, children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `flex items-start gap-2 px-3 py-2 ${borderB} ${isActive ? "bg-muted/40" : ""}`, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: labelCls, children: slot.label }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       SlotDropZone,
@@ -69778,7 +70120,9 @@ function SlotRow({
         isDragActive,
         dragQualifies,
         onClick: onActivate,
-        canEdit
+        canEdit,
+        suggestion,
+        onQuickAssign
       }
     )
   ] });
@@ -69795,7 +70139,8 @@ function ApplianceSlotsCard({
   onActivateSlot,
   onDeactivateSlot,
   onSlotAssign,
-  onRemove
+  onRemove,
+  planBySlot
 }) {
   const slots = APPLIANCE_SLOTS[appliance2];
   const slotEntries = matchSlots(entries, slots);
@@ -69874,7 +70219,12 @@ function ApplianceSlotsCard({
           onRemove,
           isLast: idx === slots.length - 1,
           qualWarning: qualWarnings[idx],
-          dragQualifies
+          dragQualifies,
+          suggestion: planBySlot.get(slotId),
+          onQuickAssign: () => {
+            const m = planBySlot.get(slotId);
+            if (m) onSlotAssign(slotId, m.id, void 0, slot.role);
+          }
         },
         slotId
       );
@@ -70395,6 +70745,8 @@ function CrewingBoard() {
   const [activeSlotId, setActiveSlotId] = reactExports.useState(null);
   const [showDetached, setShowDetached] = reactExports.useState(false);
   const [showExtDialog, setShowExtDialog] = reactExports.useState(false);
+  const [autoOpen, setAutoOpen] = reactExports.useState(false);
+  const [autoBusy, setAutoBusy] = reactExports.useState(false);
   const [pendingAssignIds, setPendingAssignIds] = reactExports.useState(/* @__PURE__ */ new Set());
   const [tapSelectedId, setTapSelectedId] = reactExports.useState(null);
   const [pendingDetach, setPendingDetach] = reactExports.useState(null);
@@ -70438,6 +70790,10 @@ function CrewingBoard() {
     enabled: !!watch,
     retry: false
   });
+  const refreshBoard = () => {
+    qc.invalidateQueries({ queryKey: crewingKey });
+    qc.invalidateQueries({ queryKey: ["wc-shift-crewing"] });
+  };
   const addMut = useMutation({
     mutationFn: (req) => backendClient.crewing.add(req),
     onMutate: (req) => {
@@ -70446,7 +70802,7 @@ function CrewingBoard() {
       }
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: crewingKey });
+      refreshBoard();
       setActiveSlotId(null);
       setShowDetached(false);
       setShowExtDialog(false);
@@ -70473,7 +70829,7 @@ function CrewingBoard() {
   });
   const removeMut = useMutation({
     mutationFn: (id) => backendClient.crewing.remove(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: crewingKey }),
+    onSuccess: () => refreshBoard(),
     onError: () => toast2({ title: "Error", description: "Failed to remove crew member.", variant: "destructive" })
   });
   const moveMut = useMutation({
@@ -70481,7 +70837,7 @@ function CrewingBoard() {
       await backendClient.crewing.remove(removeId);
       return backendClient.crewing.add(addReq);
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: crewingKey }),
+    onSuccess: () => refreshBoard(),
     onError: () => toast2({ title: "Error", description: "Failed to move crew member.", variant: "destructive" })
   });
   const detachMut = useMutation({
@@ -70517,7 +70873,7 @@ function CrewingBoard() {
       });
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: crewingKey });
+      refreshBoard();
       qc.invalidateQueries({ queryKey: ["detachments-rota"] });
       setPendingDetach(null);
       toast2({ title: "Detachment recorded", description: "Crew member added to detached list and detachment logged." });
@@ -70527,7 +70883,7 @@ function CrewingBoard() {
   const copyMut = useMutation({
     mutationFn: () => backendClient.crewing.copyPrevious({ watch, shift_date: shiftDate, shift_type: shiftType }),
     onSuccess: (data) => {
-      qc.invalidateQueries({ queryKey: crewingKey });
+      refreshBoard();
       if (!data.entries.length) {
         toast2({ title: "No previous shift found", description: "No earlier crewing record to copy from." });
       } else {
@@ -70620,6 +70976,79 @@ function CrewingBoard() {
     }
     return result;
   }, [inboundAdjData, currentShiftDN]);
+  const unavailable = reactExports.useMemo(() => {
+    const ADJ_NAME = { flexi: "Flexi", training: "Training", h4h: "H4H", toil: "TOIL" };
+    const sick = sickIds ?? EMPTY_IDS;
+    const map = /* @__PURE__ */ new Map();
+    for (const m of roster) {
+      const e = assignedByUserId.get(m.id);
+      if (e) {
+        const seat = e.appliance === "detached" ? "Detached" : `On ${e.appliance.toUpperCase()}`;
+        map.set(m.id, seat);
+        continue;
+      }
+      if (pendingAssignIds.has(m.id)) {
+        map.set(m.id, "Being added");
+        continue;
+      }
+      if (sick.has(m.id)) {
+        map.set(m.id, "Off sick");
+        continue;
+      }
+      if (absentIds.has(m.id)) {
+        map.set(m.id, "On leave");
+        continue;
+      }
+      const adj = adjustmentByUserId.get(m.id);
+      if (adj) map.set(m.id, ADJ_NAME[adj]);
+    }
+    return map;
+  }, [roster, assignedByUserId, pendingAssignIds, sickIds, absentIds, adjustmentByUserId]);
+  const { openSeats, plan, planBySlot } = reactExports.useMemo(() => {
+    const seats = [];
+    ["b10p1", "b10p2"].forEach((appl) => {
+      APPLIANCE_SLOTS[appl].forEach((slot, idx) => {
+        const id = `slot-${appl}-${idx}`;
+        if (!slotEntryMap.get(id)) {
+          seats.push({ key: id, appliance: appl, role: slot.role, required: slot.required, label: slot.label });
+        }
+      });
+    });
+    const free = roster.filter((m) => !unavailable.has(m.id));
+    const p = suggestCrew(seats, free);
+    const bySlot = /* @__PURE__ */ new Map();
+    p.picks.forEach(({ seat, member }) => {
+      const m = roster.find((r2) => r2.id === member.id);
+      if (m) bySlot.set(seat.key, m);
+    });
+    return { openSeats: seats, plan: p, planBySlot: bySlot };
+  }, [roster, unavailable, slotEntryMap]);
+  const applyAutoCrew = async () => {
+    setAutoBusy(true);
+    let ok = 0;
+    for (const { seat, member } of plan.picks) {
+      try {
+        await backendClient.crewing.add({
+          watch,
+          shift_date: shiftDate,
+          shift_type: shiftType,
+          appliance: seat.appliance,
+          crew_role: seat.role,
+          user_id: member.id,
+          is_change_of_shift: false
+        });
+        ok++;
+      } catch {
+      }
+    }
+    refreshBoard();
+    setAutoBusy(false);
+    setAutoOpen(false);
+    toast2({
+      title: `Crewed ${ok} seat${ok === 1 ? "" : "s"}`,
+      description: ok < plan.picks.length ? `${plan.picks.length - ok} couldn't be added — check the board.` : "Swap anyone by dragging, or remove with ✕."
+    });
+  };
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 8 } }),
@@ -70734,12 +71163,13 @@ function CrewingBoard() {
   const handleSlotAssign = (slotId, userId, extName, role) => {
     const meta = slotMetaRef.current.get(slotId);
     if (!meta) return;
-    if (userId && (role === "ba" || role === "baeco")) {
+    if (userId) {
       const member = roster.find((m) => m.id === userId);
-      if (member && !member.ba) {
+      const qual = qualLabelForRole(role);
+      if (member && qual && memberMeetsSlotRole(member, role) === false) {
         toast2({
-          title: "BA qualification warning",
-          description: `${member.name} is not BA qualified for this slot. Review before turnout.`
+          title: `${qual} qualification warning`,
+          description: `${member.name} is not ${qual} qualified for this slot. Review before turnout.`
         });
       }
     }
@@ -70782,66 +71212,83 @@ function CrewingBoard() {
       )
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-end gap-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-medium text-muted-foreground uppercase tracking-wide", children: "Watch" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watch, onValueChange: (v) => {
-            setWatch(v);
-            setActiveSlotId(null);
-          }, disabled: !canEdit, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "w-32", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$5.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
-              w,
-              " Watch"
-            ] }, w)) })
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-medium text-muted-foreground uppercase tracking-wide", children: "Shift Date" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "input",
-            {
-              type: "date",
-              className: "h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-              value: shiftDate,
-              onChange: (e) => setShiftDate(e.target.value)
-            }
-          )
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1 w-full sm:w-auto", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-medium text-muted-foreground uppercase tracking-wide", children: "Shift" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-4 sm:grid-cols-2 gap-px rounded-md border overflow-hidden text-sm bg-border", children: SHIFT_TYPES.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              onClick: () => {
-                setShiftType(s.value);
-                setShiftDate(currentShiftDate());
-              },
-              className: `px-2 sm:px-3 py-2 transition-colors font-medium whitespace-nowrap ${shiftType === s.value ? s.day ? "bg-sky-600 text-white" : "bg-indigo-700 text-white" : "bg-background text-muted-foreground hover:bg-muted"}`,
-              children: s.label
-            },
-            s.value
-          )) })
-        ] }),
-        canEdit && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline", size: "sm", className: "gap-2 sm:ml-auto", onClick: () => copyMut.mutate(), disabled: copyMut.isPending, children: [
-          copyMut.isPending ? /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "h-3.5 w-3.5 animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "h-3.5 w-3.5" }),
-          "Copy Previous"
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-wrap", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-sm font-semibold", children: [
-          format(parseISO(shiftDate), "EEEE d MMMM yyyy"),
-          " — ",
-          shiftType,
-          " Shift — ",
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        ShiftNavigator,
+        {
           watch,
-          " Watch"
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "secondary", className: "text-xs", children: [
-          entries.length,
-          " crew assigned"
-        ] })
-      ] }),
+          onWatch: (v) => {
+            const d = getSmartDefaults(v);
+            setWatch(v);
+            setShiftDate(d.shiftDate);
+            setShiftType(d.shiftType);
+            setActiveSlotId(null);
+          },
+          canChangeWatch: canEdit,
+          date: shiftDate,
+          type: shiftType,
+          onChange: (d, t) => {
+            setShiftDate(d);
+            setShiftType(t);
+            setActiveSlotId(null);
+            setTapSelectedId(null);
+          },
+          isNow: (() => {
+            const d = getSmartDefaults(watch);
+            return d.shiftDate === shiftDate && d.shiftType === shiftType;
+          })(),
+          onNow: () => {
+            const d = getSmartDefaults(watch);
+            setShiftDate(d.shiftDate);
+            setShiftType(d.shiftType);
+          },
+          canEdit,
+          onCopy: () => copyMut.mutate(),
+          copyPending: copyMut.isPending,
+          onAutoCrew: () => setAutoOpen(true),
+          openSeats: plan.picks.length
+        }
+      ),
+      !crewingLoading && (() => {
+        const pumps = ["b10p1", "b10p2"].map((a) => {
+          const slots = APPLIANCE_SLOTS[a];
+          const req = slots.filter((sl) => sl.required).length;
+          const filled = slots.filter((sl, i) => sl.required && slotEntryMap.get(`slot-${a}-${i}`)).length;
+          return { a, req, filled };
+        });
+        const toFill = pumps.reduce((n, p) => n + (p.req - p.filled), 0);
+        const sickOnBoard = entries.filter((e) => e.user_id && (sickIds ?? EMPTY_IDS).has(e.user_id)).length;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2 text-sm", children: [
+          pumps.map((p) => {
+            const done = p.filled >= p.req;
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "span",
+              {
+                className: `inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium ${done ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300" : p.filled > 0 ? "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300" : "bg-muted text-muted-foreground"}`,
+                children: [
+                  done ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-3.5 w-3.5" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Truck, { className: "h-3.5 w-3.5" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono text-xs", children: p.a.toUpperCase() }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono text-xs tabular-nums", children: [
+                    p.filled,
+                    "/",
+                    p.req
+                  ] })
+                ]
+              },
+              p.a
+            );
+          }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-muted-foreground", children: [
+            toFill === 0 ? "Both pumps crewed" : `${toFill} seat${toFill === 1 ? "" : "s"} to fill`,
+            plan.unfilled.some((u) => u.required) && toFill > 0 && " · not enough qualified crew free — use External / CoS"
+          ] }),
+          sickOnBoard > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1 font-medium text-red-600 dark:text-red-400", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "h-3.5 w-3.5" }),
+            " ",
+            sickOnBoard,
+            " on the board off sick"
+          ] })
+        ] });
+      })(),
       crewingLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid gap-4 md:grid-cols-2", children: [...Array(2)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(CardHeader, { className: "pb-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-5 w-40" }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { className: "space-y-3 px-4", children: [...Array(5)].map((_2, j) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-9 w-full" }, j)) })
@@ -70863,7 +71310,8 @@ function CrewingBoard() {
                 onActivateSlot: handleSlotActivate,
                 onDeactivateSlot: () => setActiveSlotId(null),
                 onSlotAssign: handleSlotAssign,
-                onRemove: (id) => removeMut.mutate(id)
+                onRemove: (id) => removeMut.mutate(id),
+                planBySlot
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -70880,7 +71328,8 @@ function CrewingBoard() {
                 onActivateSlot: handleSlotActivate,
                 onDeactivateSlot: () => setActiveSlotId(null),
                 onSlotAssign: handleSlotAssign,
-                onRemove: (id) => removeMut.mutate(id)
+                onRemove: (id) => removeMut.mutate(id),
+                planBySlot
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -70930,6 +71379,37 @@ function CrewingBoard() {
       draggingMember && /* @__PURE__ */ jsxRuntimeExports.jsx(TileCard, { member: draggingMember, isOverlay: true }),
       draggingEntry && /* @__PURE__ */ jsxRuntimeExports.jsx(SlotDragOverlay, { entry: draggingEntry })
     ] }),
+    activeSlotId && (() => {
+      var _a3, _b3;
+      const [, appl, idx] = activeSlotId.split("-");
+      const slot = (_a3 = APPLIANCE_SLOTS[appl]) == null ? void 0 : _a3[Number(idx)];
+      if (!slot) return null;
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(
+        PersonPicker,
+        {
+          open: true,
+          title: `${appl.toUpperCase()} · ${slot.label.replace(" (Optional)", "")}`,
+          role: slot.role,
+          roster,
+          unavailable,
+          suggestedId: (_b3 = planBySlot.get(activeSlotId)) == null ? void 0 : _b3.id,
+          busy: addMut.isPending,
+          onPick: (uid) => handleSlotAssign(activeSlotId, uid, void 0, slot.role),
+          onExternal: (name) => handleSlotAssign(activeSlotId, void 0, name, slot.role),
+          onClose: () => setActiveSlotId(null)
+        }
+      );
+    })(),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      AutoCrewDialog,
+      {
+        open: autoOpen,
+        plan,
+        busy: autoBusy,
+        onApply: applyAutoCrew,
+        onClose: () => setAutoOpen(false)
+      }
+    ),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       ExternalDialog,
       {
@@ -71389,7 +71869,7 @@ function Handover() {
     setActiveTab("handover");
     handleNewHandover();
   }, [wantsNewHandover]);
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6 max-w-5xl mx-auto", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6 max-w-6xl mx-auto", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-baseline justify-between gap-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline flex-wrap gap-x-4 gap-y-1", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-3xl font-bold text-foreground flex items-center gap-3", children: [
@@ -71416,35 +71896,7 @@ function Handover() {
         ] })
       ] })
     ] }),
-    (() => {
-      const watchName = (user2 == null ? void 0 : user2.watch_unit) ?? "";
-      const dateStr = (/* @__PURE__ */ new Date()).toLocaleDateString("en-GB", {
-        weekday: "short",
-        day: "numeric",
-        month: "short",
-        year: "numeric"
-      });
-      const shift2 = shiftDisplay(watchName);
-      const shiftLabel2 = shift2 ? `${shift2.main}${shift2.sub ? ` · ${shift2.sub}` : ""}` : "—";
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2.5 rounded-xl bg-muted/50 border border-border/60 text-sm -mt-2 print:hidden", children: [
-        (user2 == null ? void 0 : user2.watch_unit) && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 text-xs font-semibold", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { className: "h-3.5 w-3.5" }),
-          user2.watch_unit,
-          " Watch"
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "h-4 w-px bg-border hidden sm:block" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1.5 text-xs text-muted-foreground", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Calendar, { className: "h-3.5 w-3.5 shrink-0" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium text-foreground", children: dateStr })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "h-4 w-px bg-border hidden sm:block" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1.5 text-xs text-muted-foreground", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: "h-3.5 w-3.5 shrink-0" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium text-foreground", children: shiftLabel2 })
-        ] })
-      ] });
-    })(),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1 border-b border-border pb-0 print:hidden", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "-mx-4 flex gap-1 overflow-x-auto border-b border-border px-4 pb-0 print:hidden sm:mx-0 sm:px-0 [scrollbar-width:none]", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         TabButton$2,
         {
@@ -71813,7 +72265,7 @@ function TabButton$2({
     {
       onClick,
       className: `
-        flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors
+        flex shrink-0 items-center gap-2 whitespace-nowrap px-3 sm:px-4 py-2.5 text-sm font-medium border-b-2 transition-colors
         ${active ? "border-indigo-500 text-indigo-600 dark:text-indigo-400" : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"}
       `,
       children: [

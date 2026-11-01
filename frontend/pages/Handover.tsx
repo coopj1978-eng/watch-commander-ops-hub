@@ -373,7 +373,7 @@ export default function Handover() {
   }, [wantsNewHandover]);
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
+    <div className="space-y-6 max-w-6xl mx-auto">
       {/* Visual-refresh page header: h1 + eyebrow + brand-coloured action buttons. */}
       <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-3">
         <div className="flex items-baseline flex-wrap gap-x-4 gap-y-1">
@@ -404,41 +404,12 @@ export default function Handover() {
         </div>
       </div>
 
-      {/* ── Context strip ───────────────────────────────────────────────── */}
-      {(() => {
-        const watchName = user?.watch_unit ?? "";
-        const dateStr = new Date().toLocaleDateString("en-GB", {
-          weekday: "short", day: "numeric", month: "short", year: "numeric",
-        });
-
-        // Shift from the watch's rota — same wording as the dashboard and header.
-        const shift = shiftDisplay(watchName);
-        const shiftLabel = shift ? `${shift.main}${shift.sub ? ` · ${shift.sub}` : ""}` : "—";
-
-        return (
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2.5 rounded-xl bg-muted/50 border border-border/60 text-sm -mt-2 print:hidden">
-            {user?.watch_unit && (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 text-xs font-semibold">
-                <Shield className="h-3.5 w-3.5" />
-                {user.watch_unit} Watch
-              </span>
-            )}
-            <span className="h-4 w-px bg-border hidden sm:block" />
-            <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Calendar className="h-3.5 w-3.5 shrink-0" />
-              <span className="font-medium text-foreground">{dateStr}</span>
-            </span>
-            <span className="h-4 w-px bg-border hidden sm:block" />
-            <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Clock className="h-3.5 w-3.5 shrink-0" />
-              <span className="font-medium text-foreground">{shiftLabel}</span>
-            </span>
-          </div>
-        );
-      })()}
+      {/* (The old context strip — watch · today's date · shift — repeated the
+          top bar, and showed today's date while the board showed last
+          night's shift. Each tab now says which shift it's on.) */}
 
       {/* ── Tab bar ─────────────────────────────────────────────────────── */}
-      <div className="flex gap-1 border-b border-border pb-0 print:hidden">
+      <div className="-mx-4 flex gap-1 overflow-x-auto border-b border-border px-4 pb-0 print:hidden sm:mx-0 sm:px-0 [scrollbar-width:none]">
         <TabButton
           active={activeTab === "crewing"}
           onClick={() => setActiveTab("crewing")}
@@ -829,7 +800,7 @@ function TabButton({
     <button
       onClick={onClick}
       className={`
-        flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors
+        flex shrink-0 items-center gap-2 whitespace-nowrap px-3 sm:px-4 py-2.5 text-sm font-medium border-b-2 transition-colors
         ${active
           ? "border-indigo-500 text-indigo-600 dark:text-indigo-400"
           : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
