@@ -29,15 +29,21 @@ export interface Candidate {
   oic: boolean;
 }
 
-export function qualifiesFor(c: Candidate, role: SeatRole): boolean {
-  return role === "oic" ? c.oic : role === "driver" ? c.driver_lgv : c.ba;
-}
-
-function officerLevel(c: Candidate): number {
+export function officerLevel(c: { system_role?: string; rank?: string }): number {
   const r = `${c.system_role ?? ""} ${c.rank ?? ""}`.toLowerCase();
   if (/\bwc\b|watch commander/.test(r)) return 0;
   if (/\bcc\b|crew commander/.test(r)) return 1;
   return 2;
+}
+
+/** Can take charge: the OIC qualification, or a Watch / Crew Commander (who
+ *  always can, even when the box isn't ticked on their profile). */
+export function canTakeCharge(c: { oic: boolean; system_role?: string; rank?: string }): boolean {
+  return c.oic || officerLevel(c) < 2;
+}
+
+export function qualifiesFor(c: Candidate, role: SeatRole): boolean {
+  return role === "oic" ? canTakeCharge(c) : role === "driver" ? c.driver_lgv : c.ba;
 }
 
 const ROLE_ORDER: Record<SeatRole, number> = { oic: 0, driver: 1, ba: 2, baeco: 3 };
@@ -52,7 +58,7 @@ export function seatCost(c: Candidate, seat: Seat): number {
   }
   // Keep officers and spare qualifications for the seats that need them.
   let cost = 0;
-  if (c.oic) cost += 4;
+  if (canTakeCharge(c)) cost += 4;
   if (officerLevel(c) < 2) cost += 4;
   if (seat.role !== "driver" && c.driver_lgv) cost += 2;
   if (seat.role === "driver" && !c.ba) cost -= 1; // a non-BA driver frees a BA wearer

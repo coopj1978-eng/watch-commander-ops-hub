@@ -37,7 +37,7 @@ import { format, parseISO } from "date-fns";
 import backend from "@/lib/backend";
 import { useSickOn } from "@/lib/absences";
 import { getTodayShift, getShiftsForDateRange, hasRotaConfig, crewingShiftFor } from "@/lib/shiftRota";
-import { suggestCrew, type Seat, type SeatRole } from "@/lib/autoCrew";
+import { canTakeCharge, suggestCrew, type Seat, type SeatRole } from "@/lib/autoCrew";
 import { PersonPicker } from "@/components/crewing/PersonPicker";
 import { ShiftNavigator } from "@/components/crewing/ShiftNavigator";
 import { AutoCrewDialog } from "@/components/crewing/AutoCrewDialog";
@@ -218,7 +218,7 @@ function memberMeetsSlotRole(
 ): boolean | null {
   switch (role) {
     case "driver": return member.driver_lgv;
-    case "oic":    return member.oic;
+    case "oic":    return canTakeCharge(member); // OIC box, or a WC / CC
     case "ba":     return member.ba;
     case "baeco":  return member.ba; // BA entry control also requires BA
     case "ff":
@@ -967,7 +967,7 @@ function ApplianceSlotsCard({
     const member = roster.find(m => m.id === entry.user_id);
     if (!member) return null;
     if (slot.role === "driver" && !member.driver_lgv) return "Not driver qualified (LGV)";
-    if (slot.role === "oic"    && !member.oic)        return "Not OIC qualified";
+    if (slot.role === "oic"    && !canTakeCharge(member)) return "Not OIC qualified";
     if ((slot.role === "ba" || slot.role === "baeco") && !member.ba) return "Not BA qualified";
     return null;
   });
@@ -2209,7 +2209,7 @@ export default function CrewingBoard() {
           title: "Driver qualification warning",
           description: `${member.name} is not LGV qualified for the driver slot. Review before turnout.`,
         });
-      } else if (meta.role === "oic" && !member.oic) {
+      } else if (meta.role === "oic" && !canTakeCharge(member)) {
         toast({
           title: "OIC qualification warning",
           description: `${member.name} is not OIC qualified for this slot. Review before turnout.`,

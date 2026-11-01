@@ -69273,14 +69273,17 @@ function CrewCommanderHome() {
     /* @__PURE__ */ jsxRuntimeExports.jsx(QuickAssignTasks, {})
   ] });
 }
-function qualifiesFor(c, role) {
-  return role === "oic" ? c.oic : role === "driver" ? c.driver_lgv : c.ba;
-}
 function officerLevel(c) {
   const r2 = `${c.system_role ?? ""} ${c.rank ?? ""}`.toLowerCase();
   if (/\bwc\b|watch commander/.test(r2)) return 0;
   if (/\bcc\b|crew commander/.test(r2)) return 1;
   return 2;
+}
+function canTakeCharge(c) {
+  return c.oic || officerLevel(c) < 2;
+}
+function qualifiesFor(c, role) {
+  return role === "oic" ? canTakeCharge(c) : role === "driver" ? c.driver_lgv : c.ba;
 }
 const ROLE_ORDER = { oic: 0, driver: 1, ba: 2, baeco: 3 };
 function seatCost(c, seat) {
@@ -69290,7 +69293,7 @@ function seatCost(c, seat) {
     return pref * 10 + (c.driver_lgv ? 1 : 0);
   }
   let cost = 0;
-  if (c.oic) cost += 4;
+  if (canTakeCharge(c)) cost += 4;
   if (officerLevel(c) < 2) cost += 4;
   if (seat.role !== "driver" && c.driver_lgv) cost += 2;
   if (seat.role === "driver" && !c.ba) cost -= 1;
@@ -69692,7 +69695,8 @@ function memberMeetsSlotRole(member, role) {
     case "driver":
       return member.driver_lgv;
     case "oic":
-      return member.oic;
+      return canTakeCharge(member);
+    // OIC box, or a WC / CC
     case "ba":
       return member.ba;
     case "baeco":
@@ -70150,7 +70154,7 @@ function ApplianceSlotsCard({
     const member = roster.find((m) => m.id === entry.user_id);
     if (!member) return null;
     if (slot.role === "driver" && !member.driver_lgv) return "Not driver qualified (LGV)";
-    if (slot.role === "oic" && !member.oic) return "Not OIC qualified";
+    if (slot.role === "oic" && !canTakeCharge(member)) return "Not OIC qualified";
     if ((slot.role === "ba" || slot.role === "baeco") && !member.ba) return "Not BA qualified";
     return null;
   });
@@ -71110,7 +71114,7 @@ function CrewingBoard() {
           title: "Driver qualification warning",
           description: `${member.name} is not LGV qualified for the driver slot. Review before turnout.`
         });
-      } else if (meta.role === "oic" && !member.oic) {
+      } else if (meta.role === "oic" && !canTakeCharge(member)) {
         toast2({
           title: "OIC qualification warning",
           description: `${member.name} is not OIC qualified for this slot. Review before turnout.`

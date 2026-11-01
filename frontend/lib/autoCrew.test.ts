@@ -62,6 +62,21 @@ describe("auto-crew", () => {
     expect(unfilled.map((s) => s.label)).toEqual(["BA EC"]);
   });
 
+  it("a WC or CC can take charge even without the OIC box ticked", () => {
+    const real = [
+      p("Brian (WC)", { system_role: "WC" }),
+      p("Colin (CC)", { system_role: "CC" }),
+      p("John (WC)", { system_role: "WC", oic: true, driver_lgv: true }),
+      p("Iain Lowson", { driver_lgv: true }),
+      p("Chris"), p("Ewan"), p("Iain Wilson"),
+    ];
+    const { picks } = suggestCrew([...P1, ...P2], real);
+    const oics = picks.filter((x) => x.seat.role === "oic").map((x) => x.member.id).sort();
+    expect(oics).toEqual(["Brian (WC)", "Colin (CC)"]);
+    // and nobody officer-level is used as BA while an OIC seat needed them
+    expect(picks.filter((x) => x.seat.role === "ba").every((x) => x.member.system_role === "FF")).toBe(true);
+  });
+
   it("suggests the best people for one seat", () => {
     expect(topFor(P1[0], blue).map((c) => c.system_role)).toEqual(["WC", "WC"]);
     expect(topFor(P2[0], blue)[0].system_role).toBe("CC");
