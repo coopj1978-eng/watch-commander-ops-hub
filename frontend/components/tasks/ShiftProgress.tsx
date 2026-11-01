@@ -39,7 +39,7 @@ export default function ShiftProgress({ shift, stats, carriedOnly, onToggleCarri
   const fill = allDone ? "var(--cal-leave-dot)" : behind ? "var(--cal-day-dot)" : "var(--cal-brand)";
   const when = shift.on_duty
     ? timeLeft(end - now)
-    : `starts ${new Date(shift.start).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })} ${hhmm(new Date(shift.start))}`;
+    : `starts ${new Date(shift.start).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}`;
 
   const chip = (k: string, children: React.ReactNode) => (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 5, height: 26, padding: "0 9px", borderRadius: 8, fontSize: 12, fontWeight: 600, background: `var(--cal-${k}-bg)`, color: `var(--cal-${k}-fg)` }}>
@@ -79,7 +79,7 @@ export default function ShiftProgress({ shift, stats, carriedOnly, onToggleCarri
         </div>
 
         <span className="cal-mono" style={{ fontSize: 12, color: "var(--cal-ink-2)", flex: "none" }}>
-          {shift.label} · {when}
+          {shift.label} {hhmm(new Date(shift.start))}–{hhmm(new Date(shift.end))} · {when}
         </span>
       </div>
 

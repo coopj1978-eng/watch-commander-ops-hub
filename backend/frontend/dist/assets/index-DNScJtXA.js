@@ -55965,7 +55965,8 @@ function TaskCard({ task: task2, onTitleEdit, onClick, onChecklistToggle, userMa
     else setTitleValue(task2.title);
     setEditingTitle(false);
   };
-  const labelIds = (task2.tags ?? []).filter((id) => getLabelById(id));
+  const isCheck = task2.kind === "check";
+  const labelIds = (task2.tags ?? []).filter((id) => getLabelById(id) && !(isCheck && id === "routine"));
   const coverStyle = getCoverStyle(task2.cover_colour);
   const recur = describeRRule(task2.rrule);
   const assignee = task2.assigned_to_user_id ? { id: task2.assigned_to_user_id, initials: ((_a2 = userMap == null ? void 0 : userMap[task2.assigned_to_user_id]) == null ? void 0 : _a2.initials) ?? task2.assigned_to_user_id.slice(0, 2).toUpperCase() } : null;
@@ -55973,6 +55974,7 @@ function TaskCard({ task: task2, onTitleEdit, onClick, onChecklistToggle, userMa
   const shiftTask = task2;
   const tag = shiftTask.kind ? /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftTag, { task: shiftTask, shiftStart: shiftStart2 }) : null;
   const showDue = !!task2.due_at && (!shiftTask.kind || shiftTask.kind === "watch" && !(shiftStart2 && new Date(task2.due_at) < new Date(shiftStart2)));
+  const footer = done && !!shiftTask.completed_by_name || showDue || !!recur && !shiftTask.kind || task2.priority !== "Med" || !!assignee;
   const menu = onMove && columns && columns.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(CardMenu, { task: task2, columns, columnCounts, onOpen: onClick, onMove, onSetPriority, onDelete }) : null;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
@@ -56059,13 +56061,13 @@ function TaskCard({ task: task2, onTitleEdit, onClick, onChecklistToggle, userMa
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(ChecklistBar, { task: task2 }),
         onChecklistToggle && !done && (((_b2 = task2.checklist) == null ? void 0 : _b2.length) ?? 0) > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(CardChecklist, { task: task2, onToggle: (label2, next) => onChecklistToggle(task2.id, label2, next) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }, children: [
+        footer && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }, children: [
           done && shiftTask.completed_by_name ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 600, color: "var(--cal-leave-fg)" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-3 w-3", strokeWidth: 3 }),
             " ",
             shiftTask.completed_by_name
           ] }) : showDue ? /* @__PURE__ */ jsxRuntimeExports.jsx(DueChip, { task: task2 }) : recur && !shiftTask.kind ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 11, color: "var(--cal-muted)" }, children: recur }) : null,
-          /* @__PURE__ */ jsxRuntimeExports.jsx(PriorityChip, { priority: task2.priority }),
+          task2.priority !== "Med" && /* @__PURE__ */ jsxRuntimeExports.jsx(PriorityChip, { priority: task2.priority }),
           assignee && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { marginLeft: "auto", display: "flex" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Initials, { userId: assignee.id, initials: assignee.initials }) })
         ] })
       ]
@@ -60202,7 +60204,7 @@ function ShiftProgress({ shift: shift2, stats, carriedOnly, onToggleCarried, com
   const allDone = total > 0 && stats.todo === 0;
   const behind = shift2.on_duty && total > 0 && !allDone && elapsed >= 0.5 && done < elapsed - 0.25;
   const fill = allDone ? "var(--cal-leave-dot)" : behind ? "var(--cal-day-dot)" : "var(--cal-brand)";
-  const when = shift2.on_duty ? timeLeft(end - now) : `starts ${new Date(shift2.start).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })} ${hhmm(new Date(shift2.start))}`;
+  const when = shift2.on_duty ? timeLeft(end - now) : `starts ${new Date(shift2.start).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}`;
   const chip2 = (k, children) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { display: "inline-flex", alignItems: "center", gap: 5, height: 26, padding: "0 9px", borderRadius: 8, fontSize: 12, fontWeight: 600, background: `var(--cal-${k}-bg)`, color: `var(--cal-${k}-fg)` }, children });
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "section",
@@ -60245,6 +60247,10 @@ function ShiftProgress({ shift: shift2, stats, carriedOnly, onToggleCarried, com
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: { fontSize: 12, color: "var(--cal-ink-2)", flex: "none" }, children: [
             shift2.label,
+            " ",
+            hhmm(new Date(shift2.start)),
+            "–",
+            hhmm(new Date(shift2.end)),
             " · ",
             when
           ] })
@@ -60499,6 +60505,8 @@ function Tasks() {
     if (next === "Done") {
       const back = { checklist: task2.checklist, status: task2.status };
       toast2({
+        duration: 1e4,
+        // long enough to reach Undo
         title: "All ticked — moved to Done",
         description: task2.title,
         action: /* @__PURE__ */ jsxRuntimeExports.jsx(ToastAction, { altText: "Undo", onClick: () => {
@@ -60536,8 +60544,7 @@ function Tasks() {
   const syncedSelectedTask = selectedTask ? filteredTasks.find((t) => t.id === selectedTask.id) ?? selectedTask : null;
   const boardFilters = { search: filterSearch, labels: filterLabels, overdueOnly: filterOverdue, assignee: filterAssignee };
   const activeFilterCount = [filterSearch, filterLabels.length, filterOverdue, filterAssignee].filter(Boolean).length;
-  const hhmm2 = (iso) => new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
-  const shiftWhen = shift2 ? `${shift2.label} ${hhmm2(shift2.start)}–${hhmm2(shift2.end)}${shift2.on_duty ? " · on duty" : ` · ${new Date(shift2.start).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}`}` : "";
+  const shiftWhen = shift2 ? shift2.on_duty ? `${shift2.label} · on duty` : `next shift ${new Date(shift2.start).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}` : "";
   const toggleLabel = (id) => setFilterLabels(filterLabels.includes(id) ? filterLabels.filter((l) => l !== id) : [...filterLabels, id]);
   const headerInk = isDark ? "#fff" : "var(--cal-ink)";
   const headerMuted = isDark ? "rgba(255,255,255,.75)" : "var(--cal-muted)";
@@ -60809,7 +60816,6 @@ function Tasks() {
                 )
               ] })
             ] }),
-            viewMode === "board" && viewSwitch,
             viewMode === "board" && handoverNotes.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("section", { "aria-label": "Handover notes", style: { display: "flex", flexDirection: "column", gap: 8 }, children: handoverNotes.map((n) => {
               const when = (/* @__PURE__ */ new Date(`${n.shift_date}T12:00:00`)).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
               return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--cal-watch-bg)", color: "var(--cal-watch-fg)", borderRadius: 16, padding: "12px 14px", display: "flex", flexDirection: "column", gap: 6 }, children: [
@@ -60849,6 +60855,7 @@ function Tasks() {
                 ] }, it.id)) })
               ] }, n.handover_id);
             }) }),
+            isPhone && viewMode === "board" && viewSwitch,
             viewMode === "board" && shift2 && /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftProgress, { shift: shift2, stats: shiftStats, carriedOnly: filterOverdue, onToggleCarried: () => setFilterOverdue(!filterOverdue), compact: isPhone }),
             isPhone && watchName !== "Watch" && /* @__PURE__ */ jsxRuntimeExports.jsx(TaskWeekStrip, { watch: watchName, tasks, selectedDay, onPickDay: setSelectedDay, onOpenTask: setSelectedTask }),
             viewMode === "board" && !isPhone && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { role: "search", style: { display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }, children: [
@@ -60890,6 +60897,7 @@ function Tasks() {
                   filterBody(false)
                 ] })
               ] }),
+              viewSwitch && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginLeft: "auto" }, children: viewSwitch }),
               activeChips.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "inline-flex", alignItems: "center", gap: 4, height: 32, padding: "0 4px 0 11px", borderRadius: 999, fontSize: 13, fontWeight: 600, background: "var(--cal-brand-soft)", color: "var(--cal-brand-text)" }, children: [
                 c.label,
                 /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": `Remove ${c.label} filter`, onClick: c.clear, className: "cal-focus", style: { width: 24, height: 24, borderRadius: "50%", border: "none", background: "transparent", color: "inherit", display: "grid", placeItems: "center", cursor: "pointer", padding: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" }) })

@@ -421,7 +421,9 @@ export default function TaskCard({ task, onTitleEdit, onClick, onChecklistToggle
     setEditingTitle(false);
   };
 
-  const labelIds = (task.tags ?? []).filter((id) => getLabelById(id));
+  const isCheck = (task as Task & { kind?: string }).kind === "check";
+  // A station check's tag already says it's routine work.
+  const labelIds = (task.tags ?? []).filter((id) => getLabelById(id) && !(isCheck && id === "routine"));
   const coverStyle = getCoverStyle((task as any).cover_colour);
   const recur = describeRRule(task.rrule);
   const assignee = task.assigned_to_user_id
@@ -432,6 +434,7 @@ export default function TaskCard({ task, onTitleEdit, onClick, onChecklistToggle
   const tag = shiftTask.kind ? <ShiftTag task={shiftTask} shiftStart={shiftStart} /> : null;
   // On the shift board the tag says when it's for, so the due chip is only kept for plain watch tasks.
   const showDue = !!task.due_at && (!shiftTask.kind || (shiftTask.kind === "watch" && !(shiftStart && new Date(task.due_at) < new Date(shiftStart))));
+  const footer = (done && !!shiftTask.completed_by_name) || showDue || (!!recur && !shiftTask.kind) || task.priority !== "Med" || !!assignee;
   const menu = onMove && columns && columns.length > 0
     ? <CardMenu task={task} columns={columns} columnCounts={columnCounts} onOpen={onClick} onMove={onMove} onSetPriority={onSetPriority} onDelete={onDelete} />
     : null;
@@ -511,7 +514,7 @@ export default function TaskCard({ task, onTitleEdit, onClick, onChecklistToggle
         <CardChecklist task={task} onToggle={(label, next) => onChecklistToggle(task.id, label, next)} />
       )}
 
-      <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+      {footer && <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
         {done && shiftTask.completed_by_name ? (
           <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 600, color: "var(--cal-leave-fg)" }}>
             <Check className="h-3 w-3" strokeWidth={3} /> {shiftTask.completed_by_name}
@@ -521,13 +524,14 @@ export default function TaskCard({ task, onTitleEdit, onClick, onChecklistToggle
         ) : recur && !shiftTask.kind ? (
           <span className="cal-mono" style={{ fontSize: 11, color: "var(--cal-muted)" }}>{recur}</span>
         ) : null}
-        <PriorityChip priority={task.priority} />
+        {/* Medium is the default, so only High and Low get a chip (the dot shows it anyway). */}
+        {task.priority !== "Med" && <PriorityChip priority={task.priority} />}
         {assignee && (
           <span style={{ marginLeft: "auto", display: "flex" }}>
             <Initials userId={assignee.id} initials={assignee.initials} />
           </span>
         )}
-      </div>
+      </div>}
     </div>
   );
 }

@@ -229,6 +229,7 @@ export default function Tasks() {
     if (next === "Done") {
       const back = { checklist: task.checklist, status: task.status };
       toast({
+        duration: 10_000, // long enough to reach Undo
         title: "All ticked — moved to Done",
         description: task.title,
         action: (
@@ -271,9 +272,8 @@ export default function Tasks() {
   const syncedSelectedTask = selectedTask ? (filteredTasks.find((t) => t.id === selectedTask.id) ?? selectedTask) : null;
   const boardFilters = { search: filterSearch, labels: filterLabels, overdueOnly: filterOverdue, assignee: filterAssignee };
   const activeFilterCount = [filterSearch, filterLabels.length, filterOverdue, filterAssignee].filter(Boolean).length;
-  const hhmm = (iso: string) => new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
   const shiftWhen = shift
-    ? `${shift.label} ${hhmm(shift.start)}–${hhmm(shift.end)}${shift.on_duty ? " · on duty" : ` · ${new Date(shift.start).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}`}`
+    ? shift.on_duty ? `${shift.label} · on duty` : `next shift ${new Date(shift.start).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}`
     : "";
   const toggleLabel = (id: string) => setFilterLabels(filterLabels.includes(id) ? filterLabels.filter((l) => l !== id) : [...filterLabels, id]);
 
@@ -539,7 +539,6 @@ export default function Tasks() {
             )}
           </div>
 
-          {viewMode === "board" && viewSwitch}
 
           {/* ── Handover notes for this watch ───────────────────────────────── */}
           {viewMode === "board" && handoverNotes.length > 0 && (
@@ -583,6 +582,8 @@ export default function Tasks() {
               })}
             </section>
           )}
+
+          {isPhone && viewMode === "board" && viewSwitch}
 
           {/* ── This shift: done against the clock ───────────────────────────── */}
           {viewMode === "board" && shift && (
@@ -635,6 +636,7 @@ export default function Tasks() {
                   </Popover>
                 )}
               </div>
+              {viewSwitch && <div style={{ marginLeft: "auto" }}>{viewSwitch}</div>}
               {activeChips.map((c) => (
                 <span key={c.key} style={{ display: "inline-flex", alignItems: "center", gap: 4, height: 32, padding: "0 4px 0 11px", borderRadius: 999, fontSize: 13, fontWeight: 600, background: "var(--cal-brand-soft)", color: "var(--cal-brand-text)" }}>
                   {c.label}
