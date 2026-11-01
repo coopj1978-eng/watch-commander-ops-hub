@@ -28,7 +28,7 @@ export function ShiftWeather({
   if (!data) return null;
 
   const c = data.current;
-  const Icon = weatherIcon(c.weather_code);
+  const Icon = weatherIcon(c.weather_code, c.is_day !== 0);
   const rain = start && end ? rainChanceBetween(data, start, end) : null;
   const wind = windWarning(c.wind_speed_10m);
   const temp = Math.round(c.temperature_2m);

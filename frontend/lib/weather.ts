@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import {
-  Cloud, CloudDrizzle, CloudFog, CloudLightning, CloudRain, CloudSun, Snowflake, Sun, type LucideIcon,
+  Cloud, CloudDrizzle, CloudFog, CloudLightning, CloudMoon, CloudRain, CloudSun, Moon, Snowflake, Sun, type LucideIcon,
 } from "lucide-react";
 
 // The station's weather from Open-Meteo (free, no key): now, hourly for the
@@ -18,6 +18,8 @@ export interface StationWeather {
     wind_speed_10m: number;
     relative_humidity_2m: number;
     weather_code: number;
+    /** 1 by day, 0 at night. */
+    is_day?: number;
   };
   daily: {
     time: string[];
@@ -41,7 +43,7 @@ export function useStationWeather() {
       const url = new URL("https://api.open-meteo.com/v1/forecast");
       url.searchParams.set("latitude", String(STATION_LAT));
       url.searchParams.set("longitude", String(STATION_LON));
-      url.searchParams.set("current", "temperature_2m,apparent_temperature,wind_speed_10m,relative_humidity_2m,weather_code");
+      url.searchParams.set("current", "temperature_2m,apparent_temperature,wind_speed_10m,relative_humidity_2m,weather_code,is_day");
       url.searchParams.set("daily", "temperature_2m_max,temperature_2m_min,weather_code,precipitation_probability_max");
       url.searchParams.set("hourly", "temperature_2m,weather_code,precipitation_probability");
       url.searchParams.set("wind_speed_unit", "mph");
@@ -71,9 +73,9 @@ export function weatherLabel(code: number): string {
   return "Thunderstorm";
 }
 
-export function weatherIcon(code: number): LucideIcon {
-  if (code === 0) return Sun;
-  if (code <= 2) return CloudSun;
+export function weatherIcon(code: number, isDay = true): LucideIcon {
+  if (code === 0) return isDay ? Sun : Moon;
+  if (code <= 2) return isDay ? CloudSun : CloudMoon;
   if (code === 3) return Cloud;
   if (code <= 48) return CloudFog;
   if (code <= 57) return CloudDrizzle;
