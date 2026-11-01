@@ -61189,7 +61189,7 @@ function QuarterlyOverview({ watch }) {
             const result = getMsResult(q);
             const total = ((_b3 = (_a3 = result.data) == null ? void 0 : _a3.items) == null ? void 0 : _b3.length) ?? 0;
             const completed = ((_d3 = (_c3 = result.data) == null ? void 0 : _c3.totals) == null ? void 0 : _d3.complete) ?? 0;
-            const isFuture = q > currentQ && total === 0;
+            const isFuture = total === 0 || q > currentQ && completed === 0;
             const pct = total > 0 ? Math.min(100, Math.round(completed / total * 100)) : 0;
             const isCurrent = q === currentQ;
             return /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -61204,7 +61204,7 @@ function QuarterlyOverview({ watch }) {
                       style: { width: isFuture ? "0%" : `${pct}%` }
                     }
                   ) }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `text-xs font-semibold tabular-nums ${textColour(pct, isFuture)}`, children: isFuture ? "–" : `${completed}/${total}` })
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `text-xs font-semibold tabular-nums ${textColour(pct, isFuture)}`, children: total === 0 ? "None" : isFuture ? `0/${total}` : `${completed}/${total}` })
                 ] })
               },
               q

@@ -226,7 +226,8 @@ function QuarterlyOverview({ watch }: { watch: string }) {
                     const result = getMsResult(q);
                     const total = result.data?.items?.length ?? 0;
                     const completed = result.data?.totals?.complete ?? 0;
-                    const isFuture = q > currentQ && total === 0;
+                    // No buildings for this watch that quarter → nothing to do, not "0/0" in red.
+                    const isFuture = total === 0 || (q > currentQ && completed === 0);
                     const pct = total > 0 ? Math.min(100, Math.round((completed / total) * 100)) : 0;
                     const isCurrent = q === currentQ;
 
@@ -243,7 +244,7 @@ function QuarterlyOverview({ watch }: { watch: string }) {
                             />
                           </div>
                           <span className={`text-xs font-semibold tabular-nums ${textColour(pct, isFuture)}`}>
-                            {isFuture ? "–" : `${completed}/${total}`}
+                            {total === 0 ? "None" : isFuture ? `0/${total}` : `${completed}/${total}`}
                           </span>
                         </div>
                       </td>
