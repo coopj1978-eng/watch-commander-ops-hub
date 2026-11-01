@@ -427,7 +427,7 @@ export default function TaskBoard({
             <TaskCard
               task={task}
               onClick={() => onTaskClick?.(task)}
-              onChecklistToggle={onChecklistToggle}
+              onChecklistToggle={canEdit ? onChecklistToggle : undefined}
               onTitleEdit={mayEditDetails(task) ? onTitleEdit : undefined}
               isDark={isDark}
               userMap={userMap}

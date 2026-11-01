@@ -1,18 +1,21 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/App";
 import backend from "@/lib/backend";
-import { ArrowRightLeft, Check, Filter, LayoutGrid, List, Plus, Repeat, Search, Palette, X as XIcon } from "lucide-react";
+import { ArrowRightLeft, CalendarRange, Check, Filter, LayoutGrid, List, PanelRightClose, PanelRightOpen, Plus, Search, Palette, X as XIcon } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 import { useUserRole } from "@/lib/rbac";
 import TaskBoard from "@/components/TaskBoard";
 import TaskList from "@/components/TaskList";
 import TaskDetailDrawer from "@/components/TaskDetailDrawer";
 import TaskTemplateManager from "@/components/TaskTemplateManager";
 import TaskSidePanel, { TaskWeekStrip } from "@/components/TaskSidePanel";
-import { personTint, useIsPhone } from "@/lib/taskUi";
+import RoutinePlanner from "@/components/tasks/RoutinePlanner";
+import ShiftProgress from "@/components/tasks/ShiftProgress";
+import { autoStatusFor, personTint, useIsPhone } from "@/lib/taskUi";
 import { TASK_LABELS, BOARD_BACKGROUNDS, getBackground } from "@/lib/taskLabels";
 import type { Task, ChecklistItem, TaskTemplate, TaskColumn } from "~backend/task/types";
 
@@ -24,6 +27,13 @@ export default function Tasks() {
 
   const [viewMode, setViewMode] = useState<"board" | "list">("board");
   const [showTemplateManager, setShowTemplateManager] = useState(false);
+  const [showRoutines, setShowRoutines] = useState(false);
+  // The watch calendar beside the board folds away (remembered per device).
+  const [calOpen, setCalOpen] = useState(() => { try { return localStorage.getItem("tasks-cal-panel") !== "closed"; } catch { return true; } });
+  const toggleCal = () => setCalOpen((open) => {
+    try { localStorage.setItem("tasks-cal-panel", open ? "closed" : "open"); } catch { /* private mode */ }
+    return !open;
+  });
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isNewTask, setIsNewTask] = useState(false);
 
@@ -43,6 +53,7 @@ export default function Tasks() {
   const hasActiveFilters = !!(filterSearch || filterLabels.length > 0 || filterOverdue || filterAssignee);
   const clearFilters = () => { setFilterSearch(""); setFilterLabels([]); setFilterOverdue(false); setFilterAssignee(""); };
   const [showFilterSheet, setShowFilterSheet] = useState(false);
+  const [showFilterPop, setShowFilterPop] = useState(false);
   const isPhone = useIsPhone();
 
   const canAssignTasks = ["WC", "CC"].includes(userRole);
@@ -193,11 +204,40 @@ export default function Tasks() {
     if (selectedTask?.id === taskId) setSelectedTask((prev) => prev ? { ...prev, title: newTitle } : prev);
   };
 
+  // Ticks show at once: patch every cached copy of the card, then save.
+  const patchCachedTask = (id: number, patch: Partial<Task>) => {
+    const apply = (t: Task) => (t.id === id ? { ...t, ...patch } : t);
+    queryClient.setQueriesData({ queryKey: ["tasks"] }, (old: unknown) => {
+      if (Array.isArray(old)) return old.map(apply);
+      if (old && typeof old === "object" && Array.isArray((old as { tasks?: unknown }).tasks)) {
+        return { ...(old as object), tasks: (old as { tasks: Task[] }).tasks.map(apply) };
+      }
+      return old;
+    });
+  };
+
+  // Ticking from the card: the first tick starts it, the last one moves it to Done (with Undo).
   const handleChecklistToggle = (taskId: number, itemLabel: string, done: boolean) => {
     const task = filteredTasks.find((t) => t.id === taskId);
     if (!task || !task.checklist) return;
     const updatedChecklist = task.checklist.map((item) => item.label === itemLabel ? { ...item, done } : item);
-    updateTaskMutation.mutate({ id: taskId, checklist: updatedChecklist });
+    const next = autoStatusFor(task.status, updatedChecklist, columns.map((c) => c.status_key));
+    const patch = { checklist: updatedChecklist, ...(next ? { status: next } : {}) };
+    queryClient.cancelQueries({ queryKey: ["tasks"] });
+    patchCachedTask(taskId, patch as Partial<Task>);
+    updateTaskMutation.mutate({ id: taskId, ...patch });
+    if (next === "Done") {
+      const back = { checklist: task.checklist, status: task.status };
+      toast({
+        title: "All ticked — moved to Done",
+        description: task.title,
+        action: (
+          <ToastAction altText="Undo" onClick={() => { patchCachedTask(taskId, back as Partial<Task>); updateTaskMutation.mutate({ id: taskId, ...back }); }}>
+            Undo
+          </ToastAction>
+        ),
+      });
+    }
   };
 
   const handleStatusChange = (taskId: number, newStatus: string) => {
@@ -241,14 +281,6 @@ export default function Tasks() {
   // cards and columns keep their own surfaces either way.
   const headerInk = isDark ? "#fff" : "var(--cal-ink)";
   const headerMuted = isDark ? "rgba(255,255,255,.75)" : "var(--cal-muted)";
-
-  // Counts for the shift shown. "Carried over" doubles as the overdue filter.
-  const stats: { key: string; label: string; value: number; over?: boolean }[] = [
-    { key: "todo", label: "To do this shift", value: shiftStats.todo },
-    { key: "checks", label: "Station checks left", value: shiftStats.checks },
-    { key: "carried", label: "Carried over", value: shiftStats.carried, over: true },
-    { key: "done", label: "Done this shift", value: shiftStats.done },
-  ];
 
   const iconBtn: React.CSSProperties = { width: 44, height: 44, padding: 0, position: "relative" };
 
@@ -329,6 +361,64 @@ export default function Tasks() {
     </div>
   ) : null;
 
+  // Labels, people and "carried over only" — one popover on desktop, the sheet on phones.
+  const filterBody = (big: boolean) => (
+    <>
+      {people.length > 0 && (
+        <>
+          <span style={sheetCaption}>Person</span>
+          <div role="group" aria-label="Filter by person" style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>{people.map((p) => personButton(p, big ? 44 : 34))}</div>
+        </>
+      )}
+      <span style={sheetCaption}>Labels</span>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 6 }}>
+        {TASK_LABELS.map((label) => {
+          const on = filterLabels.includes(label.id);
+          return (
+            <button
+              key={label.id}
+              type="button"
+              aria-pressed={on}
+              onClick={() => toggleLabel(label.id)}
+              className="cal-focus"
+              style={{
+                height: big ? 44 : 36, borderRadius: 12, font: "inherit", fontSize: big ? 14 : 13, display: "flex", alignItems: "center", gap: 8, padding: "0 12px", cursor: "pointer", color: "var(--cal-ink)",
+                ...(on ? { border: "2px solid var(--cal-ink)", background: "var(--cal-surface-2)", fontWeight: 600 } : { border: "1px solid var(--cal-line-2)", background: "var(--cal-surface)" }),
+              }}
+            >
+              <span style={{ width: 9, height: 9, borderRadius: "50%", background: label.colour }} />
+              {label.name}
+              {on && <Check className="h-[15px] w-[15px]" strokeWidth={2.6} style={{ marginLeft: "auto" }} />}
+            </button>
+          );
+        })}
+      </div>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: big ? 48 : 40 }}>
+        <span style={{ fontSize: big ? 15 : 14, fontWeight: 500 }}>Overdue and carried over only</span>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={filterOverdue}
+          aria-label="Overdue and carried over only"
+          onClick={() => setFilterOverdue(!filterOverdue)}
+          className="cal-focus"
+          style={{ width: 52, height: 32, borderRadius: 999, border: "none", position: "relative", padding: 0, cursor: "pointer", flex: "none", background: filterOverdue ? "var(--cal-brand)" : "var(--cal-surface-3)", transition: "background .15s" }}
+        >
+          <span style={{ position: "absolute", top: 3, left: filterOverdue ? 23 : 3, width: 26, height: 26, borderRadius: "50%", background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,.25)", transition: "left .15s" }} />
+        </button>
+      </div>
+    </>
+  );
+
+  // Active filters as removable chips under the toolbar.
+  const activeChips: { key: string; label: string; clear: () => void }[] = [
+    ...(filterAssignee ? [{ key: "p", label: people.find((p) => p.id === filterAssignee)?.name ?? "Person", clear: () => setFilterAssignee("") }] : []),
+    ...filterLabels.map((id) => ({ key: `l-${id}`, label: TASK_LABELS.find((l) => l.id === id)?.name ?? id, clear: () => toggleLabel(id) })),
+    ...(filterOverdue ? [{ key: "o", label: "Overdue / carried over", clear: () => setFilterOverdue(false) }] : []),
+  ];
+
+  const showCalPanel = !isPhone && watchName !== "Watch" && calOpen;
+
   return (
     <div
       className="cal-ui min-h-screen -m-4 md:-m-8 p-4 md:p-6 transition-all duration-500"
@@ -336,7 +426,7 @@ export default function Tasks() {
     >
       <div style={{ display: "flex", flexWrap: "wrap", gap: 24, alignItems: "flex-start" }}>
         {/* ════════════════ Main ════════════════ */}
-        <main style={{ flex: "999 1 640px", minWidth: 0, display: "flex", flexDirection: "column", gap: 16, paddingBottom: isPhone ? 72 : 0 }}>
+        <main style={{ flex: "999 1 640px", minWidth: 0, display: "flex", flexDirection: "column", gap: 14, paddingBottom: isPhone ? 72 : 0 }}>
           {/* ── Header ─────────────────────────────────────────────────────── */}
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -345,7 +435,9 @@ export default function Tasks() {
                   ? <>{boardWatch} Watch · {shiftWhen}</>
                   : <>{watchName} Watch · {tasks.length}{isPhone ? "" : " total"}</>}
               </span>
-              <h1 style={{ margin: 0, fontSize: isPhone ? 28 : 40, lineHeight: 1.05, fontWeight: 600, letterSpacing: "-.02em", color: headerInk }}>Tasks</h1>
+              <h1 style={{ margin: 0, fontSize: isPhone ? 28 : 36, lineHeight: 1.05, fontWeight: 600, letterSpacing: "-.02em", color: headerInk }}>
+                {viewMode === "board" ? "Shift board" : "All tasks"}
+              </h1>
             </div>
 
             {isPhone ? (
@@ -364,8 +456,8 @@ export default function Tasks() {
                 <button type="button" onClick={() => setShowBgPicker(!showBgPicker)} aria-label="Board background" aria-expanded={showBgPicker} className="cal-btn" style={iconBtn}>
                   <Palette className="h-[18px] w-[18px]" />
                 </button>
-                <button type="button" onClick={() => setShowTemplateManager(true)} aria-label="Templates" className="cal-btn" style={iconBtn}>
-                  <Repeat className="h-[18px] w-[18px]" />
+                <button type="button" onClick={() => setShowRoutines(true)} aria-label="Weekly routine" className="cal-btn" style={iconBtn}>
+                  <CalendarRange className="h-[18px] w-[18px]" />
                 </button>
                 {bgPicker}
               </div>
@@ -373,7 +465,7 @@ export default function Tasks() {
               <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
                 {/* Board / List */}
                 <div role="group" aria-label="View" style={{ display: "inline-flex", padding: 4, borderRadius: 14, background: "var(--cal-surface-3)", gap: 2 }}>
-                  {([["board", "Board", LayoutGrid], ["list", "List", List]] as const).map(([mode, label, Icon]) => (
+                  {([["board", "Shift board", LayoutGrid], ["list", "All tasks", List]] as const).map(([mode, label, Icon]) => (
                     <button
                       key={mode}
                       type="button"
@@ -394,6 +486,11 @@ export default function Tasks() {
                   ))}
                 </div>
 
+                <button type="button" onClick={() => setShowRoutines(true)} className="cal-btn" style={{ height: 44, padding: "0 16px", fontSize: 14 }}>
+                  <CalendarRange className="h-[17px] w-[17px]" />
+                  Weekly routine
+                </button>
+
                 <div style={{ position: "relative" }}>
                   <button
                     type="button"
@@ -409,10 +506,20 @@ export default function Tasks() {
                   {bgPicker}
                 </div>
 
-                <button type="button" onClick={() => setShowTemplateManager(true)} className="cal-btn" style={{ height: 44, padding: "0 16px", fontSize: 14 }}>
-                  <Repeat className="h-[17px] w-[17px]" />
-                  Templates
-                </button>
+                {watchName !== "Watch" && (
+                  <button
+                    type="button"
+                    onClick={toggleCal}
+                    aria-pressed={calOpen}
+                    aria-label={calOpen ? "Hide the watch calendar" : "Show the watch calendar"}
+                    title={calOpen ? "Hide the watch calendar" : "Show the watch calendar"}
+                    className="cal-btn"
+                    style={iconBtn}
+                  >
+                    {calOpen ? <PanelRightClose className="h-[18px] w-[18px]" /> : <PanelRightOpen className="h-[18px] w-[18px]" />}
+                  </button>
+                )}
+
                 <button
                   type="button"
                   onClick={handleNewTask}
@@ -477,130 +584,66 @@ export default function Tasks() {
             </section>
           )}
 
+          {/* ── This shift: done against the clock ───────────────────────────── */}
+          {viewMode === "board" && shift && (
+            <ShiftProgress shift={shift} stats={shiftStats} carriedOnly={filterOverdue} onToggleCarried={() => setFilterOverdue(!filterOverdue)} compact={isPhone} />
+          )}
+
           {/* ── Phone: this week on the watch calendar (tap to open it) ───────── */}
           {isPhone && watchName !== "Watch" && (
             <TaskWeekStrip watch={watchName} tasks={tasks} selectedDay={selectedDay} onPickDay={setSelectedDay} onOpenTask={setSelectedTask} />
           )}
 
-          {/* ── Counts ─────────────────────────────────────────────────────── */}
+          {/* ── Search + filters (desktop board) ─────────────────────────────── */}
           {viewMode === "board" && !isPhone && (
-            <div role="group" aria-label="Task counts" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 8 }}>
-              {stats.map((st) => {
-                const filled = st.over && st.value > 0;
-                const style: React.CSSProperties = {
-                  display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 8, padding: "12px 14px", borderRadius: 16,
-                  font: "inherit", textAlign: "left",
-                  ...(filled
-                    ? { background: "var(--cal-day-bg)", color: "var(--cal-day-fg)", border: "1px solid transparent" }
-                    : { background: "var(--cal-surface)", color: "var(--cal-ink)", border: "1px solid var(--cal-line)", boxShadow: "var(--cal-shadow)" }),
-                };
-                const body = (
-                  <>
-                    <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", opacity: 0.85 }}>{st.label}</span>
-                    <span className="cal-mono" style={{ fontSize: 24, fontWeight: 600, lineHeight: 1 }}>{st.value}</span>
-                  </>
-                );
-                return st.over ? (
-                  <button
-                    key={st.key}
-                    type="button"
-                    aria-pressed={filterOverdue}
-                    aria-label={`${st.label}: ${st.value}. ${filterOverdue ? "Show all tasks" : "Show only overdue tasks"}`}
-                    onClick={() => setFilterOverdue(!filterOverdue)}
-                    className="cal-focus"
-                    style={{ ...style, cursor: "pointer", ...(filterOverdue ? { boxShadow: "0 0 0 2px var(--cal-day-dot)" } : {}) }}
-                  >
-                    {body}
+            <div role="search" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
+              <label style={{ flex: "0 1 300px", display: "flex", alignItems: "center", gap: 8, height: 40, padding: "0 12px", borderRadius: 12, background: "var(--cal-surface)", border: "1px solid var(--cal-line-2)", color: "var(--cal-muted)" }}>
+                <Search className="h-4 w-4" />
+                <input
+                  aria-label="Search tasks"
+                  placeholder="Search the board…"
+                  value={filterSearch}
+                  onChange={(e) => setFilterSearch(e.target.value)}
+                  style={{ flex: 1, minWidth: 0, border: "none", background: "transparent", font: "inherit", fontSize: 14, color: "var(--cal-ink)", outline: "none" }}
+                />
+                {filterSearch && (
+                  <button type="button" aria-label="Clear search" onClick={() => setFilterSearch("")} style={{ border: "none", background: "transparent", color: "var(--cal-muted)", cursor: "pointer", padding: 0, display: "grid" }}>
+                    <XIcon className="h-4 w-4" />
                   </button>
-                ) : (
-                  <div key={st.key} style={style}>{body}</div>
-                );
-              })}
-            </div>
-          )}
-
-          {/* ── Filters (desktop board) ────────────────────────────────────── */}
-          {viewMode === "board" && !isPhone && (
-            <section aria-label="Filters" className="cal-card" style={{ padding: 12, display: "flex", flexDirection: "column", gap: 10 }}>
-              <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10 }}>
-                <label style={{ flex: "1 1 240px", display: "flex", alignItems: "center", gap: 8, height: 40, padding: "0 12px", borderRadius: 12, background: "var(--cal-surface-2)", color: "var(--cal-muted)" }}>
-                  <Search className="h-4 w-4" />
-                  <input
-                    aria-label="Search tasks"
-                    placeholder="Search tasks…"
-                    value={filterSearch}
-                    onChange={(e) => setFilterSearch(e.target.value)}
-                    style={{ flex: 1, minWidth: 0, border: "none", background: "transparent", font: "inherit", fontSize: 14, color: "var(--cal-ink)", outline: "none" }}
-                  />
-                </label>
-                {people.length > 0 && (
-                  <div role="group" aria-label="Filter by person" style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
-                    <button
-                      type="button"
-                      aria-pressed={!filterAssignee}
-                      onClick={() => setFilterAssignee("")}
-                      className="cal-focus"
-                      style={{
-                        height: 32, padding: "0 10px", borderRadius: 9, border: "none", font: "inherit", fontSize: 12, fontWeight: 600, cursor: "pointer",
-                        ...(!filterAssignee ? { background: "var(--cal-ink)", color: "var(--cal-surface)" } : { background: "var(--cal-surface-2)", color: "var(--cal-ink-2)" }),
-                      }}
-                    >
-                      All
-                    </button>
-                    {people.map((p) => personButton(p, 32))}
-                  </div>
+                )}
+              </label>
+              <div style={{ position: "relative" }}>
+                <button
+                  type="button"
+                  onClick={() => setShowFilterPop(!showFilterPop)}
+                  aria-expanded={showFilterPop}
+                  className="cal-btn"
+                  style={{ height: 40, padding: "0 14px", fontSize: 14, ...(showFilterPop || activeChips.length ? { borderColor: "var(--cal-brand)", color: "var(--cal-brand-text)" } : {}) }}
+                >
+                  <Filter className="h-4 w-4" />
+                  Filter{activeChips.length ? ` · ${activeChips.length}` : ""}
+                </button>
+                {showFilterPop && (
+                  <Popover onClose={() => setShowFilterPop(false)}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <span style={{ fontSize: 15, fontWeight: 600 }}>Filter the board</span>
+                      <button type="button" onClick={clearFilters} disabled={!hasActiveFilters} className="cal-focus" style={{ height: 32, padding: "0 8px", border: "none", background: "transparent", color: hasActiveFilters ? "var(--cal-brand-text)" : "var(--cal-muted)", font: "inherit", fontSize: 13, fontWeight: 600, cursor: hasActiveFilters ? "pointer" : "default" }}>
+                        Clear all
+                      </button>
+                    </div>
+                    {filterBody(false)}
+                  </Popover>
                 )}
               </div>
-              <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6 }}>
-                {TASK_LABELS.map((label) => {
-                  const on = filterLabels.includes(label.id);
-                  return (
-                    <button
-                      key={label.id}
-                      type="button"
-                      aria-pressed={on}
-                      onClick={() => toggleLabel(label.id)}
-                      className="cal-focus"
-                      style={{
-                        height: 32, padding: "0 11px", borderRadius: 999, font: "inherit", fontSize: 13, cursor: "pointer",
-                        display: "inline-flex", alignItems: "center", gap: 6,
-                        ...(on
-                          ? { background: `var(--lb-${label.id}-bg)`, color: `var(--lb-${label.id}-fg)`, border: `1px solid ${label.colour}`, fontWeight: 600 }
-                          : { background: "var(--cal-surface)", color: "var(--cal-ink)", border: "1px solid var(--cal-line-2)", fontWeight: 500 }),
-                      }}
-                    >
-                      <span style={{ width: 8, height: 8, borderRadius: "50%", background: label.colour }} />
-                      {label.name}
-                    </button>
-                  );
-                })}
-                <span style={{ width: 1, height: 20, background: "var(--cal-line-2)", margin: "0 4px" }} />
-                <button
-                  type="button"
-                  aria-pressed={filterOverdue}
-                  onClick={() => setFilterOverdue(!filterOverdue)}
-                  className="cal-focus"
-                  style={{
-                    height: 32, padding: "0 11px", borderRadius: 999, font: "inherit", fontSize: 13, fontWeight: 600, cursor: "pointer",
-                    color: "var(--cal-station-fg)",
-                    ...(filterOverdue
-                      ? { background: "var(--cal-station-bg)", border: "1px solid var(--cal-station-dot)" }
-                      : { background: "transparent", border: "1px dashed var(--cal-station-dot)" }),
-                  }}
-                >
-                  Overdue only
-                </button>
-                <button
-                  type="button"
-                  disabled={!hasActiveFilters}
-                  onClick={clearFilters}
-                  className="cal-focus"
-                  style={{ height: 32, padding: "0 8px", border: "none", background: "transparent", color: "var(--cal-muted)", font: "inherit", fontSize: 13, fontWeight: 500, cursor: hasActiveFilters ? "pointer" : "default", opacity: hasActiveFilters ? 1 : 0.6 }}
-                >
-                  Clear
-                </button>
-              </div>
-            </section>
+              {activeChips.map((c) => (
+                <span key={c.key} style={{ display: "inline-flex", alignItems: "center", gap: 4, height: 32, padding: "0 4px 0 11px", borderRadius: 999, fontSize: 13, fontWeight: 600, background: "var(--cal-brand-soft)", color: "var(--cal-brand-text)" }}>
+                  {c.label}
+                  <button type="button" aria-label={`Remove ${c.label} filter`} onClick={c.clear} className="cal-focus" style={{ width: 24, height: 24, borderRadius: "50%", border: "none", background: "transparent", color: "inherit", display: "grid", placeItems: "center", cursor: "pointer", padding: 0 }}>
+                    <XIcon className="h-3.5 w-3.5" />
+                  </button>
+                </span>
+              ))}
+            </div>
           )}
 
           {/* ── Board / List ─────────────────────────────────────────────────── */}
@@ -637,8 +680,8 @@ export default function Tasks() {
           )}
         </main>
 
-        {/* ════════════════ Watch calendar (desktop) ════════════════ */}
-        {!isPhone && watchName !== "Watch" && (
+        {/* ════════════════ Watch calendar (desktop, folds away) ════════════════ */}
+        {showCalPanel && (
           <div style={{ flex: "1 1 300px", maxWidth: 330, minWidth: 0 }}>
             <TaskSidePanel watch={watchName} tasks={tasks} selectedDay={selectedDay} onPickDay={setSelectedDay} onOpenTask={setSelectedTask} />
           </div>
@@ -678,49 +721,7 @@ export default function Tasks() {
               style={{ flex: 1, minWidth: 0, border: "none", background: "transparent", font: "inherit", fontSize: 16, color: "var(--cal-ink)", outline: "none" }}
             />
           </label>
-          <span style={sheetCaption}>Labels</span>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 6 }}>
-            {TASK_LABELS.map((label) => {
-              const on = filterLabels.includes(label.id);
-              return (
-                <button
-                  key={label.id}
-                  type="button"
-                  aria-pressed={on}
-                  onClick={() => toggleLabel(label.id)}
-                  className="cal-focus"
-                  style={{
-                    height: 44, borderRadius: 12, font: "inherit", fontSize: 14, display: "flex", alignItems: "center", gap: 8, padding: "0 12px", cursor: "pointer", color: "var(--cal-ink)",
-                    ...(on ? { border: "2px solid var(--cal-ink)", background: "var(--cal-surface-2)", fontWeight: 600 } : { border: "1px solid var(--cal-line-2)", background: "var(--cal-surface)" }),
-                  }}
-                >
-                  <span style={{ width: 9, height: 9, borderRadius: "50%", background: label.colour }} />
-                  {label.name}
-                  {on && <Check className="h-[15px] w-[15px]" strokeWidth={2.6} style={{ marginLeft: "auto" }} />}
-                </button>
-              );
-            })}
-          </div>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: 48 }}>
-            <span style={{ fontSize: 15, fontWeight: 500 }}>Overdue only</span>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={filterOverdue}
-              aria-label="Overdue only"
-              onClick={() => setFilterOverdue(!filterOverdue)}
-              className="cal-focus"
-              style={{ width: 52, height: 32, borderRadius: 999, border: "none", position: "relative", padding: 0, cursor: "pointer", background: filterOverdue ? "var(--cal-brand)" : "var(--cal-surface-3)", transition: "background .15s" }}
-            >
-              <span style={{ position: "absolute", top: 3, left: filterOverdue ? 23 : 3, width: 26, height: 26, borderRadius: "50%", background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,.25)", transition: "left .15s" }} />
-            </button>
-          </div>
-          {people.length > 0 && (
-            <>
-              <span style={sheetCaption}>Person</span>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>{people.map((p) => personButton(p, 44))}</div>
-            </>
-          )}
+          {filterBody(true)}
         </FilterSheet>
       )}
 
@@ -734,7 +735,13 @@ export default function Tasks() {
         isNewTask={isNewTask}
       />
 
-      {/* ── Template Manager ────────────────────────────────────────────────── */}
+      {/* ── Weekly routine planner, and the other scheduled checks ───────────── */}
+      <RoutinePlanner
+        open={showRoutines}
+        onClose={() => setShowRoutines(false)}
+        canManage={canAssignTasks}
+        onOpenOtherChecks={() => { setShowRoutines(false); setShowTemplateManager(true); }}
+      />
       <TaskTemplateManager
         isOpen={showTemplateManager}
         onClose={() => setShowTemplateManager(false)}
@@ -786,5 +793,32 @@ function FilterSheet({ onClose, onClear, children }: { onClose: () => void; onCl
       </section>
     </div>,
     document.body
+  );
+}
+
+/** A small panel under its button; closes on Escape or a click elsewhere. */
+function Popover({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const onDown = (e: MouseEvent) => {
+      const el = ref.current;
+      // Clicks on its own button toggle it there instead.
+      if (el && !el.contains(e.target as Node) && !el.parentElement?.contains(e.target as Node)) onClose();
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("mousedown", onDown);
+    window.addEventListener("keydown", onKey);
+    return () => { document.removeEventListener("mousedown", onDown); window.removeEventListener("keydown", onKey); };
+  }, [onClose]);
+  return (
+    <div
+      ref={ref}
+      role="dialog"
+      aria-label="Filter the board"
+      className="cal-card"
+      style={{ position: "absolute", left: 0, top: 48, zIndex: 40, width: 380, maxWidth: "calc(100vw - 32px)", padding: 16, display: "flex", flexDirection: "column", gap: 12, boxShadow: "var(--cal-pop)" }}
+    >
+      {children}
+    </div>
   );
 }

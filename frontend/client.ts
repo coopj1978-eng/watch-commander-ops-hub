@@ -4447,6 +4447,10 @@ export namespace task {
     export interface ChecklistItem {
         label: string
         done: boolean
+        /** Who ticked it and when (set by the server). */
+        "done_by"?: string
+        "done_by_name"?: string
+        "done_at"?: string
     }
 
     export interface CreateColumnRequest {
@@ -4569,6 +4573,9 @@ export namespace task {
         checklist?: ChecklistItem[]
         rrule: string
         "per_shift": boolean
+        "shift_only"?: "day" | "night" | null
+        /** Weekly routine slot: 'every' or a weekday + shift, e.g. 'MO-day'. */
+        "routine_slot"?: string | null
         "is_active": boolean
         "created_by": string
         "created_at": string
@@ -4608,6 +4615,7 @@ export namespace task {
         kind: "check" | "handover" | "watch" | "calendar"
         "handover_from"?: string
         "check_freq"?: string
+        "routine_slot"?: string
         "completed_by_name"?: string
     }
 
@@ -4647,6 +4655,13 @@ export namespace task {
             this.update = this.update.bind(this)
             this.updateColumn = this.updateColumn.bind(this)
             this.updateTemplate = this.updateTemplate.bind(this)
+            this.saveRoutine = this.saveRoutine.bind(this)
+        }
+
+        /** Set one weekly-routine slot's items ('every', 'MO-day', 'MO-night'…). Empty switches it off. */
+        public async saveRoutine(slot: string, params: { items: string[] }): Promise<{ template: TaskTemplate | null }> {
+            const resp = await this.baseClient.callTypedAPI("PUT", `/task-templates/routine/${encodeURIComponent(slot)}`, JSON.stringify(params))
+            return await resp.json() as { template: TaskTemplate | null }
         }
 
         public async create(params: CreateTaskRequest): Promise<Task> {

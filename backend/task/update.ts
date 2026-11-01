@@ -4,6 +4,8 @@ import db from "../db";
 import { logActivity } from "../logging/logger";
 import type { UpdateTaskRequest, Task } from "./types";
 import { assertCanModifyTask } from "./permissions";
+import { stampChecklist } from "../lib/routine";
+import type { ChecklistItem } from "./types";
 
 // Fields any watch member may change by working the shared board.
 const BOARD_MOVE_FIELDS = new Set(["status", "position", "checklist"]);
@@ -66,8 +68,17 @@ export const update = api(
       queryParams.push(updates.tags);
     }
     if (updates.checklist !== undefined) {
+      // Who ticked each item (and when) comes from the server's copy, so a
+      // station check shows who did each part.
+      const row = await db.rawQueryRow<{ checklist: unknown; name: string | null }>(
+        `SELECT t.checklist, (SELECT name FROM users WHERE id = $2) AS name FROM tasks t WHERE t.id = $1`,
+        id, auth.userID
+      );
+      const raw = typeof row?.checklist === "string" ? JSON.parse(row.checklist) : row?.checklist;
+      const before: ChecklistItem[] = Array.isArray(raw) ? raw : [];
+      const stamped = stampChecklist(before, updates.checklist, { id: auth.userID, name: row?.name ?? null });
       setClauses.push(`checklist = $${paramIndex++}`);
-      queryParams.push(JSON.stringify(updates.checklist));
+      queryParams.push(JSON.stringify(stamped));
     }
     if (updates.attachments !== undefined) {
       setClauses.push(`attachments = $${paramIndex++}`);

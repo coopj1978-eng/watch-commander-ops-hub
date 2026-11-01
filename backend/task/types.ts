@@ -5,6 +5,10 @@ export type TaskCategory = "Training" | "Inspection" | "HFSV" | "Admin" | "Other
 export interface ChecklistItem {
   label: string;
   done: boolean;
+  /** Who ticked it and when — stamped by the server, never by the client. */
+  done_by?: string;
+  done_by_name?: string;
+  done_at?: string;
 }
 
 export interface Task {
@@ -56,6 +60,10 @@ export interface TaskTemplate {
   rrule: string;
   /** "Every shift": a card for the day and night shift of each day the rule fires. */
   per_shift: boolean;
+  /** Every-shift templates limited to the day or the night shift. */
+  shift_only?: "day" | "night" | null;
+  /** Weekly routine slot: 'every' or a weekday + shift, e.g. 'MO-day'. */
+  routine_slot?: string | null;
   is_active: boolean;
   created_by: string;
   created_at: Date;

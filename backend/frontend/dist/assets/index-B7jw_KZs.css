@@ -10199,6 +10199,24 @@ table.plain tbody tr:last-child td {
   margin: 4px 6px;
 }
 
+.tc-check:hover {
+  background: var(--cal-surface-2) !important;
+}
+
+.rp-item .rp-del {
+  opacity: 0;
+}
+
+.rp-item:hover .rp-del, .rp-item:focus-within .rp-del {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .rp-item .rp-del {
+    opacity: 1;
+  }
+}
+
 @media (min-width: 768px) {
   .cal-phone-only {
     display: none;

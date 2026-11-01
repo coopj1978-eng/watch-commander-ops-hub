@@ -8,12 +8,13 @@ import { addDaysIso, slotAt, ukInstant } from "./shiftRota";
  * makes cards that belong to the STATION (no watch), so whichever watch is on
  * duty sees and ticks them:
  *   - "every shift" (per_shift): a card for the day shift and one for the
- *     night shift of each day its rule fires — due at the end of that shift;
+ *     night shift of each day its rule fires — due at the end of that shift
+ *     (shift_only limits it to one of them, e.g. Monday's night routine);
  *   - otherwise one card per day the rule fires (the rota day runs 08:00 to
  *     08:00), due when the next one is made — so a weekly/monthly/quarterly
  *     check stays on every shift until it's done, and a daily one lasts the day.
- * Making a check's next card marks its earlier unfinished card Missed, so
- * missed checks never pile up. Idempotent (unique template + date + shift),
+ * Making a check's next card — or its due time passing — marks its earlier
+ * unfinished card Missed, so missed checks never pile up. Idempotent (unique template + date + shift),
  * so it runs hourly and whenever the shift board is opened.
  */
 /** "{date}" and "{shift}" in a template's card title become the day and shift, e.g. "Mon 2 Nov" / "Night". */
@@ -40,6 +41,8 @@ export async function ensureStationChecks(now: Date = new Date()): Promise<{ cre
     checklist: unknown;
     rrule: string;
     per_shift: boolean;
+    shift_only: "day" | "night" | null;
+    routine_slot: string | null;
     created_by: string;
     created_at: Date | null;
   }>(`SELECT * FROM task_templates WHERE is_active = true`);
@@ -47,6 +50,8 @@ export async function ensureStationChecks(now: Date = new Date()): Promise<{ cre
   let created = 0;
   for (const t of templates) {
     if (!rruleFiresOn(t.rrule, slot.date, t.created_at)) continue;
+    // A weekday's night routine isn't made on the day shift, and vice versa.
+    if (t.per_shift && t.shift_only && t.shift_only !== slot.type) continue;
 
     const shiftKey = t.per_shift ? slot.type : "";
     let due: Date;
@@ -76,10 +81,11 @@ export async function ensureStationChecks(now: Date = new Date()): Promise<{ cre
     const tx = await db.begin();
     try {
       const task = await tx.rawQueryRow<{ id: number }>(
-        `INSERT INTO tasks (title, description, category, assigned_by, priority, checklist, rrule, status, watch_unit, source_type, due_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, 'NotStarted', NULL, 'template', $8)
+        `INSERT INTO tasks (title, description, category, assigned_by, priority, checklist, rrule, status, watch_unit, source_type, due_at, tags)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, 'NotStarted', NULL, 'template', $8, $9)
          RETURNING id`,
-        fillTitle(t.title_template, slot.date, slot.type, t.per_shift), t.task_description ?? null, t.category, t.created_by, t.priority, checklist, t.rrule, due
+        fillTitle(t.title_template, slot.date, slot.type, t.per_shift), t.task_description ?? null, t.category, t.created_by, t.priority, checklist, t.rrule, due,
+        t.routine_slot ? ["routine"] : null
       );
       const instance = task && await tx.rawQueryRow<{ id: number }>(
         `INSERT INTO task_template_instances (template_id, task_id, generated_for_date, generated_for_shift)
@@ -106,5 +112,16 @@ export async function ensureStationChecks(now: Date = new Date()): Promise<{ cre
     }
   }
   if (created) log.info("Station checks made", { created, date: slot.date, shift: slot.type });
+
+  // A check whose time is up is Missed: an every-shift or routine card when
+  // its shift ends, a daily/weekly/monthly one when its next card is due.
+  // (Making the next card does the same, but a weekday's routine only comes
+  // round again next week, and a deleted template's cards would never go.)
+  await db.rawExec(
+    `UPDATE tasks SET status = 'Missed', updated_at = NOW()
+     WHERE source_type = 'template' AND watch_unit IS NULL
+       AND status NOT IN ('Done', 'Missed') AND due_at IS NOT NULL AND due_at <= $1`,
+    now
+  ).catch((err) => log.error("Retiring expired station checks failed", { error: String(err) }));
   return { created };
 }

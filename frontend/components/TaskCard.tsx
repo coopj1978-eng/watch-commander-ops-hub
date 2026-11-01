@@ -4,10 +4,12 @@ import * as Menu from "@radix-ui/react-dropdown-menu";
 import { ArrowRightLeft, CalendarDays, Check, ChevronRight, ClipboardCheck, History, MoreHorizontal, Repeat } from "lucide-react";
 import type { Task, TaskColumn, TaskPriority } from "~backend/task/types";
 import { getCoverStyle, getLabelById } from "@/lib/taskLabels";
-import { ChecklistBar, DueChip, Initials, LabelTag, PriorityChip, describeRRule, priorityKey, priorityLabel, useIsPhone } from "@/lib/taskUi";
+import { ChecklistBar, DueChip, Initials, LabelTag, PriorityChip, describeRRule, initialsOf, personTint, priorityKey, priorityLabel, tickTime, useIsPhone } from "@/lib/taskUi";
 
 // Board card in the Claude Design Tasks layout: label tags + ⋯ menu on top,
 // priority dot and title, checklist bar, then due / priority / initials.
+// Open cards show their checklist so it can be ticked straight from the
+// board (Nov 2026), with who ticked each item.
 
 interface TaskCardProps {
   task: Task;
@@ -270,7 +272,7 @@ function CardMenu(props: MenuProps) {
 }
 
 const FREQ_LABEL: Record<string, string> = {
-  shift: "Every shift", daily: "Daily", weekly: "Weekly", fortnightly: "Fortnightly",
+  shift: "Every shift", routine: "Weekly routine", daily: "Daily", weekly: "Weekly", fortnightly: "Fortnightly",
   monthly: "Monthly", quarterly: "Quarterly", repeat: "Repeating",
 };
 
@@ -327,7 +329,79 @@ function ShiftTag({ task, shiftStart }: { task: Task & { kind?: string; check_fr
   return null;
 }
 
-export default function TaskCard({ task, onTitleEdit, onClick, userMap, columns, columnCounts, onMove, onSetPriority, onDelete, shiftStart }: TaskCardProps) {
+const CHECKLIST_SHOWN = 5;
+
+/** The card's checklist, tickable in place; ticked items show who and when. */
+function CardChecklist({ task, onToggle }: { task: Task; onToggle: (label: string, done: boolean) => void }) {
+  const [all, setAll] = useState(false);
+  const isPhone = useIsPhone();
+  const items = task.checklist ?? [];
+  const shown = all ? items : items.slice(0, CHECKLIST_SHOWN);
+  return (
+    // Ticking mustn't open the card (click) or trigger its Enter-to-open (keydown).
+    <div onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()} style={{ display: "flex", flexDirection: "column", margin: "-2px -6px 0" }}>
+      <ul aria-label="Checklist" style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column" }}>
+        {shown.map((item, i) => (
+          <li key={`${i}-${item.label}`}>
+            <button
+              type="button"
+              role="checkbox"
+              aria-checked={item.done}
+              onClick={() => onToggle(item.label, !item.done)}
+              className="cal-focus tc-check"
+              style={{
+                width: "100%", minHeight: isPhone ? 40 : 32, display: "flex", alignItems: "center", gap: 9, padding: "4px 6px",
+                border: "none", borderRadius: 9, background: "transparent", font: "inherit", textAlign: "left", cursor: "pointer", color: "var(--cal-ink)",
+              }}
+            >
+              <span
+                aria-hidden
+                style={{
+                  width: 18, height: 18, borderRadius: 6, flex: "none", display: "grid", placeItems: "center", transition: "background-color .12s",
+                  ...(item.done ? { background: "var(--cal-brand)" } : { boxShadow: "inset 0 0 0 1.5px var(--cal-line-2)", background: "var(--cal-surface)" }),
+                }}
+              >
+                {item.done && <Check className="h-3 w-3" strokeWidth={3.4} color="#fff" />}
+              </span>
+              <span style={{ flex: 1, minWidth: 0, fontSize: 13, lineHeight: 1.3, overflowWrap: "anywhere", ...(item.done ? { color: "var(--cal-muted)", textDecoration: "line-through" } : {}) }}>
+                {item.label}
+              </span>
+              {item.done && item.done_by_name && (
+                <span
+                  title={`${item.done_by_name}${item.done_at ? ` · ${tickTime(item.done_at)}` : ""}`}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 4, flex: "none" }}
+                >
+                  <span className="cal-mono" style={{ fontSize: 10, color: "var(--cal-muted)" }}>{tickTime(item.done_at)}</span>
+                  <span
+                    className="cal-mono"
+                    style={{
+                      height: 18, minWidth: 22, padding: "0 4px", borderRadius: 6, fontSize: 9.5, fontWeight: 600, display: "grid", placeItems: "center",
+                      background: `var(--pp-${personTint(item.done_by ?? item.done_by_name)}-bg)`, color: `var(--pp-${personTint(item.done_by ?? item.done_by_name)}-fg)`,
+                    }}
+                  >
+                    {initialsOf(item.done_by_name)}
+                  </span>
+                </span>
+              )}
+            </button>
+          </li>
+        ))}
+      </ul>
+      {items.length > CHECKLIST_SHOWN && (
+        <button
+          type="button"
+          onClick={() => setAll(!all)}
+          className="cal-focus"
+          style={{ alignSelf: "flex-start", height: 28, padding: "0 6px", border: "none", background: "transparent", borderRadius: 8, font: "inherit", fontSize: 12, fontWeight: 600, color: "var(--cal-brand-text)", cursor: "pointer" }}
+        >
+          {all ? "Show fewer" : `${items.length - CHECKLIST_SHOWN} more…`}
+        </button>
+      )}
+    </div>
+  );
+}
+
+export default function TaskCard({ task, onTitleEdit, onClick, onChecklistToggle, userMap, columns, columnCounts, onMove, onSetPriority, onDelete, shiftStart }: TaskCardProps) {
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState(task.title);
   const titleInputRef = useRef<HTMLInputElement>(null);
@@ -433,6 +507,9 @@ export default function TaskCard({ task, onTitleEdit, onClick, userMap, columns,
       </div>
 
       <ChecklistBar task={task} />
+      {onChecklistToggle && !done && (task.checklist?.length ?? 0) > 0 && (
+        <CardChecklist task={task} onToggle={(label, next) => onChecklistToggle(task.id, label, next)} />
+      )}
 
       <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
         {done && shiftTask.completed_by_name ? (

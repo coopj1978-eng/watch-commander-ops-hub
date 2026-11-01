@@ -11,7 +11,7 @@ import {
   X, Trash2, Repeat, Plus, Clock, User, ImageIcon, Search, Upload, Key, Check, ChevronDown, Loader2,
 } from "lucide-react";
 import { TASK_LABELS, CARD_COVERS, getCoverStyle } from "@/lib/taskLabels";
-import { canEditTaskDetails, describeRRule, priorityKey } from "@/lib/taskUi";
+import { autoStatusFor, canEditTaskDetails, describeRRule, priorityKey, tickTime } from "@/lib/taskUi";
 import type { Task, TaskColumn, ChecklistItem, TaskCategory, TaskPriority } from "~backend/task/types";
 
 interface TaskDetailDrawerProps {
@@ -232,6 +232,13 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
     setShowCoverPicker(false);
   };
   useEffect(resetFields, [task?.id]);
+  // Who ticked what arrives from the server after a save; take it without
+  // touching anything still being edited here.
+  useEffect(() => {
+    const server = task?.checklist;
+    if (!server) return;
+    setChecklist((prev) => prev.map((it, i) => (server[i] && server[i].label === it.label && server[i].done === it.done ? { ...it, ...server[i] } : it)));
+  }, [task?.checklist]);
 
   // The title grows with its text (one line until it wraps).
   useLayoutEffect(() => {
@@ -397,7 +404,13 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
   const handleChecklistToggle = (idx: number) => {
     const updated = checklist.map((item, i) => i === idx ? { ...item, done: !item.done } : item);
     setChecklist(updated);
-    save({ checklist: updated });
+    // The first tick starts the card, the last one finishes it (as on the board).
+    const next = autoStatusFor(status, updated, columns.map((c) => c.status_key));
+    if (next) {
+      setStatus(next);
+      save({ checklist: updated, status: next });
+      if (!isDoneStatus(status) && isDoneStatus(next)) onCompleted?.(task);
+    } else save({ checklist: updated });
   };
 
   const handleChecklistDelete = (idx: number) => {
@@ -818,6 +831,11 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                                   >
                                     {item.label}
                                   </span>
+                                  {item.done && item.done_by_name && (
+                                    <span className="cal-mono" style={{ flex: "none", fontSize: 11, color: "var(--cal-muted)" }}>
+                                      {item.done_by_name.split(" ")[0]} · {tickTime(item.done_at)}
+                                    </span>
+                                  )}
                                 </button>
                                 {canEdit && (
                                   <button type="button" aria-label={`Delete "${item.label}"`} className="tdd-del cal-focus grid place-items-center mr-1" onClick={() => handleChecklistDelete(idx)}>

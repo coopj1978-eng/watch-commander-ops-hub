@@ -33,8 +33,10 @@ export interface ShiftTask extends Task {
   kind: "check" | "handover" | "watch" | "calendar";
   /** Handover lines: who handed it over, e.g. "Blue Watch · Night 25 Oct". */
   handover_from?: string;
-  /** Station checks: shift | daily | weekly | fortnightly | monthly | quarterly | repeat. */
+  /** Station checks: shift | routine | daily | weekly | fortnightly | monthly | quarterly | repeat. */
   check_freq?: string;
+  /** Weekly routine cards: their planner slot, e.g. 'MO-day' or 'every'. */
+  routine_slot?: string;
   completed_by_name?: string;
 }
 
@@ -45,7 +47,8 @@ export interface ShiftBoardResponse {
   tasks: ShiftTask[];
 }
 
-function checkFreq(perShift: boolean | null, rrule: string | null): string {
+function checkFreq(perShift: boolean | null, rrule: string | null, routineSlot?: string | null): string {
+  if (routineSlot && routineSlot !== "every") return "routine";
   if (perShift) return "shift";
   const freq = rrule?.match(/FREQ=([A-Z]+)/)?.[1];
   const interval = parseInt(rrule?.match(/INTERVAL=(\d+)/)?.[1] ?? "1") || 1;
@@ -82,7 +85,7 @@ export const shiftBoard = api<ShiftBoardRequest, ShiftBoardResponse>(
     }
 
     const rows = await db.rawQueryAll<any>(
-      `SELECT t.*, u.name AS completed_by_name, tt.per_shift, tt.rrule AS template_rrule,
+      `SELECT t.*, u.name AS completed_by_name, tt.per_shift, tt.rrule AS template_rrule, tt.routine_slot,
               ho.watch AS ho_watch, ho.shift_type AS ho_type, ho.shift_date AS ho_date
        FROM tasks t
        LEFT JOIN task_template_instances i ON i.task_id = t.id
@@ -104,7 +107,7 @@ export const shiftBoard = api<ShiftBoardRequest, ShiftBoardResponse>(
     );
 
     const tasks: ShiftTask[] = rows.map((t) => {
-      const { per_shift, template_rrule, ho_watch, ho_type, ho_date, ...rest } = t;
+      const { per_shift, template_rrule, routine_slot, ho_watch, ho_type, ho_date, ...rest } = t;
       const kind: ShiftTask["kind"] =
         t.source_type === "template" ? "check"
         : t.source_type === "handover" ? "handover"
@@ -117,7 +120,8 @@ export const shiftBoard = api<ShiftBoardRequest, ShiftBoardResponse>(
         tags: Array.isArray(t.tags) ? t.tags : (t.tags ?? undefined),
         completed_by_name: t.completed_by_name ?? undefined,
         kind,
-        check_freq: kind === "check" ? checkFreq(per_shift, template_rrule ?? t.rrule) : undefined,
+        check_freq: kind === "check" ? checkFreq(per_shift, template_rrule ?? t.rrule, routine_slot) : undefined,
+        routine_slot: kind === "check" ? (routine_slot ?? undefined) : undefined,
         handover_from: kind === "handover" && ho_watch
           ? `${ho_watch} Watch · ${ho_type} ${hoDate ? hoDate.toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "Europe/London" }) : ""}`.trim()
           : undefined,
@@ -137,7 +141,7 @@ export interface MissedCheck {
   date: string;
   /** "day" / "night" for every-shift checks; "" for daily and longer. */
   shift: string;
-  /** shift | daily | weekly | fortnightly | monthly | quarterly | repeat */
+  /** shift | routine | daily | weekly | fortnightly | monthly | quarterly | repeat */
   freq: string;
   /** Watches on duty when it was due — none for weekly and longer (the station's). */
   watches: string[];
@@ -149,8 +153,8 @@ export const missedChecks = api<{ days?: Query<number> }, { checks: MissedCheck[
     const days = Math.min(31, Math.max(1, Number(req.days) || 7));
     // due_at is set on every check the shift-board generator makes; the old
     // generator's leftovers (retired by migration 068) have none.
-    const rows = await db.rawQueryAll<{ id: number; title: string; d: Date | string; shift: string; per_shift: boolean | null; rrule: string | null }>(
-      `SELECT t.id, t.title, i.generated_for_date AS d, i.generated_for_shift AS shift, tt.per_shift, tt.rrule
+    const rows = await db.rawQueryAll<{ id: number; title: string; d: Date | string; shift: string; per_shift: boolean | null; rrule: string | null; routine_slot: string | null }>(
+      `SELECT t.id, t.title, i.generated_for_date AS d, i.generated_for_shift AS shift, tt.per_shift, tt.rrule, tt.routine_slot
        FROM tasks t
        JOIN task_template_instances i ON i.task_id = t.id
        LEFT JOIN task_templates tt ON tt.id = i.template_id
@@ -162,7 +166,7 @@ export const missedChecks = api<{ days?: Query<number> }, { checks: MissedCheck[
     return {
       checks: rows.map((r) => {
         const date = r.d instanceof Date ? r.d.toISOString().slice(0, 10) : String(r.d).slice(0, 10);
-        const freq = checkFreq(r.per_shift, r.rrule);
+        const freq = checkFreq(r.per_shift, r.rrule, r.routine_slot);
         const slots = r.shift
           ? [shiftSlot(date, r.shift as SlotType)]
           : freq === "daily" ? [shiftSlot(date, "day"), shiftSlot(date, "night")] : [];

@@ -169,6 +169,40 @@ export function canEditTaskDetails(
   return (role === "WC" || role === "CC") && sameWatch;
 }
 
+/**
+ * Ticking moves the card for you (Nov 2026; Trello needs a Butler rule per
+ * checklist for this): the first tick takes a To Do card to In Progress, the
+ * last tick takes it to Done, and unticking a Done card puts it back in
+ * progress. Cards in custom columns stay where they are until finished.
+ * Returns the new column, or null to leave it.
+ */
+export function autoStatusFor(
+  status: string,
+  checklist: { done: boolean }[],
+  columnKeys: string[],
+): string | null {
+  if (checklist.length === 0) return null;
+  const has = (k: string) => columnKeys.includes(k);
+  const all = checklist.every((i) => i.done);
+  const any = checklist.some((i) => i.done);
+  if (all && (status === "NotStarted" || status === "InProgress") && has("Done")) return "Done";
+  if (!all && status === "Done" && has("InProgress")) return "InProgress";
+  if (any && !all && status === "NotStarted" && has("InProgress")) return "InProgress";
+  return null;
+}
+
+/** "AJ" from "Andy James" — for who-ticked tags. */
+export const initialsOf = (name?: string | null) =>
+  (name ?? "").split(/\s+/).filter(Boolean).map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "?";
+
+/** "08:14" or "Mon 08:14" when it wasn't today. */
+export function tickTime(iso?: string): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const hm = d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+  return d.toDateString() === new Date().toDateString() ? hm : `${d.toLocaleDateString("en-GB", { weekday: "short" })} ${hm}`;
+}
+
 /** True below the md breakpoint (phones) — for layouts that differ, not just restyle. */
 export function useIsPhone(): boolean {
   const query = "(max-width: 767px)";

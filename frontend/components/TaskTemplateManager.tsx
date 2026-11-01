@@ -238,7 +238,8 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
     queryFn: async () => (await backend.task.listTemplates()).templates,
     enabled: isOpen,
   });
-  const templates = (data ?? []) as unknown as TaskTemplate[];
+  // Weekly-routine slots are edited in the Routines planner, not here.
+  const templates = ((data ?? []) as unknown as TaskTemplate[]).filter((t) => !t.routine_slot);
 
   // Same query (and cache) as the Tasks page — only used for column names in the copy.
   const { data: columnsData } = useQuery({
@@ -451,8 +452,8 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
             <span className="ttm-eyebrow cal-mono">
               {watch ? `${watch} Watch · ` : ""}{canManage ? "WC / CC only" : "Set by WC / CC"}
             </span>
-            <h2 id="ttm-title" className="ttm-h1">Work templates</h2>
-            <span className="ttm-sub">Station checks for every watch — each one appears on the board of the watch on duty.</span>
+            <h2 id="ttm-title" className="ttm-h1">Other checks</h2>
+            <span className="ttm-sub">Checks outside the weekly routine — fortnightly, monthly, quarterly… Each one appears on the board of the watch on duty.</span>
           </div>
           <span style={{ flex: 1 }} />
           {canManage && (

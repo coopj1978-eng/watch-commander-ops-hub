@@ -723,5 +723,10 @@ table.plain tbody tr:last-child td { border-bottom: none; }
 .cal-menu-sub[data-state="checked"] { color: var(--cal-ink); font-weight: 600; }
 .cal-menu-danger { color: var(--cal-station-fg); font-weight: 600; }
 .cal-menu-sep { height: 1px; background: var(--cal-line); margin: 4px 6px; }
+/* Checklist rows ticked straight from a board card, and the routine planner's items. */
+.tc-check:hover { background: var(--cal-surface-2) !important; }
+.rp-item .rp-del { opacity: 0; }
+.rp-item:hover .rp-del, .rp-item:focus-within .rp-del { opacity: 1; }
+@media (hover: none) { .rp-item .rp-del { opacity: 1; } }
 /* .cal-btn sets display, so Tailwind's md:hidden can't hide it — use this. */
 @media (min-width: 768px) { .cal-phone-only { display: none; } }
