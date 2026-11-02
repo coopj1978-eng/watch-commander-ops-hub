@@ -29,7 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
-import { Upload, Download, FileText, Search, Filter, Grid3x3, Table as TableIcon, BookOpen } from "lucide-react";
+import { Upload, Download, Trash2, FileText, Search, Filter, Grid3x3, Table as TableIcon, BookOpen } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PolicyAckControls } from "@/components/PolicyAckControls";
 import { useAuth } from "@/App";
@@ -41,8 +41,8 @@ export default function Policies() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user } = useAuth();
-  // Uploading is WC only (CREATE_POLICIES on the server).
-  const canUpload = user?.role === "WC";
+  // Uploading and deleting are WC only (CREATE_POLICIES on the server).
+  const canManage = user?.role === "WC";
   const [searchTerm, setSearchTerm] = useState("");
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
@@ -89,6 +89,28 @@ export default function Policies() {
       });
     },
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => backend.policy.deletePolicy(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["policies"] });
+      toast({ title: "Document deleted" });
+    },
+    onError: (error) => {
+      console.error("Delete error:", error);
+      toast({
+        title: "Delete failed",
+        description: error instanceof Error ? error.message : "Could not delete the document",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const confirmDelete = (policy: PolicyDoc) => {
+    if (confirm(`Delete "${policy.title}"? It's removed for everyone, with its acknowledgements. This cannot be undone.`)) {
+      deleteMutation.mutate(policy.id);
+    }
+  };
 
   const getStatusBadge = (policy: PolicyDoc) => {
     if (policy.vector_id) {
@@ -137,7 +159,7 @@ export default function Policies() {
               <TableIcon className="h-4 w-4" />
             </Button>
           </div>
-          {canUpload && (
+          {canManage && (
             <Button
               className="bg-brand hover:bg-brand/90 text-brand-foreground"
               onClick={() => setUploadDialogOpen(true)}
@@ -208,16 +230,29 @@ export default function Policies() {
                       </CardDescription>
                     </div>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => downloadMutation.mutate(policy.id)}
-                    disabled={downloadMutation.isPending}
-                    className="flex-shrink-0"
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    Download
-                  </Button>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => downloadMutation.mutate(policy.id)}
+                      disabled={downloadMutation.isPending}
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Download
+                    </Button>
+                    {canManage && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => confirmDelete(policy)}
+                        disabled={deleteMutation.isPending}
+                        aria-label={`Delete ${policy.title}`}
+                        className="text-muted-foreground hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
@@ -291,14 +326,29 @@ export default function Policies() {
                     <PolicyAckControls policyDoc={policy as any} compact />
                   </TableCell>
                   <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => downloadMutation.mutate(policy.id)}
-                      disabled={downloadMutation.isPending}
-                    >
-                      <Download className="h-4 w-4" />
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => downloadMutation.mutate(policy.id)}
+                        disabled={downloadMutation.isPending}
+                        aria-label={`Download ${policy.title}`}
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                      {canManage && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => confirmDelete(policy)}
+                          disabled={deleteMutation.isPending}
+                          aria-label={`Delete ${policy.title}`}
+                          className="text-muted-foreground hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -322,7 +372,7 @@ export default function Policies() {
                 ? "Try adjusting the filters or search term."
                 : "Upload PDF policy documents to make them searchable."}
             </p>
-            {canUpload && !searchTerm && activeFiltersCount === 0 && (
+            {canManage && !searchTerm && activeFiltersCount === 0 && (
               <Button
                 className="mt-5 bg-brand hover:bg-brand/90 text-brand-foreground"
                 onClick={() => setUploadDialogOpen(true)}

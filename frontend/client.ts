@@ -3537,6 +3537,7 @@ export namespace policy {
         constructor(baseClient: BaseClient) {
             this.baseClient = baseClient
             this.ask = this.ask.bind(this)
+            this.deletePolicy = this.deletePolicy.bind(this)
             this.getDownloadUrl = this.getDownloadUrl.bind(this)
             this.list = this.list.bind(this)
             this.processEmbedding = this.processEmbedding.bind(this)
@@ -3567,6 +3568,11 @@ export namespace policy {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("POST", `/policies/ask`, JSON.stringify(params))
             return await resp.json() as AskPolicyResponse
+        }
+
+        public async deletePolicy(id: number): Promise<{ success: boolean }> {
+            const resp = await this.baseClient.callTypedAPI("DELETE", `/policies/${encodeURIComponent(id)}`)
+            return await resp.json() as { success: boolean }
         }
 
         public async getDownloadUrl(id: number): Promise<GetDownloadUrlResponse> {

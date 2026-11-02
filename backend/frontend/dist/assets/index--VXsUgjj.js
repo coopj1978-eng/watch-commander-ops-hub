@@ -28741,6 +28741,7 @@ var policy;
     constructor(baseClient) {
       this.baseClient = baseClient;
       this.ask = this.ask.bind(this);
+      this.deletePolicy = this.deletePolicy.bind(this);
       this.getDownloadUrl = this.getDownloadUrl.bind(this);
       this.list = this.list.bind(this);
       this.processEmbedding = this.processEmbedding.bind(this);
@@ -28765,6 +28766,10 @@ var policy;
     }
     async ask(params) {
       const resp = await this.baseClient.callTypedAPI("POST", `/policies/ask`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async deletePolicy(id) {
+      const resp = await this.baseClient.callTypedAPI("DELETE", `/policies/${encodeURIComponent(id)}`);
       return await resp.json();
     }
     async getDownloadUrl(id) {
@@ -60137,9 +60142,9 @@ function PolicyAckReceipts({ id }) {
 function Policies() {
   const backend = useBackend$1();
   const { toast: toast2 } = useToast();
-  useQueryClient();
+  const queryClient2 = useQueryClient();
   const { user: user2 } = useAuth();
-  const canUpload = (user2 == null ? void 0 : user2.role) === "WC";
+  const canManage = (user2 == null ? void 0 : user2.role) === "WC";
   const [searchTerm, setSearchTerm] = reactExports.useState("");
   const [uploadDialogOpen, setUploadDialogOpen] = reactExports.useState(false);
   const [viewMode, setViewMode] = reactExports.useState("grid");
@@ -60177,6 +60182,26 @@ function Policies() {
       });
     }
   });
+  const deleteMutation = useMutation({
+    mutationFn: (id) => backend.policy.deletePolicy(id),
+    onSuccess: () => {
+      queryClient2.invalidateQueries({ queryKey: ["policies"] });
+      toast2({ title: "Document deleted" });
+    },
+    onError: (error) => {
+      console.error("Delete error:", error);
+      toast2({
+        title: "Delete failed",
+        description: error instanceof Error ? error.message : "Could not delete the document",
+        variant: "destructive"
+      });
+    }
+  });
+  const confirmDelete = (policy2) => {
+    if (confirm(`Delete "${policy2.title}"? It's removed for everyone, with its acknowledgements. This cannot be undone.`)) {
+      deleteMutation.mutate(policy2.id);
+    }
+  };
   const getStatusBadge = (policy2) => {
     if (policy2.vector_id) {
       return /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: "bg-green-500/10 text-green-500", children: "Indexed" });
@@ -60227,7 +60252,7 @@ function Policies() {
             }
           )
         ] }),
-        canUpload && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        canManage && /* @__PURE__ */ jsxRuntimeExports.jsxs(
           Button,
           {
             className: "bg-brand hover:bg-brand/90 text-brand-foreground",
@@ -60284,20 +60309,33 @@ function Policies() {
             ] })
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Button,
-          {
-            variant: "outline",
-            size: "sm",
-            onClick: () => downloadMutation.mutate(policy2.id),
-            disabled: downloadMutation.isPending,
-            className: "flex-shrink-0",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { className: "h-4 w-4 mr-2" }),
-              "Download"
-            ]
-          }
-        )
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1 flex-shrink-0", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            Button,
+            {
+              variant: "outline",
+              size: "sm",
+              onClick: () => downloadMutation.mutate(policy2.id),
+              disabled: downloadMutation.isPending,
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { className: "h-4 w-4 mr-2" }),
+                "Download"
+              ]
+            }
+          ),
+          canManage && /* @__PURE__ */ jsxRuntimeExports.jsx(
+            Button,
+            {
+              variant: "ghost",
+              size: "sm",
+              onClick: () => confirmDelete(policy2),
+              disabled: deleteMutation.isPending,
+              "aria-label": `Delete ${policy2.title}`,
+              className: "text-muted-foreground hover:text-destructive",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-4 w-4" })
+            }
+          )
+        ] })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-3 text-sm", children: [
@@ -60343,23 +60381,38 @@ function Policies() {
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: new Date(policy2.uploaded_at).toLocaleDateString() }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: getStatusBadge(policy2) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(PolicyAckControls, { policyDoc: policy2, compact: true }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Button,
-          {
-            variant: "ghost",
-            size: "sm",
-            onClick: () => downloadMutation.mutate(policy2.id),
-            disabled: downloadMutation.isPending,
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { className: "h-4 w-4" })
-          }
-        ) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            Button,
+            {
+              variant: "ghost",
+              size: "sm",
+              onClick: () => downloadMutation.mutate(policy2.id),
+              disabled: downloadMutation.isPending,
+              "aria-label": `Download ${policy2.title}`,
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { className: "h-4 w-4" })
+            }
+          ),
+          canManage && /* @__PURE__ */ jsxRuntimeExports.jsx(
+            Button,
+            {
+              variant: "ghost",
+              size: "sm",
+              onClick: () => confirmDelete(policy2),
+              disabled: deleteMutation.isPending,
+              "aria-label": `Delete ${policy2.title}`,
+              className: "text-muted-foreground hover:text-destructive",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-4 w-4" })
+            }
+          )
+        ] }) })
       ] }, policy2.id)) })
     ] }) }) }),
     !isLoading && filteredPolicies.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { className: "border-dashed", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "py-16 text-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "mx-auto h-10 w-10 mb-3 text-muted-foreground/40" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium text-foreground", children: activeFiltersCount > 0 || searchTerm ? "No policies match the search criteria" : "No policy documents uploaded yet" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground mt-1", children: activeFiltersCount > 0 || searchTerm ? "Try adjusting the filters or search term." : "Upload PDF policy documents to make them searchable." }),
-      canUpload && !searchTerm && activeFiltersCount === 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      canManage && !searchTerm && activeFiltersCount === 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
         Button,
         {
           className: "mt-5 bg-brand hover:bg-brand/90 text-brand-foreground",
