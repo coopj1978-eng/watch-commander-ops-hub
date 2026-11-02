@@ -49,7 +49,6 @@ interface DBUserProfile {
   profile_phone?: string;
   profile_emergency_contact_name?: string;
   profile_emergency_contact_phone?: string;
-  profile_skills?: string[];
   profile_certifications?: string[];
   profile_driver_lgv?: boolean;
   profile_driver_erd?: boolean;
@@ -105,8 +104,9 @@ function transformUserProfile(row: DBUserProfile): PersonWithProfile {
       phone: row.profile_phone,
       emergency_contact_name: row.profile_emergency_contact_name,
       emergency_contact_phone: row.profile_emergency_contact_phone,
-      // Merge raw profile skills (TEXT[]) with formal skill_renewals names — deduplicated
-      skills: [...new Set([...(row.profile_skills || []), ...(row.skill_renewals || [])])],
+      // The person's skill records (their Skills tab). The old skills list
+      // (p.skills) was copied into them in migration 080 and isn't shown.
+      skills: [...new Set(row.skill_renewals || [])],
       certifications: row.profile_certifications || [],
       watch: row.profile_watch as any,
       driver: {
@@ -181,7 +181,6 @@ export const listWithUsers = api<ListPeopleRequest, ListPeopleResponse>(
         p.phone as profile_phone,
         p.emergency_contact_name as profile_emergency_contact_name,
         p.emergency_contact_phone as profile_emergency_contact_phone,
-        p.skills as profile_skills,
         p.certifications as profile_certifications,
         p.driver_lgv as profile_driver_lgv,
         p.driver_erd as profile_driver_erd,
