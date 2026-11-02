@@ -79,6 +79,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "Station",
     items: [
       { name: "Targets",    path: "/targets",    icon: Target,     featureKey: "targets", shortcut: "G", keywords: "hfsv community multi-story performance" },
+      { name: "Reports",    path: "/reports",    icon: BarChart2,  featureKey: "reports", keywords: "quarterly report export csv" },
       { name: "Hydrants",   path: "/hydrants",   icon: Flame,      keywords: "hydrant routes faults" },
       { name: "J4 Checks",  path: "/equipment",  icon: Truck,      featureKey: "equipment", keywords: "equipment appliance defects" },
       { name: "References", path: "/references", icon: BookMarked, keywords: "watch references monthly" },
@@ -92,11 +93,6 @@ export const ACCOUNT_ITEMS: NavItem[] = [
   { name: "My profile", path: "/profile",  icon: UserCircle, keywords: "me account skills toil" },
   { name: "Settings",   path: "/settings", icon: Settings,   keywords: "appearance branding export dictionaries" },
   { name: "Admin",      path: "/admin",    icon: ShieldCheck, adminOnly: true, keywords: "users feature flags" },
-];
-
-/** Pages outside the menu that search and the title bar still know. */
-export const OTHER_PAGES: NavItem[] = [
-  { name: "Reports", path: "/reports", icon: BarChart2, featureKey: "reports", keywords: "quarterly report export csv" },
 ];
 
 // ── Quick add — the phone "+" and the ⌘K "Add" group ─────────────────────────
@@ -146,12 +142,11 @@ export function useNav() {
       .map((g) => ({ ...g, items: g.items.filter(allowed) }))
       .filter((g) => g.items.length > 0),
     account: ACCOUNT_ITEMS.filter(allowed),
-    other: OTHER_PAGES.filter(allowed),
     actions: isManager ? MANAGER_ACTIONS : CREW_ACTIONS,
   };
 }
 
-const ALL_PAGES: NavItem[] = [...NAV_GROUPS.flatMap((g) => g.items), ...ACCOUNT_ITEMS, ...OTHER_PAGES];
+const ALL_PAGES: NavItem[] = [...NAV_GROUPS.flatMap((g) => g.items), ...ACCOUNT_ITEMS];
 
 /** The page a path belongs to — "/people/123" is People. */
 export function pageFor(pathname: string): NavItem | undefined {

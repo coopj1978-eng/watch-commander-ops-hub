@@ -16,8 +16,8 @@ import { NavCount, NavDot } from "./nav/NavBadge";
 // ☰ drawer, which listed the same pages a second time.
 // ──────────────────────────────────────────────────────────────────────────────
 
-const MANAGER_TABS = ["/", "/people", "/tasks", "/handover"];
-const CREW_TABS = ["/", "/tasks", "/calendar", "/handover"];
+// John's pick (Nov 2026): the same four for everyone; People is under More.
+const TAB_PATHS = ["/", "/calendar", "/tasks", "/handover"];
 
 interface MobileBottomNavProps {
   onSearch: () => void;
@@ -26,15 +26,14 @@ interface MobileBottomNavProps {
 
 export function MobileBottomNav({ onSearch, onChangePassword }: MobileBottomNavProps) {
   const { pathname } = useLocation();
-  const { groups, isManager } = useNav();
+  const { groups } = useNav();
   const badges = useNavBadges();
   const [moreOpen, setMoreOpen] = useState(false);
 
   const all = groups.flatMap((g) => g.items);
-  const tabPaths = isManager ? MANAGER_TABS : CREW_TABS;
-  const tabs = tabPaths.map((p) => all.find((i) => i.path === p)).filter((i): i is NavItem => !!i);
+  const tabs = TAB_PATHS.map((p) => all.find((i) => i.path === p)).filter((i): i is NavItem => !!i);
   const rest = groups
-    .map((g) => ({ ...g, items: g.items.filter((i) => !tabPaths.includes(i.path)) }))
+    .map((g) => ({ ...g, items: g.items.filter((i) => !TAB_PATHS.includes(i.path)) }))
     .filter((g) => g.items.length > 0);
 
   const onTab = tabs.some((t) => isActivePath(pathname, t.path));

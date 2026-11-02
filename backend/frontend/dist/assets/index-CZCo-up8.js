@@ -31809,6 +31809,7 @@ const NAV_GROUPS = [
     label: "Station",
     items: [
       { name: "Targets", path: "/targets", icon: Target, featureKey: "targets", shortcut: "G", keywords: "hfsv community multi-story performance" },
+      { name: "Reports", path: "/reports", icon: ChartNoAxesColumn, featureKey: "reports", keywords: "quarterly report export csv" },
       { name: "Hydrants", path: "/hydrants", icon: Flame, keywords: "hydrant routes faults" },
       { name: "J4 Checks", path: "/equipment", icon: Truck, featureKey: "equipment", keywords: "equipment appliance defects" },
       { name: "References", path: "/references", icon: BookMarked, keywords: "watch references monthly" },
@@ -31820,9 +31821,6 @@ const ACCOUNT_ITEMS = [
   { name: "My profile", path: "/profile", icon: CircleUser, keywords: "me account skills toil" },
   { name: "Settings", path: "/settings", icon: Settings$1, keywords: "appearance branding export dictionaries" },
   { name: "Admin", path: "/admin", icon: ShieldCheck, adminOnly: true, keywords: "users feature flags" }
-];
-const OTHER_PAGES = [
-  { name: "Reports", path: "/reports", icon: ChartNoAxesColumn, featureKey: "reports", keywords: "quarterly report export csv" }
 ];
 const TASK = { label: "Task for this shift", hint: "A card on the shift board", to: "/tasks?new=1", Icon: SquareKanban, tint: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300" };
 const MANAGER_ACTIONS$1 = [
@@ -31851,11 +31849,10 @@ function useNav() {
     isManager,
     groups: NAV_GROUPS.map((g) => ({ ...g, items: g.items.filter(allowed) })).filter((g) => g.items.length > 0),
     account: ACCOUNT_ITEMS.filter(allowed),
-    other: OTHER_PAGES.filter(allowed),
     actions: isManager ? MANAGER_ACTIONS$1 : CREW_ACTIONS$1
   };
 }
-const ALL_PAGES = [...NAV_GROUPS.flatMap((g) => g.items), ...ACCOUNT_ITEMS, ...OTHER_PAGES];
+const ALL_PAGES = [...NAV_GROUPS.flatMap((g) => g.items), ...ACCOUNT_ITEMS];
 function pageFor(pathname) {
   if (pathname === "/") return ALL_PAGES[0];
   return ALL_PAGES.filter((p) => p.path !== "/" && (pathname === p.path || pathname.startsWith(p.path + "/"))).sort((a, b) => b.path.length - a.path.length)[0];
@@ -33558,17 +33555,15 @@ const Switch$1 = reactExports.forwardRef(({ className, ...props }, ref) => /* @_
   }
 ));
 Switch$1.displayName = Root$3.displayName;
-const MANAGER_TABS = ["/", "/people", "/tasks", "/handover"];
-const CREW_TABS = ["/", "/tasks", "/calendar", "/handover"];
+const TAB_PATHS = ["/", "/calendar", "/tasks", "/handover"];
 function MobileBottomNav({ onSearch, onChangePassword }) {
   const { pathname } = useLocation();
-  const { groups, isManager } = useNav();
+  const { groups } = useNav();
   const badges = useNavBadges();
   const [moreOpen, setMoreOpen] = reactExports.useState(false);
   const all = groups.flatMap((g) => g.items);
-  const tabPaths = isManager ? MANAGER_TABS : CREW_TABS;
-  const tabs = tabPaths.map((p) => all.find((i) => i.path === p)).filter((i) => !!i);
-  const rest = groups.map((g) => ({ ...g, items: g.items.filter((i) => !tabPaths.includes(i.path)) })).filter((g) => g.items.length > 0);
+  const tabs = TAB_PATHS.map((p) => all.find((i) => i.path === p)).filter((i) => !!i);
+  const rest = groups.map((g) => ({ ...g, items: g.items.filter((i) => !TAB_PATHS.includes(i.path)) })).filter((g) => g.items.length > 0);
   const onTab = tabs.some((t) => isActivePath(pathname, t.path));
   const moreBadge = rest.flatMap((g) => g.items).map((i) => i.badge && badges[i.badge]).find(Boolean) || void 0;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
@@ -34029,7 +34024,7 @@ function score(e, q) {
 const initialsOf$1 = (name) => name.split(/\s+/).filter(Boolean).map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "?";
 function CommandPalette({ open, onOpenChange, onShowShortcuts }) {
   const navigate = useNavigate();
-  const { groups, account, other, actions, isManager } = useNav();
+  const { groups, account, actions, isManager } = useNav();
   const badges = useNavBadges();
   const { isDark, toggle } = useThemeMode();
   const [query, setQuery] = reactExports.useState("");
@@ -34069,7 +34064,7 @@ function CommandPalette({ open, onOpenChange, onShowShortcuts }) {
     navigate(to);
   };
   const entries = reactExports.useMemo(() => {
-    const pages = [...groups.flatMap((g) => g.items.map((i) => ({ ...i, group: g.label }))), ...account.map((i) => ({ ...i, group: "You" })), ...other.map((i) => ({ ...i, group: "Station" }))].map((p) => ({
+    const pages = [...groups.flatMap((g) => g.items.map((i) => ({ ...i, group: g.label }))), ...account.map((i) => ({ ...i, group: "You" }))].map((p) => ({
       id: `page:${p.path}`,
       group: "Go to",
       label: p.name,
@@ -34127,7 +34122,7 @@ function CommandPalette({ open, onOpenChange, onShowShortcuts }) {
     }
     const rank = (list, limit = 50) => list.map((e) => ({ e, s: score(e, q) })).filter((x) => x.s >= 0).sort((a, b) => a.s - b.s).slice(0, limit).map((x) => x.e);
     return [...rank(pages), ...rank(crew2, 8), ...rank(adds), ...rank(dos)];
-  }, [query, groups, account, other, actions, people, badges, isDark]);
+  }, [query, groups, account, actions, people, badges, isDark]);
   reactExports.useEffect(() => setActive(0), [query]);
   reactExports.useEffect(() => {
     var _a3, _b3;

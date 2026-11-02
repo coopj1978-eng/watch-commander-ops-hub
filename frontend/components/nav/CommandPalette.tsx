@@ -75,7 +75,7 @@ export function CommandPalette({ open, onOpenChange, onShowShortcuts }: {
   onShowShortcuts: () => void;
 }) {
   const navigate = useNavigate();
-  const { groups, account, other, actions, isManager } = useNav();
+  const { groups, account, actions, isManager } = useNav();
   const badges = useNavBadges();
   const { isDark, toggle } = useThemeMode();
   const [query, setQuery] = useState("");
@@ -122,7 +122,7 @@ export function CommandPalette({ open, onOpenChange, onShowShortcuts }: {
   };
 
   const entries = useMemo(() => {
-    const pages: Entry[] = [...groups.flatMap((g) => g.items.map((i) => ({ ...i, group: g.label }))), ...account.map((i) => ({ ...i, group: "You" })), ...other.map((i) => ({ ...i, group: "Station" }))]
+    const pages: Entry[] = [...groups.flatMap((g) => g.items.map((i) => ({ ...i, group: g.label }))), ...account.map((i) => ({ ...i, group: "You" }))]
       .map((p) => ({
         id: `page:${p.path}`,
         group: "Go to",
@@ -201,7 +201,7 @@ export function CommandPalette({ open, onOpenChange, onShowShortcuts }: {
     return [...rank(pages), ...rank(crew, 8), ...rank(adds), ...rank(dos)];
     // `go` is recreated each render but only closes over navigate/onOpenChange.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, groups, account, other, actions, people, badges, isDark]);
+  }, [query, groups, account, actions, people, badges, isDark]);
 
   useEffect(() => setActive(0), [query]);
 
