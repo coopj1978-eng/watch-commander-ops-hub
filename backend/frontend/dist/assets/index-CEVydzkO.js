@@ -16398,8 +16398,8 @@ var QueryObserver = (_f = class extends Subscribable {
   if (isServer || __privateGet(this, _currentResult).isStale || !isValidTimeout(staleTime)) {
     return;
   }
-  const time = timeUntilStale(__privateGet(this, _currentResult).dataUpdatedAt, staleTime);
-  const timeout = time + 1;
+  const time2 = timeUntilStale(__privateGet(this, _currentResult).dataUpdatedAt, staleTime);
+  const timeout = time2 + 1;
   __privateSet(this, _staleTimeoutId, timeoutManager.setTimeout(() => {
     if (!__privateGet(this, _currentResult).isStale) {
       this.updateResult();
@@ -19754,17 +19754,6 @@ const BookOpen = createLucideIcon("book-open", __iconNode$25);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$24 = [
-  ["path", { d: "M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16", key: "jecpp" }],
-  ["rect", { width: "20", height: "14", x: "2", y: "6", rx: "2", key: "i6l2r4" }]
-];
-const Briefcase = createLucideIcon("briefcase", __iconNode$24);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$23 = [
   ["path", { d: "M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z", key: "1b4qmf" }],
   ["path", { d: "M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2", key: "i71pzd" }],
   ["path", { d: "M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2", key: "10jefs" }],
@@ -19773,7 +19762,21 @@ const __iconNode$23 = [
   ["path", { d: "M10 14h4", key: "kelpxr" }],
   ["path", { d: "M10 18h4", key: "1ulq68" }]
 ];
-const Building2 = createLucideIcon("building-2", __iconNode$23);
+const Building2 = createLucideIcon("building-2", __iconNode$24);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$23 = [
+  ["path", { d: "M8 2v4", key: "1cmpym" }],
+  ["path", { d: "M16 2v4", key: "4m81vk" }],
+  ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
+  ["path", { d: "M3 10h18", key: "8toen8" }],
+  ["path", { d: "m9 16 2 2 4-4", key: "19s6y9" }]
+];
+const CalendarCheck = createLucideIcon("calendar-check", __iconNode$23);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19781,20 +19784,6 @@ const Building2 = createLucideIcon("building-2", __iconNode$23);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$22 = [
-  ["path", { d: "M8 2v4", key: "1cmpym" }],
-  ["path", { d: "M16 2v4", key: "4m81vk" }],
-  ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
-  ["path", { d: "M3 10h18", key: "8toen8" }],
-  ["path", { d: "m9 16 2 2 4-4", key: "19s6y9" }]
-];
-const CalendarCheck = createLucideIcon("calendar-check", __iconNode$22);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$21 = [
   ["path", { d: "M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5", key: "1osxxc" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["path", { d: "M8 2v4", key: "1cmpym" }],
@@ -19802,14 +19791,14 @@ const __iconNode$21 = [
   ["path", { d: "M17.5 17.5 16 16.3V14", key: "akvzfd" }],
   ["circle", { cx: "16", cy: "16", r: "6", key: "qoo3c4" }]
 ];
-const CalendarClock = createLucideIcon("calendar-clock", __iconNode$21);
+const CalendarClock = createLucideIcon("calendar-clock", __iconNode$22);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$20 = [
+const __iconNode$21 = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
@@ -19821,14 +19810,14 @@ const __iconNode$20 = [
   ["path", { d: "M12 18h.01", key: "mhygvu" }],
   ["path", { d: "M16 18h.01", key: "kzsmim" }]
 ];
-const CalendarDays = createLucideIcon("calendar-days", __iconNode$20);
+const CalendarDays = createLucideIcon("calendar-days", __iconNode$21);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1$ = [
+const __iconNode$20 = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["path", { d: "M21 13V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8", key: "3spt84" }],
@@ -19836,14 +19825,14 @@ const __iconNode$1$ = [
   ["path", { d: "M16 19h6", key: "xwg31i" }],
   ["path", { d: "M19 16v6", key: "tddt3s" }]
 ];
-const CalendarPlus = createLucideIcon("calendar-plus", __iconNode$1$);
+const CalendarPlus = createLucideIcon("calendar-plus", __iconNode$20);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1_ = [
+const __iconNode$1$ = [
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["path", { d: "M3 10h18", key: "8toen8" }],
@@ -19853,7 +19842,20 @@ const __iconNode$1_ = [
   ["path", { d: "M7 14h.01", key: "1qa3f1" }],
   ["path", { d: "M17 18h.01", key: "1bdyru" }]
 ];
-const CalendarRange = createLucideIcon("calendar-range", __iconNode$1_);
+const CalendarRange = createLucideIcon("calendar-range", __iconNode$1$);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1_ = [
+  ["path", { d: "M8 2v4", key: "1cmpym" }],
+  ["path", { d: "M16 2v4", key: "4m81vk" }],
+  ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
+  ["path", { d: "M3 10h18", key: "8toen8" }]
+];
+const Calendar = createLucideIcon("calendar", __iconNode$1_);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19861,19 +19863,6 @@ const CalendarRange = createLucideIcon("calendar-range", __iconNode$1_);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1Z = [
-  ["path", { d: "M8 2v4", key: "1cmpym" }],
-  ["path", { d: "M16 2v4", key: "4m81vk" }],
-  ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
-  ["path", { d: "M3 10h18", key: "8toen8" }]
-];
-const Calendar = createLucideIcon("calendar", __iconNode$1Z);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1Y = [
   [
     "path",
     {
@@ -19883,7 +19872,20 @@ const __iconNode$1Y = [
   ],
   ["circle", { cx: "12", cy: "13", r: "3", key: "1vg3eu" }]
 ];
-const Camera = createLucideIcon("camera", __iconNode$1Y);
+const Camera = createLucideIcon("camera", __iconNode$1Z);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1Y = [
+  ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
+  ["path", { d: "M18 17V9", key: "2bz60n" }],
+  ["path", { d: "M13 17V5", key: "1frdt8" }],
+  ["path", { d: "M8 17v-3", key: "17ska0" }]
+];
+const ChartColumn = createLucideIcon("chart-column", __iconNode$1Y);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19891,12 +19893,11 @@ const Camera = createLucideIcon("camera", __iconNode$1Y);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1X = [
-  ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
-  ["path", { d: "M18 17V9", key: "2bz60n" }],
-  ["path", { d: "M13 17V5", key: "1frdt8" }],
-  ["path", { d: "M8 17v-3", key: "17ska0" }]
+  ["line", { x1: "18", x2: "18", y1: "20", y2: "10", key: "1xfpm4" }],
+  ["line", { x1: "12", x2: "12", y1: "20", y2: "4", key: "be30l9" }],
+  ["line", { x1: "6", x2: "6", y1: "20", y2: "14", key: "1r4le6" }]
 ];
-const ChartColumn = createLucideIcon("chart-column", __iconNode$1X);
+const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1X);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19904,11 +19905,10 @@ const ChartColumn = createLucideIcon("chart-column", __iconNode$1X);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1W = [
-  ["line", { x1: "18", x2: "18", y1: "20", y2: "10", key: "1xfpm4" }],
-  ["line", { x1: "12", x2: "12", y1: "20", y2: "4", key: "be30l9" }],
-  ["line", { x1: "6", x2: "6", y1: "20", y2: "14", key: "1r4le6" }]
+  ["path", { d: "M18 6 7 17l-5-5", key: "116fxf" }],
+  ["path", { d: "m22 10-7.5 7.5L13 16", key: "ke71qq" }]
 ];
-const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1W);
+const CheckCheck = createLucideIcon("check-check", __iconNode$1W);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19916,17 +19916,6 @@ const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1W
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1V = [
-  ["path", { d: "M18 6 7 17l-5-5", key: "116fxf" }],
-  ["path", { d: "m22 10-7.5 7.5L13 16", key: "ke71qq" }]
-];
-const CheckCheck = createLucideIcon("check-check", __iconNode$1V);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1U = [
   [
     "path",
     {
@@ -19936,47 +19925,58 @@ const __iconNode$1U = [
   ],
   ["path", { d: "M6 17h12", key: "1jwigz" }]
 ];
-const ChefHat = createLucideIcon("chef-hat", __iconNode$1U);
+const ChefHat = createLucideIcon("chef-hat", __iconNode$1V);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1T = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$1T);
+const __iconNode$1U = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$1U);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1S = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-const ChevronDown = createLucideIcon("chevron-down", __iconNode$1S);
+const __iconNode$1T = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+const ChevronDown = createLucideIcon("chevron-down", __iconNode$1T);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1R = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
-const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1R);
+const __iconNode$1S = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
+const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1S);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1Q = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$1Q);
+const __iconNode$1R = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$1R);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1P = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
-const ChevronUp = createLucideIcon("chevron-up", __iconNode$1P);
+const __iconNode$1Q = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
+const ChevronUp = createLucideIcon("chevron-up", __iconNode$1Q);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1P = [
+  ["path", { d: "m11 17-5-5 5-5", key: "13zhaf" }],
+  ["path", { d: "m18 17-5-5 5-5", key: "h8a8et" }]
+];
+const ChevronsLeft = createLucideIcon("chevrons-left", __iconNode$1P);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19984,10 +19984,10 @@ const ChevronUp = createLucideIcon("chevron-up", __iconNode$1P);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1O = [
-  ["path", { d: "m11 17-5-5 5-5", key: "13zhaf" }],
-  ["path", { d: "m18 17-5-5 5-5", key: "h8a8et" }]
+  ["path", { d: "m6 17 5-5-5-5", key: "xnjwq" }],
+  ["path", { d: "m13 17 5-5-5-5", key: "17xmmf" }]
 ];
-const ChevronsLeft = createLucideIcon("chevrons-left", __iconNode$1O);
+const ChevronsRight = createLucideIcon("chevrons-right", __iconNode$1O);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19995,10 +19995,11 @@ const ChevronsLeft = createLucideIcon("chevrons-left", __iconNode$1O);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1N = [
-  ["path", { d: "m6 17 5-5-5-5", key: "xnjwq" }],
-  ["path", { d: "m13 17 5-5-5-5", key: "17xmmf" }]
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
+  ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
 ];
-const ChevronsRight = createLucideIcon("chevrons-right", __iconNode$1N);
+const CircleAlert = createLucideIcon("circle-alert", __iconNode$1N);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20007,10 +20008,9 @@ const ChevronsRight = createLucideIcon("chevrons-right", __iconNode$1N);
  */
 const __iconNode$1M = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
-  ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
+  ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const CircleAlert = createLucideIcon("circle-alert", __iconNode$1M);
+const CircleCheck = createLucideIcon("circle-check", __iconNode$1M);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20018,10 +20018,10 @@ const CircleAlert = createLucideIcon("circle-alert", __iconNode$1M);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1L = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
+  ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
+  ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
 ];
-const CircleCheck = createLucideIcon("circle-check", __iconNode$1L);
+const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1L);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20029,17 +20029,6 @@ const CircleCheck = createLucideIcon("circle-check", __iconNode$1L);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1K = [
-  ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
-  ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
-];
-const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1K);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1J = [
   ["path", { d: "M10.1 2.182a10 10 0 0 1 3.8 0", key: "5ilxe3" }],
   ["path", { d: "M13.9 21.818a10 10 0 0 1-3.8 0", key: "11zvb9" }],
   ["path", { d: "M17.609 3.721a10 10 0 0 1 2.69 2.7", key: "1iw5b2" }],
@@ -20049,7 +20038,19 @@ const __iconNode$1J = [
   ["path", { d: "M3.721 6.391a10 10 0 0 1 2.7-2.69", key: "1mcia2" }],
   ["path", { d: "M6.391 20.279a10 10 0 0 1-2.69-2.7", key: "1fvljs" }]
 ];
-const CircleDashed = createLucideIcon("circle-dashed", __iconNode$1J);
+const CircleDashed = createLucideIcon("circle-dashed", __iconNode$1K);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1J = [
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["circle", { cx: "12", cy: "10", r: "3", key: "ilqhr7" }],
+  ["path", { d: "M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662", key: "154egf" }]
+];
+const CircleUser = createLucideIcon("circle-user", __iconNode$1J);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20058,30 +20059,36 @@ const CircleDashed = createLucideIcon("circle-dashed", __iconNode$1J);
  */
 const __iconNode$1I = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["circle", { cx: "12", cy: "10", r: "3", key: "ilqhr7" }],
-  ["path", { d: "M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662", key: "154egf" }]
-];
-const CircleUser = createLucideIcon("circle-user", __iconNode$1I);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1H = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
   ["path", { d: "m9 9 6 6", key: "z0biqf" }]
 ];
-const CircleX = createLucideIcon("circle-x", __iconNode$1H);
+const CircleX = createLucideIcon("circle-x", __iconNode$1I);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1G = [["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]];
-const Circle = createLucideIcon("circle", __iconNode$1G);
+const __iconNode$1H = [["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]];
+const Circle = createLucideIcon("circle", __iconNode$1H);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1G = [
+  ["rect", { width: "8", height: "4", x: "8", y: "2", rx: "1", ry: "1", key: "tgr4d6" }],
+  [
+    "path",
+    {
+      d: "M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2",
+      key: "116196"
+    }
+  ],
+  ["path", { d: "m9 14 2 2 4-4", key: "df797q" }]
+];
+const ClipboardCheck = createLucideIcon("clipboard-check", __iconNode$1G);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20097,9 +20104,12 @@ const __iconNode$1F = [
       key: "116196"
     }
   ],
-  ["path", { d: "m9 14 2 2 4-4", key: "df797q" }]
+  ["path", { d: "M12 11h4", key: "1jrz19" }],
+  ["path", { d: "M12 16h4", key: "n85exb" }],
+  ["path", { d: "M8 11h.01", key: "1dfujw" }],
+  ["path", { d: "M8 16h.01", key: "18s6g9" }]
 ];
-const ClipboardCheck = createLucideIcon("clipboard-check", __iconNode$1F);
+const ClipboardList = createLucideIcon("clipboard-list", __iconNode$1F);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20115,12 +20125,10 @@ const __iconNode$1E = [
       key: "116196"
     }
   ],
-  ["path", { d: "M12 11h4", key: "1jrz19" }],
-  ["path", { d: "M12 16h4", key: "n85exb" }],
-  ["path", { d: "M8 11h.01", key: "1dfujw" }],
-  ["path", { d: "M8 16h.01", key: "18s6g9" }]
+  ["path", { d: "M9 14h6", key: "159ibu" }],
+  ["path", { d: "M12 17v-6", key: "1y8rbf" }]
 ];
-const ClipboardList = createLucideIcon("clipboard-list", __iconNode$1E);
+const ClipboardPlus = createLucideIcon("clipboard-plus", __iconNode$1E);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20128,18 +20136,10 @@ const ClipboardList = createLucideIcon("clipboard-list", __iconNode$1E);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1D = [
-  ["rect", { width: "8", height: "4", x: "8", y: "2", rx: "1", ry: "1", key: "tgr4d6" }],
-  [
-    "path",
-    {
-      d: "M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2",
-      key: "116196"
-    }
-  ],
-  ["path", { d: "M9 14h6", key: "159ibu" }],
-  ["path", { d: "M12 17v-6", key: "1y8rbf" }]
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["polyline", { points: "12 6 12 12 16 14", key: "68esgv" }]
 ];
-const ClipboardPlus = createLucideIcon("clipboard-plus", __iconNode$1D);
+const Clock = createLucideIcon("clock", __iconNode$1D);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20147,17 +20147,6 @@ const ClipboardPlus = createLucideIcon("clipboard-plus", __iconNode$1D);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1C = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["polyline", { points: "12 6 12 12 16 14", key: "68esgv" }]
-];
-const Clock = createLucideIcon("clock", __iconNode$1C);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1B = [
   ["path", { d: "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242", key: "1pljnt" }],
   ["path", { d: "M8 19v1", key: "1dk2by" }],
   ["path", { d: "M8 14v1", key: "84yxot" }],
@@ -20166,7 +20155,19 @@ const __iconNode$1B = [
   ["path", { d: "M12 21v1", key: "q8vafk" }],
   ["path", { d: "M12 16v1", key: "1mx6rx" }]
 ];
-const CloudDrizzle = createLucideIcon("cloud-drizzle", __iconNode$1B);
+const CloudDrizzle = createLucideIcon("cloud-drizzle", __iconNode$1C);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1B = [
+  ["path", { d: "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242", key: "1pljnt" }],
+  ["path", { d: "M16 17H7", key: "pygtm1" }],
+  ["path", { d: "M17 21H9", key: "1u2q02" }]
+];
+const CloudFog = createLucideIcon("cloud-fog", __iconNode$1B);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20174,11 +20175,10 @@ const CloudDrizzle = createLucideIcon("cloud-drizzle", __iconNode$1B);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1A = [
-  ["path", { d: "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242", key: "1pljnt" }],
-  ["path", { d: "M16 17H7", key: "pygtm1" }],
-  ["path", { d: "M17 21H9", key: "1u2q02" }]
+  ["path", { d: "M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.973", key: "1cez44" }],
+  ["path", { d: "m13 12-3 5h4l-3 5", key: "1t22er" }]
 ];
-const CloudFog = createLucideIcon("cloud-fog", __iconNode$1A);
+const CloudLightning = createLucideIcon("cloud-lightning", __iconNode$1A);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20186,10 +20186,10 @@ const CloudFog = createLucideIcon("cloud-fog", __iconNode$1A);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1z = [
-  ["path", { d: "M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.973", key: "1cez44" }],
-  ["path", { d: "m13 12-3 5h4l-3 5", key: "1t22er" }]
+  ["path", { d: "M10.188 8.5A6 6 0 0 1 16 4a1 1 0 0 0 6 6 6 6 0 0 1-3 5.197", key: "erj67n" }],
+  ["path", { d: "M13 16a3 3 0 1 1 0 6H7a5 5 0 1 1 4.9-6Z", key: "p44pc9" }]
 ];
-const CloudLightning = createLucideIcon("cloud-lightning", __iconNode$1z);
+const CloudMoon = createLucideIcon("cloud-moon", __iconNode$1z);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20197,10 +20197,12 @@ const CloudLightning = createLucideIcon("cloud-lightning", __iconNode$1z);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1y = [
-  ["path", { d: "M10.188 8.5A6 6 0 0 1 16 4a1 1 0 0 0 6 6 6 6 0 0 1-3 5.197", key: "erj67n" }],
-  ["path", { d: "M13 16a3 3 0 1 1 0 6H7a5 5 0 1 1 4.9-6Z", key: "p44pc9" }]
+  ["path", { d: "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242", key: "1pljnt" }],
+  ["path", { d: "M16 14v6", key: "1j4efv" }],
+  ["path", { d: "M8 14v6", key: "17c4r9" }],
+  ["path", { d: "M12 16v6", key: "c8a4gj" }]
 ];
-const CloudMoon = createLucideIcon("cloud-moon", __iconNode$1y);
+const CloudRain = createLucideIcon("cloud-rain", __iconNode$1y);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20208,19 +20210,6 @@ const CloudMoon = createLucideIcon("cloud-moon", __iconNode$1y);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1x = [
-  ["path", { d: "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242", key: "1pljnt" }],
-  ["path", { d: "M16 14v6", key: "1j4efv" }],
-  ["path", { d: "M8 14v6", key: "17c4r9" }],
-  ["path", { d: "M12 16v6", key: "c8a4gj" }]
-];
-const CloudRain = createLucideIcon("cloud-rain", __iconNode$1x);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1w = [
   ["path", { d: "M12 2v2", key: "tus03m" }],
   ["path", { d: "m4.93 4.93 1.41 1.41", key: "149t6j" }],
   ["path", { d: "M20 12h2", key: "1q8mjw" }],
@@ -20228,7 +20217,17 @@ const __iconNode$1w = [
   ["path", { d: "M15.947 12.65a4 4 0 0 0-5.925-4.128", key: "dpwdj0" }],
   ["path", { d: "M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z", key: "s09mg5" }]
 ];
-const CloudSun = createLucideIcon("cloud-sun", __iconNode$1w);
+const CloudSun = createLucideIcon("cloud-sun", __iconNode$1x);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1w = [
+  ["path", { d: "M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z", key: "p7xjir" }]
+];
+const Cloud = createLucideIcon("cloud", __iconNode$1w);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20236,9 +20235,10 @@ const CloudSun = createLucideIcon("cloud-sun", __iconNode$1w);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1v = [
-  ["path", { d: "M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z", key: "p7xjir" }]
+  ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
+  ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
 ];
-const Cloud = createLucideIcon("cloud", __iconNode$1v);
+const Copy = createLucideIcon("copy", __iconNode$1v);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20246,10 +20246,11 @@ const Cloud = createLucideIcon("cloud", __iconNode$1v);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1u = [
-  ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
-  ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
+  ["ellipse", { cx: "12", cy: "5", rx: "9", ry: "3", key: "msslwz" }],
+  ["path", { d: "M3 5V19A9 3 0 0 0 21 19V5", key: "1wlel7" }],
+  ["path", { d: "M3 12A9 3 0 0 0 21 12", key: "mv7ke4" }]
 ];
-const Copy = createLucideIcon("copy", __iconNode$1u);
+const Database = createLucideIcon("database", __iconNode$1u);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20257,11 +20258,11 @@ const Copy = createLucideIcon("copy", __iconNode$1u);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1t = [
-  ["ellipse", { cx: "12", cy: "5", rx: "9", ry: "3", key: "msslwz" }],
-  ["path", { d: "M3 5V19A9 3 0 0 0 21 19V5", key: "1wlel7" }],
-  ["path", { d: "M3 12A9 3 0 0 0 21 12", key: "mv7ke4" }]
+  ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
+  ["polyline", { points: "7 10 12 15 17 10", key: "2ggqvy" }],
+  ["line", { x1: "12", x2: "12", y1: "15", y2: "3", key: "1vk2je" }]
 ];
-const Database = createLucideIcon("database", __iconNode$1t);
+const Download = createLucideIcon("download", __iconNode$1t);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20269,18 +20270,6 @@ const Database = createLucideIcon("database", __iconNode$1t);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1s = [
-  ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
-  ["polyline", { points: "7 10 12 15 17 10", key: "2ggqvy" }],
-  ["line", { x1: "12", x2: "12", y1: "15", y2: "3", key: "1vk2je" }]
-];
-const Download = createLucideIcon("download", __iconNode$1s);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1r = [
   [
     "path",
     {
@@ -20296,7 +20285,19 @@ const __iconNode$1r = [
     }
   ]
 ];
-const Droplets = createLucideIcon("droplets", __iconNode$1r);
+const Droplets = createLucideIcon("droplets", __iconNode$1s);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1r = [
+  ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }],
+  ["circle", { cx: "19", cy: "12", r: "1", key: "1wjl8i" }],
+  ["circle", { cx: "5", cy: "12", r: "1", key: "1pcz8c" }]
+];
+const Ellipsis = createLucideIcon("ellipsis", __iconNode$1r);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20304,11 +20305,11 @@ const Droplets = createLucideIcon("droplets", __iconNode$1r);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1q = [
-  ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }],
-  ["circle", { cx: "19", cy: "12", r: "1", key: "1wjl8i" }],
-  ["circle", { cx: "5", cy: "12", r: "1", key: "1pcz8c" }]
+  ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
+  ["path", { d: "M10 14 21 3", key: "gplh6r" }],
+  ["path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6", key: "a6xqqp" }]
 ];
-const Ellipsis = createLucideIcon("ellipsis", __iconNode$1q);
+const ExternalLink = createLucideIcon("external-link", __iconNode$1q);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20316,18 +20317,6 @@ const Ellipsis = createLucideIcon("ellipsis", __iconNode$1q);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1p = [
-  ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
-  ["path", { d: "M10 14 21 3", key: "gplh6r" }],
-  ["path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6", key: "a6xqqp" }]
-];
-const ExternalLink = createLucideIcon("external-link", __iconNode$1p);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1o = [
   [
     "path",
     {
@@ -20345,14 +20334,14 @@ const __iconNode$1o = [
   ],
   ["path", { d: "m2 2 20 20", key: "1ooewy" }]
 ];
-const EyeOff = createLucideIcon("eye-off", __iconNode$1o);
+const EyeOff = createLucideIcon("eye-off", __iconNode$1p);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1n = [
+const __iconNode$1o = [
   [
     "path",
     {
@@ -20362,14 +20351,14 @@ const __iconNode$1n = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Eye = createLucideIcon("eye", __iconNode$1n);
+const Eye = createLucideIcon("eye", __iconNode$1o);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1m = [
+const __iconNode$1n = [
   ["path", { d: "M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v2", key: "17k7jt" }],
   ["path", { d: "M14 2v4a2 2 0 0 0 2 2h4", key: "tnqrlb" }],
   [
@@ -20380,7 +20369,20 @@ const __iconNode$1m = [
     }
   ]
 ];
-const FileHeart = createLucideIcon("file-heart", __iconNode$1m);
+const FileHeart = createLucideIcon("file-heart", __iconNode$1n);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1m = [
+  ["path", { d: "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z", key: "1rqfz7" }],
+  ["path", { d: "M14 2v4a2 2 0 0 0 2 2h4", key: "tnqrlb" }],
+  ["circle", { cx: "10", cy: "12", r: "2", key: "737tya" }],
+  ["path", { d: "m20 17-1.296-1.296a2.41 2.41 0 0 0-3.408 0L9 22", key: "wt3hpn" }]
+];
+const FileImage = createLucideIcon("file-image", __iconNode$1m);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20390,10 +20392,12 @@ const FileHeart = createLucideIcon("file-heart", __iconNode$1m);
 const __iconNode$1l = [
   ["path", { d: "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z", key: "1rqfz7" }],
   ["path", { d: "M14 2v4a2 2 0 0 0 2 2h4", key: "tnqrlb" }],
-  ["circle", { cx: "10", cy: "12", r: "2", key: "737tya" }],
-  ["path", { d: "m20 17-1.296-1.296a2.41 2.41 0 0 0-3.408 0L9 22", key: "wt3hpn" }]
+  ["path", { d: "M8 13h2", key: "yr2amv" }],
+  ["path", { d: "M14 13h2", key: "un5t4a" }],
+  ["path", { d: "M8 17h2", key: "2yhykz" }],
+  ["path", { d: "M14 17h2", key: "10kma7" }]
 ];
-const FileImage = createLucideIcon("file-image", __iconNode$1l);
+const FileSpreadsheet = createLucideIcon("file-spreadsheet", __iconNode$1l);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20403,12 +20407,11 @@ const FileImage = createLucideIcon("file-image", __iconNode$1l);
 const __iconNode$1k = [
   ["path", { d: "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z", key: "1rqfz7" }],
   ["path", { d: "M14 2v4a2 2 0 0 0 2 2h4", key: "tnqrlb" }],
-  ["path", { d: "M8 13h2", key: "yr2amv" }],
-  ["path", { d: "M14 13h2", key: "un5t4a" }],
-  ["path", { d: "M8 17h2", key: "2yhykz" }],
-  ["path", { d: "M14 17h2", key: "10kma7" }]
+  ["path", { d: "M10 9H8", key: "b1mrlr" }],
+  ["path", { d: "M16 13H8", key: "t4e002" }],
+  ["path", { d: "M16 17H8", key: "z1uh3a" }]
 ];
-const FileSpreadsheet = createLucideIcon("file-spreadsheet", __iconNode$1k);
+const FileText = createLucideIcon("file-text", __iconNode$1k);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20416,13 +20419,10 @@ const FileSpreadsheet = createLucideIcon("file-spreadsheet", __iconNode$1k);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1j = [
-  ["path", { d: "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z", key: "1rqfz7" }],
-  ["path", { d: "M14 2v4a2 2 0 0 0 2 2h4", key: "tnqrlb" }],
-  ["path", { d: "M10 9H8", key: "b1mrlr" }],
-  ["path", { d: "M16 13H8", key: "t4e002" }],
-  ["path", { d: "M16 17H8", key: "z1uh3a" }]
+  ["path", { d: "M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z", key: "i9b6wo" }],
+  ["line", { x1: "4", x2: "4", y1: "22", y2: "15", key: "1cm3nv" }]
 ];
-const FileText = createLucideIcon("file-text", __iconNode$1j);
+const Flag = createLucideIcon("flag", __iconNode$1j);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20430,10 +20430,15 @@ const FileText = createLucideIcon("file-text", __iconNode$1j);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1i = [
-  ["path", { d: "M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z", key: "i9b6wo" }],
-  ["line", { x1: "4", x2: "4", y1: "22", y2: "15", key: "1cm3nv" }]
+  [
+    "path",
+    {
+      d: "M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z",
+      key: "96xj49"
+    }
+  ]
 ];
-const Flag = createLucideIcon("flag", __iconNode$1i);
+const Flame = createLucideIcon("flame", __iconNode$1i);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20444,12 +20449,12 @@ const __iconNode$1h = [
   [
     "path",
     {
-      d: "M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z",
-      key: "96xj49"
+      d: "M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z",
+      key: "sc7q7i"
     }
   ]
 ];
-const Flame = createLucideIcon("flame", __iconNode$1h);
+const Funnel = createLucideIcon("funnel", __iconNode$1h);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20460,22 +20465,6 @@ const __iconNode$1g = [
   [
     "path",
     {
-      d: "M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z",
-      key: "sc7q7i"
-    }
-  ]
-];
-const Funnel = createLucideIcon("funnel", __iconNode$1g);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1f = [
-  [
-    "path",
-    {
       d: "M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z",
       key: "j76jl0"
     }
@@ -20483,7 +20472,21 @@ const __iconNode$1f = [
   ["path", { d: "M22 10v6", key: "1lu8f3" }],
   ["path", { d: "M6 12.5V16a6 3 0 0 0 12 0v-3.5", key: "1r8lef" }]
 ];
-const GraduationCap = createLucideIcon("graduation-cap", __iconNode$1f);
+const GraduationCap = createLucideIcon("graduation-cap", __iconNode$1g);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1f = [
+  ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
+  ["path", { d: "M3 9h18", key: "1pudct" }],
+  ["path", { d: "M3 15h18", key: "5xshup" }],
+  ["path", { d: "M9 3v18", key: "fh3hqa" }],
+  ["path", { d: "M15 3v18", key: "14nvp0" }]
+];
+const Grid3x3 = createLucideIcon("grid-3x3", __iconNode$1f);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20491,20 +20494,6 @@ const GraduationCap = createLucideIcon("graduation-cap", __iconNode$1f);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1e = [
-  ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
-  ["path", { d: "M3 9h18", key: "1pudct" }],
-  ["path", { d: "M3 15h18", key: "5xshup" }],
-  ["path", { d: "M9 3v18", key: "fh3hqa" }],
-  ["path", { d: "M15 3v18", key: "14nvp0" }]
-];
-const Grid3x3 = createLucideIcon("grid-3x3", __iconNode$1e);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1d = [
   ["circle", { cx: "9", cy: "12", r: "1", key: "1vctgf" }],
   ["circle", { cx: "9", cy: "5", r: "1", key: "hp0tcf" }],
   ["circle", { cx: "9", cy: "19", r: "1", key: "fkjjf6" }],
@@ -20512,7 +20501,24 @@ const __iconNode$1d = [
   ["circle", { cx: "15", cy: "5", r: "1", key: "19l28e" }],
   ["circle", { cx: "15", cy: "19", r: "1", key: "f4zoj3" }]
 ];
-const GripVertical = createLucideIcon("grip-vertical", __iconNode$1d);
+const GripVertical = createLucideIcon("grip-vertical", __iconNode$1e);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1d = [
+  [
+    "path",
+    {
+      d: "M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z",
+      key: "c3ymky"
+    }
+  ],
+  ["path", { d: "M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27", key: "1uw2ng" }]
+];
+const HeartPulse = createLucideIcon("heart-pulse", __iconNode$1d);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20526,10 +20532,9 @@ const __iconNode$1c = [
       d: "M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z",
       key: "c3ymky"
     }
-  ],
-  ["path", { d: "M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27", key: "1uw2ng" }]
+  ]
 ];
-const HeartPulse = createLucideIcon("heart-pulse", __iconNode$1c);
+const Heart = createLucideIcon("heart", __iconNode$1c);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20537,15 +20542,11 @@ const HeartPulse = createLucideIcon("heart-pulse", __iconNode$1c);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1b = [
-  [
-    "path",
-    {
-      d: "M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z",
-      key: "c3ymky"
-    }
-  ]
+  ["path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", key: "1357e3" }],
+  ["path", { d: "M3 3v5h5", key: "1xhq8a" }],
+  ["path", { d: "M12 7v5l4 2", key: "1fdv2h" }]
 ];
-const Heart = createLucideIcon("heart", __iconNode$1b);
+const History = createLucideIcon("history", __iconNode$1b);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20553,18 +20554,6 @@ const Heart = createLucideIcon("heart", __iconNode$1b);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1a = [
-  ["path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", key: "1357e3" }],
-  ["path", { d: "M3 3v5h5", key: "1xhq8a" }],
-  ["path", { d: "M12 7v5l4 2", key: "1fdv2h" }]
-];
-const History = createLucideIcon("history", __iconNode$1a);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$19 = [
   ["path", { d: "M5 22h14", key: "ehvnwv" }],
   ["path", { d: "M5 2h14", key: "pdyrp9" }],
   [
@@ -20579,14 +20568,14 @@ const __iconNode$19 = [
     { d: "M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2", key: "1vvvr6" }
   ]
 ];
-const Hourglass = createLucideIcon("hourglass", __iconNode$19);
+const Hourglass = createLucideIcon("hourglass", __iconNode$1a);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$18 = [
+const __iconNode$19 = [
   ["path", { d: "M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8", key: "5wwlr5" }],
   [
     "path",
@@ -20596,7 +20585,21 @@ const __iconNode$18 = [
     }
   ]
 ];
-const House = createLucideIcon("house", __iconNode$18);
+const House = createLucideIcon("house", __iconNode$19);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$18 = [
+  ["path", { d: "M16 5h6", key: "1vod17" }],
+  ["path", { d: "M19 2v6", key: "4bpg5p" }],
+  ["path", { d: "M21 11.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7.5", key: "1ue2ih" }],
+  ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }],
+  ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }]
+];
+const ImagePlus = createLucideIcon("image-plus", __iconNode$18);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20604,13 +20607,11 @@ const House = createLucideIcon("house", __iconNode$18);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$17 = [
-  ["path", { d: "M16 5h6", key: "1vod17" }],
-  ["path", { d: "M19 2v6", key: "4bpg5p" }],
-  ["path", { d: "M21 11.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7.5", key: "1ue2ih" }],
-  ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }],
-  ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }]
+  ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2", key: "1m3agn" }],
+  ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }],
+  ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }]
 ];
-const ImagePlus = createLucideIcon("image-plus", __iconNode$17);
+const Image$1 = createLucideIcon("image", __iconNode$17);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20618,11 +20619,11 @@ const ImagePlus = createLucideIcon("image-plus", __iconNode$17);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$16 = [
-  ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2", key: "1m3agn" }],
-  ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }],
-  ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }]
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["path", { d: "M12 16v-4", key: "1dtifu" }],
+  ["path", { d: "M12 8h.01", key: "e9boi3" }]
 ];
-const Image$1 = createLucideIcon("image", __iconNode$16);
+const Info = createLucideIcon("info", __iconNode$16);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20630,18 +20631,6 @@ const Image$1 = createLucideIcon("image", __iconNode$16);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$15 = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["path", { d: "M12 16v-4", key: "1dtifu" }],
-  ["path", { d: "M12 8h.01", key: "e9boi3" }]
-];
-const Info = createLucideIcon("info", __iconNode$15);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$14 = [
   [
     "path",
     {
@@ -20651,7 +20640,20 @@ const __iconNode$14 = [
   ],
   ["circle", { cx: "16.5", cy: "7.5", r: ".5", fill: "currentColor", key: "w0ekpg" }]
 ];
-const KeyRound = createLucideIcon("key-round", __iconNode$14);
+const KeyRound = createLucideIcon("key-round", __iconNode$15);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$14 = [
+  ["rect", { width: "7", height: "9", x: "3", y: "3", rx: "1", key: "10lvy0" }],
+  ["rect", { width: "7", height: "5", x: "14", y: "3", rx: "1", key: "16une8" }],
+  ["rect", { width: "7", height: "9", x: "14", y: "12", rx: "1", key: "1hutg5" }],
+  ["rect", { width: "7", height: "5", x: "3", y: "16", rx: "1", key: "ldoo1y" }]
+];
+const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$14);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20659,12 +20661,12 @@ const KeyRound = createLucideIcon("key-round", __iconNode$14);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$13 = [
-  ["rect", { width: "7", height: "9", x: "3", y: "3", rx: "1", key: "10lvy0" }],
-  ["rect", { width: "7", height: "5", x: "14", y: "3", rx: "1", key: "16une8" }],
-  ["rect", { width: "7", height: "9", x: "14", y: "12", rx: "1", key: "1hutg5" }],
-  ["rect", { width: "7", height: "5", x: "3", y: "16", rx: "1", key: "ldoo1y" }]
+  ["rect", { width: "7", height: "7", x: "3", y: "3", rx: "1", key: "1g98yp" }],
+  ["rect", { width: "7", height: "7", x: "14", y: "3", rx: "1", key: "6d4xhi" }],
+  ["rect", { width: "7", height: "7", x: "14", y: "14", rx: "1", key: "nxv5o0" }],
+  ["rect", { width: "7", height: "7", x: "3", y: "14", rx: "1", key: "1bb6yr" }]
 ];
-const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$13);
+const LayoutGrid = createLucideIcon("layout-grid", __iconNode$13);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20672,12 +20674,13 @@ const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$13);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$12 = [
-  ["rect", { width: "7", height: "7", x: "3", y: "3", rx: "1", key: "1g98yp" }],
-  ["rect", { width: "7", height: "7", x: "14", y: "3", rx: "1", key: "6d4xhi" }],
-  ["rect", { width: "7", height: "7", x: "14", y: "14", rx: "1", key: "nxv5o0" }],
-  ["rect", { width: "7", height: "7", x: "3", y: "14", rx: "1", key: "1bb6yr" }]
+  ["rect", { x: "3", y: "5", width: "6", height: "6", rx: "1", key: "1defrl" }],
+  ["path", { d: "m3 17 2 2 4-4", key: "1jhpwq" }],
+  ["path", { d: "M13 6h8", key: "15sg57" }],
+  ["path", { d: "M13 12h8", key: "h98zly" }],
+  ["path", { d: "M13 18h8", key: "oe0vm4" }]
 ];
-const LayoutGrid = createLucideIcon("layout-grid", __iconNode$12);
+const ListTodo = createLucideIcon("list-todo", __iconNode$12);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20685,20 +20688,6 @@ const LayoutGrid = createLucideIcon("layout-grid", __iconNode$12);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$11 = [
-  ["rect", { x: "3", y: "5", width: "6", height: "6", rx: "1", key: "1defrl" }],
-  ["path", { d: "m3 17 2 2 4-4", key: "1jhpwq" }],
-  ["path", { d: "M13 6h8", key: "15sg57" }],
-  ["path", { d: "M13 12h8", key: "h98zly" }],
-  ["path", { d: "M13 18h8", key: "oe0vm4" }]
-];
-const ListTodo = createLucideIcon("list-todo", __iconNode$11);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$10 = [
   ["path", { d: "M3 12h.01", key: "nlz23k" }],
   ["path", { d: "M3 18h.01", key: "1tta3j" }],
   ["path", { d: "M3 6h.01", key: "1rqtza" }],
@@ -20706,15 +20695,26 @@ const __iconNode$10 = [
   ["path", { d: "M8 18h13", key: "1lx6n3" }],
   ["path", { d: "M8 6h13", key: "ik3vkj" }]
 ];
-const List$1 = createLucideIcon("list", __iconNode$10);
+const List$1 = createLucideIcon("list", __iconNode$11);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$$ = [["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]];
-const LoaderCircle = createLucideIcon("loader-circle", __iconNode$$);
+const __iconNode$10 = [["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]];
+const LoaderCircle = createLucideIcon("loader-circle", __iconNode$10);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$$ = [
+  ["rect", { width: "18", height: "11", x: "3", y: "11", rx: "2", ry: "2", key: "1w4ew1" }],
+  ["path", { d: "M7 11V7a5 5 0 0 1 10 0v4", key: "fwvmzm" }]
+];
+const Lock = createLucideIcon("lock", __iconNode$$);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20722,10 +20722,10 @@ const LoaderCircle = createLucideIcon("loader-circle", __iconNode$$);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$_ = [
-  ["rect", { width: "18", height: "11", x: "3", y: "11", rx: "2", ry: "2", key: "1w4ew1" }],
-  ["path", { d: "M7 11V7a5 5 0 0 1 10 0v4", key: "fwvmzm" }]
+  ["rect", { width: "20", height: "16", x: "2", y: "4", rx: "2", key: "18n3k1" }],
+  ["path", { d: "m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7", key: "1ocrg3" }]
 ];
-const Lock = createLucideIcon("lock", __iconNode$_);
+const Mail = createLucideIcon("mail", __iconNode$_);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20733,17 +20733,6 @@ const Lock = createLucideIcon("lock", __iconNode$_);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$Z = [
-  ["rect", { width: "20", height: "16", x: "2", y: "4", rx: "2", key: "18n3k1" }],
-  ["path", { d: "m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7", key: "1ocrg3" }]
-];
-const Mail = createLucideIcon("mail", __iconNode$Z);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$Y = [
   [
     "path",
     {
@@ -20753,7 +20742,18 @@ const __iconNode$Y = [
   ],
   ["circle", { cx: "12", cy: "10", r: "3", key: "ilqhr7" }]
 ];
-const MapPin = createLucideIcon("map-pin", __iconNode$Y);
+const MapPin = createLucideIcon("map-pin", __iconNode$Z);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$Y = [
+  ["path", { d: "m3 11 18-5v12L3 14v-3z", key: "n962bs" }],
+  ["path", { d: "M11.6 16.8a3 3 0 1 1-5.8-1.6", key: "1yl0tm" }]
+];
+const Megaphone = createLucideIcon("megaphone", __iconNode$Y);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20761,10 +20761,11 @@ const MapPin = createLucideIcon("map-pin", __iconNode$Y);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$X = [
-  ["path", { d: "m3 11 18-5v12L3 14v-3z", key: "n962bs" }],
-  ["path", { d: "M11.6 16.8a3 3 0 1 1-5.8-1.6", key: "1yl0tm" }]
+  ["line", { x1: "4", x2: "20", y1: "12", y2: "12", key: "1e0a9i" }],
+  ["line", { x1: "4", x2: "20", y1: "6", y2: "6", key: "1owob3" }],
+  ["line", { x1: "4", x2: "20", y1: "18", y2: "18", key: "yk5zj1" }]
 ];
-const Megaphone = createLucideIcon("megaphone", __iconNode$X);
+const Menu$1 = createLucideIcon("menu", __iconNode$X);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20772,29 +20773,27 @@ const Megaphone = createLucideIcon("megaphone", __iconNode$X);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$W = [
-  ["line", { x1: "4", x2: "20", y1: "12", y2: "12", key: "1e0a9i" }],
-  ["line", { x1: "4", x2: "20", y1: "6", y2: "6", key: "1owob3" }],
-  ["line", { x1: "4", x2: "20", y1: "18", y2: "18", key: "yk5zj1" }]
-];
-const Menu$1 = createLucideIcon("menu", __iconNode$W);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$V = [
   ["path", { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z", key: "1lielz" }]
 ];
-const MessageSquare = createLucideIcon("message-square", __iconNode$V);
+const MessageSquare = createLucideIcon("message-square", __iconNode$W);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$U = [["path", { d: "M5 12h14", key: "1ays0h" }]];
-const Minus = createLucideIcon("minus", __iconNode$U);
+const __iconNode$V = [["path", { d: "M5 12h14", key: "1ays0h" }]];
+const Minus = createLucideIcon("minus", __iconNode$V);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$U = [
+  ["path", { d: "M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z", key: "a7tn18" }]
+];
+const Moon = createLucideIcon("moon", __iconNode$U);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20802,9 +20801,9 @@ const Minus = createLucideIcon("minus", __iconNode$U);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$T = [
-  ["path", { d: "M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z", key: "a7tn18" }]
+  ["polygon", { points: "3 11 22 2 13 21 11 13 3 11", key: "1ltx0t" }]
 ];
-const Moon = createLucideIcon("moon", __iconNode$T);
+const Navigation = createLucideIcon("navigation", __iconNode$T);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20812,16 +20811,6 @@ const Moon = createLucideIcon("moon", __iconNode$T);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$S = [
-  ["polygon", { points: "3 11 22 2 13 21 11 13 3 11", key: "1ltx0t" }]
-];
-const Navigation = createLucideIcon("navigation", __iconNode$S);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$R = [
   ["path", { d: "M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4", key: "re6nr2" }],
   ["path", { d: "M2 6h4", key: "aawbzj" }],
   ["path", { d: "M2 10h4", key: "l0bgd4" }],
@@ -20835,14 +20824,14 @@ const __iconNode$R = [
     }
   ]
 ];
-const NotebookPen = createLucideIcon("notebook-pen", __iconNode$R);
+const NotebookPen = createLucideIcon("notebook-pen", __iconNode$S);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$Q = [
+const __iconNode$R = [
   [
     "path",
     {
@@ -20854,14 +20843,14 @@ const __iconNode$Q = [
   ["polyline", { points: "3.29 7 12 12 20.71 7", key: "ousv84" }],
   ["path", { d: "m7.5 4.27 9 5.15", key: "1c824w" }]
 ];
-const Package = createLucideIcon("package", __iconNode$Q);
+const Package = createLucideIcon("package", __iconNode$R);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$P = [
+const __iconNode$Q = [
   ["circle", { cx: "13.5", cy: "6.5", r: ".5", fill: "currentColor", key: "1okk4w" }],
   ["circle", { cx: "17.5", cy: "10.5", r: ".5", fill: "currentColor", key: "f64h9f" }],
   ["circle", { cx: "8.5", cy: "7.5", r: ".5", fill: "currentColor", key: "fotxhn" }],
@@ -20874,7 +20863,19 @@ const __iconNode$P = [
     }
   ]
 ];
-const Palette = createLucideIcon("palette", __iconNode$P);
+const Palette = createLucideIcon("palette", __iconNode$Q);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$P = [
+  ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
+  ["path", { d: "M15 3v18", key: "14nvp0" }],
+  ["path", { d: "m8 9 3 3-3 3", key: "12hl5m" }]
+];
+const PanelRightClose = createLucideIcon("panel-right-close", __iconNode$P);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20884,9 +20885,9 @@ const Palette = createLucideIcon("palette", __iconNode$P);
 const __iconNode$O = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
   ["path", { d: "M15 3v18", key: "14nvp0" }],
-  ["path", { d: "m8 9 3 3-3 3", key: "12hl5m" }]
+  ["path", { d: "m10 15-3-3 3-3", key: "1pgupc" }]
 ];
-const PanelRightClose = createLucideIcon("panel-right-close", __iconNode$O);
+const PanelRightOpen = createLucideIcon("panel-right-open", __iconNode$O);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20894,11 +20895,16 @@ const PanelRightClose = createLucideIcon("panel-right-close", __iconNode$O);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$N = [
-  ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
-  ["path", { d: "M15 3v18", key: "14nvp0" }],
-  ["path", { d: "m10 15-3-3 3-3", key: "1pgupc" }]
+  ["path", { d: "M13.234 20.252 21 12.3", key: "1cbrk9" }],
+  [
+    "path",
+    {
+      d: "m16 6-8.414 8.586a2 2 0 0 0 0 2.828 2 2 0 0 0 2.828 0l8.414-8.586a4 4 0 0 0 0-5.656 4 4 0 0 0-5.656 0l-8.415 8.585a6 6 0 1 0 8.486 8.486",
+      key: "1pkts6"
+    }
+  ]
 ];
-const PanelRightOpen = createLucideIcon("panel-right-open", __iconNode$N);
+const Paperclip = createLucideIcon("paperclip", __iconNode$N);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -28807,6 +28813,7 @@ var profile;
       this.create = this.create.bind(this);
       this.createPerson = this.createPerson.bind(this);
       this.getByUser = this.getByUser.bind(this);
+      this.profileHistory = this.profileHistory.bind(this);
       this.importNotionPersonnel = this.importNotionPersonnel.bind(this);
       this.list = this.list.bind(this);
       this.listWithUsers = this.listWithUsers.bind(this);
@@ -28823,6 +28830,11 @@ var profile;
     }
     async getByUser(user_id) {
       const resp = await this.baseClient.callTypedAPI("GET", `/profiles/user/${encodeURIComponent(user_id)}`);
+      return await resp.json();
+    }
+    async profileHistory(id, params = {}) {
+      const query = makeRecord({ limit: params.limit === void 0 ? void 0 : String(params.limit) });
+      const resp = await this.baseClient.callTypedAPI("GET", `/profiles/${encodeURIComponent(id)}/history`, void 0, { query });
       return await resp.json();
     }
     async importNotionPersonnel(params) {
@@ -34795,7 +34807,7 @@ function formatSpan(ms) {
   return `${m}m`;
 }
 const hhmm$4 = (d) => d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
-function initials$2(name) {
+function initials$3(name) {
   var _a3;
   const parts = name.trim().split(/\s+/);
   return ((((_a3 = parts[0]) == null ? void 0 : _a3[0]) ?? "") + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase() || "?";
@@ -34855,7 +34867,7 @@ function RidingBoard({
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3", children: ["b10p1", "b10p2"].map((app) => {
     const seats = entries.filter((e) => e.appliance === app).sort((a, b) => ROLE_ORDER$1.indexOf(a.crew_role) - ROLE_ORDER$1.indexOf(b.crew_role));
     const target = MIN_CREW[app];
-    const short = Math.max(0, target - seats.length);
+    const short2 = Math.max(0, target - seats.length);
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-16 shrink-0", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono text-xs font-semibold tracking-wide text-white", children: app.toUpperCase() }),
@@ -34864,9 +34876,9 @@ function RidingBoard({
           {
             className: cn(
               "text-[10px] font-medium",
-              loading ? "text-white/40" : short === 0 ? "text-emerald-300" : seats.length === 0 ? "text-red-300" : "text-amber-300"
+              loading ? "text-white/40" : short2 === 0 ? "text-emerald-300" : seats.length === 0 ? "text-red-300" : "text-amber-300"
             ),
-            children: loading ? "…" : short === 0 ? "Crewed" : seats.length === 0 ? "Not set" : `${short} short`
+            children: loading ? "…" : short2 === 0 ? "Crewed" : seats.length === 0 ? "Not set" : `${short2} short`
           }
         )
       ] }),
@@ -34883,14 +34895,14 @@ function RidingBoard({
                 mine ? "bg-white text-neutral-900 ring-2 ring-[var(--hero-accent)]" : "bg-white/15 text-white"
               ),
               children: [
-                initials$2(name),
+                initials$3(name),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "absolute -bottom-1 left-1/2 -translate-x-1/2 rounded bg-neutral-950 px-1 font-mono text-[8px] leading-3 text-white/70 ring-1 ring-white/10", children: ROLE_LABEL[s.crew_role] ?? s.crew_role })
               ]
             },
             i
           );
         }),
-        Array.from({ length: short }, (_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "h-8 w-8 rounded-full border border-dashed border-white/25", "aria-hidden": true }, `gap-${i}`))
+        Array.from({ length: short2 }, (_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "h-8 w-8 rounded-full border border-dashed border-white/25", "aria-hidden": true }, `gap-${i}`))
       ] })
     ] }, app);
   }) });
@@ -36822,17 +36834,17 @@ function parseISO(argument, options) {
   }
   if (!date2 || isNaN(+date2)) return invalidDate();
   const timestamp = +date2;
-  let time = 0;
+  let time2 = 0;
   let offset2;
   if (dateStrings.time) {
-    time = parseTime(dateStrings.time);
-    if (isNaN(time)) return invalidDate();
+    time2 = parseTime(dateStrings.time);
+    if (isNaN(time2)) return invalidDate();
   }
   if (dateStrings.timezone) {
     offset2 = parseTimezone(dateStrings.timezone);
     if (isNaN(offset2)) return invalidDate();
   } else {
-    const tmpDate = new Date(timestamp + time);
+    const tmpDate = new Date(timestamp + time2);
     const result = toDate(0, options == null ? void 0 : options.in);
     result.setFullYear(
       tmpDate.getUTCFullYear(),
@@ -36847,7 +36859,7 @@ function parseISO(argument, options) {
     );
     return result;
   }
-  return toDate(timestamp + time + offset2, options == null ? void 0 : options.in);
+  return toDate(timestamp + time2 + offset2, options == null ? void 0 : options.in);
 }
 const patterns = {
   dateTimeDelimiter: /[T ]/,
@@ -37459,16 +37471,16 @@ const DAY_NAMES = {
   SA: "Saturday",
   SU: "Sunday"
 };
-function ruleLabel(rule, dayKey2, short = false) {
+function ruleLabel(rule, dayKey2, short2 = false) {
   const day2 = dayKey2 ? DAY_NAMES[dayKey2] ?? "" : "";
-  const d = short ? day2.slice(0, 3) : day2;
+  const d = short2 ? day2.slice(0, 3) : day2;
   switch (rule) {
     case "first":
       return `Monthly · 1st ${d}`;
     case "last":
       return `Monthly · last ${d}`;
     case "quarter-last":
-      return short ? `Quarterly · last ${d}` : `Quarterly · last ${d} of Jan, Apr, Jul, Oct`;
+      return short2 ? `Quarterly · last ${d}` : `Quarterly · last ${d} of Jan, Apr, Jul, Oct`;
     default:
       return "Weekly";
   }
@@ -37863,7 +37875,7 @@ function StationComparison({
   ownWatch,
   onPick
 }) {
-  const time = quarterTime(fq);
+  const time2 = quarterTime(fq);
   const year = fq.start.getFullYear();
   const now = /* @__PURE__ */ new Date();
   const yStart = new Date(year, 0, 1);
@@ -37905,22 +37917,22 @@ function StationComparison({
     const hyTotal = (hy == null ? void 0 : hy.total) ?? 0;
     return {
       watch: w,
-      hfsv: { done: hfDone, target: HFSV_TARGET_Q, p: pace(hfDone, HFSV_TARGET_Q, time.elapsed, time.phase) },
+      hfsv: { done: hfDone, target: HFSV_TARGET_Q, p: pace(hfDone, HFSV_TARGET_Q, time2.elapsed, time2.phase) },
       community: {
         done: cmDone,
         target: COMMUNITY_TARGET_Q,
         extra: `TAP ${tap}/${COMMUNITY_TAP_MIN}`,
-        p: pace(cmDone, COMMUNITY_TARGET_Q, time.elapsed, time.phase, tap >= COMMUNITY_TAP_MIN)
+        p: pace(cmDone, COMMUNITY_TARGET_Q, time2.elapsed, time2.phase, tap >= COMMUNITY_TAP_MIN)
       },
-      multistory: { done: msDone, target: msTotal, p: pace(msDone, msTotal, time.elapsed, time.phase) },
+      multistory: { done: msDone, target: msTotal, p: pace(msDone, msTotal, time2.elapsed, time2.phase) },
       hydrant: { done: hyDone, target: hyTotal, p: pace(hyDone, hyTotal, yElapsed, yPhase) }
     };
   });
   const sum = (k) => {
     const done = rows.reduce((n, r2) => n + r2[k].done, 0);
     const target = rows.reduce((n, r2) => n + r2[k].target, 0);
-    const el = k === "hydrant" ? yElapsed : time.elapsed;
-    const ph = k === "hydrant" ? yPhase : time.phase;
+    const el = k === "hydrant" ? yElapsed : time2.elapsed;
+    const ph = k === "hydrant" ? yPhase : time2.phase;
     const p = pace(done, target, el, ph);
     const behindBy = rows.reduce((n, r2) => n + r2[k].p.behindBy, 0);
     const expected = rows.reduce((n, r2) => n + r2[k].p.expected, 0);
@@ -41926,7 +41938,7 @@ const TYPE_CONFIG = {
     description: "Use your banked TOIL hours for a shift off. Someone covers for you and receives payment (min 4hrs)."
   }
 };
-const WATCHES$d = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$e = ["Red", "White", "Green", "Blue", "Amber"];
 function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
   const { user: user2 } = useAuth();
   const userRole = useUserRole();
@@ -42151,7 +42163,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
   })();
   const userWatch = (editingAdj == null ? void 0 : editingAdj.watch_unit) ?? (user2 == null ? void 0 : user2.watch_unit) ?? "";
   const subjectName = (editingAdj == null ? void 0 : editingAdj.user_name) ?? (user2 == null ? void 0 : user2.name);
-  const otherWatches = WATCHES$d.filter((w) => w !== userWatch);
+  const otherWatches = WATCHES$e.filter((w) => w !== userWatch);
   const fmt2 = (d) => (/* @__PURE__ */ new Date(d + "T12:00:00")).toLocaleDateString("en-GB", {
     day: "numeric",
     month: "short",
@@ -42431,7 +42443,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
               setForUserId("");
             }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select their watch…" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$d.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$e.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
                 w,
                 " Watch"
               ] }, w)) })
@@ -42674,7 +42686,7 @@ function FFShiftAdjustmentWidget() {
     )
   ] });
 }
-const WATCHES$c = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$d = ["Red", "White", "Green", "Blue", "Amber"];
 function ToilWidget() {
   var _a3;
   const { user: user2 } = useAuth();
@@ -42971,7 +42983,7 @@ function ToilWidget() {
               setEarnForUserId("");
             }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select watch…" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$c.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$d.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
                 w,
                 " Watch"
               ] }, w)) })
@@ -45246,331 +45258,6 @@ function SkillsTab({ profileId, userId }) {
     ] }) })
   ] });
 }
-function SkillsSummaryCard({ profileId }) {
-  const backend = useBackend();
-  const { data: skillsData, isLoading } = useQuery({
-    queryKey: ["skill-renewals", profileId],
-    queryFn: async () => backend.skill.list({ profile_id: profileId }),
-    enabled: !!profileId
-  });
-  const skills = (skillsData == null ? void 0 : skillsData.skills) || [];
-  const validSkills = skills.filter((s) => s.status === "valid").length;
-  const warningSkills = skills.filter((s) => s.status === "warning").length;
-  const expiredSkills = skills.filter((s) => s.status === "expired").length;
-  if (!profileId) {
-    return null;
-  }
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(CardHeader, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(CardTitle, { className: "flex items-center gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Award, { className: "h-5 w-5" }),
-        "Skills & Renewals"
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { children: "Quick overview of assigned skills" })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { className: "space-y-4", children: isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-10 w-full" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-10 w-full" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-6 w-3/4" })
-    ] }) : skills.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "No skills recorded. Go to Skills tab to add." }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-3 gap-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-4 w-4 text-green-500" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium", children: "Valid" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-2xl font-bold text-green-600 dark:text-green-400", children: validSkills })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "h-4 w-4 text-yellow-500" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium", children: "Expiring Soon" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-2xl font-bold text-yellow-600 dark:text-yellow-400", children: warningSkills })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(CircleX, { className: "h-4 w-4 text-red-500" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium", children: "Expired" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-2xl font-bold text-red-600 dark:text-red-400", children: expiredSkills })
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2 pt-2 border-t", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm font-medium text-muted-foreground", children: "Recent Skills" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1", children: skills.slice(0, 5).map((skill2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between text-sm", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-foreground", children: skill2.skill_name }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-            skill2.expiry_date && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-muted-foreground", children: [
-              "Expires: ",
-              new Date(skill2.expiry_date).toLocaleDateString()
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Badge,
-              {
-                className: skill2.status === "expired" ? "bg-red-500/10 text-red-500" : skill2.status === "warning" ? "bg-yellow-500/10 text-yellow-500" : "bg-green-500/10 text-green-500",
-                children: skill2.status === "expired" ? "Expired" : skill2.status === "warning" ? "Warning" : "Valid"
-              }
-            )
-          ] })
-        ] }, skill2.id)) }),
-        skills.length > 5 && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground pt-1", children: [
-          "... and ",
-          skills.length - 5,
-          " more"
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pt-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        Button,
-        {
-          variant: "outline",
-          size: "sm",
-          className: "w-full",
-          onClick: () => {
-            const skillsTab = document.querySelector('[value="skills"]');
-            if (skillsTab) skillsTab.click();
-          },
-          children: [
-            "View All Skills",
-            /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-4 w-4 ml-2" })
-          ]
-        }
-      ) })
-    ] }) })
-  ] });
-}
-var TABS_NAME = "Tabs";
-var [createTabsContext] = createContextScope$1(TABS_NAME, [
-  createRovingFocusGroupScope
-]);
-var useRovingFocusGroupScope = createRovingFocusGroupScope();
-var [TabsProvider, useTabsContext] = createTabsContext(TABS_NAME);
-var Tabs$1 = reactExports.forwardRef(
-  (props, forwardedRef) => {
-    const {
-      __scopeTabs,
-      value: valueProp,
-      onValueChange,
-      defaultValue: defaultValue2,
-      orientation = "horizontal",
-      dir,
-      activationMode = "automatic",
-      ...tabsProps
-    } = props;
-    const direction = useDirection(dir);
-    const [value, setValue] = useControllableState({
-      prop: valueProp,
-      onChange: onValueChange,
-      defaultProp: defaultValue2 ?? "",
-      caller: TABS_NAME
-    });
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(
-      TabsProvider,
-      {
-        scope: __scopeTabs,
-        baseId: useId(),
-        value,
-        onValueChange: setValue,
-        orientation,
-        dir: direction,
-        activationMode,
-        children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Primitive$1.div,
-          {
-            dir: direction,
-            "data-orientation": orientation,
-            ...tabsProps,
-            ref: forwardedRef
-          }
-        )
-      }
-    );
-  }
-);
-Tabs$1.displayName = TABS_NAME;
-var TAB_LIST_NAME = "TabsList";
-var TabsList$1 = reactExports.forwardRef(
-  (props, forwardedRef) => {
-    const { __scopeTabs, loop = true, ...listProps } = props;
-    const context = useTabsContext(TAB_LIST_NAME, __scopeTabs);
-    const rovingFocusGroupScope = useRovingFocusGroupScope(__scopeTabs);
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(
-      Root$5,
-      {
-        asChild: true,
-        ...rovingFocusGroupScope,
-        orientation: context.orientation,
-        dir: context.dir,
-        loop,
-        children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Primitive$1.div,
-          {
-            role: "tablist",
-            "aria-orientation": context.orientation,
-            ...listProps,
-            ref: forwardedRef
-          }
-        )
-      }
-    );
-  }
-);
-TabsList$1.displayName = TAB_LIST_NAME;
-var TRIGGER_NAME$1 = "TabsTrigger";
-var TabsTrigger$1 = reactExports.forwardRef(
-  (props, forwardedRef) => {
-    const { __scopeTabs, value, disabled = false, ...triggerProps } = props;
-    const context = useTabsContext(TRIGGER_NAME$1, __scopeTabs);
-    const rovingFocusGroupScope = useRovingFocusGroupScope(__scopeTabs);
-    const triggerId = makeTriggerId(context.baseId, value);
-    const contentId = makeContentId(context.baseId, value);
-    const isSelected = value === context.value;
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(
-      Item$1,
-      {
-        asChild: true,
-        ...rovingFocusGroupScope,
-        focusable: !disabled,
-        active: isSelected,
-        children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Primitive$1.button,
-          {
-            type: "button",
-            role: "tab",
-            "aria-selected": isSelected,
-            "aria-controls": contentId,
-            "data-state": isSelected ? "active" : "inactive",
-            "data-disabled": disabled ? "" : void 0,
-            disabled,
-            id: triggerId,
-            ...triggerProps,
-            ref: forwardedRef,
-            onMouseDown: composeEventHandlers(props.onMouseDown, (event) => {
-              if (!disabled && event.button === 0 && event.ctrlKey === false) {
-                context.onValueChange(value);
-              } else {
-                event.preventDefault();
-              }
-            }),
-            onKeyDown: composeEventHandlers(props.onKeyDown, (event) => {
-              if ([" ", "Enter"].includes(event.key)) context.onValueChange(value);
-            }),
-            onFocus: composeEventHandlers(props.onFocus, () => {
-              const isAutomaticActivation = context.activationMode !== "manual";
-              if (!isSelected && !disabled && isAutomaticActivation) {
-                context.onValueChange(value);
-              }
-            })
-          }
-        )
-      }
-    );
-  }
-);
-TabsTrigger$1.displayName = TRIGGER_NAME$1;
-var CONTENT_NAME$1 = "TabsContent";
-var TabsContent$1 = reactExports.forwardRef(
-  (props, forwardedRef) => {
-    const { __scopeTabs, value, forceMount, children, ...contentProps } = props;
-    const context = useTabsContext(CONTENT_NAME$1, __scopeTabs);
-    const triggerId = makeTriggerId(context.baseId, value);
-    const contentId = makeContentId(context.baseId, value);
-    const isSelected = value === context.value;
-    const isMountAnimationPreventedRef = reactExports.useRef(isSelected);
-    reactExports.useEffect(() => {
-      const rAF = requestAnimationFrame(() => isMountAnimationPreventedRef.current = false);
-      return () => cancelAnimationFrame(rAF);
-    }, []);
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(Presence, { present: forceMount || isSelected, children: ({ present }) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-      Primitive$1.div,
-      {
-        "data-state": isSelected ? "active" : "inactive",
-        "data-orientation": context.orientation,
-        role: "tabpanel",
-        "aria-labelledby": triggerId,
-        hidden: !present,
-        id: contentId,
-        tabIndex: 0,
-        ...contentProps,
-        ref: forwardedRef,
-        style: {
-          ...props.style,
-          animationDuration: isMountAnimationPreventedRef.current ? "0s" : void 0
-        },
-        children: present && children
-      }
-    ) });
-  }
-);
-TabsContent$1.displayName = CONTENT_NAME$1;
-function makeTriggerId(baseId, value) {
-  return `${baseId}-trigger-${value}`;
-}
-function makeContentId(baseId, value) {
-  return `${baseId}-content-${value}`;
-}
-var Root2$1 = Tabs$1;
-var List = TabsList$1;
-var Trigger = TabsTrigger$1;
-var Content = TabsContent$1;
-function Tabs({
-  className,
-  ...props
-}) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    Root2$1,
-    {
-      "data-slot": "tabs",
-      className: cn("flex flex-col gap-2", className),
-      ...props
-    }
-  );
-}
-function TabsList({
-  className,
-  ...props
-}) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    List,
-    {
-      "data-slot": "tabs-list",
-      className: cn(
-        "bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-[3px]",
-        className
-      ),
-      ...props
-    }
-  );
-}
-function TabsTrigger({
-  className,
-  ...props
-}) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    Trigger,
-    {
-      "data-slot": "tabs-trigger",
-      className: cn(
-        "data-[state=active]:bg-background dark:data-[state=active]:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring dark:data-[state=active]:border-input dark:data-[state=active]:bg-input/30 text-foreground dark:text-muted-foreground inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:shadow-sm [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        className
-      ),
-      ...props
-    }
-  );
-}
-function TabsContent({
-  className,
-  ...props
-}) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    Content,
-    {
-      "data-slot": "tabs-content",
-      className: cn("flex-1 outline-none", className),
-      ...props
-    }
-  );
-}
 const fmt = (d) => (/* @__PURE__ */ new Date(d + "T12:00:00")).toLocaleDateString("en-GB", {
   day: "numeric",
   month: "short",
@@ -46880,8 +46567,443 @@ function AbsenceHistorySection({
     ] }) })
   ] });
 }
+const WATCH_RING = {
+  Green: "#16a34a",
+  Red: "#dc2626",
+  White: "#cbd5e1",
+  Blue: "#2563eb",
+  Amber: "#f59e0b"
+};
+const initials$2 = (name) => name.split(/\s+/).filter(Boolean).map((p) => p[0]).slice(0, 2).join("").toUpperCase() || "?";
+function ProfileHero({
+  name,
+  rank,
+  watch,
+  station,
+  serviceNumber,
+  phone,
+  email,
+  flags,
+  facts,
+  menu
+}) {
+  var _a3;
+  const shift2 = watch ? shiftDisplay(watch) : null;
+  const onShift = watch ? ((_a3 = getWatchShiftStatus(watch)) == null ? void 0 : _a3.state) === "on" : false;
+  const tel = phone == null ? void 0 : phone.replace(/[^\d+]/g, "");
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { "aria-label": `${name}'s profile`, className: "overflow-hidden rounded-2xl border border-border/70 bg-card", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-4 p-4 sm:p-6 md:flex-row md:items-center", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 flex-1 items-center gap-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            "aria-hidden": true,
+            className: "grid h-16 w-16 shrink-0 place-items-center rounded-full bg-foreground text-xl font-semibold tracking-tight text-background sm:h-20 sm:w-20 sm:text-2xl",
+            style: { boxShadow: `0 0 0 3px hsl(var(--card)), 0 0 0 6px ${WATCH_RING[watch ?? ""] ?? "transparent"}` },
+            children: initials$2(name)
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "eyebrow truncate", children: [serviceNumber && `Service #${serviceNumber}`, station].filter(Boolean).join(" · ") || "Profile" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "mt-0.5 truncate text-2xl font-semibold tracking-tight sm:text-3xl", children: name }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-1.5 flex flex-wrap items-center gap-1.5 text-sm", children: [
+            rank && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: rank }),
+            watch && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1.5 rounded-full border border-border/70 px-2 py-0.5 text-xs font-medium", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "aria-hidden": true, className: "h-2 w-2 rounded-full", style: { background: WATCH_RING[watch] ?? "currentColor" } }),
+              watch,
+              " Watch"
+            ] }),
+            shift2 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1.5 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground", children: [
+              onShift && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "aria-hidden": true, className: "h-1.5 w-1.5 animate-pulse rounded-full bg-foreground motion-reduce:animate-none" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium text-foreground", children: onShift ? `On shift · ${shift2.main}` : shift2.main }),
+              shift2.sub && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "hidden sm:inline", children: [
+                "· ",
+                shift2.sub
+              ] })
+            ] }),
+            flags.map((f) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "span",
+              {
+                className: cn(
+                  "rounded-full px-2 py-0.5 text-xs font-medium",
+                  f.tone === "critical" ? "bg-red-500/10 text-red-700 dark:text-red-400" : f.tone === "warning" ? "bg-amber-500/15 text-amber-800 dark:text-amber-300" : "bg-muted text-foreground"
+                ),
+                children: f.label
+              },
+              f.key
+            ))
+          ] })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(QuickAction, { href: tel ? `tel:${tel}` : void 0, icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Phone, { className: "h-4 w-4" }), label: "Call" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(QuickAction, { href: tel ? `sms:${tel}` : void 0, icon: /* @__PURE__ */ jsxRuntimeExports.jsx(MessageSquare, { className: "h-4 w-4" }), label: "Text" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(QuickAction, { href: email ? `mailto:${email}` : void 0, icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Mail, { className: "h-4 w-4" }), label: "Email" }),
+        menu
+      ] })
+    ] }),
+    facts.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("dl", { className: "flex flex-wrap gap-px border-t border-border/60 bg-border/60", children: facts.map((f) => /* @__PURE__ */ jsxRuntimeExports.jsx(Fact, { fact: f }, f.key)) })
+  ] });
+}
+function QuickAction({ href, icon, label: label2 }) {
+  const cls = "inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl border border-border px-3 text-sm font-medium md:flex-none";
+  return href ? /* @__PURE__ */ jsxRuntimeExports.jsxs("a", { href, className: cn(cls, "hover:bg-muted"), children: [
+    icon,
+    label2
+  ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { "aria-disabled": true, className: cn(cls, "cursor-not-allowed opacity-40"), title: `No ${label2 === "Email" ? "email" : "phone number"} on file`, children: [
+    icon,
+    label2
+  ] });
+}
+function Fact({ fact }) {
+  const body = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("dt", { className: "text-[11px] font-medium uppercase tracking-wide text-muted-foreground", children: fact.label }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "dd",
+      {
+        className: cn(
+          "mt-1 text-lg font-semibold tabular-nums leading-tight",
+          fact.tone === "critical" ? "text-red-600 dark:text-red-400" : fact.tone === "warning" ? "text-amber-700 dark:text-amber-300" : "text-foreground"
+        ),
+        children: fact.value
+      }
+    ),
+    fact.sub && /* @__PURE__ */ jsxRuntimeExports.jsx("dd", { className: "mt-0.5 truncate text-xs text-muted-foreground", children: fact.sub })
+  ] });
+  const cls = cn(
+    // Each fact grows to fill its row, so the 1px gaps read as dividers whatever the count.
+    "relative min-w-0 flex-[1_1_150px] bg-card px-4 py-3 text-left",
+    fact.tone && fact.tone !== "neutral" && "before:absolute before:inset-y-3 before:left-0 before:w-[3px] before:rounded-r",
+    fact.tone === "critical" && "before:bg-red-500",
+    fact.tone === "warning" && "before:bg-amber-500"
+  );
+  return fact.onClick ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: fact.onClick, className: cn(cls, "transition-colors hover:bg-muted/60 focus-visible:bg-muted/60 focus-visible:outline-none"), children: body }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: cls, children: body });
+}
+function ProfileSection({
+  title,
+  description,
+  editable,
+  editing,
+  saving,
+  onEdit,
+  onCancel,
+  onSave,
+  className,
+  children
+}) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: cn("rounded-2xl border bg-card", editing ? "border-foreground/40 ring-1 ring-foreground/10" : "border-border/70", className), children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "flex items-start gap-3 px-4 pb-2 pt-4 sm:px-5", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0 flex-1", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-sm font-semibold", children: title }),
+        description && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-0.5 text-xs text-muted-foreground", children: description })
+      ] }),
+      editing ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex shrink-0 gap-1.5", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: onCancel, className: "h-8 rounded-lg border border-border px-2.5 text-xs font-medium hover:bg-muted", children: "Cancel" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: onSave,
+            disabled: saving,
+            className: "inline-flex h-8 items-center gap-1 rounded-lg bg-foreground px-2.5 text-xs font-medium text-background disabled:opacity-50",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-3.5 w-3.5" }),
+              " ",
+              saving ? "Saving…" : "Save"
+            ]
+          }
+        )
+      ] }) : editable ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "button",
+        {
+          type: "button",
+          onClick: onEdit,
+          "aria-label": `Edit ${title.toLowerCase()}`,
+          className: "inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground",
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "h-3.5 w-3.5" }),
+            " Edit"
+          ]
+        }
+      ) : null
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-4 pb-4 sm:px-5", children })
+  ] });
+}
+function Field$1({ label: label2, children }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-h-[40px] items-center justify-between gap-4 border-b border-border/50 py-2 last:border-0", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "shrink-0 text-xs text-muted-foreground", children: label2 }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-w-0 text-right text-sm font-medium", children })
+  ] });
+}
+const QUALIFICATIONS = [
+  { key: "oic", short: "OIC", label: "Officer in charge", names: ["oic"] },
+  { key: "ba", short: "BA", label: "Breathing apparatus", names: ["ba"] },
+  { key: "driver_lgv", short: "LGV", label: "LGV driver", names: ["lgv"] },
+  { key: "prps", short: "PRPS", label: "Respiratory protection", names: ["prps trained", "prps"] },
+  { key: "mass_decon", short: "Decon", label: "Mass decontamination", names: ["mass decon"] },
+  { key: "hooklift_operator", short: "Hooklift", label: "Hooklift operator", names: ["hooklift operator", "hooklift"] }
+];
+function qualificationForSkill(skillName) {
+  var _a3;
+  const n = skillName.trim().toLowerCase();
+  return ((_a3 = QUALIFICATIONS.find((q) => q.names.includes(n))) == null ? void 0 : _a3.key) ?? null;
+}
+const short = (d) => d ? new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : null;
+function expiryNote(s) {
+  if (!(s == null ? void 0 : s.status) || s.status === "valid") return null;
+  const when = short(s.expiry_date);
+  return s.status === "expired" ? { text: when ? `Expired ${when}` : "Expired", tone: "critical" } : { text: when ? `Expires ${when}` : "Due soon", tone: "warning" };
+}
+function QualificationsPanel({
+  held,
+  skills,
+  editing,
+  onToggle,
+  onOpenSkills
+}) {
+  const skillFor = (key2) => skills.find((s) => qualificationForSkill(s.skill_name) === key2);
+  const others = skills.filter((s) => !qualificationForSkill(s.skill_name)).sort((a, b) => a.skill_name.localeCompare(b.skill_name));
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-4", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-3 gap-2 sm:grid-cols-6", children: QUALIFICATIONS.map((q) => {
+      const on = held[q.key];
+      const note2 = on ? expiryNote(skillFor(q.key)) : null;
+      const Tile = editing ? "button" : "div";
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        Tile,
+        {
+          ...editing ? { type: "button", onClick: () => onToggle(q.key), "aria-pressed": on } : {},
+          title: q.label,
+          className: cn(
+            "relative flex min-h-[76px] flex-col justify-between rounded-xl border p-2.5 text-left transition-colors",
+            on ? "border-foreground/80 bg-foreground/[0.03]" : "border-dashed border-border text-muted-foreground",
+            (note2 == null ? void 0 : note2.tone) === "critical" && "border-red-500 bg-red-500/5",
+            (note2 == null ? void 0 : note2.tone) === "warning" && "border-amber-500 bg-amber-500/5",
+            editing && "cursor-pointer hover:border-foreground"
+          ),
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center justify-between gap-1", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn("text-base font-semibold tracking-tight", on && "text-foreground"), children: q.short }),
+              on && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "aria-hidden": true, className: "grid h-4 w-4 place-items-center rounded-full bg-foreground text-background", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-2.5 w-2.5", strokeWidth: 3 }) })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "span",
+              {
+                className: cn(
+                  "text-[11px] leading-tight",
+                  (note2 == null ? void 0 : note2.tone) === "critical" ? "font-medium text-red-700 dark:text-red-400" : (note2 == null ? void 0 : note2.tone) === "warning" ? "font-medium text-amber-800 dark:text-amber-300" : "text-muted-foreground"
+                ),
+                children: note2 ? note2.text : on ? q.label : editing ? "Tap to add" : "Not held"
+              }
+            )
+          ]
+        },
+        q.key
+      );
+    }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-2 flex items-center justify-between", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-xs font-medium uppercase tracking-wide text-muted-foreground", children: "Other skills" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: onOpenSkills, className: "inline-flex items-center gap-0.5 text-xs font-medium text-muted-foreground hover:text-foreground", children: [
+          "Dates & renewals ",
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-3.5 w-3.5" })
+        ] })
+      ] }),
+      others.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "flex flex-wrap gap-1.5", children: others.map((s) => {
+        const note2 = expiryNote(s);
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "li",
+          {
+            className: cn(
+              "rounded-lg border px-2 py-1 text-xs font-medium",
+              (note2 == null ? void 0 : note2.tone) === "critical" ? "border-red-500/40 bg-red-500/5 text-red-700 dark:text-red-400" : (note2 == null ? void 0 : note2.tone) === "warning" ? "border-amber-500/40 bg-amber-500/5 text-amber-800 dark:text-amber-300" : "border-border/70"
+            ),
+            title: note2 == null ? void 0 : note2.text,
+            children: [
+              s.skill_name,
+              note2 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ml-1 font-normal", children: [
+                "· ",
+                note2.text
+              ] })
+            ]
+          },
+          s.id
+        );
+      }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "None recorded." })
+    ] }),
+    editing && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px] text-muted-foreground", children: "The crewing board uses these. Each one is also a skill: adding one puts it on their Skills tab, and removing it takes the skill (and its dates) off." })
+  ] });
+}
+const DRIVER_STEPS = [
+  { value: "medical_due", label: "Medical due" },
+  { value: "application_sent", label: "Application sent" },
+  { value: "awaiting_theory", label: "Awaiting theory" },
+  { value: "awaiting_course", label: "Awaiting course" },
+  { value: "passed_LGV", label: "Passed LGV" },
+  { value: "awaiting_ERD", label: "Awaiting ERD" },
+  { value: "passed", label: "Passed" }
+];
+function DriverPathway({
+  status,
+  lgvPassedDate,
+  editing,
+  onPick,
+  onDate
+}) {
+  const at = DRIVER_STEPS.findIndex((s) => s.value === status);
+  const lgvDone = at >= 4;
+  if (at < 0 && !editing) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "Not on the driver pathway." });
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-3", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("ol", { className: "grid grid-cols-7 gap-1", "aria-label": "Driver pathway", children: DRIVER_STEPS.map((s, i) => {
+      const done = at >= 0 && i < at;
+      const current = i === at;
+      const Step = editing ? "button" : "div";
+      return /* @__PURE__ */ jsxRuntimeExports.jsx("li", { className: "min-w-0", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        Step,
+        {
+          ...editing ? { type: "button", onClick: () => onPick(s.value), "aria-pressed": current } : {},
+          "aria-current": current ? "step" : void 0,
+          className: cn("group flex w-full flex-col items-center gap-1.5 text-center", editing && "cursor-pointer"),
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "relative flex w-full items-center", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn("h-0.5 flex-1", i === 0 ? "bg-transparent" : done || current ? "bg-foreground" : "bg-border") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "span",
+                {
+                  className: cn(
+                    "grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 text-[10px] font-semibold",
+                    done && "border-foreground bg-foreground text-background",
+                    current && "border-foreground bg-background text-foreground ring-4 ring-foreground/10",
+                    !done && !current && "border-border bg-background text-muted-foreground",
+                    editing && !current && "group-hover:border-foreground"
+                  ),
+                  children: done ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-3 w-3", strokeWidth: 3 }) : i + 1
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn("h-0.5 flex-1", i === DRIVER_STEPS.length - 1 ? "bg-transparent" : done ? "bg-foreground" : "bg-border") })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn("hidden text-[11px] leading-tight sm:block", current ? "font-semibold text-foreground" : "text-muted-foreground"), children: s.label })
+          ]
+        }
+      ) }, s.value);
+    }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-2 text-sm", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "Now: " }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold", children: at >= 0 ? DRIVER_STEPS[at].label : "Not started" }),
+        at >= 0 && at < DRIVER_STEPS.length - 1 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-muted-foreground", children: [
+          " · next ",
+          DRIVER_STEPS[at + 1].label.toLowerCase()
+        ] })
+      ] }),
+      lgvDone && (editing ? /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 text-xs text-muted-foreground", children: [
+        "LGV passed",
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "date",
+            value: lgvPassedDate ?? "",
+            onChange: (e) => onDate(e.target.value),
+            className: "h-8 rounded-lg border border-border bg-background px-2 text-xs text-foreground"
+          }
+        )
+      ] }) : lgvPassedDate ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-muted-foreground", children: [
+        "LGV passed ",
+        new Date(lgvPassedDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+      ] }) : null)
+    ] }),
+    editing && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px] text-muted-foreground", children: "Tap a step to move them to it." })
+  ] });
+}
+const QUAL_NAMES = {
+  ba: "BA",
+  prps: "PRPS",
+  oic: "OIC",
+  mass_decon: "Mass Decon",
+  hooklift_operator: "Hooklift"
+};
+const FIELD_NAMES = {
+  phone: "phone number",
+  service_number: "service number",
+  emergency_contact_name: "emergency contact",
+  emergency_contact_phone: "emergency contact",
+  hire_date: "start date",
+  customFields: "extra details"
+};
+function describe(e) {
+  const d = e.details ?? {};
+  if (e.action === "create_person" || e.action === "import_person") return ["added them to the app"];
+  if (e.action === "create_skill_renewal") return [`added the skill ${d.skill_name ?? ""}`.trim()];
+  if (e.action === "delete_skill_renewal") return [d.skill_name ? `removed the skill ${d.skill_name}` : "removed a skill"];
+  if (e.action === "update_skill_renewal") {
+    const what = d.skill_name ? `${d.skill_name}` : "a skill";
+    return [d.expiry_date !== void 0 || d.acquired_date !== void 0 ? `updated the dates on ${what}` : `updated ${what}`];
+  }
+  if (e.action !== "update_profile") return [e.action.replace(/_/g, " ")];
+  const out = [];
+  const ticked = [];
+  const unticked = [];
+  for (const [k, v] of Object.entries(d)) {
+    if (k in QUAL_NAMES) (v ? ticked : unticked).push(QUAL_NAMES[k]);
+    else if (k === "driver" && v && typeof v === "object") (v.lgv ? ticked : unticked).push("LGV");
+    else if (k === "driverPathway" && v && typeof v === "object") {
+      const step = DRIVER_STEPS.find((s) => s.value === v.status);
+      out.push(step ? `moved their driver pathway to ${step.label.toLowerCase()}` : "updated their driver pathway");
+    } else if (k === "rank" && v) out.push(`changed their rank to ${v}`);
+    else if (k === "station" && v) out.push(`moved them to ${v}`);
+    else if (k === "watch") out.push(v ? `moved them to ${v} Watch` : "took them off a watch");
+    else if (FIELD_NAMES[k]) out.push(`changed their ${FIELD_NAMES[k]}`);
+  }
+  if (ticked.length) out.unshift(`gave them ${ticked.join(", ")}`);
+  if (unticked.length) out.push(`took ${unticked.join(", ")} off`);
+  return [...new Set(out)].length ? [...new Set(out)] : ["updated their record"];
+}
+const dayKey$1 = (iso2) => new Date(iso2).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+const time = (iso2) => new Date(iso2).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+function RecordHistory({ profileId }) {
+  const backend = useBackend();
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["profile-history", profileId],
+    queryFn: () => backend.profile.profileHistory(profileId)
+  });
+  const entries = (data == null ? void 0 : data.entries) ?? [];
+  const days = [];
+  for (const e of entries) {
+    const k = dayKey$1(e.at);
+    const last = days[days.length - 1];
+    if (last && last[0] === k) last[1].push(e);
+    else days.push([k, [e]]);
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "rounded-2xl border border-border/70 bg-card px-4 py-4 sm:px-5", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-sm font-semibold", children: "History" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-0.5 text-xs text-muted-foreground", children: "Changes to this person's record, newest first. Absences aren't included." }),
+    isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "py-8 text-center text-sm text-muted-foreground", children: "Loading…" }) : error ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "py-8 text-center text-sm text-muted-foreground", children: "Couldn't load the history." }) : !entries.length ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center gap-2 py-10 text-center text-sm text-muted-foreground", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(History, { className: "h-5 w-5" }),
+      " No changes recorded yet."
+    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-4 flex flex-col gap-5", children: days.map(([day2, list]) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground", children: day2 }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ol", { className: "relative ml-1.5 border-l border-border/70", children: list.map((e) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "relative pb-3 pl-4 last:pb-0", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "aria-hidden": true, className: "absolute -left-[4.5px] top-1.5 h-2 w-2 rounded-full bg-foreground/70" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: e.by ?? "The system" }),
+          " ",
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: describe(e).join("; ") })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-mono text-[11px] text-muted-foreground", children: time(e.at) })
+      ] }, e.id)) })
+    ] }, day2)) })
+  ] });
+}
+const RANKS$1 = ["Watch Commander", "Crew Commander", "Leading Firefighter", "Firefighter"];
+const WATCHES$c = ["Green", "Red", "White", "Blue", "Amber"];
+const shortDate$2 = (d) => d ? new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "";
+const dayMonth = (d) => new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+const selectCls = "h-9 w-full max-w-[220px] rounded-lg border border-border bg-background px-2 text-sm font-normal";
+const inputCls = "h-9 w-full max-w-[220px] rounded-lg border border-border bg-background px-2 text-right text-sm font-normal";
 function ProfileDetail() {
-  var _a3, _b3, _c2, _d2, _e2, _f2, _g2, _h2;
+  var _a3, _b3, _c2, _d2, _e2, _f2;
   const { userId: paramUserId } = useParams();
   const { toast: toast2 } = useToast();
   const queryClient2 = useQueryClient();
@@ -46892,14 +47014,16 @@ function ProfileDetail() {
   const isWC = useIsWC();
   const userRole = useUserRole();
   const isViewingOwnProfile = (currentUser == null ? void 0 : currentUser.id) === userId;
-  const [editMode, setEditMode] = reactExports.useState(false);
+  const isManager = userRole === "WC" || userRole === "CC";
+  const [editing, setEditing] = reactExports.useState(null);
   const [editedProfile, setEditedProfile] = reactExports.useState({});
-  const fileInputRef = reactExports.useRef(null);
   const [showInviteDialog, setShowInviteDialog] = reactExports.useState(false);
   const [inviteLink, setInviteLink] = reactExports.useState("");
   const [showResetDialog, setShowResetDialog] = reactExports.useState(false);
   const [resetLink, setResetLink] = reactExports.useState("");
+  const [hoursView, setHoursView] = reactExports.useState(null);
   const isAdmin = useIsAdmin();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { data: user2, isLoading: userLoading } = useQuery({
     queryKey: ["user", userId],
     queryFn: async () => backend.user.get(userId),
@@ -46910,78 +47034,71 @@ function ProfileDetail() {
     queryFn: async () => backend.profile.getByUser(userId),
     enabled: !!userId
   });
-  const { data: absencesData, isLoading: absencesLoading } = useQuery({
+  const personWatch = ((user2 == null ? void 0 : user2.watch_unit) || (profile2 == null ? void 0 : profile2.watch) || "").toLowerCase();
+  const myWatch = ((currentUser == null ? void 0 : currentUser.watch_unit) || "").toLowerCase();
+  const isLineManager = !isViewingOwnProfile && isManager && !!myWatch && myWatch === personWatch;
+  const canSeeSickness = isViewingOwnProfile || isLineManager;
+  const canSeeHours = isViewingOwnProfile || isManager;
+  const { data: absencesData } = useQuery({
     queryKey: ["absences", userId],
     queryFn: async () => backend.absence.list({ user_id: userId }),
     enabled: !!userId
   });
-  absencesData == null ? void 0 : absencesData.absences;
-  const personWatch = ((user2 == null ? void 0 : user2.watch_unit) || (profile2 == null ? void 0 : profile2.watch) || "").toLowerCase();
-  const myWatch = ((currentUser == null ? void 0 : currentUser.watch_unit) || "").toLowerCase();
-  const isLineManager = !isViewingOwnProfile && (userRole === "WC" || userRole === "CC") && !!myWatch && myWatch === personWatch;
-  const canSeeSickness = isViewingOwnProfile || isLineManager;
-  const { data: settings2 } = useQuery({
-    queryKey: ["settings"],
-    queryFn: async () => backend.settings.get()
-  });
   const { data: notesData } = useQuery({
     queryKey: ["notes", profile2 == null ? void 0 : profile2.id],
     queryFn: async () => backend.note.list({ profile_id: profile2.id }),
-    enabled: !!(profile2 == null ? void 0 : profile2.id)
+    enabled: !!(profile2 == null ? void 0 : profile2.id) && isManager
   });
   const notes = (notesData == null ? void 0 : notesData.notes) || [];
-  const documents = [];
-  const { data: activityLog } = useQuery({
-    queryKey: ["activity-log", userId],
-    queryFn: async () => backend.admin.getActivityLog({ user_id: userId }),
+  const { data: skillsData } = useQuery({
+    queryKey: ["skill-renewals", profile2 == null ? void 0 : profile2.id],
+    queryFn: async () => backend.skill.list({ profile_id: profile2.id }),
+    enabled: !!(profile2 == null ? void 0 : profile2.id)
+  });
+  const skills = (skillsData == null ? void 0 : skillsData.skills) ?? [];
+  const year = (/* @__PURE__ */ new Date()).getFullYear();
+  const { data: toilData } = useQuery({
+    queryKey: ["toil-balance", userId, year],
+    queryFn: () => backend.toil.balance({ user_id: userId, year }),
+    enabled: !!userId && canSeeHours
+  });
+  const { data: h4hData } = useQuery({
+    queryKey: ["h4h-ledger", userId],
+    queryFn: () => backend.h4h.list({ user_id: userId, status: "pending" }),
     enabled: !!userId
   });
+  const { data: peopleData } = useQuery({
+    queryKey: ["people", "active"],
+    queryFn: () => backend.profile.listWithUsers({ limit: 500, status: "active" }),
+    enabled: isManager && !!personWatch,
+    staleTime: 6e4
+  });
+  const watchmates = reactExports.useMemo(
+    () => ((peopleData == null ? void 0 : peopleData.people) ?? []).filter((p) => {
+      var _a4;
+      return (p.user.watch_unit || ((_a4 = p.profile) == null ? void 0 : _a4.watch) || "").toLowerCase() === personWatch;
+    }).sort((a, b) => a.user.name.localeCompare(b.user.name)),
+    [peopleData, personWatch]
+  );
+  const myIndex = watchmates.findIndex((p) => p.user.id === userId);
   const updateProfileMutation = useMutation({
     mutationFn: async (data) => {
       if (!profile2) throw new Error("No profile found");
       return await backend.profile.update(profile2.id, data);
     },
     onSuccess: async () => {
-      if (currentUser == null ? void 0 : currentUser.id) {
-        try {
-          await backend.admin.createActivityLog({
-            actor_user_id: currentUser.id,
-            action: "update_profile",
-            entity_type: "profile",
-            entity_id: userId,
-            metadata: { updated_fields: Object.keys(editedProfile) }
-          });
-        } catch (error) {
-          console.error("Failed to log activity:", error);
-        }
-      }
       queryClient2.invalidateQueries({ queryKey: ["profile", userId] });
       queryClient2.invalidateQueries({ queryKey: ["skill-renewals"] });
       queryClient2.invalidateQueries({ queryKey: ["people"] });
-      toast2({
-        title: "Profile updated",
-        description: "Changes saved successfully"
-      });
-      setEditMode(false);
+      queryClient2.invalidateQueries({ queryKey: ["profile-history"] });
+      toast2({ title: "Saved" });
+      setEditing(null);
       setEditedProfile({});
     },
     onError: (error) => {
-      console.error("Failed to update profile:", error);
-      console.error("Error details:", {
-        message: error == null ? void 0 : error.message,
-        code: error == null ? void 0 : error.code,
-        details: error == null ? void 0 : error.details,
-        response: error == null ? void 0 : error.response
-      });
-      let errorMessage = "An error occurred";
-      if (error == null ? void 0 : error.message) {
-        errorMessage = error.message;
-      } else if (error == null ? void 0 : error.details) {
-        errorMessage = JSON.stringify(error.details);
-      }
       toast2({
-        title: "Failed to update profile",
-        description: errorMessage,
+        title: "Couldn't save",
+        description: (error == null ? void 0 : error.message) || ((error == null ? void 0 : error.details) ? JSON.stringify(error.details) : "An error occurred"),
         variant: "destructive"
       });
     }
@@ -46997,15 +47114,8 @@ function ProfileDetail() {
     mutationFn: async () => {
       if (!profile2) throw new Error("No profile found");
       if (newNote.reminder_enabled && !newNote.next_follow_up_date) {
-        throw new Error("Follow-up date is required when reminder is enabled");
+        throw new Error("Pick a follow-up date for the reminder");
       }
-      console.log("Creating note with:", {
-        profile_id: profile2.id,
-        note_text: newNote.note_text,
-        next_follow_up_date: newNote.next_follow_up_date,
-        reminder_enabled: newNote.reminder_enabled,
-        reminder_recipient_user_id: newNote.reminder_recipient_user_id
-      });
       const note2 = await backend.note.create({
         profile_id: profile2.id,
         note_text: newNote.note_text,
@@ -47013,39 +47123,31 @@ function ProfileDetail() {
         reminder_enabled: newNote.reminder_enabled,
         reminder_recipient_user_id: newNote.reminder_recipient_user_id || void 0
       });
-      if (uploadingFiles.length > 0) {
-        for (const file of uploadingFiles) {
-          try {
-            const { upload_url, file_key } = await backend.note.getUploadUrl(note2.id, {
-              filename: file.name,
-              content_type: file.type
-            });
-            await fetch(upload_url, {
-              method: "PUT",
-              body: file,
-              headers: {
-                "Content-Type": file.type
-              }
-            });
-            await backend.note.saveAttachment(note2.id, {
-              file_key,
-              filename: file.name,
-              file_type: file.type,
-              file_size: file.size
-            });
-          } catch (error) {
-            console.error(`Failed to upload ${file.name}:`, error);
-            toast2({
-              title: "File upload warning",
-              description: `Failed to upload ${file.name}. Note was saved without this attachment.`,
-              variant: "destructive"
-            });
-          }
+      for (const file of uploadingFiles) {
+        try {
+          const { upload_url, file_key } = await backend.note.getUploadUrl(note2.id, {
+            filename: file.name,
+            content_type: file.type
+          });
+          await fetch(upload_url, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
+          await backend.note.saveAttachment(note2.id, {
+            file_key,
+            filename: file.name,
+            file_type: file.type,
+            file_size: file.size
+          });
+        } catch (error) {
+          console.error(`Failed to upload ${file.name}:`, error);
+          toast2({
+            title: "File upload warning",
+            description: `Couldn't upload ${file.name}. The note was saved without it.`,
+            variant: "destructive"
+          });
         }
       }
       return note2;
     },
-    onSuccess: (note2) => {
+    onSuccess: () => {
       queryClient2.invalidateQueries({ queryKey: ["notes", profile2 == null ? void 0 : profile2.id] });
       if (newNote.reminder_enabled) {
         queryClient2.invalidateQueries({ queryKey: ["cal-station"] });
@@ -47053,48 +47155,21 @@ function ProfileDetail() {
         queryClient2.invalidateQueries({ queryKey: ["cal-personal"] });
         queryClient2.invalidateQueries({ queryKey: ["crewing-roster"] });
       }
-      const hasAttachments = uploadingFiles.length > 0;
-      const hasReminder = newNote.reminder_enabled;
-      let description = "Note saved successfully";
-      if (hasAttachments && hasReminder) {
-        description = `Note, ${uploadingFiles.length} file(s), and reminder created`;
-      } else if (hasAttachments) {
-        description = `Note and ${uploadingFiles.length} file(s) saved`;
-      } else if (hasReminder) {
-        description = "Note and reminder created";
-      }
       toast2({
         title: "Note added",
-        description
+        description: [
+          uploadingFiles.length ? `${uploadingFiles.length} file(s) attached` : "",
+          newNote.reminder_enabled ? "reminder set" : ""
+        ].filter(Boolean).join(", ") || void 0
       });
-      setNewNote({
-        note_text: "",
-        next_follow_up_date: "",
-        reminder_enabled: false,
-        reminder_recipient_user_id: ""
-      });
+      setNewNote({ note_text: "", next_follow_up_date: "", reminder_enabled: false, reminder_recipient_user_id: "" });
       setUploadingFiles([]);
     },
     onError: (error) => {
-      console.error("Failed to create note:", error);
-      toast2({
-        title: "Failed to add note",
-        description: (error == null ? void 0 : error.message) || "An error occurred",
-        variant: "destructive"
-      });
+      toast2({ title: "Couldn't add the note", description: (error == null ? void 0 : error.message) || "An error occurred", variant: "destructive" });
     }
   });
-  const uploadDocumentMutation = useMutation({
-    mutationFn: async (file) => {
-      return { success: true };
-    }
-  });
-  const deleteDocumentMutation = useMutation({
-    mutationFn: async (documentId) => {
-      return { success: true };
-    }
-  });
-  const handleSaveProfile = async () => {
+  const handleSaveProfile = () => {
     const profileUpdates = {};
     if (editedProfile.service_number !== void 0) profileUpdates.service_number = editedProfile.service_number;
     if (editedProfile.station !== void 0) profileUpdates.station = editedProfile.station;
@@ -47111,825 +47186,530 @@ function ProfileDetail() {
     if (editedProfile.hooklift_operator !== void 0) profileUpdates.hooklift_operator = editedProfile.hooklift_operator;
     if (editedProfile.watch !== void 0) profileUpdates.watch = editedProfile.watch === "_none" ? "" : editedProfile.watch;
     if (Object.keys(profileUpdates).length === 0) {
-      toast2({
-        title: "No changes detected",
-        description: "Please make some changes before saving",
-        variant: "destructive"
-      });
+      setEditing(null);
       return;
     }
     updateProfileMutation.mutate(profileUpdates);
   };
-  const handleCancelEdit = () => {
-    setEditMode(false);
+  const startEdit = (s) => {
+    setEditedProfile({});
+    setEditing(s);
+  };
+  const cancelEdit = () => {
+    setEditing(null);
     setEditedProfile({});
   };
   const getDisplayValue = (key2) => {
     return editedProfile[key2] !== void 0 ? editedProfile[key2] : profile2 == null ? void 0 : profile2[key2];
   };
+  const set = (patch) => setEditedProfile((e) => ({ ...e, ...patch }));
   const canEditField = (fieldName) => {
     if (userRole === "WC") return true;
-    if (userRole === "CC") {
-      const wcOnlyFields = ["service_number", "station", "watch", "rank"];
-      return !wcOnlyFields.includes(fieldName);
-    }
+    if (userRole === "CC") return !["service_number", "station", "watch", "rank"].includes(fieldName);
     if (userRole === "FF" && isViewingOwnProfile) {
-      const ffEditableFields = ["phone", "emergency_contact_name", "emergency_contact_phone"];
-      return ffEditableFields.includes(fieldName);
+      return ["phone", "emergency_contact_name", "emergency_contact_phone"].includes(fieldName);
     }
     return false;
   };
-  const isFieldLocked = (fieldName) => {
-    return editMode && !canEditField(fieldName);
-  };
-  const handleFileUpload = (e) => {
-    var _a4;
-    const file = (_a4 = e.target.files) == null ? void 0 : _a4[0];
-    if (file) {
-      uploadDocumentMutation.mutate(file);
-    }
-  };
-  const handleDownloadDocument = async (documentId) => {
-    console.log("Download document:", documentId);
-  };
-  const renderFieldWithLock = (fieldName, label2, renderInput, renderDisplay) => {
-    const locked = isFieldLocked(fieldName);
-    if (!editMode) {
-      return renderDisplay();
-    }
-    if (locked) {
-      return /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Tooltip, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipTrigger, { asChild: true, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
-          renderDisplay(),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Lock, { className: "absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" })
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipContent, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "You don't have permission to edit this field" }) })
-      ] }) });
-    }
-    return renderInput();
+  const tabs = [
+    { key: "overview", label: "Overview" },
+    { key: "skills", label: "Skills", count: skills.length || void 0 },
+    ...isManager ? [{ key: "notes", label: "Notes & 1:1s", count: notes.length || void 0 }] : [],
+    ...canSeeSickness ? [{ key: "absences", label: "Absences" }] : [],
+    { key: "hours", label: "Hours" },
+    ...isManager ? [{ key: "history", label: "History" }] : []
+  ];
+  const requested = searchParams.get("tab");
+  const tab = tabs.some((t) => t.key === requested) ? requested : "overview";
+  const openTab = (t) => {
+    const next = new URLSearchParams(searchParams);
+    if (t === "overview") next.delete("tab");
+    else next.set("tab", t);
+    setSearchParams(next, { replace: true });
   };
   if (userLoading || profileLoading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-12 w-64" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid gap-6 md:grid-cols-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-64 w-full" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-64 w-full" })
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-48 w-full rounded-2xl" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid gap-4 lg:grid-cols-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-64 w-full rounded-2xl lg:col-span-2" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-64 w-full rounded-2xl" })
       ] })
     ] });
   }
-  const driverPathwayStatuses = [
-    { value: "medical_due", label: "Medical Due" },
-    { value: "application_sent", label: "Application Sent" },
-    { value: "awaiting_theory", label: "Awaiting Theory" },
-    { value: "awaiting_course", label: "Awaiting Course" },
-    { value: "passed_LGV", label: "Passed LGV" },
-    { value: "awaiting_ERD", label: "Awaiting ERD" },
-    { value: "passed", label: "Passed" }
+  const today = /* @__PURE__ */ new Date();
+  today.setHours(12, 0, 0, 0);
+  const absences = (absencesData == null ? void 0 : absencesData.absences) ?? [];
+  const offSick = canSeeSickness ? absences.find((a) => a.type === "sickness" && a.status !== "rejected" && !a.returned_to_work_at && new Date(a.start_date) <= today) : void 0;
+  const onLeave = absences.find(
+    (a) => a.type !== "sickness" && a.status === "approved" && new Date(a.start_date) <= today && new Date(a.end_date) >= new Date(today.toDateString())
+  );
+  const flags = [
+    ...user2 && !user2.is_active ? [{ key: "signup", label: "Not signed up yet", tone: "warning" }] : [],
+    ...(user2 == null ? void 0 : user2.left_at) ? [{ key: "left", label: `Left the station ${dayMonth(user2.left_at)}` }] : [],
+    ...offSick ? [{ key: "sick", label: `Off sick since ${dayMonth(offSick.start_date)}`, tone: "warning" }] : [],
+    ...onLeave ? [{ key: "leave", label: `On leave until ${dayMonth(onLeave.end_date)}` }] : []
   ];
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-16 w-16 rounded-full bg-brand text-brand-foreground flex items-center justify-center text-2xl font-mono font-semibold shrink-0", children: user2 == null ? void 0 : user2.name.charAt(0) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-1", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-3xl font-bold text-foreground flex items-center gap-2 flex-wrap", children: [
-            user2 == null ? void 0 : user2.name,
-            !(user2 == null ? void 0 : user2.is_active) && /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-xs bg-yellow-500/10 text-yellow-600 border-yellow-500/20", children: "Pending Sign-up" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "eyebrow whitespace-nowrap", children: [
-            user2 == null ? void 0 : user2.email,
-            (profile2 == null ? void 0 : profile2.service_number) && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "crumb-sep", children: "·" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-                "Service ",
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono normal-case", children: [
-                  "#",
-                  profile2.service_number
-                ] })
-              ] })
-            ] })
-          ] })
-        ] })
-      ] }),
-      (canEdit || userRole === "FF" && isViewingOwnProfile) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
-        isAdmin && user2 && !isViewingOwnProfile && !user2.has_password && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Button,
-          {
-            variant: "outline",
-            onClick: async () => {
-              try {
-                const result = await backend.admin.getInviteLink({
-                  email: user2.email,
-                  frontend_url: window.location.origin
-                });
-                if (result.already_active) {
-                  toast2({
-                    title: "Already registered",
-                    description: `${result.user_name} has already set up their account and can sign in normally.`
-                  });
-                  return;
-                }
-                setInviteLink(result.invite_link);
-                setShowInviteDialog(true);
-              } catch (error) {
-                console.error("Failed to generate invite link:", error);
-                toast2({
-                  title: "Error",
-                  description: (error == null ? void 0 : error.message) || "Failed to generate invite link",
-                  variant: "destructive"
-                });
-              }
-            },
-            className: "border-yellow-500 text-yellow-600 hover:bg-yellow-50",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Send, { className: "h-4 w-4 mr-2" }),
-              "Send Invite Link"
-            ]
-          }
-        ),
-        isAdmin && user2 && !isViewingOwnProfile && user2.has_password && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Button,
-          {
-            variant: "outline",
-            onClick: async () => {
-              try {
-                const result = await backend.admin.getPasswordResetLink({
-                  user_id: user2.id,
-                  frontend_url: window.location.origin
-                });
-                setResetLink(result.reset_link);
-                setShowResetDialog(true);
-              } catch (error) {
-                toast2({
-                  title: "Couldn't create a reset link",
-                  description: (error == null ? void 0 : error.message) || "Please try again.",
-                  variant: "destructive"
-                });
-              }
-            },
-            className: "border-orange-400 text-orange-600 hover:bg-orange-50",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(KeyRound, { className: "h-4 w-4 mr-2" }),
-              "Send Password Reset Link"
-            ]
-          }
-        ),
-        editMode ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline", onClick: handleCancelEdit, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4 mr-2" }),
-            "Cancel"
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            Button,
-            {
-              className: "bg-indigo-600 hover:bg-indigo-700",
-              onClick: handleSaveProfile,
-              disabled: updateProfileMutation.isPending,
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { className: "h-4 w-4 mr-2" }),
-                "Save Changes"
-              ]
+  const held = {
+    oic: !!getDisplayValue("oic"),
+    ba: !!getDisplayValue("ba"),
+    prps: !!getDisplayValue("prps"),
+    mass_decon: !!getDisplayValue("mass_decon"),
+    hooklift_operator: !!getDisplayValue("hooklift_operator"),
+    driver_lgv: !!((_a3 = getDisplayValue("driver")) == null ? void 0 : _a3.lgv)
+  };
+  const heldNames = QUALIFICATIONS.filter((q) => held[q.key]).map((q) => q.short);
+  const expired = skills.filter((s) => s.status === "expired").length;
+  const dueSoon = skills.filter((s) => s.status === "warning").length;
+  const toil2 = (_b3 = toilData == null ? void 0 : toilData.balances) == null ? void 0 : _b3[0];
+  const owedToThem = ((_c2 = h4hData == null ? void 0 : h4hData.owed_to_me) == null ? void 0 : _c2.length) ?? 0;
+  const theyOwe = ((_d2 = h4hData == null ? void 0 : h4hData.i_owe) == null ? void 0 : _d2.length) ?? 0;
+  const lastNote = notes.reduce((latest, n) => {
+    const at = String(n.created_at);
+    return !latest || new Date(at) > new Date(latest) ? at : latest;
+  }, null);
+  const daysSince = (iso2) => Math.floor((Date.now() - new Date(iso2).getTime()) / 864e5);
+  const facts = [
+    {
+      key: "quals",
+      label: "Qualifications",
+      value: `${heldNames.length} of ${QUALIFICATIONS.length}`,
+      sub: heldNames.join(" · ") || "None held",
+      onClick: () => openTab("overview")
+    },
+    {
+      key: "skills",
+      label: "Skills",
+      value: expired ? `${expired} expired` : dueSoon ? `${dueSoon} due soon` : String(skills.length),
+      sub: expired || dueSoon ? `of ${skills.length} skills` : skills.length ? "all in date" : "none recorded",
+      tone: expired ? "critical" : dueSoon ? "warning" : "neutral",
+      onClick: () => openTab("skills")
+    },
+    ...canSeeSickness && profile2 ? [{
+      key: "sickness",
+      label: "Sickness · 6 months",
+      value: `${profile2.rolling_sick_days} day${profile2.rolling_sick_days === 1 ? "" : "s"}`,
+      sub: profile2.trigger_stage !== "None" ? `${profile2.trigger_stage.replace("Stage", "Stage ")} trigger hit` : `${profile2.rolling_sick_episodes} absence${profile2.rolling_sick_episodes === 1 ? "" : "s"}`,
+      tone: profile2.trigger_stage === "Stage3" ? "critical" : profile2.trigger_stage !== "None" ? "warning" : "neutral",
+      onClick: () => openTab("absences")
+    }] : [],
+    ...canSeeHours && toil2 ? [{
+      key: "toil",
+      label: "TOIL",
+      value: `${toil2.balance}h`,
+      sub: toil2.pending_earned ? `${toil2.pending_earned}h awaiting approval` : "available",
+      onClick: () => {
+        setHoursView("toil");
+        openTab("hours");
+      }
+    }] : [],
+    {
+      key: "h4h",
+      label: "H4H",
+      value: !owedToThem && !theyOwe ? "Square" : theyOwe ? `Owes ${theyOwe}` : `Owed ${owedToThem}`,
+      sub: !owedToThem && !theyOwe ? "nothing outstanding" : [theyOwe && `owes ${theyOwe}`, owedToThem && `owed ${owedToThem}`].filter(Boolean).join(" · ") + " shift(s)",
+      onClick: () => {
+        setHoursView("h4h");
+        openTab("hours");
+      }
+    },
+    ...isManager ? [{
+      key: "oneone",
+      label: "Last 1:1",
+      value: lastNote ? dayMonth(lastNote) : "None yet",
+      sub: lastNote ? `${daysSince(lastNote)} days ago · your notes` : "your notes are private to you",
+      onClick: () => openTab("notes")
+    }] : []
+  ];
+  const adminMenu = isAdmin && user2 && !isViewingOwnProfile ? /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenu, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuTrigger, { asChild: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": "More actions", className: "grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-border hover:bg-muted", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Ellipsis, { className: "h-4 w-4" }) }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuContent, { align: "end", children: !user2.has_password ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      DropdownMenuItem,
+      {
+        onSelect: async () => {
+          try {
+            const result = await backend.admin.getInviteLink({ email: user2.email, frontend_url: window.location.origin });
+            if (result.already_active) {
+              toast2({ title: "Already registered", description: `${result.user_name} has already set up their account and can sign in normally.` });
+              return;
             }
-          )
-        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { className: "bg-indigo-600 hover:bg-indigo-700", onClick: () => setEditMode(true), children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SquarePen, { className: "h-4 w-4 mr-2" }),
-          "Edit Profile"
-        ] })
+            setInviteLink(result.invite_link);
+            setShowInviteDialog(true);
+          } catch (error) {
+            toast2({ title: "Error", description: (error == null ? void 0 : error.message) || "Failed to generate invite link", variant: "destructive" });
+          }
+        },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Send, { className: "mr-2 h-4 w-4" }),
+          " Send invite link"
+        ]
+      }
+    ) : (
+      // Forgotten password — the admin sends a one-time link; they
+      // choose the new password themselves (the admin never sees it).
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        DropdownMenuItem,
+        {
+          onSelect: async () => {
+            try {
+              const result = await backend.admin.getPasswordResetLink({ user_id: user2.id, frontend_url: window.location.origin });
+              setResetLink(result.reset_link);
+              setShowResetDialog(true);
+            } catch (error) {
+              toast2({ title: "Couldn't create a reset link", description: (error == null ? void 0 : error.message) || "Please try again.", variant: "destructive" });
+            }
+          },
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(KeyRound, { className: "mr-2 h-4 w-4" }),
+            " Send password reset link"
+          ]
+        }
+      )
+    ) })
+  ] }) : null;
+  const sectionProps = (s, editable) => ({
+    editable: editable && !editing,
+    editing: editing === s,
+    saving: updateProfileMutation.isPending,
+    onEdit: () => startEdit(s),
+    onCancel: cancelEdit,
+    onSave: handleSaveProfile
+  });
+  const editableValue = (s, field, display, input) => editing === s ? canEditField(field) ? input : /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1.5 text-muted-foreground", title: "Only a WC can change this", children: [
+    display,
+    " ",
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Lock, { className: "h-3 w-3" })
+  ] }) : display;
+  const pathway = getDisplayValue("driverPathway");
+  const watchValue = getDisplayValue("watch") || (user2 == null ? void 0 : user2.watch_unit) || "";
+  const hoursOptions = [
+    ...canSeeHours ? [{ key: "toil", label: "TOIL" }] : [],
+    { key: "h4h", label: "H4H" },
+    ...canSeeHours ? [{ key: "adjustments", label: "Shift adjustments" }] : []
+  ];
+  const hoursActive = ((_e2 = hoursOptions.find((o) => o.key === hoursView)) == null ? void 0 : _e2.key) ?? hoursOptions[0].key;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-4", children: [
+    myIndex >= 0 && watchmates.length > 1 && /* @__PURE__ */ jsxRuntimeExports.jsxs("nav", { "aria-label": "People on this watch", className: "-mb-1 flex items-center justify-between gap-2 text-xs text-muted-foreground", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: "/people", className: "hover:text-foreground", children: "← All people" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center gap-1", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Link,
+          {
+            to: `/people/${watchmates[(myIndex - 1 + watchmates.length) % watchmates.length].user.id}${tab !== "overview" ? `?tab=${tab}` : ""}`,
+            "aria-label": "Previous person on the watch",
+            className: "grid h-7 w-7 place-items-center rounded-lg hover:bg-muted hover:text-foreground",
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronLeft, { className: "h-4 w-4" })
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "tabular-nums", children: [
+          myIndex + 1,
+          " of ",
+          watchmates.length,
+          " · ",
+          (user2 == null ? void 0 : user2.watch_unit) || (profile2 == null ? void 0 : profile2.watch),
+          " Watch"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Link,
+          {
+            to: `/people/${watchmates[(myIndex + 1) % watchmates.length].user.id}${tab !== "overview" ? `?tab=${tab}` : ""}`,
+            "aria-label": "Next person on the watch",
+            className: "grid h-7 w-7 place-items-center rounded-lg hover:bg-muted hover:text-foreground",
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-4 w-4" })
+          }
+        )
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Tabs, { defaultValue: "overview", className: "space-y-6", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(TabsList, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "overview", children: "Overview" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "skills", children: "Skills" }),
-        (userRole === "WC" || userRole === "CC") && /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "notes", children: "Notes & 1:1s" }),
-        canSeeSickness && /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "absences", children: "Absences" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "h4h", children: "H4H Balance" }),
-        (isViewingOwnProfile || userRole === "WC" || userRole === "CC") && /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "toil", children: "TOIL" }),
-        (isViewingOwnProfile || userRole === "WC" || userRole === "CC") && /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "shift-adjustments", children: "Shift Adjustments" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "documents", children: "Documents" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "activity", children: "Activity Log" })
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ProfileHero,
+      {
+        name: (user2 == null ? void 0 : user2.name) ?? "",
+        rank: profile2 == null ? void 0 : profile2.rank,
+        watch: (user2 == null ? void 0 : user2.watch_unit) || (profile2 == null ? void 0 : profile2.watch),
+        station: profile2 == null ? void 0 : profile2.station,
+        serviceNumber: profile2 == null ? void 0 : profile2.service_number,
+        phone: profile2 == null ? void 0 : profile2.phone,
+        email: user2 == null ? void 0 : user2.email,
+        flags,
+        facts,
+        menu: adminMenu
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { role: "tablist", "aria-label": "Profile sections", className: "-mx-4 flex gap-1 overflow-x-auto border-b border-border/70 px-4 md:mx-0 md:px-0", children: tabs.map((t) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "button",
+      {
+        type: "button",
+        role: "tab",
+        "aria-selected": tab === t.key,
+        onClick: () => openTab(t.key),
+        className: cn(
+          "-mb-px inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium transition-colors",
+          tab === t.key ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
+        ),
+        children: [
+          t.label,
+          t.count !== void 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "rounded-full bg-muted px-1.5 text-[11px] font-semibold tabular-nums text-muted-foreground", children: t.count })
+        ]
+      },
+      t.key
+    )) }),
+    tab === "overview" && profile2 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid items-start gap-4 lg:grid-cols-3", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-4 lg:col-span-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          ProfileSection,
+          {
+            title: "Qualifications & skills",
+            description: "The crewing board's warnings use the qualifications.",
+            ...sectionProps("quals", canEdit && canEditField("qualifications")),
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              QualificationsPanel,
+              {
+                held,
+                skills,
+                editing: editing === "quals",
+                onToggle: (key2) => {
+                  var _a4;
+                  if (key2 === "driver_lgv") set({ driver: { lgv: !held.driver_lgv, erd: ((_a4 = getDisplayValue("driver")) == null ? void 0 : _a4.erd) ?? false } });
+                  else set({ [key2]: !held[key2] });
+                },
+                onOpenSkills: () => openTab("skills")
+              }
+            )
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(ProfileSection, { title: "Driver pathway", ...sectionProps("driver", canEdit && canEditField("driverPathway")), children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          DriverPathway,
+          {
+            status: pathway == null ? void 0 : pathway.status,
+            lgvPassedDate: pathway == null ? void 0 : pathway.lgvPassedDate,
+            editing: editing === "driver",
+            onPick: (status) => set({ driverPathway: { status, lgvPassedDate: pathway == null ? void 0 : pathway.lgvPassedDate } }),
+            onDate: (d) => set({ driverPathway: { status: (pathway == null ? void 0 : pathway.status) ?? "passed_LGV", lgvPassedDate: d } })
+          }
+        ) })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "overview", className: "space-y-6", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid gap-6 md:grid-cols-2 lg:grid-cols-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(CardHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(CardTitle, { className: "flex items-center gap-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(User, { className: "h-5 w-5" }),
-            "Personal Information"
-          ] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "space-y-4", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-muted-foreground", children: "Email" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 mt-1", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Mail, { className: "h-4 w-4 text-muted-foreground" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-foreground", children: user2 == null ? void 0 : user2.email })
-              ] })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-muted-foreground", children: "Phone" }),
-              renderFieldWithLock(
-                "phone",
-                "Phone",
-                () => /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  Input,
-                  {
-                    value: getDisplayValue("phone") || "",
-                    onChange: (e) => setEditedProfile({ ...editedProfile, phone: e.target.value }),
-                    placeholder: "Phone number",
-                    className: "mt-1"
-                  }
-                ),
-                () => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 mt-1", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Phone, { className: "h-4 w-4 text-muted-foreground" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-foreground font-mono", children: (profile2 == null ? void 0 : profile2.phone) || "-" })
-                ] })
-              )
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-muted-foreground", children: "Role" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-1 flex items-center gap-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { children: user2 == null ? void 0 : user2.role }),
-                editMode && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-muted-foreground", children: "Auto-set from Rank" })
-              ] })
-            ] })
-          ] })
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(ProfileSection, { title: "Details", ...sectionProps("details", canEdit && ["rank", "station", "watch", "service_number"].some(canEditField)), children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Rank", children: editableValue("details", "rank", profile2.rank || "—", /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: selectCls, value: getDisplayValue("rank") || "", onChange: (e) => set({ rank: e.target.value }), children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", disabled: true, children: "Choose a rank" }),
+            RANKS$1.map((r2) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: r2, children: r2 }, r2))
+          ] })) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Watch", children: editableValue("details", "watch", watchValue ? `${watchValue} Watch` : "—", /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: selectCls, value: watchValue || "_none", onChange: (e) => set({ watch: e.target.value }), children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "_none", children: "No watch" }),
+            WATCHES$c.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: w, children: w }, w))
+          ] })) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Station", children: editableValue("details", "station", profile2.station || "—", /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: selectCls, value: getDisplayValue("station") || "", onChange: (e) => set({ station: e.target.value }), children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", disabled: true, children: "Choose a station or area" }),
+            STATION_OPTIONS.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: s.value, children: s.label }, s.value))
+          ] })) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Service number", children: editableValue("details", "service_number", /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono", children: profile2.service_number || "—" }), /* @__PURE__ */ jsxRuntimeExports.jsx("input", { className: cn(inputCls, "font-mono"), value: getDisplayValue("service_number") || "", onChange: (e) => set({ service_number: e.target.value }) })) }),
+          profile2.hire_date && /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Started", children: shortDate$2(profile2.hire_date) })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(CardHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(CardTitle, { className: "flex items-center gap-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Briefcase, { className: "h-5 w-5" }),
-            "Service Details"
-          ] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "space-y-4", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-muted-foreground", children: "Service Number" }),
-              renderFieldWithLock(
-                "service_number",
-                "Service Number",
-                () => /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  Input,
-                  {
-                    value: getDisplayValue("service_number") || "",
-                    onChange: (e) => setEditedProfile({ ...editedProfile, service_number: e.target.value }),
-                    placeholder: "Service number",
-                    className: "mt-1"
-                  }
-                ),
-                () => /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-foreground font-medium mt-1", children: (profile2 == null ? void 0 : profile2.service_number) || "-" })
-              )
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-muted-foreground", children: "Rank" }),
-              renderFieldWithLock(
-                "rank",
-                "Rank",
-                () => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  Select,
-                  {
-                    value: getDisplayValue("rank") || "",
-                    onValueChange: (value) => setEditedProfile({ ...editedProfile, rank: value }),
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "mt-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select rank" }) }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "Watch Commander", children: "Watch Commander" }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "Crew Commander", children: "Crew Commander" }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "Leading Firefighter", children: "Leading Firefighter" }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "Firefighter", children: "Firefighter" })
-                      ] })
-                    ]
-                  }
-                ),
-                () => /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-foreground font-medium mt-1", children: (profile2 == null ? void 0 : profile2.rank) || "-" })
-              )
-            ] }),
-            (profile2 == null ? void 0 : profile2.hire_date) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-muted-foreground", children: "Hire Date" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-foreground font-medium mt-1", children: new Date(profile2.hire_date).toLocaleDateString() })
-            ] })
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(CardHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(CardTitle, { className: "flex items-center gap-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Building2, { className: "h-5 w-5" }),
-            "Assignment"
-          ] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "space-y-4", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-muted-foreground", children: "Station or Area" }),
-              renderFieldWithLock(
-                "station",
-                "Station or Area",
-                () => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  Select,
-                  {
-                    value: getDisplayValue("station") || "",
-                    onValueChange: (value) => setEditedProfile({ ...editedProfile, station: value }),
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "mt-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select station or area" }) }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: STATION_OPTIONS.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: s.value, children: s.label }, s.value)) })
-                    ]
-                  }
-                ),
-                () => /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-foreground font-medium mt-1", children: (profile2 == null ? void 0 : profile2.station) || "-" })
-              )
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-muted-foreground", children: "Watch Unit" }),
-              editMode && canEditField("watch") ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                Select,
-                {
-                  value: getDisplayValue("watch") || "",
-                  onValueChange: (value) => setEditedProfile({ ...editedProfile, watch: value }),
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "mt-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select watch" }) }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "_none", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "h-2 w-2 rounded-full bg-gray-300" }),
-                        "No Watch"
-                      ] }) }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "Green", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(WatchDot, { watch: "Green" }),
-                        "Green"
-                      ] }) }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "Red", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(WatchDot, { watch: "Red" }),
-                        "Red"
-                      ] }) }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "White", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(WatchDot, { watch: "White" }),
-                        "White"
-                      ] }) }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "Blue", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(WatchDot, { watch: "Blue" }),
-                        "Blue"
-                      ] }) }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "Amber", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(WatchDot, { watch: "Amber" }),
-                        "Amber"
-                      ] }) })
-                    ] })
-                  ]
-                }
-              ) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-1", children: (profile2 == null ? void 0 : profile2.watch) || (user2 == null ? void 0 : user2.watch_unit) ? /* @__PURE__ */ jsxRuntimeExports.jsx(WatchBadge$2, { watch: (profile2 == null ? void 0 : profile2.watch) || (user2 == null ? void 0 : user2.watch_unit) || "" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-foreground", children: "-" }) })
-            ] })
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(CardHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(CardTitle, { className: "flex items-center gap-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Truck, { className: "h-5 w-5" }),
-            "Driver Pathway"
-          ] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "space-y-4", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-muted-foreground", children: "Status" }),
-              editMode && canEditField("driverPathway") ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                Select,
-                {
-                  value: ((_a3 = getDisplayValue("driverPathway")) == null ? void 0 : _a3.status) || "",
-                  onValueChange: (value) => {
-                    var _a4;
-                    return setEditedProfile({
-                      ...editedProfile,
-                      driverPathway: {
-                        status: value,
-                        lgvPassedDate: (_a4 = getDisplayValue("driverPathway")) == null ? void 0 : _a4.lgvPassedDate
-                      }
-                    });
-                  },
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "mt-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select status" }) }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: driverPathwayStatuses.map((status) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: status.value, children: status.label }, status.value)) })
-                  ]
-                }
-              ) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-1", children: ((_b3 = profile2 == null ? void 0 : profile2.driverPathway) == null ? void 0 : _b3.status) ? /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { children: ((_c2 = driverPathwayStatuses.find((s) => {
-                var _a4;
-                return s.value === ((_a4 = profile2.driverPathway) == null ? void 0 : _a4.status);
-              })) == null ? void 0 : _c2.label) || profile2.driverPathway.status }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "-" }) })
-            ] }),
-            (((_d2 = getDisplayValue("driverPathway")) == null ? void 0 : _d2.status) === "passed_LGV" || ((_e2 = getDisplayValue("driverPathway")) == null ? void 0 : _e2.status) === "awaiting_ERD" || ((_f2 = getDisplayValue("driverPathway")) == null ? void 0 : _f2.status) === "passed") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-muted-foreground", children: "LGV Passed Date" }),
-              editMode && canEditField("driverPathway") ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-                Input,
-                {
-                  type: "date",
-                  value: ((_g2 = getDisplayValue("driverPathway")) == null ? void 0 : _g2.lgvPassedDate) || "",
-                  onChange: (e) => {
-                    var _a4;
-                    return setEditedProfile({
-                      ...editedProfile,
-                      driverPathway: {
-                        status: ((_a4 = getDisplayValue("driverPathway")) == null ? void 0 : _a4.status) || "passed_LGV",
-                        lgvPassedDate: e.target.value
-                      }
-                    });
-                  },
-                  className: "mt-1"
-                }
-              ) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-foreground font-medium mt-1", children: ((_h2 = profile2 == null ? void 0 : profile2.driverPathway) == null ? void 0 : _h2.lgvPassedDate) || "-" })
-            ] })
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(CardHeader, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(CardTitle, { className: "flex items-center gap-2", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Award, { className: "h-5 w-5" }),
-              "Operational Qualifications"
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { children: "Drives the amber warnings on the crewing board. Tick what this person holds — each tick is also a skill on their Skills tab, so ticking adds it there and unticking removes it." })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { children: [
-            (() => {
-              var _a4;
-              const quals = [
-                { key: "oic", label: "OIC", desc: "Officer in Charge" },
-                { key: "ba", label: "BA", desc: "Breathing Apparatus" },
-                { key: "prps", label: "PRPS", desc: "Personal Respiratory Protection" },
-                { key: "mass_decon", label: "Mass Decon", desc: "Mass decontamination operator" },
-                { key: "hooklift_operator", label: "Hooklift", desc: "Hooklift / prime mover operator" }
-              ];
-              const canEdit2 = editMode && canEditField("qualifications");
-              const driverVal = !!((_a4 = getDisplayValue("driver")) == null ? void 0 : _a4.lgv);
-              return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          ProfileSection,
+          {
+            title: "Contact",
+            ...sectionProps("contact", (canEdit || isViewingOwnProfile) && ["phone", "emergency_contact_name", "emergency_contact_phone"].some(canEditField)),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Phone", children: editableValue("contact", "phone", profile2.phone ? /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: `tel:${profile2.phone.replace(/[^\d+]/g, "")}`, className: "font-mono hover:underline", children: profile2.phone }) : "—", /* @__PURE__ */ jsxRuntimeExports.jsx("input", { className: cn(inputCls, "font-mono"), type: "tel", inputMode: "tel", value: getDisplayValue("phone") || "", onChange: (e) => set({ phone: e.target.value }) })) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Email", children: (user2 == null ? void 0 : user2.email) ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex max-w-full items-center gap-1", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: `mailto:${user2.email}`, className: "truncate hover:underline", children: user2.email }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "button",
                   {
                     type: "button",
-                    disabled: !canEdit2,
+                    "aria-label": "Copy email",
                     onClick: () => {
-                      var _a5;
-                      return setEditedProfile({
-                        ...editedProfile,
-                        driver: {
-                          lgv: !driverVal,
-                          erd: ((_a5 = getDisplayValue("driver")) == null ? void 0 : _a5.erd) ?? false
-                        }
-                      });
+                      navigator.clipboard.writeText(user2.email);
+                      toast2({ title: "Email copied" });
                     },
-                    title: "LGV Driver qualification",
-                    className: `
-                          inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors
-                          ${driverVal ? "bg-indigo-500 text-white" : "bg-muted text-muted-foreground hover:bg-muted/70"}
-                          ${canEdit2 ? "cursor-pointer" : "cursor-default"}
-                        `,
-                    children: [
-                      driverVal && /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-3 w-3" }),
-                      "Driver (LGV)"
-                    ]
+                    className: "grid h-6 w-6 shrink-0 place-items-center rounded text-muted-foreground hover:bg-muted hover:text-foreground",
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "h-3 w-3" })
                   }
-                ),
-                quals.map((q) => {
-                  const val = !!getDisplayValue(q.key);
-                  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                    "button",
-                    {
-                      type: "button",
-                      disabled: !canEdit2,
-                      onClick: () => setEditedProfile({ ...editedProfile, [q.key]: !val }),
-                      title: q.desc,
-                      className: `
-                              inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors
-                              ${val ? "bg-indigo-500 text-white" : "bg-muted text-muted-foreground hover:bg-muted/70"}
-                              ${canEdit2 ? "cursor-pointer" : "cursor-default"}
-                            `,
-                      children: [
-                        val && /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-3 w-3" }),
-                        q.label
-                      ]
-                    },
-                    q.key
-                  );
-                })
-              ] });
-            })(),
-            !editMode && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-[11px] text-muted-foreground mt-3", children: [
-              "Click ",
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold", children: "Edit" }),
-              " to update qualifications."
-            ] })
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SkillsSummaryCard, { profileId: profile2 == null ? void 0 : profile2.id }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(CardHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { children: "Emergency Contact" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "space-y-4", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-muted-foreground", children: "Contact Name" }),
-              renderFieldWithLock(
-                "emergency_contact_name",
-                "Emergency Contact Name",
-                () => /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  Input,
-                  {
-                    value: getDisplayValue("emergency_contact_name") || "",
-                    onChange: (e) => setEditedProfile({ ...editedProfile, emergency_contact_name: e.target.value }),
-                    placeholder: "Emergency contact name",
-                    className: "mt-1"
-                  }
-                ),
-                () => /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-foreground font-medium mt-1", children: (profile2 == null ? void 0 : profile2.emergency_contact_name) || "-" })
-              )
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-muted-foreground", children: "Contact Phone" }),
-              renderFieldWithLock(
-                "emergency_contact_phone",
-                "Emergency Contact Phone",
-                () => /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  Input,
-                  {
-                    value: getDisplayValue("emergency_contact_phone") || "",
-                    onChange: (e) => setEditedProfile({ ...editedProfile, emergency_contact_phone: e.target.value }),
-                    placeholder: "Emergency contact phone",
-                    className: "mt-1"
-                  }
-                ),
-                () => /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-foreground font-medium font-mono mt-1", children: (profile2 == null ? void 0 : profile2.emergency_contact_phone) || "-" })
-              )
-            ] })
-          ] })
-        ] }),
-        (profile2 == null ? void 0 : profile2.lastConversation) && /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(CardHeader, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(CardTitle, { className: "flex items-center gap-2", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(MessageSquare, { className: "h-5 w-5" }),
-              "Last Conversation"
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { children: new Date(profile2.lastConversation.date).toLocaleDateString() })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-foreground", children: profile2.lastConversation.text }) })
-        ] })
-      ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(TabsContent, { value: "notes", className: "space-y-6", children: [
-        canEdit && /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(CardHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { children: "Add Note / 1:1 Entry" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "space-y-4", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Note" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                Textarea,
-                {
-                  value: newNote.note_text,
-                  onChange: (e) => setNewNote({ ...newNote, note_text: e.target.value }),
-                  placeholder: "Enter conversation notes...",
-                  rows: 4,
-                  className: "mt-1"
-                }
-              )
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-4", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs(Label, { children: [
-                    "Follow-up Date ",
-                    newNote.reminder_enabled && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-red-600", children: "*" })
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    Input,
-                    {
-                      type: "date",
-                      value: newNote.next_follow_up_date,
-                      onChange: (e) => setNewNote({ ...newNote, next_follow_up_date: e.target.value }),
-                      className: "mt-1"
-                    }
-                  ),
-                  newNote.reminder_enabled && !newNote.next_follow_up_date && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-red-600 mt-1", children: "Required when reminder is enabled" })
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-end", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    Checkbox,
-                    {
-                      id: "reminder",
-                      checked: newNote.reminder_enabled,
-                      onCheckedChange: (checked) => setNewNote({ ...newNote, reminder_enabled: !!checked })
-                    }
-                  ),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "reminder", className: "cursor-pointer", children: "Set reminder" })
-                ] }) })
-              ] }),
-              newNote.reminder_enabled && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "The reminder goes in your calendar only — notes and their reminders are private to you." })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Attachments (optional)" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                Input,
-                {
-                  type: "file",
-                  multiple: true,
-                  accept: ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif",
-                  onChange: (e) => {
-                    if (e.target.files) {
-                      setUploadingFiles(Array.from(e.target.files));
-                    }
-                  },
-                  className: "mt-1"
-                }
-              ),
-              uploadingFiles.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2 space-y-1", children: uploadingFiles.map((file, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 text-sm text-muted-foreground", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "h-4 w-4" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: file.name }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs", children: [
-                  "(",
-                  (file.size / 1024).toFixed(1),
-                  " KB)"
-                ] })
-              ] }, idx)) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground mt-1", children: "Supported: PDF, Word, Excel, Images (JPG, PNG, GIF)" })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              Button,
+                )
+              ] }) : "—" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Emergency contact", children: editableValue("contact", "emergency_contact_name", profile2.emergency_contact_name || "—", /* @__PURE__ */ jsxRuntimeExports.jsx("input", { className: inputCls, placeholder: "Name", value: getDisplayValue("emergency_contact_name") || "", onChange: (e) => set({ emergency_contact_name: e.target.value }) })) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Their number", children: editableValue("contact", "emergency_contact_phone", profile2.emergency_contact_phone ? /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: `tel:${profile2.emergency_contact_phone.replace(/[^\d+]/g, "")}`, className: "font-mono hover:underline", children: profile2.emergency_contact_phone }) : "—", /* @__PURE__ */ jsxRuntimeExports.jsx("input", { className: cn(inputCls, "font-mono"), type: "tel", inputMode: "tel", placeholder: "Phone", value: getDisplayValue("emergency_contact_phone") || "", onChange: (e) => set({ emergency_contact_phone: e.target.value }) })) })
+            ]
+          }
+        )
+      ] })
+    ] }),
+    tab === "skills" && profile2 && /* @__PURE__ */ jsxRuntimeExports.jsx(SkillsTab, { profileId: profile2.id, userId }),
+    tab === "notes" && isManager && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid items-start gap-4 lg:grid-cols-5", children: [
+      canEdit && /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "rounded-2xl border border-border/70 bg-card p-4 sm:p-5 lg:sticky lg:top-24 lg:col-span-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-sm font-semibold", children: "New note or 1:1" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-0.5 text-xs text-muted-foreground", children: "Only you can see your notes and their reminders." }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "textarea",
+          {
+            value: newNote.note_text,
+            onChange: (e) => setNewNote({ ...newNote, note_text: e.target.value }),
+            placeholder: `What did you and ${((_f2 = user2 == null ? void 0 : user2.name) == null ? void 0 : _f2.split(" ")[0]) ?? "they"} talk about?`,
+            rows: 5,
+            className: "mt-3 w-full rounded-xl border border-border bg-background p-3 text-sm"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 flex flex-wrap items-center gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 text-xs text-muted-foreground", children: [
+            "Follow up",
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
               {
-                onClick: () => createNoteMutation.mutate(),
-                disabled: !newNote.note_text || createNoteMutation.isPending,
-                className: "bg-indigo-600 hover:bg-indigo-700",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4 mr-2" }),
-                  "Add Note"
-                ]
+                type: "date",
+                value: newNote.next_follow_up_date,
+                onChange: (e) => setNewNote({ ...newNote, next_follow_up_date: e.target.value }),
+                className: "h-8 rounded-lg border border-border bg-background px-2 text-xs text-foreground"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex cursor-pointer items-center gap-1.5 text-xs", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "checkbox",
+                checked: newNote.reminder_enabled,
+                onChange: (e) => setNewNote({ ...newNote, reminder_enabled: e.target.checked }),
+                className: "h-4 w-4"
+              }
+            ),
+            "Remind me"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "ml-auto inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-border px-2.5 text-xs font-medium hover:bg-muted", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Paperclip, { className: "h-3.5 w-3.5" }),
+            " Attach",
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "file",
+                multiple: true,
+                accept: ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif",
+                className: "sr-only",
+                onChange: (e) => e.target.files && setUploadingFiles(Array.from(e.target.files))
               }
             )
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(CardHeader, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { children: "Timeline" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { children: "All notes and 1:1 conversations" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { children: notes.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-4", children: notes.map((note2) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border-l-2 border-red-600 pl-4 py-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-start justify-between", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 mb-1 flex-wrap", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium text-muted-foreground", children: new Date(note2.created_at).toLocaleDateString() }),
-              note2.reminder_enabled && note2.next_follow_up_date && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-xs", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Calendar, { className: "h-3 w-3 mr-1" }),
-                new Date(note2.next_follow_up_date).toLocaleDateString()
-              ] }),
-              note2.reminder_enabled && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-xs", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Bell, { className: "h-3 w-3 mr-1" }),
-                "Personal reminder"
-              ] })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-foreground whitespace-pre-wrap", children: note2.note_text }),
-            note2.attachments && note2.attachments.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 space-y-2", children: note2.attachments.map((attachment, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "a",
-              {
-                href: attachment.url,
-                target: "_blank",
-                rel: "noopener noreferrer",
-                className: "flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 hover:underline",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "h-4 w-4" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: attachment.filename }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-muted-foreground", children: [
-                    "(",
-                    (attachment.fileSize / 1024).toFixed(1),
-                    " KB)"
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { className: "h-3 w-3" })
-                ]
-              },
-              idx
-            )) })
-          ] }) }) }, note2.id)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-center py-8 text-muted-foreground", children: "No notes recorded" }) })
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "skills", className: "space-y-6", children: profile2 && /* @__PURE__ */ jsxRuntimeExports.jsx(SkillsTab, { profileId: profile2.id, userId }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(TabsContent, { value: "absences", className: "space-y-6", children: [
-        canSeeSickness && profile2 && profile2.trigger_stage !== "None" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `p-4 rounded-lg border ${profile2.trigger_stage === "Stage3" ? "bg-red-500/10 border-red-500/20" : profile2.trigger_stage === "Stage2" ? "bg-yellow-500/10 border-yellow-500/20" : "bg-blue-500/10 border-blue-500/20"}`, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: `h-5 w-5 mt-0.5 ${profile2.trigger_stage === "Stage3" ? "text-red-600 dark:text-red-400" : profile2.trigger_stage === "Stage2" ? "text-yellow-600 dark:text-yellow-400" : "text-blue-600 dark:text-blue-400"}` }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: `font-semibold ${profile2.trigger_stage === "Stage3" ? "text-red-600 dark:text-red-400" : profile2.trigger_stage === "Stage2" ? "text-yellow-600 dark:text-yellow-400" : "text-blue-600 dark:text-blue-400"}`, children: "Absence triggers hit" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-muted-foreground mt-1", children: [
-              "Last 6 months: ",
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { children: [
-                profile2.rolling_sick_episodes,
-                " sickness absence",
-                profile2.rolling_sick_episodes === 1 ? "" : "s"
-              ] }),
-              ", ",
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { children: [
-                profile2.rolling_sick_days,
-                " duty day",
-                profile2.rolling_sick_days === 1 ? "" : "s"
-              ] }),
-              " lost (rostered shifts only)"
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground mt-1", children: "Any stage is for the Station Commander to decide and note on the attendance file." })
+        newNote.reminder_enabled && !newNote.next_follow_up_date && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1 text-xs text-amber-700 dark:text-amber-300", children: "Pick a follow-up date for the reminder." }),
+        uploadingFiles.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "mt-2 space-y-1", children: uploadingFiles.map((file, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-center gap-2 text-xs text-muted-foreground", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "h-3.5 w-3.5" }),
+          " ",
+          file.name,
+          " ",
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+            "(",
+            (file.size / 1024).toFixed(1),
+            " KB)"
           ] })
-        ] }) }),
-        userId && canSeeSickness && /* @__PURE__ */ jsxRuntimeExports.jsx(AbsenceHistorySection, { userId, canManage: isLineManager, watch: (user2 == null ? void 0 : user2.watch_unit) || (profile2 == null ? void 0 : profile2.watch) || void 0 })
+        ] }, idx)) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          Button,
+          {
+            onClick: () => createNoteMutation.mutate(),
+            disabled: !newNote.note_text.trim() || createNoteMutation.isPending,
+            className: "mt-3 w-full bg-indigo-600 hover:bg-indigo-700",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "mr-2 h-4 w-4" }),
+              " ",
+              createNoteMutation.isPending ? "Saving…" : "Add note"
+            ]
+          }
+        )
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "h4h", className: "space-y-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { className: "pt-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        H4HLedgerSection,
-        {
-          userId,
-          canSettle: isViewingOwnProfile || isWC
-        }
-      ) }) }) }),
-      (isViewingOwnProfile || userRole === "WC" || userRole === "CC") && /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "toil", className: "space-y-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        ProfileToilSection,
-        {
-          profileUserId: userId,
-          profileName: user2 == null ? void 0 : user2.name
-        }
-      ) }),
-      (isViewingOwnProfile || userRole === "WC" || userRole === "CC") && /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "shift-adjustments", className: "space-y-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ProfileShiftAdjustmentsSection, { profileUserId: userId }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(TabsContent, { value: "documents", className: "space-y-6", children: [
-        canEdit && /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(CardHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { children: "Upload Document" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                Input,
-                {
-                  ref: fileInputRef,
-                  type: "file",
-                  onChange: handleFileUpload,
-                  accept: ".pdf,.jpg,.jpeg,.png,.doc,.docx",
-                  disabled: uploadDocumentMutation.isPending
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                Button,
-                {
-                  onClick: () => {
-                    var _a4;
-                    return (_a4 = fileInputRef.current) == null ? void 0 : _a4.click();
-                  },
-                  disabled: uploadDocumentMutation.isPending,
-                  className: "bg-indigo-600 hover:bg-indigo-700",
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { className: "h-4 w-4 mr-2" }),
-                    "Upload"
-                  ]
-                }
-              )
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: cn("rounded-2xl border border-border/70 bg-card p-4 sm:p-5", canEdit ? "lg:col-span-3" : "lg:col-span-5"), children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-sm font-semibold", children: "Your notes" }),
+        notes.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("ol", { className: "relative ml-1.5 mt-4 border-l border-border/70", children: [...notes].sort((a, b) => new Date(String(b.created_at)).getTime() - new Date(String(a.created_at)).getTime()).map((note2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "relative pb-5 pl-5 last:pb-0", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "aria-hidden": true, className: "absolute -left-[5px] top-1 h-2.5 w-2.5 rounded-full border-2 border-card bg-foreground" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-1.5", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-medium", children: new Date(String(note2.created_at)).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" }) }),
+            note2.next_follow_up_date && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Calendar, { className: "h-3 w-3" }),
+              " Follow up ",
+              dayMonth(String(note2.next_follow_up_date))
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground mt-2", children: "Supported: PDF, JPG, PNG, Word documents" })
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(CardHeader, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { children: "Documents" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { children: "All uploaded files" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "File Name" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Type" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Uploaded" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Size" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Actions" })
-            ] }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableBody, { children: documents.length > 0 ? documents.map((doc) => /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "font-medium", children: doc.file_name }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", children: doc.file_type }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: new Date(doc.uploaded_at).toLocaleDateString() }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(TableCell, { children: [
-                (doc.file_size / 1024).toFixed(1),
-                " KB"
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  Button,
-                  {
-                    size: "sm",
-                    variant: "outline",
-                    onClick: () => handleDownloadDocument(doc.id),
-                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { className: "h-4 w-4" })
-                  }
-                ),
-                canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  Button,
-                  {
-                    size: "sm",
-                    variant: "outline",
-                    onClick: () => deleteDocumentMutation.mutate(doc.id),
-                    disabled: deleteDocumentMutation.isPending,
-                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-4 w-4 text-red-600" })
-                  }
-                )
-              ] }) })
-            ] }, doc.id)) : /* @__PURE__ */ jsxRuntimeExports.jsx(TableRow, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { colSpan: 5, className: "text-center py-8 text-muted-foreground", children: "No documents uploaded" }) }) })
-          ] }) }) })
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "activity", className: "space-y-6", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(CardHeader, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(CardTitle, { className: "flex items-center gap-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(History, { className: "h-5 w-5" }),
-            "Activity Log"
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { children: "All changes to this profile" })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { children: activityLog && activityLog.logs.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3", children: activityLog.logs.map((log) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-3 py-2 border-b last:border-0", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-5 w-5 text-muted-foreground mt-0.5" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium text-foreground", children: log.action }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-muted-foreground", children: new Date(log.timestamp).toLocaleString() })
-            ] }),
-            log.details && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-muted-foreground mt-1", children: [
-              "Changed: ",
-              Object.keys(log.details).join(", ")
+            note2.reminder_enabled && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Bell, { className: "h-3 w-3" }),
+              " Reminder"
             ] })
-          ] })
-        ] }, log.id)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-center py-8 text-muted-foreground", children: "No activity recorded" }) })
-      ] }) })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1 whitespace-pre-wrap text-sm", children: note2.note_text }),
+          note2.attachments && note2.attachments.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2 flex flex-wrap gap-1.5", children: note2.attachments.map((attachment, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "a",
+            {
+              href: attachment.url,
+              target: "_blank",
+              rel: "noopener noreferrer",
+              className: "inline-flex items-center gap-1.5 rounded-lg border border-border px-2 py-1 text-xs hover:bg-muted",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "h-3.5 w-3.5" }),
+                " ",
+                attachment.filename,
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { className: "h-3 w-3 text-muted-foreground" })
+              ]
+            },
+            idx
+          )) })
+        ] }, note2.id)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "py-10 text-center text-sm text-muted-foreground", children: "No notes yet." })
+      ] })
     ] }),
+    tab === "absences" && canSeeSickness && userId && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-4", children: [
+      profile2 && profile2.trigger_stage !== "None" && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "div",
+        {
+          className: cn(
+            "flex items-start gap-3 rounded-2xl border p-4",
+            profile2.trigger_stage === "Stage3" ? "border-red-500/30 bg-red-500/5" : "border-amber-500/30 bg-amber-500/5"
+          ),
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: cn("mt-0.5 h-5 w-5 shrink-0", profile2.trigger_stage === "Stage3" ? "text-red-600" : "text-amber-600") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "text-sm font-semibold", children: [
+                profile2.trigger_stage.replace("Stage", "Stage "),
+                " absence trigger hit"
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "mt-1 text-sm text-muted-foreground", children: [
+                "Last 6 months: ",
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { className: "text-foreground", children: [
+                  profile2.rolling_sick_episodes,
+                  " sickness absence",
+                  profile2.rolling_sick_episodes === 1 ? "" : "s"
+                ] }),
+                ",",
+                " ",
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { className: "text-foreground", children: [
+                  profile2.rolling_sick_days,
+                  " duty day",
+                  profile2.rolling_sick_days === 1 ? "" : "s"
+                ] }),
+                " lost (rostered shifts only)."
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1 text-xs text-muted-foreground", children: "Any stage is for the Station Commander to decide and note on the attendance file." })
+            ] })
+          ]
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(AbsenceHistorySection, { userId, canManage: isLineManager, watch: (user2 == null ? void 0 : user2.watch_unit) || (profile2 == null ? void 0 : profile2.watch) || void 0 })
+    ] }),
+    tab === "hours" && userId && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-4", children: [
+      hoursOptions.length > 1 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { role: "tablist", "aria-label": "Hours", className: "grid w-full max-w-md rounded-xl bg-muted p-1", style: { gridTemplateColumns: `repeat(${hoursOptions.length}, minmax(0, 1fr))` }, children: hoursOptions.map((o) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          type: "button",
+          role: "tab",
+          "aria-selected": hoursActive === o.key,
+          onClick: () => setHoursView(o.key),
+          className: cn(
+            "h-8 rounded-lg text-xs font-medium transition-colors",
+            hoursActive === o.key ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+          ),
+          children: o.label
+        },
+        o.key
+      )) }),
+      hoursActive === "toil" && /* @__PURE__ */ jsxRuntimeExports.jsx(ProfileToilSection, { profileUserId: userId, profileName: user2 == null ? void 0 : user2.name }),
+      hoursActive === "h4h" && /* @__PURE__ */ jsxRuntimeExports.jsx("section", { className: "rounded-2xl border border-border/70 bg-card p-4 sm:p-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(H4HLedgerSection, { userId, canSettle: isViewingOwnProfile || isWC }) }),
+      hoursActive === "adjustments" && /* @__PURE__ */ jsxRuntimeExports.jsx(ProfileShiftAdjustmentsSection, { profileUserId: userId })
+    ] }),
+    tab === "history" && isManager && profile2 && /* @__PURE__ */ jsxRuntimeExports.jsx(RecordHistory, { profileId: profile2.id }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: showInviteDialog, onOpenChange: setShowInviteDialog, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-md", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { children: [
@@ -47944,7 +47724,7 @@ function ProfileDetail() {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { readOnly: true, value: inviteLink, className: "flex-1 text-xs font-mono" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { readOnly: true, value: inviteLink, className: "flex-1 font-mono text-xs" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Button,
             {
@@ -47975,7 +47755,7 @@ function ProfileDetail() {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { readOnly: true, value: resetLink, className: "flex-1 text-xs font-mono" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { readOnly: true, value: resetLink, className: "flex-1 font-mono text-xs" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Button,
             {
@@ -49400,8 +49180,8 @@ function toInputDate(d) {
 function toInputTime(d) {
   return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
-function parseDateTimeInputs(date2, time) {
-  return /* @__PURE__ */ new Date(`${date2}T${time}:00`);
+function parseDateTimeInputs(date2, time2) {
+  return /* @__PURE__ */ new Date(`${date2}T${time2}:00`);
 }
 const fmtDay = (d) => new Date(d).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
 const label = { fontSize: 12, color: "var(--cal-muted)" };
@@ -51494,7 +51274,7 @@ const tagStyle = (bg, fg) => ({
 });
 function ShiftTag({ task: task2, shiftStart: shiftStart2 }) {
   const due = task2.due_at ? new Date(task2.due_at) : null;
-  const short = (d) => d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+  const short2 = (d) => d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
   if (task2.kind === "handover") {
     const waiting = task2.status !== "Done" && due && shiftStart2 && due < new Date(shiftStart2);
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
@@ -51505,7 +51285,7 @@ function ShiftTag({ task: task2, shiftStart: shiftStart2 }) {
       ] }),
       waiting && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: tagStyle("var(--cal-surface-2)", "var(--cal-ink-2)"), children: [
         "Waiting since ",
-        short(due)
+        short2(due)
       ] })
     ] });
   }
@@ -51521,10 +51301,10 @@ function ShiftTag({ task: task2, shiftStart: shiftStart2 }) {
       carried ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: tagStyle("var(--cal-day-bg)", "var(--cal-day-fg)"), title: "Not done on its tour — it stays on the board until it is", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat, { className: "h-3 w-3" }),
         " Carried from ",
-        short(new Date(task2.created_at))
+        short2(new Date(task2.created_at))
       ] }) : long && due && task2.status !== "Done" && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: tagStyle("var(--cal-surface-2)", "var(--cal-ink-2)"), children: [
         "Due by ",
-        short(new Date(due.getTime() - (task2.reference_no != null ? 14 * 36e5 : 6e4)))
+        short2(new Date(due.getTime() - (task2.reference_no != null ? 14 * 36e5 : 6e4)))
       ] })
     ] });
   }
@@ -51532,15 +51312,15 @@ function ShiftTag({ task: task2, shiftStart: shiftStart2 }) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: tagStyle("var(--cal-day-bg)", "var(--cal-day-fg)"), title: "Not finished on an earlier shift", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(History, { className: "h-3 w-3" }),
       " Carried from ",
-      short(due)
+      short2(due)
     ] });
   }
   if (task2.kind === "calendar") {
-    const time = due && (due.getHours() || due.getMinutes()) ? ` · ${String(due.getHours()).padStart(2, "0")}:${String(due.getMinutes()).padStart(2, "0")}` : "";
+    const time2 = due && (due.getHours() || due.getMinutes()) ? ` · ${String(due.getHours()).padStart(2, "0")}:${String(due.getMinutes()).padStart(2, "0")}` : "";
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: tagStyle("var(--cal-watch-bg)", "var(--cal-watch-fg)"), children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarDays, { className: "h-3 w-3" }),
       " Calendar",
-      time
+      time2
     ] });
   }
   return null;
@@ -57269,7 +57049,7 @@ function QuarterStrip({
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-4 sm:overflow-visible sm:px-0 [scrollbar-width:none]", children: QS.map((q, i) => {
       var _a3, _b3;
       const fq = fyQuarter(fy, q);
-      const time = quarterTime(fq);
+      const time2 = quarterTime(fq);
       const hf = results[i * 3].data;
       const cm = results[i * 3 + 1].data;
       const ms = results[i * 3 + 2].data;
@@ -57301,10 +57081,10 @@ function QuarterStrip({
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-2 text-sm text-muted-foreground", children: fq.months })
               ] }),
-              isNow ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "rounded-full bg-foreground px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-background", children: "Now" }) : time.phase === "future" ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] font-medium uppercase tracking-wider text-muted-foreground", children: "Upcoming" }) : null
+              isNow ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "rounded-full bg-foreground px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-background", children: "Now" }) : time2.phase === "future" ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] font-medium uppercase tracking-wider text-muted-foreground", children: "Upcoming" }) : null
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 space-y-2", children: rows.map((r2) => {
-              const p = pace(r2.done, r2.target, time.elapsed, time.phase, r2.extra);
+              const p = pace(r2.done, r2.target, time2.elapsed, time2.phase, r2.extra);
               const pct = r2.target > 0 ? Math.min(100, r2.done / r2.target * 100) : 0;
               return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline justify-between text-[11px]", children: [
@@ -57533,9 +57313,9 @@ function HfsvCard({ watch, fq, canEdit }) {
   });
   const items = (data == null ? void 0 : data.items) ?? [];
   const done = (data == null ? void 0 : data.total_completed) ?? items.filter((i) => i.completed).length;
-  const time = quarterTime(fq);
-  const p = pace(done, HFSV_TARGET_Q, time.elapsed, time.phase);
-  const shifts = time.phase === "past" ? null : shiftsLeft(watch, fq);
+  const time2 = quarterTime(fq);
+  const p = pace(done, HFSV_TARGET_Q, time2.elapsed, time2.phase);
+  const shifts = time2.phase === "past" ? null : shiftsLeft(watch, fq);
   const recent = items.filter((i) => i.completed).sort((a, b) => String(b.completed_at ?? "").localeCompare(String(a.completed_at ?? ""))).slice(0, 3);
   const logVisit = async () => {
     if (busy) return;
@@ -57599,7 +57379,7 @@ function HfsvCard({ watch, fq, canEdit }) {
           ] })
         ] }) }),
         footer: /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-          canEdit && time.phase !== "future" && !logging && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { size: "sm", onClick: () => setLogging(true), className: "bg-brand text-brand-foreground hover:bg-brand/90", children: [
+          canEdit && time2.phase !== "future" && !logging && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { size: "sm", onClick: () => setLogging(true), className: "bg-brand text-brand-foreground hover:bg-brand/90", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "mr-1 h-4 w-4" }),
             " Log a visit"
           ] }),
@@ -57667,8 +57447,8 @@ function CommunityCard({ watch, fq, canEdit }) {
   const items = (data == null ? void 0 : data.items) ?? [];
   const done = (data == null ? void 0 : data.total_completed) ?? items.filter((i) => i.completed).length;
   const tap = (data == null ? void 0 : data.total_tap_completed) ?? items.filter((i) => i.completed && i.is_tap).length;
-  const time = quarterTime(fq);
-  const p = pace(done, COMMUNITY_TARGET_Q, time.elapsed, time.phase, tap >= COMMUNITY_TAP_MIN);
+  const time2 = quarterTime(fq);
+  const p = pace(done, COMMUNITY_TARGET_Q, time2.elapsed, time2.phase, tap >= COMMUNITY_TAP_MIN);
   const toggle = useMutation({
     mutationFn: (id) => backendClient.activity.toggle(id),
     onSuccess: () => invalidateTargetViews(qc),
@@ -57699,7 +57479,7 @@ function CommunityCard({ watch, fq, canEdit }) {
           ] })
         ] }) }),
         footer: /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-          canEdit && time.phase !== "future" && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { size: "sm", variant: "outline", disabled: add2.isPending, onClick: () => add2.mutate(), children: [
+          canEdit && time2.phase !== "future" && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { size: "sm", variant: "outline", disabled: add2.isPending, onClick: () => add2.mutate(), children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "mr-1 h-4 w-4" }),
             " Add engagement"
           ] }),
@@ -57713,7 +57493,7 @@ function CommunityCard({ watch, fq, canEdit }) {
               {
                 className: cn(
                   "h-2.5 w-2.5 rounded-full",
-                  i < tap ? "bg-emerald-500" : time.phase === "past" ? "bg-red-400" : "border border-muted-foreground/40"
+                  i < tap ? "bg-emerald-500" : time2.phase === "past" ? "bg-red-400" : "border border-muted-foreground/40"
                 )
               },
               i
@@ -57761,9 +57541,9 @@ function MultiStoryCard({ watch, fq, canEdit }) {
   const items = [...(data == null ? void 0 : data.items) ?? []].sort((a, b) => a.label.localeCompare(b.label));
   const done = items.filter((i) => i.status === "complete").length;
   const total = items.length;
-  const time = quarterTime(fq);
-  const p = pace(done, total, time.elapsed, time.phase);
-  const shifts = time.phase === "past" ? null : shiftsLeft(watch, fq);
+  const time2 = quarterTime(fq);
+  const p = pace(done, total, time2.elapsed, time2.phase);
+  const shifts = time2.phase === "past" ? null : shiftsLeft(watch, fq);
   const toggle = useMutation({
     mutationFn: (it) => backendClient.inspection_plans.updateAssignment(it.id, { status: it.status === "complete" ? "pending" : "complete" }),
     onSuccess: () => invalidateTargetViews(qc),
@@ -57878,8 +57658,8 @@ function Targets() {
   const qParam = Number(params.get("q"));
   const q = qParam >= 1 && qParam <= 4 ? qParam : fy === now.fy ? now.q : 1;
   const fq = reactExports.useMemo(() => fyQuarter(fy, q), [fy, q]);
-  const time = quarterTime(fq);
-  const shifts = time.phase === "past" ? null : shiftsLeft(watch, fq);
+  const time2 = quarterTime(fq);
+  const shifts = time2.phase === "past" ? null : shiftsLeft(watch, fq);
   const select = (next) => {
     const p = new URLSearchParams(params);
     p.set("fy", String(next.fy ?? fy));
@@ -57919,15 +57699,15 @@ function Targets() {
           " · ",
           fq.months
         ] }),
-        time.phase === "now" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        time2.phase === "now" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
           " ",
           "— day ",
-          time.dayOf,
+          time2.dayOf,
           " of ",
-          time.totalDays,
+          time2.totalDays,
           " ·",
           " ",
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono tabular-nums text-foreground", children: time.daysLeft }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono tabular-nums text-foreground", children: time2.daysLeft }),
           " days",
           shifts !== null && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
             ", ",
@@ -57937,8 +57717,8 @@ function Targets() {
             " shifts left"
           ] })
         ] }),
-        time.phase === "past" && " — finished",
-        time.phase === "future" && " — not started"
+        time2.phase === "past" && " — finished",
+        time2.phase === "future" && " — not started"
       ] })
     ] }),
     otherWatch && !station && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border/70 bg-muted/40 px-4 py-2.5 text-sm", children: [
@@ -61155,6 +60935,238 @@ function QuarterlyReportPrint() {
       ] })
     ] })
   ] });
+}
+var TABS_NAME = "Tabs";
+var [createTabsContext] = createContextScope$1(TABS_NAME, [
+  createRovingFocusGroupScope
+]);
+var useRovingFocusGroupScope = createRovingFocusGroupScope();
+var [TabsProvider, useTabsContext] = createTabsContext(TABS_NAME);
+var Tabs$1 = reactExports.forwardRef(
+  (props, forwardedRef) => {
+    const {
+      __scopeTabs,
+      value: valueProp,
+      onValueChange,
+      defaultValue: defaultValue2,
+      orientation = "horizontal",
+      dir,
+      activationMode = "automatic",
+      ...tabsProps
+    } = props;
+    const direction = useDirection(dir);
+    const [value, setValue] = useControllableState({
+      prop: valueProp,
+      onChange: onValueChange,
+      defaultProp: defaultValue2 ?? "",
+      caller: TABS_NAME
+    });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      TabsProvider,
+      {
+        scope: __scopeTabs,
+        baseId: useId(),
+        value,
+        onValueChange: setValue,
+        orientation,
+        dir: direction,
+        activationMode,
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Primitive$1.div,
+          {
+            dir: direction,
+            "data-orientation": orientation,
+            ...tabsProps,
+            ref: forwardedRef
+          }
+        )
+      }
+    );
+  }
+);
+Tabs$1.displayName = TABS_NAME;
+var TAB_LIST_NAME = "TabsList";
+var TabsList$1 = reactExports.forwardRef(
+  (props, forwardedRef) => {
+    const { __scopeTabs, loop = true, ...listProps } = props;
+    const context = useTabsContext(TAB_LIST_NAME, __scopeTabs);
+    const rovingFocusGroupScope = useRovingFocusGroupScope(__scopeTabs);
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Root$5,
+      {
+        asChild: true,
+        ...rovingFocusGroupScope,
+        orientation: context.orientation,
+        dir: context.dir,
+        loop,
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Primitive$1.div,
+          {
+            role: "tablist",
+            "aria-orientation": context.orientation,
+            ...listProps,
+            ref: forwardedRef
+          }
+        )
+      }
+    );
+  }
+);
+TabsList$1.displayName = TAB_LIST_NAME;
+var TRIGGER_NAME$1 = "TabsTrigger";
+var TabsTrigger$1 = reactExports.forwardRef(
+  (props, forwardedRef) => {
+    const { __scopeTabs, value, disabled = false, ...triggerProps } = props;
+    const context = useTabsContext(TRIGGER_NAME$1, __scopeTabs);
+    const rovingFocusGroupScope = useRovingFocusGroupScope(__scopeTabs);
+    const triggerId = makeTriggerId(context.baseId, value);
+    const contentId = makeContentId(context.baseId, value);
+    const isSelected = value === context.value;
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Item$1,
+      {
+        asChild: true,
+        ...rovingFocusGroupScope,
+        focusable: !disabled,
+        active: isSelected,
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Primitive$1.button,
+          {
+            type: "button",
+            role: "tab",
+            "aria-selected": isSelected,
+            "aria-controls": contentId,
+            "data-state": isSelected ? "active" : "inactive",
+            "data-disabled": disabled ? "" : void 0,
+            disabled,
+            id: triggerId,
+            ...triggerProps,
+            ref: forwardedRef,
+            onMouseDown: composeEventHandlers(props.onMouseDown, (event) => {
+              if (!disabled && event.button === 0 && event.ctrlKey === false) {
+                context.onValueChange(value);
+              } else {
+                event.preventDefault();
+              }
+            }),
+            onKeyDown: composeEventHandlers(props.onKeyDown, (event) => {
+              if ([" ", "Enter"].includes(event.key)) context.onValueChange(value);
+            }),
+            onFocus: composeEventHandlers(props.onFocus, () => {
+              const isAutomaticActivation = context.activationMode !== "manual";
+              if (!isSelected && !disabled && isAutomaticActivation) {
+                context.onValueChange(value);
+              }
+            })
+          }
+        )
+      }
+    );
+  }
+);
+TabsTrigger$1.displayName = TRIGGER_NAME$1;
+var CONTENT_NAME$1 = "TabsContent";
+var TabsContent$1 = reactExports.forwardRef(
+  (props, forwardedRef) => {
+    const { __scopeTabs, value, forceMount, children, ...contentProps } = props;
+    const context = useTabsContext(CONTENT_NAME$1, __scopeTabs);
+    const triggerId = makeTriggerId(context.baseId, value);
+    const contentId = makeContentId(context.baseId, value);
+    const isSelected = value === context.value;
+    const isMountAnimationPreventedRef = reactExports.useRef(isSelected);
+    reactExports.useEffect(() => {
+      const rAF = requestAnimationFrame(() => isMountAnimationPreventedRef.current = false);
+      return () => cancelAnimationFrame(rAF);
+    }, []);
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(Presence, { present: forceMount || isSelected, children: ({ present }) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Primitive$1.div,
+      {
+        "data-state": isSelected ? "active" : "inactive",
+        "data-orientation": context.orientation,
+        role: "tabpanel",
+        "aria-labelledby": triggerId,
+        hidden: !present,
+        id: contentId,
+        tabIndex: 0,
+        ...contentProps,
+        ref: forwardedRef,
+        style: {
+          ...props.style,
+          animationDuration: isMountAnimationPreventedRef.current ? "0s" : void 0
+        },
+        children: present && children
+      }
+    ) });
+  }
+);
+TabsContent$1.displayName = CONTENT_NAME$1;
+function makeTriggerId(baseId, value) {
+  return `${baseId}-trigger-${value}`;
+}
+function makeContentId(baseId, value) {
+  return `${baseId}-content-${value}`;
+}
+var Root2$1 = Tabs$1;
+var List = TabsList$1;
+var Trigger = TabsTrigger$1;
+var Content = TabsContent$1;
+function Tabs({
+  className,
+  ...props
+}) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    Root2$1,
+    {
+      "data-slot": "tabs",
+      className: cn("flex flex-col gap-2", className),
+      ...props
+    }
+  );
+}
+function TabsList({
+  className,
+  ...props
+}) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    List,
+    {
+      "data-slot": "tabs-list",
+      className: cn(
+        "bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-[3px]",
+        className
+      ),
+      ...props
+    }
+  );
+}
+function TabsTrigger({
+  className,
+  ...props
+}) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    Trigger,
+    {
+      "data-slot": "tabs-trigger",
+      className: cn(
+        "data-[state=active]:bg-background dark:data-[state=active]:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring dark:data-[state=active]:border-input dark:data-[state=active]:bg-input/30 text-foreground dark:text-muted-foreground inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:shadow-sm [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        className
+      ),
+      ...props
+    }
+  );
+}
+function TabsContent({
+  className,
+  ...props
+}) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    Content,
+    {
+      "data-slot": "tabs-content",
+      className: cn("flex-1 outline-none", className),
+      ...props
+    }
+  );
 }
 function OffboardingWizard({ user: user2, open, onClose, onComplete }) {
   var _a3;

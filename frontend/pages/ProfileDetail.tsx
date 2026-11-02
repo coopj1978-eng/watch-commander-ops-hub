@@ -1,94 +1,76 @@
-import { useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState, useRef } from "react";
+import { useMemo, useState } from "react";
 import { useBackend } from "@/lib/rbac";
-import { backendClient } from "@/lib/backend";
 import { STATION_OPTIONS } from "@/lib/constants";
 import type { FirefighterProfile, UpdateProfileRequest, DriverPathwayStatus } from "~backend/profile/types";
-import type { AbsenceType } from "~backend/absence/types";
 import SkillsTab from "@/components/SkillsTab";
-import SkillsSummaryCard from "@/components/SkillsSummaryCard";
-import { WatchBadge, WatchDot } from "@/components/WatchBadge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  Edit,
-  Phone,
-  Mail,
-  Save,
-  X,
-  Plus,
-  Shield,
-  Building2,
-  Briefcase,
-  User,
-  Clock,
-  FileText,
-  Lock,
   AlertTriangle,
-  Download,
-  Trash2,
-  Upload,
-  MessageSquare,
   Bell,
   Calendar as CalendarIcon,
-  History,
-  Award,
-  Truck,
-  CheckCircle2,
-  Send,
+  ChevronLeft,
+  ChevronRight,
   Copy,
+  Download,
+  FileText,
   KeyRound,
-  RefreshCw,
+  Lock,
+  MoreHorizontal,
+  Paperclip,
+  Plus,
+  Send,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import { useCanEditProfiles, useIsAdmin, useIsWC, useUserRole } from "@/lib/rbac";
 import { useAuth } from "@/App";
+import { cn } from "@/lib/utils";
 import H4HLedgerSection from "@/components/H4HLedgerSection";
 import { ProfileToilSection } from "@/components/ProfileToilSection";
 import { ProfileShiftAdjustmentsSection } from "@/components/ProfileShiftAdjustmentsSection";
 import { AbsenceHistorySection } from "@/components/AbsenceHistorySection";
+import { ProfileHero, type ProfileFact, type ProfileFlag } from "@/components/profile/ProfileHero";
+import { ProfileSection, Field } from "@/components/profile/ProfileSection";
+import { QualificationsPanel, type SkillLite } from "@/components/profile/QualificationsPanel";
+import { DriverPathway } from "@/components/profile/DriverPathway";
+import { RecordHistory } from "@/components/profile/RecordHistory";
+import { QUALIFICATIONS, type QualificationKey } from "@/lib/qualifications";
+
+// A person's profile (redesigned Nov 2026, from John's "be bold" brief and a
+// look at Attio, Personio, HubSpot mobile and Sage record pages):
+//   - a header with who they are, where their watch is on the rota, one-tap
+//     Call / Text / Email, and a strip of the facts a WC checks most;
+//   - six tabs instead of nine (H4H, TOIL and shift adjustments are one
+//     "Hours" tab; Documents — which never uploaded — and the old "Last
+//     conversation" card are gone; Activity Log is now a readable History of
+//     changes to their record);
+//   - each card is edited where it sits, not via one Edit Profile button;
+//   - qualifications and skills are one panel, and the driver pathway is a
+//     step tracker.
+// Who sees what is unchanged: sickness only for the person and the WC/CC on
+// their watch; notes and history for WC/CC; TOIL and shift adjustments for
+// the person and WC/CC.
+
+type Section = "details" | "contact" | "quals" | "driver";
+type TabKey = "overview" | "skills" | "notes" | "absences" | "hours" | "history";
+
+const RANKS = ["Watch Commander", "Crew Commander", "Leading Firefighter", "Firefighter"];
+const WATCHES = ["Green", "Red", "White", "Blue", "Amber"];
+const shortDate = (d?: string | Date | null) =>
+  d ? new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "";
+const dayMonth = (d: string | Date) => new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+const selectCls = "h-9 w-full max-w-[220px] rounded-lg border border-border bg-background px-2 text-sm font-normal";
+const inputCls = "h-9 w-full max-w-[220px] rounded-lg border border-border bg-background px-2 text-right text-sm font-normal";
 
 export default function ProfileDetail() {
   const { userId: paramUserId } = useParams<{ userId: string }>();
@@ -102,15 +84,17 @@ export default function ProfileDetail() {
   const isWC = useIsWC();
   const userRole = useUserRole();
   const isViewingOwnProfile = currentUser?.id === userId;
-  const [editMode, setEditMode] = useState(false);
+  const isManager = userRole === "WC" || userRole === "CC";
+  const [editing, setEditing] = useState<Section | null>(null);
   const [editedProfile, setEditedProfile] = useState<Partial<FirefighterProfile>>({});
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [showInviteDialog, setShowInviteDialog] = useState(false);
   const [inviteLink, setInviteLink] = useState("");
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [resetLink, setResetLink] = useState("");
+  const [hoursView, setHoursView] = useState<"toil" | "h4h" | "adjustments" | null>(null);
   // Inviting people and sending reset links is the admin's job.
   const isAdmin = useIsAdmin();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ["user", userId],
@@ -124,52 +108,62 @@ export default function ProfileDetail() {
     enabled: !!userId,
   });
 
-  const { data: absencesData, isLoading: absencesLoading } = useQuery({
+  // Sickness: the person sees their own; only a WC/CC on their watch can see
+  // or change it (the backend enforces the same rule).
+  const personWatch = (user?.watch_unit || profile?.watch || "").toLowerCase();
+  const myWatch = (currentUser?.watch_unit || "").toLowerCase();
+  const isLineManager = !isViewingOwnProfile && isManager && !!myWatch && myWatch === personWatch;
+  const canSeeSickness = isViewingOwnProfile || isLineManager;
+  // TOIL and shift adjustments: the person, or a WC/CC.
+  const canSeeHours = isViewingOwnProfile || isManager;
+
+  const { data: absencesData } = useQuery({
     queryKey: ["absences", userId],
     queryFn: async () => backend.absence.list({ user_id: userId }),
     enabled: !!userId,
   });
 
-  const absences = absencesData?.absences;
-
-  // Sickness: the person sees their own; only a WC/CC on their watch can see
-  // or change it (the backend enforces the same rule).
-  const personWatch = (user?.watch_unit || profile?.watch || "").toLowerCase();
-  const myWatch = (currentUser?.watch_unit || "").toLowerCase();
-  const isLineManager =
-    !isViewingOwnProfile &&
-    (userRole === "WC" || userRole === "CC") &&
-    !!myWatch &&
-    myWatch === personWatch;
-  const canSeeSickness = isViewingOwnProfile || isLineManager;
-
-  const { data: settings } = useQuery({
-    queryKey: ["settings"],
-    queryFn: async () => backend.settings.get(),
-  });
-
   const { data: notesData } = useQuery({
     queryKey: ["notes", profile?.id],
     queryFn: async () => backend.note.list({ profile_id: profile!.id }),
-    enabled: !!profile?.id,
+    enabled: !!profile?.id && isManager,
   });
-
   const notes = notesData?.notes || [];
 
-  // Temporarily disabled
-  // const { data: documentsData } = useQuery({
-  //   queryKey: ["documents", profile?.id],
-  //   queryFn: async () => backend.document.list({ profile_id: profile!.id }),
-  //   enabled: !!profile?.id,
-  // });
+  const { data: skillsData } = useQuery({
+    queryKey: ["skill-renewals", profile?.id],
+    queryFn: async () => backend.skill.list({ profile_id: profile!.id }),
+    enabled: !!profile?.id,
+  });
+  const skills = (skillsData?.skills ?? []) as unknown as SkillLite[];
 
-  const documents: any[] = [];
-
-  const { data: activityLog } = useQuery({
-    queryKey: ["activity-log", userId],
-    queryFn: async () => backend.admin.getActivityLog({ user_id: userId }),
+  const year = new Date().getFullYear();
+  const { data: toilData } = useQuery({
+    queryKey: ["toil-balance", userId, year],
+    queryFn: () => backend.toil.balance({ user_id: userId!, year }),
+    enabled: !!userId && canSeeHours,
+  });
+  const { data: h4hData } = useQuery({
+    queryKey: ["h4h-ledger", userId],
+    queryFn: () => backend.h4h.list({ user_id: userId!, status: "pending" }),
     enabled: !!userId,
   });
+
+  // Previous / next person on the same watch, so a WC can work down the watch.
+  const { data: peopleData } = useQuery({
+    queryKey: ["people", "active"],
+    queryFn: () => backend.profile.listWithUsers({ limit: 500, status: "active" }),
+    enabled: isManager && !!personWatch,
+    staleTime: 60_000,
+  });
+  const watchmates = useMemo(
+    () =>
+      (peopleData?.people ?? [])
+        .filter((p) => (p.user.watch_unit || p.profile?.watch || "").toLowerCase() === personWatch)
+        .sort((a, b) => a.user.name.localeCompare(b.user.name)),
+    [peopleData, personWatch]
+  );
+  const myIndex = watchmates.findIndex((p) => p.user.id === userId);
 
   const updateProfileMutation = useMutation({
     mutationFn: async (data: UpdateProfileRequest) => {
@@ -177,49 +171,18 @@ export default function ProfileDetail() {
       return await backend.profile.update(profile.id, data as any);
     },
     onSuccess: async () => {
-      if (currentUser?.id) {
-        try {
-          await backend.admin.createActivityLog({
-            actor_user_id: currentUser.id,
-            action: "update_profile",
-            entity_type: "profile",
-            entity_id: userId,
-            metadata: { updated_fields: Object.keys(editedProfile) },
-          });
-        } catch (error) {
-          console.error("Failed to log activity:", error);
-        }
-      }
-      
       queryClient.invalidateQueries({ queryKey: ["profile", userId] });
       queryClient.invalidateQueries({ queryKey: ["skill-renewals"] });
       queryClient.invalidateQueries({ queryKey: ["people"] });
-      toast({
-        title: "Profile updated",
-        description: "Changes saved successfully",
-      });
-      setEditMode(false);
+      queryClient.invalidateQueries({ queryKey: ["profile-history"] });
+      toast({ title: "Saved" });
+      setEditing(null);
       setEditedProfile({});
     },
     onError: (error: any) => {
-      console.error("Failed to update profile:", error);
-      console.error("Error details:", {
-        message: error?.message,
-        code: error?.code,
-        details: error?.details,
-        response: error?.response,
-      });
-      
-      let errorMessage = "An error occurred";
-      if (error?.message) {
-        errorMessage = error.message;
-      } else if (error?.details) {
-        errorMessage = JSON.stringify(error.details);
-      }
-      
       toast({
-        title: "Failed to update profile",
-        description: errorMessage,
+        title: "Couldn't save",
+        description: error?.message || (error?.details ? JSON.stringify(error.details) : "An error occurred"),
         variant: "destructive",
       });
     },
@@ -236,19 +199,9 @@ export default function ProfileDetail() {
   const createNoteMutation = useMutation({
     mutationFn: async () => {
       if (!profile) throw new Error("No profile found");
-      
       if (newNote.reminder_enabled && !newNote.next_follow_up_date) {
-        throw new Error("Follow-up date is required when reminder is enabled");
+        throw new Error("Pick a follow-up date for the reminder");
       }
-      
-      console.log("Creating note with:", {
-        profile_id: profile.id,
-        note_text: newNote.note_text,
-        next_follow_up_date: newNote.next_follow_up_date,
-        reminder_enabled: newNote.reminder_enabled,
-        reminder_recipient_user_id: newNote.reminder_recipient_user_id,
-      });
-      
       const note = await backend.note.create({
         profile_id: profile.id,
         note_text: newNote.note_text,
@@ -257,102 +210,55 @@ export default function ProfileDetail() {
         reminder_recipient_user_id: newNote.reminder_recipient_user_id || undefined,
       });
 
-      if (uploadingFiles.length > 0) {
-        for (const file of uploadingFiles) {
-          try {
-            const { upload_url, file_key } = await backend.note.getUploadUrl(note.id, {
-              filename: file.name,
-              content_type: file.type,
-            });
-
-            await fetch(upload_url, {
-              method: 'PUT',
-              body: file,
-              headers: {
-                'Content-Type': file.type,
-              },
-            });
-
-            await backend.note.saveAttachment(note.id, {
-              file_key,
-              filename: file.name,
-              file_type: file.type,
-              file_size: file.size,
-            });
-          } catch (error) {
-            console.error(`Failed to upload ${file.name}:`, error);
-            toast({
-              title: "File upload warning",
-              description: `Failed to upload ${file.name}. Note was saved without this attachment.`,
-              variant: "destructive",
-            });
-          }
+      for (const file of uploadingFiles) {
+        try {
+          const { upload_url, file_key } = await backend.note.getUploadUrl(note.id, {
+            filename: file.name,
+            content_type: file.type,
+          });
+          await fetch(upload_url, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
+          await backend.note.saveAttachment(note.id, {
+            file_key,
+            filename: file.name,
+            file_type: file.type,
+            file_size: file.size,
+          });
+        } catch (error) {
+          console.error(`Failed to upload ${file.name}:`, error);
+          toast({
+            title: "File upload warning",
+            description: `Couldn't upload ${file.name}. The note was saved without it.`,
+            variant: "destructive",
+          });
         }
       }
-
       return note;
     },
-    onSuccess: (note) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notes", profile?.id] });
-      
       if (newNote.reminder_enabled) {
         queryClient.invalidateQueries({ queryKey: ["cal-station"] });
         queryClient.invalidateQueries({ queryKey: ["cal-watch"] });
         queryClient.invalidateQueries({ queryKey: ["cal-personal"] });
         queryClient.invalidateQueries({ queryKey: ["crewing-roster"] });
       }
-      
-      const hasAttachments = uploadingFiles.length > 0;
-      const hasReminder = newNote.reminder_enabled;
-      
-      let description = "Note saved successfully";
-      if (hasAttachments && hasReminder) {
-        description = `Note, ${uploadingFiles.length} file(s), and reminder created`;
-      } else if (hasAttachments) {
-        description = `Note and ${uploadingFiles.length} file(s) saved`;
-      } else if (hasReminder) {
-        description = "Note and reminder created";
-      }
-      
       toast({
         title: "Note added",
-        description,
+        description: [
+          uploadingFiles.length ? `${uploadingFiles.length} file(s) attached` : "",
+          newNote.reminder_enabled ? "reminder set" : "",
+        ].filter(Boolean).join(", ") || undefined,
       });
-      
-      setNewNote({
-        note_text: "",
-        next_follow_up_date: "",
-        reminder_enabled: false,
-        reminder_recipient_user_id: "",
-      });
+      setNewNote({ note_text: "", next_follow_up_date: "", reminder_enabled: false, reminder_recipient_user_id: "" });
       setUploadingFiles([]);
     },
     onError: (error: any) => {
-      console.error("Failed to create note:", error);
-      toast({
-        title: "Failed to add note",
-        description: error?.message || "An error occurred",
-        variant: "destructive",
-      });
+      toast({ title: "Couldn't add the note", description: error?.message || "An error occurred", variant: "destructive" });
     },
   });
 
-  // Temporarily disabled
-  const uploadDocumentMutation = useMutation({
-    mutationFn: async (file: File) => {
-      return { success: true };
-    },
-  });
-
-  const deleteDocumentMutation = useMutation({
-    mutationFn: async (documentId: number) => {
-      return { success: true };
-    },
-  });
-
-  const handleSaveProfile = async () => {
+  const handleSaveProfile = () => {
     const profileUpdates: UpdateProfileRequest = {};
-
     if (editedProfile.service_number !== undefined) profileUpdates.service_number = editedProfile.service_number;
     if (editedProfile.station !== undefined) profileUpdates.station = editedProfile.station;
     if (editedProfile.rank !== undefined) profileUpdates.rank = editedProfile.rank;
@@ -369,1086 +275,574 @@ export default function ProfileDetail() {
     if (editedProfile.watch !== undefined) profileUpdates.watch = ((editedProfile.watch as string) === "_none" ? "" : editedProfile.watch) as any;
 
     if (Object.keys(profileUpdates).length === 0) {
-      toast({
-        title: "No changes detected",
-        description: "Please make some changes before saving",
-        variant: "destructive",
-      });
+      setEditing(null);
       return;
     }
-
     updateProfileMutation.mutate(profileUpdates);
   };
 
-  const handleCancelEdit = () => {
-    setEditMode(false);
+  const startEdit = (s: Section) => {
+    setEditedProfile({});
+    setEditing(s);
+  };
+  const cancelEdit = () => {
+    setEditing(null);
     setEditedProfile({});
   };
 
   const getDisplayValue = <K extends keyof FirefighterProfile>(key: K): FirefighterProfile[K] => {
     return (editedProfile[key] !== undefined ? editedProfile[key] : profile?.[key]) as FirefighterProfile[K];
   };
+  const set = (patch: Partial<FirefighterProfile>) => setEditedProfile((e) => ({ ...e, ...patch }));
 
   const canEditField = (fieldName: string): boolean => {
     if (userRole === "WC") return true;
-    
-    if (userRole === "CC") {
-      const wcOnlyFields = ["service_number", "station", "watch", "rank"];
-      return !wcOnlyFields.includes(fieldName);
-    }
-    
+    if (userRole === "CC") return !["service_number", "station", "watch", "rank"].includes(fieldName);
     if (userRole === "FF" && isViewingOwnProfile) {
-      const ffEditableFields = ["phone", "emergency_contact_name", "emergency_contact_phone"];
-      return ffEditableFields.includes(fieldName);
+      return ["phone", "emergency_contact_name", "emergency_contact_phone"].includes(fieldName);
     }
-    
     return false;
   };
 
-  const isFieldLocked = (fieldName: string): boolean => {
-    return editMode && !canEditField(fieldName);
-  };
-
-
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      uploadDocumentMutation.mutate(file);
-    }
-  };
-
-  // Temporarily disabled
-  const handleDownloadDocument = async (documentId: number) => {
-    console.log("Download document:", documentId);
-  };
-
-  const renderFieldWithLock = (
-    fieldName: string,
-    label: string,
-    renderInput: () => React.ReactNode,
-    renderDisplay: () => React.ReactNode
-  ) => {
-    const locked = isFieldLocked(fieldName);
-    
-    if (!editMode) {
-      return renderDisplay();
-    }
-
-    if (locked) {
-      return (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="relative">
-                {renderDisplay()}
-                <Lock className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>You don't have permission to edit this field</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      );
-    }
-
-    return renderInput();
+  // ── Tabs (kept in the URL so a link or the back button lands on the same one) ──
+  const tabs: { key: TabKey; label: string; count?: number }[] = [
+    { key: "overview", label: "Overview" },
+    { key: "skills", label: "Skills", count: skills.length || undefined },
+    ...(isManager ? [{ key: "notes" as const, label: "Notes & 1:1s", count: notes.length || undefined }] : []),
+    ...(canSeeSickness ? [{ key: "absences" as const, label: "Absences" }] : []),
+    { key: "hours", label: "Hours" },
+    ...(isManager ? [{ key: "history" as const, label: "History" }] : []),
+  ];
+  const requested = searchParams.get("tab") as TabKey | null;
+  const tab: TabKey = tabs.some((t) => t.key === requested) ? requested! : "overview";
+  const openTab = (t: TabKey) => {
+    const next = new URLSearchParams(searchParams);
+    if (t === "overview") next.delete("tab");
+    else next.set("tab", t);
+    setSearchParams(next, { replace: true });
   };
 
   if (userLoading || profileLoading) {
     return (
-      <div className="space-y-6">
-        <Skeleton className="h-12 w-64" />
-        <div className="grid gap-6 md:grid-cols-2">
-          <Skeleton className="h-64 w-full" />
-          <Skeleton className="h-64 w-full" />
+      <div className="flex flex-col gap-4">
+        <Skeleton className="h-48 w-full rounded-2xl" />
+        <div className="grid gap-4 lg:grid-cols-3">
+          <Skeleton className="h-64 w-full rounded-2xl lg:col-span-2" />
+          <Skeleton className="h-64 w-full rounded-2xl" />
         </div>
       </div>
     );
   }
 
-  const absenceTypeLabels: Record<AbsenceType, string> = {
-    sickness: "Sickness",
-    AL: "Annual Leave",
-    TOIL: "TOIL",
-    parental: "Parental",
-    other: "Other",
-  };
-
-  const absenceStatusColors = {
-    pending: "bg-yellow-500/10 text-yellow-500",
-    approved: "bg-green-500/10 text-green-500",
-    rejected: "bg-red-500/10 text-red-500",
-  };
-
-  const driverPathwayStatuses: { value: DriverPathwayStatus; label: string }[] = [
-    { value: "medical_due", label: "Medical Due" },
-    { value: "application_sent", label: "Application Sent" },
-    { value: "awaiting_theory", label: "Awaiting Theory" },
-    { value: "awaiting_course", label: "Awaiting Course" },
-    { value: "passed_LGV", label: "Passed LGV" },
-    { value: "awaiting_ERD", label: "Awaiting ERD" },
-    { value: "passed", label: "Passed" },
+  // ── The header's flags and facts ────────────────────────────────────────────
+  const today = new Date();
+  today.setHours(12, 0, 0, 0);
+  const absences = absencesData?.absences ?? [];
+  const offSick = canSeeSickness
+    ? absences.find((a) => a.type === "sickness" && a.status !== "rejected" && !a.returned_to_work_at && new Date(a.start_date) <= today)
+    : undefined;
+  const onLeave = absences.find(
+    (a) => a.type !== "sickness" && a.status === "approved" && new Date(a.start_date) <= today && new Date(a.end_date) >= new Date(today.toDateString())
+  );
+  const flags: ProfileFlag[] = [
+    ...(user && !user.is_active ? [{ key: "signup", label: "Not signed up yet", tone: "warning" as const }] : []),
+    ...(user?.left_at ? [{ key: "left", label: `Left the station ${dayMonth(user.left_at)}` }] : []),
+    ...(offSick ? [{ key: "sick", label: `Off sick since ${dayMonth(offSick.start_date)}`, tone: "warning" as const }] : []),
+    ...(onLeave ? [{ key: "leave", label: `On leave until ${dayMonth(onLeave.end_date)}` }] : []),
   ];
 
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        {/* Visual-refresh profile header: large brand-coloured initials
-            avatar + h1 with the name + eyebrow context line carrying
-            email and service number (mono). The avatar uses bg-brand
-            instead of bg-red-600 so it follows the user's accent. */}
-        <div className="flex items-center gap-4">
-          <div className="h-16 w-16 rounded-full bg-brand text-brand-foreground flex items-center justify-center text-2xl font-mono font-semibold shrink-0">
-            {user?.name.charAt(0)}
-          </div>
-          <div className="flex flex-col gap-1">
-            <h1 className="text-3xl font-bold text-foreground flex items-center gap-2 flex-wrap">
-              {user?.name}
-              {!user?.is_active && (
-                <Badge variant="outline" className="text-xs bg-yellow-500/10 text-yellow-600 border-yellow-500/20">
-                  Pending Sign-up
-                </Badge>
-              )}
-            </h1>
-            <span className="eyebrow whitespace-nowrap">
-              {user?.email}
-              {profile?.service_number && (
-                <>
-                  <span className="crumb-sep">·</span>
-                  <span>Service <span className="font-mono normal-case">#{profile.service_number}</span></span>
-                </>
-              )}
-            </span>
-          </div>
-        </div>
-        {(canEdit || (userRole === "FF" && isViewingOwnProfile)) && (
-          <div className="flex gap-2">
-            {isAdmin && user && !isViewingOwnProfile && !user.has_password && (
-              <Button 
-                variant="outline"
-                onClick={async () => {
-                  try {
-                    const result = await backend.admin.getInviteLink({
-                      email: user.email,
-                      frontend_url: window.location.origin,
-                    });
-                    if (result.already_active) {
-                      toast({
-                        title: "Already registered",
-                        description: `${result.user_name} has already set up their account and can sign in normally.`,
-                      });
-                      return;
-                    }
-                    setInviteLink(result.invite_link);
-                    setShowInviteDialog(true);
-                  } catch (error: any) {
-                    console.error("Failed to generate invite link:", error);
-                    toast({
-                      title: "Error",
-                      description: error?.message || "Failed to generate invite link",
-                      variant: "destructive",
-                    });
-                  }
-                }}
-                className="border-yellow-500 text-yellow-600 hover:bg-yellow-50"
-              >
-                <Send className="h-4 w-4 mr-2" />
-                Send Invite Link
-              </Button>
-            )}
-            {/* Forgotten password — the admin sends a one-time link; they
-                choose the new password themselves (the admin never sees it). */}
-            {isAdmin && user && !isViewingOwnProfile && user.has_password && (
-              <Button
-                variant="outline"
-                onClick={async () => {
-                  try {
-                    const result = await backend.admin.getPasswordResetLink({
-                      user_id: user.id,
-                      frontend_url: window.location.origin,
-                    });
-                    setResetLink(result.reset_link);
-                    setShowResetDialog(true);
-                  } catch (error: any) {
-                    toast({
-                      title: "Couldn't create a reset link",
-                      description: error?.message || "Please try again.",
-                      variant: "destructive",
-                    });
-                  }
-                }}
-                className="border-orange-400 text-orange-600 hover:bg-orange-50"
-              >
-                <KeyRound className="h-4 w-4 mr-2" />
-                Send Password Reset Link
-              </Button>
-            )}
-            {editMode ? (
-              <>
-                <Button variant="outline" onClick={handleCancelEdit}>
-                  <X className="h-4 w-4 mr-2" />
-                  Cancel
-                </Button>
-                <Button
-                  className="bg-indigo-600 hover:bg-indigo-700"
-                  onClick={handleSaveProfile}
-                  disabled={updateProfileMutation.isPending}
-                >
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Changes
-                </Button>
-              </>
-            ) : (
-              <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => setEditMode(true)}>
-                <Edit className="h-4 w-4 mr-2" />
-                Edit Profile
-              </Button>
-            )}
-          </div>
+  const held = {
+    oic: !!getDisplayValue("oic"),
+    ba: !!getDisplayValue("ba"),
+    prps: !!getDisplayValue("prps"),
+    mass_decon: !!getDisplayValue("mass_decon"),
+    hooklift_operator: !!getDisplayValue("hooklift_operator"),
+    driver_lgv: !!getDisplayValue("driver")?.lgv,
+  } as Record<QualificationKey, boolean>;
+  const heldNames = QUALIFICATIONS.filter((q) => held[q.key]).map((q) => q.short);
+  const expired = skills.filter((s) => s.status === "expired").length;
+  const dueSoon = skills.filter((s) => s.status === "warning").length;
+  const toil = toilData?.balances?.[0];
+  const owedToThem = h4hData?.owed_to_me?.length ?? 0;
+  const theyOwe = h4hData?.i_owe?.length ?? 0;
+  const lastNote = notes.reduce<string | null>((latest, n) => {
+    const at = String(n.created_at);
+    return !latest || new Date(at) > new Date(latest) ? at : latest;
+  }, null);
+  const daysSince = (iso: string) => Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
+
+  const facts: ProfileFact[] = [
+    {
+      key: "quals",
+      label: "Qualifications",
+      value: `${heldNames.length} of ${QUALIFICATIONS.length}`,
+      sub: heldNames.join(" · ") || "None held",
+      onClick: () => openTab("overview"),
+    },
+    {
+      key: "skills",
+      label: "Skills",
+      value: expired ? `${expired} expired` : dueSoon ? `${dueSoon} due soon` : String(skills.length),
+      sub: expired || dueSoon ? `of ${skills.length} skills` : skills.length ? "all in date" : "none recorded",
+      tone: expired ? "critical" : dueSoon ? "warning" : "neutral",
+      onClick: () => openTab("skills"),
+    },
+    ...(canSeeSickness && profile
+      ? [{
+          key: "sickness",
+          label: "Sickness · 6 months",
+          value: `${profile.rolling_sick_days} day${profile.rolling_sick_days === 1 ? "" : "s"}`,
+          sub: profile.trigger_stage !== "None"
+            ? `${profile.trigger_stage.replace("Stage", "Stage ")} trigger hit`
+            : `${profile.rolling_sick_episodes} absence${profile.rolling_sick_episodes === 1 ? "" : "s"}`,
+          tone: (profile.trigger_stage === "Stage3" ? "critical" : profile.trigger_stage !== "None" ? "warning" : "neutral") as ProfileFact["tone"],
+          onClick: () => openTab("absences"),
+        }]
+      : []),
+    ...(canSeeHours && toil
+      ? [{
+          key: "toil",
+          label: "TOIL",
+          value: `${toil.balance}h`,
+          sub: toil.pending_earned ? `${toil.pending_earned}h awaiting approval` : "available",
+          onClick: () => { setHoursView("toil"); openTab("hours"); },
+        }]
+      : []),
+    {
+      key: "h4h",
+      label: "H4H",
+      value: !owedToThem && !theyOwe ? "Square" : theyOwe ? `Owes ${theyOwe}` : `Owed ${owedToThem}`,
+      sub: !owedToThem && !theyOwe ? "nothing outstanding" : [theyOwe && `owes ${theyOwe}`, owedToThem && `owed ${owedToThem}`].filter(Boolean).join(" · ") + " shift(s)",
+      onClick: () => { setHoursView("h4h"); openTab("hours"); },
+    },
+    ...(isManager
+      ? [{
+          key: "oneone",
+          label: "Last 1:1",
+          value: lastNote ? dayMonth(lastNote) : "None yet",
+          sub: lastNote ? `${daysSince(lastNote)} days ago · your notes` : "your notes are private to you",
+          onClick: () => openTab("notes"),
+        }]
+      : []),
+  ];
+
+  const adminMenu = isAdmin && user && !isViewingOwnProfile ? (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button type="button" aria-label="More actions" className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-border hover:bg-muted">
+          <MoreHorizontal className="h-4 w-4" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        {!user.has_password ? (
+          <DropdownMenuItem
+            onSelect={async () => {
+              try {
+                const result = await backend.admin.getInviteLink({ email: user.email, frontend_url: window.location.origin });
+                if (result.already_active) {
+                  toast({ title: "Already registered", description: `${result.user_name} has already set up their account and can sign in normally.` });
+                  return;
+                }
+                setInviteLink(result.invite_link);
+                setShowInviteDialog(true);
+              } catch (error: any) {
+                toast({ title: "Error", description: error?.message || "Failed to generate invite link", variant: "destructive" });
+              }
+            }}
+          >
+            <Send className="mr-2 h-4 w-4" /> Send invite link
+          </DropdownMenuItem>
+        ) : (
+          // Forgotten password — the admin sends a one-time link; they
+          // choose the new password themselves (the admin never sees it).
+          <DropdownMenuItem
+            onSelect={async () => {
+              try {
+                const result = await backend.admin.getPasswordResetLink({ user_id: user.id, frontend_url: window.location.origin });
+                setResetLink(result.reset_link);
+                setShowResetDialog(true);
+              } catch (error: any) {
+                toast({ title: "Couldn't create a reset link", description: error?.message || "Please try again.", variant: "destructive" });
+              }
+            }}
+          >
+            <KeyRound className="mr-2 h-4 w-4" /> Send password reset link
+          </DropdownMenuItem>
         )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  ) : null;
+
+  const sectionProps = (s: Section, editable: boolean) => ({
+    editable: editable && !editing,
+    editing: editing === s,
+    saving: updateProfileMutation.isPending,
+    onEdit: () => startEdit(s),
+    onCancel: cancelEdit,
+    onSave: handleSaveProfile,
+  });
+
+  /** A value in a section: an input while editing (if allowed), otherwise text — with a lock when they can't change it. */
+  const editableValue = (s: Section, field: string, display: React.ReactNode, input: React.ReactNode) =>
+    editing === s ? (canEditField(field) ? input : (
+      <span className="inline-flex items-center gap-1.5 text-muted-foreground" title="Only a WC can change this">
+        {display} <Lock className="h-3 w-3" />
+      </span>
+    )) : display;
+
+  const pathway = getDisplayValue("driverPathway");
+  const watchValue = (getDisplayValue("watch") as string) || user?.watch_unit || "";
+  const hoursOptions = [
+    ...(canSeeHours ? [{ key: "toil" as const, label: "TOIL" }] : []),
+    { key: "h4h" as const, label: "H4H" },
+    ...(canSeeHours ? [{ key: "adjustments" as const, label: "Shift adjustments" }] : []),
+  ];
+  const hoursActive = hoursOptions.find((o) => o.key === hoursView)?.key ?? hoursOptions[0].key;
+
+  return (
+    <div className="flex flex-col gap-4">
+      {myIndex >= 0 && watchmates.length > 1 && (
+        <nav aria-label="People on this watch" className="-mb-1 flex items-center justify-between gap-2 text-xs text-muted-foreground">
+          <Link to="/people" className="hover:text-foreground">← All people</Link>
+          <span className="flex items-center gap-1">
+            <Link
+              to={`/people/${watchmates[(myIndex - 1 + watchmates.length) % watchmates.length].user.id}${tab !== "overview" ? `?tab=${tab}` : ""}`}
+              aria-label="Previous person on the watch"
+              className="grid h-7 w-7 place-items-center rounded-lg hover:bg-muted hover:text-foreground"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Link>
+            <span className="tabular-nums">{myIndex + 1} of {watchmates.length} · {user?.watch_unit || profile?.watch} Watch</span>
+            <Link
+              to={`/people/${watchmates[(myIndex + 1) % watchmates.length].user.id}${tab !== "overview" ? `?tab=${tab}` : ""}`}
+              aria-label="Next person on the watch"
+              className="grid h-7 w-7 place-items-center rounded-lg hover:bg-muted hover:text-foreground"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Link>
+          </span>
+        </nav>
+      )}
+
+      <ProfileHero
+        name={user?.name ?? ""}
+        rank={profile?.rank}
+        watch={user?.watch_unit || profile?.watch}
+        station={profile?.station}
+        serviceNumber={profile?.service_number}
+        phone={profile?.phone}
+        email={user?.email}
+        flags={flags}
+        facts={facts}
+        menu={adminMenu}
+      />
+
+      {/* ── Tabs ─────────────────────────────────────────────────────────── */}
+      <div role="tablist" aria-label="Profile sections" className="-mx-4 flex gap-1 overflow-x-auto border-b border-border/70 px-4 md:mx-0 md:px-0">
+        {tabs.map((t) => (
+          <button
+            key={t.key}
+            type="button"
+            role="tab"
+            aria-selected={tab === t.key}
+            onClick={() => openTab(t.key)}
+            className={cn(
+              "-mb-px inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium transition-colors",
+              tab === t.key ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
+            )}
+          >
+            {t.label}
+            {t.count !== undefined && (
+              <span className="rounded-full bg-muted px-1.5 text-[11px] font-semibold tabular-nums text-muted-foreground">{t.count}</span>
+            )}
+          </button>
+        ))}
       </div>
 
-      <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="skills">Skills</TabsTrigger>
-          {/* Notes & 1:1s: a WC/CC tool, private to whoever wrote each note. */}
-          {(userRole === "WC" || userRole === "CC") && (
-            <TabsTrigger value="notes">Notes & 1:1s</TabsTrigger>
-          )}
-          {canSeeSickness && <TabsTrigger value="absences">Absences</TabsTrigger>}
-          <TabsTrigger value="h4h">H4H Balance</TabsTrigger>
-          {/* TOIL tab — visible only to the profile owner OR a WC/CC.
-              FFs viewing someone else's profile shouldn't see it. */}
-          {(isViewingOwnProfile ||
-            userRole === "WC" ||
-            userRole === "CC") && (
-            <TabsTrigger value="toil">TOIL</TabsTrigger>
-          )}
-          {(isViewingOwnProfile ||
-            userRole === "WC" ||
-            userRole === "CC") && (
-            <TabsTrigger value="shift-adjustments">Shift Adjustments</TabsTrigger>
-          )}
-          <TabsTrigger value="documents">Documents</TabsTrigger>
-          <TabsTrigger value="activity">Activity Log</TabsTrigger>
-        </TabsList>
+      {/* ── Overview ─────────────────────────────────────────────────────── */}
+      {tab === "overview" && profile && (
+        <div className="grid items-start gap-4 lg:grid-cols-3">
+          <div className="flex flex-col gap-4 lg:col-span-2">
+            <ProfileSection
+              title="Qualifications & skills"
+              description="The crewing board's warnings use the qualifications."
+              {...sectionProps("quals", canEdit && canEditField("qualifications"))}
+            >
+              <QualificationsPanel
+                held={held}
+                skills={skills}
+                editing={editing === "quals"}
+                onToggle={(key) => {
+                  if (key === "driver_lgv") set({ driver: { lgv: !held.driver_lgv, erd: getDisplayValue("driver")?.erd ?? false } });
+                  else set({ [key]: !held[key] } as Partial<FirefighterProfile>);
+                }}
+                onOpenSkills={() => openTab("skills")}
+              />
+            </ProfileSection>
 
-        <TabsContent value="overview" className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  Personal Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label className="text-muted-foreground">Email</Label>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Mail className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-foreground">{user?.email}</span>
-                  </div>
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">Phone</Label>
-                  {renderFieldWithLock(
-                    "phone",
-                    "Phone",
-                    () => (
-                      <Input
-                        value={getDisplayValue("phone") || ""}
-                        onChange={(e) => setEditedProfile({ ...editedProfile, phone: e.target.value })}
-                        placeholder="Phone number"
-                        className="mt-1"
-                      />
-                    ),
-                    () => (
-                      <div className="flex items-center gap-2 mt-1">
-                        <Phone className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-foreground font-mono">{profile?.phone || "-"}</span>
-                      </div>
-                    )
-                  )}
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">Role</Label>
-                  <div className="mt-1 flex items-center gap-2">
-                    <Badge>{user?.role}</Badge>
-                    {editMode && (
-                      <span className="text-xs text-muted-foreground">Auto-set from Rank</span>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Briefcase className="h-5 w-5" />
-                  Service Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label className="text-muted-foreground">Service Number</Label>
-                  {renderFieldWithLock(
-                    "service_number",
-                    "Service Number",
-                    () => (
-                      <Input
-                        value={getDisplayValue("service_number") || ""}
-                        onChange={(e) => setEditedProfile({ ...editedProfile, service_number: e.target.value })}
-                        placeholder="Service number"
-                        className="mt-1"
-                      />
-                    ),
-                    () => (
-                      <p className="text-foreground font-medium mt-1">{profile?.service_number || "-"}</p>
-                    )
-                  )}
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">Rank</Label>
-                  {renderFieldWithLock(
-                    "rank",
-                    "Rank",
-                    () => (
-                      <Select
-                        value={getDisplayValue("rank") || ""}
-                        onValueChange={(value) => setEditedProfile({ ...editedProfile, rank: value })}
-                      >
-                        <SelectTrigger className="mt-1">
-                          <SelectValue placeholder="Select rank" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Watch Commander">Watch Commander</SelectItem>
-                          <SelectItem value="Crew Commander">Crew Commander</SelectItem>
-                          <SelectItem value="Leading Firefighter">Leading Firefighter</SelectItem>
-                          <SelectItem value="Firefighter">Firefighter</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    ),
-                    () => (
-                      <p className="text-foreground font-medium mt-1">{profile?.rank || "-"}</p>
-                    )
-                  )}
-                </div>
-                {profile?.hire_date && (
-                  <div>
-                    <Label className="text-muted-foreground">Hire Date</Label>
-                    <p className="text-foreground font-medium mt-1">
-                      {new Date(profile.hire_date).toLocaleDateString()}
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Building2 className="h-5 w-5" />
-                  Assignment
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label className="text-muted-foreground">Station or Area</Label>
-                  {renderFieldWithLock(
-                    "station",
-                    "Station or Area",
-                    () => (
-                      <Select
-                        value={getDisplayValue("station") || ""}
-                        onValueChange={(value) => setEditedProfile({ ...editedProfile, station: value })}
-                      >
-                        <SelectTrigger className="mt-1">
-                          <SelectValue placeholder="Select station or area" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {STATION_OPTIONS.map(s => (
-                            <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    ),
-                    () => (
-                      <p className="text-foreground font-medium mt-1">{profile?.station || "-"}</p>
-                    )
-                  )}
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">Watch Unit</Label>
-                  {editMode && canEditField("watch") ? (
-                    <Select
-                      value={getDisplayValue("watch") || ""}
-                      onValueChange={(value) => setEditedProfile({ ...editedProfile, watch: value as any })}
-                    >
-                      <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Select watch" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="_none">
-                          <div className="flex items-center gap-2">
-                            <span className="h-2 w-2 rounded-full bg-gray-300" />
-                            No Watch
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="Green">
-                          <div className="flex items-center gap-2">
-                            <WatchDot watch="Green" />
-                            Green
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="Red">
-                          <div className="flex items-center gap-2">
-                            <WatchDot watch="Red" />
-                            Red
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="White">
-                          <div className="flex items-center gap-2">
-                            <WatchDot watch="White" />
-                            White
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="Blue">
-                          <div className="flex items-center gap-2">
-                            <WatchDot watch="Blue" />
-                            Blue
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="Amber">
-                          <div className="flex items-center gap-2">
-                            <WatchDot watch="Amber" />
-                            Amber
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <div className="mt-1">
-                      {profile?.watch || user?.watch_unit ? (
-                        <WatchBadge watch={profile?.watch || user?.watch_unit || ""} />
-                      ) : (
-                        <span className="text-foreground">-</span>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Truck className="h-5 w-5" />
-                  Driver Pathway
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label className="text-muted-foreground">Status</Label>
-                  {editMode && canEditField("driverPathway") ? (
-                    <Select
-                      value={getDisplayValue("driverPathway")?.status || ""}
-                      onValueChange={(value: DriverPathwayStatus) =>
-                        setEditedProfile({
-                          ...editedProfile,
-                          driverPathway: {
-                            status: value,
-                            lgvPassedDate: getDisplayValue("driverPathway")?.lgvPassedDate,
-                          },
-                        })
-                      }
-                    >
-                      <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {driverPathwayStatuses.map((status) => (
-                          <SelectItem key={status.value} value={status.value}>
-                            {status.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <div className="mt-1">
-                      {profile?.driverPathway?.status ? (
-                        <Badge>
-                          {driverPathwayStatuses.find(s => s.value === profile.driverPathway?.status)?.label || profile.driverPathway.status}
-                        </Badge>
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
-                      )}
-                    </div>
-                  )}
-                </div>
-                {(getDisplayValue("driverPathway")?.status === "passed_LGV" || 
-                  getDisplayValue("driverPathway")?.status === "awaiting_ERD" || 
-                  getDisplayValue("driverPathway")?.status === "passed") && (
-                  <div>
-                    <Label className="text-muted-foreground">LGV Passed Date</Label>
-                    {editMode && canEditField("driverPathway") ? (
-                      <Input
-                        type="date"
-                        value={getDisplayValue("driverPathway")?.lgvPassedDate || ""}
-                        onChange={(e) =>
-                          setEditedProfile({
-                            ...editedProfile,
-                            driverPathway: {
-                              status: getDisplayValue("driverPathway")?.status || "passed_LGV",
-                              lgvPassedDate: e.target.value,
-                            },
-                          })
-                        }
-                        className="mt-1"
-                      />
-                    ) : (
-                      <p className="text-foreground font-medium mt-1">
-                        {profile?.driverPathway?.lgvPassedDate || "-"}
-                      </p>
-                    )}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Award className="h-5 w-5" />
-                  Operational Qualifications
-                </CardTitle>
-                <CardDescription>
-                  Drives the amber warnings on the crewing board. Tick what this person holds — each tick is also a skill on their Skills tab, so ticking adds it there and unticking removes it.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {(() => {
-                  const quals = [
-                    { key: "oic" as const,               label: "OIC",               desc: "Officer in Charge" },
-                    { key: "ba" as const,                label: "BA",                desc: "Breathing Apparatus" },
-                    { key: "prps" as const,              label: "PRPS",              desc: "Personal Respiratory Protection" },
-                    { key: "mass_decon" as const,        label: "Mass Decon",        desc: "Mass decontamination operator" },
-                    { key: "hooklift_operator" as const, label: "Hooklift",          desc: "Hooklift / prime mover operator" },
-                  ];
-                  const canEdit = editMode && canEditField("qualifications");
-
-                  // Driver LGV lives under driver.lgv — show alongside as an unmissable pill too.
-                  const driverVal = !!getDisplayValue("driver")?.lgv;
-
-                  return (
-                    <div className="flex flex-wrap gap-2">
-                      {/* Driver LGV */}
-                      <button
-                        type="button"
-                        disabled={!canEdit}
-                        onClick={() =>
-                          setEditedProfile({
-                            ...editedProfile,
-                            driver: {
-                              lgv: !driverVal,
-                              erd: getDisplayValue("driver")?.erd ?? false,
-                            },
-                          })
-                        }
-                        title="LGV Driver qualification"
-                        className={`
-                          inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors
-                          ${driverVal
-                            ? "bg-indigo-500 text-white"
-                            : "bg-muted text-muted-foreground hover:bg-muted/70"
-                          }
-                          ${canEdit ? "cursor-pointer" : "cursor-default"}
-                        `}
-                      >
-                        {driverVal && <CheckCircle2 className="h-3 w-3" />}
-                        Driver (LGV)
-                      </button>
-
-                      {quals.map(q => {
-                        const val = !!getDisplayValue(q.key);
-                        return (
-                          <button
-                            key={q.key}
-                            type="button"
-                            disabled={!canEdit}
-                            onClick={() => setEditedProfile({ ...editedProfile, [q.key]: !val })}
-                            title={q.desc}
-                            className={`
-                              inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors
-                              ${val
-                                ? "bg-indigo-500 text-white"
-                                : "bg-muted text-muted-foreground hover:bg-muted/70"
-                              }
-                              ${canEdit ? "cursor-pointer" : "cursor-default"}
-                            `}
-                          >
-                            {val && <CheckCircle2 className="h-3 w-3" />}
-                            {q.label}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  );
-                })()}
-                {!editMode && (
-                  <p className="text-[11px] text-muted-foreground mt-3">
-                    Click <span className="font-semibold">Edit</span> to update qualifications.
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-
-            <SkillsSummaryCard profileId={profile?.id} />
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Emergency Contact</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label className="text-muted-foreground">Contact Name</Label>
-                  {renderFieldWithLock(
-                    "emergency_contact_name",
-                    "Emergency Contact Name",
-                    () => (
-                      <Input
-                        value={getDisplayValue("emergency_contact_name") || ""}
-                        onChange={(e) =>
-                          setEditedProfile({ ...editedProfile, emergency_contact_name: e.target.value })
-                        }
-                        placeholder="Emergency contact name"
-                        className="mt-1"
-                      />
-                    ),
-                    () => (
-                      <p className="text-foreground font-medium mt-1">
-                        {profile?.emergency_contact_name || "-"}
-                      </p>
-                    )
-                  )}
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">Contact Phone</Label>
-                  {renderFieldWithLock(
-                    "emergency_contact_phone",
-                    "Emergency Contact Phone",
-                    () => (
-                      <Input
-                        value={getDisplayValue("emergency_contact_phone") || ""}
-                        onChange={(e) =>
-                          setEditedProfile({ ...editedProfile, emergency_contact_phone: e.target.value })
-                        }
-                        placeholder="Emergency contact phone"
-                        className="mt-1"
-                      />
-                    ),
-                    () => (
-                      <p className="text-foreground font-medium font-mono mt-1">
-                        {profile?.emergency_contact_phone || "-"}
-                      </p>
-                    )
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {profile?.lastConversation && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <MessageSquare className="h-5 w-5" />
-                    Last Conversation
-                  </CardTitle>
-                  <CardDescription>
-                    {new Date(profile.lastConversation.date).toLocaleDateString()}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-foreground">{profile.lastConversation.text}</p>
-                </CardContent>
-              </Card>
-            )}
+            <ProfileSection title="Driver pathway" {...sectionProps("driver", canEdit && canEditField("driverPathway"))}>
+              <DriverPathway
+                status={pathway?.status}
+                lgvPassedDate={pathway?.lgvPassedDate as string | undefined}
+                editing={editing === "driver"}
+                onPick={(status: DriverPathwayStatus) => set({ driverPathway: { status, lgvPassedDate: pathway?.lgvPassedDate } })}
+                onDate={(d) => set({ driverPathway: { status: pathway?.status ?? "passed_LGV", lgvPassedDate: d } })}
+              />
+            </ProfileSection>
           </div>
-        </TabsContent>
 
-        <TabsContent value="notes" className="space-y-6">
+          <div className="flex flex-col gap-4">
+            <ProfileSection title="Details" {...sectionProps("details", canEdit && ["rank", "station", "watch", "service_number"].some(canEditField))}>
+              <Field label="Rank">
+                {editableValue("details", "rank", profile.rank || "—", (
+                  <select className={selectCls} value={getDisplayValue("rank") || ""} onChange={(e) => set({ rank: e.target.value })}>
+                    <option value="" disabled>Choose a rank</option>
+                    {RANKS.map((r) => <option key={r} value={r}>{r}</option>)}
+                  </select>
+                ))}
+              </Field>
+              <Field label="Watch">
+                {editableValue("details", "watch", watchValue ? `${watchValue} Watch` : "—", (
+                  <select className={selectCls} value={watchValue || "_none"} onChange={(e) => set({ watch: e.target.value as any })}>
+                    <option value="_none">No watch</option>
+                    {WATCHES.map((w) => <option key={w} value={w}>{w}</option>)}
+                  </select>
+                ))}
+              </Field>
+              <Field label="Station">
+                {editableValue("details", "station", profile.station || "—", (
+                  <select className={selectCls} value={getDisplayValue("station") || ""} onChange={(e) => set({ station: e.target.value })}>
+                    <option value="" disabled>Choose a station or area</option>
+                    {STATION_OPTIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+                  </select>
+                ))}
+              </Field>
+              <Field label="Service number">
+                {editableValue("details", "service_number", <span className="font-mono">{profile.service_number || "—"}</span>, (
+                  <input className={cn(inputCls, "font-mono")} value={getDisplayValue("service_number") || ""} onChange={(e) => set({ service_number: e.target.value })} />
+                ))}
+              </Field>
+              {profile.hire_date && <Field label="Started">{shortDate(profile.hire_date)}</Field>}
+            </ProfileSection>
+
+            <ProfileSection
+              title="Contact"
+              {...sectionProps("contact", (canEdit || isViewingOwnProfile) && ["phone", "emergency_contact_name", "emergency_contact_phone"].some(canEditField))}
+            >
+              <Field label="Phone">
+                {editableValue("contact", "phone", profile.phone ? <a href={`tel:${profile.phone.replace(/[^\d+]/g, "")}`} className="font-mono hover:underline">{profile.phone}</a> : "—", (
+                  <input className={cn(inputCls, "font-mono")} type="tel" inputMode="tel" value={getDisplayValue("phone") || ""} onChange={(e) => set({ phone: e.target.value })} />
+                ))}
+              </Field>
+              <Field label="Email">
+                {user?.email ? (
+                  <span className="inline-flex max-w-full items-center gap-1">
+                    <a href={`mailto:${user.email}`} className="truncate hover:underline">{user.email}</a>
+                    <button
+                      type="button"
+                      aria-label="Copy email"
+                      onClick={() => { navigator.clipboard.writeText(user.email); toast({ title: "Email copied" }); }}
+                      className="grid h-6 w-6 shrink-0 place-items-center rounded text-muted-foreground hover:bg-muted hover:text-foreground"
+                    >
+                      <Copy className="h-3 w-3" />
+                    </button>
+                  </span>
+                ) : "—"}
+              </Field>
+              <Field label="Emergency contact">
+                {editableValue("contact", "emergency_contact_name", profile.emergency_contact_name || "—", (
+                  <input className={inputCls} placeholder="Name" value={getDisplayValue("emergency_contact_name") || ""} onChange={(e) => set({ emergency_contact_name: e.target.value })} />
+                ))}
+              </Field>
+              <Field label="Their number">
+                {editableValue("contact", "emergency_contact_phone", profile.emergency_contact_phone ? <a href={`tel:${profile.emergency_contact_phone.replace(/[^\d+]/g, "")}`} className="font-mono hover:underline">{profile.emergency_contact_phone}</a> : "—", (
+                  <input className={cn(inputCls, "font-mono")} type="tel" inputMode="tel" placeholder="Phone" value={getDisplayValue("emergency_contact_phone") || ""} onChange={(e) => set({ emergency_contact_phone: e.target.value })} />
+                ))}
+              </Field>
+            </ProfileSection>
+          </div>
+        </div>
+      )}
+
+      {/* ── Skills ───────────────────────────────────────────────────────── */}
+      {tab === "skills" && profile && <SkillsTab profileId={profile.id} userId={userId} />}
+
+      {/* ── Notes & 1:1s (WC/CC; each note is private to whoever wrote it) ── */}
+      {tab === "notes" && isManager && (
+        <div className="grid items-start gap-4 lg:grid-cols-5">
           {canEdit && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Add Note / 1:1 Entry</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label>Note</Label>
-                  <Textarea
-                    value={newNote.note_text}
-                    onChange={(e) => setNewNote({ ...newNote, note_text: e.target.value })}
-                    placeholder="Enter conversation notes..."
-                    rows={4}
-                    className="mt-1"
+            <section className="rounded-2xl border border-border/70 bg-card p-4 sm:p-5 lg:sticky lg:top-24 lg:col-span-2">
+              <h2 className="text-sm font-semibold">New note or 1:1</h2>
+              <p className="mt-0.5 text-xs text-muted-foreground">Only you can see your notes and their reminders.</p>
+              <textarea
+                value={newNote.note_text}
+                onChange={(e) => setNewNote({ ...newNote, note_text: e.target.value })}
+                placeholder={`What did you and ${user?.name?.split(" ")[0] ?? "they"} talk about?`}
+                rows={5}
+                className="mt-3 w-full rounded-xl border border-border bg-background p-3 text-sm"
+              />
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                  Follow up
+                  <input
+                    type="date"
+                    value={newNote.next_follow_up_date}
+                    onChange={(e) => setNewNote({ ...newNote, next_follow_up_date: e.target.value })}
+                    className="h-8 rounded-lg border border-border bg-background px-2 text-xs text-foreground"
                   />
-                </div>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>Follow-up Date {newNote.reminder_enabled && <span className="text-red-600">*</span>}</Label>
-                      <Input
-                        type="date"
-                        value={newNote.next_follow_up_date}
-                        onChange={(e) => setNewNote({ ...newNote, next_follow_up_date: e.target.value })}
-                        className="mt-1"
-                      />
-                      {newNote.reminder_enabled && !newNote.next_follow_up_date && (
-                        <p className="text-xs text-red-600 mt-1">Required when reminder is enabled</p>
-                      )}
-                    </div>
-                    <div className="flex items-end">
-                      <div className="flex items-center gap-2">
-                        <Checkbox
-                          id="reminder"
-                          checked={newNote.reminder_enabled}
-                          onCheckedChange={(checked) =>
-                            setNewNote({ ...newNote, reminder_enabled: !!checked })
-                          }
-                        />
-                        <Label htmlFor="reminder" className="cursor-pointer">Set reminder</Label>
-                      </div>
-                    </div>
-                  </div>
-                  {newNote.reminder_enabled && (
-                    <p className="text-xs text-muted-foreground">
-                      The reminder goes in your calendar only — notes and their reminders are private to you.
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <Label>Attachments (optional)</Label>
-                  <Input
+                </label>
+                <label className="flex cursor-pointer items-center gap-1.5 text-xs">
+                  <input
+                    type="checkbox"
+                    checked={newNote.reminder_enabled}
+                    onChange={(e) => setNewNote({ ...newNote, reminder_enabled: e.target.checked })}
+                    className="h-4 w-4"
+                  />
+                  Remind me
+                </label>
+                <label className="ml-auto inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-border px-2.5 text-xs font-medium hover:bg-muted">
+                  <Paperclip className="h-3.5 w-3.5" /> Attach
+                  <input
                     type="file"
                     multiple
                     accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif"
-                    onChange={(e) => {
-                      if (e.target.files) {
-                        setUploadingFiles(Array.from(e.target.files));
-                      }
-                    }}
-                    className="mt-1"
+                    className="sr-only"
+                    onChange={(e) => e.target.files && setUploadingFiles(Array.from(e.target.files))}
                   />
-                  {uploadingFiles.length > 0 && (
-                    <div className="mt-2 space-y-1">
-                      {uploadingFiles.map((file, idx) => (
-                        <div key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <FileText className="h-4 w-4" />
-                          <span>{file.name}</span>
-                          <span className="text-xs">({(file.size / 1024).toFixed(1)} KB)</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Supported: PDF, Word, Excel, Images (JPG, PNG, GIF)
-                  </p>
-                </div>
-                <Button
-                  onClick={() => createNoteMutation.mutate()}
-                  disabled={!newNote.note_text || createNoteMutation.isPending}
-                  className="bg-indigo-600 hover:bg-indigo-700"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Note
-                </Button>
-              </CardContent>
-            </Card>
+                </label>
+              </div>
+              {newNote.reminder_enabled && !newNote.next_follow_up_date && (
+                <p className="mt-1 text-xs text-amber-700 dark:text-amber-300">Pick a follow-up date for the reminder.</p>
+              )}
+              {uploadingFiles.length > 0 && (
+                <ul className="mt-2 space-y-1">
+                  {uploadingFiles.map((file, idx) => (
+                    <li key={idx} className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <FileText className="h-3.5 w-3.5" /> {file.name} <span>({(file.size / 1024).toFixed(1)} KB)</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <Button
+                onClick={() => createNoteMutation.mutate()}
+                disabled={!newNote.note_text.trim() || createNoteMutation.isPending}
+                className="mt-3 w-full bg-indigo-600 hover:bg-indigo-700"
+              >
+                <Plus className="mr-2 h-4 w-4" /> {createNoteMutation.isPending ? "Saving…" : "Add note"}
+              </Button>
+            </section>
           )}
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Timeline</CardTitle>
-              <CardDescription>All notes and 1:1 conversations</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {notes.length > 0 ? (
-                <div className="space-y-4">
-                  {notes.map((note) => (
-                    <div key={note.id} className="border-l-2 border-red-600 pl-4 py-2">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1 flex-wrap">
-                            <span className="text-sm font-medium text-muted-foreground">
-                              {new Date(note.created_at).toLocaleDateString()}
-                            </span>
-                            {note.reminder_enabled && note.next_follow_up_date && (
-                              <Badge variant="outline" className="text-xs">
-                                <CalendarIcon className="h-3 w-3 mr-1" />
-                                {new Date(note.next_follow_up_date).toLocaleDateString()}
-                              </Badge>
-                            )}
-                            {note.reminder_enabled && (
-                              <Badge variant="outline" className="text-xs">
-                                <Bell className="h-3 w-3 mr-1" />
-                                Personal reminder
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="text-foreground whitespace-pre-wrap">{note.note_text}</p>
-                          {note.attachments && note.attachments.length > 0 && (
-                            <div className="mt-3 space-y-2">
-                              {note.attachments.map((attachment, idx) => (
-                                <a
-                                  key={idx}
-                                  href={attachment.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 hover:underline"
-                                >
-                                  <FileText className="h-4 w-4" />
-                                  <span>{attachment.filename}</span>
-                                  <span className="text-xs text-muted-foreground">
-                                    ({(attachment.fileSize / 1024).toFixed(1)} KB)
-                                  </span>
-                                  <Download className="h-3 w-3" />
-                                </a>
-                              ))}
-                            </div>
-                          )}
-                        </div>
+          <section className={cn("rounded-2xl border border-border/70 bg-card p-4 sm:p-5", canEdit ? "lg:col-span-3" : "lg:col-span-5")}>
+            <h2 className="text-sm font-semibold">Your notes</h2>
+            {notes.length ? (
+              <ol className="relative ml-1.5 mt-4 border-l border-border/70">
+                {[...notes]
+                  .sort((a, b) => new Date(String(b.created_at)).getTime() - new Date(String(a.created_at)).getTime())
+                  .map((note) => (
+                    <li key={note.id} className="relative pb-5 pl-5 last:pb-0">
+                      <span aria-hidden className="absolute -left-[5px] top-1 h-2.5 w-2.5 rounded-full border-2 border-card bg-foreground" />
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="text-xs font-medium">
+                          {new Date(String(note.created_at)).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
+                        </span>
+                        {note.next_follow_up_date && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
+                            <CalendarIcon className="h-3 w-3" /> Follow up {dayMonth(String(note.next_follow_up_date))}
+                          </span>
+                        )}
+                        {note.reminder_enabled && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
+                            <Bell className="h-3 w-3" /> Reminder
+                          </span>
+                        )}
                       </div>
-                    </div>
+                      <p className="mt-1 whitespace-pre-wrap text-sm">{note.note_text}</p>
+                      {note.attachments && note.attachments.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                          {note.attachments.map((attachment, idx) => (
+                            <a
+                              key={idx}
+                              href={attachment.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2 py-1 text-xs hover:bg-muted"
+                            >
+                              <FileText className="h-3.5 w-3.5" /> {attachment.filename}
+                              <Download className="h-3 w-3 text-muted-foreground" />
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                    </li>
                   ))}
-                </div>
-              ) : (
-                <p className="text-center py-8 text-muted-foreground">No notes recorded</p>
+              </ol>
+            ) : (
+              <p className="py-10 text-center text-sm text-muted-foreground">No notes yet.</p>
+            )}
+          </section>
+        </div>
+      )}
+
+      {/* ── Absences (the person, and the WC/CC on their watch) ───────────── */}
+      {tab === "absences" && canSeeSickness && userId && (
+        <div className="flex flex-col gap-4">
+          {profile && profile.trigger_stage !== "None" && (
+            <div
+              className={cn(
+                "flex items-start gap-3 rounded-2xl border p-4",
+                profile.trigger_stage === "Stage3" ? "border-red-500/30 bg-red-500/5" : "border-amber-500/30 bg-amber-500/5"
               )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="skills" className="space-y-6">
-          {profile && <SkillsTab profileId={profile.id} userId={userId} />}
-        </TabsContent>
-
-        <TabsContent value="absences" className="space-y-6">
-          {canSeeSickness && profile && profile.trigger_stage !== "None" && (
-            <div className={`p-4 rounded-lg border ${
-              profile.trigger_stage === "Stage3"
-                ? "bg-red-500/10 border-red-500/20"
-                : profile.trigger_stage === "Stage2"
-                ? "bg-yellow-500/10 border-yellow-500/20"
-                : "bg-blue-500/10 border-blue-500/20"
-            }`}>
-              <div className="flex items-start gap-3">
-                <AlertTriangle className={`h-5 w-5 mt-0.5 ${
-                  profile.trigger_stage === "Stage3"
-                    ? "text-red-600 dark:text-red-400"
-                    : profile.trigger_stage === "Stage2"
-                    ? "text-yellow-600 dark:text-yellow-400"
-                    : "text-blue-600 dark:text-blue-400"
-                }`} />
-                <div className="flex-1">
-                  <h4 className={`font-semibold ${
-                    profile.trigger_stage === "Stage3"
-                      ? "text-red-600 dark:text-red-400"
-                      : profile.trigger_stage === "Stage2"
-                      ? "text-yellow-600 dark:text-yellow-400"
-                      : "text-blue-600 dark:text-blue-400"
-                  }`}>
-                    Absence triggers hit
-                  </h4>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Last 6 months: <strong>{profile.rolling_sick_episodes} sickness absence{profile.rolling_sick_episodes === 1 ? "" : "s"}</strong>, <strong>{profile.rolling_sick_days} duty day{profile.rolling_sick_days === 1 ? "" : "s"}</strong> lost (rostered shifts only)
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Any stage is for the Station Commander to decide and note on the attendance file.
-                  </p>
-                </div>
+            >
+              <AlertTriangle className={cn("mt-0.5 h-5 w-5 shrink-0", profile.trigger_stage === "Stage3" ? "text-red-600" : "text-amber-600")} />
+              <div>
+                <h3 className="text-sm font-semibold">{profile.trigger_stage.replace("Stage", "Stage ")} absence trigger hit</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Last 6 months: <strong className="text-foreground">{profile.rolling_sick_episodes} sickness absence{profile.rolling_sick_episodes === 1 ? "" : "s"}</strong>,{" "}
+                  <strong className="text-foreground">{profile.rolling_sick_days} duty day{profile.rolling_sick_days === 1 ? "" : "s"}</strong> lost (rostered shifts only).
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">Any stage is for the Station Commander to decide and note on the attendance file.</p>
               </div>
             </div>
           )}
+          <AbsenceHistorySection userId={userId} canManage={isLineManager} watch={user?.watch_unit || profile?.watch || undefined} />
+        </div>
+      )}
 
-          {userId && canSeeSickness && (
-            <AbsenceHistorySection userId={userId} canManage={isLineManager} watch={user?.watch_unit || profile?.watch || undefined} />
-          )}
-        </TabsContent>
-
-        <TabsContent value="h4h" className="space-y-6">
-          <Card>
-            <CardContent className="pt-6">
-              <H4HLedgerSection
-                userId={userId!}
-                canSettle={isViewingOwnProfile || isWC}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* TOIL — same gate as the trigger above. The ProfileToilSection
-            component does its own internal permission check too, so a
-            FF visiting another FF's URL with /toil hash can't bypass it. */}
-        {(isViewingOwnProfile ||
-          userRole === "WC" ||
-          userRole === "CC") && (
-          <TabsContent value="toil" className="space-y-6">
-            <ProfileToilSection
-              profileUserId={userId!}
-              profileName={user?.name}
-            />
-          </TabsContent>
-        )}
-
-        {/* Shift adjustments — owner OR WC/CC. Lets the WC delete an
-            erroneous adjustment so its calendar events get cleaned up
-            and any TOIL hours refunded. Particularly useful for legacy
-            entries created before the Day/Night picker. */}
-        {(isViewingOwnProfile ||
-          userRole === "WC" ||
-          userRole === "CC") && (
-          <TabsContent value="shift-adjustments" className="space-y-6">
-            <ProfileShiftAdjustmentsSection profileUserId={userId!} />
-          </TabsContent>
-        )}
-
-        <TabsContent value="documents" className="space-y-6">
-          {canEdit && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Upload Document</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2">
-                  <Input
-                    ref={fileInputRef}
-                    type="file"
-                    onChange={handleFileUpload}
-                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                    disabled={uploadDocumentMutation.isPending}
-                  />
-                  <Button
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploadDocumentMutation.isPending}
-                    className="bg-indigo-600 hover:bg-indigo-700"
-                  >
-                    <Upload className="h-4 w-4 mr-2" />
-                    Upload
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Supported: PDF, JPG, PNG, Word documents
-                </p>
-              </CardContent>
-            </Card>
-          )}
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Documents</CardTitle>
-              <CardDescription>All uploaded files</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>File Name</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Uploaded</TableHead>
-                    <TableHead>Size</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {documents.length > 0 ? (
-                    documents.map((doc) => (
-                      <TableRow key={doc.id}>
-                        <TableCell className="font-medium">{doc.file_name}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{doc.file_type}</Badge>
-                        </TableCell>
-                        <TableCell>{new Date(doc.uploaded_at).toLocaleDateString()}</TableCell>
-                        <TableCell>{(doc.file_size / 1024).toFixed(1)} KB</TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleDownloadDocument(doc.id)}
-                            >
-                              <Download className="h-4 w-4" />
-                            </Button>
-                            {canEdit && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => deleteDocumentMutation.mutate(doc.id)}
-                                disabled={deleteDocumentMutation.isPending}
-                              >
-                                <Trash2 className="h-4 w-4 text-red-600" />
-                              </Button>
-                            )}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                        No documents uploaded
-                      </TableCell>
-                    </TableRow>
+      {/* ── Hours: TOIL, H4H and shift adjustments ───────────────────────── */}
+      {tab === "hours" && userId && (
+        <div className="flex flex-col gap-4">
+          {hoursOptions.length > 1 && (
+            <div role="tablist" aria-label="Hours" className="grid w-full max-w-md rounded-xl bg-muted p-1" style={{ gridTemplateColumns: `repeat(${hoursOptions.length}, minmax(0, 1fr))` }}>
+              {hoursOptions.map((o) => (
+                <button
+                  key={o.key}
+                  type="button"
+                  role="tab"
+                  aria-selected={hoursActive === o.key}
+                  onClick={() => setHoursView(o.key)}
+                  className={cn(
+                    "h-8 rounded-lg text-xs font-medium transition-colors",
+                    hoursActive === o.key ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
                   )}
-                </TableBody>
-              </Table>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                >
+                  {o.label}
+                </button>
+              ))}
+            </div>
+          )}
+          {hoursActive === "toil" && <ProfileToilSection profileUserId={userId} profileName={user?.name} />}
+          {hoursActive === "h4h" && (
+            <section className="rounded-2xl border border-border/70 bg-card p-4 sm:p-5">
+              <H4HLedgerSection userId={userId} canSettle={isViewingOwnProfile || isWC} />
+            </section>
+          )}
+          {hoursActive === "adjustments" && <ProfileShiftAdjustmentsSection profileUserId={userId} />}
+        </div>
+      )}
 
-        <TabsContent value="activity" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <History className="h-5 w-5" />
-                Activity Log
-              </CardTitle>
-              <CardDescription>All changes to this profile</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {activityLog && activityLog.logs.length > 0 ? (
-                <div className="space-y-3">
-                  {activityLog.logs.map((log) => (
-                    <div key={log.id} className="flex items-start gap-3 py-2 border-b last:border-0">
-                      <CheckCircle2 className="h-5 w-5 text-muted-foreground mt-0.5" />
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-foreground">{log.action}</span>
-                          <span className="text-xs text-muted-foreground">
-                            {new Date(log.timestamp).toLocaleString()}
-                          </span>
-                        </div>
-                        {log.details && (
-                          <p className="text-sm text-muted-foreground mt-1">
-                            Changed: {Object.keys(log.details).join(", ")}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-center py-8 text-muted-foreground">No activity recorded</p>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      {/* ── History (WC/CC) ──────────────────────────────────────────────── */}
+      {tab === "history" && isManager && profile && <RecordHistory profileId={profile.id} />}
 
       <Dialog open={showInviteDialog} onOpenChange={setShowInviteDialog}>
         <DialogContent className="sm:max-w-md">
@@ -1460,7 +854,7 @@ export default function ProfileDetail() {
           </DialogHeader>
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <Input readOnly value={inviteLink} className="flex-1 text-xs font-mono" />
+              <Input readOnly value={inviteLink} className="flex-1 font-mono text-xs" />
               <Button
                 size="sm"
                 onClick={() => {
@@ -1492,7 +886,7 @@ export default function ProfileDetail() {
           </DialogHeader>
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <Input readOnly value={resetLink} className="flex-1 text-xs font-mono" />
+              <Input readOnly value={resetLink} className="flex-1 font-mono text-xs" />
               <Button
                 size="sm"
                 onClick={() => {

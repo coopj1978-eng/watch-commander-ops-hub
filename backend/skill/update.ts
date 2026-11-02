@@ -103,7 +103,7 @@ export const update = api(
       action: "update_skill_renewal",
       entity_type: "skill_renewal",
       entity_id: id.toString(),
-      details: updates,
+      details: { ...updates, profile_id: dbSkill.profile_id, skill_name: dbSkill.skill_name },
     });
 
     return dbSkill as SkillRenewal;

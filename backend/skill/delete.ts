@@ -14,8 +14,8 @@ export const deleteSkillRenewal = api<DeleteSkillRenewalRequest, { success: bool
   async ({ id }) => {
     const auth = getAuthData()!;
 
-    const skill = await db.queryRow<{ profile_id: number; user_id: string }>`
-      SELECT sr.profile_id, fp.user_id
+    const skill = await db.queryRow<{ profile_id: number; user_id: string; skill_name: string }>`
+      SELECT sr.profile_id, fp.user_id, sr.skill_name
       FROM skill_renewals sr
       JOIN firefighter_profiles fp ON sr.profile_id = fp.id
       WHERE sr.id = ${id}
@@ -44,7 +44,7 @@ export const deleteSkillRenewal = api<DeleteSkillRenewalRequest, { success: bool
       action: "delete_skill_renewal",
       entity_type: "skill_renewal",
       entity_id: id.toString(),
-      details: {},
+      details: { profile_id: skill.profile_id, skill_name: skill.skill_name },
     });
 
     return { success: true };

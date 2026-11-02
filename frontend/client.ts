@@ -3816,6 +3816,15 @@ export namespace profile {
 
     export type WatchUnit = "Green" | "Red" | "White" | "Blue" | "Amber" | ""
 
+    /** A change to a person's record, for the WC/CC's History tab. */
+    export interface ProfileHistoryEntry {
+        id: number
+        at: string
+        by: string | null
+        action: string
+        details: { [key: string]: any }
+    }
+
     export class ServiceClient {
         private baseClient: BaseClient
 
@@ -3824,6 +3833,7 @@ export namespace profile {
             this.create = this.create.bind(this)
             this.createPerson = this.createPerson.bind(this)
             this.getByUser = this.getByUser.bind(this)
+            this.profileHistory = this.profileHistory.bind(this)
             this.importNotionPersonnel = this.importNotionPersonnel.bind(this)
             this.list = this.list.bind(this)
             this.listWithUsers = this.listWithUsers.bind(this)
@@ -3847,6 +3857,12 @@ export namespace profile {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/profiles/user/${encodeURIComponent(user_id)}`)
             return await resp.json() as FirefighterProfile
+        }
+
+        public async profileHistory(id: number, params: { limit?: number } = {}): Promise<{ entries: ProfileHistoryEntry[] }> {
+            const query = makeRecord<string, string | string[]>({ limit: params.limit === undefined ? undefined : String(params.limit) })
+            const resp = await this.baseClient.callTypedAPI("GET", `/profiles/${encodeURIComponent(id)}/history`, undefined, {query})
+            return await resp.json() as { entries: ProfileHistoryEntry[] }
         }
 
         public async importNotionPersonnel(params: ImportRequest): Promise<ImportResult> {
