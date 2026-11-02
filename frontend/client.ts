@@ -4127,7 +4127,6 @@ export namespace references {
     export interface ReferenceCard {
         id: number
         cadence: string
-        month: number | null
         items: string[]
         active: boolean
     }
@@ -4151,7 +4150,7 @@ export namespace references {
         }
 
         /** Set a reference's monthly / quarterly / annual cards (WC/CC). No checks = switched off. */
-        public async saveReferenceCards(ref: number, params: { cards: { cadence: string; month?: number | null; items: string[] }[] }): Promise<{ cards: ReferenceCard[] }> {
+        public async saveReferenceCards(ref: number, params: { cards: { cadence: string; items: string[] }[] }): Promise<{ cards: ReferenceCard[] }> {
             const resp = await this.baseClient.callTypedAPI("PUT", `/station-references/${encodeURIComponent(ref)}/cards`, JSON.stringify(params))
             return await resp.json() as { cards: ReferenceCard[] }
         }
@@ -4852,6 +4851,8 @@ export namespace task {
         /** A reference duty card: which reference (1–5) and how often. */
         "reference_no"?: number
         "reference_cadence"?: string
+        /** The first day of the month / quarter / year a reference card is for. */
+        "reference_period"?: string
         "completed_by_name"?: string
     }
 

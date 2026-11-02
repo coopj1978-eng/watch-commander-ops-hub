@@ -35121,8 +35121,8 @@ function startOfWeek(date2, options) {
   const defaultOptions2 = getDefaultOptions();
   const weekStartsOn = (options == null ? void 0 : options.weekStartsOn) ?? ((_b3 = (_a3 = options == null ? void 0 : options.locale) == null ? void 0 : _a3.options) == null ? void 0 : _b3.weekStartsOn) ?? defaultOptions2.weekStartsOn ?? ((_d2 = (_c2 = defaultOptions2.locale) == null ? void 0 : _c2.options) == null ? void 0 : _d2.weekStartsOn) ?? 0;
   const _date = toDate(date2, options == null ? void 0 : options.in);
-  const day = _date.getDay();
-  const diff = (day < weekStartsOn ? 7 : 0) + day - weekStartsOn;
+  const day2 = _date.getDay();
+  const diff = (day2 < weekStartsOn ? 7 : 0) + day2 - weekStartsOn;
   _date.setDate(_date.getDate() - diff);
   _date.setHours(0, 0, 0, 0);
   return _date;
@@ -36920,7 +36920,7 @@ function parseDate(dateString, year) {
   const isWeekDate = !!captures[4];
   const dayOfYear = parseDateUnit(captures[1]);
   const month = parseDateUnit(captures[2]) - 1;
-  const day = parseDateUnit(captures[3]);
+  const day2 = parseDateUnit(captures[3]);
   const week = parseDateUnit(captures[4]);
   const dayOfWeek = parseDateUnit(captures[5]) - 1;
   if (isWeekDate) {
@@ -36930,10 +36930,10 @@ function parseDate(dateString, year) {
     return dayOfISOWeekYear(year, week, dayOfWeek);
   } else {
     const date2 = /* @__PURE__ */ new Date(0);
-    if (!validateDate(year, month, day) || !validateDayOfYearDate(year, dayOfYear)) {
+    if (!validateDate(year, month, day2) || !validateDayOfYearDate(year, dayOfYear)) {
       return /* @__PURE__ */ new Date(NaN);
     }
-    date2.setUTCFullYear(year, month, Math.max(dayOfYear, day));
+    date2.setUTCFullYear(year, month, Math.max(dayOfYear, day2));
     return date2;
   }
 }
@@ -36966,11 +36966,11 @@ function parseTimezone(timezoneString) {
   }
   return sign * (hours * millisecondsInHour + minutes * millisecondsInMinute);
 }
-function dayOfISOWeekYear(isoWeekYear, week, day) {
+function dayOfISOWeekYear(isoWeekYear, week, day2) {
   const date2 = /* @__PURE__ */ new Date(0);
   date2.setUTCFullYear(isoWeekYear, 0, 4);
   const fourthOfJanuaryDay = date2.getUTCDay() || 7;
-  const diff = (week - 1) * 7 + day + 1 - fourthOfJanuaryDay;
+  const diff = (week - 1) * 7 + day2 + 1 - fourthOfJanuaryDay;
   date2.setUTCDate(date2.getUTCDate() + diff);
   return date2;
 }
@@ -36984,8 +36984,8 @@ function validateDate(year, month, date2) {
 function validateDayOfYearDate(year, dayOfYear) {
   return dayOfYear >= 1 && dayOfYear <= (isLeapYearIndex(year) ? 366 : 365);
 }
-function validateWeekDate(_year, week, day) {
-  return week >= 1 && week <= 53 && day >= 0 && day <= 6;
+function validateWeekDate(_year, week, day2) {
+  return week >= 1 && week <= 53 && day2 >= 0 && day2 <= 6;
 }
 function validateTime(hours, minutes, seconds) {
   if (hours === 24) {
@@ -37472,8 +37472,8 @@ const DAY_NAMES = {
   SU: "Sunday"
 };
 function ruleLabel(rule, dayKey2, short = false) {
-  const day = dayKey2 ? DAY_NAMES[dayKey2] ?? "" : "";
-  const d = short ? day.slice(0, 3) : day;
+  const day2 = dayKey2 ? DAY_NAMES[dayKey2] ?? "" : "";
+  const d = short ? day2.slice(0, 3) : day2;
   switch (rule) {
     case "first":
       return `Monthly · 1st ${d}`;
@@ -37502,7 +37502,7 @@ function routineRuleFires(rule, dateIso) {
 const HFSV_TARGET_Q = 36;
 const COMMUNITY_TARGET_Q = 6;
 const COMMUNITY_TAP_MIN = 3;
-const MONTHS$3 = ["Apr–Jun", "Jul–Sep", "Oct–Dec", "Jan–Mar"];
+const MONTHS$2 = ["Apr–Jun", "Jul–Sep", "Oct–Dec", "Jan–Mar"];
 const fyLabel = (fy) => `${fy}/${String(fy + 1).slice(2)}`;
 function fyQuarter(fy, q) {
   const startMonth = [3, 6, 9, 0][q - 1];
@@ -37512,7 +37512,7 @@ function fyQuarter(fy, q) {
     q,
     start: new Date(year, startMonth, 1),
     end: new Date(year, startMonth + 3, 0),
-    months: MONTHS$3[q - 1],
+    months: MONTHS$2[q - 1],
     label: `Q${q} ${fyLabel(fy)}`
   };
 }
@@ -37615,6 +37615,33 @@ function referenceHolders(ref, year) {
     main: REFERENCE_WATCHES[mod(ref - 1 - p, 5)],
     secondary: REFERENCE_WATCHES[mod(ref - 2 - p, 5)]
   };
+}
+const addDays$1 = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+function cardPeriod(cadence, date2) {
+  const y = date2.getFullYear();
+  if (cadence === "monthly") return [new Date(y, date2.getMonth(), 1), new Date(y, date2.getMonth() + 1, 1)];
+  if (cadence === "quarterly") {
+    const q = Math.floor(date2.getMonth() / 3) * 3;
+    return [new Date(y, q, 1), new Date(y, q + 3, 1)];
+  }
+  return [new Date(y, 0, 1), new Date(y + 1, 0, 1)];
+}
+function nextReferenceCard(ref, cadence, today = /* @__PURE__ */ new Date()) {
+  var _a3;
+  const day2 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  let [start, end] = cardPeriod(cadence, day2);
+  for (let i = 0; i < 2; i++) {
+    const { main, secondary } = referenceHolders(ref, start.getFullYear());
+    for (const watch of [main, secondary]) {
+      let last = null;
+      for (let d = start; d < end; d = addDays$1(d, 1)) if (((_a3 = getShiftForDate(watch, d)) == null ? void 0 : _a3.shiftType) === "1st Day") last = d;
+      if (!last) continue;
+      if (addDays$1(last, 3) >= day2) return { watch, date: last };
+      break;
+    }
+    [start, end] = cardPeriod(cadence, end);
+  }
+  return null;
 }
 function useReferences() {
   return useQuery({
@@ -38274,8 +38301,8 @@ function ComingUp() {
       /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-sm font-semibold", children: "Coming up · next 7 days" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: "/calendar", className: "text-xs text-muted-foreground hover:text-foreground", children: "Calendar →" })
     ] }),
-    q.isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 space-y-2", children: [0, 1].map((i) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-9 animate-pulse rounded-lg bg-muted/60" }, i)) }) : days.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-3 text-sm text-muted-foreground", children: "Nothing on the calendar this week." }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2 divide-y divide-border/50", children: days.slice(0, 6).map(([day, events2]) => {
-      const d = /* @__PURE__ */ new Date(`${day}T12:00:00`);
+    q.isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 space-y-2", children: [0, 1].map((i) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-9 animate-pulse rounded-lg bg-muted/60" }, i)) }) : days.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-3 text-sm text-muted-foreground", children: "Nothing on the calendar this week." }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2 divide-y divide-border/50", children: days.slice(0, 6).map(([day2, events2]) => {
+      const d = /* @__PURE__ */ new Date(`${day2}T12:00:00`);
       const s = watch ? getShiftForDate(watch, d) : null;
       return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4 py-2.5", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-16 shrink-0", children: [
@@ -38294,7 +38321,7 @@ function ComingUp() {
             " more"
           ] })
         ] })
-      ] }, day);
+      ] }, day2);
     }) })
   ] });
 }
@@ -46511,7 +46538,7 @@ function toIsoDate$1(v) {
 function isoToDay(iso2) {
   return Date.UTC(+iso2.slice(0, 4), +iso2.slice(5, 7) - 1, +iso2.slice(8, 10)) / DAY_MS;
 }
-const dayToIso = (day) => new Date(day * DAY_MS).toISOString().slice(0, 10);
+const dayToIso = (day2) => new Date(day2 * DAY_MS).toISOString().slice(0, 10);
 function countDays(startIso, endIso, isDutyDay) {
   const start = isoToDay(startIso), end = isoToDay(endIso);
   if (end < start) return 0;
@@ -48069,17 +48096,17 @@ function addDays(d, n) {
   x.setDate(x.getDate() + n);
   return x;
 }
-function spansDay(item, day) {
+function spansDay(item, day2) {
   const start = startOfDay$2(item.startTime);
   const end = new Date(item.endTime);
   end.setHours(23, 59, 59, 999);
-  const d = new Date(day);
+  const d = new Date(day2);
   d.setHours(12, 0, 0, 0);
   return d >= start && d <= end;
 }
 function getWeekDays(date2) {
-  const day = date2.getDay();
-  const monday = addDays(startOfDay$2(date2), day === 0 ? -6 : 1 - day);
+  const day2 = date2.getDay();
+  const monday = addDays(startOfDay$2(date2), day2 === 0 ? -6 : 1 - day2);
   return Array.from({ length: 7 }, (_, i) => addDays(monday, i));
 }
 function getDaysInMonthGrid(date2) {
@@ -48233,8 +48260,8 @@ function EventPill({
     }
   );
 }
-function layoutDay(items, day) {
-  const dayStart = startOfDay$2(day).getTime();
+function layoutDay(items, day2) {
+  const dayStart = startOfDay$2(day2).getTime();
   const dayEnd = dayStart + 864e5;
   const timed = items.filter((it) => !it.allDay && it.startTime.getTime() < dayEnd && Math.max(it.endTime.getTime(), it.startTime.getTime() + 1) > dayStart).map((it) => {
     const s = Math.max(it.startTime.getTime(), dayStart);
@@ -48347,7 +48374,7 @@ function HourLabels() {
   ) });
 }
 function DayColumn({
-  day,
+  day: day2,
   items,
   shiftSchedule,
   userWatch,
@@ -48356,21 +48383,21 @@ function DayColumn({
   onEventClick
 }) {
   const today = /* @__PURE__ */ new Date();
-  const isToday = sameDay$1(day, today);
-  const kind = shiftKind$2(getShiftsForDay(shiftSchedule, day, userWatch)[0]);
-  const prevNight = shiftKind$2(getShiftsForDay(shiftSchedule, addDays(day, -1), userWatch)[0]) === "night";
+  const isToday = sameDay$1(day2, today);
+  const kind = shiftKind$2(getShiftsForDay(shiftSchedule, day2, userWatch)[0]);
+  const prevNight = shiftKind$2(getShiftsForDay(shiftSchedule, addDays(day2, -1), userWatch)[0]) === "night";
   const shades = [];
   if (prevNight) shades.push({ k: "night", from: 0, to: 8 });
   if (kind === "day") shades.push({ k: "day", from: 8, to: 18 });
   if (kind === "night") shades.push({ k: "night", from: 18, to: 24 });
   if (kind === "leave") shades.push({ k: "leave", from: 0, to: 24 });
-  const placed = layoutDay(items, day);
+  const placed = layoutDay(items, day2);
   const nowTop = (today.getHours() + today.getMinutes() / 60) * HOUR_PX;
   const handleClick = (e) => {
     if (e.target.closest("[data-event]")) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const minutes = Math.round((e.clientY - rect.top) / HOUR_PX * 60 / 30) * 30;
-    const at = new Date(day);
+    const at = new Date(day2);
     at.setHours(Math.floor(minutes / 60), minutes % 60, 0, 0);
     onSlotClick == null ? void 0 : onSlotClick(at, anchorOf(e));
   };
@@ -48404,7 +48431,7 @@ function DayColumn({
         )),
         placed.map((p) => /* @__PURE__ */ jsxRuntimeExports.jsx(EventBlock, { placed: p, onClick: (e) => onEventClick == null ? void 0 : onEventClick(p.item, anchorOf(e)) }, `${p.item.type}-${p.item.id}`)),
         isToday && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { "aria-hidden": true, style: { position: "absolute", left: -4, right: 0, top: nowTop, height: 2, background: "var(--cal-now)", zIndex: 3 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { position: "absolute", left: -4, top: -4, width: 10, height: 10, borderRadius: "50%", background: "var(--cal-now)" } }) }),
-        pendingSlot && sameDay$1(pendingSlot, day) && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        pendingSlot && sameDay$1(pendingSlot, day2) && /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "div",
           {
             style: {
@@ -48439,16 +48466,16 @@ function DayColumn({
     }
   );
 }
-function DayTile({ day, shift: shift2, showShift, onClick }) {
-  const today = sameDay$1(day, /* @__PURE__ */ new Date());
-  const name = DOW$1[(day.getDay() + 6) % 7];
+function DayTile({ day: day2, shift: shift2, showShift, onClick }) {
+  const today = sameDay$1(day2, /* @__PURE__ */ new Date());
+  const name = DOW$1[(day2.getDay() + 6) % 7];
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "button",
     {
       type: "button",
       onClick,
       className: "cal-focus",
-      "aria-label": `${name} ${day.getDate()} ${MONTH_NAMES[day.getMonth()]}${showShift ? `, ${shift2 ? shiftLabel(shift2) : "rest day"}` : ""}${today ? ", today" : ""}`,
+      "aria-label": `${name} ${day2.getDate()} ${MONTH_NAMES[day2.getMonth()]}${showShift ? `, ${shift2 ? shiftLabel(shift2) : "rest day"}` : ""}${today ? ", today" : ""}`,
       style: {
         display: "flex",
         flexDirection: "column",
@@ -48464,7 +48491,7 @@ function DayTile({ day, shift: shift2, showShift, onClick }) {
       },
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 12, fontWeight: 500, opacity: 0.85 }, children: name }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 26, fontWeight: 600, lineHeight: 1 }, children: day.getDate() }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 26, fontWeight: 600, lineHeight: 1 }, children: day2.getDate() }),
         showShift ? /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftChip, { shift: shift2, onBrand: today }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { height: 20 } })
       ]
     }
@@ -48589,12 +48616,12 @@ function MonthView({
   const cells = getDaysInMonthGrid(date2);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "cal-card", style: { borderRadius: 24, padding: 16 }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: 6, marginBottom: 6 }, children: DOW$1.map((d) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 12, fontWeight: 600, color: "var(--cal-muted)", padding: "2px 8px" }, children: d }, d)) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: 6 }, children: cells.map((day, i) => {
-      if (!day) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", {}, `b-${i}`);
-      const isToday = sameDay$1(day, today);
-      const shift2 = getShiftsForDay(shiftSchedule, day, userWatch)[0];
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: 6 }, children: cells.map((day2, i) => {
+      if (!day2) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", {}, `b-${i}`);
+      const isToday = sameDay$1(day2, today);
+      const shift2 = getShiftsForDay(shiftSchedule, day2, userWatch)[0];
       const k = shiftKind$2(shift2);
-      const dayItems = items.filter((it) => spansDay(it, day)).sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.startTime.getTime() - b.startTime.getTime());
+      const dayItems = items.filter((it) => spansDay(it, day2)).sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.startTime.getTime() - b.startTime.getTime());
       const visible = dayItems.slice(0, 3);
       const more = dayItems.length - visible.length;
       return /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -48602,9 +48629,9 @@ function MonthView({
         {
           role: "button",
           tabIndex: 0,
-          onClick: (e) => onSlotClick == null ? void 0 : onSlotClick(day, anchorOf(e)),
+          onClick: (e) => onSlotClick == null ? void 0 : onSlotClick(day2, anchorOf(e)),
           onKeyDown: (e) => {
-            if (e.key === "Enter") onSlotClick == null ? void 0 : onSlotClick(day);
+            if (e.key === "Enter") onSlotClick == null ? void 0 : onSlotClick(day2);
           },
           className: "cal-focus",
           style: {
@@ -48638,7 +48665,7 @@ function MonthView({
                     placeItems: "center",
                     ...isToday ? { background: "var(--cal-brand)", color: "#fff" } : { color: "var(--cal-ink)" }
                   },
-                  children: day.getDate()
+                  children: day2.getDate()
                 }
               ),
               k && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 10.5, fontWeight: 600, padding: "2px 6px", borderRadius: 999, background: tok(k, "bg"), color: tok(k, "fg"), whiteSpace: "nowrap" }, children: k === "leave" ? "Leave" : k === "day" ? "Day" : "Night" })
@@ -48651,7 +48678,7 @@ function MonthView({
                 "data-event": true,
                 onClick: (e) => {
                   e.stopPropagation();
-                  onDayNavigate == null ? void 0 : onDayNavigate(day);
+                  onDayNavigate == null ? void 0 : onDayNavigate(day2);
                 },
                 className: "cal-mono",
                 style: { border: "none", background: "transparent", color: "var(--cal-muted)", fontSize: 11, textAlign: "left", padding: "0 4px", cursor: "pointer" },
@@ -48664,7 +48691,7 @@ function MonthView({
             )
           ]
         },
-        day.toISOString()
+        day2.toISOString()
       );
     }) })
   ] });
@@ -48694,7 +48721,7 @@ function YearView({ year, items, onMonthClick }) {
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", textAlign: "center", rowGap: 2 }, children: [
             ["M", "T", "W", "T", "F", "S", "S"].map((d, i) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 10, fontWeight: 600, color: "var(--cal-muted)" }, children: d }, i)),
             getDaysInMonthGrid(monthDate).map(
-              (day, i) => !day ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", {}, i) : /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "flex", flexDirection: "column", alignItems: "center" }, children: [
+              (day2, i) => !day2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", {}, i) : /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "flex", flexDirection: "column", alignItems: "center" }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "span",
                   {
@@ -48706,12 +48733,12 @@ function YearView({ year, items, onMonthClick }) {
                       borderRadius: 7,
                       display: "grid",
                       placeItems: "center",
-                      ...sameDay$1(day, today) ? { background: "var(--cal-brand)", color: "#fff", fontWeight: 600 } : {}
+                      ...sameDay$1(day2, today) ? { background: "var(--cal-brand)", color: "#fff", fontWeight: 600 } : {}
                     },
-                    children: day.getDate()
+                    children: day2.getDate()
                   }
                 ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 4, height: 4, borderRadius: "50%", background: busy.has(day.getDate()) ? "var(--cal-brand)" : "transparent" } })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 4, height: 4, borderRadius: "50%", background: busy.has(day2.getDate()) ? "var(--cal-brand)" : "transparent" } })
               ] }, i)
             )
           ] })
@@ -48744,19 +48771,19 @@ function MobileMonth({
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", textAlign: "center", rowGap: 4 }, children: [
       ["M", "T", "W", "T", "F", "S", "S"].map((d, i) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 11, fontWeight: 600, color: "var(--cal-muted)", padding: "2px 0" }, children: d }, i)),
-      getDaysInMonthGrid(date2).map((day, i) => {
-        if (!day) return /* @__PURE__ */ jsxRuntimeExports.jsx("span", {}, i);
-        const isToday = sameDay$1(day, today);
-        const selected = sameDay$1(day, selectedDay);
-        const k = shiftKind$2(getShiftsForDay(shiftSchedule, day, userWatch)[0]);
-        const dots = Array.from(new Set(items.filter((it) => spansDay(it, day)).map((it) => calKey(it)))).slice(0, 3);
+      getDaysInMonthGrid(date2).map((day2, i) => {
+        if (!day2) return /* @__PURE__ */ jsxRuntimeExports.jsx("span", {}, i);
+        const isToday = sameDay$1(day2, today);
+        const selected = sameDay$1(day2, selectedDay);
+        const k = shiftKind$2(getShiftsForDay(shiftSchedule, day2, userWatch)[0]);
+        const dots = Array.from(new Set(items.filter((it) => spansDay(it, day2)).map((it) => calKey(it)))).slice(0, 3);
         return /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
             type: "button",
-            onClick: () => onDaySelect(day),
+            onClick: () => onDaySelect(day2),
             className: "cal-focus",
-            "aria-label": `${day.getDate()} ${MONTH_NAMES[day.getMonth()]}${k ? `, ${k} shift` : ""}${dots.length ? `, ${dots.length} calendar${dots.length > 1 ? "s" : ""} with events` : ""}`,
+            "aria-label": `${day2.getDate()} ${MONTH_NAMES[day2.getMonth()]}${k ? `, ${k} shift` : ""}${dots.length ? `, ${dots.length} calendar${dots.length > 1 ? "s" : ""} with events` : ""}`,
             style: {
               height: 50,
               border: "none",
@@ -48774,7 +48801,7 @@ function MobileMonth({
               boxShadow: isToday && !selected ? "inset 0 0 0 2px var(--cal-brand)" : void 0
             },
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 14, fontWeight: isToday || selected ? 700 : 500 }, children: day.getDate() }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 14, fontWeight: isToday || selected ? 700 : 500 }, children: day2.getDate() }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 14, height: 3, borderRadius: 2, background: k ? selected ? "#fff" : tok(k, "dot") : "transparent" } }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { display: "flex", gap: 3, height: 5 }, children: dots.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 5, height: 5, borderRadius: "50%", background: selected ? "#fff" : tok(c, "dot") } }, c)) })
             ]
@@ -49045,7 +49072,7 @@ function CalendarWidget({
     ] })
   ] });
 }
-const MONTHS$2 = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const MONTHS$1 = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const WATCHES$b = ["Red", "White", "Green", "Blue", "Amber"];
 const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 const startOfDay$1 = (d) => {
@@ -49083,7 +49110,7 @@ function MiniMonth({
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "cal-card", style: { padding: 18 }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { style: sectionTitle, children: [
-        MONTHS$2[m],
+        MONTHS$1[m],
         " ",
         y
       ] }),
@@ -49108,7 +49135,7 @@ function MiniMonth({
             type: "button",
             onClick: () => onPickDay(d),
             className: "cal-focus cal-mono",
-            "aria-label": `${d.getDate()} ${MONTHS$2[m]}${k ? `, ${k === "leave" ? "annual leave" : `${k} shift`}` : ""}${isToday ? ", today" : ""}`,
+            "aria-label": `${d.getDate()} ${MONTHS$1[m]}${k ? `, ${k === "leave" ? "annual leave" : `${k} shift`}` : ""}${isToday ? ", today" : ""}`,
             style: {
               height: 38,
               border: "none",
@@ -49139,9 +49166,9 @@ function MiniMonth({
 function whenLabel(d, allDay) {
   const today = startOfDay$1(/* @__PURE__ */ new Date());
   const diff = Math.round((startOfDay$1(d).getTime() - today.getTime()) / 864e5);
-  const day = diff === 0 ? "Today" : diff === 1 ? "Tomorrow" : d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
-  if (allDay) return `${day} · All day`;
-  return `${day} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  const day2 = diff === 0 ? "Today" : diff === 1 ? "Tomorrow" : d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+  if (allDay) return `${day2} · All day`;
+  return `${day2} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 const CAL_NAME = { station: "Station", watch: "Watch", personal: "Personal" };
 function NextUp({ myWatch, upcoming }) {
@@ -50350,8 +50377,8 @@ function UnifiedCalendar() {
       start2.setMonth(0, 1);
       end2.setMonth(11, 31);
     } else if (view === "week") {
-      const day = start2.getDay();
-      const offset2 = day === 0 ? -6 : 1 - day;
+      const day2 = start2.getDay();
+      const offset2 = day2 === 0 ? -6 : 1 - day2;
       start2.setDate(start2.getDate() + offset2);
       end2.setDate(start2.getDate() + 6);
     } else {
@@ -50886,22 +50913,18 @@ const REF_COLOURS = {
   4: ["#1d4ed8", "#38bdf8"],
   5: ["#c2410c", "#fdba74"]
 };
-function periodLabel(cadence, dueAt) {
-  if (!dueAt) return cadence ?? "";
-  const last = new Date(new Date(dueAt).getTime() - 12 * 36e5);
-  if (cadence === "monthly") return `Monthly · ${last.toLocaleDateString("en-GB", { month: "long" })}`;
-  if (cadence === "quarterly") {
-    const end = last.getMonth();
-    const start = new Date(last.getFullYear(), end - 2, 1);
-    const m = (d) => d.toLocaleDateString("en-GB", { month: "short" });
-    return `Quarterly · ${m(start)}–${m(last)}`;
-  }
-  return `Annual · ${last.getFullYear()}`;
+function periodLabel(cadence, period) {
+  if (!period) return cadence ?? "";
+  const [y, m] = period.split("-").map(Number);
+  const month = (n, style) => new Date(y, n - 1, 1).toLocaleDateString("en-GB", { month: style });
+  if (cadence === "monthly") return `Monthly · ${month(m, "long")}`;
+  if (cadence === "quarterly") return `Quarterly · ${month(m, "short")}–${month(m + 2, "short")}`;
+  return `Annual · ${y}`;
 }
 function ReferenceHeader({
   refNo,
   cadence,
-  dueAt,
+  period,
   height = 72,
   radius = 11
 }) {
@@ -50941,7 +50964,7 @@ function ReferenceHeader({
               background: "rgba(0,0,0,.28)",
               marginBottom: compact ? 2 : 4
             },
-            children: periodLabel(cadence, dueAt)
+            children: periodLabel(cadence, period)
           }
         ),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { position: "relative", fontSize: compact ? 17 : 26, fontWeight: 800, letterSpacing: "-.02em", lineHeight: 1.05, textShadow: "0 1px 2px rgba(0,0,0,.25)" }, children: [
@@ -51489,15 +51512,20 @@ function ShiftTag({ task: task2, shiftStart: shiftStart2 }) {
   }
   if (task2.kind === "check") {
     const long = ["weekly", "fortnightly", "monthly", "quarterly", "annual"].includes(task2.check_freq ?? "");
+    const carried = !!task2.reference_no && task2.status !== "Done" && due && shiftStart2 && due < new Date(shiftStart2);
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: tagStyle("var(--cal-brand-soft)", "var(--cal-brand-text)"), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(ClipboardCheck, { className: "h-3 w-3" }),
         " Station check · ",
         FREQ_LABEL[task2.check_freq ?? ""] ?? "Repeating"
       ] }),
-      long && due && task2.status !== "Done" && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: tagStyle("var(--cal-surface-2)", "var(--cal-ink-2)"), children: [
+      carried ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: tagStyle("var(--cal-day-bg)", "var(--cal-day-fg)"), title: "Not done on its tour — it stays on the board until it is", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat, { className: "h-3 w-3" }),
+        " Carried from ",
+        short(new Date(task2.created_at))
+      ] }) : long && due && task2.status !== "Done" && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: tagStyle("var(--cal-surface-2)", "var(--cal-ink-2)"), children: [
         "Due by ",
-        short(new Date(due.getTime() - 6e4))
+        short(new Date(due.getTime() - (task2.reference_no ? 14 * 36e5 : 6e4)))
       ] })
     ] });
   }
@@ -51640,7 +51668,7 @@ function TaskCard({ task: task2, onTitleEdit, onClick, onChecklistToggle, userMa
   const coverStyle = getCoverStyle(task2.cover_colour);
   const routineSlot = task2.routine_slot;
   const referenceNo = task2.reference_no;
-  const routineHeader = isCheck && routineSlot && !coverStyle ? /* @__PURE__ */ jsxRuntimeExports.jsx(RoutineHeader, { slot: routineSlot, rule: task2.routine_rule, name: task2.title }) : isCheck && referenceNo && !coverStyle ? /* @__PURE__ */ jsxRuntimeExports.jsx(ReferenceHeader, { refNo: referenceNo, cadence: task2.reference_cadence, dueAt: task2.due_at }) : null;
+  const routineHeader = isCheck && routineSlot && !coverStyle ? /* @__PURE__ */ jsxRuntimeExports.jsx(RoutineHeader, { slot: routineSlot, rule: task2.routine_rule, name: task2.title }) : isCheck && referenceNo && !coverStyle ? /* @__PURE__ */ jsxRuntimeExports.jsx(ReferenceHeader, { refNo: referenceNo, cadence: task2.reference_cadence, period: task2.reference_period }) : null;
   const recur = describeRRule(task2.rrule);
   const assignee = task2.assigned_to_user_id ? { id: task2.assigned_to_user_id, initials: ((_a3 = userMap == null ? void 0 : userMap[task2.assigned_to_user_id]) == null ? void 0 : _a3.initials) ?? task2.assigned_to_user_id.slice(0, 2).toUpperCase() } : null;
   const done = task2.status === "Done";
@@ -54414,9 +54442,9 @@ function TaskTemplateManager({ isOpen, onClose, onUseTemplate, canManage }) {
   }, [isOpen]);
   if (!isOpen) return null;
   const setF = (update) => setForm((f) => ({ ...f, ...update }));
-  const toggleDay = (day) => {
+  const toggleDay = (day2) => {
     setF({
-      selectedDays: form.selectedDays.includes(day) ? form.selectedDays.filter((d) => d !== day) : [...form.selectedDays, day]
+      selectedDays: form.selectedDays.includes(day2) ? form.selectedDays.filter((d) => d !== day2) : [...form.selectedDays, day2]
     });
   };
   const setSched = (s) => {
@@ -55034,7 +55062,7 @@ select.ttm-input{appearance:none;-webkit-appearance:none;padding-right:36px;curs
 }
 @media (prefers-reduced-motion:reduce){.ttm-skel{animation:none}.ttm-knob,.ttm-switch{transition:none}}
 `;
-const MONTHS$1 = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const DOW = ["M", "T", "W", "T", "F", "S", "S"];
 const dayKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
@@ -55141,7 +55169,7 @@ function TaskSidePanel({ watch, tasks, selectedDay, onPickDay, onOpenTask }) {
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { height: 1, background: "var(--cal-line)", margin: "4px 0" } }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { style: { margin: 0, fontSize: 15, fontWeight: 600 }, children: [
-          MONTHS$1[m],
+          MONTHS[m],
           " ",
           y
         ] }),
@@ -55165,7 +55193,7 @@ function TaskSidePanel({ watch, tasks, selectedDay, onPickDay, onOpenTask }) {
               type: "button",
               onClick: () => onPickDay(isSel ? null : d),
               "aria-pressed": isSel,
-              "aria-label": `${d.getDate()} ${MONTHS$1[m]}${k ? `, ${k === "leave" ? "annual leave" : `${k} shift`}` : ", rest day"}${(info == null ? void 0 : info.overdue) ? ", overdue tasks" : (info == null ? void 0 : info.task) ? ", tasks due" : ""}${(info == null ? void 0 : info.event) ? ", watch event" : ""}${isToday ? ", today" : ""}`,
+              "aria-label": `${d.getDate()} ${MONTHS[m]}${k ? `, ${k === "leave" ? "annual leave" : `${k} shift`}` : ", rest day"}${(info == null ? void 0 : info.overdue) ? ", overdue tasks" : (info == null ? void 0 : info.task) ? ", tasks due" : ""}${(info == null ? void 0 : info.event) ? ", watch event" : ""}${isToday ? ", today" : ""}`,
               className: "cal-focus",
               style: {
                 height: 40,
@@ -55263,8 +55291,8 @@ function TaskSidePanel({ watch, tasks, selectedDay, onPickDay, onOpenTask }) {
         " Station checks missed · last 7 days"
       ] }),
       missed.slice(0, 5).map((c) => {
-        const day = (/* @__PURE__ */ new Date(`${c.date}T12:00:00`)).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
-        const when = c.shift === "night" ? `Night ${day}` : c.shift === "day" ? `Day ${day}` : c.freq === "daily" ? day : `${c.freq[0].toUpperCase()}${c.freq.slice(1)} from ${day}`;
+        const day2 = (/* @__PURE__ */ new Date(`${c.date}T12:00:00`)).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+        const when = c.shift === "night" ? `Night ${day2}` : c.shift === "day" ? `Day ${day2}` : c.freq === "daily" ? day2 : `${c.freq[0].toUpperCase()}${c.freq.slice(1)} from ${day2}`;
         return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", fontSize: 13, color: "var(--cal-ink)" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 600 }, children: c.title }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: { fontSize: 11, color: "var(--cal-ink-2)" }, children: [
@@ -55346,12 +55374,12 @@ function buildUpcoming(tasks, events2) {
   for (const e of events2) {
     if (e.start.getTime() < now - (e.allDay ? 864e5 : 0)) continue;
     const diff = daysFromToday(e.start);
-    const day = diff === 0 ? "Today" : diff === 1 ? "Tomorrow" : shortDate$1(e.start);
+    const day2 = diff === 0 ? "Today" : diff === 1 ? "Tomorrow" : shortDate$1(e.start);
     items.push({
       key: `e${e.id}`,
       kind: "ev",
       tag: "Watch Calendar",
-      when: e.allDay ? `${day} · all day` : `${day} ${hhmm$1(e.start)}`,
+      when: e.allDay ? `${day2} · all day` : `${day2} ${hhmm$1(e.start)}`,
       title: e.title,
       at: e.start.getTime(),
       date: dayKey(e.start)
@@ -55433,8 +55461,8 @@ function currentSlot(now = /* @__PURE__ */ new Date()) {
   const h = now.getHours();
   const d = new Date(now);
   if (h < 8) d.setDate(d.getDate() - 1);
-  const day = DAYS[(d.getDay() + 6) % 7].key;
-  return `${day}-${h >= 8 && h < 18 ? "day" : "night"}`;
+  const day2 = DAYS[(d.getDay() + 6) % 7].key;
+  return `${day2}-${h >= 8 && h < 18 ? "day" : "night"}`;
 }
 const newKey = () => `new-${Math.random().toString(36).slice(2, 10)}`;
 function defaultName(slot, existing) {
@@ -59535,23 +59563,23 @@ function ReferenceCard({ n, data, loading, canEdit, badge }) {
   ] });
 }
 const CADENCES = [
-  { key: "monthly", label: "Monthly", when: "first shift of each month" },
-  { key: "quarterly", label: "Quarterly", when: "first shift of Jan, Apr, Jul and Oct" },
-  { key: "annual", label: "Annual", when: "" }
+  { key: "monthly", label: "Monthly", when: "Last tour of each month" },
+  { key: "quarterly", label: "Quarterly", when: "Last tour of Mar, Jun, Sep and Dec" },
+  { key: "annual", label: "Annual", when: "Last tour of the year" }
 ];
-const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const day = (d) => d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
 function ReferenceCards({ n, cards, canEdit, holder }) {
   const qc = useQueryClient();
   const { toast: toast2 } = useToast();
   const [editing, setEditing] = reactExports.useState(false);
   const [draft, setDraft] = reactExports.useState({});
   const card = (k) => cards.find((c) => c.cadence === k);
+  const today = /* @__PURE__ */ new Date();
   const save = useMutation({
     mutationFn: () => backendClient.references.saveReferenceCards(n, {
       cards: CADENCES.map((c) => ({
         cadence: c.key,
-        month: c.key === "annual" ? draft[c.key].month : null,
-        items: draft[c.key].text.split("\n").map((l) => l.replace(/^[-•*]\s*/, "").trim()).filter(Boolean)
+        items: draft[c.key].split("\n").map((l) => l.replace(/^[-•*]\s*/, "").trim()).filter(Boolean)
       }))
     }),
     onSuccess: () => {
@@ -59564,8 +59592,8 @@ function ReferenceCards({ n, cards, canEdit, holder }) {
   });
   const startEdit = () => {
     setDraft(Object.fromEntries(CADENCES.map((c) => {
-      var _a3, _b3;
-      return [c.key, { text: (((_a3 = card(c.key)) == null ? void 0 : _a3.items) ?? []).join("\n"), month: ((_b3 = card(c.key)) == null ? void 0 : _b3.month) ?? 1 }];
+      var _a3;
+      return [c.key, (((_a3 = card(c.key)) == null ? void 0 : _a3.items) ?? []).join("\n")];
     })));
     setEditing(true);
   };
@@ -59581,20 +59609,27 @@ function ReferenceCards({ n, cards, canEdit, holder }) {
         " Edit cards"
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-0.5 text-xs text-muted-foreground", children: "Each card goes to the main watch on their first shift of the period and stays on their board until done. The secondary watch only gets it if the main watch has no shift left before it's due." }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-0.5 text-xs text-muted-foreground", children: "Each card comes up on the 1st day of the watch's last tour of the month, quarter or year, and is due by the end of that tour's 2nd night. If it isn't done by then, it stays on their board until it is." }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 grid gap-3 sm:grid-cols-3", children: CADENCES.map((c) => {
       const cur = card(c.key);
+      const next = (cur == null ? void 0 : cur.items.length) ? nextReferenceCard(n, c.key, today) : null;
       return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-2 rounded-xl border border-border/60 p-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(ReferenceHeader, { refNo: n, cadence: c.key, height: 44, radius: 9 }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] text-muted-foreground", children: c.key === "annual" ? editing ? /* @__PURE__ */ jsxRuntimeExports.jsx("select", { value: draft.annual.month, onChange: (e) => setDraft((d) => ({ ...d, annual: { ...d.annual, month: Number(e.target.value) } })), className: "h-7 rounded-md border border-border bg-background px-1 text-xs text-foreground", children: MONTHS.map((m, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: i + 1, children: [
-          "From ",
-          m
-        ] }, m)) }) : `First shift from ${MONTHS[((cur == null ? void 0 : cur.month) ?? 1) - 1]}, due by 31 Dec` : `${c.when}, due by the end of it` }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-[11px] text-muted-foreground", children: [
+          c.when,
+          next && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            " · ",
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-medium text-foreground", children: [
+              next.date <= today ? `this tour, from ${day(next.date)}` : `next ${day(next.date)}`,
+              next.watch !== holder ? ` (${next.watch} Watch)` : ""
+            ] })
+          ] })
+        ] }),
         editing ? /* @__PURE__ */ jsxRuntimeExports.jsx(
           "textarea",
           {
-            value: draft[c.key].text,
-            onChange: (e) => setDraft((d) => ({ ...d, [c.key]: { ...d[c.key], text: e.target.value } })),
+            value: draft[c.key],
+            onChange: (e) => setDraft((d) => ({ ...d, [c.key]: e.target.value })),
             rows: 6,
             placeholder: "One check per line",
             "aria-label": `${c.label} checks`,
@@ -65606,8 +65641,8 @@ function MyCalendar() {
     "November",
     "December"
   ];
-  const getItemsForDate = (day) => {
-    const dateKey = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+  const getItemsForDate = (day2) => {
+    const dateKey = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(day2).padStart(2, "0")}`;
     return calendarItems.filter((item) => {
       const itemDate = item.date.toISOString().split("T")[0];
       return itemDate === dateKey;
@@ -65639,17 +65674,17 @@ function MyCalendar() {
           /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { children: "Tasks and events assigned to you" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-7 gap-2", children: [
-          ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center font-semibold text-sm text-muted-foreground p-2", children: day }, day)),
+          ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day2) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center font-semibold text-sm text-muted-foreground p-2", children: day2 }, day2)),
           emptyDays.map((i) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-20 p-2 border rounded-md bg-muted/20" }, `empty-${i}`)),
-          calendarDays.map((day) => {
-            const dayItems = getItemsForDate(day);
-            const isToday = day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
+          calendarDays.map((day2) => {
+            const dayItems = getItemsForDate(day2);
+            const isToday = day2 === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
             return /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "div",
               {
                 className: `min-h-20 p-2 border rounded-md ${isToday ? "border-red-600 bg-red-50 dark:bg-red-950/20" : "bg-card"}`,
                 children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `text-sm font-medium mb-1 ${isToday ? "text-red-600" : ""}`, children: day }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `text-sm font-medium mb-1 ${isToday ? "text-red-600" : ""}`, children: day2 }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1", children: [
                     dayItems.slice(0, 2).map((item) => /* @__PURE__ */ jsxRuntimeExports.jsx(
                       "div",
@@ -65666,7 +65701,7 @@ function MyCalendar() {
                   ] })
                 ]
               },
-              day
+              day2
             );
           })
         ] }) })

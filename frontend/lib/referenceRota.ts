@@ -5,6 +5,8 @@
 // years (1 January) each watch moves on one reference; the ten-year cycle
 // started in 2022 and repeats.
 
+import { getShiftForDate } from "./shiftRota";
+
 export const REFERENCE_START = 2022;
 export const REFERENCE_YEARS = 2;
 /** The planner's rows, top to bottom. */
@@ -43,4 +45,41 @@ export function referenceHolders(ref: number, year: number): { main: string; sec
     main: REFERENCE_WATCHES[mod(ref - 1 - p, 5)],
     secondary: REFERENCE_WATCHES[mod(ref - 2 - p, 5)],
   };
+}
+
+const addDays = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+
+/** The first day of the month / quarter / year a date falls in, and of the next one. */
+function cardPeriod(cadence: string, date: Date): [Date, Date] {
+  const y = date.getFullYear();
+  if (cadence === "monthly") return [new Date(y, date.getMonth(), 1), new Date(y, date.getMonth() + 1, 1)];
+  if (cadence === "quarterly") {
+    const q = Math.floor(date.getMonth() / 3) * 3;
+    return [new Date(y, q, 1), new Date(y, q + 3, 1)];
+  }
+  return [new Date(y, 0, 1), new Date(y + 1, 0, 1)];
+}
+
+/**
+ * When a reference card next comes up — the same rule as the server's
+ * lib/referenceRota.ts: the 1st Day of the holding watch's last tour of the
+ * month, quarter or year (the secondary watch's only if the main watch has no
+ * tour in it). This period's card while its tour is on or still to come,
+ * otherwise the next period's.
+ */
+export function nextReferenceCard(ref: number, cadence: string, today: Date = new Date()): { watch: string; date: Date } | null {
+  const day = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  let [start, end] = cardPeriod(cadence, day);
+  for (let i = 0; i < 2; i++) {
+    const { main, secondary } = referenceHolders(ref, start.getFullYear());
+    for (const watch of [main, secondary]) {
+      let last: Date | null = null;
+      for (let d = start; d < end; d = addDays(d, 1)) if (getShiftForDate(watch, d)?.shiftType === "1st Day") last = d;
+      if (!last) continue;
+      if (addDays(last, 3) >= day) return { watch, date: last };
+      break;
+    }
+    [start, end] = cardPeriod(cadence, end);
+  }
+  return null;
 }

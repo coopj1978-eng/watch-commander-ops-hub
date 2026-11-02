@@ -81,7 +81,8 @@ export function RoutineHeader({
 
 // A station reference's duty card (Nov 2026): the reference number in big
 // type on its colour from the station standards sheet, and which period it's
-// for — "Monthly · November", "Quarterly · Oct–Dec", "Annual · 2026".
+// for — "Monthly · November", "Quarterly · Oct–Dec", "Annual · 2026" (it
+// comes up on the period's last tour, which can run into the next one).
 const REF_COLOURS: Record<number, [string, string]> = {
   1: ["#5b4bb7", "#a78bfa"],
   2: ["#a16207", "#eab308"],
@@ -90,22 +91,18 @@ const REF_COLOURS: Record<number, [string, string]> = {
   5: ["#c2410c", "#fdba74"],
 };
 
-function periodLabel(cadence: string | undefined, dueAt: string | Date | undefined): string {
-  if (!dueAt) return cadence ?? "";
-  const last = new Date(new Date(dueAt).getTime() - 12 * 3_600_000); // the period's last day
-  if (cadence === "monthly") return `Monthly · ${last.toLocaleDateString("en-GB", { month: "long" })}`;
-  if (cadence === "quarterly") {
-    const end = last.getMonth();
-    const start = new Date(last.getFullYear(), end - 2, 1);
-    const m = (d: Date) => d.toLocaleDateString("en-GB", { month: "short" });
-    return `Quarterly · ${m(start)}–${m(last)}`;
-  }
-  return `Annual · ${last.getFullYear()}`;
+function periodLabel(cadence: string | undefined, period: string | undefined): string {
+  if (!period) return cadence ?? "";
+  const [y, m] = period.split("-").map(Number);
+  const month = (n: number, style: "long" | "short") => new Date(y, n - 1, 1).toLocaleDateString("en-GB", { month: style });
+  if (cadence === "monthly") return `Monthly · ${month(m, "long")}`;
+  if (cadence === "quarterly") return `Quarterly · ${month(m, "short")}–${month(m + 2, "short")}`;
+  return `Annual · ${y}`;
 }
 
 export function ReferenceHeader({
-  refNo, cadence, dueAt, height = 72, radius = 11,
-}: { refNo: number; cadence?: string; dueAt?: string | Date; height?: number; radius?: number }) {
+  refNo, cadence, period, height = 72, radius = 11,
+}: { refNo: number; cadence?: string; /** First day of the month / quarter / year, e.g. "2026-10-01". */ period?: string; height?: number; radius?: number }) {
   const [a, b] = REF_COLOURS[refNo] ?? REF_COLOURS[3];
   const compact = height < 60;
   return (
@@ -124,7 +121,7 @@ export function ReferenceHeader({
           textTransform: "uppercase", padding: "2px 6px", borderRadius: 5, background: "rgba(0,0,0,.28)", marginBottom: compact ? 2 : 4,
         }}
       >
-        {periodLabel(cadence, dueAt)}
+        {periodLabel(cadence, period)}
       </span>
       <span style={{ position: "relative", fontSize: compact ? 17 : 26, fontWeight: 800, letterSpacing: "-.02em", lineHeight: 1.05, textShadow: "0 1px 2px rgba(0,0,0,.25)" }}>
         Reference {refNo}

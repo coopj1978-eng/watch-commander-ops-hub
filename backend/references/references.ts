@@ -20,8 +20,6 @@ export interface ReferenceSection {
 export interface ReferenceCard {
   id: number;
   cadence: string;
-  /** Annual cards: the month they come round (1–12). */
-  month: number | null;
   items: string[];
   active: boolean;
 }
@@ -100,12 +98,12 @@ const checklistOf = (v: unknown): ChecklistItem[] => {
 };
 
 async function referenceCards(): Promise<(ReferenceCard & { ref: number })[]> {
-  const rows = await db.rawQueryAll<{ id: number; reference_no: number; reference_cadence: string; reference_month: number | null; checklist: unknown; is_active: boolean }>(
-    `SELECT id, reference_no, reference_cadence, reference_month, checklist, is_active FROM task_templates WHERE reference_no IS NOT NULL`
+  const rows = await db.rawQueryAll<{ id: number; reference_no: number; reference_cadence: string; checklist: unknown; is_active: boolean }>(
+    `SELECT id, reference_no, reference_cadence, checklist, is_active FROM task_templates WHERE reference_no IS NOT NULL`
   );
   return rows
     .map((r) => ({
-      id: r.id, ref: r.reference_no, cadence: r.reference_cadence, month: r.reference_month,
+      id: r.id, ref: r.reference_no, cadence: r.reference_cadence,
       items: checklistOf(r.checklist).map((i) => i.label), active: r.is_active,
     }))
     .sort((a, b) => a.ref - b.ref || ORDER[a.cadence] - ORDER[b.cadence]);
@@ -116,7 +114,7 @@ async function referenceCards(): Promise<(ReferenceCard & { ref: number })[]> {
 // Cards already on a watch's board pick up the change; ticks are kept.
 export const saveReferenceCards = api(
   { auth: true, expose: true, method: "PUT", path: "/station-references/:ref/cards" },
-  async (req: { ref: number; cards: { cadence: string; month?: number | null; items: string[] }[] }): Promise<{ cards: ReferenceCard[] }> => {
+  async (req: { ref: number; cards: { cadence: string; items: string[] }[] }): Promise<{ cards: ReferenceCard[] }> => {
     const auth = getAuthData()!;
     requireRole(auth, "WC", "CC");
     const ref = Number(req.ref);
@@ -125,7 +123,6 @@ export const saveReferenceCards = api(
     for (const card of req.cards ?? []) {
       const cadence = String(card.cadence);
       if (!(REFERENCE_CADENCES as string[]).includes(cadence)) throw APIError.invalidArgument(`Unknown frequency "${cadence}".`);
-      const month = cadence === "annual" ? Math.min(12, Math.max(1, Number(card.month) || 1)) : null;
       const checklist = cleanRoutineItems(Array.isArray(card.items) ? card.items : []);
       const name = `Reference ${ref} · ${CADENCE_NAME[cadence]}`;
 
@@ -133,12 +130,12 @@ export const saveReferenceCards = api(
         `INSERT INTO task_templates
            (name, description, title_template, category, priority, checklist, rrule, created_by, per_shift, is_active,
             reference_no, reference_cadence, reference_month)
-         VALUES ($1, NULL, $1, 'Other', 'Med', $2, $3, $4, false, $5, $6, $7, $8)
+         VALUES ($1, NULL, $1, 'Other', 'Med', $2, $3, $4, false, $5, $6, $7, NULL)
          ON CONFLICT (reference_no, reference_cadence) WHERE reference_no IS NOT NULL
          DO UPDATE SET checklist = EXCLUDED.checklist, is_active = EXCLUDED.is_active,
-           reference_month = EXCLUDED.reference_month, updated_at = NOW()
+           reference_month = NULL, updated_at = NOW()
          RETURNING id`,
-        name, JSON.stringify(checklist), CADENCE_RRULE[cadence], auth.userID, checklist.length > 0, ref, cadence, month
+        name, JSON.stringify(checklist), CADENCE_RRULE[cadence], auth.userID, checklist.length > 0, ref, cadence
       );
       if (!row) continue;
 

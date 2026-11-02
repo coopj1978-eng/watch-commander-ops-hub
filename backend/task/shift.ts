@@ -42,6 +42,8 @@ export interface ShiftTask extends Task {
   /** A reference duty card: which reference (1–5) and how often. */
   reference_no?: number;
   reference_cadence?: string;
+  /** The first day of the month / quarter / year a reference card is for. */
+  reference_period?: string;
   completed_by_name?: string;
 }
 
@@ -92,7 +94,7 @@ export const shiftBoard = api<ShiftBoardRequest, ShiftBoardResponse>(
 
     const rows = await db.rawQueryAll<any>(
       `SELECT t.*, u.name AS completed_by_name, tt.per_shift, tt.rrule AS template_rrule, tt.routine_slot, tt.routine_rule, tt.reference_no, tt.reference_cadence,
-              ho.watch AS ho_watch, ho.shift_type AS ho_type, ho.shift_date AS ho_date
+              i.generated_for_date AS instance_date, ho.watch AS ho_watch, ho.shift_type AS ho_type, ho.shift_date AS ho_date
        FROM tasks t
        LEFT JOIN task_template_instances i ON i.task_id = t.id
        LEFT JOIN task_templates tt ON tt.id = i.template_id
@@ -119,7 +121,7 @@ export const shiftBoard = api<ShiftBoardRequest, ShiftBoardResponse>(
     );
 
     const tasks: ShiftTask[] = rows.map((t) => {
-      const { per_shift, template_rrule, routine_slot, routine_rule, reference_no, reference_cadence, ho_watch, ho_type, ho_date, ...rest } = t;
+      const { per_shift, template_rrule, routine_slot, routine_rule, reference_no, reference_cadence, instance_date, ho_watch, ho_type, ho_date, ...rest } = t;
       const kind: ShiftTask["kind"] =
         t.source_type === "template" ? "check"
         : t.source_type === "handover" ? "handover"
@@ -137,6 +139,9 @@ export const shiftBoard = api<ShiftBoardRequest, ShiftBoardResponse>(
         routine_rule: kind === "check" && routine_slot ? (routine_rule ?? "weekly") : undefined,
         reference_no: kind === "check" ? (reference_no ?? undefined) : undefined,
         reference_cadence: kind === "check" ? (reference_cadence ?? undefined) : undefined,
+        reference_period: kind === "check" && reference_no && instance_date
+          ? (instance_date instanceof Date ? instance_date.toISOString() : String(instance_date)).slice(0, 10)
+          : undefined,
         handover_from: kind === "handover" && ho_watch
           ? `${ho_watch} Watch · ${ho_type} ${hoDate ? hoDate.toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "Europe/London" }) : ""}`.trim()
           : undefined,

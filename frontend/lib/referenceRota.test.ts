@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { nextChangeYear, periodLabel, referenceHolders, watchReferences, REFERENCE_WATCHES } from "./referenceRota";
+import { nextChangeYear, nextReferenceCard, periodLabel, referenceHolders, watchReferences, REFERENCE_WATCHES } from "./referenceRota";
 
 // The planner on the station board: [main, secondary] per watch for each block.
 const SHEET: Record<number, Record<string, [number, number]>> = {
@@ -36,5 +36,18 @@ describe("reference rota", () => {
     expect(periodLabel(2027)).toBe("2026–2027");
     expect(nextChangeYear(2026)).toBe(2028);
     expect(nextChangeYear(2027)).toBe(2028);
+  });
+
+  it("says when a reference card next comes up: the 1st Day of the holder's last tour", () => {
+    const at = (ref: number, cadence: string, today: string) => {
+      const r = nextReferenceCard(ref, cadence, new Date(`${today}T12:00:00`));
+      return r && `${r.watch} ${r.date.getFullYear()}-${String(r.date.getMonth() + 1).padStart(2, "0")}-${String(r.date.getDate()).padStart(2, "0")}`;
+    };
+    expect(at(4, "monthly", "2026-11-02")).toBe("Blue 2026-11-22");
+    expect(at(4, "monthly", "2026-11-25")).toBe("Blue 2026-11-22");   // its tour is still on
+    expect(at(4, "monthly", "2026-11-27")).toBe("Blue 2026-12-30");   // then December's
+    expect(at(4, "quarterly", "2026-11-02")).toBe("Blue 2026-12-30");
+    expect(at(4, "annual", "2026-12-31")).toBe("Blue 2026-12-30");
+    expect(at(4, "annual", "2027-01-02")).toBe("Blue 2027-12-31");    // 2026's is already on the board
   });
 });

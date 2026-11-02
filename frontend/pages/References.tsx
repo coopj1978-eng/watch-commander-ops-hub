@@ -8,7 +8,7 @@ import { useAuth } from "@/App";
 import { cn } from "@/lib/utils";
 import { WatchDot } from "@/components/WatchBadge";
 import { useToast } from "@/components/ui/use-toast";
-import { REFERENCE_START, REFERENCE_WATCHES, nextChangeYear, periodLabel, referenceHolders, watchReferences } from "@/lib/referenceRota";
+import { REFERENCE_START, REFERENCE_WATCHES, nextChangeYear, nextReferenceCard, periodLabel, referenceHolders, watchReferences } from "@/lib/referenceRota";
 import { coverNow, useReferences } from "@/lib/references";
 import { ReferenceHeader } from "@/components/tasks/RoutineHeader";
 
@@ -210,26 +210,26 @@ function ReferenceCard({ n, data, loading, canEdit, badge }: { n: number; data?:
 }
 
 const CADENCES = [
-  { key: "monthly", label: "Monthly", when: "first shift of each month" },
-  { key: "quarterly", label: "Quarterly", when: "first shift of Jan, Apr, Jul and Oct" },
-  { key: "annual", label: "Annual", when: "" },
+  { key: "monthly", label: "Monthly", when: "Last tour of each month" },
+  { key: "quarterly", label: "Quarterly", when: "Last tour of Mar, Jun, Sep and Dec" },
+  { key: "annual", label: "Annual", when: "Last tour of the year" },
 ] as const;
-const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const day = (d: Date) => d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
 
 /** The reference's monthly / quarterly / annual cards of checks, as they go on the holding watch's board. */
 function ReferenceCards({ n, cards, canEdit, holder }: { n: number; cards: references.ReferenceCard[]; canEdit: boolean; holder: string }) {
   const qc = useQueryClient();
   const { toast } = useToast();
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState<Record<string, { text: string; month: number }>>({});
+  const [draft, setDraft] = useState<Record<string, string>>({});
   const card = (k: string) => cards.find((c) => c.cadence === k);
+  const today = new Date();
 
   const save = useMutation({
     mutationFn: () => backend.references.saveReferenceCards(n, {
       cards: CADENCES.map((c) => ({
         cadence: c.key,
-        month: c.key === "annual" ? draft[c.key].month : null,
-        items: draft[c.key].text.split("\n").map((l) => l.replace(/^[-•*]\s*/, "").trim()).filter(Boolean),
+        items: draft[c.key].split("\n").map((l) => l.replace(/^[-•*]\s*/, "").trim()).filter(Boolean),
       })),
     }),
     onSuccess: () => {
@@ -241,7 +241,7 @@ function ReferenceCards({ n, cards, canEdit, holder }: { n: number; cards: refer
     onError: (e) => toast({ title: "Couldn't save the cards", description: (e as Error).message, variant: "destructive" }),
   });
   const startEdit = () => {
-    setDraft(Object.fromEntries(CADENCES.map((c) => [c.key, { text: (card(c.key)?.items ?? []).join("\n"), month: card(c.key)?.month ?? 1 }])));
+    setDraft(Object.fromEntries(CADENCES.map((c) => [c.key, (card(c.key)?.items ?? []).join("\n")])));
     setEditing(true);
   };
 
@@ -256,27 +256,23 @@ function ReferenceCards({ n, cards, canEdit, holder }: { n: number; cards: refer
         )}
       </div>
       <p className="mt-0.5 text-xs text-muted-foreground">
-        Each card goes to the main watch on their first shift of the period and stays on their board until done. The secondary watch only gets it if the main watch has no shift left before it's due.
+        Each card comes up on the 1st day of the watch's last tour of the month, quarter or year, and is due by the end of that tour's 2nd night. If it isn't done by then, it stays on their board until it is.
       </p>
       <div className="mt-3 grid gap-3 sm:grid-cols-3">
         {CADENCES.map((c) => {
           const cur = card(c.key);
+          const next = cur?.items.length ? nextReferenceCard(n, c.key, today) : null;
           return (
             <div key={c.key} className="flex flex-col gap-2 rounded-xl border border-border/60 p-2">
               <ReferenceHeader refNo={n} cadence={c.key} height={44} radius={9} />
               <div className="text-[11px] text-muted-foreground">
-                {c.key === "annual"
-                  ? editing
-                    ? <select value={draft.annual.month} onChange={(e) => setDraft((d) => ({ ...d, annual: { ...d.annual, month: Number(e.target.value) } }))} className="h-7 rounded-md border border-border bg-background px-1 text-xs text-foreground">
-                        {MONTHS.map((m, i) => <option key={m} value={i + 1}>From {m}</option>)}
-                      </select>
-                    : `First shift from ${MONTHS[(cur?.month ?? 1) - 1]}, due by 31 Dec`
-                  : `${c.when}, due by the end of it`}
+                {c.when}
+                {next && <> · <span className="font-medium text-foreground">{next.date <= today ? `this tour, from ${day(next.date)}` : `next ${day(next.date)}`}{next.watch !== holder ? ` (${next.watch} Watch)` : ""}</span></>}
               </div>
               {editing ? (
                 <textarea
-                  value={draft[c.key].text}
-                  onChange={(e) => setDraft((d) => ({ ...d, [c.key]: { ...d[c.key], text: e.target.value } }))}
+                  value={draft[c.key]}
+                  onChange={(e) => setDraft((d) => ({ ...d, [c.key]: e.target.value }))}
                   rows={6}
                   placeholder="One check per line"
                   aria-label={`${c.label} checks`}

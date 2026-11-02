@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { referenceCardOwner, referenceCardPeriod, referenceHolders } from "./referenceRota";
+import { lastTourStart, referenceCardPeriod, referenceCardPlan, referenceHolders } from "./referenceRota";
+import { ukInstant } from "./shiftRota";
 
 describe("reference rota (server)", () => {
   it("matches the planner for 2026–27", () => {
@@ -10,20 +11,29 @@ describe("reference rota (server)", () => {
   });
 
   it("works out the period a card covers", () => {
-    expect(referenceCardPeriod("monthly", null, "2026-11-02")).toEqual({ start: "2026-11-01", endDate: "2026-12-01" });
-    expect(referenceCardPeriod("monthly", null, "2026-12-31")).toEqual({ start: "2026-12-01", endDate: "2027-01-01" });
-    expect(referenceCardPeriod("quarterly", null, "2026-11-02")).toEqual({ start: "2026-10-01", endDate: "2027-01-01" });
-    expect(referenceCardPeriod("quarterly", null, "2027-02-14")).toEqual({ start: "2027-01-01", endDate: "2027-04-01" });
-    expect(referenceCardPeriod("annual", 1, "2026-11-02")).toEqual({ start: "2026-01-01", endDate: "2027-01-01" });
-    expect(referenceCardPeriod("annual", 3, "2027-02-01")).toBeNull();
-    expect(referenceCardPeriod("annual", 3, "2027-03-05")).toEqual({ start: "2027-03-01", endDate: "2028-01-01" });
+    expect(referenceCardPeriod("monthly", "2026-11-02")).toEqual({ start: "2026-11-01", endDate: "2026-12-01" });
+    expect(referenceCardPeriod("monthly", "2026-12-31")).toEqual({ start: "2026-12-01", endDate: "2027-01-01" });
+    expect(referenceCardPeriod("quarterly", "2026-11-02")).toEqual({ start: "2026-10-01", endDate: "2027-01-01" });
+    expect(referenceCardPeriod("quarterly", "2027-02-14")).toEqual({ start: "2027-01-01", endDate: "2027-04-01" });
+    expect(referenceCardPeriod("annual", "2026-11-02")).toEqual({ start: "2026-01-01", endDate: "2027-01-01" });
   });
 
-  it("gives the card to the main watch, or the secondary only when the main watch has no shift left", () => {
-    expect(referenceCardOwner(4, 2026, "Blue", true)).toBe("Blue");
-    expect(referenceCardOwner(4, 2026, "Blue", false)).toBe("Blue");
-    expect(referenceCardOwner(4, 2026, "Green", true)).toBeNull();   // Blue can still do it
-    expect(referenceCardOwner(4, 2026, "Green", false)).toBe("Green");
-    expect(referenceCardOwner(4, 2026, "Red", false)).toBeNull();
+  it("finds the 1st Day of a watch's last tour in a period", () => {
+    // Blue's November tours start 6, 14 and 22 Nov (then leave to 13 Dec).
+    expect(lastTourStart("Blue", { start: "2026-11-01", endDate: "2026-12-01" })).toBe("2026-11-22");
+    // Their last tour of 2026 starts 30 Dec and runs into January.
+    expect(lastTourStart("Blue", { start: "2026-10-01", endDate: "2027-01-01" })).toBe("2026-12-30");
+  });
+
+  it("brings each card up on the main watch's last tour, due when its 2nd Night ends", () => {
+    expect(referenceCardPlan(4, "monthly", "2026-11-02")).toEqual({
+      period: { start: "2026-11-01", endDate: "2026-12-01" }, watch: "Blue", tourStart: "2026-11-22", due: ukInstant("2026-11-26", 8),
+    });
+    const annual = referenceCardPlan(4, "annual", "2026-11-02")!;
+    expect([annual.watch, annual.tourStart, annual.due]).toEqual(["Blue", "2026-12-30", ukInstant("2027-01-03", 8)]);
+    // A period's card is for that year's holder: Blue's 2027 annual card,
+    // Green's from January 2028 when the references move on.
+    expect(referenceCardPlan(4, "annual", "2027-06-01")!.watch).toBe("Blue");
+    expect(referenceCardPlan(4, "monthly", "2028-01-05")!.watch).toBe("Green");
   });
 });
