@@ -5099,10 +5099,6 @@
     text-decoration-line: line-through;
   }
 
-  .underline {
-    text-decoration-line: underline;
-  }
-
   .underline-offset-2 {
     text-underline-offset: 2px;
   }

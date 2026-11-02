@@ -7,7 +7,7 @@ import backend from "@/lib/backend";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { useIsPhone } from "@/lib/taskUi";
-import { CARD_COVERS, getCoverStyle } from "@/lib/taskLabels";
+import { CARD_COVERS } from "@/lib/taskLabels";
 import { DAY_NAMES, RULE_OPTIONS, ruleLabel } from "@/lib/routineRules";
 import { RoutineHeader } from "@/components/tasks/RoutineHeader";
 import type { TaskTemplate } from "~backend/task/types";
@@ -486,7 +486,6 @@ function CardEditor({ slot, card, canManage, onPatch, onRemoveCard, onCopyCard, 
   const every = slot === "every";
   const [dayKey] = slot.split("-");
   const dayName = DAY_NAMES[dayKey] ?? "";
-  const coverStyle = getCoverStyle(card.cover ?? undefined);
   const commitItem = (keepOpen: boolean) => {
     const label = text.trim();
     if (label) onAddItem(card.key, label);
@@ -509,9 +508,7 @@ function CardEditor({ slot, card, canManage, onPatch, onRemoveCard, onCopyCard, 
         boxShadow: dropOnCard ? "0 0 0 2px var(--cal-brand)" : "var(--cal-shadow)",
       }}
     >
-      {coverStyle
-        ? <div aria-hidden style={{ ...coverStyle, height: 48, borderRadius: 10 }} />
-        : <RoutineHeader slot={slot} rule={card.rule} name={card.name} height={48} radius={10} />}
+      <RoutineHeader slot={slot} rule={card.rule} name={card.name} cover={card.cover} height={48} radius={10} />
 
       <div style={{ display: "flex", alignItems: "center", gap: 4, padding: "0 2px" }}>
         {renaming ? (

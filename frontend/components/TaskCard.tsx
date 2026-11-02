@@ -432,14 +432,16 @@ export default function TaskCard({ task, onTitleEdit, onClick, onChecklistToggle
   const isCheck = (task as Task & { kind?: string }).kind === "check";
   // A station check's tag already says it's routine work.
   const labelIds = (task.tags ?? []).filter((id) => getLabelById(id) && !(isCheck && id === "routine"));
-  const coverStyle = getCoverStyle((task as any).cover_colour);
+  const cover = (task as any).cover_colour as string | undefined;
   const routineSlot = (task as Task & { routine_slot?: string }).routine_slot;
   const referenceNo = (task as Task & { reference_no?: number }).reference_no;
-  const routineHeader = isCheck && routineSlot && !coverStyle
-    ? <RoutineHeader slot={routineSlot} rule={(task as Task & { routine_rule?: string }).routine_rule} name={task.title} />
-    : isCheck && referenceNo != null && !coverStyle
-    ? <ReferenceHeader refNo={referenceNo} cadence={(task as Task & { reference_cadence?: string }).reference_cadence} period={(task as Task & { reference_period?: string }).reference_period} />
+  // A routine or reference card keeps its header words over its own cover.
+  const routineHeader = isCheck && routineSlot
+    ? <RoutineHeader slot={routineSlot} rule={(task as Task & { routine_rule?: string }).routine_rule} name={task.title} cover={cover} />
+    : isCheck && referenceNo != null
+    ? <ReferenceHeader refNo={referenceNo} cadence={(task as Task & { reference_cadence?: string }).reference_cadence} period={(task as Task & { reference_period?: string }).reference_period} cover={cover} />
     : null;
+  const coverStyle = routineHeader ? undefined : getCoverStyle(cover);
   const linkUrl = (task as Task & { link_url?: string }).link_url;
   const link = isCheck && linkUrl && /^https:\/\//i.test(linkUrl) ? linkUrl : null;
   const recur = describeRRule(task.rrule);

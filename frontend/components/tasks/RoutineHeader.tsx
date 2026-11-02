@@ -1,12 +1,14 @@
 import { Moon } from "lucide-react";
 import { DAY_NAMES, ruleLabel } from "@/lib/routineRules";
+import { getCoverStyle } from "@/lib/taskLabels";
 
 // The header on a routine card (Nov 2026). John's Trello cards carry picture
 // headers — "Monday" in big letters on a coloured background — so the crew
 // can tell the days and the weekly / monthly cards apart at a glance. The app
 // draws them: each day has its own colours, monthly cards add stripes and
 // quarterly ones dots, and the label says which week it's for. A card with
-// its own picture or colour (set in the planner) shows that instead.
+// its own picture or colour (set in the planner or on the card) shows that
+// behind the same words, darkened at the foot so they stay readable.
 
 const DAY_COLOURS: Record<string, [string, string]> = {
   MO: ["#ea580c", "#f59e0b"],
@@ -27,14 +29,24 @@ const PATTERN: Record<string, string> = {
   "quarter-last": "radial-gradient(rgba(255,255,255,.32) 1.6px, rgba(255,255,255,0) 1.8px) 0 0 / 12px 12px",
 };
 
+/** The header's background: its own colours and pattern, or the card's cover under a shade. */
+function headerBackground(cover: string | null | undefined, pattern: string, a: string, b: string): string {
+  const own = getCoverStyle(cover ?? undefined);
+  return own
+    ? `linear-gradient(to top, rgba(0,0,0,.5), rgba(0,0,0,.08) 75%), ${own.background}`
+    : `${pattern}, linear-gradient(135deg, ${a}, ${b})`;
+}
+
 export function RoutineHeader({
-  slot, rule, name, height = 72, radius = 11,
+  slot, rule, name, cover, height = 72, radius = 11,
 }: {
   /** 'every' or e.g. 'MO-day' / 'MO-night'. */
   slot: string;
   rule?: string | null;
   /** The card's name — the big text on every-shift cards. */
   name?: string;
+  /** The card's own colour or picture, shown behind the words. */
+  cover?: string | null;
   height?: number;
   radius?: number;
 }) {
@@ -51,7 +63,7 @@ export function RoutineHeader({
       aria-hidden
       style={{
         position: "relative", height, borderRadius: radius, overflow: "hidden", flex: "none",
-        background: `${PATTERN[rule ?? "weekly"] ?? PATTERN.weekly}, linear-gradient(135deg, ${a}, ${b})`,
+        background: headerBackground(cover, PATTERN[rule ?? "weekly"] ?? PATTERN.weekly, a, b),
         color: "#fff", display: "flex", flexDirection: "column", justifyContent: "flex-end",
         padding: compact ? "6px 10px" : "8px 12px",
       }}
@@ -105,8 +117,8 @@ function periodLabel(cadence: string | undefined, period: string | undefined): s
 }
 
 export function ReferenceHeader({
-  refNo, cadence, period, height = 72, radius = 11,
-}: { refNo: number; cadence?: string; /** First day of the month / quarter / year, e.g. "2026-10-01". */ period?: string; height?: number; radius?: number }) {
+  refNo, cadence, period, cover, height = 72, radius = 11,
+}: { refNo: number; cadence?: string; /** First day of the month / quarter / year, e.g. "2026-10-01". */ period?: string; cover?: string | null; height?: number; radius?: number }) {
   const [a, b] = REF_COLOURS[refNo] ?? REF_COLOURS[3];
   const compact = height < 60;
   return (
@@ -114,7 +126,7 @@ export function ReferenceHeader({
       aria-hidden
       style={{
         position: "relative", height, borderRadius: radius, overflow: "hidden", flex: "none", color: "#fff",
-        background: `${PATTERN[cadence === "monthly" ? "first" : cadence === "quarterly" ? "quarter-last" : "weekly"]}, linear-gradient(135deg, ${a}, ${b})`,
+        background: headerBackground(cover, PATTERN[cadence === "monthly" ? "first" : cadence === "quarterly" ? "quarter-last" : "weekly"], a, b),
         display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: compact ? "6px 10px" : "8px 12px",
       }}
     >

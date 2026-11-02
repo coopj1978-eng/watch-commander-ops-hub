@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import backend from "@/lib/backend";
 import { useToast } from "@/components/ui/use-toast";
 import {
-  X, Trash2, Repeat, Plus, Clock, User, ImageIcon, Search, Upload, Key, Check, ChevronDown, Loader2,
+  X, Trash2, Repeat, Plus, Clock, User, ImageIcon, Upload, Check, ChevronDown, Loader2,
 } from "lucide-react";
 import { TASK_LABELS, CARD_COVERS, getCoverStyle } from "@/lib/taskLabels";
 import { autoStatusFor, canEditTaskDetails, describeRRule, priorityKey, tickTime } from "@/lib/taskUi";
@@ -64,7 +64,6 @@ const WEEKDAYS = [
 const COVER_TABS = [
   { id: "colours", label: "Colours" },
   { id: "upload", label: "Upload" },
-  { id: "unsplash", label: "Unsplash" },
 ] as const;
 
 function parseRRuleLabel(rrule?: string): string {
@@ -197,13 +196,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
   const [tags, setTags] = useState<string[]>([]);
   const [coverColour, setCoverColour] = useState<string>("");
   const [showCoverPicker, setShowCoverPicker] = useState(false);
-  const [coverTab, setCoverTab] = useState<"colours" | "upload" | "unsplash">("colours");
-  const [unsplashKey, setUnsplashKey] = useState<string>(() => localStorage.getItem("unsplash-access-key") ?? "");
-  const [unsplashQuery, setUnsplashQuery] = useState("");
-  const [unsplashResults, setUnsplashResults] = useState<{ id: string; thumb: string; full: string; alt: string }[]>([]);
-  const [unsplashLoading, setUnsplashLoading] = useState(false);
-  const [showKeyInput, setShowKeyInput] = useState(false);
-  const [keyDraft, setKeyDraft] = useState("");
+  const [coverTab, setCoverTab] = useState<"colours" | "upload">("colours");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const newItemInputRef = useRef<HTMLInputElement>(null);
   const titleRef = useRef<HTMLTextAreaElement>(null);
@@ -347,36 +340,6 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
     setCoverColour(colour);
     setShowCoverPicker(false);
     save({ cover_colour: colour || null });
-  };
-
-  const handleSaveUnsplashKey = () => {
-    const trimmed = keyDraft.trim();
-    setUnsplashKey(trimmed);
-    localStorage.setItem("unsplash-access-key", trimmed);
-    setShowKeyInput(false);
-    setKeyDraft("");
-  };
-
-  const handleUnsplashSearch = async (query: string = unsplashQuery) => {
-    if (!unsplashKey || !query.trim()) return;
-    setUnsplashLoading(true);
-    try {
-      const res = await fetch(
-        `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=12&orientation=landscape&client_id=${unsplashKey}`
-      );
-      if (!res.ok) throw new Error("Unsplash API error");
-      const data = await res.json();
-      setUnsplashResults((data.results ?? []).map((p: any) => ({
-        id: p.id,
-        thumb: p.urls.small,
-        full: p.urls.regular,
-        alt: p.alt_description ?? p.description ?? "Photo",
-      })));
-    } catch {
-      toast({ title: "Unsplash error", description: "Check your API key or try again", variant: "destructive" });
-    } finally {
-      setUnsplashLoading(false);
-    }
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -959,7 +922,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                       )}
                     </div>
 
-                    <div role="tablist" aria-label="Cover source" className="tdd-seg" style={{ gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }}>
+                    <div role="tablist" aria-label="Cover source" className="tdd-seg" style={{ gridTemplateColumns: "repeat(2, minmax(0, 1fr))" }}>
                       {COVER_TABS.map((tab) => (
                         <button
                           key={tab.id}
@@ -982,24 +945,31 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                       {coverTab === "colours" && (
                         <>
                           <div className="grid grid-cols-4 gap-2">
-                            {CARD_COVERS.filter((c) => c.id).map((c) => {
+                            {CARD_COVERS.map((c) => {
                               const on = coverColour === c.id;
+                              // The first swatch is "no cover" — back to the card's usual look.
                               return (
                                 <button
-                                  key={c.id}
+                                  key={c.id || "none"}
                                   type="button"
-                                  aria-label={c.name}
+                                  aria-label={c.id ? c.name : "No cover"}
                                   aria-pressed={on}
-                                  title={c.name}
-                                  className="tdd-swatch cal-focus"
-                                  style={{ height: 40, borderRadius: 10, border: "none", padding: 0, background: c.bg, boxShadow: on ? "0 0 0 2px var(--cal-surface), 0 0 0 4px var(--cal-brand)" : undefined }}
+                                  title={c.id ? c.name : "No cover"}
+                                  className="tdd-swatch cal-focus grid place-items-center"
+                                  style={{
+                                    height: 40, borderRadius: 10, padding: 0, background: c.bg, color: "var(--cal-muted)",
+                                    border: c.id ? "none" : "1.5px dashed var(--cal-line-2)",
+                                    boxShadow: on ? "0 0 0 2px var(--cal-surface), 0 0 0 4px var(--cal-brand)" : undefined,
+                                  }}
                                   onClick={() => handleCoverChange(c.id)}
-                                />
+                                >
+                                  {!c.id && <X className="h-4 w-4" />}
+                                </button>
                               );
                             })}
                           </div>
                           <span style={{ fontSize: 12, lineHeight: 1.45, color: "var(--cal-muted)" }}>
-                            Upload: images are cropped to <span className="cal-mono">800 × 300</span>. Unsplash: search, then pick a photo.
+                            Or use Upload for a picture of your own — it's cropped to <span className="cal-mono">800 × 300</span>.
                           </span>
                         </>
                       )}
@@ -1036,106 +1006,6 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                         </>
                       )}
 
-                      {/* ── Unsplash ── */}
-                      {coverTab === "unsplash" && (
-                        !unsplashKey || showKeyInput ? (
-                          <>
-                            <span style={{ fontSize: 12, lineHeight: 1.5, color: "var(--cal-muted)" }}>
-                              Get a free API key at{" "}
-                              <a href="https://unsplash.com/developers" target="_blank" rel="noopener noreferrer" style={{ color: "var(--cal-brand-text)", textDecoration: "underline" }}>unsplash.com/developers</a>
-                              {" "}→ New Application → copy the <strong style={{ color: "var(--cal-ink-2)" }}>Access Key</strong>.
-                            </span>
-                            <div className="flex gap-2">
-                              <input
-                                className="cal-field cal-mono flex-1 min-w-0"
-                                style={{ fontSize: 12 }}
-                                aria-label="Unsplash access key"
-                                placeholder="Paste your Unsplash Access Key…"
-                                value={keyDraft}
-                                onChange={(e) => setKeyDraft(e.target.value)}
-                                onKeyDown={(e) => { if (e.key === "Enter") handleSaveUnsplashKey(); }}
-                                autoFocus
-                              />
-                              <button type="button" className="tdd-primary cal-focus" style={{ height: 40, padding: "0 14px", borderRadius: 10, fontSize: 13 }} onClick={handleSaveUnsplashKey} disabled={!keyDraft.trim()}>
-                                Save
-                              </button>
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <div className="flex items-center gap-2">
-                              <div className="relative flex-1 min-w-0">
-                                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5" style={{ color: "var(--cal-muted)" }} />
-                                <input
-                                  className="cal-field w-full"
-                                  style={{ paddingLeft: 30 }}
-                                  aria-label="Search Unsplash"
-                                  placeholder="Search Unsplash…"
-                                  value={unsplashQuery}
-                                  onChange={(e) => setUnsplashQuery(e.target.value)}
-                                  onKeyDown={(e) => { if (e.key === "Enter") handleUnsplashSearch(); }}
-                                  autoFocus
-                                />
-                              </div>
-                              <button
-                                type="button"
-                                className="tdd-primary cal-focus"
-                                style={{ height: 40, padding: "0 12px", borderRadius: 10, fontSize: 13 }}
-                                onClick={() => handleUnsplashSearch()}
-                                disabled={unsplashLoading || !unsplashQuery.trim()}
-                              >
-                                {unsplashLoading ? "…" : "Search"}
-                              </button>
-                              <button
-                                type="button"
-                                aria-label="Change API key"
-                                title="Change API key"
-                                className="tdd-soft cal-focus grid place-items-center flex-none"
-                                style={{ width: 40, height: 40, borderRadius: 10 }}
-                                onClick={() => { setShowKeyInput(true); setKeyDraft(unsplashKey); }}
-                              >
-                                <Key className="h-3.5 w-3.5" />
-                              </button>
-                            </div>
-
-                            {unsplashResults.length === 0 && !unsplashLoading && (
-                              <div className="flex flex-wrap gap-1.5">
-                                {["fire station", "firefighter", "emergency", "training", "safety"].map((term) => (
-                                  <button key={term} type="button" className="tdd-pill cal-focus" onClick={() => { setUnsplashQuery(term); handleUnsplashSearch(term); }}>
-                                    {term}
-                                  </button>
-                                ))}
-                              </div>
-                            )}
-
-                            {unsplashResults.length > 0 && (
-                              <div className="grid grid-cols-3 gap-1.5 max-h-48 overflow-y-auto">
-                                {unsplashResults.map((photo) => {
-                                  const on = coverColour === photo.full;
-                                  return (
-                                    <button
-                                      key={photo.id}
-                                      type="button"
-                                      aria-label={photo.alt}
-                                      aria-pressed={on}
-                                      title={photo.alt}
-                                      className="tdd-swatch cal-focus relative overflow-hidden"
-                                      style={{ height: 64, borderRadius: 10, border: "none", padding: 0, background: "var(--cal-surface-3)", boxShadow: on ? "0 0 0 2px var(--cal-surface), 0 0 0 4px var(--cal-brand)" : undefined }}
-                                      onClick={() => handleCoverChange(photo.full)}
-                                    >
-                                      <img src={photo.thumb} alt="" className="h-full w-full object-cover" />
-                                    </button>
-                                  );
-                                })}
-                              </div>
-                            )}
-
-                            <span style={{ fontSize: 10, color: "var(--cal-muted)", textAlign: "right" }}>
-                              Photos from <a href="https://unsplash.com" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline" }}>Unsplash</a>
-                            </span>
-                          </>
-                        )
-                      )}
                     </div>
                   </section>
                 )}
