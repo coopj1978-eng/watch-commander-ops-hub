@@ -33,8 +33,8 @@ export function AppearanceSettings() {
         <CardHeader>
           <CardTitle>Accent colour</CardTitle>
           <CardDescription>
-            Choose the brand accent used on the sidebar, top bar avatar and
-            mobile nav. Widget colours and status pills stay the same —
+            Choose the brand accent used on the sidebar, your avatar and the
+            phone tabs. Widget colours and status pills stay the same —
             they're doing real semantic signalling. Saved per-device.
           </CardDescription>
         </CardHeader>

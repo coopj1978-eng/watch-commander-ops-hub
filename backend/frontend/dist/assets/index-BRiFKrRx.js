@@ -63790,7 +63790,7 @@ function AppearanceSettings() {
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(CardHeader, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { children: "Accent colour" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { children: "Choose the brand accent used on the sidebar, top bar avatar and mobile nav. Widget colours and status pills stay the same — they're doing real semantic signalling. Saved per-device." })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { children: "Choose the brand accent used on the sidebar, your avatar and the phone tabs. Widget colours and status pills stay the same — they're doing real semantic signalling. Saved per-device." })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3", children: ACCENT_OPTIONS.map((opt) => {
         const active = opt.key === accent;
