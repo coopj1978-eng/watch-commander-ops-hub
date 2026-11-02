@@ -129,17 +129,7 @@ export function ProfileNotes({ profileId, firstName, notes, canWrite }: {
 
       for (const file of uploadingFiles) {
         try {
-          const { upload_url, file_key } = await backend.note.getUploadUrl(note.id, {
-            filename: file.name,
-            content_type: file.type,
-          });
-          await fetch(upload_url, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
-          await backend.note.saveAttachment(note.id, {
-            file_key,
-            filename: file.name,
-            file_type: file.type,
-            file_size: file.size,
-          });
+          await backend.note.uploadFile(note.id, file, file.name);
         } catch (error) {
           console.error(`Failed to upload ${file.name}:`, error);
           toast({

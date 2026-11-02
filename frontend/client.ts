@@ -3284,23 +3284,6 @@ export namespace note {
         uploadedAt: string
     }
 
-    export interface SaveAttachmentRequest {
-        "file_key": string
-        filename: string
-        "file_type": string
-        "file_size": number
-    }
-
-    export interface UploadNoteAttachmentRequest {
-        filename: string
-        "content_type": string
-    }
-
-    export interface UploadNoteAttachmentResponse {
-        "upload_url": string
-        "file_key": string
-    }
-
     export class ServiceClient {
         private baseClient: BaseClient
 
@@ -3308,10 +3291,9 @@ export namespace note {
             this.baseClient = baseClient
             this.create = this.create.bind(this)
             this.deleteNote = this.deleteNote.bind(this)
-            this.getUploadUrl = this.getUploadUrl.bind(this)
             this.list = this.list.bind(this)
-            this.saveAttachment = this.saveAttachment.bind(this)
             this.update = this.update.bind(this)
+            this.uploadFile = this.uploadFile.bind(this)
         }
 
         public async create(params: CreateNoteRequest): Promise<Note> {
@@ -3326,12 +3308,6 @@ export namespace note {
             return await resp.json() as DeleteNoteResponse
         }
 
-        public async getUploadUrl(note_id: number, params: UploadNoteAttachmentRequest): Promise<UploadNoteAttachmentResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/notes/${encodeURIComponent(note_id)}/attachments/upload-url`, JSON.stringify(params))
-            return await resp.json() as UploadNoteAttachmentResponse
-        }
-
         public async list(params: ListNotesRequest): Promise<ListNotesResponse> {
             // Convert our params into the objects we need for the request
             const query = makeRecord<string, string | string[]>({
@@ -3342,16 +3318,6 @@ export namespace note {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/notes`, undefined, {query})
             return await resp.json() as ListNotesResponse
-        }
-
-        public async saveAttachment(note_id: number, params: SaveAttachmentRequest): Promise<{
-    success: boolean
-}> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/notes/${encodeURIComponent(note_id)}/attachments`, JSON.stringify(params))
-            return await resp.json() as {
-    success: boolean
-}
         }
 
         public async update(id: number, params: {
@@ -3367,6 +3333,16 @@ export namespace note {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("PATCH", `/notes/${encodeURIComponent(id)}`, JSON.stringify(params))
             return await resp.json() as Note
+        }
+
+        /**
+         * Attaches a file to one of your notes (raw endpoint: the file is the body).
+         */
+        public async uploadFile(note_id: number, file: Blob, filename: string): Promise<void> {
+            await this.baseClient.callAPI("POST", `/notes/${encodeURIComponent(note_id)}/files`, file, {
+                query: { filename },
+                headers: { "Content-Type": file.type || "application/octet-stream" },
+            })
         }
     }
 }

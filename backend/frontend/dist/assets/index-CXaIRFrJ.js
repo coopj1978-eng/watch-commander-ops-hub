@@ -28665,10 +28665,9 @@ var note;
       this.baseClient = baseClient;
       this.create = this.create.bind(this);
       this.deleteNote = this.deleteNote.bind(this);
-      this.getUploadUrl = this.getUploadUrl.bind(this);
       this.list = this.list.bind(this);
-      this.saveAttachment = this.saveAttachment.bind(this);
       this.update = this.update.bind(this);
+      this.uploadFile = this.uploadFile.bind(this);
     }
     async create(params) {
       const resp = await this.baseClient.callTypedAPI("POST", `/notes`, JSON.stringify(params));
@@ -28676,10 +28675,6 @@ var note;
     }
     async deleteNote(id) {
       const resp = await this.baseClient.callTypedAPI("DELETE", `/notes/${encodeURIComponent(id)}`);
-      return await resp.json();
-    }
-    async getUploadUrl(note_id, params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/notes/${encodeURIComponent(note_id)}/attachments/upload-url`, JSON.stringify(params));
       return await resp.json();
     }
     async list(params) {
@@ -28690,13 +28685,18 @@ var note;
       const resp = await this.baseClient.callTypedAPI("GET", `/notes`, void 0, { query });
       return await resp.json();
     }
-    async saveAttachment(note_id, params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/notes/${encodeURIComponent(note_id)}/attachments`, JSON.stringify(params));
-      return await resp.json();
-    }
     async update(id, params) {
       const resp = await this.baseClient.callTypedAPI("PATCH", `/notes/${encodeURIComponent(id)}`, JSON.stringify(params));
       return await resp.json();
+    }
+    /**
+     * Attaches a file to one of your notes (raw endpoint: the file is the body).
+     */
+    async uploadFile(note_id, file, filename) {
+      await this.baseClient.callAPI("POST", `/notes/${encodeURIComponent(note_id)}/files`, file, {
+        query: { filename },
+        headers: { "Content-Type": file.type || "application/octet-stream" }
+      });
     }
   }
   note2.ServiceClient = ServiceClient;
@@ -47313,17 +47313,7 @@ function ProfileNotes({ profileId, firstName, notes, canWrite }) {
       });
       for (const file of uploadingFiles) {
         try {
-          const { upload_url, file_key } = await backend.note.getUploadUrl(note2.id, {
-            filename: file.name,
-            content_type: file.type
-          });
-          await fetch(upload_url, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
-          await backend.note.saveAttachment(note2.id, {
-            file_key,
-            filename: file.name,
-            file_type: file.type,
-            file_size: file.size
-          });
+          await backend.note.uploadFile(note2.id, file, file.name);
         } catch (error) {
           console.error(`Failed to upload ${file.name}:`, error);
           toast2({
