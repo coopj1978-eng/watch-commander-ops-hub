@@ -2,6 +2,7 @@ import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { logActivity } from "../logging/logger";
+import { NOTE_COLUMNS } from "./columns";
 import type { UpdateNoteRequest, Note } from "./types";
 
 interface UpdateNoteParams {
@@ -47,9 +48,10 @@ export const update = api(
     const { id, ...updates } = params;
     const auth = getAuthData()!;
 
-    const existingNote = await db.queryRow<DBNote>`
-      SELECT * FROM notes WHERE id = ${id}
-    `;
+    const existingNote = await db.rawQueryRow<DBNote>(
+      `SELECT ${NOTE_COLUMNS} FROM notes WHERE id = $1`,
+      id
+    );
 
     if (!existingNote) {
       throw APIError.notFound("note not found");
@@ -97,7 +99,7 @@ export const update = api(
       UPDATE notes
       SET ${setClauses.join(", ")}
       WHERE id = $${paramIndex}
-      RETURNING *
+      RETURNING ${NOTE_COLUMNS}
     `;
 
     const dbNote = await db.rawQueryRow<DBNote>(query, ...queryParams);

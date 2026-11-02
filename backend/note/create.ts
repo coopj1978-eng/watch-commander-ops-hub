@@ -119,7 +119,8 @@ export const create = api<CreateNoteRequest, Note>(
         ${null},
         ${calendarEventId || null}
       )
-      RETURNING *
+      RETURNING id, profile_id, created_by_user_id, title, note_text, next_follow_up_date,
+        reminder_enabled, reminder_recipient_user_id, calendar_event_id, attachments, created_at, updated_at
     `;
 
     if (!dbNote) {

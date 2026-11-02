@@ -1,6 +1,7 @@
 import { api } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
+import { NOTE_COLUMNS } from "./columns";
 import type { ListNotesRequest, ListNotesResponse, Note } from "./types";
 
 interface DBNote {
@@ -47,13 +48,13 @@ export const list = api<ListNotesRequest, ListNotesResponse>(
     // (user_id is ignored: nobody can list someone else's notes.)
     if (req.profile_id) {
       dbNotes = await db.rawQueryAll<DBNote>(
-        `SELECT * FROM notes WHERE profile_id = $1 AND created_by_user_id = $2 ORDER BY created_at DESC`,
+        `SELECT ${NOTE_COLUMNS} FROM notes WHERE profile_id = $1 AND created_by_user_id = $2 ORDER BY created_at DESC`,
         req.profile_id,
         auth.userID
       );
     } else {
       dbNotes = await db.rawQueryAll<DBNote>(
-        `SELECT * FROM notes WHERE created_by_user_id = $1 ORDER BY created_at DESC`,
+        `SELECT ${NOTE_COLUMNS} FROM notes WHERE created_by_user_id = $1 ORDER BY created_at DESC`,
         auth.userID
       );
     }
