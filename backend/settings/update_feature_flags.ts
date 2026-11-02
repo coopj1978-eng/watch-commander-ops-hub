@@ -1,14 +1,17 @@
-import { api } from "encore.dev/api";
+import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
-import { requirePermission, Permission } from "../auth/rbac";
 import type { UpdateFeatureFlagsRequest, SystemSettings } from "./types";
 
 export const updateFeatureFlags = api<UpdateFeatureFlagsRequest, SystemSettings>(
   { auth: true, expose: true, method: "PUT", path: "/settings/feature-flags" },
   async (req) => {
     const auth = getAuthData()!;
-    requirePermission(auth, Permission.MANAGE_SYSTEM_SETTINGS);
+    // Switching a page on or off changes it for the whole station, every
+    // watch — the admin's call, not any one WC's (John, Nov 2026).
+    if (!auth.isAdmin) {
+      throw APIError.permissionDenied("Only the admin can switch pages on or off.");
+    }
 
     const result = await db.rawQueryRow<SystemSettings>(
       `UPDATE system_settings

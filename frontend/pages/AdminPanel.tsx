@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import backend from "@/lib/backend";
 import {
@@ -63,8 +63,8 @@ const FEATURE_CONFIG: {
 ];
 
 export default function AdminPanel() {
-  const [activeTab, setActiveTab] = useState("features");
   const isAdmin = useIsAdmin();
+  const [activeTab, setActiveTab] = useState(isAdmin ? "features" : "activity");
 
   return (
     <div className="space-y-6">
@@ -78,15 +78,18 @@ export default function AdminPanel() {
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
-          <TabsTrigger value="features">Feature Management</TabsTrigger>
-          {/* Adding, removing and inviting people is the admin's job. */}
+          {/* Switching pages on/off (station-wide) and adding, removing and
+              inviting people are the admin's job. */}
+          {isAdmin && <TabsTrigger value="features">Feature Management</TabsTrigger>}
           {isAdmin && <TabsTrigger value="users">Users</TabsTrigger>}
           <TabsTrigger value="activity">Activity Log</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="features" className="mt-6">
-          <FeatureManagementTab />
-        </TabsContent>
+        {isAdmin && (
+          <TabsContent value="features" className="mt-6">
+            <FeatureManagementTab />
+          </TabsContent>
+        )}
 
         {isAdmin && (
           <TabsContent value="users" className="mt-6">
@@ -103,15 +106,16 @@ export default function AdminPanel() {
 }
 
 function FeatureManagementTab() {
-  const { flags, refetch } = useFeatureFlags();
+  const { flags, isLoaded, refetch } = useFeatureFlags();
   const { toast } = useToast();
   const [localFlags, setLocalFlags] = useState<FeatureFlags>(flags);
   const [hasChanges, setHasChanges] = useState(false);
 
-  // Sync local state when flags load
-  useState(() => {
-    setLocalFlags(flags);
-  });
+  // Sync local state when flags load (opening /admin straight away would
+  // otherwise start from the all-on defaults and save those).
+  useEffect(() => {
+    if (!hasChanges) setLocalFlags(flags);
+  }, [flags, hasChanges]);
 
   const handleToggle = (key: keyof FeatureFlags) => {
     setLocalFlags((prev) => {
@@ -173,7 +177,7 @@ function FeatureManagementTab() {
               </CardDescription>
             </div>
             {hasChanges && (
-              <Button onClick={handleSave} className="bg-indigo-600 hover:bg-indigo-700">
+              <Button onClick={handleSave} disabled={!isLoaded} className="bg-indigo-600 hover:bg-indigo-700">
                 <Save className="h-4 w-4 mr-2" />
                 Save Changes
               </Button>

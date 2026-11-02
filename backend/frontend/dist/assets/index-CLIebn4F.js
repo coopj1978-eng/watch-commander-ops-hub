@@ -62267,8 +62267,8 @@ const FEATURE_CONFIG = [
   { key: "reports", label: "Reports", description: "Quarterly reports and analytics", icon: ChartColumn, phase: "Phase 4" }
 ];
 function AdminPanel() {
-  const [activeTab, setActiveTab] = reactExports.useState("features");
   const isAdmin = useIsAdmin();
+  const [activeTab, setActiveTab] = reactExports.useState(isAdmin ? "features" : "activity");
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3", children: [
@@ -62279,24 +62279,24 @@ function AdminPanel() {
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Tabs, { value: activeTab, onValueChange: setActiveTab, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(TabsList, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "features", children: "Feature Management" }),
+        isAdmin && /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "features", children: "Feature Management" }),
         isAdmin && /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "users", children: "Users" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: "activity", children: "Activity Log" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "features", className: "mt-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(FeatureManagementTab, {}) }),
+      isAdmin && /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "features", className: "mt-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(FeatureManagementTab, {}) }),
       isAdmin && /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "users", className: "mt-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(AdminUsers, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "activity", className: "mt-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ActivityLogTab, {}) })
     ] })
   ] });
 }
 function FeatureManagementTab() {
-  const { flags, refetch } = useFeatureFlags();
+  const { flags, isLoaded, refetch } = useFeatureFlags();
   const { toast: toast2 } = useToast();
   const [localFlags, setLocalFlags] = reactExports.useState(flags);
   const [hasChanges, setHasChanges] = reactExports.useState(false);
-  reactExports.useState(() => {
-    setLocalFlags(flags);
-  });
+  reactExports.useEffect(() => {
+    if (!hasChanges) setLocalFlags(flags);
+  }, [flags, hasChanges]);
   const handleToggle = (key2) => {
     setLocalFlags((prev) => {
       const updated = { ...prev, [key2]: !prev[key2] };
@@ -62348,7 +62348,7 @@ function FeatureManagementTab() {
         /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { children: "Feature Visibility" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { className: "mt-1", children: "Control which sections are visible to CC, FF, and RO users. WC and Admin users always see all sections regardless of these settings." })
       ] }),
-      hasChanges && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { onClick: handleSave, className: "bg-indigo-600 hover:bg-indigo-700", children: [
+      hasChanges && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { onClick: handleSave, disabled: !isLoaded, className: "bg-indigo-600 hover:bg-indigo-700", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { className: "h-4 w-4 mr-2" }),
         "Save Changes"
       ] })
