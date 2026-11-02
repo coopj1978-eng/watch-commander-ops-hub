@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Pencil } from "lucide-react";
+import { ExternalLink, Pencil } from "lucide-react";
 import backend from "@/lib/backend";
 import type { references } from "@/client";
 import { useAuth } from "@/App";
@@ -226,6 +226,7 @@ function ReferenceCards({ n, cards, canEdit, holder, myWatch }: { n: number; car
   const { toast } = useToast();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<Record<string, string>>({});
+  const [links, setLinks] = useState<Record<string, string>>({});
   const card = (k: string) => cards.find((c) => c.cadence === k);
   const today = new Date();
 
@@ -234,6 +235,7 @@ function ReferenceCards({ n, cards, canEdit, holder, myWatch }: { n: number; car
       cards: CADENCES.map((c) => ({
         cadence: c.key,
         items: draft[c.key].split("\n").map((l) => l.replace(/^[-•*]\s*/, "").trim()).filter(Boolean),
+        link: links[c.key].trim() || null,
       })),
     }),
     onSuccess: () => {
@@ -246,6 +248,7 @@ function ReferenceCards({ n, cards, canEdit, holder, myWatch }: { n: number; car
   });
   const startEdit = () => {
     setDraft(Object.fromEntries(CADENCES.map((c) => [c.key, (card(c.key)?.items ?? []).join("\n")])));
+    setLinks(Object.fromEntries(CADENCES.map((c) => [c.key, card(c.key)?.link ?? ""])));
     setEditing(true);
   };
 
@@ -274,20 +277,37 @@ function ReferenceCards({ n, cards, canEdit, holder, myWatch }: { n: number; car
                 {next && <> · <span className="font-medium text-foreground">{next.date <= today ? `this tour, from ${day(next.date)}` : `next ${day(next.date)}`}{next.watch !== holder ? ` (${next.watch} Watch)` : ""}</span></>}
               </div>
               {editing ? (
-                <textarea
-                  value={draft[c.key]}
-                  onChange={(e) => setDraft((d) => ({ ...d, [c.key]: e.target.value }))}
-                  rows={6}
-                  placeholder="One check per line"
-                  aria-label={`${c.label} checks`}
-                  className="w-full rounded-lg border border-border bg-background p-2 text-xs leading-relaxed text-foreground"
-                />
+                <>
+                  <textarea
+                    value={draft[c.key]}
+                    onChange={(e) => setDraft((d) => ({ ...d, [c.key]: e.target.value }))}
+                    rows={6}
+                    placeholder="One check per line"
+                    aria-label={`${c.label} checks`}
+                    className="w-full rounded-lg border border-border bg-background p-2 text-xs leading-relaxed text-foreground"
+                  />
+                  <input
+                    type="url"
+                    value={links[c.key]}
+                    onChange={(e) => setLinks((l) => ({ ...l, [c.key]: e.target.value }))}
+                    placeholder="Link (optional) — https://…"
+                    aria-label={`${c.label} card link`}
+                    className="h-8 w-full rounded-lg border border-border bg-background px-2 text-xs text-foreground"
+                  />
+                </>
               ) : cur?.items.length ? (
-                <ul className="space-y-1">
-                  {cur.items.map((i) => (
-                    <li key={i} className="flex gap-2 text-xs"><span aria-hidden className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-muted-foreground" />{i}</li>
-                  ))}
-                </ul>
+                <>
+                  <ul className="space-y-1">
+                    {cur.items.map((i) => (
+                      <li key={i} className="flex gap-2 text-xs"><span aria-hidden className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-muted-foreground" />{i}</li>
+                    ))}
+                  </ul>
+                  {cur.link && (
+                    <a href={cur.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 self-start text-xs font-medium text-brand hover:underline">
+                      <ExternalLink className="h-3 w-3" /> Link on the card
+                    </a>
+                  )}
+                </>
               ) : (
                 <p className="text-xs text-muted-foreground">No checks — no card.</p>
               )}

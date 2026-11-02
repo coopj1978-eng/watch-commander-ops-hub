@@ -2,7 +2,7 @@ import { ReferenceHeader, RoutineHeader } from "@/components/tasks/RoutineHeader
 import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import * as Menu from "@radix-ui/react-dropdown-menu";
-import { ArrowRightLeft, CalendarDays, Check, ChevronRight, ClipboardCheck, History, MoreHorizontal, Repeat } from "lucide-react";
+import { ArrowRightLeft, CalendarDays, Check, ChevronRight, ClipboardCheck, ExternalLink, History, MoreHorizontal, Repeat } from "lucide-react";
 import type { Task, TaskColumn, TaskPriority } from "~backend/task/types";
 import { getCoverStyle, getLabelById } from "@/lib/taskLabels";
 import { ChecklistBar, DueChip, Initials, LabelTag, PriorityChip, describeRRule, initialsOf, personTint, priorityKey, priorityLabel, tickTime, useIsPhone } from "@/lib/taskUi";
@@ -440,6 +440,8 @@ export default function TaskCard({ task, onTitleEdit, onClick, onChecklistToggle
     : isCheck && referenceNo != null && !coverStyle
     ? <ReferenceHeader refNo={referenceNo} cadence={(task as Task & { reference_cadence?: string }).reference_cadence} period={(task as Task & { reference_period?: string }).reference_period} />
     : null;
+  const linkUrl = (task as Task & { link_url?: string }).link_url;
+  const link = isCheck && linkUrl && /^https:\/\//i.test(linkUrl) ? linkUrl : null;
   const recur = describeRRule(task.rrule);
   const assignee = task.assigned_to_user_id
     ? { id: task.assigned_to_user_id, initials: userMap?.[task.assigned_to_user_id]?.initials ?? task.assigned_to_user_id.slice(0, 2).toUpperCase() }
@@ -536,6 +538,21 @@ export default function TaskCard({ task, onTitleEdit, onClick, onChecklistToggle
       <ChecklistBar task={task} />
       {onChecklistToggle && !done && (task.checklist?.length ?? 0) > 0 && (
         <CardChecklist task={task} onToggle={(label, next) => onChecklistToggle(task.id, label, next)} />
+      )}
+      {/* A reference / all-watches card can link to what it's about, e.g. the shared targets spreadsheet. */}
+      {link && (
+        <a
+          href={link}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 10px", borderRadius: 9,
+            fontSize: 12.5, fontWeight: 600, color: "var(--cal-brand-text)", background: "var(--cal-brand-soft)", textDecoration: "none",
+          }}
+        >
+          <ExternalLink className="h-3.5 w-3.5" /> {/\.xlsx?\b|:x:|excel|spreadsheets/i.test(link) ? "Open spreadsheet" : "Open link"}
+        </a>
       )}
 
       {footer && <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>

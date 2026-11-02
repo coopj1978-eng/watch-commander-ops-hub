@@ -4129,6 +4129,8 @@ export namespace references {
         cadence: string
         items: string[]
         active: boolean
+        /** A web link shown on the card, e.g. the shared spreadsheet it's about. */
+        link: string | null
     }
 
     export interface StationReference {
@@ -4150,7 +4152,7 @@ export namespace references {
         }
 
         /** Set a reference's monthly / quarterly / annual cards (WC/CC). No checks = switched off. */
-        public async saveReferenceCards(ref: number, params: { cards: { cadence: string; items: string[] }[] }): Promise<{ cards: ReferenceCard[] }> {
+        public async saveReferenceCards(ref: number, params: { cards: { cadence: string; items: string[]; link?: string | null }[] }): Promise<{ cards: ReferenceCard[] }> {
             const resp = await this.baseClient.callTypedAPI("PUT", `/station-references/${encodeURIComponent(ref)}/cards`, JSON.stringify(params))
             return await resp.json() as { cards: ReferenceCard[] }
         }
@@ -4853,6 +4855,8 @@ export namespace task {
         "reference_cadence"?: string
         /** The first day of the month / quarter / year a reference card is for. */
         "reference_period"?: string
+        /** A reference / all-watches card's link, e.g. the shared spreadsheet. */
+        "link_url"?: string
         "completed_by_name"?: string
     }
 

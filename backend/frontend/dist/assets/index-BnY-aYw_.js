@@ -51668,6 +51668,8 @@ function TaskCard({ task: task2, onTitleEdit, onClick, onChecklistToggle, userMa
   const routineSlot = task2.routine_slot;
   const referenceNo = task2.reference_no;
   const routineHeader = isCheck && routineSlot && !coverStyle ? /* @__PURE__ */ jsxRuntimeExports.jsx(RoutineHeader, { slot: routineSlot, rule: task2.routine_rule, name: task2.title }) : isCheck && referenceNo != null && !coverStyle ? /* @__PURE__ */ jsxRuntimeExports.jsx(ReferenceHeader, { refNo: referenceNo, cadence: task2.reference_cadence, period: task2.reference_period }) : null;
+  const linkUrl = task2.link_url;
+  const link = isCheck && linkUrl && /^https:\/\//i.test(linkUrl) ? linkUrl : null;
   const recur = describeRRule(task2.rrule);
   const assignee = task2.assigned_to_user_id ? { id: task2.assigned_to_user_id, initials: ((_a3 = userMap == null ? void 0 : userMap[task2.assigned_to_user_id]) == null ? void 0 : _a3.initials) ?? task2.assigned_to_user_id.slice(0, 2).toUpperCase() } : null;
   const done = task2.status === "Done";
@@ -51768,6 +51770,33 @@ function TaskCard({ task: task2, onTitleEdit, onClick, onChecklistToggle, userMa
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(ChecklistBar, { task: task2 }),
         onChecklistToggle && !done && (((_b3 = task2.checklist) == null ? void 0 : _b3.length) ?? 0) > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(CardChecklist, { task: task2, onToggle: (label2, next) => onChecklistToggle(task2.id, label2, next) }),
+        link && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "a",
+          {
+            href: link,
+            target: "_blank",
+            rel: "noopener noreferrer",
+            onClick: (e) => e.stopPropagation(),
+            style: {
+              alignSelf: "flex-start",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "6px 10px",
+              borderRadius: 9,
+              fontSize: 12.5,
+              fontWeight: 600,
+              color: "var(--cal-brand-text)",
+              background: "var(--cal-brand-soft)",
+              textDecoration: "none"
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(ExternalLink, { className: "h-3.5 w-3.5" }),
+              " ",
+              /\.xlsx?\b|:x:|excel|spreadsheets/i.test(link) ? "Open spreadsheet" : "Open link"
+            ]
+          }
+        ),
         footer && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }, children: [
           done && shiftTask.completed_by_name ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 600, color: "var(--cal-leave-fg)" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-3 w-3", strokeWidth: 3 }),
@@ -57961,101 +57990,6 @@ function HydrantCard({ watch, fq }) {
     }
   );
 }
-const STATION$1 = "B10 Springburn";
-function QuarterReport({
-  open,
-  onOpenChange,
-  watch,
-  fq
-}) {
-  const { user: user2 } = useAuth();
-  const { toast: toast2 } = useToast();
-  const year = fq.start.getFullYear();
-  const enabled = open && !!watch;
-  const { data: hf } = useQuery({
-    queryKey: ["activities", "hfsv", watch, fq.fy, fq.q],
-    queryFn: () => backendClient.activity.list({ type: "hfsv", watch, financial_year: fq.fy, quarter: fq.q }),
-    enabled
-  });
-  const { data: cm } = useQuery({
-    queryKey: ["activities", "community", watch, fq.fy, fq.q],
-    queryFn: () => backendClient.activity.list({ type: "community", watch, financial_year: fq.fy, quarter: fq.q }),
-    enabled
-  });
-  const { data: ms } = useQuery({
-    queryKey: ["assignments", "multistory", watch, fq.fy, fq.q],
-    queryFn: () => backendClient.inspection_plans.listAssignments({ plan_type: "multistory", watch, year: fq.fy, quarter: fq.q }),
-    enabled
-  });
-  const { data: hy } = useQuery({
-    queryKey: ["hydrants", "summary", year],
-    queryFn: () => backendClient.hydrants.getHydrantSummary({ year }),
-    enabled
-  });
-  const loading = !hf || !cm || !ms || !hy;
-  const past = quarterTime(fq).phase === "past";
-  const gap = (n) => `${n} ${past ? "short" : "to go"}`;
-  const status = (done, target) => target > 0 && done >= target ? "target met" : gap(Math.max(0, target - done));
-  const hfDone = (hf == null ? void 0 : hf.total_completed) ?? 0;
-  const cmDone = (cm == null ? void 0 : cm.total_completed) ?? 0;
-  const tap = (cm == null ? void 0 : cm.total_tap_completed) ?? 0;
-  const msDone = (ms == null ? void 0 : ms.totals.complete) ?? 0;
-  const msTotal = msDone + ((ms == null ? void 0 : ms.totals.pending) ?? 0);
-  const route = hy == null ? void 0 : hy.watches.find((w) => w.watch.toLowerCase() === watch.toLowerCase());
-  const cmStatus = cmDone >= COMMUNITY_TARGET_Q && tap < COMMUNITY_TAP_MIN ? `TAP ${gap(COMMUNITY_TAP_MIN - tap)}` : status(cmDone, COMMUNITY_TARGET_Q);
-  const asAt = (/* @__PURE__ */ new Date()).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
-  const text2 = [
-    `Quarterly targets report — ${STATION$1}, ${watch} Watch`,
-    `${fq.label} (${fq.months}) · as at ${asAt}`,
-    "",
-    `HFSV: ${hfDone} of ${HFSV_TARGET_Q} — ${status(hfDone, HFSV_TARGET_Q)}`,
-    `Community engagement: ${cmDone} of ${COMMUNITY_TARGET_Q} (TAP ${tap} of ${COMMUNITY_TAP_MIN} minimum) — ${cmStatus}`,
-    msTotal > 0 ? `Multi-storey inspections: ${msDone} of ${msTotal} — ${status(msDone, msTotal)}` : "Multi-storey inspections: none allocated this quarter",
-    route && route.total > 0 ? `Hydrants (${year} route${route.label ? `, ${route.label}` : ""}): ${route.done} of ${route.total} inspected so far this year${route.faults ? ` · ${route.faults} not fully functional` : ""}` : `Hydrants: no ${year} route loaded`,
-    "",
-    "Comments:",
-    "",
-    "",
-    [user2 == null ? void 0 : user2.name, (user2 == null ? void 0 : user2.role) ? `${user2.role} ${watch} Watch` : `${watch} Watch`].filter(Boolean).join(", ")
-  ].join("\n");
-  const subject = `Quarterly targets report — ${STATION$1}, ${watch} Watch, ${fq.label}`;
-  const mailto = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text2)}`;
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(text2);
-      toast2({ title: "Report copied", description: "Paste it into your email to the SC." });
-    } catch {
-      toast2({ title: "Couldn't copy — select the text and copy it instead", variant: "destructive" });
-    }
-  };
-  const btn = "inline-flex h-9 items-center gap-2 rounded-lg border border-border px-3 text-sm font-medium hover:bg-muted";
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-2xl", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Quarterly targets report to the SC" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogDescription, { children: [
-        watch,
-        " Watch · ",
-        fq.label,
-        " · ",
-        fq.months,
-        " — every target as it stands, ready to email. Add your comments in the email."
-      ] })
-    ] }),
-    loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "rounded-xl bg-muted/50 p-4 text-sm text-muted-foreground", children: "Gathering the numbers…" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "max-h-[50vh] overflow-auto whitespace-pre-wrap rounded-xl border border-border bg-muted/40 p-3 font-mono text-xs leading-relaxed", children: text2 }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("a", { href: mailto, className: `${btn} border-foreground/70 bg-foreground text-background hover:bg-foreground/90`, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Mail, { className: "h-4 w-4" }),
-          " Open in email"
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: copy, className: btn, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "h-4 w-4" }),
-          " Copy"
-        ] })
-      ] })
-    ] })
-  ] }) });
-}
 function Targets() {
   const { user: user2 } = useAuth();
   const ownWatch = (user2 == null ? void 0 : user2.watch_unit) ?? "";
@@ -58073,7 +58007,6 @@ function Targets() {
   const fq = reactExports.useMemo(() => fyQuarter(fy, q), [fy, q]);
   const time = quarterTime(fq);
   const shifts = time.phase === "past" ? null : shiftsLeft(watch, fq);
-  const [reporting, setReporting] = reactExports.useState(false);
   const select = (next) => {
     const p = new URLSearchParams(params);
     p.set("fy", String(next.fy ?? fy));
@@ -58104,19 +58037,7 @@ function Targets() {
               " Watch"
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("button", { "data-on": station, onClick: () => select({ view: "station" }), children: "Station" })
-          ] }),
-          isManager && !station && watch && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "button",
-            {
-              type: "button",
-              onClick: () => setReporting(true),
-              className: "inline-flex h-9 items-center gap-2 rounded-lg border border-border px-3 text-sm font-medium hover:bg-muted",
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Send, { className: "h-4 w-4" }),
-                " Report to SC"
-              ]
-            }
-          )
+          ] })
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-muted-foreground", children: [
@@ -58194,8 +58115,7 @@ function Targets() {
           exclude: ["multistory", "hydrant"]
         }
       )
-    ] }),
-    reporting && /* @__PURE__ */ jsxRuntimeExports.jsx(QuarterReport, { open: reporting, onOpenChange: setReporting, watch, fq })
+    ] })
   ] });
 }
 var u8 = Uint8Array, u16 = Uint16Array, i32 = Int32Array;
@@ -59681,13 +59601,15 @@ function ReferenceCards({ n, cards, canEdit, holder, myWatch }) {
   const { toast: toast2 } = useToast();
   const [editing, setEditing] = reactExports.useState(false);
   const [draft, setDraft] = reactExports.useState({});
+  const [links, setLinks] = reactExports.useState({});
   const card = (k) => cards.find((c) => c.cadence === k);
   const today = /* @__PURE__ */ new Date();
   const save = useMutation({
     mutationFn: () => backendClient.references.saveReferenceCards(n, {
       cards: CADENCES.map((c) => ({
         cadence: c.key,
-        items: draft[c.key].split("\n").map((l) => l.replace(/^[-•*]\s*/, "").trim()).filter(Boolean)
+        items: draft[c.key].split("\n").map((l) => l.replace(/^[-•*]\s*/, "").trim()).filter(Boolean),
+        link: links[c.key].trim() || null
       }))
     }),
     onSuccess: () => {
@@ -59702,6 +59624,10 @@ function ReferenceCards({ n, cards, canEdit, holder, myWatch }) {
     setDraft(Object.fromEntries(CADENCES.map((c) => {
       var _a3;
       return [c.key, (((_a3 = card(c.key)) == null ? void 0 : _a3.items) ?? []).join("\n")];
+    })));
+    setLinks(Object.fromEntries(CADENCES.map((c) => {
+      var _a3;
+      return [c.key, ((_a3 = card(c.key)) == null ? void 0 : _a3.link) ?? ""];
     })));
     setEditing(true);
   };
@@ -59729,20 +59655,39 @@ function ReferenceCards({ n, cards, canEdit, holder, myWatch }) {
             ] })
           ] })
         ] }),
-        editing ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "textarea",
-          {
-            value: draft[c.key],
-            onChange: (e) => setDraft((d) => ({ ...d, [c.key]: e.target.value })),
-            rows: 6,
-            placeholder: "One check per line",
-            "aria-label": `${c.label} checks`,
-            className: "w-full rounded-lg border border-border bg-background p-2 text-xs leading-relaxed text-foreground"
-          }
-        ) : (cur == null ? void 0 : cur.items.length) ? /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "space-y-1", children: cur.items.map((i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex gap-2 text-xs", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "aria-hidden": true, className: "mt-1.5 h-1 w-1 shrink-0 rounded-full bg-muted-foreground" }),
-          i
-        ] }, i)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "No checks — no card." })
+        editing ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "textarea",
+            {
+              value: draft[c.key],
+              onChange: (e) => setDraft((d) => ({ ...d, [c.key]: e.target.value })),
+              rows: 6,
+              placeholder: "One check per line",
+              "aria-label": `${c.label} checks`,
+              className: "w-full rounded-lg border border-border bg-background p-2 text-xs leading-relaxed text-foreground"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "url",
+              value: links[c.key],
+              onChange: (e) => setLinks((l) => ({ ...l, [c.key]: e.target.value })),
+              placeholder: "Link (optional) — https://…",
+              "aria-label": `${c.label} card link`,
+              className: "h-8 w-full rounded-lg border border-border bg-background px-2 text-xs text-foreground"
+            }
+          )
+        ] }) : (cur == null ? void 0 : cur.items.length) ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "space-y-1", children: cur.items.map((i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex gap-2 text-xs", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "aria-hidden": true, className: "mt-1.5 h-1 w-1 shrink-0 rounded-full bg-muted-foreground" }),
+            i
+          ] }, i)) }),
+          cur.link && /* @__PURE__ */ jsxRuntimeExports.jsxs("a", { href: cur.link, target: "_blank", rel: "noopener noreferrer", className: "inline-flex items-center gap-1 self-start text-xs font-medium text-brand hover:underline", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(ExternalLink, { className: "h-3 w-3" }),
+            " Link on the card"
+          ] })
+        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "No checks — no card." })
       ] }, c.key);
     }) }),
     editing && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 flex gap-2", children: [

@@ -22,6 +22,8 @@ export interface ReferenceCard {
   cadence: string;
   items: string[];
   active: boolean;
+  /** A web link shown on the card, e.g. the shared spreadsheet it's about. */
+  link: string | null;
 }
 
 export interface StationReference {
@@ -98,13 +100,13 @@ const checklistOf = (v: unknown): ChecklistItem[] => {
 };
 
 async function referenceCards(): Promise<(ReferenceCard & { ref: number })[]> {
-  const rows = await db.rawQueryAll<{ id: number; reference_no: number; reference_cadence: string; checklist: unknown; is_active: boolean }>(
-    `SELECT id, reference_no, reference_cadence, checklist, is_active FROM task_templates WHERE reference_no IS NOT NULL`
+  const rows = await db.rawQueryAll<{ id: number; reference_no: number; reference_cadence: string; checklist: unknown; is_active: boolean; link_url: string | null }>(
+    `SELECT id, reference_no, reference_cadence, checklist, is_active, link_url FROM task_templates WHERE reference_no IS NOT NULL`
   );
   return rows
     .map((r) => ({
       id: r.id, ref: r.reference_no, cadence: r.reference_cadence,
-      items: checklistOf(r.checklist).map((i) => i.label), active: r.is_active,
+      items: checklistOf(r.checklist).map((i) => i.label), active: r.is_active, link: r.link_url,
     }))
     .sort((a, b) => a.ref - b.ref || ORDER[a.cadence] - ORDER[b.cadence]);
 }
@@ -115,7 +117,7 @@ async function referenceCards(): Promise<(ReferenceCard & { ref: number })[]> {
 // Cards already on a watch's board pick up the change; ticks are kept.
 export const saveReferenceCards = api(
   { auth: true, expose: true, method: "PUT", path: "/station-references/:ref/cards" },
-  async (req: { ref: number; cards: { cadence: string; items: string[] }[] }): Promise<{ cards: ReferenceCard[] }> => {
+  async (req: { ref: number; cards: { cadence: string; items: string[]; link?: string | null }[] }): Promise<{ cards: ReferenceCard[] }> => {
     const auth = getAuthData()!;
     requireRole(auth, "WC", "CC");
     const ref = Number(req.ref);
@@ -126,17 +128,23 @@ export const saveReferenceCards = api(
       if (!(REFERENCE_CADENCES as string[]).includes(cadence)) throw APIError.invalidArgument(`Unknown frequency "${cadence}".`);
       const checklist = cleanRoutineItems(Array.isArray(card.items) ? card.items : []);
       const name = `${ref === 0 ? "All watches" : `Reference ${ref}`} · ${CADENCE_NAME[cadence]}`;
+      // Left out = unchanged; empty = no link. Web links only.
+      const setLink = card.link !== undefined;
+      const link = String(card.link ?? "").trim() || null;
+      if (link && (!/^https:\/\/\S+$/i.test(link) || link.length > 2000)) {
+        throw APIError.invalidArgument("The link must be a web address starting https://");
+      }
 
       const row = await db.rawQueryRow<{ id: number }>(
         `INSERT INTO task_templates
            (name, description, title_template, category, priority, checklist, rrule, created_by, per_shift, is_active,
-            reference_no, reference_cadence, reference_month)
-         VALUES ($1, NULL, $1, 'Other', 'Med', $2, $3, $4, false, $5, $6, $7, NULL)
+            reference_no, reference_cadence, reference_month, link_url)
+         VALUES ($1, NULL, $1, 'Other', 'Med', $2, $3, $4, false, $5, $6, $7, NULL, $8)
          ON CONFLICT (reference_no, reference_cadence) WHERE reference_no IS NOT NULL
-         DO UPDATE SET checklist = EXCLUDED.checklist, is_active = EXCLUDED.is_active,
-           reference_month = NULL, updated_at = NOW()
+         DO UPDATE SET checklist = EXCLUDED.checklist, is_active = EXCLUDED.is_active, reference_month = NULL,
+           link_url = CASE WHEN $9::boolean THEN EXCLUDED.link_url ELSE task_templates.link_url END, updated_at = NOW()
          RETURNING id`,
-        name, JSON.stringify(checklist), CADENCE_RRULE[cadence], auth.userID, checklist.length > 0, ref, cadence
+        name, JSON.stringify(checklist), CADENCE_RRULE[cadence], auth.userID, checklist.length > 0, ref, cadence, link, setLink
       );
       if (!row) continue;
 
