@@ -57,7 +57,7 @@ export const uploadFile = api.raw(
       };
       await db.exec`
         UPDATE notes
-        SET attachments = COALESCE(attachments, '[]'::jsonb) || ${JSON.stringify(attachment)}::jsonb
+        SET attachments = COALESCE(attachments, '[]'::jsonb) || jsonb_build_array(${JSON.stringify(attachment)}::text::jsonb)
         WHERE id = ${noteId}
       `;
       send(200, { success: true });

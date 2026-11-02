@@ -22,7 +22,7 @@ export const deleteNote = api<DeleteNoteRequest, DeleteNoteResponse>(
       id: number;
       created_by_user_id: string;
       calendar_event_id?: number;
-      attachments?: { key?: string }[] | null;
+      attachments?: Parameters<typeof removeNoteFiles>[0];
     }>`
       SELECT id, created_by_user_id, calendar_event_id, attachments
       FROM notes 
