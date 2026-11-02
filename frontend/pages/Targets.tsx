@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { Send } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "@/App";
 import InspectionAssignments from "@/components/InspectionAssignments";
@@ -7,6 +8,7 @@ import { HfsvCard } from "@/components/targets/HfsvCard";
 import { CommunityCard } from "@/components/targets/CommunityCard";
 import { HydrantCard, MultiStoryCard } from "@/components/targets/InspectionCards";
 import { STATION_WATCHES, StationComparison } from "@/components/targets/StationComparison";
+import { QuarterReport } from "@/components/targets/QuarterReport";
 import { currentFyQuarter, fyLabel, fyQuarter, quarterTime, shiftsLeft, type QuarterNo } from "@/lib/quarters";
 
 // Targets — one financial quarter at a time (Nov 2026 redesign).
@@ -39,6 +41,7 @@ export default function Targets() {
   const fq = useMemo(() => fyQuarter(fy, q), [fy, q]);
   const time = quarterTime(fq);
   const shifts = time.phase === "past" ? null : shiftsLeft(watch, fq);
+  const [reporting, setReporting] = useState(false);
 
   const select = (next: { fy?: number; q?: QuarterNo; view?: "station" | null; w?: string | null }) => {
     const p = new URLSearchParams(params);
@@ -62,6 +65,16 @@ export default function Targets() {
                 <button data-on={!station} onClick={() => select({ view: null })}>{watch || "My"} Watch</button>
                 <button data-on={station} onClick={() => select({ view: "station" })}>Station</button>
               </div>
+            )}
+            {/* The quarterly report to the SC (an "All watches" card reminds each watch on its last tour of the quarter). */}
+            {isManager && !station && watch && (
+              <button
+                type="button"
+                onClick={() => setReporting(true)}
+                className="inline-flex h-9 items-center gap-2 rounded-lg border border-border px-3 text-sm font-medium hover:bg-muted"
+              >
+                <Send className="h-4 w-4" /> Report to SC
+              </button>
             )}
           </div>
         </div>
@@ -130,6 +143,7 @@ export default function Targets() {
           )}
         </>
       )}
+      {reporting && <QuarterReport open={reporting} onOpenChange={setReporting} watch={watch} fq={fq} />}
     </div>
   );
 }

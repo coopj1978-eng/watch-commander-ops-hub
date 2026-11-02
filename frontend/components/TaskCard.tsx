@@ -301,7 +301,7 @@ function ShiftTag({ task, shiftStart }: { task: Task & { kind?: string; check_fr
     const long = ["weekly", "fortnightly", "monthly", "quarterly", "annual"].includes(task.check_freq ?? "");
     // A reference card is due when its tour's 2nd Night ends (08:00 the day
     // after), so it's dated by that night; one not done stays until it is.
-    const carried = !!task.reference_no && task.status !== "Done" && due && shiftStart && due < new Date(shiftStart);
+    const carried = task.reference_no != null && task.status !== "Done" && due && shiftStart && due < new Date(shiftStart);
     return (
       <>
         <span style={tagStyle("var(--cal-brand-soft)", "var(--cal-brand-text)")}>
@@ -313,7 +313,7 @@ function ShiftTag({ task, shiftStart }: { task: Task & { kind?: string; check_fr
           </span>
         ) : long && due && task.status !== "Done" && (
           <span className="cal-mono" style={tagStyle("var(--cal-surface-2)", "var(--cal-ink-2)")}>
-            Due by {short(new Date(due.getTime() - (task.reference_no ? 14 * 3_600_000 : 60_000)))}
+            Due by {short(new Date(due.getTime() - (task.reference_no != null ? 14 * 3_600_000 : 60_000)))}
           </span>
         )}
       </>
@@ -437,7 +437,7 @@ export default function TaskCard({ task, onTitleEdit, onClick, onChecklistToggle
   const referenceNo = (task as Task & { reference_no?: number }).reference_no;
   const routineHeader = isCheck && routineSlot && !coverStyle
     ? <RoutineHeader slot={routineSlot} rule={(task as Task & { routine_rule?: string }).routine_rule} name={task.title} />
-    : isCheck && referenceNo && !coverStyle
+    : isCheck && referenceNo != null && !coverStyle
     ? <ReferenceHeader refNo={referenceNo} cadence={(task as Task & { reference_cadence?: string }).reference_cadence} period={(task as Task & { reference_period?: string }).reference_period} />
     : null;
   const recur = describeRRule(task.rrule);

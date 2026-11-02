@@ -2,7 +2,7 @@ import db from "../db";
 import log from "encore.dev/log";
 import { rruleFiresOn } from "./rrule";
 import { routineRuleFires } from "./routine";
-import { referenceCardPlan, type ReferenceCardPlan } from "./referenceRota";
+import { referenceCardPeriod, referenceCardPlans, type ReferenceCardPlan } from "./referenceRota";
 import { addDaysIso, shiftSlot, slotAt, ukInstant, watchForSlot, type ShiftSlot } from "./shiftRota";
 
 /**
@@ -57,7 +57,7 @@ export async function ensureStationChecks(now: Date = new Date()): Promise<{ cre
 
   let created = 0;
   for (const t of templates) {
-    if (t.reference_no) continue; // reference cards follow the reference rota (below)
+    if (t.reference_no !== null) continue; // reference cards follow the reference rota (below)
     if (!rruleFiresOn(t.rrule, slot.date, t.created_at)) continue;
     // A weekday's night routine isn't made on the day shift, and vice versa.
     if (t.per_shift && t.shift_only && t.shift_only !== slot.type) continue;
@@ -148,7 +148,7 @@ export async function ensureStationChecks(now: Date = new Date()): Promise<{ cre
     `UPDATE tasks SET status = 'Missed', updated_at = NOW()
      WHERE source_type = 'template'
        AND status NOT IN ('Done', 'Missed') AND due_at IS NOT NULL AND due_at <= $1
-       AND NOT EXISTS (SELECT 1 FROM task_template_instances i WHERE i.task_id = tasks.id AND i.generated_for_shift = 'ref')`,
+       AND NOT EXISTS (SELECT 1 FROM task_template_instances i WHERE i.task_id = tasks.id AND i.generated_for_shift LIKE 'ref%')`,
     now
   ).catch((err) => log.error("Retiring expired station checks failed", { error: String(err) }));
   return { created };
@@ -160,7 +160,8 @@ export async function ensureStationChecks(now: Date = new Date()): Promise<{ cre
  * last tour of the month, quarter or year (lib/referenceRota.ts), belongs to
  * that watch (watch_unit) and is due when the tour's 2nd Night ends. If it
  * isn't done by then it stays on their board, overdue, until it is; the next
- * period's card marks an unfinished one Missed.
+ * period's card marks an unfinished one Missed. Reference 0's cards (all
+ * watches) are made for each watch, keyed 'ref-<watch>' instead of 'ref'.
  */
 async function ensureReferenceCards(slot: ShiftSlot): Promise<number> {
   const templates = await db.rawQueryAll<{
@@ -172,11 +173,15 @@ async function ensureReferenceCards(slot: ShiftSlot): Promise<number> {
   for (const t of templates) {
     // This period's card, and last period's while a tour that began in it is
     // still running (e.g. days on 30–31 Dec, nights into January).
-    const current = referenceCardPlan(t.reference_no, t.reference_cadence, slot.date);
-    const previous = current && referenceCardPlan(t.reference_no, t.reference_cadence, addDaysIso(current.period.start, -1));
-    for (const plan of [previous, current]) {
-      if (plan && plan.tourStart <= slot.date && slot.date <= addDaysIso(plan.tourStart, 3)) {
-        created += await makeReferenceCard(t, plan);
+    const current = referenceCardPeriod(t.reference_cadence, slot.date);
+    if (!current) continue;
+    const plans = [
+      ...referenceCardPlans(t.reference_no, t.reference_cadence, addDaysIso(current.start, -1)),
+      ...referenceCardPlans(t.reference_no, t.reference_cadence, slot.date),
+    ];
+    for (const plan of plans) {
+      if (plan.tourStart <= slot.date && slot.date <= addDaysIso(plan.tourStart, 3)) {
+        created += await makeReferenceCard(t, plan, t.reference_no === 0 ? `ref-${plan.watch.toLowerCase()}` : "ref");
       }
     }
   }
@@ -186,10 +191,11 @@ async function ensureReferenceCards(slot: ShiftSlot): Promise<number> {
 async function makeReferenceCard(
   t: { id: number; title_template: string; task_description: string | null; category: string; priority: string; checklist: unknown; rrule: string; created_by: string },
   plan: ReferenceCardPlan,
+  key: string,
 ): Promise<number> {
   const exists = await db.rawQueryRow<{ id: number }>(
-    `SELECT id FROM task_template_instances WHERE template_id = $1 AND generated_for_date = $2 AND generated_for_shift = 'ref'`,
-    t.id, plan.period.start
+    `SELECT id FROM task_template_instances WHERE template_id = $1 AND generated_for_date = $2 AND generated_for_shift = $3`,
+    t.id, plan.period.start, key
   );
   if (exists) return 0;
 
@@ -205,10 +211,10 @@ async function makeReferenceCard(
     );
     const instance = task && await tx.rawQueryRow<{ id: number }>(
       `INSERT INTO task_template_instances (template_id, task_id, generated_for_date, generated_for_shift)
-       VALUES ($1, $2, $3, 'ref')
+       VALUES ($1, $2, $3, $4)
        ON CONFLICT (template_id, generated_for_date, generated_for_shift) DO NOTHING
        RETURNING id`,
-      t.id, task.id, plan.period.start
+      t.id, task.id, plan.period.start, key
     );
     if (!task || !instance) {
       await tx.rollback();
@@ -216,9 +222,9 @@ async function makeReferenceCard(
     }
     await tx.rawExec(
       `UPDATE tasks SET status = 'Missed', updated_at = NOW()
-       WHERE id IN (SELECT task_id FROM task_template_instances WHERE template_id = $1 AND task_id <> $2)
+       WHERE id IN (SELECT task_id FROM task_template_instances WHERE template_id = $1 AND generated_for_shift = $3 AND task_id <> $2)
          AND status NOT IN ('Done', 'Missed')`,
-      t.id, task.id
+      t.id, task.id, key
     );
     await tx.commit();
     return 1;

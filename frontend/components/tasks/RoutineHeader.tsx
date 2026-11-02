@@ -81,9 +81,12 @@ export function RoutineHeader({
 
 // A station reference's duty card (Nov 2026): the reference number in big
 // type on its colour from the station standards sheet, and which period it's
-// for — "Monthly · November", "Quarterly · Oct–Dec", "Annual · 2026" (it
+// for — "Monthly · November", "Quarterly · Q3 Oct–Dec", "Annual · 2026" (it
 // comes up on the period's last tour, which can run into the next one).
+// Reference 0 is "All watches" — duties every watch has, like the quarterly
+// targets report.
 const REF_COLOURS: Record<number, [string, string]> = {
+  0: ["#334155", "#94a3b8"],
   1: ["#5b4bb7", "#a78bfa"],
   2: ["#a16207", "#eab308"],
   3: ["#57534e", "#a8a29e"],
@@ -96,7 +99,8 @@ function periodLabel(cadence: string | undefined, period: string | undefined): s
   const [y, m] = period.split("-").map(Number);
   const month = (n: number, style: "long" | "short") => new Date(y, n - 1, 1).toLocaleDateString("en-GB", { month: style });
   if (cadence === "monthly") return `Monthly · ${month(m, "long")}`;
-  if (cadence === "quarterly") return `Quarterly · ${month(m, "short")}–${month(m + 2, "short")}`;
+  // SFRS financial quarters: Q1 = Apr–Jun … Q4 = Jan–Mar.
+  if (cadence === "quarterly") return `Quarterly · Q${m >= 4 ? (m - 1) / 3 : 4} ${month(m, "short")}–${month(m + 2, "short")}`;
   return `Annual · ${y}`;
 }
 
@@ -124,7 +128,7 @@ export function ReferenceHeader({
         {periodLabel(cadence, period)}
       </span>
       <span style={{ position: "relative", fontSize: compact ? 17 : 26, fontWeight: 800, letterSpacing: "-.02em", lineHeight: 1.05, textShadow: "0 1px 2px rgba(0,0,0,.25)" }}>
-        Reference {refNo}
+        {refNo === 0 ? "All watches" : `Reference ${refNo}`}
       </span>
     </div>
   );

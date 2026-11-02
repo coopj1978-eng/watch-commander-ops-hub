@@ -49,5 +49,8 @@ describe("reference rota", () => {
     expect(at(4, "quarterly", "2026-11-02")).toBe("Blue 2026-12-30");
     expect(at(4, "annual", "2026-12-31")).toBe("Blue 2026-12-30");
     expect(at(4, "annual", "2027-01-02")).toBe("Blue 2027-12-31");    // 2026's is already on the board
+    // All watches (0): each watch's own last tour.
+    const allQ = (watch: string) => nextReferenceCard(0, "quarterly", new Date("2026-11-02T12:00:00"), watch)?.date.getDate();
+    expect([allQ("Blue"), allQ("White"), allQ("Green")]).toEqual([30, 20, 24]);
   });
 });

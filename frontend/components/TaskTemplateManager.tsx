@@ -239,7 +239,7 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
     enabled: isOpen,
   });
   // Weekly-routine slots are edited in the Routines planner, not here.
-  const templates = ((data ?? []) as unknown as TaskTemplate[]).filter((t) => !t.routine_slot && !t.reference_no);
+  const templates = ((data ?? []) as unknown as TaskTemplate[]).filter((t) => !t.routine_slot && t.reference_no == null);
 
   // Same query (and cache) as the Tasks page — only used for column names in the copy.
   const { data: columnsData } = useQuery({

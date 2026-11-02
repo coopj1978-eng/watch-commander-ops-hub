@@ -114,12 +114,12 @@ export default function References() {
           />
         ))}
       </div>
-      <ReferenceCard n={0} data={byRef.get(0)} loading={isLoading} canEdit={canEdit} badge={null} />
+      <ReferenceCard n={0} data={byRef.get(0)} loading={isLoading} canEdit={canEdit} badge={null} myWatch={watch} />
     </div>
   );
 }
 
-function ReferenceCard({ n, data, loading, canEdit, badge }: { n: number; data?: Ref; loading: boolean; canEdit: boolean; badge: string | null }) {
+function ReferenceCard({ n, data, loading, canEdit, badge, myWatch }: { n: number; data?: Ref; loading: boolean; canEdit: boolean; badge: string | null; myWatch?: string }) {
   const qc = useQueryClient();
   const { toast } = useToast();
   const year = new Date().getFullYear();
@@ -204,20 +204,24 @@ function ReferenceCard({ n, data, loading, canEdit, badge }: { n: number; data?:
           <p className="text-sm text-muted-foreground">{loading ? "Loading…" : canEdit ? "No duties written up yet — use Edit to add them." : "No duties written up yet."}</p>
         )}
       </div>
-      {!all && <ReferenceCards n={n} cards={data?.cards ?? []} canEdit={canEdit} holder={holders!.main} />}
+      <ReferenceCards n={n} cards={data?.cards ?? []} canEdit={canEdit} holder={holders?.main ?? null} myWatch={myWatch} />
     </section>
   );
 }
 
 const CADENCES = [
   { key: "monthly", label: "Monthly", when: "Last tour of each month" },
-  { key: "quarterly", label: "Quarterly", when: "Last tour of Mar, Jun, Sep and Dec" },
+  { key: "quarterly", label: "Quarterly", when: "Last tour of each quarter (Jun, Sep, Dec, Mar)" },
   { key: "annual", label: "Annual", when: "Last tour of the year" },
 ] as const;
 const day = (d: Date) => d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
 
-/** The reference's monthly / quarterly / annual cards of checks, as they go on the holding watch's board. */
-function ReferenceCards({ n, cards, canEdit, holder }: { n: number; cards: references.ReferenceCard[]; canEdit: boolean; holder: string }) {
+/**
+ * The reference's monthly / quarterly / annual cards of checks, as they go on
+ * the holding watch's board — or, for all watches (holder null), on every
+ * watch's board, with the next date shown for the viewer's own watch.
+ */
+function ReferenceCards({ n, cards, canEdit, holder, myWatch }: { n: number; cards: references.ReferenceCard[]; canEdit: boolean; holder: string | null; myWatch?: string }) {
   const qc = useQueryClient();
   const { toast } = useToast();
   const [editing, setEditing] = useState(false);
@@ -248,7 +252,7 @@ function ReferenceCards({ n, cards, canEdit, holder }: { n: number; cards: refer
   return (
     <div className="border-t border-border/60 px-4 py-3.5 sm:px-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold">Cards on {holder} Watch's board</h3>
+        <h3 className="text-sm font-semibold">{holder ? `Cards on ${holder} Watch's board` : "Cards on every watch's board"}</h3>
         {canEdit && !editing && (
           <button type="button" onClick={startEdit} className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-border px-2.5 text-xs font-medium hover:bg-muted">
             <Pencil className="h-3.5 w-3.5" /> Edit cards
@@ -261,7 +265,7 @@ function ReferenceCards({ n, cards, canEdit, holder }: { n: number; cards: refer
       <div className="mt-3 grid gap-3 sm:grid-cols-3">
         {CADENCES.map((c) => {
           const cur = card(c.key);
-          const next = cur?.items.length ? nextReferenceCard(n, c.key, today) : null;
+          const next = cur?.items.length ? nextReferenceCard(n, c.key, today, myWatch) : null;
           return (
             <div key={c.key} className="flex flex-col gap-2 rounded-xl border border-border/60 p-2">
               <ReferenceHeader refNo={n} cadence={c.key} height={44} radius={9} />

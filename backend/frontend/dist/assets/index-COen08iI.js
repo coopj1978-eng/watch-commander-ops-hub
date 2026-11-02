@@ -37626,17 +37626,18 @@ function cardPeriod(cadence, date2) {
   }
   return [new Date(y, 0, 1), new Date(y + 1, 0, 1)];
 }
-function nextReferenceCard(ref, cadence, today = /* @__PURE__ */ new Date()) {
+function nextReferenceCard(ref, cadence, today = /* @__PURE__ */ new Date(), watch) {
   var _a3;
+  if (ref === 0 && !watch) return null;
   const day2 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   let [start, end] = cardPeriod(cadence, day2);
   for (let i = 0; i < 2; i++) {
     const { main, secondary } = referenceHolders(ref, start.getFullYear());
-    for (const watch of [main, secondary]) {
+    for (const w of ref === 0 ? [watch] : [main, secondary]) {
       let last = null;
-      for (let d = start; d < end; d = addDays$1(d, 1)) if (((_a3 = getShiftForDate(watch, d)) == null ? void 0 : _a3.shiftType) === "1st Day") last = d;
+      for (let d = start; d < end; d = addDays$1(d, 1)) if (((_a3 = getShiftForDate(w, d)) == null ? void 0 : _a3.shiftType) === "1st Day") last = d;
       if (!last) continue;
-      if (addDays$1(last, 3) >= day2) return { watch, date: last };
+      if (addDays$1(last, 3) >= day2) return { watch: w, date: last };
       break;
     }
     [start, end] = cardPeriod(cadence, end);
@@ -50907,6 +50908,7 @@ function RoutineHeader({
   );
 }
 const REF_COLOURS = {
+  0: ["#334155", "#94a3b8"],
   1: ["#5b4bb7", "#a78bfa"],
   2: ["#a16207", "#eab308"],
   3: ["#57534e", "#a8a29e"],
@@ -50918,7 +50920,7 @@ function periodLabel(cadence, period) {
   const [y, m] = period.split("-").map(Number);
   const month = (n, style) => new Date(y, n - 1, 1).toLocaleDateString("en-GB", { month: style });
   if (cadence === "monthly") return `Monthly · ${month(m, "long")}`;
-  if (cadence === "quarterly") return `Quarterly · ${month(m, "short")}–${month(m + 2, "short")}`;
+  if (cadence === "quarterly") return `Quarterly · Q${m >= 4 ? (m - 1) / 3 : 4} ${month(m, "short")}–${month(m + 2, "short")}`;
   return `Annual · ${y}`;
 }
 function ReferenceHeader({
@@ -50967,10 +50969,7 @@ function ReferenceHeader({
             children: periodLabel(cadence, period)
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { position: "relative", fontSize: compact ? 17 : 26, fontWeight: 800, letterSpacing: "-.02em", lineHeight: 1.05, textShadow: "0 1px 2px rgba(0,0,0,.25)" }, children: [
-          "Reference ",
-          refNo
-        ] })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { position: "relative", fontSize: compact ? 17 : 26, fontWeight: 800, letterSpacing: "-.02em", lineHeight: 1.05, textShadow: "0 1px 2px rgba(0,0,0,.25)" }, children: refNo === 0 ? "All watches" : `Reference ${refNo}` })
       ]
     }
   );
@@ -51512,7 +51511,7 @@ function ShiftTag({ task: task2, shiftStart: shiftStart2 }) {
   }
   if (task2.kind === "check") {
     const long = ["weekly", "fortnightly", "monthly", "quarterly", "annual"].includes(task2.check_freq ?? "");
-    const carried = !!task2.reference_no && task2.status !== "Done" && due && shiftStart2 && due < new Date(shiftStart2);
+    const carried = task2.reference_no != null && task2.status !== "Done" && due && shiftStart2 && due < new Date(shiftStart2);
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: tagStyle("var(--cal-brand-soft)", "var(--cal-brand-text)"), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(ClipboardCheck, { className: "h-3 w-3" }),
@@ -51525,7 +51524,7 @@ function ShiftTag({ task: task2, shiftStart: shiftStart2 }) {
         short(new Date(task2.created_at))
       ] }) : long && due && task2.status !== "Done" && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: tagStyle("var(--cal-surface-2)", "var(--cal-ink-2)"), children: [
         "Due by ",
-        short(new Date(due.getTime() - (task2.reference_no ? 14 * 36e5 : 6e4)))
+        short(new Date(due.getTime() - (task2.reference_no != null ? 14 * 36e5 : 6e4)))
       ] })
     ] });
   }
@@ -51668,7 +51667,7 @@ function TaskCard({ task: task2, onTitleEdit, onClick, onChecklistToggle, userMa
   const coverStyle = getCoverStyle(task2.cover_colour);
   const routineSlot = task2.routine_slot;
   const referenceNo = task2.reference_no;
-  const routineHeader = isCheck && routineSlot && !coverStyle ? /* @__PURE__ */ jsxRuntimeExports.jsx(RoutineHeader, { slot: routineSlot, rule: task2.routine_rule, name: task2.title }) : isCheck && referenceNo && !coverStyle ? /* @__PURE__ */ jsxRuntimeExports.jsx(ReferenceHeader, { refNo: referenceNo, cadence: task2.reference_cadence, period: task2.reference_period }) : null;
+  const routineHeader = isCheck && routineSlot && !coverStyle ? /* @__PURE__ */ jsxRuntimeExports.jsx(RoutineHeader, { slot: routineSlot, rule: task2.routine_rule, name: task2.title }) : isCheck && referenceNo != null && !coverStyle ? /* @__PURE__ */ jsxRuntimeExports.jsx(ReferenceHeader, { refNo: referenceNo, cadence: task2.reference_cadence, period: task2.reference_period }) : null;
   const recur = describeRRule(task2.rrule);
   const assignee = task2.assigned_to_user_id ? { id: task2.assigned_to_user_id, initials: ((_a3 = userMap == null ? void 0 : userMap[task2.assigned_to_user_id]) == null ? void 0 : _a3.initials) ?? task2.assigned_to_user_id.slice(0, 2).toUpperCase() } : null;
   const done = task2.status === "Done";
@@ -54352,7 +54351,7 @@ function TaskTemplateManager({ isOpen, onClose, onUseTemplate, canManage }) {
     queryFn: async () => (await backendClient.task.listTemplates()).templates,
     enabled: isOpen
   });
-  const templates = (data ?? []).filter((t) => !t.routine_slot && !t.reference_no);
+  const templates = (data ?? []).filter((t) => !t.routine_slot && t.reference_no == null);
   const { data: columnsData } = useQuery({
     queryKey: ["task-columns"],
     queryFn: async () => (await backendClient.task.listColumns()).columns,
@@ -55522,7 +55521,7 @@ function RoutinePlanner({ open, onClose, canManage, onOpenOtherChecks }) {
     }
     return m;
   }, [templates]);
-  const otherChecks = templates.filter((t) => !t.routine_slot && !t.reference_no).length;
+  const otherChecks = templates.filter((t) => !t.routine_slot && t.reference_no == null).length;
   const [draft, setDraft] = reactExports.useState({});
   const draftRef = reactExports.useRef(draft);
   draftRef.current = draft;
@@ -57962,6 +57961,101 @@ function HydrantCard({ watch, fq }) {
     }
   );
 }
+const STATION$1 = "B10 Springburn";
+function QuarterReport({
+  open,
+  onOpenChange,
+  watch,
+  fq
+}) {
+  const { user: user2 } = useAuth();
+  const { toast: toast2 } = useToast();
+  const year = fq.start.getFullYear();
+  const enabled = open && !!watch;
+  const { data: hf } = useQuery({
+    queryKey: ["activities", "hfsv", watch, fq.fy, fq.q],
+    queryFn: () => backendClient.activity.list({ type: "hfsv", watch, financial_year: fq.fy, quarter: fq.q }),
+    enabled
+  });
+  const { data: cm } = useQuery({
+    queryKey: ["activities", "community", watch, fq.fy, fq.q],
+    queryFn: () => backendClient.activity.list({ type: "community", watch, financial_year: fq.fy, quarter: fq.q }),
+    enabled
+  });
+  const { data: ms } = useQuery({
+    queryKey: ["assignments", "multistory", watch, fq.fy, fq.q],
+    queryFn: () => backendClient.inspection_plans.listAssignments({ plan_type: "multistory", watch, year: fq.fy, quarter: fq.q }),
+    enabled
+  });
+  const { data: hy } = useQuery({
+    queryKey: ["hydrants", "summary", year],
+    queryFn: () => backendClient.hydrants.getHydrantSummary({ year }),
+    enabled
+  });
+  const loading = !hf || !cm || !ms || !hy;
+  const past = quarterTime(fq).phase === "past";
+  const gap = (n) => `${n} ${past ? "short" : "to go"}`;
+  const status = (done, target) => target > 0 && done >= target ? "target met" : gap(Math.max(0, target - done));
+  const hfDone = (hf == null ? void 0 : hf.total_completed) ?? 0;
+  const cmDone = (cm == null ? void 0 : cm.total_completed) ?? 0;
+  const tap = (cm == null ? void 0 : cm.total_tap_completed) ?? 0;
+  const msDone = (ms == null ? void 0 : ms.totals.complete) ?? 0;
+  const msTotal = msDone + ((ms == null ? void 0 : ms.totals.pending) ?? 0);
+  const route = hy == null ? void 0 : hy.watches.find((w) => w.watch.toLowerCase() === watch.toLowerCase());
+  const cmStatus = cmDone >= COMMUNITY_TARGET_Q && tap < COMMUNITY_TAP_MIN ? `TAP ${gap(COMMUNITY_TAP_MIN - tap)}` : status(cmDone, COMMUNITY_TARGET_Q);
+  const asAt = (/* @__PURE__ */ new Date()).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+  const text2 = [
+    `Quarterly targets report — ${STATION$1}, ${watch} Watch`,
+    `${fq.label} (${fq.months}) · as at ${asAt}`,
+    "",
+    `HFSV: ${hfDone} of ${HFSV_TARGET_Q} — ${status(hfDone, HFSV_TARGET_Q)}`,
+    `Community engagement: ${cmDone} of ${COMMUNITY_TARGET_Q} (TAP ${tap} of ${COMMUNITY_TAP_MIN} minimum) — ${cmStatus}`,
+    msTotal > 0 ? `Multi-storey inspections: ${msDone} of ${msTotal} — ${status(msDone, msTotal)}` : "Multi-storey inspections: none allocated this quarter",
+    route && route.total > 0 ? `Hydrants (${year} route${route.label ? `, ${route.label}` : ""}): ${route.done} of ${route.total} inspected so far this year${route.faults ? ` · ${route.faults} not fully functional` : ""}` : `Hydrants: no ${year} route loaded`,
+    "",
+    "Comments:",
+    "",
+    "",
+    [user2 == null ? void 0 : user2.name, (user2 == null ? void 0 : user2.role) ? `${user2.role} ${watch} Watch` : `${watch} Watch`].filter(Boolean).join(", ")
+  ].join("\n");
+  const subject = `Quarterly targets report — ${STATION$1}, ${watch} Watch, ${fq.label}`;
+  const mailto = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text2)}`;
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(text2);
+      toast2({ title: "Report copied", description: "Paste it into your email to the SC." });
+    } catch {
+      toast2({ title: "Couldn't copy — select the text and copy it instead", variant: "destructive" });
+    }
+  };
+  const btn = "inline-flex h-9 items-center gap-2 rounded-lg border border-border px-3 text-sm font-medium hover:bg-muted";
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-2xl", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Quarterly targets report to the SC" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogDescription, { children: [
+        watch,
+        " Watch · ",
+        fq.label,
+        " · ",
+        fq.months,
+        " — every target as it stands, ready to email. Add your comments in the email."
+      ] })
+    ] }),
+    loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "rounded-xl bg-muted/50 p-4 text-sm text-muted-foreground", children: "Gathering the numbers…" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "max-h-[50vh] overflow-auto whitespace-pre-wrap rounded-xl border border-border bg-muted/40 p-3 font-mono text-xs leading-relaxed", children: text2 }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("a", { href: mailto, className: `${btn} border-foreground/70 bg-foreground text-background hover:bg-foreground/90`, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Mail, { className: "h-4 w-4" }),
+          " Open in email"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: copy, className: btn, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "h-4 w-4" }),
+          " Copy"
+        ] })
+      ] })
+    ] })
+  ] }) });
+}
 function Targets() {
   const { user: user2 } = useAuth();
   const ownWatch = (user2 == null ? void 0 : user2.watch_unit) ?? "";
@@ -57979,6 +58073,7 @@ function Targets() {
   const fq = reactExports.useMemo(() => fyQuarter(fy, q), [fy, q]);
   const time = quarterTime(fq);
   const shifts = time.phase === "past" ? null : shiftsLeft(watch, fq);
+  const [reporting, setReporting] = reactExports.useState(false);
   const select = (next) => {
     const p = new URLSearchParams(params);
     p.set("fy", String(next.fy ?? fy));
@@ -58009,7 +58104,19 @@ function Targets() {
               " Watch"
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("button", { "data-on": station, onClick: () => select({ view: "station" }), children: "Station" })
-          ] })
+          ] }),
+          isManager && !station && watch && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              onClick: () => setReporting(true),
+              className: "inline-flex h-9 items-center gap-2 rounded-lg border border-border px-3 text-sm font-medium hover:bg-muted",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Send, { className: "h-4 w-4" }),
+                " Report to SC"
+              ]
+            }
+          )
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-muted-foreground", children: [
@@ -58087,7 +58194,8 @@ function Targets() {
           exclude: ["multistory", "hydrant"]
         }
       )
-    ] })
+    ] }),
+    reporting && /* @__PURE__ */ jsxRuntimeExports.jsx(QuarterReport, { open: reporting, onOpenChange: setReporting, watch, fq })
   ] });
 }
 var u8 = Uint8Array, u16 = Uint16Array, i32 = Int32Array;
@@ -59467,10 +59575,10 @@ function References() {
       },
       n
     )) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(ReferenceCard, { n: 0, data: byRef.get(0), loading: isLoading, canEdit, badge: null })
+    /* @__PURE__ */ jsxRuntimeExports.jsx(ReferenceCard, { n: 0, data: byRef.get(0), loading: isLoading, canEdit, badge: null, myWatch: watch })
   ] });
 }
-function ReferenceCard({ n, data, loading, canEdit, badge }) {
+function ReferenceCard({ n, data, loading, canEdit, badge, myWatch }) {
   const qc = useQueryClient();
   const { toast: toast2 } = useToast();
   const year = (/* @__PURE__ */ new Date()).getFullYear();
@@ -59559,16 +59667,16 @@ function ReferenceCard({ n, data, loading, canEdit, badge }) {
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: item })
       ] }, j)) })
     ] }, i)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: loading ? "Loading…" : canEdit ? "No duties written up yet — use Edit to add them." : "No duties written up yet." }) }),
-    !all && /* @__PURE__ */ jsxRuntimeExports.jsx(ReferenceCards, { n, cards: (data == null ? void 0 : data.cards) ?? [], canEdit, holder: holders.main })
+    /* @__PURE__ */ jsxRuntimeExports.jsx(ReferenceCards, { n, cards: (data == null ? void 0 : data.cards) ?? [], canEdit, holder: (holders == null ? void 0 : holders.main) ?? null, myWatch })
   ] });
 }
 const CADENCES = [
   { key: "monthly", label: "Monthly", when: "Last tour of each month" },
-  { key: "quarterly", label: "Quarterly", when: "Last tour of Mar, Jun, Sep and Dec" },
+  { key: "quarterly", label: "Quarterly", when: "Last tour of each quarter (Jun, Sep, Dec, Mar)" },
   { key: "annual", label: "Annual", when: "Last tour of the year" }
 ];
 const day = (d) => d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
-function ReferenceCards({ n, cards, canEdit, holder }) {
+function ReferenceCards({ n, cards, canEdit, holder, myWatch }) {
   const qc = useQueryClient();
   const { toast: toast2 } = useToast();
   const [editing, setEditing] = reactExports.useState(false);
@@ -59599,11 +59707,7 @@ function ReferenceCards({ n, cards, canEdit, holder }) {
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "border-t border-border/60 px-4 py-3.5 sm:px-5", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-2", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "text-sm font-semibold", children: [
-        "Cards on ",
-        holder,
-        " Watch's board"
-      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-sm font-semibold", children: holder ? `Cards on ${holder} Watch's board` : "Cards on every watch's board" }),
       canEdit && !editing && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: startEdit, className: "inline-flex h-8 items-center gap-1.5 rounded-lg border border-border px-2.5 text-xs font-medium hover:bg-muted", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "h-3.5 w-3.5" }),
         " Edit cards"
@@ -59612,7 +59716,7 @@ function ReferenceCards({ n, cards, canEdit, holder }) {
     /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-0.5 text-xs text-muted-foreground", children: "Each card comes up on the 1st day of the watch's last tour of the month, quarter or year, and is due by the end of that tour's 2nd night. If it isn't done by then, it stays on their board until it is." }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 grid gap-3 sm:grid-cols-3", children: CADENCES.map((c) => {
       const cur = card(c.key);
-      const next = (cur == null ? void 0 : cur.items.length) ? nextReferenceCard(n, c.key, today) : null;
+      const next = (cur == null ? void 0 : cur.items.length) ? nextReferenceCard(n, c.key, today, myWatch) : null;
       return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-2 rounded-xl border border-border/60 p-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(ReferenceHeader, { refNo: n, cadence: c.key, height: 44, radius: 9 }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-[11px] text-muted-foreground", children: [

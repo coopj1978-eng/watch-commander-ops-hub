@@ -65,18 +65,20 @@ function cardPeriod(cadence: string, date: Date): [Date, Date] {
  * lib/referenceRota.ts: the 1st Day of the holding watch's last tour of the
  * month, quarter or year (the secondary watch's only if the main watch has no
  * tour in it). This period's card while its tour is on or still to come,
- * otherwise the next period's.
+ * otherwise the next period's. Reference 0's cards go to every watch, so for
+ * those it's `watch`'s own last tour.
  */
-export function nextReferenceCard(ref: number, cadence: string, today: Date = new Date()): { watch: string; date: Date } | null {
+export function nextReferenceCard(ref: number, cadence: string, today: Date = new Date(), watch?: string): { watch: string; date: Date } | null {
+  if (ref === 0 && !watch) return null;
   const day = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   let [start, end] = cardPeriod(cadence, day);
   for (let i = 0; i < 2; i++) {
     const { main, secondary } = referenceHolders(ref, start.getFullYear());
-    for (const watch of [main, secondary]) {
+    for (const w of ref === 0 ? [watch!] : [main, secondary]) {
       let last: Date | null = null;
-      for (let d = start; d < end; d = addDays(d, 1)) if (getShiftForDate(watch, d)?.shiftType === "1st Day") last = d;
+      for (let d = start; d < end; d = addDays(d, 1)) if (getShiftForDate(w, d)?.shiftType === "1st Day") last = d;
       if (!last) continue;
-      if (addDays(last, 3) >= day) return { watch, date: last };
+      if (addDays(last, 3) >= day) return { watch: w, date: last };
       break;
     }
     [start, end] = cardPeriod(cadence, end);
