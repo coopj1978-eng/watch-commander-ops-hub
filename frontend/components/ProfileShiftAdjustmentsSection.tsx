@@ -27,6 +27,7 @@ import {
   Clock,
   AlertTriangle,
 } from "lucide-react";
+import { refreshCalendar } from "@/lib/calendarQueries";
 
 // ──────────────────────────────────────────────────────────────────────────────
 // ProfileShiftAdjustmentsSection
@@ -142,12 +143,7 @@ export function ProfileShiftAdjustmentsSection({
       queryClient.invalidateQueries({ queryKey: ["toil-balance"] });
       queryClient.invalidateQueries({ queryKey: ["toil-entries"] });
       queryClient.invalidateQueries({ queryKey: ["toil-watch-balance"] });
-      queryClient.invalidateQueries({ queryKey: ["cal-station"] });
-      queryClient.invalidateQueries({ queryKey: ["cal-watch"] });
-      queryClient.invalidateQueries({ queryKey: ["cal-personal"] });
-      queryClient.invalidateQueries({ queryKey: ["cal-station"] });
-      queryClient.invalidateQueries({ queryKey: ["cal-watch"] });
-      queryClient.invalidateQueries({ queryKey: ["cal-personal"] });
+      refreshCalendar(queryClient);
       queryClient.invalidateQueries({ queryKey: ["crewing-roster"] });
       toast({
         title: "Shift adjustment deleted",

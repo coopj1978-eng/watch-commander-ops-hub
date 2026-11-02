@@ -35,6 +35,7 @@ import {
   Trash2,
   Save,
 } from "lucide-react";
+import { refreshCalendar } from "@/lib/calendarQueries";
 
 // ──────────────────────────────────────────────────────────────────────────────
 // ProfileToilSection
@@ -140,9 +141,7 @@ export function ProfileToilSection({
     queryClient.invalidateQueries({ queryKey: ["shift-adjustments-mine"] });
     queryClient.invalidateQueries({ queryKey: ["shift-adjustments-for-profile"] });
     queryClient.invalidateQueries({ queryKey: ["crewing-roster"] });
-    queryClient.invalidateQueries({ queryKey: ["cal-station"] });
-    queryClient.invalidateQueries({ queryKey: ["cal-watch"] });
-    queryClient.invalidateQueries({ queryKey: ["cal-personal"] });
+    refreshCalendar(queryClient);
   };
 
   const updateMutation = useMutation({

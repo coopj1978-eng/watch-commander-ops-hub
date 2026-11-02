@@ -173,7 +173,7 @@ export default function EventForm({
 
       {/* Struck through — the line through it on the paper calendar */}
       {cancelled && (
-        <div style={{ borderRadius: 12, background: "var(--cal-station-bg)", color: "var(--cal-station-fg)", padding: "10px 12px", fontSize: 12.5 }}>
+        <div style={{ borderRadius: 12, background: "var(--cal-danger-bg)", color: "var(--cal-danger-fg)", padding: "10px 12px", fontSize: 12.5 }}>
           <p style={{ margin: 0, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
             <Ban className="h-3.5 w-3.5" /> Cancelled
             {initialData?.cancelled_by_name ? ` by ${initialData.cancelled_by_name}` : ""}
@@ -322,7 +322,7 @@ export default function EventForm({
             aria-label="Reason for cancelling"
             rows={2}
             autoFocus
-            style={{ font: "inherit", fontSize: 13, borderRadius: 10, padding: 10, border: "1px solid var(--cal-station-dot)", background: "var(--cal-station-bg)", color: "var(--cal-ink)", outline: "none", resize: "none" }}
+            style={{ font: "inherit", fontSize: 13, borderRadius: 10, padding: 10, border: "1px solid var(--cal-danger-dot)", background: "var(--cal-danger-bg)", color: "var(--cal-ink)", outline: "none", resize: "none" }}
           />
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
             <button type="button" className="cal-btn" style={{ height: 36, padding: "0 14px", fontSize: 13 }} onClick={() => { setStriking(false); setStrikeReason(""); }}>
@@ -333,7 +333,7 @@ export default function EventForm({
               disabled={!strikeReason.trim()}
               onClick={() => onStrike?.(strikeReason.trim())}
               className="cal-focus"
-              style={{ height: 36, padding: "0 14px", borderRadius: 12, border: "none", background: "var(--cal-station-dot)", color: "#fff", font: "inherit", fontSize: 13, fontWeight: 600, cursor: "pointer", opacity: strikeReason.trim() ? 1 : 0.5 }}
+              style={{ height: 36, padding: "0 14px", borderRadius: 12, border: "none", background: "var(--cal-danger-dot)", color: "#fff", font: "inherit", fontSize: 13, fontWeight: 600, cursor: "pointer", opacity: strikeReason.trim() ? 1 : 0.5 }}
             >
               Strike through
             </button>
@@ -349,7 +349,7 @@ export default function EventForm({
             </button>
           )}
           {isEditing && onDelete && (
-            <button type="button" onClick={onDelete} className="cal-focus" style={{ border: "none", background: "transparent", color: "var(--cal-station-dot)", font: "inherit", fontSize: 13, fontWeight: 600, cursor: "pointer", padding: 0 }}>
+            <button type="button" onClick={onDelete} className="cal-focus" style={{ border: "none", background: "transparent", color: "var(--cal-danger-dot)", font: "inherit", fontSize: 13, fontWeight: 600, cursor: "pointer", padding: 0 }}>
               Delete
             </button>
           )}

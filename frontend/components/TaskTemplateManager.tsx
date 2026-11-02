@@ -780,7 +780,7 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
                         {["WEEKLY", "NWEEKS", "MONTHLY", "QUARTERLY"].includes(form.sched) ? " It stays on every shift until it's done." : ` If it isn't done that ${form.sched === "SHIFT" ? "shift" : "day"} it's marked missed — it doesn't carry over.`}
                       </span>
                     ) : (
-                      <span className="ttm-preview" style={{ color: "var(--cal-station-fg)" }}>Pick at least one day.</span>
+                      <span className="ttm-preview" style={{ color: "var(--cal-danger-fg)" }}>Pick at least one day.</span>
                     )}
                   </div>
 
@@ -867,8 +867,8 @@ const TTM_CSS = `
 .ttm-btn:hover{background:var(--cal-surface-2)}
 .ttm-primary{height:44px;padding:0 22px;border-radius:12px;border:none;background:var(--cal-brand);color:#fff;font:inherit;font-size:14px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;white-space:nowrap}
 .ttm-primary:disabled{opacity:.6;cursor:not-allowed}
-.ttm-del{margin-right:auto;height:44px;padding:0 14px;border-radius:12px;border:none;background:transparent;color:var(--cal-station-fg);font:inherit;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
-.ttm-del:hover{background:var(--cal-station-bg)}
+.ttm-del{margin-right:auto;height:44px;padding:0 14px;border-radius:12px;border:none;background:transparent;color:var(--cal-danger-fg);font:inherit;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.ttm-del:hover{background:var(--cal-danger-bg)}
 .ttm-del:disabled{opacity:.6;cursor:not-allowed}
 
 .ttm-form-head{display:flex;align-items:center;gap:10px}

@@ -18,6 +18,7 @@ import {
   CalendarDays, Users, GraduationCap, ArrowLeftRight, Loader2, X, RefreshCw, Sun, Pencil, Clock, Trash2,
 } from "lucide-react";
 import type { shift_adjustments } from "@/client";
+import { CALENDAR_EVENTS_KEY } from "@/lib/calendarQueries";
 
 type AdjType = shift_adjustments.ShiftAdjustmentType;
 
@@ -193,7 +194,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
   const invalidateAdjustmentViews = () => {
     for (const key of [
       "shift-adjustments", "shift-adjustments-mine", "shift-adjustments-for-profile",
-      "cal-station", "cal-watch", "cal-personal",
+      CALENDAR_EVENTS_KEY,
       "toil-balance", "toil-entries", "toil-watch-balance", "crewing-roster",
     ]) {
       queryClient.invalidateQueries({ queryKey: [key] });

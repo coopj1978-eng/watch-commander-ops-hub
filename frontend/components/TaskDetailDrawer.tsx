@@ -120,8 +120,8 @@ const CSS = `
 .tdd-soft[aria-expanded="true"]{background:var(--cal-brand-soft);color:var(--cal-brand-text)}
 .tdd-ghost{border:none;background:transparent;cursor:pointer;transition:background-color .15s}
 .tdd-ghost:hover:not(:disabled){background:var(--cal-surface-2)}
-.tdd-danger{border:none;background:transparent;color:var(--cal-station-fg);cursor:pointer;transition:background-color .15s}
-.tdd-danger:hover{background:var(--cal-station-bg)}
+.tdd-danger{border:none;background:transparent;color:var(--cal-danger-fg);cursor:pointer;transition:background-color .15s}
+.tdd-danger:hover{background:var(--cal-danger-bg)}
 .tdd-primary{border:none;background:var(--cal-brand);color:#ffffff;font-weight:600;cursor:pointer;white-space:nowrap}
 .tdd-primary:hover:not(:disabled){filter:brightness(1.08)}
 .tdd-primary:disabled{opacity:.45;cursor:default}
@@ -137,7 +137,7 @@ const CSS = `
 .tdd-box{flex:none;border-radius:7px;border:2px solid var(--cal-line-2);background:var(--cal-surface)}
 .tdd-box[data-on]{border:none;background:var(--cal-brand)}
 .tdd-del{flex:none;width:30px;height:30px;border-radius:8px;border:none;background:transparent;color:var(--cal-muted);cursor:pointer;transition:opacity .12s}
-.tdd-del:hover{color:var(--cal-station-fg);background:var(--cal-station-bg)}
+.tdd-del:hover{color:var(--cal-danger-fg);background:var(--cal-danger-bg)}
 @media (hover:hover){.tdd-row:hover{background:var(--cal-surface-2)}}
 @media (hover:hover) and (min-width:640px){.tdd-del{opacity:0}.tdd-row:hover .tdd-del,.tdd-del:focus-visible{opacity:1}}
 .tdd-noscroll{scrollbar-width:none}

@@ -7,7 +7,9 @@ import { useUserRole } from "@/lib/rbac";
 import backend from "@/lib/backend";
 import type { shift_adjustments } from "@/client";
 import CalendarWidget, { type CalendarViewType, type CalendarItem, type CalendarAnchor } from "../components/CalendarWidget";
-import CalendarSidePanel from "../components/CalendarSidePanel";
+import CalendarFilters from "../components/CalendarFilters";
+import { CalendarNewButton, CalendarNewFab, type NewKind } from "../components/CalendarNewMenu";
+import { CALENDAR_EVENTS_KEY, refreshCalendar } from "@/lib/calendarQueries";
 import EventForm, { type EventFormData } from "../components/EventForm";
 import InspectionEventModal, { type ExistingInspectionEvent } from "../components/InspectionEventModal";
 import ShiftAdjustmentModal from "@/components/ShiftAdjustmentModal";
@@ -16,10 +18,13 @@ import type { CalendarVisibility } from "~backend/calendar/types";
 import type { Task } from "~backend/task/types";
 import type { Inspection } from "~backend/inspection/types";
 import { getShiftsForDateRange, hasRotaConfig } from "@/lib/shiftRota";
-import { ClipboardPlus, CalendarDays, GraduationCap, Filter, X } from "lucide-react";
 import ScheduleTrainingDialog from "@/components/ScheduleTrainingDialog";
 
 // ─── Component ────────────────────────────────────────────────────────────────
+// One calendar (Nov 2026 redesign): the grid gets the full width, with one
+// header — where you are, which calendars, the view, and "New". The old left
+// panel went: its mini month repeated the grid, and "Next up" repeated the
+// shift shown on Home and in the title bar.
 export default function UnifiedCalendar() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -84,25 +89,25 @@ export default function UnifiedCalendar() {
   const [viewWatch, setViewWatch] = useState("");
   const watchShown = (isManager && viewWatch) || userWatch;
 
-  // Schedule Training modal — opens from the calendar toolbar
+  // Schedule Training modal — opens from "New"
   const [trainingModalOpen, setTrainingModalOpen] = useState(false);
 
-  // Mobile filters drawer — desktop has a permanent sidebar, so this is only
-  // consulted below the md breakpoint.
-  const [filtersOpen, setFiltersOpen] = useState(false);
+  // Phones always show a month with the picked day under it.
+  const isPhone = typeof window !== "undefined" && window.innerWidth < 768;
+  const rangeView: CalendarViewType = isPhone ? "month" : view;
 
   // ─── Date range for queries ─────────────────────────────────────────────────
   const getDateRange = () => {
     const start = new Date(currentDate);
     const end = new Date(currentDate);
-    if (view === "month") {
+    if (rangeView === "month") {
       start.setDate(1);
       end.setMonth(end.getMonth() + 1);
       end.setDate(0);
-    } else if (view === "year") {
+    } else if (rangeView === "year") {
       start.setMonth(0, 1);
       end.setMonth(11, 31);
-    } else if (view === "week") {
+    } else if (rangeView === "week") {
       const day = start.getDay();
       const offset = day === 0 ? -6 : 1 - day;
       start.setDate(start.getDate() + offset);
@@ -118,46 +123,20 @@ export default function UnifiedCalendar() {
   const endISO = end.toISOString();
 
   // ─── Queries ────────────────────────────────────────────────────────────────
-  const { data: stationEvents = [] } = useQuery({
-    queryKey: ["cal-station", startISO, endISO],
+  // Everything you may see in the range, in one go — the server applies the
+  // calendar's rules (no one else's personal entries or reminders; watch
+  // events for the watch shown). The calendars menu then filters on screen.
+  const { data: rangeEvents = [] } = useQuery({
+    queryKey: [CALENDAR_EVENTS_KEY, watchShown, startISO, endISO],
     queryFn: async () => {
       const r = await backend.calendar.list({
-        calendar_visibility: "station" as any,
-        start_date: startISO,
-        end_date: endISO,
-      });
-      return r.events;
-    },
-    enabled: visibleCalendars.has("station"),
-  });
-
-  const { data: watchEvents = [] } = useQuery({
-    queryKey: ["cal-watch", userId, watchShown, startISO, endISO],
-    queryFn: async () => {
-      const r = await backend.calendar.list({
-        calendar_visibility: "watch" as any,
-        user_id: userId,
         watch: isManager ? watchShown : undefined,
         start_date: startISO,
         end_date: endISO,
+        limit: 1000,
       });
       return r.events;
     },
-    enabled: visibleCalendars.has("watch"),
-  });
-
-  const { data: personalEvents = [] } = useQuery({
-    queryKey: ["cal-personal", userId, startISO, endISO],
-    queryFn: async () => {
-      const r = await backend.calendar.list({
-        calendar_visibility: "personal" as any,
-        user_id: userId,
-        start_date: startISO,
-        end_date: endISO,
-      });
-      return r.events;
-    },
-    enabled: visibleCalendars.has("personal"),
   });
 
   const { data: tasks = [] } = useQuery({
@@ -273,24 +252,8 @@ export default function UnifiedCalendar() {
   });
 
   function invalidateCalendarQueries() {
-    queryClient.invalidateQueries({ queryKey: ["cal-station"] });
-    queryClient.invalidateQueries({ queryKey: ["cal-watch"] });
-    queryClient.invalidateQueries({ queryKey: ["cal-personal"] });
-    queryClient.invalidateQueries({ queryKey: ["cal-upcoming"] });
+    refreshCalendar(queryClient);
   }
-
-  // "Next up" in the side panel: your upcoming events (station, your watch,
-  // personal, private reminders) over the next 60 days.
-  const { data: upcoming = [] } = useQuery({
-    queryKey: ["cal-upcoming", userId],
-    queryFn: async () => {
-      const from = new Date();
-      from.setHours(0, 0, 0, 0);
-      const to = new Date(from.getTime() + 60 * 86400000);
-      const r = await backend.calendar.list({ start_date: from.toISOString(), end_date: to.toISOString(), limit: 100 });
-      return r.events;
-    },
-  });
 
   // Escape closes the add/edit panel.
   useEffect(() => {
@@ -410,28 +373,49 @@ export default function UnifiedCalendar() {
   }, [watchShown, startISO, endISO, visibleCalendars]);
 
   // ─── Render ──────────────────────────────────────────────────────────────────
-  const allEvents = [
-    ...(visibleCalendars.has("station") ? stationEvents : []),
-    ...(visibleCalendars.has("watch") ? watchEvents : []),
-    ...(visibleCalendars.has("personal") ? personalEvents : []),
-  ];
+  // Personal is strictly yours: an entry you logged for someone else (their
+  // TOIL, say) already shows on the watch calendar.
+  const allEvents = rangeEvents.filter((e) => {
+    const cal = e.calendar_visibility ?? "station";
+    if (cal === "personal") return visibleCalendars.has("personal") && e.user_id === userId;
+    return visibleCalendars.has(cal);
+  });
 
-  const sidePanelProps = {
-    currentDate,
-    view,
-    onPickDay: (d: Date) => setCurrentDate(d),
-    visible: visibleCalendars,
-    onToggle: toggleCalendar,
-    watchShown,
-    userWatch,
-    isManager,
-    onWatchChange: setViewWatch,
-    upcoming: upcoming as any[],
+  // "New": an event starts on the day in view (the next hour if that's
+  // today); the other forms open with that day too.
+  const newDay = (() => {
+    const today = new Date();
+    const inRange = today >= start && today <= new Date(end.getTime() + 86400000);
+    const base = isPhone ? new Date(currentDate) : inRange ? today : new Date(start);
+    if (base.toDateString() === today.toDateString()) {
+      base.setHours(today.getHours() + 1, 0, 0, 0);
+    } else {
+      base.setHours(9, 0, 0, 0);
+    }
+    return base;
+  })();
+
+  const onNew = (kind: NewKind) => {
+    if (kind === "event") handleSlotClick(newDay);
+    else if (kind === "shift") { setShiftAdjDate(newDay); setShiftAdjModalOpen(true); }
+    else if (kind === "inspection") { setFormDate(newDay); setInspectionModalOpen(true); }
+    else setTrainingModalOpen(true);
   };
+
+  const filters = (
+    <CalendarFilters
+      visible={visibleCalendars}
+      onToggle={toggleCalendar}
+      watchShown={watchShown}
+      userWatch={userWatch}
+      isManager={isManager}
+      onWatchChange={setViewWatch}
+      compact={isPhone}
+    />
+  );
 
   // Where the add/edit panel sits: beside the click on desktop, a bottom
   // sheet on phones (or centred if there's no click position).
-  const isPhone = typeof window !== "undefined" && window.innerWidth < 768;
   const PANEL_W = 380;
   const panelStyle: React.CSSProperties = (() => {
     const base: React.CSSProperties = {
@@ -451,80 +435,30 @@ export default function UnifiedCalendar() {
     return { ...base, left, top, width: PANEL_W, maxHeight: vh - top - 16, borderRadius: 22 };
   })();
 
-  const actionBtn: React.CSSProperties = { height: 44, padding: isPhone ? 0 : "0 16px", width: isPhone ? 44 : undefined, fontSize: 14 };
-
   return (
-    <div className="cal-ui" style={{ display: "flex", gap: 24, alignItems: "flex-start" }}>
-      {/* ── Left panel (desktop) ──────────────────────────────────────────── */}
-      <aside className="hidden md:block" aria-label="Calendar panel" style={{ width: 300, flex: "none" }}>
-        <CalendarSidePanel {...sidePanelProps} />
-      </aside>
+    <div className="cal-ui">
+      <CalendarWidget
+        events={allEvents as any}
+        tasks={(visibleCalendars.has("tasks") ? tasks : []) as any}
+        inspections={(visibleCalendars.has("inspections") ? inspections : []) as any}
+        shiftSchedule={shiftSchedule}
+        userWatch={visibleCalendars.has("shifts") ? watchShown : undefined}
+        currentDate={currentDate}
+        onDateChange={setCurrentDate}
+        view={view}
+        onViewChange={setView}
+        onSlotClick={handleSlotClick}
+        onEventClick={handleEventClick}
+        pendingSlot={formOpen && !editingEvent ? pendingSlot : null}
+        filters={filters}
+        newButton={<CalendarNewButton onPick={onNew} />}
+      />
 
-      {/* ── Phone: calendars drawer ───────────────────────────────────────── */}
-      <div
-        className={`md:hidden fixed inset-0 z-40 transition-opacity ${filtersOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-      >
-        <div className="absolute inset-0 bg-black/40" onClick={() => setFiltersOpen(false)} />
-        <aside
-          aria-label="Calendars"
-          className={`absolute left-0 top-0 bottom-0 w-80 max-w-[88vw] overflow-y-auto transition-transform ${filtersOpen ? "translate-x-0" : "-translate-x-full"}`}
-          style={{ background: "var(--cal-bg)", padding: 16, boxShadow: "var(--cal-pop)" }}
-        >
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-            <h2 style={{ margin: 0, fontSize: 17, fontWeight: 600 }}>Calendars</h2>
-            <button type="button" className="cal-btn" style={{ width: 40, height: 40, padding: 0 }} onClick={() => setFiltersOpen(false)} aria-label="Close calendars">
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-          <CalendarSidePanel {...sidePanelProps} showMiniMonth={false} />
-        </aside>
-      </div>
-
-      {/* ── Main ──────────────────────────────────────────────────────────── */}
-      <main style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 16 }}>
-        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "space-between", gap: 16 }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            <span className="cal-mono" style={{ fontSize: 12, letterSpacing: ".12em", color: "var(--cal-muted)", textTransform: "uppercase" }}>
-              {watchShown ? `${watchShown} Watch · ` : ""}Calendar
-            </span>
-            <h1 style={{ margin: 0, fontSize: "clamp(28px, 4vw, 40px)", lineHeight: 1.05, fontWeight: 600, letterSpacing: "-.02em" }}>
-              {currentDate.toLocaleDateString("en-GB", { month: "long", year: "numeric" })}
-            </h1>
-          </div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-            <button type="button" className="cal-btn cal-phone-only" style={{ height: 44, width: 44, padding: 0 }} onClick={() => setFiltersOpen(true)} aria-label="Calendars and filters">
-              <Filter className="h-[18px] w-[18px]" />
-            </button>
-            <button type="button" className="cal-btn" style={actionBtn} onClick={() => { setShiftAdjDate(undefined); setShiftAdjModalOpen(true); }} aria-label="Log Shift">
-              <CalendarDays className="h-[18px] w-[18px]" />
-              <span className="hidden sm:inline">Log Shift</span>
-            </button>
-            <button type="button" className="cal-btn" style={actionBtn} onClick={() => setInspectionModalOpen(true)} aria-label="New Inspection">
-              <ClipboardPlus className="h-[18px] w-[18px]" />
-              <span className="hidden sm:inline">New Inspection</span>
-            </button>
-            <button type="button" className="cal-btn" style={actionBtn} onClick={() => setTrainingModalOpen(true)} aria-label="Schedule Training">
-              <GraduationCap className="h-[18px] w-[18px]" />
-              <span className="hidden sm:inline">Schedule Training</span>
-            </button>
-          </div>
-        </div>
-
-        <CalendarWidget
-          events={allEvents as any}
-          tasks={(visibleCalendars.has("tasks") ? tasks : []) as any}
-          inspections={(visibleCalendars.has("inspections") ? inspections : []) as any}
-          shiftSchedule={shiftSchedule}
-          userWatch={visibleCalendars.has("shifts") ? watchShown : undefined}
-          currentDate={currentDate}
-          onDateChange={setCurrentDate}
-          view={view}
-          onViewChange={setView}
-          onSlotClick={handleSlotClick}
-          onEventClick={handleEventClick}
-          pendingSlot={formOpen && !editingEvent ? pendingSlot : null}
-        />
-      </main>
+      {/* Phones: the calendar's own "+" (the app-wide one is hidden here) */}
+      <CalendarNewFab
+        onPick={onNew}
+        dayLabel={currentDate.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })}
+      />
 
       {/* ── Add / edit event panel ────────────────────────────────────────── */}
       {/* Portalled to <body> above the phone bottom bar, so its buttons aren't hidden behind it */}

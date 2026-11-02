@@ -15,6 +15,7 @@ import {
   ChevronRight, ChevronLeft, Loader2, Pencil, Trash2,
 } from "lucide-react";
 import { format } from "date-fns";
+import { refreshCalendar } from "@/lib/calendarQueries";
 
 // ── Year / quarter helpers ────────────────────────────────────────────────────
 
@@ -242,8 +243,7 @@ export default function InspectionEventModal({ open, onClose, defaultDate, editi
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      queryClient.invalidateQueries({ queryKey: ["cal-watch"] });
-      queryClient.invalidateQueries({ queryKey: ["cal-station"] });
+      refreshCalendar(queryClient);
       toast({ title: "Event & task created", description: "Added to your calendar and the task board." });
       onClose();
     },
@@ -284,8 +284,7 @@ export default function InspectionEventModal({ open, onClose, defaultDate, editi
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      queryClient.invalidateQueries({ queryKey: ["cal-watch"] });
-      queryClient.invalidateQueries({ queryKey: ["cal-station"] });
+      refreshCalendar(queryClient);
       invalidateTargetViews(queryClient);
       toast({ title: "Event updated", description: "Inspection event saved." });
       onClose();
@@ -299,9 +298,7 @@ export default function InspectionEventModal({ open, onClose, defaultDate, editi
     },
     onSuccess: () => {
       toast({ title: "Inspection event deleted" });
-      queryClient.invalidateQueries({ queryKey: ["cal-station"] });
-      queryClient.invalidateQueries({ queryKey: ["cal-watch"] });
-      queryClient.invalidateQueries({ queryKey: ["cal-personal"] });
+      refreshCalendar(queryClient);
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       queryClient.invalidateQueries({ queryKey: ["hfsv-pending"] });
       onClose();

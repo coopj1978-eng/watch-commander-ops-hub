@@ -11,8 +11,8 @@ import { useNav } from "@/lib/navigation";
 // page with its form already open (?new=1 deep links), so it's two taps from
 // anywhere instead of navigate → find the button → tap.
 //
-// Hidden on the Tasks page, which has its own Create Task button in the same
-// spot.
+// Hidden on the Tasks and Calendar pages, which have their own "+" in the
+// same spot.
 // ──────────────────────────────────────────────────────────────────────────────
 
 export function QuickAddButton() {
@@ -21,8 +21,9 @@ export function QuickAddButton() {
   const { pathname } = useLocation();
   const { actions } = useNav();
 
-  // Pages with a tick list down the right of the screen.
-  if (pathname.startsWith("/tasks") || pathname.startsWith("/hydrants")) return null;
+  // Pages with a tick list down the right of the screen, and the calendar,
+  // which has its own "+".
+  if (pathname.startsWith("/tasks") || pathname.startsWith("/hydrants") || pathname.startsWith("/calendar")) return null;
 
   const go = (to: string) => {
     setOpen(false);

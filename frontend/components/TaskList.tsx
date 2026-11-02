@@ -48,7 +48,7 @@ const MUTED: Tone = { bg: "var(--cal-surface-2)", fg: "var(--cal-ink-2)" };
 const statusTone = (status: string): Tone =>
   ({
     InProgress: { bg: "var(--cal-brand-soft)", fg: "var(--cal-brand-text)" },
-    Blocked: { bg: "var(--cal-station-bg)", fg: "var(--cal-station-fg)" },
+    Blocked: { bg: "var(--cal-danger-bg)", fg: "var(--cal-danger-fg)" },
     Done: { bg: "var(--cal-leave-bg)", fg: "var(--cal-leave-fg)" },
   } as Record<string, Tone>)[status] ?? MUTED;
 
@@ -62,7 +62,7 @@ function dueInfo(task: Task): (Tone & { text: string; mono?: boolean }) | null {
       new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()) / 86400000
   );
   if (task.status === "Done") return { text: "Completed", bg: "var(--cal-leave-bg)", fg: "var(--cal-leave-fg)" };
-  if (diff < 0) return { text: `Overdue ${Math.abs(diff)}d`, bg: "var(--cal-station-bg)", fg: "var(--cal-station-fg)" };
+  if (diff < 0) return { text: `Overdue ${Math.abs(diff)}d`, bg: "var(--cal-danger-bg)", fg: "var(--cal-danger-fg)" };
   if (diff === 0) return { text: "Due today", bg: "var(--cal-day-bg)", fg: "var(--cal-day-fg)" };
   if (diff <= 3) return { text: `Due in ${diff}d`, bg: "var(--cal-day-bg)", fg: "var(--cal-day-fg)" };
   return { ...MUTED, text: due.toLocaleDateString("en-GB", { day: "numeric", month: "short" }), mono: true };

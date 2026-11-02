@@ -102,7 +102,7 @@ function CardActionSheet({ task, columns, columnCounts, onOpen, onMove, onSetPri
                 <span style={{ width: 10, height: 10, borderRadius: "50%", background: c.color, flex: "none" }} />
                 {c.name}
                 {count && (
-                  <span className="cal-mono" style={{ marginLeft: "auto", fontSize: 12, padding: "2px 7px", borderRadius: 7, ...(over ? { background: "var(--cal-station-bg)", color: "var(--cal-station-fg)" } : { background: "var(--cal-surface-2)", color: "var(--cal-ink-2)" }) }}>
+                  <span className="cal-mono" style={{ marginLeft: "auto", fontSize: 12, padding: "2px 7px", borderRadius: 7, ...(over ? { background: "var(--cal-danger-bg)", color: "var(--cal-danger-fg)" } : { background: "var(--cal-surface-2)", color: "var(--cal-ink-2)" }) }}>
                     {count}
                   </span>
                 )}
@@ -143,7 +143,7 @@ function CardActionSheet({ task, columns, columnCounts, onOpen, onMove, onSetPri
           </>
         )}
         {onDelete && (
-          <button type="button" className="cal-focus" style={{ ...item, fontWeight: 600, color: "var(--cal-station-fg)" }} onClick={act(onDelete)}>Delete</button>
+          <button type="button" className="cal-focus" style={{ ...item, fontWeight: 600, color: "var(--cal-danger-fg)" }} onClick={act(onDelete)}>Delete</button>
         )}
         <button
           type="button"

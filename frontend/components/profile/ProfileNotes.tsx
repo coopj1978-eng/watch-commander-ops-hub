@@ -13,6 +13,7 @@ import {
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
+import { refreshCalendar } from "@/lib/calendarQueries";
 
 // The Notes & 1:1s tab (Nov 2026). Each note has a title — what it was about —
 // so the list reads at a glance, and the writer can edit or delete it. Notes
@@ -107,9 +108,7 @@ export function ProfileNotes({ profileId, firstName, notes, canWrite }: {
   const refresh = (calendarToo: boolean) => {
     queryClient.invalidateQueries({ queryKey: ["notes", profileId] });
     if (calendarToo) {
-      queryClient.invalidateQueries({ queryKey: ["cal-station"] });
-      queryClient.invalidateQueries({ queryKey: ["cal-watch"] });
-      queryClient.invalidateQueries({ queryKey: ["cal-personal"] });
+      refreshCalendar(queryClient);
       queryClient.invalidateQueries({ queryKey: ["crewing-roster"] });
     }
   };

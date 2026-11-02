@@ -1,5 +1,5 @@
-import { useRef, useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight, Lock, FileText, ArrowRight, Plus } from "lucide-react";
+import { useRef, useEffect } from "react";
+import { ChevronLeft, ChevronRight, Lock, FileText, ArrowRight } from "lucide-react";
 import type { CalendarEvent } from "~backend/calendar/types";
 import type { Task } from "~backend/task/types";
 import type { Inspection } from "~backend/inspection/types";
@@ -45,6 +45,10 @@ interface CalendarWidgetProps {
   onEventClick?: (item: CalendarItem, anchor?: CalendarAnchor) => void;
   /** A new event being added — shown as a dashed placeholder in Day/Week. */
   pendingSlot?: Date | null;
+  /** The "Calendars" menu — beside the view switch on desktop, under the month on phones. */
+  filters?: React.ReactNode;
+  /** The "New" menu at the end of the desktop toolbar (phones use a "+"). */
+  newButton?: React.ReactNode;
 }
 
 // ─── Colours ──────────────────────────────────────────────────────────────────
@@ -635,7 +639,7 @@ function MonthView({
           const dayItems = items
             .filter((it) => spansDay(it, day))
             .sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.startTime.getTime() - b.startTime.getTime());
-          const visible = dayItems.slice(0, 3);
+          const visible = dayItems.slice(0, dayItems.length > 4 ? 3 : 4);
           const more = dayItems.length - visible.length;
           return (
             <div
@@ -646,12 +650,15 @@ function MonthView({
               onKeyDown={(e) => { if (e.key === "Enter") onSlotClick?.(day); }}
               className="cal-focus"
               style={{
-                minHeight: 112, borderRadius: 14, padding: 8, cursor: "pointer", display: "flex", flexDirection: "column", gap: 4,
-                // Shift days are filled (day amber, night indigo, leave green);
-                // rest days stay plain with a thin outline so "off" never
-                // looks like a night.
-                background: k ? `var(--cal-${k}-cell)` : "var(--cal-surface)",
-                boxShadow: isToday ? "inset 0 0 0 2px var(--cal-brand)" : k ? undefined : "inset 0 0 0 1px var(--cal-line)",
+                minHeight: 120, borderRadius: 14, padding: 8, cursor: "pointer", display: "flex", flexDirection: "column", gap: 4,
+                // Shift days get a faint wash and a coloured top edge (day
+                // amber, night indigo, leave green) so the rota reads at a
+                // glance without drowning the events; rest days stay plain.
+                background: k ? `linear-gradient(var(--cal-${k}-shade), var(--cal-${k}-shade)), var(--cal-surface)` : "var(--cal-surface)",
+                boxShadow: [
+                  k ? `inset 0 3px 0 var(--cal-${k}-dot)` : "",
+                  isToday ? "inset 0 0 0 2px var(--cal-brand)" : "inset 0 0 0 1px var(--cal-line)",
+                ].filter(Boolean).join(", "),
                 minWidth: 0,
               }}
             >
@@ -668,7 +675,7 @@ function MonthView({
                 </span>
                 {k && (
                   <span style={{ fontSize: 10.5, fontWeight: 600, padding: "2px 6px", borderRadius: 999, background: tok(k, "bg"), color: tok(k, "fg"), whiteSpace: "nowrap" }}>
-                    {k === "leave" ? "Leave" : k === "day" ? "Day" : "Night"}
+                    {k === "leave" ? "Leave" : shift?.shiftType ?? (k === "day" ? "Day" : "Night")}
                   </span>
                 )}
               </div>
@@ -747,7 +754,7 @@ function YearView({ year, items, onMonthClick }: { year: number; items: Calendar
 
 // ─── Phone: month grid + day agenda ───────────────────────────────────────────
 function MobileMonth({
-  date, items, shiftSchedule, userWatch, selectedDay, onDaySelect, onPrev, onNext,
+  date, items, shiftSchedule, userWatch, selectedDay, onDaySelect,
 }: {
   date: Date;
   items: CalendarItem[];
@@ -755,21 +762,10 @@ function MobileMonth({
   userWatch?: string;
   selectedDay: Date;
   onDaySelect: (d: Date) => void;
-  onPrev: () => void;
-  onNext: () => void;
 }) {
   const today = new Date();
   return (
-    <section className="cal-card" style={{ padding: 14 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-        <button type="button" aria-label="Previous month" onClick={onPrev} className="cal-btn" style={{ width: 40, height: 40, padding: 0 }}>
-          <ChevronLeft className="h-4 w-4" />
-        </button>
-        <h2 style={{ margin: 0, fontSize: 17, fontWeight: 600 }}>{MONTH_NAMES[date.getMonth()]} {date.getFullYear()}</h2>
-        <button type="button" aria-label="Next month" onClick={onNext} className="cal-btn" style={{ width: 40, height: 40, padding: 0 }}>
-          <ChevronRight className="h-4 w-4" />
-        </button>
-      </div>
+    <section className="cal-card" style={{ padding: "10px 10px 12px" }}>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", textAlign: "center", rowGap: 4 }}>
         {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
           <span key={i} style={{ fontSize: 11, fontWeight: 600, color: "var(--cal-muted)", padding: "2px 0" }}>{d}</span>
@@ -811,13 +807,12 @@ function MobileMonth({
 }
 
 function MobileAgenda({
-  date, items, shiftSchedule, userWatch, onNewEvent, onEventClick,
+  date, items, shiftSchedule, userWatch, onEventClick,
 }: {
   date: Date;
   items: CalendarItem[];
   shiftSchedule: ShiftDay[];
   userWatch?: string;
-  onNewEvent?: (date: Date, anchor?: CalendarAnchor) => void;
   onEventClick?: (item: CalendarItem, anchor?: CalendarAnchor) => void;
 }) {
   const shift = getShiftsForDay(shiftSchedule, date, userWatch)[0];
@@ -835,19 +830,9 @@ function MobileAgenda({
             <span><ShiftChip shift={shift} />{shift?.startTime && <span className="cal-mono" style={{ fontSize: 11, color: "var(--cal-muted)", marginLeft: 6 }}>{shift.startTime}–{shift.endTime}</span>}</span>
           )}
         </div>
-        {onNewEvent && (
-          <button
-            type="button"
-            onClick={() => { const at = new Date(date); at.setHours(9, 0, 0, 0); onNewEvent(at); }}
-            className="cal-focus"
-            style={{ height: 40, padding: "0 14px", borderRadius: 12, border: "none", background: "var(--cal-brand)", color: "#fff", font: "inherit", fontSize: 14, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer", flex: "none" }}
-          >
-            <Plus className="h-4 w-4" /> New event
-          </button>
-        )}
       </div>
       {dayItems.length === 0 ? (
-        <p style={{ margin: 0, padding: "18px 0", textAlign: "center", fontSize: 13, color: "var(--cal-muted)" }}>Nothing on this day</p>
+        <p style={{ margin: 0, padding: "18px 0", textAlign: "center", fontSize: 13, color: "var(--cal-muted)" }}>Nothing on — tap + to add</p>
       ) : (
         dayItems.map((it) => {
           const k = calKey(it);
@@ -887,21 +872,22 @@ function MobileAgenda({
 
 // ─── Toolbar ──────────────────────────────────────────────────────────────────
 function rangeLabel(view: CalendarViewType, d: Date): string {
-  if (view === "day") return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+  if (view === "day") return d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
   if (view === "week") {
     const days = getWeekDays(d);
     const a = days[0], b = days[6];
-    const sameMonth = a.getMonth() === b.getMonth();
-    return sameMonth
-      ? `${a.getDate()} – ${b.getDate()} ${MONTH_NAMES[b.getMonth()].slice(0, 3)}`
+    return a.getMonth() === b.getMonth()
+      ? `${a.getDate()} – ${b.getDate()} ${MONTH_NAMES[b.getMonth()]}`
       : `${a.getDate()} ${MONTH_NAMES[a.getMonth()].slice(0, 3)} – ${b.getDate()} ${MONTH_NAMES[b.getMonth()].slice(0, 3)}`;
   }
-  if (view === "month") return `${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}`;
+  if (view === "month") return MONTH_NAMES[d.getMonth()];
   return String(d.getFullYear());
 }
 
+/** One header for the page (Nov 2026): where you are on the left, how to
+ *  look at it and what to add on the right. */
 function Toolbar({
-  view, currentDate, onViewChange, onPrev, onNext, onToday,
+  view, currentDate, onViewChange, onPrev, onNext, onToday, filters, newButton,
 }: {
   view: CalendarViewType;
   currentDate: Date;
@@ -909,38 +895,82 @@ function Toolbar({
   onPrev: () => void;
   onNext: () => void;
   onToday: () => void;
+  filters?: React.ReactNode;
+  newButton?: React.ReactNode;
 }) {
   const unit = view === "day" ? "day" : view === "week" ? "week" : view === "month" ? "month" : "year";
+  const showYear = view !== "year" && currentDate.getFullYear() !== new Date().getFullYear() || view === "month";
   return (
     <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <button type="button" onClick={onToday} className="cal-btn" style={{ height: 40, padding: "0 16px", fontWeight: 600, fontSize: 14 }}>Today</button>
-        <button type="button" aria-label={`Previous ${unit}`} onClick={onPrev} className="cal-btn" style={{ width: 40, height: 40, padding: 0 }}>
-          <ChevronLeft className="h-[18px] w-[18px]" />
-        </button>
-        <button type="button" aria-label={`Next ${unit}`} onClick={onNext} className="cal-btn" style={{ width: 40, height: 40, padding: 0 }}>
-          <ChevronRight className="h-[18px] w-[18px]" />
-        </button>
-        <span className="cal-mono" style={{ fontSize: 14, color: "var(--cal-ink-2)", marginLeft: 6 }}>{rangeLabel(view, currentDate)}</span>
-      </div>
-      <div role="group" aria-label="View" style={{ display: "inline-flex", padding: 4, borderRadius: 14, background: "var(--cal-surface-3)", gap: 2 }}>
-        {(["day", "week", "month", "year"] as CalendarViewType[]).map((v) => (
-          <button
-            key={v}
-            type="button"
-            aria-pressed={view === v}
-            onClick={() => onViewChange(v)}
-            className="cal-focus capitalize"
-            style={{
-              height: 36, padding: "0 16px", borderRadius: 10, border: "none", font: "inherit", fontSize: 14, cursor: "pointer",
-              ...(view === v
-                ? { background: "var(--cal-surface)", color: "var(--cal-ink)", fontWeight: 600, boxShadow: "var(--cal-shadow)" }
-                : { background: "transparent", color: "var(--cal-ink-2)", fontWeight: 500 }),
-            }}
-          >
-            {v}
+      <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+        <button type="button" onClick={onToday} className="cal-btn" style={{ height: 40, padding: "0 14px", fontWeight: 600, fontSize: 14 }} title="Today">Today</button>
+        <div style={{ display: "inline-flex" }}>
+          <button type="button" aria-label={`Previous ${unit}`} title={`Previous ${unit}  ←`} onClick={onPrev} className="cal-btn" style={{ width: 40, height: 40, padding: 0, borderRadius: "12px 0 0 12px" }}>
+            <ChevronLeft className="h-[18px] w-[18px]" />
           </button>
-        ))}
+          <button type="button" aria-label={`Next ${unit}`} title={`Next ${unit}  →`} onClick={onNext} className="cal-btn" style={{ width: 40, height: 40, padding: 0, borderRadius: "0 12px 12px 0", marginLeft: -1 }}>
+            <ChevronRight className="h-[18px] w-[18px]" />
+          </button>
+        </div>
+        <h1 style={{ margin: "0 0 0 8px", fontSize: 28, lineHeight: 1.1, fontWeight: 650, letterSpacing: "-.02em", whiteSpace: "nowrap" }}>
+          {rangeLabel(view, currentDate)}
+          {showYear && <span style={{ color: "var(--cal-muted)", fontWeight: 500 }}> {currentDate.getFullYear()}</span>}
+        </h1>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+        {filters}
+        <div role="group" aria-label="View" style={{ display: "inline-flex", padding: 3, borderRadius: 12, background: "var(--cal-surface-3)", gap: 2 }}>
+          {(["day", "week", "month", "year"] as CalendarViewType[]).map((v) => (
+            <button
+              key={v}
+              type="button"
+              aria-pressed={view === v}
+              onClick={() => onViewChange(v)}
+              className="cal-focus capitalize"
+              style={{
+                height: 34, padding: "0 14px", borderRadius: 9, border: "none", font: "inherit", fontSize: 14, cursor: "pointer",
+                ...(view === v
+                  ? { background: "var(--cal-surface)", color: "var(--cal-ink)", fontWeight: 600, boxShadow: "var(--cal-shadow)" }
+                  : { background: "transparent", color: "var(--cal-ink-2)", fontWeight: 500 }),
+              }}
+            >
+              {v}
+            </button>
+          ))}
+        </div>
+        {newButton}
+      </div>
+    </div>
+  );
+}
+
+/** Phones: the month and its arrows, then Today and the calendars menu. */
+function PhoneHeader({ date, onPrev, onNext, onToday, filters }: {
+  date: Date;
+  onPrev: () => void;
+  onNext: () => void;
+  onToday: () => void;
+  filters?: React.ReactNode;
+}) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+        <h1 style={{ margin: 0, fontSize: 26, lineHeight: 1.1, fontWeight: 650, letterSpacing: "-.02em" }}>
+          {MONTH_NAMES[date.getMonth()]}
+          <span style={{ color: "var(--cal-muted)", fontWeight: 500 }}> {date.getFullYear()}</span>
+        </h1>
+        <div style={{ display: "inline-flex" }}>
+          <button type="button" aria-label="Previous month" onClick={onPrev} className="cal-btn" style={{ width: 44, height: 40, padding: 0, borderRadius: "12px 0 0 12px" }}>
+            <ChevronLeft className="h-[18px] w-[18px]" />
+          </button>
+          <button type="button" aria-label="Next month" onClick={onNext} className="cal-btn" style={{ width: 44, height: 40, padding: 0, borderRadius: "0 12px 12px 0", marginLeft: -1 }}>
+            <ChevronRight className="h-[18px] w-[18px]" />
+          </button>
+        </div>
+      </div>
+      <div style={{ display: "flex", gap: 8 }}>
+        <button type="button" onClick={onToday} className="cal-btn" style={{ height: 40, padding: "0 14px", fontWeight: 600, fontSize: 14 }}>Today</button>
+        {filters}
       </div>
     </div>
   );
@@ -960,10 +990,11 @@ export default function CalendarWidget({
   onSlotClick,
   onEventClick,
   pendingSlot,
+  filters,
+  newButton,
 }: CalendarWidgetProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const items = buildItems(events, tasks, inspections);
-  const [selectedDay, setSelectedDay] = useState<Date>(new Date());
 
   // Open Day/Week at 07:00, or around now later in the day.
   useEffect(() => {
@@ -982,30 +1013,50 @@ export default function CalendarWidget({
     onDateChange(d);
   };
   const toDay = (d: Date) => { onDateChange(d); onViewChange("day"); };
+  const shiftMonth = (dir: -1 | 1) => { const d = new Date(currentDate); d.setMonth(d.getMonth() + dir, 1); onDateChange(d); };
+
+  // ← / → step through days, weeks, months or years — not while typing or
+  // with a form or menu open.
+  const navRef = useRef(navigate);
+  navRef.current = navigate;
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+      const t = e.target as HTMLElement;
+      if (["INPUT", "TEXTAREA", "SELECT"].includes(t.tagName) || t.isContentEditable) return;
+      if (document.querySelector('[role="dialog"], [role="menu"]')) return;
+      e.preventDefault();
+      navRef.current(e.key === "ArrowLeft" ? -1 : 1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   return (
     <div className="cal-ui" style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }}>
-      {/* ── Phone ── */}
+      {/* ── Phone: the month, then the picked day ── */}
       <div className="flex flex-col gap-3 md:hidden">
+        <PhoneHeader
+          date={currentDate}
+          onPrev={() => shiftMonth(-1)}
+          onNext={() => shiftMonth(1)}
+          onToday={() => onDateChange(new Date())}
+          filters={filters}
+        />
         <MobileMonth
           date={currentDate}
           items={items}
           shiftSchedule={shiftSchedule}
           userWatch={userWatch}
-          selectedDay={selectedDay}
-          onPrev={() => { const d = new Date(currentDate); d.setMonth(d.getMonth() - 1, 1); onDateChange(d); }}
-          onNext={() => { const d = new Date(currentDate); d.setMonth(d.getMonth() + 1, 1); onDateChange(d); }}
-          onDaySelect={(d) => {
-            setSelectedDay(d);
-            if (d.getMonth() !== currentDate.getMonth() || d.getFullYear() !== currentDate.getFullYear()) onDateChange(d);
-          }}
+          selectedDay={currentDate}
+          onDaySelect={onDateChange}
         />
         <MobileAgenda
-          date={selectedDay}
+          date={currentDate}
           items={items}
           shiftSchedule={shiftSchedule}
           userWatch={userWatch}
-          onNewEvent={onSlotClick}
           onEventClick={onEventClick}
         />
       </div>
@@ -1019,6 +1070,8 @@ export default function CalendarWidget({
           onPrev={() => navigate(-1)}
           onNext={() => navigate(1)}
           onToday={() => onDateChange(new Date())}
+          filters={filters}
+          newButton={newButton}
         />
         {(view === "week" || view === "day") && (
           <TimeGridCard

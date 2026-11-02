@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 import { GraduationCap, Loader2 } from "lucide-react";
+import { refreshCalendar } from "@/lib/calendarQueries";
 
 // Shared lookup tables — kept in sync with Training page.
 export const TRAINING_TYPE_LABELS: Record<string, string> = {
@@ -101,8 +102,7 @@ export default function ScheduleTrainingDialog({
       // Invalidate both training lists and calendar queries so the new event
       // appears everywhere without a page reload.
       queryClient.invalidateQueries({ queryKey: ["training"] });
-      queryClient.invalidateQueries({ queryKey: ["cal-watch"] });
-      queryClient.invalidateQueries({ queryKey: ["cal-station"] });
+      refreshCalendar(queryClient);
       onOpenChange(false);
       onScheduled?.();
     },

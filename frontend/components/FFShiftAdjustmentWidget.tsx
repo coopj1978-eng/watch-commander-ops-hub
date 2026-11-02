@@ -8,6 +8,7 @@ import { CalendarDays, ArrowLeftRight, GraduationCap, Plus, X, Pencil, RefreshCw
 import ShiftAdjustmentModal from "@/components/ShiftAdjustmentModal";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
+import { refreshCalendar } from "@/lib/calendarQueries";
 
 const TYPE_STYLE = {
   flexi:         { label: "Flexi Day",     icon: CalendarDays,   color: "text-amber-600 dark:text-amber-400",  bg: "bg-amber-50 dark:bg-amber-950/40",   border: "border-amber-300 dark:border-amber-700"  },
@@ -47,9 +48,7 @@ export default function FFShiftAdjustmentWidget() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shift-adjustments-mine"] });
       queryClient.invalidateQueries({ queryKey: ["shift-adjustments"] });
-      queryClient.invalidateQueries({ queryKey: ["cal-station"] });
-      queryClient.invalidateQueries({ queryKey: ["cal-watch"] });
-      queryClient.invalidateQueries({ queryKey: ["cal-personal"] });
+      refreshCalendar(queryClient);
       toast({ title: "Shift adjustment removed" });
     },
     onError: () => toast({ title: "Failed to remove", variant: "destructive" }),
