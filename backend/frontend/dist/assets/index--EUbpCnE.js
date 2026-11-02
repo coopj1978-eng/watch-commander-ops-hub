@@ -46599,7 +46599,7 @@ function ProfileHero({
           {
             "aria-hidden": true,
             className: "grid h-16 w-16 shrink-0 place-items-center rounded-full bg-foreground text-xl font-semibold tracking-tight text-background sm:h-20 sm:w-20 sm:text-2xl",
-            style: { boxShadow: `0 0 0 3px hsl(var(--card)), 0 0 0 6px ${WATCH_RING[watch ?? ""] ?? "transparent"}` },
+            style: { boxShadow: `0 0 0 3px var(--card), 0 0 0 6px ${WATCH_RING[watch ?? ""] ?? "transparent"}` },
             children: initials$2(name)
           }
         ),
@@ -46894,8 +46894,8 @@ function DriverPathway({
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "Now: " }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold", children: at >= 0 ? DRIVER_STEPS[at].label : "Not started" }),
         at >= 0 && at < DRIVER_STEPS.length - 1 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-muted-foreground", children: [
-          " · next ",
-          DRIVER_STEPS[at + 1].label.toLowerCase()
+          " · next: ",
+          DRIVER_STEPS[at + 1].label
         ] })
       ] }),
       lgvDone && (editing ? /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 text-xs text-muted-foreground", children: [
@@ -47244,7 +47244,7 @@ function ProfileDetail() {
     (a) => a.type !== "sickness" && a.status === "approved" && new Date(a.start_date) <= today && new Date(a.end_date) >= new Date(today.toDateString())
   );
   const flags = [
-    ...user2 && !user2.is_active ? [{ key: "signup", label: "Not signed up yet", tone: "warning" }] : [],
+    ...user2 && (!user2.is_active || user2.has_password === false) ? [{ key: "signup", label: "Not signed up yet", tone: "warning" }] : [],
     ...(user2 == null ? void 0 : user2.left_at) ? [{ key: "left", label: `Left the station ${dayMonth(user2.left_at)}` }] : [],
     ...offSick ? [{ key: "sick", label: `Off sick since ${dayMonth(offSick.start_date)}`, tone: "warning" }] : [],
     ...onLeave ? [{ key: "leave", label: `On leave until ${dayMonth(onLeave.end_date)}` }] : []
@@ -47292,11 +47292,11 @@ function ProfileDetail() {
       tone: profile2.trigger_stage === "Stage3" ? "critical" : profile2.trigger_stage !== "None" ? "warning" : "neutral",
       onClick: () => openTab("absences")
     }] : [],
-    ...canSeeHours && toil2 ? [{
+    ...canSeeHours && toilData ? [{
       key: "toil",
       label: "TOIL",
-      value: `${toil2.balance}h`,
-      sub: toil2.pending_earned ? `${toil2.pending_earned}h awaiting approval` : "available",
+      value: `${(toil2 == null ? void 0 : toil2.balance) ?? 0}h`,
+      sub: (toil2 == null ? void 0 : toil2.pending_earned) ? `${toil2.pending_earned}h awaiting approval` : "available",
       onClick: () => {
         setHoursView("toil");
         openTab("hours");

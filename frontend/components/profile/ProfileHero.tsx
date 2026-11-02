@@ -63,7 +63,7 @@ export function ProfileHero({
           <div
             aria-hidden
             className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-foreground text-xl font-semibold tracking-tight text-background sm:h-20 sm:w-20 sm:text-2xl"
-            style={{ boxShadow: `0 0 0 3px hsl(var(--card)), 0 0 0 6px ${WATCH_RING[watch ?? ""] ?? "transparent"}` }}
+            style={{ boxShadow: `0 0 0 3px var(--card), 0 0 0 6px ${WATCH_RING[watch ?? ""] ?? "transparent"}` }}
           >
             {initials(name)}
           </div>

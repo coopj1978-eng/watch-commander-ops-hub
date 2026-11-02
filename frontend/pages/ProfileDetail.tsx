@@ -345,7 +345,7 @@ export default function ProfileDetail() {
     (a) => a.type !== "sickness" && a.status === "approved" && new Date(a.start_date) <= today && new Date(a.end_date) >= new Date(today.toDateString())
   );
   const flags: ProfileFlag[] = [
-    ...(user && !user.is_active ? [{ key: "signup", label: "Not signed up yet", tone: "warning" as const }] : []),
+    ...(user && (!user.is_active || user.has_password === false) ? [{ key: "signup", label: "Not signed up yet", tone: "warning" as const }] : []),
     ...(user?.left_at ? [{ key: "left", label: `Left the station ${dayMonth(user.left_at)}` }] : []),
     ...(offSick ? [{ key: "sick", label: `Off sick since ${dayMonth(offSick.start_date)}`, tone: "warning" as const }] : []),
     ...(onLeave ? [{ key: "leave", label: `On leave until ${dayMonth(onLeave.end_date)}` }] : []),
@@ -399,12 +399,12 @@ export default function ProfileDetail() {
           onClick: () => openTab("absences"),
         }]
       : []),
-    ...(canSeeHours && toil
+    ...(canSeeHours && toilData
       ? [{
           key: "toil",
           label: "TOIL",
-          value: `${toil.balance}h`,
-          sub: toil.pending_earned ? `${toil.pending_earned}h awaiting approval` : "available",
+          value: `${toil?.balance ?? 0}h`,
+          sub: toil?.pending_earned ? `${toil.pending_earned}h awaiting approval` : "available",
           onClick: () => { setHoursView("toil"); openTab("hours"); },
         }]
       : []),

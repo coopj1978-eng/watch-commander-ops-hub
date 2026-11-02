@@ -74,7 +74,7 @@ export function DriverPathway({
           <span className="text-muted-foreground">Now: </span>
           <span className="font-semibold">{at >= 0 ? DRIVER_STEPS[at].label : "Not started"}</span>
           {at >= 0 && at < DRIVER_STEPS.length - 1 && (
-            <span className="text-muted-foreground"> · next {DRIVER_STEPS[at + 1].label.toLowerCase()}</span>
+            <span className="text-muted-foreground"> · next: {DRIVER_STEPS[at + 1].label}</span>
           )}
         </span>
         {lgvDone && (editing ? (
