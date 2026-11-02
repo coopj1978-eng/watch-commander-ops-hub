@@ -1,6 +1,8 @@
 import { api } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
+import { assertCanWriteNotes } from "./access";
+import { withFileLinks } from "./files";
 import { NOTE_COLUMNS } from "./columns";
 import type { ListNotesRequest, ListNotesResponse, Note } from "./types";
 
@@ -41,6 +43,7 @@ export const list = api<ListNotesRequest, ListNotesResponse>(
   { auth: true, expose: true, method: "GET", path: "/notes" },
   async (req) => {
     const auth = getAuthData()!;
+    assertCanWriteNotes();
 
     let dbNotes: DBNote[];
 
@@ -60,7 +63,7 @@ export const list = api<ListNotesRequest, ListNotesResponse>(
     }
 
     return {
-      notes: dbNotes.map(transformNote),
+      notes: await Promise.all(dbNotes.map((n) => withFileLinks(transformNote(n)))),
     };
   }
 );

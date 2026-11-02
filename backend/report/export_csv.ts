@@ -63,6 +63,10 @@ export const exportCsv = api<ExportCsvRequest, ExportCsvResponse>(
     } else if (table === "calendar_events") {
       params.push(auth.userID);
       where = ` WHERE event_type <> 'reminder' OR created_by = $${params.length}`;
+    } else if (table === "activity_log") {
+      // Note entries only for whoever wrote the note.
+      params.push(auth.userID);
+      where = ` WHERE entity_type IS DISTINCT FROM 'note' OR user_id = $${params.length}`;
     }
     const rows = await db.rawQueryAll(`SELECT * FROM ${table}${where}`, ...params);
 

@@ -1,5 +1,8 @@
 export interface NoteAttachment {
   filename: string;
+  /** Where the file sits in the private note-attachments bucket. */
+  key?: string;
+  /** A short-lived signed link, made fresh each time the writer lists their notes. */
   url: string;
   fileType: string;
   fileSize: number;

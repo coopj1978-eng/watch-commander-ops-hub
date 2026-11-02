@@ -2,6 +2,8 @@ import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { logActivity } from "../logging/logger";
+import { assertNoteAuthor } from "./access";
+import { removeNoteFiles } from "./files";
 
 interface DeleteNoteRequest {
   id: number;
@@ -20,8 +22,9 @@ export const deleteNote = api<DeleteNoteRequest, DeleteNoteResponse>(
       id: number;
       created_by_user_id: string;
       calendar_event_id?: number;
+      attachments?: { key?: string }[] | null;
     }>`
-      SELECT id, created_by_user_id, calendar_event_id 
+      SELECT id, created_by_user_id, calendar_event_id, attachments
       FROM notes 
       WHERE id = ${id}
     `;
@@ -30,9 +33,8 @@ export const deleteNote = api<DeleteNoteRequest, DeleteNoteResponse>(
       throw APIError.notFound("note not found");
     }
 
-    if (existingNote.created_by_user_id !== auth.userID) {
-      throw APIError.permissionDenied("only the note creator can delete it");
-    }
+    // A WC/CC, and only the note's writer.
+    await assertNoteAuthor(id);
 
     if (existingNote.calendar_event_id) {
       await db.exec`
@@ -43,6 +45,7 @@ export const deleteNote = api<DeleteNoteRequest, DeleteNoteResponse>(
     await db.exec`
       DELETE FROM notes WHERE id = ${id}
     `;
+    await removeNoteFiles(existingNote.attachments);
 
     await logActivity({
       user_id: auth.userID,

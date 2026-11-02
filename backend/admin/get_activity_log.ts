@@ -44,6 +44,11 @@ export const getActivityLog = api<GetActivityLogRequest, GetActivityLogResponse>
     const conditions: string[] = [];
     let paramIndex = 1;
 
+    // Notes & 1:1s are private to whoever wrote them — even that one was
+    // written, and about whom.
+    conditions.push(`(al.entity_type IS DISTINCT FROM 'note' OR al.user_id = $${paramIndex++})`);
+    params.push(auth.userID);
+
     if (req.user_id) {
       conditions.push(`al.user_id = $${paramIndex++}`);
       params.push(req.user_id);

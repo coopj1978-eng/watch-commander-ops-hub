@@ -2,6 +2,8 @@ import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { logActivity } from "../logging/logger";
+import { assertNoteAuthor } from "./access";
+import { withFileLinks } from "./files";
 import { NOTE_COLUMNS } from "./columns";
 import type { UpdateNoteRequest, Note } from "./types";
 
@@ -57,9 +59,8 @@ export const update = api(
       throw APIError.notFound("note not found");
     }
 
-    if (existingNote.created_by_user_id !== auth.userID) {
-      throw APIError.permissionDenied("only the note creator can update it");
-    }
+    // A WC/CC, and only the note's writer.
+    await assertNoteAuthor(id);
 
     const setClauses: string[] = [];
     const queryParams: any[] = [];
@@ -89,7 +90,7 @@ export const update = api(
     // Reminders are private to the writer — no recipient is ever stored.
 
     if (setClauses.length === 0) {
-      return transformNote(existingNote);
+      return withFileLinks(transformNote(existingNote));
     }
 
     setClauses.push(`updated_at = NOW()`);
@@ -189,6 +190,6 @@ export const update = api(
       details: { profile_id: dbNote.profile_id, fields: Object.keys(updates) },
     });
 
-    return transformNote(dbNote);
+    return withFileLinks(transformNote(dbNote));
   }
 );

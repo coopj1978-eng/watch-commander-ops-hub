@@ -13,9 +13,10 @@ export function assertCanWriteNotes(): string {
   return auth.userID;
 }
 
-/** The note exists and the caller wrote it. Returns the caller's id. */
+/** The caller is a WC/CC, the note exists and they wrote it. Returns the caller's id. */
 export async function assertNoteAuthor(noteId: number): Promise<string> {
   const auth = getAuthData()!;
+  assertCanWriteNotes();
   const note = await db.queryRow<{ created_by_user_id: string }>`
     SELECT created_by_user_id FROM notes WHERE id = ${noteId}
   `;
