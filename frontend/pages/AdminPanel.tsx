@@ -37,7 +37,6 @@ import {
   Truck,
   ClipboardList,
   FileText,
-  BookOpen,
   BarChart3,
   ClipboardCheck,
   Save,
@@ -59,8 +58,7 @@ const FEATURE_CONFIG: {
   { key: "equipment",    label: "J4 Checks",      description: "Equipment checks and defect tracking",             icon: Truck,           phase: "Phase 3" },
   { key: "inspections",  label: "Inspections",    description: "HFSV and multi-storey inspections",                icon: ClipboardCheck,  phase: "Phase 3" },
   { key: "targets",      label: "Targets",        description: "Performance targets and tracking",                 icon: Target,          phase: "Phase 4" },
-  { key: "policies",     label: "Policies",       description: "Policy documents and Q&A",                        icon: FileText,        phase: "Phase 4" },
-  { key: "resources",    label: "Resources",      description: "Reference guides and resources",                   icon: BookOpen,        phase: "Phase 4" },
+  { key: "policies",     label: "Docs",           description: "Policy documents and useful links",               icon: FileText,        phase: "Phase 4" },
   { key: "reports",      label: "Reports",        description: "Quarterly reports and analytics",                  icon: BarChart3,       phase: "Phase 4" },
 ];
 

@@ -24,7 +24,6 @@ import CrewCommanderHome from "./pages/CrewCommanderHome";
 import HandoverPage from "./pages/Handover";
 import DetachmentsPage from "./pages/Detachments";
 import TrainingPage from "./pages/Training";
-import Resources from "./pages/Resources";
 import Bulletins from "./pages/Bulletins";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
@@ -212,7 +211,8 @@ function AppRoutes() {
             Leaving the component / route file in the repo so the work is a
             straight resume when an OpenAI key is provisioned. */}
         <Route path="/policies/qa" element={<Navigate to="/policies" replace />} />
-        <Route path="/resources" element={<Resources />} />
+        {/* Resources was one link — it's now on Docs. */}
+        <Route path="/resources" element={<Navigate to="/policies" replace />} />
         <Route path="/bulletins" element={<Bulletins />} />
         <Route path="/handover" element={<HandoverPage />} />
         <Route path="/detachments" element={<DetachmentsPage />} />

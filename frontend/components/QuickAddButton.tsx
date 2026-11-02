@@ -1,18 +1,9 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import * as Dialog from "@radix-ui/react-dialog";
-import { useAuth } from "@/App";
 import { cn } from "@/lib/utils";
-import {
-  CalendarPlus,
-  FileHeart,
-  KanbanSquare,
-  NotebookPen,
-  Plus,
-  Truck,
-  X,
-  type LucideIcon,
-} from "lucide-react";
+import { Plus, X } from "lucide-react";
+import { useNav } from "@/lib/navigation";
 
 // ──────────────────────────────────────────────────────────────────────────────
 // QuickAddButton — phones only. A "+" above the bottom bar that opens a sheet
@@ -24,34 +15,11 @@ import {
 // spot.
 // ──────────────────────────────────────────────────────────────────────────────
 
-interface Action {
-  label: string;
-  hint: string;
-  to: string;
-  Icon: LucideIcon;
-  tint: string;
-}
-
-const MANAGER_ACTIONS: Action[] = [
-  { label: "Task for this shift", hint: "A card on the shift board", to: "/tasks?new=1", Icon: KanbanSquare, tint: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300" },
-  { label: "Handover note", hint: "For the next watch", to: "/handover?tab=handover&new=1", Icon: NotebookPen, tint: "bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300" },
-  { label: "Calendar event", hint: "Station, watch or personal", to: "/calendar?new=1", Icon: CalendarPlus, tint: "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300" },
-  { label: "Crewing", hint: "Who's riding what", to: "/handover", Icon: Truck, tint: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300" },
-];
-
-const CREW_ACTIONS: Action[] = [
-  { label: "Task for this shift", hint: "A card on the shift board", to: "/tasks?new=1", Icon: KanbanSquare, tint: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300" },
-  { label: "Calendar event", hint: "On your personal calendar", to: "/calendar?new=1", Icon: CalendarPlus, tint: "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300" },
-  { label: "Leave or sick line", hint: "Request leave, attach a sick line", to: "/?tab=absence", Icon: FileHeart, tint: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300" },
-];
-
 export function QuickAddButton() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { user } = useAuth();
-  const isManager = user?.role === "WC" || user?.role === "CC";
-  const actions = isManager ? MANAGER_ACTIONS : CREW_ACTIONS;
+  const { actions } = useNav();
 
   // Pages with a tick list down the right of the screen.
   if (pathname.startsWith("/tasks") || pathname.startsWith("/hydrants")) return null;

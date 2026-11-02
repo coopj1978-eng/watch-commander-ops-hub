@@ -1,16 +1,11 @@
-import { useMemo, useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { useAuth } from "@/App";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import backend from "@/lib/backend";
 import {
-  Bell, Menu, Stethoscope, AlertCircle, Info, CheckCheck, ShieldAlert,
-  ClipboardList, Search, ChevronRight, X as XIcon,
-  LayoutDashboard, Users, Calendar as CalendarIcon, CheckSquare,
-  Target, Navigation, Truck, GraduationCap, UserCircle, FileText,
-  BookOpen, Settings as SettingsIcon, ShieldCheck, Megaphone, BarChart2,
-  Flame,
-  BookMarked,
+  Bell, Stethoscope, AlertCircle, Info, CheckCheck, ShieldAlert,
+  ClipboardList, Search, X as XIcon, Megaphone,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,40 +19,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import ThemeSwitcher from "./ThemeSwitcher";
 import type { notification } from "@/client";
 import { latestAbsencePerPerson, useTodaysAbsences } from "@/lib/absences";
 import { shiftDisplay } from "@/lib/shiftRota";
-import { ChangePasswordDialog } from "@/components/ChangePasswordDialog";
-
-// ──────────────────────────────────────────────────────────────────────────────
-// Route registry for breadcrumb + jump-to-page search. Kept in sync with
-// SidebarNav. When a new page is added, add its entry here so it shows up in
-// the search dropdown and gets a sensible breadcrumb label.
-// ──────────────────────────────────────────────────────────────────────────────
-const ROUTES: { path: string; name: string; icon: React.ElementType }[] = [
-  { path: "/",            name: "Dashboard",   icon: LayoutDashboard },
-  { path: "/people",      name: "People",      icon: Users },
-  { path: "/calendar",    name: "Calendar",    icon: CalendarIcon },
-  { path: "/tasks",       name: "Tasks",       icon: CheckSquare },
-  { path: "/handover",    name: "Shift",       icon: ClipboardList },
-  { path: "/bulletins",   name: "Bulletins",   icon: Megaphone },
-  { path: "/targets",     name: "Targets",     icon: Target },
-  { path: "/hydrants",    name: "Hydrants",    icon: Flame },
-  { path: "/references",  name: "References",  icon: BookMarked },
-  { path: "/detachments", name: "Detachments", icon: Navigation },
-  { path: "/equipment",   name: "J4 Checks",   icon: Truck },
-  { path: "/training",    name: "Training",    icon: GraduationCap },
-  { path: "/reports",     name: "Reports",     icon: BarChart2 },
-  { path: "/policies",    name: "Docs",        icon: FileText },
-  { path: "/resources",   name: "Resources",   icon: BookOpen },
-  { path: "/profile",     name: "My Profile",  icon: UserCircle },
-  { path: "/settings",    name: "Settings",    icon: SettingsIcon },
-  { path: "/admin",       name: "Admin",       icon: ShieldCheck },
-];
+import { pageFor } from "@/lib/navigation";
 
 interface TopBarProps {
-  onMenuClick?: () => void;
+  /** Opens ⌘K search. */
+  onSearch: () => void;
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -109,20 +78,6 @@ function timeAgo(dateStr: string): string {
   if (diffMins < 60) return `${diffMins}m ago`;
   if (diffHours < 24) return `${diffHours}h ago`;
   return `${diffDays}d ago`;
-}
-
-// ──────────────────────────────────────────────────────────────────────────────
-// Breadcrumb + shift helpers
-// ──────────────────────────────────────────────────────────────────────────────
-
-function getBreadcrumbLabel(pathname: string): string {
-  // Match longest-prefix first — e.g. "/people/123" matches "/people".
-  // The root "/" matches "Dashboard" exactly.
-  if (pathname === "/") return "Dashboard";
-  const match = ROUTES
-    .filter(r => r.path !== "/" && pathname.startsWith(r.path))
-    .sort((a, b) => b.path.length - a.path.length)[0];
-  return match?.name ?? pathname;
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -178,113 +133,10 @@ function WatchShiftPill() {
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Jump-to-page search — client-side route switcher. Input filters the nav
-// registry; click or Enter navigates. Wiring to real full-text search across
-// crew / tasks / docs is a future step; this is deliberately scoped to pages
-// only so the "nothing happens" cosmetic-only pattern is avoided.
-// ──────────────────────────────────────────────────────────────────────────────
-
-function JumpSearch() {
-  const navigate = useNavigate();
-  const [query, setQuery] = useState("");
-  const [open, setOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  // Close on click outside
-  useEffect(() => {
-    if (!open) return;
-    const onDown = (e: MouseEvent) => {
-      if (!containerRef.current?.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener("mousedown", onDown);
-    return () => document.removeEventListener("mousedown", onDown);
-  }, [open]);
-
-  // Cmd/Ctrl+K focuses the input from anywhere
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        inputRef.current?.focus();
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
-
-  const results = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return ROUTES;
-    return ROUTES.filter(r => r.name.toLowerCase().includes(q));
-  }, [query]);
-
-  const go = (path: string) => {
-    navigate(path);
-    setQuery("");
-    setOpen(false);
-    inputRef.current?.blur();
-  };
-
-  return (
-    <div ref={containerRef} className="relative hidden md:block">
-      <div className="relative">
-        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
-        <input
-          ref={inputRef}
-          type="text"
-          placeholder="Jump to page…"
-          value={query}
-          onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
-          onFocus={() => setOpen(true)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && results[0]) go(results[0].path);
-            if (e.key === "Escape") { setOpen(false); inputRef.current?.blur(); }
-          }}
-          className="h-8 w-56 pl-8 pr-10 rounded text-xs bg-muted/60 border border-transparent
-                     focus:bg-background focus:border-border focus:outline-none
-                     focus-visible:ring-2 focus-visible:ring-indigo-400/40
-                     placeholder:text-muted-foreground"
-          aria-label="Jump to page"
-        />
-        <kbd className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono text-muted-foreground/60 pointer-events-none">
-          ⌘K
-        </kbd>
-      </div>
-
-      {open && results.length > 0 && (
-        <div className="absolute right-0 top-[calc(100%+4px)] w-64 rounded-md border border-border bg-popover shadow-lg z-50 overflow-hidden">
-          <ul role="listbox">
-            {results.slice(0, 10).map((r) => {
-              const Icon = r.icon;
-              return (
-                <li key={r.path}>
-                  <button
-                    type="button"
-                    onClick={() => go(r.path)}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-left hover:bg-muted/60 transition-colors"
-                  >
-                    <Icon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                    <span className="flex-1 font-medium text-foreground">{r.name}</span>
-                    <span className="font-mono text-[10px] text-muted-foreground">{r.path}</span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ──────────────────────────────────────────────────────────────────────────────
 // TopBar
 // ──────────────────────────────────────────────────────────────────────────────
 
-export default function TopBar({ onMenuClick }: TopBarProps) {
-  const { user, signOut } = useAuth();
-  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
+export default function TopBar({ onSearch }: TopBarProps) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const location = useLocation();
@@ -481,36 +333,23 @@ export default function TopBar({ onMenuClick }: TopBarProps) {
     </Button>
   );
 
-  // ── Derived: breadcrumb + dashboard flag ──────────────────────────────────
-  const currentPageLabel = getBreadcrumbLabel(location.pathname);
+  // ── Derived: page title + dashboard flag ──────────────────────────────────
+  const page = pageFor(location.pathname);
   const isDashboard = location.pathname === "/";
 
+  // Navigation and your account live in the sidebar (desktop) and the tab
+  // bar's More sheet (phones), so the bar keeps to where you are, search and
+  // notifications.
   return (
     <header className="sticky top-0 z-30 flex items-center gap-3 px-4 md:px-6 py-2.5 bg-background/80 backdrop-blur-md border-b border-border print:hidden">
-      {/* ── Left: hamburger + breadcrumb ───────────────────────────────── */}
-      <div className="flex items-center gap-3 min-w-0">
-        {/* Hamburger — only shown on mobile */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden h-9 w-9 rounded hover:bg-muted shrink-0"
-          onClick={onMenuClick}
-          aria-label="Open navigation menu"
-        >
-          <Menu className="h-5 w-5" />
-        </Button>
-
-        {/* Breadcrumb — "Ops / {CurrentPage}" */}
-        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm min-w-0">
-          <Link
-            to="/"
-            className="text-muted-foreground hover:text-foreground transition-colors font-medium"
-          >
-            Ops
-          </Link>
-          <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" aria-hidden />
-          <span className="font-semibold text-foreground truncate">{currentPageLabel}</span>
-        </nav>
+      {/* ── Left: the page you're on ───────────────────────────────────── */}
+      <div className="flex items-center gap-2.5 min-w-0">
+        {page && (
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-muted/70 text-foreground/80 md:hidden" aria-hidden>
+            <page.icon className="h-4 w-4" />
+          </span>
+        )}
+        <span className="font-semibold text-foreground truncate text-base md:text-sm">{page?.name ?? "Ops"}</span>
       </div>
 
       {/* ── Watch pill — hidden on dashboard (OperationalStatusBar covers) ─ */}
@@ -519,11 +358,27 @@ export default function TopBar({ onMenuClick }: TopBarProps) {
       {/* Flex spacer pushes the right cluster to the end */}
       <div className="flex-1" />
 
-      {/* ── Right: search + theme + bell + avatar ──────────────────────── */}
+      {/* ── Right: search + bell ───────────────────────────────────────── */}
       <div className="flex items-center gap-1.5 md:gap-2">
-        <JumpSearch />
-
-        <ThemeSwitcher />
+        {/* Search — a box on desktop, an icon on phones. Opens ⌘K. */}
+        <button
+          type="button"
+          onClick={onSearch}
+          className="hidden md:flex h-8 w-64 items-center gap-2 rounded-lg border border-transparent bg-muted/60 px-2.5 text-xs text-muted-foreground transition-colors hover:border-border hover:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/30"
+        >
+          <Search className="h-3.5 w-3.5 shrink-0" aria-hidden />
+          <span className="flex-1 text-left truncate">Search people, pages, actions…</span>
+          <kbd className="font-mono text-[10px] text-muted-foreground/70">⌘K</kbd>
+        </button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="md:hidden h-9 w-9 rounded-lg hover:bg-muted"
+          onClick={onSearch}
+          aria-label="Search"
+        >
+          <Search className="h-[18px] w-[18px]" />
+        </Button>
 
         {/* Notification Bell — two surfaces sharing the same panel contents:
             • Desktop (md+): Radix DropdownMenu anchored to the bell — smaller
@@ -561,40 +416,6 @@ export default function TopBar({ onMenuClick }: TopBarProps) {
               {renderNotificationPanel(() => setMobileOpen(false))}
             </DialogContent>
           </Dialog>
-        </div>
-
-        {/* User menu — preserved verbatim */}
-        <div className="flex items-center gap-2 pl-1.5 md:pl-2 border-l border-border">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="h-9 px-1.5 md:px-2 rounded hover:bg-muted"
-              >
-                <div className="flex items-center gap-2">
-                  <div className="h-7 w-7 rounded bg-brand text-brand-foreground flex items-center justify-center font-mono font-semibold text-xs shrink-0">
-                    {user?.name?.charAt(0).toUpperCase() || "U"}
-                  </div>
-                  <span className="hidden sm:block text-sm font-medium">{user?.name?.split(" ")[0] || "User"}</span>
-                </div>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <button
-                className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground w-full text-left"
-                onClick={() => setChangePasswordOpen(true)}
-              >
-                Change password
-              </button>
-              <button
-                className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground w-full text-left"
-                onClick={signOut}
-              >
-                Sign Out
-              </button>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <ChangePasswordDialog open={changePasswordOpen} onOpenChange={setChangePasswordOpen} />
         </div>
       </div>
     </header>

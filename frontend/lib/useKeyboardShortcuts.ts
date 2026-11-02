@@ -8,21 +8,26 @@ const SHORTCUTS: Array<{
   key: string;
   label: string;
   description: string;
-  action: (navigate: ReturnType<typeof useNavigate>) => void;
+  action: (navigate: ReturnType<typeof useNavigate>, opts: ShortcutOptions) => void;
 }> = [
-  { key: "d", label: "D", description: "Go to Dashboard",   action: nav => nav("/") },
+  { key: "d", label: "D", description: "Go to Home",        action: nav => nav("/") },
   { key: "h", label: "H", description: "Go to Handover",    action: nav => nav("/handover?tab=handover") },
   { key: "c", label: "C", description: "Go to Crewing",     action: nav => nav("/handover?tab=crewing") },
   { key: "t", label: "T", description: "Go to Tasks",       action: nav => nav("/tasks") },
   { key: "p", label: "P", description: "Go to People",      action: nav => nav("/people") },
   { key: "g", label: "G", description: "Go to Targets",     action: nav => nav("/targets") },
   { key: "n", label: "N", description: "New task",          action: nav => nav("/tasks?new=1") },
+  { key: "[", label: "[", description: "Keep the menu open / collapse it", action: (_, o) => o.onToggleSidebar?.() },
   { key: "?", label: "?", description: "Show this help",    action: () => {} }, // handled separately
 ];
 
 export { SHORTCUTS };
 
-export function useKeyboardShortcuts() {
+interface ShortcutOptions {
+  onToggleSidebar?: () => void;
+}
+
+export function useKeyboardShortcuts(opts: ShortcutOptions = {}) {
   const navigate = useNavigate();
   const [showHelp, setShowHelp] = useState(false);
 
@@ -50,13 +55,13 @@ export function useKeyboardShortcuts() {
       const shortcut = SHORTCUTS.find(s => s.key === key && s.key !== "?");
       if (shortcut) {
         e.preventDefault();
-        shortcut.action(navigate);
+        shortcut.action(navigate, opts);
       }
     };
 
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [navigate]);
+  }, [navigate, opts]);
 
   return { showHelp, setShowHelp };
 }

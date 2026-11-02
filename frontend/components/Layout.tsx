@@ -1,11 +1,13 @@
-import { useState } from "react";
-import { Outlet } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Outlet, useLocation } from "react-router-dom";
 import SidebarNav from "./SidebarNav";
 import TopBar from "./TopBar";
 import PageContainer from "./PageContainer";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { QuickAddButton } from "./QuickAddButton";
 import PWAInstallPrompt from "./PWAInstallPrompt";
+import { CommandPalette, rememberPage } from "./nav/CommandPalette";
+import { ChangePasswordDialog } from "./ChangePasswordDialog";
 import { useKeyboardShortcuts, SHORTCUTS } from "@/lib/useKeyboardShortcuts";
 import {
   Dialog,
@@ -29,6 +31,10 @@ function ShortcutsHelpModal({ open, onClose }: { open: boolean; onClose: () => v
           </DialogTitle>
         </DialogHeader>
         <div className="divide-y divide-border/50 -mx-1">
+          <div className="flex items-center justify-between px-1 py-2.5">
+            <span className="text-sm text-muted-foreground">Search people, pages and actions</span>
+            <kbd className="px-2 py-1 rounded bg-muted border border-border text-xs font-mono font-semibold text-foreground">⌘K</kbd>
+          </div>
           {SHORTCUTS.filter(s => s.key !== "?").map(s => (
             <div key={s.key} className="flex items-center justify-between px-1 py-2.5">
               <span className="text-sm text-muted-foreground">{s.description}</span>
@@ -53,51 +59,66 @@ function ShortcutsHelpModal({ open, onClose }: { open: boolean; onClose: () => v
 // ── Layout ────────────────────────────────────────────────────────────────────
 
 export default function Layout() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarExpanded, setSidebarExpanded] = useState(
-    () => localStorage.getItem("sidebar-expanded") === "true"
-  );
+  const [sidebarExpanded, setSidebarExpanded] = useState(() => {
+    try {
+      return localStorage.getItem("sidebar-expanded") === "true";
+    } catch {
+      return false;
+    }
+  });
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
+  const { pathname } = useLocation();
 
-  const { showHelp, setShowHelp } = useKeyboardShortcuts();
-
-  const toggleExpanded = () => {
+  const toggleExpanded = useCallback(() => {
     setSidebarExpanded((prev) => {
       const next = !prev;
-      localStorage.setItem("sidebar-expanded", String(next));
+      try {
+        localStorage.setItem("sidebar-expanded", String(next));
+      } catch {
+        // Not remembered — fine.
+      }
       return next;
     });
-  };
+  }, []);
+
+  const shortcutOpts = useMemo(() => ({ onToggleSidebar: toggleExpanded }), [toggleExpanded]);
+  const { showHelp, setShowHelp } = useKeyboardShortcuts(shortcutOpts);
+
+  // For ⌘K's "Recent" list.
+  useEffect(() => rememberPage(pathname), [pathname]);
+
+  const openSearch = useCallback(() => setSearchOpen(true), []);
+  const showShortcuts = useCallback(() => setShowHelp(true), [setShowHelp]);
+  const changePassword = useCallback(() => setChangePasswordOpen(true), []);
 
   return (
     <div className="min-h-screen">
       <SidebarNav
-        isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
         expanded={sidebarExpanded}
         onToggleExpand={toggleExpanded}
+        onSearch={openSearch}
+        onShowShortcuts={showShortcuts}
+        onChangePassword={changePassword}
       />
 
-      {/* Mobile backdrop — tapping it closes the sidebar */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-30 md:hidden"
-          onClick={() => setSidebarOpen(false)}
-          aria-hidden="true"
-        />
-      )}
-
       <PageContainer sidebarExpanded={sidebarExpanded}>
-        <TopBar onMenuClick={() => setSidebarOpen(true)} />
+        <TopBar onSearch={openSearch} />
         <Outlet />
       </PageContainer>
 
-      <MobileBottomNav />
+      <MobileBottomNav onSearch={openSearch} onChangePassword={changePassword} />
 
       {/* Phones: "+" for the few things people add on the move */}
       <QuickAddButton />
 
       {/* PWA install nudge — iOS instructions or Chrome's prompt() helper */}
       <PWAInstallPrompt />
+
+      {/* ⌘K — people, pages and actions */}
+      <CommandPalette open={searchOpen} onOpenChange={setSearchOpen} onShowShortcuts={showShortcuts} />
+
+      <ChangePasswordDialog open={changePasswordOpen} onOpenChange={setChangePasswordOpen} />
 
       {/* Global keyboard shortcuts help modal */}
       <ShortcutsHelpModal open={showHelp} onClose={() => setShowHelp(false)} />
