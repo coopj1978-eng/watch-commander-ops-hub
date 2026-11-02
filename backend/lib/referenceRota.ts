@@ -51,16 +51,17 @@ export function referenceCardPeriod(
 
 /**
  * Who a reference card goes to when it comes round: the main watch on its
- * first shift in the period — or, if the main watch is on annual leave, the
- * secondary watch on theirs (John: the secondary covers it when the main
- * watch is off). Null while neither applies to the watch on duty.
+ * first shift in the period. The secondary watch only takes it when the main
+ * watch has no shift left before the card is due (a long leave block) —
+ * John: the secondary covers it when the main watch is off, but work isn't
+ * passed to another watch that the main watch can still do.
  */
 export function referenceCardOwner(
-  ref: number, year: number, onDuty: string | null, mainOnLeave: boolean,
+  ref: number, year: number, onDuty: string | null, mainHasShiftLeft: boolean,
 ): string | null {
   if (!onDuty) return null;
   const { main, secondary } = referenceHolders(ref, year);
   if (onDuty.toLowerCase() === main.toLowerCase()) return main;
-  if (mainOnLeave && onDuty.toLowerCase() === secondary.toLowerCase()) return secondary;
+  if (!mainHasShiftLeft && onDuty.toLowerCase() === secondary.toLowerCase()) return secondary;
   return null;
 }

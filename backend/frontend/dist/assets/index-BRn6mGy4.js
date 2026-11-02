@@ -59581,7 +59581,7 @@ function ReferenceCards({ n, cards, canEdit, holder }) {
         " Edit cards"
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-0.5 text-xs text-muted-foreground", children: "Each card goes to the main watch on their first shift of the period (the secondary watch if the main watch is on leave) and stays on their board until done." }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-0.5 text-xs text-muted-foreground", children: "Each card goes to the main watch on their first shift of the period and stays on their board until done. The secondary watch only gets it if the main watch has no shift left before it's due." }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 grid gap-3 sm:grid-cols-3", children: CADENCES.map((c) => {
       const cur = card(c.key);
       return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-2 rounded-xl border border-border/60 p-2", children: [

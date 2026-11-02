@@ -256,7 +256,7 @@ function ReferenceCards({ n, cards, canEdit, holder }: { n: number; cards: refer
         )}
       </div>
       <p className="mt-0.5 text-xs text-muted-foreground">
-        Each card goes to the main watch on their first shift of the period (the secondary watch if the main watch is on leave) and stays on their board until done.
+        Each card goes to the main watch on their first shift of the period and stays on their board until done. The secondary watch only gets it if the main watch has no shift left before it's due.
       </p>
       <div className="mt-3 grid gap-3 sm:grid-cols-3">
         {CADENCES.map((c) => {

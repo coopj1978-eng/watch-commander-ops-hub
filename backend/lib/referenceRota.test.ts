@@ -19,10 +19,11 @@ describe("reference rota (server)", () => {
     expect(referenceCardPeriod("annual", 3, "2027-03-05")).toEqual({ start: "2027-03-01", endDate: "2028-01-01" });
   });
 
-  it("gives the card to the main watch, or the secondary when the main watch is on leave", () => {
+  it("gives the card to the main watch, or the secondary only when the main watch has no shift left", () => {
+    expect(referenceCardOwner(4, 2026, "Blue", true)).toBe("Blue");
     expect(referenceCardOwner(4, 2026, "Blue", false)).toBe("Blue");
-    expect(referenceCardOwner(4, 2026, "Green", false)).toBeNull();
-    expect(referenceCardOwner(4, 2026, "Green", true)).toBe("Green");
-    expect(referenceCardOwner(4, 2026, "Red", true)).toBeNull();
+    expect(referenceCardOwner(4, 2026, "Green", true)).toBeNull();   // Blue can still do it
+    expect(referenceCardOwner(4, 2026, "Green", false)).toBe("Green");
+    expect(referenceCardOwner(4, 2026, "Red", false)).toBeNull();
   });
 });

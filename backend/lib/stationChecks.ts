@@ -155,9 +155,9 @@ export async function ensureStationChecks(now: Date = new Date()): Promise<{ cre
 /**
  * Reference duty cards (John, Nov 2026): each station reference's monthly,
  * quarterly and annual card is made on the first shift in its period of the
- * watch holding the reference — or, if that watch is on annual leave, of its
- * secondary watch — and belongs to that watch (watch_unit), so it stays on
- * their board until done. It's due when the period ends; making the next
+ * watch holding the reference — or of its secondary watch, but only if the
+ * main watch has no shift left before it's due — and belongs to that watch
+ * (watch_unit), so it stays on their board until done. It's due when the period ends; making the next
  * period's card marks an unfinished one Missed.
  */
 async function ensureReferenceCards(slot: ShiftSlot): Promise<number> {
@@ -178,8 +178,15 @@ async function ensureReferenceCards(slot: ShiftSlot): Promise<number> {
       t.id, period.start
     );
     if (exists) continue;
-    const mainOnLeave = watchShiftOn(referenceHoldersFor(t.reference_no, year).main, slot.date) === "Annual Leave";
-    const owner = referenceCardOwner(t.reference_no, year, onDuty, mainOnLeave);
+    // Does the main watch still have a shift before the card's due? (From
+    // tomorrow: today's is this shift or already over.)
+    const main = referenceHoldersFor(t.reference_no, year).main;
+    let mainHasShiftLeft = false;
+    for (let d = addDaysIso(slot.date, 1); d < period.endDate && !mainHasShiftLeft; d = addDaysIso(d, 1)) {
+      const s = watchShiftOn(main, d);
+      mainHasShiftLeft = !!s && s !== "Rest" && s !== "Annual Leave";
+    }
+    const owner = referenceCardOwner(t.reference_no, year, onDuty, mainHasShiftLeft);
     if (!owner) continue;
 
     const checklist = t.checklist ? (typeof t.checklist === "string" ? t.checklist : JSON.stringify(t.checklist)) : "[]";
