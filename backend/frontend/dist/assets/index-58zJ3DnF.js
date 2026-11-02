@@ -28743,11 +28743,11 @@ var policy;
       this.baseClient = baseClient;
       this.ask = this.ask.bind(this);
       this.getDownloadUrl = this.getDownloadUrl.bind(this);
-      this.getUploadUrl = this.getUploadUrl.bind(this);
       this.list = this.list.bind(this);
       this.processEmbedding = this.processEmbedding.bind(this);
       this.queryHistory = this.queryHistory.bind(this);
       this.upload = this.upload.bind(this);
+      this.uploadFile = this.uploadFile.bind(this);
       this.acknowledge = this.acknowledge.bind(this);
       this.setRequiresAck = this.setRequiresAck.bind(this);
       this.getStats = this.getStats.bind(this);
@@ -28770,10 +28770,6 @@ var policy;
     }
     async getDownloadUrl(id) {
       const resp = await this.baseClient.callTypedAPI("GET", `/policies/${encodeURIComponent(id)}/download-url`);
-      return await resp.json();
-    }
-    async getUploadUrl(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/policies/upload-url`, JSON.stringify(params));
       return await resp.json();
     }
     async list(params) {
@@ -28800,6 +28796,16 @@ var policy;
     }
     async upload(params) {
       const resp = await this.baseClient.callTypedAPI("POST", `/api/policies`, JSON.stringify(params));
+      return await resp.json();
+    }
+    /**
+     * Stores a policy PDF (raw endpoint: the file is the body). Save the record with upload() after.
+     */
+    async uploadFile(file, filename) {
+      const resp = await this.baseClient.callAPI("POST", `/policies/files`, file, {
+        query: { filename },
+        headers: { "Content-Type": "application/pdf" }
+      });
       return await resp.json();
     }
   }
@@ -59741,6 +59747,7 @@ const DOC_CATEGORIES = [
   "SOP",
   "Training Material"
 ];
+const MAX_PDF_BYTES = 25 * 1024 * 1024;
 function PolicyUpload({ open, onOpenChange }) {
   const backend = useBackend$1();
   const { toast: toast2 } = useToast();
@@ -59758,24 +59765,15 @@ function PolicyUpload({ open, onOpenChange }) {
         throw new Error("No file selected or user not authenticated");
       }
       setIsUploading(true);
-      const uploadUrlResponse = await backend.policy.getUploadUrl({
-        file_name: selectedFile.name
-      });
-      const uploadResponse = await fetch(uploadUrlResponse.upload_url, {
-        method: "PUT",
-        body: selectedFile,
-        headers: {
-          "Content-Type": "application/pdf"
-        }
-      });
-      if (!uploadResponse.ok) {
-        throw new Error("Failed to upload file to storage");
+      if (selectedFile.size > MAX_PDF_BYTES) {
+        throw new Error("PDFs can be up to 25 MB.");
       }
+      const stored = await backend.policy.uploadFile(selectedFile, selectedFile.name);
       const policyDoc = await backend.policy.upload({
         title: title || selectedFile.name,
         file_name: selectedFile.name,
-        file_path: uploadUrlResponse.file_path,
-        file_size: selectedFile.size,
+        file_path: stored.file_path,
+        file_size: stored.file_size,
         category: category || void 0,
         tags: tags ? tags.split(",").map((t) => t.trim()) : void 0,
         version: version || void 0,
@@ -60141,6 +60139,8 @@ function Policies() {
   const backend = useBackend$1();
   const { toast: toast2 } = useToast();
   useQueryClient();
+  const { user: user2 } = useAuth();
+  const canUpload = (user2 == null ? void 0 : user2.role) === "WC";
   const [searchTerm, setSearchTerm] = reactExports.useState("");
   const [uploadDialogOpen, setUploadDialogOpen] = reactExports.useState(false);
   const [viewMode, setViewMode] = reactExports.useState("grid");
@@ -60228,7 +60228,7 @@ function Policies() {
             }
           )
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        canUpload && /* @__PURE__ */ jsxRuntimeExports.jsxs(
           Button,
           {
             className: "bg-brand hover:bg-brand/90 text-brand-foreground",
@@ -60360,7 +60360,7 @@ function Policies() {
       /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "mx-auto h-10 w-10 mb-3 text-muted-foreground/40" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium text-foreground", children: activeFiltersCount > 0 || searchTerm ? "No policies match the search criteria" : "No policy documents uploaded yet" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground mt-1", children: activeFiltersCount > 0 || searchTerm ? "Try adjusting the filters or search term." : "Upload PDF policy documents to make them searchable." }),
-      !searchTerm && activeFiltersCount === 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      canUpload && !searchTerm && activeFiltersCount === 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
         Button,
         {
           className: "mt-5 bg-brand hover:bg-brand/90 text-brand-foreground",

@@ -32,6 +32,9 @@ export const DOC_CATEGORIES = [
   "Training Material",
 ] as const;
 
+// Matches the server's limit on POST /policies/files.
+const MAX_PDF_BYTES = 25 * 1024 * 1024;
+
 interface PolicyUploadProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -58,27 +61,17 @@ export default function PolicyUpload({ open, onOpenChange }: PolicyUploadProps) 
 
       setIsUploading(true);
 
-      const uploadUrlResponse = await backend.policy.getUploadUrl({
-        file_name: selectedFile.name,
-      });
-
-      const uploadResponse = await fetch(uploadUrlResponse.upload_url, {
-        method: "PUT",
-        body: selectedFile,
-        headers: {
-          "Content-Type": "application/pdf",
-        },
-      });
-
-      if (!uploadResponse.ok) {
-        throw new Error("Failed to upload file to storage");
+      if (selectedFile.size > MAX_PDF_BYTES) {
+        throw new Error("PDFs can be up to 25 MB.");
       }
+
+      const stored = await backend.policy.uploadFile(selectedFile, selectedFile.name);
 
       const policyDoc = await backend.policy.upload({
         title: title || selectedFile.name,
         file_name: selectedFile.name,
-        file_path: uploadUrlResponse.file_path,
-        file_size: selectedFile.size,
+        file_path: stored.file_path,
+        file_size: stored.file_size,
         category: category || undefined,
         tags: tags ? tags.split(",").map((t) => t.trim()) : undefined,
         version: version || undefined,

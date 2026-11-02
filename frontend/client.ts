@@ -3456,15 +3456,6 @@ export namespace policy {
         "download_url": string
     }
 
-    export interface GetUploadUrlRequest {
-        "file_name": string
-    }
-
-    export interface GetUploadUrlResponse {
-        "upload_url": string
-        "file_path": string
-    }
-
     export interface ListPoliciesRequest {
         category?: string
         limit?: number
@@ -3549,11 +3540,11 @@ export namespace policy {
             this.baseClient = baseClient
             this.ask = this.ask.bind(this)
             this.getDownloadUrl = this.getDownloadUrl.bind(this)
-            this.getUploadUrl = this.getUploadUrl.bind(this)
             this.list = this.list.bind(this)
             this.processEmbedding = this.processEmbedding.bind(this)
             this.queryHistory = this.queryHistory.bind(this)
             this.upload = this.upload.bind(this)
+            this.uploadFile = this.uploadFile.bind(this)
             this.acknowledge = this.acknowledge.bind(this)
             this.setRequiresAck = this.setRequiresAck.bind(this)
             this.getStats = this.getStats.bind(this)
@@ -3584,12 +3575,6 @@ export namespace policy {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/policies/${encodeURIComponent(id)}/download-url`)
             return await resp.json() as GetDownloadUrlResponse
-        }
-
-        public async getUploadUrl(params: GetUploadUrlRequest): Promise<GetUploadUrlResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/policies/upload-url`, JSON.stringify(params))
-            return await resp.json() as GetUploadUrlResponse
         }
 
         public async list(params: ListPoliciesRequest): Promise<ListPoliciesResponse> {
@@ -3628,6 +3613,17 @@ export namespace policy {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("POST", `/api/policies`, JSON.stringify(params))
             return await resp.json() as PolicyDoc
+        }
+
+        /**
+         * Stores a policy PDF (raw endpoint: the file is the body). Save the record with upload() after.
+         */
+        public async uploadFile(file: Blob, filename: string): Promise<{ file_path: string; file_size: number }> {
+            const resp = await this.baseClient.callAPI("POST", `/policies/files`, file, {
+                query: { filename },
+                headers: { "Content-Type": "application/pdf" },
+            })
+            return await resp.json() as { file_path: string; file_size: number }
         }
     }
 }

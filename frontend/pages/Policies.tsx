@@ -32,6 +32,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Upload, Download, FileText, Search, Filter, Grid3x3, Table as TableIcon, BookOpen } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PolicyAckControls } from "@/components/PolicyAckControls";
+import { useAuth } from "@/App";
 
 type ViewMode = "grid" | "table";
 
@@ -39,6 +40,9 @@ export default function Policies() {
   const backend = useBackend();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  // Uploading is WC only (CREATE_POLICIES on the server).
+  const canUpload = user?.role === "WC";
   const [searchTerm, setSearchTerm] = useState("");
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
@@ -133,14 +137,16 @@ export default function Policies() {
               <TableIcon className="h-4 w-4" />
             </Button>
           </div>
-          <Button
-            className="bg-brand hover:bg-brand/90 text-brand-foreground"
-            onClick={() => setUploadDialogOpen(true)}
-            aria-label="Upload Document"
-          >
-            <Upload className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">Upload Document</span>
-          </Button>
+          {canUpload && (
+            <Button
+              className="bg-brand hover:bg-brand/90 text-brand-foreground"
+              onClick={() => setUploadDialogOpen(true)}
+              aria-label="Upload Document"
+            >
+              <Upload className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Upload Document</span>
+            </Button>
+          )}
         </div>
       </div>
 
@@ -316,7 +322,7 @@ export default function Policies() {
                 ? "Try adjusting the filters or search term."
                 : "Upload PDF policy documents to make them searchable."}
             </p>
-            {!searchTerm && activeFiltersCount === 0 && (
+            {canUpload && !searchTerm && activeFiltersCount === 0 && (
               <Button
                 className="mt-5 bg-brand hover:bg-brand/90 text-brand-foreground"
                 onClick={() => setUploadDialogOpen(true)}

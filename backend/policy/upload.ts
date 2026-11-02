@@ -3,12 +3,15 @@ import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { policyDocuments } from "../storage";
 import { logActivity } from "../logging/logger";
+import { Permission, requirePermission } from "../auth/rbac";
 import type { CreatePolicyDocRequest, PolicyDoc } from "./types";
 
+// Saves the record for a PDF already stored by POST /policies/files.
 export const upload = api<CreatePolicyDocRequest, PolicyDoc>(
   { auth: true, expose: true, method: "POST", path: "/api/policies" },
   async (req) => {
     const auth = getAuthData()!;
+    requirePermission(auth, Permission.CREATE_POLICIES);
     const doc = await db.queryRow<PolicyDoc>`
       INSERT INTO policy_docs (
         title, file_name, file_path, file_size, category, tags,
