@@ -377,11 +377,22 @@ export default function UnifiedCalendar() {
   // ─── Render ──────────────────────────────────────────────────────────────────
   // Personal is strictly yours: an entry you logged for someone else (their
   // TOIL, say) already shows on the watch calendar.
-  const allEvents = rangeEvents.filter((e) => {
+  const layered = rangeEvents.filter((e) => {
     const cal = e.calendar_visibility ?? "station";
     if (cal === "personal") return visibleCalendars.has("personal") && e.user_id === userId;
     return visibleCalendars.has(cal);
   });
+  // A booking (TOIL, H4H, flexi…) is written twice — "Flexi Day" on your own
+  // calendar and "John Cooper – Flexi Day" on the watch's. When you can see
+  // your own copy, the watch's copy of the same booking would just repeat it.
+  const mineBooked = new Set(
+    layered
+      .filter((e) => e.calendar_visibility === "personal" && e.shift_adjustment_id)
+      .map((e) => e.shift_adjustment_id)
+  );
+  const allEvents = layered.filter(
+    (e) => !(e.calendar_visibility === "watch" && e.shift_adjustment_id && mineBooked.has(e.shift_adjustment_id))
+  );
 
   // "New": an event starts on the day in view (the next hour if that's
   // today); the other forms open with that day too.

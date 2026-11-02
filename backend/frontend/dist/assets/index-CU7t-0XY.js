@@ -48511,10 +48511,11 @@ function EventPill({
     }
   );
 }
+const inTopLane = (it) => it.allDay || it.endTime.getTime() - it.startTime.getTime() >= 864e5;
 function layoutDay(items, day2) {
   const dayStart = startOfDay$1(day2).getTime();
   const dayEnd = dayStart + 864e5;
-  const timed = items.filter((it) => !it.allDay && it.startTime.getTime() < dayEnd && Math.max(it.endTime.getTime(), it.startTime.getTime() + 1) > dayStart).map((it) => {
+  const timed = items.filter((it) => !inTopLane(it) && it.startTime.getTime() < dayEnd && Math.max(it.endTime.getTime(), it.startTime.getTime() + 1) > dayStart).map((it) => {
     const s = Math.max(it.startTime.getTime(), dayStart);
     const e = Math.min(Math.max(it.endTime.getTime(), it.startTime.getTime() + 30 * 6e4), dayEnd);
     return { item: it, s, e };
@@ -48757,7 +48758,7 @@ function AllDayLane({
   const last = startOfDay$1(days[days.length - 1]).getTime();
   const idx = (d) => Math.round((startOfDay$1(d).getTime() - first) / 864e5);
   const rows = [];
-  const placed = items.filter((it) => it.allDay && startOfDay$1(it.startTime).getTime() <= last && startOfDay$1(it.endTime).getTime() >= first).sort((a, b) => a.startTime.getTime() - b.startTime.getTime()).map((it) => {
+  const placed = items.filter((it) => inTopLane(it) && startOfDay$1(it.startTime).getTime() <= last && startOfDay$1(it.endTime).getTime() >= first).sort((a, b) => a.startTime.getTime() - b.startTime.getTime()).map((it) => {
     const c0 = Math.max(0, idx(it.startTime));
     const c1 = Math.min(days.length - 1, idx(it.endTime));
     let lane = rows.findIndex((cols) => cols.every((c) => c < c0 || c > c1));
@@ -48767,7 +48768,8 @@ function AllDayLane({
     }
     for (let c = c0; c <= c1; c++) rows[lane].push(c);
     const span = c1 - c0 + 1;
-    const extra = span > 1 ? `${DOW$1[(days[c0].getDay() + 6) % 7]}–${DOW$1[(days[c1].getDay() + 6) % 7]}` : void 0;
+    const dow = (d) => DOW$1[(d.getDay() + 6) % 7];
+    const extra = !it.allDay ? `${dow(it.startTime)} ${hhmm$3(it.startTime)} – ${dow(it.endTime)} ${hhmm$3(it.endTime)}` : span > 1 ? `${dow(days[c0])}–${dow(days[c1])}` : void 0;
     return { it, c0, span, lane, extra };
   });
   if (placed.length === 0) return null;
@@ -49703,7 +49705,7 @@ function CalendarFilters({
       {
         type: "button",
         className: "cal-btn",
-        style: { height: 40, padding: "0 12px", fontSize: 14, gap: 8 },
+        style: { height: 40, padding: "0 12px", fontSize: 14, gap: 8, whiteSpace: "nowrap" },
         "aria-label": "Choose calendars",
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { display: "inline-flex" }, "aria-hidden": true, children: shownLayers.slice(0, 4).map((l, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -49721,7 +49723,7 @@ function CalendarFilters({
             l.key
           )) }),
           !compact && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Calendars" }),
-          compact && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: isManager && watchShown ? `${watchShown} Watch` : "Calendars" }),
+          compact && isManager && watchShown && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: watchShown }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "h-4 w-4", style: { color: "var(--cal-muted)" } })
         ]
       }
@@ -51244,11 +51246,17 @@ This cancels the whole booking (TOIL/H4H/Flexi): any TOIL hours are refunded and
     if (!hasRotaConfig(watchShown) || !visibleCalendars.has("shifts")) return [];
     return getShiftsForDateRange(watchShown, new Date(startISO), new Date(endISO));
   }, [watchShown, startISO, endISO, visibleCalendars]);
-  const allEvents = rangeEvents.filter((e) => {
+  const layered = rangeEvents.filter((e) => {
     const cal = e.calendar_visibility ?? "station";
     if (cal === "personal") return visibleCalendars.has("personal") && e.user_id === userId;
     return visibleCalendars.has(cal);
   });
+  const mineBooked = new Set(
+    layered.filter((e) => e.calendar_visibility === "personal" && e.shift_adjustment_id).map((e) => e.shift_adjustment_id)
+  );
+  const allEvents = layered.filter(
+    (e) => !(e.calendar_visibility === "watch" && e.shift_adjustment_id && mineBooked.has(e.shift_adjustment_id))
+  );
   const newDay = (() => {
     const today = /* @__PURE__ */ new Date();
     const inRange = today >= start && today <= new Date(end.getTime() + 864e5);

@@ -335,12 +335,17 @@ function EventPill({
 // ─── Time grid (Day + Week) ───────────────────────────────────────────────────
 interface Placed { item: CalendarItem; top: number; height: number; lane: number; lanes: number; }
 
+/** All-day entries, and anything lasting a day or more (a two-day course, a
+ *  week's detachment), sit in the lane above the hours — as one bar across
+ *  the days — instead of a column-high block whose title scrolls away. */
+const inTopLane = (it: CalendarItem) => it.allDay || it.endTime.getTime() - it.startTime.getTime() >= 86400000;
+
 /** Timed events on a day, clipped to the day and laid side by side when they overlap. */
 function layoutDay(items: CalendarItem[], day: Date): Placed[] {
   const dayStart = startOfDay(day).getTime();
   const dayEnd = dayStart + 86400000;
   const timed = items
-    .filter((it) => !it.allDay && it.startTime.getTime() < dayEnd && Math.max(it.endTime.getTime(), it.startTime.getTime() + 1) > dayStart)
+    .filter((it) => !inTopLane(it) && it.startTime.getTime() < dayEnd && Math.max(it.endTime.getTime(), it.startTime.getTime() + 1) > dayStart)
     .map((it) => {
       const s = Math.max(it.startTime.getTime(), dayStart);
       const e = Math.min(Math.max(it.endTime.getTime(), it.startTime.getTime() + 30 * 60000), dayEnd);
@@ -550,7 +555,7 @@ function AllDayLane({
   const idx = (d: Date) => Math.round((startOfDay(d).getTime() - first) / 86400000);
   const rows: number[][] = []; // per lane: occupied column indexes
   const placed = items
-    .filter((it) => it.allDay && startOfDay(it.startTime).getTime() <= last && startOfDay(it.endTime).getTime() >= first)
+    .filter((it) => inTopLane(it) && startOfDay(it.startTime).getTime() <= last && startOfDay(it.endTime).getTime() >= first)
     .sort((a, b) => a.startTime.getTime() - b.startTime.getTime())
     .map((it) => {
       const c0 = Math.max(0, idx(it.startTime));
@@ -559,7 +564,10 @@ function AllDayLane({
       if (lane === -1) { lane = rows.length; rows.push([]); }
       for (let c = c0; c <= c1; c++) rows[lane].push(c);
       const span = c1 - c0 + 1;
-      const extra = span > 1 ? `${DOW[(days[c0].getDay() + 6) % 7]}–${DOW[(days[c1].getDay() + 6) % 7]}` : undefined;
+      const dow = (d: Date) => DOW[(d.getDay() + 6) % 7];
+      const extra = !it.allDay
+        ? `${dow(it.startTime)} ${hhmm(it.startTime)} – ${dow(it.endTime)} ${hhmm(it.endTime)}`
+        : span > 1 ? `${dow(days[c0])}–${dow(days[c1])}` : undefined;
       return { it, c0, span, lane, extra };
     });
   if (placed.length === 0) return null;

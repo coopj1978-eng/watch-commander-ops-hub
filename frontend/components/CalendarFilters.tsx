@@ -61,7 +61,7 @@ export default function CalendarFilters({
         <button
           type="button"
           className="cal-btn"
-          style={{ height: 40, padding: "0 12px", fontSize: 14, gap: 8 }}
+          style={{ height: 40, padding: "0 12px", fontSize: 14, gap: 8, whiteSpace: "nowrap" }}
           aria-label="Choose calendars"
         >
           <span style={{ display: "inline-flex" }} aria-hidden>
@@ -75,8 +75,9 @@ export default function CalendarFilters({
               />
             ))}
           </span>
+          {/* Phones are tight: the watch name (WC/CC can switch it), else just the dots. */}
           {!compact && <span>Calendars</span>}
-          {compact && <span>{isManager && watchShown ? `${watchShown} Watch` : "Calendars"}</span>}
+          {compact && isManager && watchShown && <span>{watchShown}</span>}
           <ChevronDown className="h-4 w-4" style={{ color: "var(--cal-muted)" }} />
         </button>
       </DropdownMenuTrigger>

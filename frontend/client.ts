@@ -1268,6 +1268,8 @@ export namespace calendar {
         watch?: string
         "source_type"?: string
         "source_id"?: number
+        /** Set on the entries a TOIL / H4H / flexi booking writes (both copies). */
+        "shift_adjustment_id"?: number
         "created_by": string
         "created_at": string
         "updated_at": string
