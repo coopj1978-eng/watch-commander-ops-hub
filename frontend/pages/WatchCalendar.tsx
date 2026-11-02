@@ -1,14 +1,15 @@
 import { useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/App";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { useUserRole } from "@/lib/rbac";
 import backend from "@/lib/backend";
 import type { shift_adjustments } from "@/client";
-import CalendarWidget, { type CalendarViewType, type CalendarItem, type CalendarAnchor } from "../components/CalendarWidget";
+import CalendarWidget, { viewRange, type CalendarViewType, type CalendarItem, type CalendarAnchor } from "../components/CalendarWidget";
 import CalendarFilters from "../components/CalendarFilters";
 import { CalendarNewButton, CalendarNewFab, type NewKind } from "../components/CalendarNewMenu";
+import CalendarEventPeek, { type PeekAction } from "../components/CalendarEventPeek";
 import { CALENDAR_EVENTS_KEY, refreshCalendar } from "@/lib/calendarQueries";
 import EventForm, { type EventFormData } from "../components/EventForm";
 import InspectionEventModal, { type ExistingInspectionEvent } from "../components/InspectionEventModal";
@@ -72,6 +73,10 @@ export default function UnifiedCalendar() {
     try { localStorage.setItem(lastCalendarKey, calendar); } catch { /* storage unavailable */ }
   };
 
+  // What you clicked, shown before any editing (Nov 2026).
+  const [peek, setPeek] = useState<{ item: CalendarItem; anchor: CalendarAnchor | null } | null>(null);
+  const routerNavigate = useNavigate();
+
   // Inspection event modal
   const [inspectionModalOpen, setInspectionModalOpen] = useState(false);
   const [editingInspectionEvent, setEditingInspectionEvent] = useState<ExistingInspectionEvent | null>(null);
@@ -92,33 +97,14 @@ export default function UnifiedCalendar() {
   // Schedule Training modal — opens from "New"
   const [trainingModalOpen, setTrainingModalOpen] = useState(false);
 
-  // Phones always show a month with the picked day under it.
+  // Phones show a month with the picked day under it, or the list.
   const isPhone = typeof window !== "undefined" && window.innerWidth < 768;
-  const rangeView: CalendarViewType = isPhone ? "month" : view;
+  const rangeView: CalendarViewType = isPhone ? (view === "agenda" ? "agenda" : "month") : view;
 
   // ─── Date range for queries ─────────────────────────────────────────────────
-  const getDateRange = () => {
-    const start = new Date(currentDate);
-    const end = new Date(currentDate);
-    if (rangeView === "month") {
-      start.setDate(1);
-      end.setMonth(end.getMonth() + 1);
-      end.setDate(0);
-    } else if (rangeView === "year") {
-      start.setMonth(0, 1);
-      end.setMonth(11, 31);
-    } else if (rangeView === "week") {
-      const day = start.getDay();
-      const offset = day === 0 ? -6 : 1 - day;
-      start.setDate(start.getDate() + offset);
-      end.setDate(start.getDate() + 6);
-    } else {
-      end.setDate(end.getDate() + 1);
-    }
-    return { start, end };
-  };
-
-  const { start, end } = getDateRange();
+  // Exactly what the view shows (whole weeks for a month, to the end of the
+  // last day) — the grid and the queries can't disagree.
+  const { start, end } = viewRange(rangeView, currentDate);
   const startISO = start.toISOString();
   const endISO = end.toISOString();
 
@@ -255,13 +241,13 @@ export default function UnifiedCalendar() {
     refreshCalendar(queryClient);
   }
 
-  // Escape closes the add/edit panel.
+  // Escape closes the add/edit panel or the event card.
   useEffect(() => {
-    if (!formOpen) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") closeForm(); };
+    if (!formOpen && !peek) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") { closeForm(); setPeek(null); } };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [formOpen]);
+  }, [formOpen, peek]);
 
   // ─── Handlers ────────────────────────────────────────────────────────────────
   const handleSlotClick = (date: Date, anchor?: CalendarAnchor) => {
@@ -289,9 +275,23 @@ export default function UnifiedCalendar() {
     setPendingSlot(null);
   };
 
-  const handleEventClick = async (item: CalendarItem, anchor?: CalendarAnchor) => {
-    if (item.type === "task" || item.type === "inspection") return; // non-editable
+  // Clicking anything on the calendar shows its card first.
+  const handleEventClick = (item: CalendarItem, anchor?: CalendarAnchor) => {
+    setPeek({ item, anchor: anchor ?? null });
+  };
 
+  // The card's button: what "change it" means for this kind of entry.
+  const peekAction = (item: CalendarItem, anchor: CalendarAnchor | null): PeekAction | undefined => {
+    if (item.type === "inspection") return undefined;
+    if (item.type === "task") {
+      return { label: "Open on the task board", icon: "open", onClick: () => routerNavigate("/tasks", { state: { openTask: item.data } }) };
+    }
+    const data = item.data as { shift_adjustment_id?: number | null; source_type?: string | null };
+    const label = data?.shift_adjustment_id ? "Open booking" : data?.source_type ? "Edit inspection" : "Edit";
+    return { label, onClick: () => { setPeek(null); openEditor(item, anchor ?? undefined); } };
+  };
+
+  const openEditor = async (item: CalendarItem, anchor?: CalendarAnchor) => {
     const eventData = item.data as any;
 
     // TOIL / H4H / Flexi etc. — the person it belongs to, the person
@@ -311,6 +311,8 @@ export default function UnifiedCalendar() {
         setBookingToEdit(booking);
         return;
       }
+      toast({ title: "Only they, whoever's covering, or a WC/CC can change this booking." });
+      return;
     }
 
     // If this event has an inspection source, open the inspection edit modal
@@ -416,24 +418,24 @@ export default function UnifiedCalendar() {
 
   // Where the add/edit panel sits: beside the click on desktop, a bottom
   // sheet on phones (or centred if there's no click position).
-  const PANEL_W = 380;
-  const panelStyle: React.CSSProperties = (() => {
+  const popStyle = (anchor: CalendarAnchor | null, width: number, tall: number): React.CSSProperties => {
     const base: React.CSSProperties = {
       position: "absolute", background: "var(--cal-surface)", border: "1px solid var(--cal-line)",
-      boxShadow: "var(--cal-pop)", overflowY: "auto", boxSizing: "border-box",
+      boxShadow: "var(--cal-pop)", overflowY: "auto", boxSizing: "border-box", color: "var(--cal-ink)",
     };
     if (isPhone) {
-      return { ...base, left: 0, right: 0, bottom: 0, maxHeight: "92vh", borderRadius: "24px 24px 0 0" };
+      return { ...base, left: 0, right: 0, bottom: 0, maxHeight: "92vh", borderRadius: "24px 24px 0 0", paddingBottom: "env(safe-area-inset-bottom)" };
     }
-    if (!formAnchor) {
-      return { ...base, left: "50%", top: "50%", transform: "translate(-50%, -50%)", width: PANEL_W, maxHeight: "calc(100vh - 32px)", borderRadius: 22 };
+    if (!anchor) {
+      return { ...base, left: "50%", top: "50%", transform: "translate(-50%, -50%)", width, maxHeight: "calc(100vh - 32px)", borderRadius: 22 };
     }
     const vw = window.innerWidth, vh = window.innerHeight;
-    const right = formAnchor.x + 16;
-    const left = right + PANEL_W <= vw - 16 ? right : Math.max(16, formAnchor.x - 16 - PANEL_W);
-    const top = Math.max(16, Math.min(formAnchor.y - 160, vh - 16 - 620));
-    return { ...base, left, top, width: PANEL_W, maxHeight: vh - top - 16, borderRadius: 22 };
-  })();
+    const right = anchor.x + 16;
+    const left = right + width <= vw - 16 ? right : Math.max(16, anchor.x - 16 - width);
+    const top = Math.max(16, Math.min(anchor.y - 120, vh - 16 - tall));
+    return { ...base, left, top, width, maxHeight: vh - top - 16, borderRadius: 22 };
+  };
+  const panelStyle = popStyle(formAnchor, 380, 620);
 
   return (
     <div className="cal-ui">
@@ -483,6 +485,24 @@ export default function UnifiedCalendar() {
               onCalendarPick={editingEvent ? undefined : rememberCalendar}
             />
           </div>
+        </div>,
+        document.body
+      )}
+
+      {/* ── What you clicked ─────────────────────────────────────────────────── */}
+      {peek && createPortal(
+        <div className="cal-ui" style={{ position: "fixed", inset: 0, zIndex: 60 }}>
+          <div
+            onClick={() => setPeek(null)}
+            style={{ position: "absolute", inset: 0, background: isPhone || !peek.anchor ? "rgba(0,0,0,.4)" : "rgba(17,20,39,.04)" }}
+          />
+          <CalendarEventPeek
+            item={peek.item}
+            watchName={watchShown}
+            style={popStyle(peek.anchor, 360, 380)}
+            onClose={() => setPeek(null)}
+            primary={peekAction(peek.item, peek.anchor)}
+          />
         </div>,
         document.body
       )}

@@ -5321,10 +5321,6 @@
     color: var(--color-yellow-900);
   }
 
-  .capitalize {
-    text-transform: capitalize;
-  }
-
   .normal-case {
     text-transform: none;
   }

@@ -9,7 +9,10 @@ import { getShiftForDate } from "@/lib/shiftRota";
 // Calendar views — redesigned from the Claude Design week view (Oct 2026).
 // Colours come from the .cal-ui tokens in index.css (light + dark).
 
-export type CalendarViewType = "day" | "week" | "month" | "year";
+export type CalendarViewType = "day" | "week" | "month" | "year" | "agenda";
+
+/** How many days the List view shows from its start day. */
+export const AGENDA_DAYS = 42;
 
 export interface CalendarItem {
   id: number;
@@ -52,9 +55,9 @@ interface CalendarWidgetProps {
 }
 
 // ─── Colours ──────────────────────────────────────────────────────────────────
-type CalKey = "station" | "watch" | "personal" | "tasks" | "insp" | "training";
+export type CalKey = "station" | "watch" | "personal" | "tasks" | "insp" | "training";
 
-function calKey(item: CalendarItem): CalKey {
+export function calKey(item: CalendarItem): CalKey {
   if (item.type === "task") return "tasks";
   if (item.type === "inspection") return "insp";
   if (item.type === "training") return "training";
@@ -173,6 +176,37 @@ function getWeekDays(date: Date): Date[] {
   const monday = addDays(startOfDay(date), day === 0 ? -6 : 1 - day);
   return Array.from({ length: 7 }, (_, i) => addDays(monday, i));
 }
+/** Whole Monday-first weeks covering a month — the days either side included. */
+function getMonthGridDays(date: Date): Date[] {
+  const first = new Date(date.getFullYear(), date.getMonth(), 1);
+  const gridStart = addDays(first, -((first.getDay() + 6) % 7));
+  const last = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+  const gridEnd = addDays(last, 6 - ((last.getDay() + 6) % 7));
+  const n = Math.round((startOfDay(gridEnd).getTime() - gridStart.getTime()) / 86400000) + 1;
+  return Array.from({ length: n }, (_, i) => addDays(gridStart, i));
+}
+
+/** The dates a view shows (and so loads): midnight to the last moment of the last day. */
+export function viewRange(view: CalendarViewType, date: Date): { start: Date; end: Date } {
+  let start: Date, last: Date;
+  if (view === "month") {
+    const days = getMonthGridDays(date);
+    start = days[0]; last = days[days.length - 1];
+  } else if (view === "year") {
+    start = new Date(date.getFullYear(), 0, 1); last = new Date(date.getFullYear(), 11, 31);
+  } else if (view === "week") {
+    const days = getWeekDays(date);
+    start = days[0]; last = days[6];
+  } else if (view === "agenda") {
+    start = startOfDay(date); last = addDays(start, AGENDA_DAYS - 1);
+  } else {
+    start = startOfDay(date); last = start;
+  }
+  const end = new Date(last);
+  end.setHours(23, 59, 59, 999);
+  return { start, end };
+}
+
 function getDaysInMonthGrid(date: Date): (Date | null)[] {
   const year = date.getFullYear();
   const month = date.getMonth();
@@ -622,7 +656,9 @@ function MonthView({
   onDayNavigate?: (date: Date) => void;
 }) {
   const today = new Date();
-  const cells = getDaysInMonthGrid(date);
+  // Whole weeks: the days either side of the month show too, faded, so the
+  // rota and anything booked carry on across the month's edges.
+  const cells = getMonthGridDays(date);
   return (
     <section className="cal-card" style={{ borderRadius: 24, padding: 16 }}>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: 6, marginBottom: 6 }}>
@@ -631,9 +667,9 @@ function MonthView({
         ))}
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: 6 }}>
-        {cells.map((day, i) => {
-          if (!day) return <div key={`b-${i}`} />;
+        {cells.map((day) => {
           const isToday = sameDay(day, today);
+          const outside = day.getMonth() !== date.getMonth();
           const shift = getShiftsForDay(shiftSchedule, day, userWatch)[0];
           const k = shiftKind(shift);
           const dayItems = items
@@ -660,18 +696,21 @@ function MonthView({
                   isToday ? "inset 0 0 0 2px var(--cal-brand)" : "inset 0 0 0 1px var(--cal-line)",
                 ].filter(Boolean).join(", "),
                 minWidth: 0,
+                opacity: outside ? 0.5 : 1,
               }}
+              aria-label={outside ? `${day.getDate()} ${MONTH_NAMES[day.getMonth()]}` : undefined}
             >
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 4 }}>
                 <span
                   className="cal-mono"
                   style={{
-                    fontSize: 13, fontWeight: isToday ? 700 : 500, width: 26, height: 26, borderRadius: 8,
+                    fontSize: 13, fontWeight: isToday ? 700 : 500, width: outside && day.getDate() === 1 ? "auto" : 26, height: 26, borderRadius: 8,
+                    padding: outside && day.getDate() === 1 ? "0 4px" : 0,
                     display: "grid", placeItems: "center",
                     ...(isToday ? { background: "var(--cal-brand)", color: "#fff" } : { color: "var(--cal-ink)" }),
                   }}
                 >
-                  {day.getDate()}
+                  {day.getDate()}{day.getDate() === 1 && (outside || date.getMonth() !== day.getMonth()) ? ` ${MONTH_NAMES[day.getMonth()].slice(0, 3)}` : ""}
                 </span>
                 {k && (
                   <span style={{ fontSize: 10.5, fontWeight: 600, padding: "2px 6px", borderRadius: 999, background: tok(k, "bg"), color: tok(k, "fg"), whiteSpace: "nowrap" }}>
@@ -701,54 +740,274 @@ function MonthView({
   );
 }
 
-// ─── Year ─────────────────────────────────────────────────────────────────────
-function YearView({ year, items, onMonthClick }: { year: number; items: CalendarItem[]; onMonthClick: (d: Date) => void }) {
+// ─── Year: the rota planner ───────────────────────────────────────────────────
+// Every day coloured by the watch's shift — day, night, leave — so a year of
+// rota (and where the leave blocks fall) reads at a glance. A dot marks a day
+// with something on. Tap a day to open it, a month name for the month.
+function YearView({
+  year, items, userWatch, onMonthClick, onDayClick,
+}: {
+  year: number;
+  items: CalendarItem[];
+  userWatch?: string;
+  onMonthClick: (d: Date) => void;
+  onDayClick: (d: Date) => void;
+}) {
   const today = new Date();
+  const busy = new Set(items.map((it) => isoDate(it.startTime)));
+  const chip = (k: ShiftKind | "rest", label: string) => (
+    <span
+      style={{
+        display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 500, color: "var(--cal-ink-2)",
+      }}
+    >
+      <span
+        style={{
+          width: 14, height: 14, borderRadius: 4,
+          ...(k === "rest" ? { boxShadow: "inset 0 0 0 1px var(--cal-line-2)" } : { background: tok(k, "bg") }),
+        }}
+      />
+      {label}
+    </span>
+  );
+
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 16 }}>
-      {Array.from({ length: 12 }, (_, mi) => {
-        const monthDate = new Date(year, mi, 1);
-        const monthItems = items.filter((it) => it.startTime.getFullYear() === year && it.startTime.getMonth() === mi);
-        const busy = new Set(monthItems.map((it) => it.startTime.getDate()));
-        return (
-          <button
-            key={mi}
-            type="button"
-            onClick={() => onMonthClick(monthDate)}
-            className="cal-card cal-focus"
-            style={{ padding: 16, textAlign: "left", font: "inherit", color: "var(--cal-ink)", cursor: "pointer" }}
-          >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
-              <span style={{ fontSize: 15, fontWeight: 600 }}>{MONTH_NAMES[mi]}</span>
-              <span className="cal-mono" style={{ fontSize: 11, color: "var(--cal-muted)" }}>
-                {monthItems.length} event{monthItems.length === 1 ? "" : "s"}
-              </span>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", textAlign: "center", rowGap: 2 }}>
-              {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
-                <span key={i} style={{ fontSize: 10, fontWeight: 600, color: "var(--cal-muted)" }}>{d}</span>
-              ))}
-              {getDaysInMonthGrid(monthDate).map((day, i) =>
-                !day ? <span key={i} /> : (
-                  <span key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                    <span
-                      className="cal-mono"
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      {userWatch && (
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 16, padding: "0 4px" }}>
+          <span style={{ fontSize: 13, fontWeight: 600 }}>{userWatch} Watch rota</span>
+          {chip("day", "Day")}
+          {chip("night", "Night")}
+          {chip("leave", "Leave")}
+          {chip("rest", "Rest")}
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--cal-ink-2)" }}>
+            <span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--cal-ink)" }} /> Something on
+          </span>
+        </div>
+      )}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(232px, 1fr))", gap: 14 }}>
+        {Array.from({ length: 12 }, (_, mi) => {
+          const monthDate = new Date(year, mi, 1);
+          const cells = getDaysInMonthGrid(monthDate);
+          while (cells.length < 42) cells.push(null); // six rows, so the cards line up
+          const leaveDays = userWatch
+            ? cells.filter((d) => d && shiftKind(getShiftForDate(userWatch, d) ?? undefined) === "leave").length
+            : 0;
+          const isThisMonth = today.getFullYear() === year && today.getMonth() === mi;
+          return (
+            <section
+              key={mi}
+              className="cal-card"
+              style={{ padding: 14, ...(isThisMonth ? { boxShadow: "inset 0 0 0 2px var(--cal-brand), var(--cal-shadow)" } : {}) }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, gap: 8 }}>
+                <button
+                  type="button"
+                  onClick={() => onMonthClick(monthDate)}
+                  className="cal-focus"
+                  style={{ border: "none", background: "transparent", padding: 0, font: "inherit", fontSize: 15, fontWeight: 600, color: "var(--cal-ink)", cursor: "pointer" }}
+                >
+                  {MONTH_NAMES[mi]}
+                </button>
+                {leaveDays > 0 && (
+                  <span style={{ fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 999, background: tok("leave", "bg"), color: tok("leave", "fg") }}>
+                    Leave · {leaveDays}d
+                  </span>
+                )}
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: 2, textAlign: "center" }}>
+                {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
+                  <span key={i} style={{ fontSize: 10, fontWeight: 600, color: "var(--cal-muted)", paddingBottom: 2 }}>{d}</span>
+                ))}
+                {cells.map((day, i) => {
+                  if (!day) return <span key={i} style={{ height: 26 }} />;
+                  const k = userWatch ? shiftKind(getShiftForDate(userWatch, day) ?? undefined) : null;
+                  const isToday = sameDay(day, today);
+                  const hasItems = busy.has(isoDate(day));
+                  return (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => onDayClick(day)}
+                      className="cal-focus cal-mono"
+                      aria-label={`${day.getDate()} ${MONTH_NAMES[mi]}${k ? `, ${k === "leave" ? "leave" : `${k} shift`}` : ""}${hasItems ? ", something on" : ""}`}
                       style={{
-                        fontSize: 11, width: 22, height: 22, borderRadius: 7, display: "grid", placeItems: "center",
-                        ...(sameDay(day, today) ? { background: "var(--cal-brand)", color: "#fff", fontWeight: 600 } : {}),
+                        position: "relative", height: 26, border: "none", padding: 0, borderRadius: 6, cursor: "pointer",
+                        font: "inherit", fontSize: 11, fontWeight: isToday ? 700 : 500,
+                        ...(isToday
+                          ? { background: "var(--cal-brand)", color: "#fff" }
+                          : k
+                          ? { background: tok(k, "bg"), color: tok(k, "fg") }
+                          : { background: "transparent", color: "var(--cal-ink-2)" }),
                       }}
                     >
                       {day.getDate()}
-                    </span>
-                    <span style={{ width: 4, height: 4, borderRadius: "50%", background: busy.has(day.getDate()) ? "var(--cal-brand)" : "transparent" }} />
-                  </span>
-                )
+                      {hasItems && (
+                        <span
+                          style={{
+                            position: "absolute", left: "50%", bottom: 2, width: 4, height: 4, marginLeft: -2, borderRadius: "50%",
+                            background: isToday ? "#fff" : "currentColor",
+                          }}
+                        />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── List: the next six weeks, day by day ─────────────────────────────────────
+// A running order you can scroll: each day with its shift and what's on.
+// Quiet rest days fold into one line so the working days stand out.
+const CAL_LABEL: Record<CalKey, string> = {
+  station: "Station", watch: "Watch", personal: "Personal", tasks: "Task", insp: "Inspection", training: "Training",
+};
+
+function AgendaView({
+  start, items, shiftSchedule, userWatch, onEventClick, onDayClick,
+}: {
+  start: Date;
+  items: CalendarItem[];
+  shiftSchedule: ShiftDay[];
+  userWatch?: string;
+  onEventClick?: (item: CalendarItem, anchor?: CalendarAnchor) => void;
+  onDayClick?: (d: Date, anchor?: CalendarAnchor) => void;
+}) {
+  const today = new Date();
+  const days = Array.from({ length: AGENDA_DAYS }, (_, i) => addDays(startOfDay(start), i));
+
+  type Row =
+    | { kind: "month"; date: Date }
+    | { kind: "day"; date: Date; shift?: ShiftDay; items: CalendarItem[] }
+    | { kind: "quiet"; from: Date; to: Date; count: number };
+  const rows: Row[] = [];
+  let lastMonth = -1;
+  for (const d of days) {
+    if (d.getMonth() !== lastMonth) {
+      rows.push({ kind: "month", date: d });
+      lastMonth = d.getMonth();
+    }
+    const shift = getShiftsForDay(shiftSchedule, d, userWatch)[0];
+    const dayItems = items
+      .filter((it) => spansDay(it, d))
+      .sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.startTime.getTime() - b.startTime.getTime());
+    const quiet = !shift && dayItems.length === 0 && !sameDay(d, today);
+    const prev = rows[rows.length - 1];
+    if (quiet && prev?.kind === "quiet") {
+      prev.to = d;
+      prev.count++;
+    } else if (quiet) {
+      rows.push({ kind: "quiet", from: d, to: d, count: 1 });
+    } else {
+      rows.push({ kind: "day", date: d, shift, items: dayItems });
+    }
+  }
+
+  const short = (d: Date) => d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric" });
+
+  return (
+    <section className="cal-card" style={{ padding: "6px 0", overflow: "hidden" }}>
+      {rows.map((r, i) => {
+        if (r.kind === "month") {
+          return (
+            <h2
+              key={`m${i}`}
+              style={{
+                margin: 0, padding: "14px 20px 6px", fontSize: 13, fontWeight: 600, letterSpacing: ".04em",
+                textTransform: "uppercase", color: "var(--cal-muted)",
+              }}
+            >
+              {MONTH_NAMES[r.date.getMonth()]} {r.date.getFullYear()}
+            </h2>
+          );
+        }
+        if (r.kind === "quiet") {
+          return (
+            <div key={`q${i}`} style={{ display: "flex", alignItems: "center", gap: 12, padding: "6px 20px", color: "var(--cal-muted)", fontSize: 12 }}>
+              <span style={{ flex: 1, height: 1, background: "var(--cal-line)" }} />
+              <span>
+                {r.count === 1 ? short(r.from) : `${short(r.from)} – ${short(r.to)}`} · rest{r.count > 1 ? ` (${r.count} days)` : ""}
+              </span>
+              <span style={{ flex: 1, height: 1, background: "var(--cal-line)" }} />
+            </div>
+          );
+        }
+        const isToday = sameDay(r.date, today);
+        const k = shiftKind(r.shift);
+        return (
+          <div
+            key={`d${i}`}
+            style={{
+              display: "grid", gridTemplateColumns: "64px minmax(0, 1fr)", gap: 14, padding: "10px 20px",
+              borderTop: "1px solid var(--cal-line)",
+              background: isToday ? "var(--cal-brand-soft)" : undefined,
+            }}
+          >
+            <button
+              type="button"
+              onClick={(e) => onDayClick?.(r.date, anchorOf(e))}
+              className="cal-focus"
+              title="Add something on this day"
+              style={{
+                display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 0, border: "none", background: "transparent",
+                padding: 0, font: "inherit", cursor: "pointer", color: isToday ? "var(--cal-brand-text)" : "var(--cal-ink)",
+              }}
+            >
+              <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", color: isToday ? "var(--cal-brand-text)" : "var(--cal-muted)" }}>
+                {isToday ? "Today" : r.date.toLocaleDateString("en-GB", { weekday: "short" })}
+              </span>
+              <span className="cal-mono" style={{ fontSize: 22, fontWeight: 600, lineHeight: 1.15 }}>{r.date.getDate()}</span>
+            </button>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6, minWidth: 0, paddingTop: 2 }}>
+              {k && (
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 12 }}>
+                  <ShiftChip shift={r.shift} />
+                  {r.shift?.startTime && !r.shift.isLeave && (
+                    <span className="cal-mono" style={{ color: "var(--cal-muted)" }}>{r.shift.startTime}–{r.shift.endTime}</span>
+                  )}
+                </span>
+              )}
+              {r.items.length === 0 ? (
+                <span style={{ fontSize: 13, color: "var(--cal-muted)" }}>{k ? "Nothing planned" : "Rest · nothing on"}</span>
+              ) : (
+                r.items.map((it) => {
+                  const ck = calKey(it);
+                  return (
+                    <button
+                      key={`${it.type}-${it.id}`}
+                      type="button"
+                      data-event
+                      title={itemTooltip(it)}
+                      onClick={(e) => onEventClick?.(it, anchorOf(e))}
+                      className="cal-focus"
+                      style={{
+                        display: "flex", alignItems: "center", gap: 10, minWidth: 0, textAlign: "left", font: "inherit",
+                        border: "none", borderRadius: 10, padding: "7px 10px", cursor: "pointer",
+                        background: blockBg(it), color: tok(ck, "fg"),
+                      }}
+                    >
+                      <span className="cal-mono" style={{ fontSize: 12, width: 86, flex: "none", opacity: 0.9 }}>
+                        {it.allDay ? "All day" : `${hhmm(it.startTime)}–${hhmm(it.endTime)}`}
+                      </span>
+                      <Dot k={ck} />
+                      <span style={{ ...titleStyle(it), fontSize: 13.5, flex: 1 }}>{it.title}</span>
+                      <span className="hidden sm:inline" style={{ fontSize: 11, fontWeight: 600, opacity: 0.75, flex: "none" }}>{CAL_LABEL[ck]}</span>
+                      <ItemIcons item={it} />
+                    </button>
+                  );
+                })
               )}
             </div>
-          </button>
+          </div>
         );
       })}
-    </div>
+    </section>
   );
 }
 
@@ -770,10 +1029,10 @@ function MobileMonth({
         {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
           <span key={i} style={{ fontSize: 11, fontWeight: 600, color: "var(--cal-muted)", padding: "2px 0" }}>{d}</span>
         ))}
-        {getDaysInMonthGrid(date).map((day, i) => {
-          if (!day) return <span key={i} />;
+        {getMonthGridDays(date).map((day, i) => {
           const isToday = sameDay(day, today);
           const selected = sameDay(day, selectedDay);
+          const outside = day.getMonth() !== date.getMonth();
           const k = shiftKind(getShiftsForDay(shiftSchedule, day, userWatch)[0]);
           const dots = Array.from(new Set(items.filter((it) => spansDay(it, day)).map((it) => calKey(it)))).slice(0, 3);
           return (
@@ -789,6 +1048,7 @@ function MobileMonth({
                 background: selected ? "var(--cal-brand)" : "transparent",
                 color: selected ? "#fff" : isToday ? "var(--cal-brand)" : "var(--cal-ink)",
                 boxShadow: isToday && !selected ? "inset 0 0 0 2px var(--cal-brand)" : undefined,
+                opacity: outside && !selected ? 0.4 : 1,
               }}
             >
               <span className="cal-mono" style={{ fontSize: 14, fontWeight: isToday || selected ? 700 : 500 }}>{day.getDate()}</span>
@@ -881,8 +1141,15 @@ function rangeLabel(view: CalendarViewType, d: Date): string {
       : `${a.getDate()} ${MONTH_NAMES[a.getMonth()].slice(0, 3)} – ${b.getDate()} ${MONTH_NAMES[b.getMonth()].slice(0, 3)}`;
   }
   if (view === "month") return MONTH_NAMES[d.getMonth()];
+  if (view === "agenda") {
+    const { start, end } = viewRange("agenda", d);
+    const f = (x: Date) => `${x.getDate()} ${MONTH_NAMES[x.getMonth()].slice(0, 3)}`;
+    return `${f(start)} – ${f(end)}`;
+  }
   return String(d.getFullYear());
 }
+
+const VIEW_LABEL: Record<CalendarViewType, string> = { day: "Day", week: "Week", month: "Month", year: "Year", agenda: "List" };
 
 /** One header for the page (Nov 2026): where you are on the left, how to
  *  look at it and what to add on the right. */
@@ -898,8 +1165,8 @@ function Toolbar({
   filters?: React.ReactNode;
   newButton?: React.ReactNode;
 }) {
-  const unit = view === "day" ? "day" : view === "week" ? "week" : view === "month" ? "month" : "year";
-  const showYear = view !== "year" && currentDate.getFullYear() !== new Date().getFullYear() || view === "month";
+  const unit = view === "day" ? "day" : view === "week" || view === "agenda" ? "week" : view === "month" ? "month" : "year";
+  const showYear = (view !== "year" && currentDate.getFullYear() !== new Date().getFullYear()) || view === "month";
   return (
     <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
@@ -920,13 +1187,13 @@ function Toolbar({
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
         {filters}
         <div role="group" aria-label="View" style={{ display: "inline-flex", padding: 3, borderRadius: 12, background: "var(--cal-surface-3)", gap: 2 }}>
-          {(["day", "week", "month", "year"] as CalendarViewType[]).map((v) => (
+          {(["day", "week", "month", "year", "agenda"] as CalendarViewType[]).map((v) => (
             <button
               key={v}
               type="button"
               aria-pressed={view === v}
               onClick={() => onViewChange(v)}
-              className="cal-focus capitalize"
+              className="cal-focus"
               style={{
                 height: 34, padding: "0 14px", borderRadius: 9, border: "none", font: "inherit", fontSize: 14, cursor: "pointer",
                 ...(view === v
@@ -934,7 +1201,7 @@ function Toolbar({
                   : { background: "transparent", color: "var(--cal-ink-2)", fontWeight: 500 }),
               }}
             >
-              {v}
+              {VIEW_LABEL[v]}
             </button>
           ))}
         </div>
@@ -945,12 +1212,14 @@ function Toolbar({
 }
 
 /** Phones: the month and its arrows, then Today and the calendars menu. */
-function PhoneHeader({ date, onPrev, onNext, onToday, filters }: {
+function PhoneHeader({ date, onPrev, onNext, onToday, filters, list, onListChange }: {
   date: Date;
   onPrev: () => void;
   onNext: () => void;
   onToday: () => void;
   filters?: React.ReactNode;
+  list: boolean;
+  onListChange: (list: boolean) => void;
 }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -968,9 +1237,28 @@ function PhoneHeader({ date, onPrev, onNext, onToday, filters }: {
           </button>
         </div>
       </div>
-      <div style={{ display: "flex", gap: 8 }}>
+      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
         <button type="button" onClick={onToday} className="cal-btn" style={{ height: 40, padding: "0 14px", fontWeight: 600, fontSize: 14 }}>Today</button>
         {filters}
+        <div role="group" aria-label="View" style={{ marginLeft: "auto", display: "inline-flex", padding: 3, borderRadius: 12, background: "var(--cal-surface-3)" }}>
+          {[false, true].map((l) => (
+            <button
+              key={String(l)}
+              type="button"
+              aria-pressed={list === l}
+              onClick={() => onListChange(l)}
+              className="cal-focus"
+              style={{
+                height: 34, padding: "0 12px", borderRadius: 9, border: "none", font: "inherit", fontSize: 13, cursor: "pointer",
+                ...(list === l
+                  ? { background: "var(--cal-surface)", color: "var(--cal-ink)", fontWeight: 600, boxShadow: "var(--cal-shadow)" }
+                  : { background: "transparent", color: "var(--cal-ink-2)", fontWeight: 500 }),
+              }}
+            >
+              {l ? "List" : "Month"}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -1008,12 +1296,18 @@ export default function CalendarWidget({
     const d = new Date(currentDate);
     if (view === "day") d.setDate(d.getDate() + dir);
     else if (view === "week") d.setDate(d.getDate() + 7 * dir);
+    else if (view === "agenda") d.setDate(d.getDate() + AGENDA_DAYS * dir);
     else if (view === "month") d.setMonth(d.getMonth() + dir, 1);
     else d.setFullYear(d.getFullYear() + dir);
     onDateChange(d);
   };
   const toDay = (d: Date) => { onDateChange(d); onViewChange("day"); };
-  const shiftMonth = (dir: -1 | 1) => { const d = new Date(currentDate); d.setMonth(d.getMonth() + dir, 1); onDateChange(d); };
+  const phoneList = view === "agenda";
+  // Phones: arrows step a month, or six weeks in the list.
+  const shiftMonth = (dir: -1 | 1) => {
+    if (phoneList) return navigate(dir);
+    const d = new Date(currentDate); d.setMonth(d.getMonth() + dir, 1); onDateChange(d);
+  };
 
   // ← / → step through days, weeks, months or years — not while typing or
   // with a form or menu open.
@@ -1043,22 +1337,37 @@ export default function CalendarWidget({
           onNext={() => shiftMonth(1)}
           onToday={() => onDateChange(new Date())}
           filters={filters}
+          list={phoneList}
+          onListChange={(l) => onViewChange(l ? "agenda" : "month")}
         />
-        <MobileMonth
-          date={currentDate}
-          items={items}
-          shiftSchedule={shiftSchedule}
-          userWatch={userWatch}
-          selectedDay={currentDate}
-          onDaySelect={onDateChange}
-        />
-        <MobileAgenda
-          date={currentDate}
-          items={items}
-          shiftSchedule={shiftSchedule}
-          userWatch={userWatch}
-          onEventClick={onEventClick}
-        />
+        {phoneList ? (
+          <AgendaView
+            start={currentDate}
+            items={items}
+            shiftSchedule={shiftSchedule}
+            userWatch={userWatch}
+            onEventClick={onEventClick}
+            onDayClick={(d) => { onDateChange(d); onViewChange("month"); }}
+          />
+        ) : (
+          <>
+            <MobileMonth
+              date={currentDate}
+              items={items}
+              shiftSchedule={shiftSchedule}
+              userWatch={userWatch}
+              selectedDay={currentDate}
+              onDaySelect={onDateChange}
+            />
+            <MobileAgenda
+              date={currentDate}
+              items={items}
+              shiftSchedule={shiftSchedule}
+              userWatch={userWatch}
+              onEventClick={onEventClick}
+            />
+          </>
+        )}
       </div>
 
       {/* ── Desktop ── */}
@@ -1101,7 +1410,19 @@ export default function CalendarWidget({
           <YearView
             year={currentDate.getFullYear()}
             items={items}
+            userWatch={userWatch}
             onMonthClick={(d) => { onDateChange(d); onViewChange("month"); }}
+            onDayClick={toDay}
+          />
+        )}
+        {view === "agenda" && (
+          <AgendaView
+            start={currentDate}
+            items={items}
+            shiftSchedule={shiftSchedule}
+            userWatch={userWatch}
+            onEventClick={onEventClick}
+            onDayClick={onSlotClick}
           />
         )}
       </div>

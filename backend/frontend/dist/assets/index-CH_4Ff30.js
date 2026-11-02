@@ -34877,7 +34877,7 @@ function formatSpan(ms) {
   if (hours > 0) return `${hours}h ${String(m).padStart(2, "0")}m`;
   return `${m}m`;
 }
-const hhmm$4 = (d) => d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+const hhmm$5 = (d) => d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
 function initials$3(name) {
   var _a3;
   const parts = name.trim().split(/\s+/);
@@ -34890,7 +34890,7 @@ function ShiftTimeline({ shift: shift2, now }) {
   const hours = total / 36e5;
   const ticks = Array.from({ length: hours / 2 + 1 }, (_, i) => {
     const t = new Date(start.getTime() + i * 2 * 36e5);
-    return { left: i * 2 * 100 / hours, label: hhmm$4(t).slice(0, 2) };
+    return { left: i * 2 * 100 / hours, label: hhmm$5(t).slice(0, 2) };
   });
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-6", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative h-2 rounded-full bg-white/10", children: [
@@ -35093,7 +35093,7 @@ function ShiftHero() {
                 /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftWeather, { start: bounds == null ? void 0 : bounds.start, end: bounds == null ? void 0 : bounds.end, shiftWord }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "aria-hidden": true, className: "mt-2 h-12 w-px bg-white/10" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "px-2 py-1 text-right", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono text-4xl font-medium tabular-nums tracking-tight text-white/90", children: hhmm$4(now) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono text-4xl font-medium tabular-nums tracking-tight text-white/90", children: hhmm$5(now) }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-white/40", children: "UK time" })
                 ] })
               ] })
@@ -38081,7 +38081,7 @@ function StationComparison({
   ] });
 }
 const DAYS$1 = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
-const hhmm$3 = (d) => new Date(d).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+const hhmm$4 = (d) => new Date(d).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
 function checklistOf(v) {
   const arr = typeof v === "string" ? (() => {
     try {
@@ -38153,7 +38153,7 @@ function ShiftRunningOrder() {
     rows.push({
       key: "parade",
       at: start,
-      time: hhmm$3(shift2.start),
+      time: hhmm$4(shift2.start),
       Icon: Flag,
       title: "Parade",
       body: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
@@ -38226,7 +38226,7 @@ function ShiftRunningOrder() {
       rows.push({
         key: `event-${e.id}`,
         at,
-        time: hhmm$3(e.when),
+        time: hhmm$4(e.when),
         Icon: CalendarClock,
         to: card ? "/tasks" : e.link || "/calendar",
         tone: (card == null ? void 0 : card.status) === "Done" ? "done" : e.is_critical ? "warn" : void 0,
@@ -38279,7 +38279,7 @@ function ShiftRunningOrder() {
     rows.push({
       key: "handover-out",
       at: end,
-      time: hhmm$3(shift2.end),
+      time: hhmm$4(shift2.end),
       Icon: ArrowRightLeft,
       tone: due ? "warn" : void 0,
       title: next ? `Handover to ${next} Watch` : "Shift ends",
@@ -38332,7 +38332,7 @@ function ShiftRunningOrder() {
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "h-px flex-1 bg-red-500/60" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono text-[10px] font-semibold text-red-600 dark:text-red-400", children: [
             "NOW ",
-            hhmm$3(/* @__PURE__ */ new Date())
+            hhmm$4(/* @__PURE__ */ new Date())
           ] })
         ] }),
         r2.to ? /* @__PURE__ */ jsxRuntimeExports.jsx(Link$1, { to: r2.to, className: "flex gap-2 rounded-xl px-1 py-2 transition-colors hover:bg-muted/50", children: inner }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-2 px-1 py-2", children: inner })
@@ -48217,6 +48217,7 @@ function ProfileDetail() {
     ] }) })
   ] });
 }
+const AGENDA_DAYS = 42;
 function calKey(item) {
   if (item.type === "task") return "tasks";
   if (item.type === "inspection") return "insp";
@@ -48296,12 +48297,12 @@ const MONTH_NAMES = [
   "November",
   "December"
 ];
-const pad = (n) => String(n).padStart(2, "0");
-const hhmm$2 = (d) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const pad$1 = (n) => String(n).padStart(2, "0");
+const hhmm$3 = (d) => `${pad$1(d.getHours())}:${pad$1(d.getMinutes())}`;
 function isoDate(d) {
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  return `${d.getFullYear()}-${pad$1(d.getMonth() + 1)}-${pad$1(d.getDate())}`;
 }
-function sameDay(a, b) {
+function sameDay$1(a, b) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
 function startOfDay$1(d) {
@@ -48326,6 +48327,38 @@ function getWeekDays(date2) {
   const day2 = date2.getDay();
   const monday = addDays(startOfDay$1(date2), day2 === 0 ? -6 : 1 - day2);
   return Array.from({ length: 7 }, (_, i) => addDays(monday, i));
+}
+function getMonthGridDays(date2) {
+  const first = new Date(date2.getFullYear(), date2.getMonth(), 1);
+  const gridStart = addDays(first, -((first.getDay() + 6) % 7));
+  const last = new Date(date2.getFullYear(), date2.getMonth() + 1, 0);
+  const gridEnd = addDays(last, 6 - (last.getDay() + 6) % 7);
+  const n = Math.round((startOfDay$1(gridEnd).getTime() - gridStart.getTime()) / 864e5) + 1;
+  return Array.from({ length: n }, (_, i) => addDays(gridStart, i));
+}
+function viewRange(view, date2) {
+  let start, last;
+  if (view === "month") {
+    const days = getMonthGridDays(date2);
+    start = days[0];
+    last = days[days.length - 1];
+  } else if (view === "year") {
+    start = new Date(date2.getFullYear(), 0, 1);
+    last = new Date(date2.getFullYear(), 11, 31);
+  } else if (view === "week") {
+    const days = getWeekDays(date2);
+    start = days[0];
+    last = days[6];
+  } else if (view === "agenda") {
+    start = startOfDay$1(date2);
+    last = addDays(start, AGENDA_DAYS - 1);
+  } else {
+    start = startOfDay$1(date2);
+    last = start;
+  }
+  const end = new Date(last);
+  end.setHours(23, 59, 59, 999);
+  return { start, end };
 }
 function getDaysInMonthGrid(date2) {
   const year = date2.getFullYear();
@@ -48470,7 +48503,7 @@ function EventPill({
       },
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Dot$1, { k }),
-        showTime && !item.allDay && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontWeight: 400, fontSize: 11, opacity: 0.85 }, children: hhmm$2(item.startTime) }),
+        showTime && !item.allDay && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontWeight: 400, fontSize: 11, opacity: 0.85 }, children: hhmm$3(item.startTime) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { ...titleStyle(item), fontSize: 12 }, children: item.title }),
         extra && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontWeight: 400, opacity: 0.8, marginLeft: "auto", fontSize: 11 }, children: extra }),
         !extra && /* @__PURE__ */ jsxRuntimeExports.jsx(ItemIcons, { item })
@@ -48531,7 +48564,7 @@ function EventBlock({ placed, onClick }) {
       type: "button",
       "data-event": true,
       title: itemTooltip(item),
-      "aria-label": `${item.title}, ${hhmm$2(item.startTime)} to ${hhmm$2(item.endTime)}${(ev == null ? void 0 : ev.cancelled_at) ? ", cancelled" : ""}${(ev == null ? void 0 : ev.rescheduled_from) ? ", moved" : ""}`,
+      "aria-label": `${item.title}, ${hhmm$3(item.startTime)} to ${hhmm$3(item.endTime)}${(ev == null ? void 0 : ev.cancelled_at) ? ", cancelled" : ""}${(ev == null ? void 0 : ev.rescheduled_from) ? ", moved" : ""}`,
       onClick: (e) => {
         e.stopPropagation();
         onClick(e);
@@ -48566,8 +48599,8 @@ function EventBlock({ placed, onClick }) {
           !compact && /* @__PURE__ */ jsxRuntimeExports.jsx(ItemIcons, { item })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: { fontSize: 11, opacity: 0.85, whiteSpace: "nowrap" }, children: [
-          hhmm$2(item.startTime),
-          compact ? "" : ` – ${hhmm$2(item.endTime)}`
+          hhmm$3(item.startTime),
+          compact ? "" : ` – ${hhmm$3(item.endTime)}`
         ] }),
         !compact && height >= 64 && /* @__PURE__ */ jsxRuntimeExports.jsx(StateBadges, { item })
       ]
@@ -48583,7 +48616,7 @@ function HourLabels() {
         className: "cal-mono",
         style: { position: "absolute", right: 8, top: h * HOUR_PX - 7, fontSize: 11, color: "var(--cal-muted)" },
         children: [
-          pad(h),
+          pad$1(h),
           ":00"
         ]
       },
@@ -48601,7 +48634,7 @@ function DayColumn({
   onEventClick
 }) {
   const today = /* @__PURE__ */ new Date();
-  const isToday = sameDay(day2, today);
+  const isToday = sameDay$1(day2, today);
   const kind = shiftKind$1(getShiftsForDay(shiftSchedule, day2, userWatch)[0]);
   const prevNight = shiftKind$1(getShiftsForDay(shiftSchedule, addDays(day2, -1), userWatch)[0]) === "night";
   const shades = [];
@@ -48649,7 +48682,7 @@ function DayColumn({
         )),
         placed.map((p) => /* @__PURE__ */ jsxRuntimeExports.jsx(EventBlock, { placed: p, onClick: (e) => onEventClick == null ? void 0 : onEventClick(p.item, anchorOf(e)) }, `${p.item.type}-${p.item.id}`)),
         isToday && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { "aria-hidden": true, style: { position: "absolute", left: -4, right: 0, top: nowTop, height: 2, background: "var(--cal-now)", zIndex: 3 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { position: "absolute", left: -4, top: -4, width: 10, height: 10, borderRadius: "50%", background: "var(--cal-now)" } }) }),
-        pendingSlot && sameDay(pendingSlot, day2) && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        pendingSlot && sameDay$1(pendingSlot, day2) && /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "div",
           {
             style: {
@@ -48673,9 +48706,9 @@ function DayColumn({
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 12, fontWeight: 600 }, children: "New event" }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: { fontSize: 11 }, children: [
-                hhmm$2(pendingSlot),
+                hhmm$3(pendingSlot),
                 " – ",
-                hhmm$2(new Date(pendingSlot.getTime() + 36e5))
+                hhmm$3(new Date(pendingSlot.getTime() + 36e5))
               ] })
             ]
           }
@@ -48685,7 +48718,7 @@ function DayColumn({
   );
 }
 function DayTile({ day: day2, shift: shift2, showShift, onClick }) {
-  const today = sameDay(day2, /* @__PURE__ */ new Date());
+  const today = sameDay$1(day2, /* @__PURE__ */ new Date());
   const name = DOW$1[(day2.getDay() + 6) % 7];
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "button",
@@ -48831,12 +48864,12 @@ function MonthView({
   onDayNavigate
 }) {
   const today = /* @__PURE__ */ new Date();
-  const cells = getDaysInMonthGrid(date2);
+  const cells = getMonthGridDays(date2);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "cal-card", style: { borderRadius: 24, padding: 16 }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: 6, marginBottom: 6 }, children: DOW$1.map((d) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 12, fontWeight: 600, color: "var(--cal-muted)", padding: "2px 8px" }, children: d }, d)) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: 6 }, children: cells.map((day2, i) => {
-      if (!day2) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", {}, `b-${i}`);
-      const isToday = sameDay(day2, today);
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: 6 }, children: cells.map((day2) => {
+      const isToday = sameDay$1(day2, today);
+      const outside = day2.getMonth() !== date2.getMonth();
       const shift2 = getShiftsForDay(shiftSchedule, day2, userWatch)[0];
       const k = shiftKind$1(shift2);
       const dayItems = items.filter((it) => spansDay(it, day2)).sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.startTime.getTime() - b.startTime.getTime());
@@ -48868,25 +48901,31 @@ function MonthView({
               k ? `inset 0 3px 0 var(--cal-${k}-dot)` : "",
               isToday ? "inset 0 0 0 2px var(--cal-brand)" : "inset 0 0 0 1px var(--cal-line)"
             ].filter(Boolean).join(", "),
-            minWidth: 0
+            minWidth: 0,
+            opacity: outside ? 0.5 : 1
           },
+          "aria-label": outside ? `${day2.getDate()} ${MONTH_NAMES[day2.getMonth()]}` : void 0,
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 4 }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "span",
                 {
                   className: "cal-mono",
                   style: {
                     fontSize: 13,
                     fontWeight: isToday ? 700 : 500,
-                    width: 26,
+                    width: outside && day2.getDate() === 1 ? "auto" : 26,
                     height: 26,
                     borderRadius: 8,
+                    padding: outside && day2.getDate() === 1 ? "0 4px" : 0,
                     display: "grid",
                     placeItems: "center",
                     ...isToday ? { background: "var(--cal-brand)", color: "#fff" } : { color: "var(--cal-ink)" }
                   },
-                  children: day2.getDate()
+                  children: [
+                    day2.getDate(),
+                    day2.getDate() === 1 && (outside || date2.getMonth() !== day2.getMonth()) ? ` ${MONTH_NAMES[day2.getMonth()].slice(0, 3)}` : ""
+                  ]
                 }
               ),
               k && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 10.5, fontWeight: 600, padding: "2px 6px", borderRadius: 999, background: tok(k, "bg"), color: tok(k, "fg"), whiteSpace: "nowrap" }, children: k === "leave" ? "Leave" : (shift2 == null ? void 0 : shift2.shiftType) ?? (k === "day" ? "Day" : "Night") })
@@ -48917,55 +48956,303 @@ function MonthView({
     }) })
   ] });
 }
-function YearView({ year, items, onMonthClick }) {
+function YearView({
+  year,
+  items,
+  userWatch,
+  onMonthClick,
+  onDayClick
+}) {
   const today = /* @__PURE__ */ new Date();
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 16 }, children: Array.from({ length: 12 }, (_, mi) => {
-    const monthDate = new Date(year, mi, 1);
-    const monthItems = items.filter((it) => it.startTime.getFullYear() === year && it.startTime.getMonth() === mi);
-    const busy = new Set(monthItems.map((it) => it.startTime.getDate()));
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "button",
-      {
-        type: "button",
-        onClick: () => onMonthClick(monthDate),
-        className: "cal-card cal-focus",
-        style: { padding: 16, textAlign: "left", font: "inherit", color: "var(--cal-ink)", cursor: "pointer" },
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 15, fontWeight: 600 }, children: MONTH_NAMES[mi] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: { fontSize: 11, color: "var(--cal-muted)" }, children: [
-              monthItems.length,
-              " event",
-              monthItems.length === 1 ? "" : "s"
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", textAlign: "center", rowGap: 2 }, children: [
-            ["M", "T", "W", "T", "F", "S", "S"].map((d, i) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 10, fontWeight: 600, color: "var(--cal-muted)" }, children: d }, i)),
-            getDaysInMonthGrid(monthDate).map(
-              (day2, i) => !day2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", {}, i) : /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "flex", flexDirection: "column", alignItems: "center" }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "span",
+  const busy = new Set(items.map((it) => isoDate(it.startTime)));
+  const chip2 = (k, label2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "span",
+    {
+      style: {
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
+        fontSize: 12,
+        fontWeight: 500,
+        color: "var(--cal-ink-2)"
+      },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "span",
+          {
+            style: {
+              width: 14,
+              height: 14,
+              borderRadius: 4,
+              ...k === "rest" ? { boxShadow: "inset 0 0 0 1px var(--cal-line-2)" } : { background: tok(k, "bg") }
+            }
+          }
+        ),
+        label2
+      ]
+    }
+  );
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 12 }, children: [
+    userWatch && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexWrap: "wrap", alignItems: "center", gap: 16, padding: "0 4px" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: 13, fontWeight: 600 }, children: [
+        userWatch,
+        " Watch rota"
+      ] }),
+      chip2("day", "Day"),
+      chip2("night", "Night"),
+      chip2("leave", "Leave"),
+      chip2("rest", "Rest"),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--cal-ink-2)" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 5, height: 5, borderRadius: "50%", background: "var(--cal-ink)" } }),
+        " Something on"
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(232px, 1fr))", gap: 14 }, children: Array.from({ length: 12 }, (_, mi) => {
+      const monthDate = new Date(year, mi, 1);
+      const cells = getDaysInMonthGrid(monthDate);
+      while (cells.length < 42) cells.push(null);
+      const leaveDays = userWatch ? cells.filter((d) => d && shiftKind$1(getShiftForDate(userWatch, d) ?? void 0) === "leave").length : 0;
+      const isThisMonth = today.getFullYear() === year && today.getMonth() === mi;
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "section",
+        {
+          className: "cal-card",
+          style: { padding: 14, ...isThisMonth ? { boxShadow: "inset 0 0 0 2px var(--cal-brand), var(--cal-shadow)" } : {} },
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, gap: 8 }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => onMonthClick(monthDate),
+                  className: "cal-focus",
+                  style: { border: "none", background: "transparent", padding: 0, font: "inherit", fontSize: 15, fontWeight: 600, color: "var(--cal-ink)", cursor: "pointer" },
+                  children: MONTH_NAMES[mi]
+                }
+              ),
+              leaveDays > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 999, background: tok("leave", "bg"), color: tok("leave", "fg") }, children: [
+                "Leave · ",
+                leaveDays,
+                "d"
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: 2, textAlign: "center" }, children: [
+              ["M", "T", "W", "T", "F", "S", "S"].map((d, i) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 10, fontWeight: 600, color: "var(--cal-muted)", paddingBottom: 2 }, children: d }, i)),
+              cells.map((day2, i) => {
+                if (!day2) return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { height: 26 } }, i);
+                const k = userWatch ? shiftKind$1(getShiftForDate(userWatch, day2) ?? void 0) : null;
+                const isToday = sameDay$1(day2, today);
+                const hasItems = busy.has(isoDate(day2));
+                return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "button",
                   {
-                    className: "cal-mono",
+                    type: "button",
+                    onClick: () => onDayClick(day2),
+                    className: "cal-focus cal-mono",
+                    "aria-label": `${day2.getDate()} ${MONTH_NAMES[mi]}${k ? `, ${k === "leave" ? "leave" : `${k} shift`}` : ""}${hasItems ? ", something on" : ""}`,
                     style: {
+                      position: "relative",
+                      height: 26,
+                      border: "none",
+                      padding: 0,
+                      borderRadius: 6,
+                      cursor: "pointer",
+                      font: "inherit",
                       fontSize: 11,
-                      width: 22,
-                      height: 22,
-                      borderRadius: 7,
-                      display: "grid",
-                      placeItems: "center",
-                      ...sameDay(day2, today) ? { background: "var(--cal-brand)", color: "#fff", fontWeight: 600 } : {}
+                      fontWeight: isToday ? 700 : 500,
+                      ...isToday ? { background: "var(--cal-brand)", color: "#fff" } : k ? { background: tok(k, "bg"), color: tok(k, "fg") } : { background: "transparent", color: "var(--cal-ink-2)" }
                     },
-                    children: day2.getDate()
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 4, height: 4, borderRadius: "50%", background: busy.has(day2.getDate()) ? "var(--cal-brand)" : "transparent" } })
-              ] }, i)
-            )
+                    children: [
+                      day2.getDate(),
+                      hasItems && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "span",
+                        {
+                          style: {
+                            position: "absolute",
+                            left: "50%",
+                            bottom: 2,
+                            width: 4,
+                            height: 4,
+                            marginLeft: -2,
+                            borderRadius: "50%",
+                            background: isToday ? "#fff" : "currentColor"
+                          }
+                        }
+                      )
+                    ]
+                  },
+                  i
+                );
+              })
+            ] })
+          ]
+        },
+        mi
+      );
+    }) })
+  ] });
+}
+const CAL_LABEL = {
+  station: "Station",
+  watch: "Watch",
+  personal: "Personal",
+  tasks: "Task",
+  insp: "Inspection",
+  training: "Training"
+};
+function AgendaView({
+  start,
+  items,
+  shiftSchedule,
+  userWatch,
+  onEventClick,
+  onDayClick
+}) {
+  const today = /* @__PURE__ */ new Date();
+  const days = Array.from({ length: AGENDA_DAYS }, (_, i) => addDays(startOfDay$1(start), i));
+  const rows = [];
+  let lastMonth = -1;
+  for (const d of days) {
+    if (d.getMonth() !== lastMonth) {
+      rows.push({ kind: "month", date: d });
+      lastMonth = d.getMonth();
+    }
+    const shift2 = getShiftsForDay(shiftSchedule, d, userWatch)[0];
+    const dayItems = items.filter((it) => spansDay(it, d)).sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.startTime.getTime() - b.startTime.getTime());
+    const quiet2 = !shift2 && dayItems.length === 0 && !sameDay$1(d, today);
+    const prev = rows[rows.length - 1];
+    if (quiet2 && (prev == null ? void 0 : prev.kind) === "quiet") {
+      prev.to = d;
+      prev.count++;
+    } else if (quiet2) {
+      rows.push({ kind: "quiet", from: d, to: d, count: 1 });
+    } else {
+      rows.push({ kind: "day", date: d, shift: shift2, items: dayItems });
+    }
+  }
+  const short2 = (d) => d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric" });
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("section", { className: "cal-card", style: { padding: "6px 0", overflow: "hidden" }, children: rows.map((r2, i) => {
+    var _a3;
+    if (r2.kind === "month") {
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "h2",
+        {
+          style: {
+            margin: 0,
+            padding: "14px 20px 6px",
+            fontSize: 13,
+            fontWeight: 600,
+            letterSpacing: ".04em",
+            textTransform: "uppercase",
+            color: "var(--cal-muted)"
+          },
+          children: [
+            MONTH_NAMES[r2.date.getMonth()],
+            " ",
+            r2.date.getFullYear()
+          ]
+        },
+        `m${i}`
+      );
+    }
+    if (r2.kind === "quiet") {
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 12, padding: "6px 20px", color: "var(--cal-muted)", fontSize: 12 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { flex: 1, height: 1, background: "var(--cal-line)" } }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+          r2.count === 1 ? short2(r2.from) : `${short2(r2.from)} – ${short2(r2.to)}`,
+          " · rest",
+          r2.count > 1 ? ` (${r2.count} days)` : ""
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { flex: 1, height: 1, background: "var(--cal-line)" } })
+      ] }, `q${i}`);
+    }
+    const isToday = sameDay$1(r2.date, today);
+    const k = shiftKind$1(r2.shift);
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        style: {
+          display: "grid",
+          gridTemplateColumns: "64px minmax(0, 1fr)",
+          gap: 14,
+          padding: "10px 20px",
+          borderTop: "1px solid var(--cal-line)",
+          background: isToday ? "var(--cal-brand-soft)" : void 0
+        },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              onClick: (e) => onDayClick == null ? void 0 : onDayClick(r2.date, anchorOf(e)),
+              className: "cal-focus",
+              title: "Add something on this day",
+              style: {
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
+                gap: 0,
+                border: "none",
+                background: "transparent",
+                padding: 0,
+                font: "inherit",
+                cursor: "pointer",
+                color: isToday ? "var(--cal-brand-text)" : "var(--cal-ink)"
+              },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 11, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", color: isToday ? "var(--cal-brand-text)" : "var(--cal-muted)" }, children: isToday ? "Today" : r2.date.toLocaleDateString("en-GB", { weekday: "short" }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 22, fontWeight: 600, lineHeight: 1.15 }, children: r2.date.getDate() })
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 6, minWidth: 0, paddingTop: 2 }, children: [
+            k && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "inline-flex", alignItems: "center", gap: 8, fontSize: 12 }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftChip, { shift: r2.shift }),
+              ((_a3 = r2.shift) == null ? void 0 : _a3.startTime) && !r2.shift.isLeave && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: { color: "var(--cal-muted)" }, children: [
+                r2.shift.startTime,
+                "–",
+                r2.shift.endTime
+              ] })
+            ] }),
+            r2.items.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 13, color: "var(--cal-muted)" }, children: k ? "Nothing planned" : "Rest · nothing on" }) : r2.items.map((it) => {
+              const ck = calKey(it);
+              return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  type: "button",
+                  "data-event": true,
+                  title: itemTooltip(it),
+                  onClick: (e) => onEventClick == null ? void 0 : onEventClick(it, anchorOf(e)),
+                  className: "cal-focus",
+                  style: {
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    minWidth: 0,
+                    textAlign: "left",
+                    font: "inherit",
+                    border: "none",
+                    borderRadius: 10,
+                    padding: "7px 10px",
+                    cursor: "pointer",
+                    background: blockBg(it),
+                    color: tok(ck, "fg")
+                  },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 12, width: 86, flex: "none", opacity: 0.9 }, children: it.allDay ? "All day" : `${hhmm$3(it.startTime)}–${hhmm$3(it.endTime)}` }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Dot$1, { k: ck }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { ...titleStyle(it), fontSize: 13.5, flex: 1 }, children: it.title }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", style: { fontSize: 11, fontWeight: 600, opacity: 0.75, flex: "none" }, children: CAL_LABEL[ck] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(ItemIcons, { item: it })
+                  ]
+                },
+                `${it.type}-${it.id}`
+              );
+            })
           ] })
         ]
       },
-      mi
+      `d${i}`
     );
   }) });
 }
@@ -48980,10 +49267,10 @@ function MobileMonth({
   const today = /* @__PURE__ */ new Date();
   return /* @__PURE__ */ jsxRuntimeExports.jsx("section", { className: "cal-card", style: { padding: "10px 10px 12px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", textAlign: "center", rowGap: 4 }, children: [
     ["M", "T", "W", "T", "F", "S", "S"].map((d, i) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 11, fontWeight: 600, color: "var(--cal-muted)", padding: "2px 0" }, children: d }, i)),
-    getDaysInMonthGrid(date2).map((day2, i) => {
-      if (!day2) return /* @__PURE__ */ jsxRuntimeExports.jsx("span", {}, i);
-      const isToday = sameDay(day2, today);
-      const selected = sameDay(day2, selectedDay);
+    getMonthGridDays(date2).map((day2, i) => {
+      const isToday = sameDay$1(day2, today);
+      const selected = sameDay$1(day2, selectedDay);
+      const outside = day2.getMonth() !== date2.getMonth();
       const k = shiftKind$1(getShiftsForDay(shiftSchedule, day2, userWatch)[0]);
       const dots = Array.from(new Set(items.filter((it) => spansDay(it, day2)).map((it) => calKey(it)))).slice(0, 3);
       return /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -49007,7 +49294,8 @@ function MobileMonth({
             gap: 3,
             background: selected ? "var(--cal-brand)" : "transparent",
             color: selected ? "#fff" : isToday ? "var(--cal-brand)" : "var(--cal-ink)",
-            boxShadow: isToday && !selected ? "inset 0 0 0 2px var(--cal-brand)" : void 0
+            boxShadow: isToday && !selected ? "inset 0 0 0 2px var(--cal-brand)" : void 0,
+            opacity: outside && !selected ? 0.4 : 1
           },
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 14, fontWeight: isToday || selected ? 700 : 500 }, children: day2.getDate() }),
@@ -49064,7 +49352,7 @@ function MobileAgenda({
             cursor: isReadOnly(it) ? "default" : "pointer"
           },
           children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 12, width: 44, flex: "none", paddingTop: 1 }, children: it.allDay ? "All day" : hhmm$2(it.startTime) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 12, width: 44, flex: "none", paddingTop: 1 }, children: it.allDay ? "All day" : hhmm$3(it.startTime) }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "flex", flexDirection: "column", gap: 2, minWidth: 0, flex: 1 }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "flex", alignItems: "center", gap: 6, minWidth: 0 }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(Dot$1, { k }),
@@ -49072,9 +49360,9 @@ function MobileAgenda({
                 /* @__PURE__ */ jsxRuntimeExports.jsx(ItemIcons, { item: it })
               ] }),
               !it.allDay && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: { fontSize: 11.5, opacity: 0.85 }, children: [
-                hhmm$2(it.startTime),
+                hhmm$3(it.startTime),
                 " – ",
-                hhmm$2(it.endTime)
+                hhmm$3(it.endTime)
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(StateBadges, { item: it })
             ] })
@@ -49093,8 +49381,14 @@ function rangeLabel(view, d) {
     return a.getMonth() === b.getMonth() ? `${a.getDate()} – ${b.getDate()} ${MONTH_NAMES[b.getMonth()]}` : `${a.getDate()} ${MONTH_NAMES[a.getMonth()].slice(0, 3)} – ${b.getDate()} ${MONTH_NAMES[b.getMonth()].slice(0, 3)}`;
   }
   if (view === "month") return MONTH_NAMES[d.getMonth()];
+  if (view === "agenda") {
+    const { start, end } = viewRange("agenda", d);
+    const f = (x) => `${x.getDate()} ${MONTH_NAMES[x.getMonth()].slice(0, 3)}`;
+    return `${f(start)} – ${f(end)}`;
+  }
   return String(d.getFullYear());
 }
+const VIEW_LABEL = { day: "Day", week: "Week", month: "Month", year: "Year", agenda: "List" };
 function Toolbar({
   view,
   currentDate,
@@ -49105,7 +49399,7 @@ function Toolbar({
   filters,
   newButton
 }) {
-  const unit = view === "day" ? "day" : view === "week" ? "week" : view === "month" ? "month" : "year";
+  const unit = view === "day" ? "day" : view === "week" || view === "agenda" ? "week" : view === "month" ? "month" : "year";
   const showYear = view !== "year" && currentDate.getFullYear() !== (/* @__PURE__ */ new Date()).getFullYear() || view === "month";
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 12 }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8, minWidth: 0 }, children: [
@@ -49124,13 +49418,13 @@ function Toolbar({
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }, children: [
       filters,
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { role: "group", "aria-label": "View", style: { display: "inline-flex", padding: 3, borderRadius: 12, background: "var(--cal-surface-3)", gap: 2 }, children: ["day", "week", "month", "year"].map((v) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { role: "group", "aria-label": "View", style: { display: "inline-flex", padding: 3, borderRadius: 12, background: "var(--cal-surface-3)", gap: 2 }, children: ["day", "week", "month", "year", "agenda"].map((v) => /* @__PURE__ */ jsxRuntimeExports.jsx(
         "button",
         {
           type: "button",
           "aria-pressed": view === v,
           onClick: () => onViewChange(v),
-          className: "cal-focus capitalize",
+          className: "cal-focus",
           style: {
             height: 34,
             padding: "0 14px",
@@ -49141,7 +49435,7 @@ function Toolbar({
             cursor: "pointer",
             ...view === v ? { background: "var(--cal-surface)", color: "var(--cal-ink)", fontWeight: 600, boxShadow: "var(--cal-shadow)" } : { background: "transparent", color: "var(--cal-ink-2)", fontWeight: 500 }
           },
-          children: v
+          children: VIEW_LABEL[v]
         },
         v
       )) }),
@@ -49149,7 +49443,7 @@ function Toolbar({
     ] })
   ] });
 }
-function PhoneHeader({ date: date2, onPrev, onNext, onToday, filters }) {
+function PhoneHeader({ date: date2, onPrev, onNext, onToday, filters, list, onListChange }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 10 }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { style: { margin: 0, fontSize: 26, lineHeight: 1.1, fontWeight: 650, letterSpacing: "-.02em" }, children: [
@@ -49164,9 +49458,30 @@ function PhoneHeader({ date: date2, onPrev, onNext, onToday, filters }) {
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": "Next month", onClick: onNext, className: "cal-btn", style: { width: 44, height: 40, padding: 0, borderRadius: "0 12px 12px 0", marginLeft: -1 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-[18px] w-[18px]" }) })
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: 8 }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: 8, alignItems: "center" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: onToday, className: "cal-btn", style: { height: 40, padding: "0 14px", fontWeight: 600, fontSize: 14 }, children: "Today" }),
-      filters
+      filters,
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { role: "group", "aria-label": "View", style: { marginLeft: "auto", display: "inline-flex", padding: 3, borderRadius: 12, background: "var(--cal-surface-3)" }, children: [false, true].map((l) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          type: "button",
+          "aria-pressed": list === l,
+          onClick: () => onListChange(l),
+          className: "cal-focus",
+          style: {
+            height: 34,
+            padding: "0 12px",
+            borderRadius: 9,
+            border: "none",
+            font: "inherit",
+            fontSize: 13,
+            cursor: "pointer",
+            ...list === l ? { background: "var(--cal-surface)", color: "var(--cal-ink)", fontWeight: 600, boxShadow: "var(--cal-shadow)" } : { background: "transparent", color: "var(--cal-ink-2)", fontWeight: 500 }
+          },
+          children: l ? "List" : "Month"
+        },
+        String(l)
+      )) })
     ] })
   ] });
 }
@@ -49198,6 +49513,7 @@ function CalendarWidget({
     const d = new Date(currentDate);
     if (view === "day") d.setDate(d.getDate() + dir);
     else if (view === "week") d.setDate(d.getDate() + 7 * dir);
+    else if (view === "agenda") d.setDate(d.getDate() + AGENDA_DAYS * dir);
     else if (view === "month") d.setMonth(d.getMonth() + dir, 1);
     else d.setFullYear(d.getFullYear() + dir);
     onDateChange(d);
@@ -49206,7 +49522,9 @@ function CalendarWidget({
     onDateChange(d);
     onViewChange("day");
   };
+  const phoneList = view === "agenda";
   const shiftMonth = (dir) => {
+    if (phoneList) return navigate(dir);
     const d = new Date(currentDate);
     d.setMonth(d.getMonth() + dir, 1);
     onDateChange(d);
@@ -49235,30 +49553,47 @@ function CalendarWidget({
           onPrev: () => shiftMonth(-1),
           onNext: () => shiftMonth(1),
           onToday: () => onDateChange(/* @__PURE__ */ new Date()),
-          filters
+          filters,
+          list: phoneList,
+          onListChange: (l) => onViewChange(l ? "agenda" : "month")
         }
       ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        MobileMonth,
+      phoneList ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+        AgendaView,
         {
-          date: currentDate,
+          start: currentDate,
           items,
           shiftSchedule,
           userWatch,
-          selectedDay: currentDate,
-          onDaySelect: onDateChange
+          onEventClick,
+          onDayClick: (d) => {
+            onDateChange(d);
+            onViewChange("month");
+          }
         }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        MobileAgenda,
-        {
-          date: currentDate,
-          items,
-          shiftSchedule,
-          userWatch,
-          onEventClick
-        }
-      )
+      ) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          MobileMonth,
+          {
+            date: currentDate,
+            items,
+            shiftSchedule,
+            userWatch,
+            selectedDay: currentDate,
+            onDaySelect: onDateChange
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          MobileAgenda,
+          {
+            date: currentDate,
+            items,
+            shiftSchedule,
+            userWatch,
+            onEventClick
+          }
+        )
+      ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden md:flex md:flex-col gap-4 min-w-0", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -49305,10 +49640,23 @@ function CalendarWidget({
         {
           year: currentDate.getFullYear(),
           items,
+          userWatch,
           onMonthClick: (d) => {
             onDateChange(d);
             onViewChange("month");
-          }
+          },
+          onDayClick: toDay
+        }
+      ),
+      view === "agenda" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        AgendaView,
+        {
+          start: currentDate,
+          items,
+          shiftSchedule,
+          userWatch,
+          onEventClick,
+          onDayClick: onSlotClick
         }
       )
     ] })
@@ -49501,7 +49849,7 @@ function CalendarNewButton({ onPick }) {
     ] }, kind)) })
   ] });
 }
-function CalendarNewFab({ onPick, dayLabel }) {
+function CalendarNewFab({ onPick, dayLabel: dayLabel2 }) {
   const [open, setOpen] = reactExports.useState(false);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Root$4, { open, onOpenChange: setOpen, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(Trigger$2, { asChild: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -49534,7 +49882,7 @@ function CalendarNewFab({ onPick, dayLabel }) {
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-2 flex items-center justify-between", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(Title, { className: "text-base font-semibold", children: "Add to the calendar" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Description, { className: "text-xs text-muted-foreground", children: dayLabel })
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Description, { className: "text-xs text-muted-foreground", children: dayLabel2 })
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(Close, { className: "grid h-9 w-9 place-items-center rounded-full text-muted-foreground hover:bg-muted", "aria-label": "Close", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-5 w-5" }) })
             ] }),
@@ -49560,6 +49908,141 @@ function CalendarNewFab({ onPick, dayLabel }) {
         }
       )
     ] })
+  ] });
+}
+const pad = (n) => String(n).padStart(2, "0");
+const hhmm$2 = (d) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const dayLabel = (d) => d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+const sameDay = (a, b) => a.toDateString() === b.toDateString();
+function whenText(item) {
+  const s = item.startTime, e = item.endTime;
+  if (item.allDay) {
+    const lastDay = new Date(e.getTime() - 1);
+    return sameDay(s, lastDay) || e <= s ? `${dayLabel(s)} · All day` : `${dayLabel(s)} – ${dayLabel(lastDay)} · All day`;
+  }
+  return sameDay(s, e) ? `${dayLabel(s)} · ${hhmm$2(s)}–${hhmm$2(e)}` : `${dayLabel(s)} ${hhmm$2(s)} – ${dayLabel(e)} ${hhmm$2(e)}`;
+}
+const STATUS = { NotStarted: "To do", InProgress: "In progress", Blocked: "Blocked", Done: "Done", Missed: "Missed" };
+function CalendarEventPeek({
+  item,
+  watchName,
+  style,
+  onClose,
+  primary
+}) {
+  const k = calKey(item);
+  const ev = item.type === "event" || item.type === "training" ? item.data : null;
+  const task2 = item.type === "task" ? item.data : null;
+  const insp = item.type === "inspection" ? item.data : null;
+  const calendarName = task2 ? "Task · on the shift board" : insp ? "Inspection" : (ev == null ? void 0 : ev.event_type) === "reminder" ? "Private reminder · only you" : k === "station" ? "Springburn Station · everyone" : k === "watch" ? `${(ev == null ? void 0 : ev.watch) || watchName} Watch` : k === "training" ? `Training · ${(ev == null ? void 0 : ev.calendar_visibility) === "station" ? "station" : `${(ev == null ? void 0 : ev.watch) || watchName} Watch`}` : "Personal · only you";
+  const title = task2 ? item.title.replace(/^Task: /, "") : item.title;
+  const notes = (ev == null ? void 0 : ev.description) || (task2 == null ? void 0 : task2.description) || (insp == null ? void 0 : insp.notes);
+  const row = { display: "flex", gap: 10, alignItems: "flex-start", fontSize: 13.5, color: "var(--cal-ink-2)" };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { role: "dialog", "aria-modal": "true", "aria-label": title, style: { ...style, padding: 20, display: "flex", flexDirection: "column", gap: 14 }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "flex-start", gap: 12 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 12, height: 12, borderRadius: 4, marginTop: 6, flex: "none", background: `var(--cal-${k}-dot)` } }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1, minWidth: 0 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: 0, fontSize: 11.5, fontWeight: 600, letterSpacing: ".05em", textTransform: "uppercase", color: "var(--cal-muted)" }, children: calendarName }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "h2",
+          {
+            style: {
+              margin: "4px 0 0",
+              fontSize: 19,
+              lineHeight: 1.25,
+              fontWeight: 650,
+              letterSpacing: "-.01em",
+              wordBreak: "break-word",
+              ...(ev == null ? void 0 : ev.cancelled_at) ? { textDecoration: "line-through", color: "var(--cal-muted)" } : {}
+            },
+            children: title
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "cal-mono", style: { margin: "6px 0 0", fontSize: 12.5, color: "var(--cal-ink-2)" }, children: whenText(item) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          type: "button",
+          onClick: onClose,
+          "aria-label": "Close",
+          className: "cal-btn",
+          style: { width: 36, height: 36, padding: 0, borderRadius: 10, flex: "none", border: "none", background: "var(--cal-surface-2)" },
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4" })
+        }
+      )
+    ] }),
+    (ev == null ? void 0 : ev.cancelled_at) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { borderRadius: 12, padding: "10px 12px", fontSize: 12.5, background: "var(--cal-danger-bg)", color: "var(--cal-danger-fg)" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { margin: 0, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Ban, { className: "h-3.5 w-3.5" }),
+        " Cancelled",
+        ev.cancelled_by_name ? ` by ${ev.cancelled_by_name}` : ""
+      ] }),
+      ev.cancel_reason && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: "4px 0 0" }, children: ev.cancel_reason })
+    ] }),
+    (ev == null ? void 0 : ev.rescheduled_from) && !ev.cancelled_at && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { ...row, borderRadius: 12, padding: "10px 12px", background: "var(--cal-surface-2)" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { className: "h-4 w-4 shrink-0", style: { marginTop: 2 } }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+        "Moved from ",
+        dayLabel(new Date(ev.rescheduled_from)),
+        ev.changed_by_name ? ` by ${ev.changed_by_name}` : "",
+        ev.change_note ? ` — ${ev.change_note}` : ""
+      ] })
+    ] }),
+    ((ev == null ? void 0 : ev.location) || (insp == null ? void 0 : insp.address)) && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { ...row, margin: 0 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(MapPin, { className: "h-4 w-4 shrink-0", style: { marginTop: 2 } }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: (ev == null ? void 0 : ev.location) || (insp == null ? void 0 : insp.address) })
+    ] }),
+    (task2 || insp) && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { ...row, margin: 0 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Lock, { className: "h-4 w-4 shrink-0", style: { marginTop: 2 } }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+        task2 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          STATUS[task2.status] ?? task2.status,
+          " · ",
+          task2.priority,
+          " priority",
+          task2.watch_unit ? ` · ${task2.watch_unit} Watch` : ""
+        ] }),
+        insp && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          insp.type,
+          " · ",
+          insp.status
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--cal-muted)", fontSize: 12 }, children: task2 ? "Changed on the task board, not here." : "Shown here for planning; read-only." })
+      ] })
+    ] }),
+    notes && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { ...row, margin: 0, whiteSpace: "pre-wrap" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "h-4 w-4 shrink-0", style: { marginTop: 2 } }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { maxHeight: 160, overflowY: "auto" }, children: notes })
+    ] }),
+    primary && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", justifyContent: "flex-end", gap: 8, paddingTop: 2 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "button",
+      {
+        type: "button",
+        onClick: primary.onClick,
+        className: "cal-focus",
+        style: {
+          height: 40,
+          padding: "0 16px",
+          borderRadius: 12,
+          border: "none",
+          background: "var(--cal-brand)",
+          color: "#fff",
+          font: "inherit",
+          fontSize: 14,
+          fontWeight: 600,
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 6,
+          cursor: "pointer"
+        },
+        children: [
+          primary.icon === "open" ? /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { className: "h-4 w-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "h-4 w-4" }),
+          primary.label
+        ]
+      }
+    ) })
   ] });
 }
 const CALENDAR_OPTIONS = [
@@ -50518,6 +51001,8 @@ function UnifiedCalendar() {
     } catch {
     }
   };
+  const [peek, setPeek] = reactExports.useState(null);
+  const routerNavigate = useNavigate();
   const [inspectionModalOpen, setInspectionModalOpen] = reactExports.useState(false);
   const [editingInspectionEvent, setEditingInspectionEvent] = reactExports.useState(null);
   const [shiftAdjModalOpen, setShiftAdjModalOpen] = reactExports.useState(false);
@@ -50529,28 +51014,8 @@ function UnifiedCalendar() {
   const watchShown = isManager && viewWatch || userWatch;
   const [trainingModalOpen, setTrainingModalOpen] = reactExports.useState(false);
   const isPhone = typeof window !== "undefined" && window.innerWidth < 768;
-  const rangeView = isPhone ? "month" : view;
-  const getDateRange = () => {
-    const start2 = new Date(currentDate);
-    const end2 = new Date(currentDate);
-    if (rangeView === "month") {
-      start2.setDate(1);
-      end2.setMonth(end2.getMonth() + 1);
-      end2.setDate(0);
-    } else if (rangeView === "year") {
-      start2.setMonth(0, 1);
-      end2.setMonth(11, 31);
-    } else if (rangeView === "week") {
-      const day2 = start2.getDay();
-      const offset2 = day2 === 0 ? -6 : 1 - day2;
-      start2.setDate(start2.getDate() + offset2);
-      end2.setDate(start2.getDate() + 6);
-    } else {
-      end2.setDate(end2.getDate() + 1);
-    }
-    return { start: start2, end: end2 };
-  };
-  const { start, end } = getDateRange();
+  const rangeView = isPhone ? view === "agenda" ? "agenda" : "month" : view;
+  const { start, end } = viewRange(rangeView, currentDate);
   const startISO = start.toISOString();
   const endISO = end.toISOString();
   const { data: rangeEvents = [] } = useQuery({
@@ -50667,13 +51132,16 @@ function UnifiedCalendar() {
     refreshCalendar(queryClient2);
   }
   reactExports.useEffect(() => {
-    if (!formOpen) return;
+    if (!formOpen && !peek) return;
     const onKey = (e) => {
-      if (e.key === "Escape") closeForm();
+      if (e.key === "Escape") {
+        closeForm();
+        setPeek(null);
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [formOpen]);
+  }, [formOpen, peek]);
   const handleSlotClick = (date2, anchor) => {
     setFormDate(date2);
     setEditingEvent(null);
@@ -50698,9 +51166,23 @@ function UnifiedCalendar() {
     setFormAnchor(null);
     setPendingSlot(null);
   };
-  const handleEventClick = async (item, anchor) => {
+  const handleEventClick = (item, anchor) => {
+    setPeek({ item, anchor: anchor ?? null });
+  };
+  const peekAction = (item, anchor) => {
+    if (item.type === "inspection") return void 0;
+    if (item.type === "task") {
+      return { label: "Open on the task board", icon: "open", onClick: () => routerNavigate("/tasks", { state: { openTask: item.data } }) };
+    }
+    const data = item.data;
+    const label2 = (data == null ? void 0 : data.shift_adjustment_id) ? "Open booking" : (data == null ? void 0 : data.source_type) ? "Edit inspection" : "Edit";
+    return { label: label2, onClick: () => {
+      setPeek(null);
+      openEditor(item, anchor ?? void 0);
+    } };
+  };
+  const openEditor = async (item, anchor) => {
     var _a3, _b3;
-    if (item.type === "task" || item.type === "inspection") return;
     const eventData2 = item.data;
     if (eventData2 == null ? void 0 : eventData2.shift_adjustment_id) {
       const booking = await backendClient.shift_adjustments.list({ id: eventData2.shift_adjustment_id }).then((r2) => r2.adjustments[0]).catch(() => void 0);
@@ -50709,6 +51191,8 @@ function UnifiedCalendar() {
         setBookingToEdit(booking);
         return;
       }
+      toast2({ title: "Only they, whoever's covering, or a WC/CC can change this booking." });
+      return;
     }
     if (eventData2 == null ? void 0 : eventData2.source_type) {
       setEditingInspectionEvent({
@@ -50798,28 +51282,29 @@ This cancels the whole booking (TOIL/H4H/Flexi): any TOIL hours are refunded and
       compact: isPhone
     }
   );
-  const PANEL_W = 380;
-  const panelStyle = (() => {
+  const popStyle = (anchor, width, tall) => {
     const base = {
       position: "absolute",
       background: "var(--cal-surface)",
       border: "1px solid var(--cal-line)",
       boxShadow: "var(--cal-pop)",
       overflowY: "auto",
-      boxSizing: "border-box"
+      boxSizing: "border-box",
+      color: "var(--cal-ink)"
     };
     if (isPhone) {
-      return { ...base, left: 0, right: 0, bottom: 0, maxHeight: "92vh", borderRadius: "24px 24px 0 0" };
+      return { ...base, left: 0, right: 0, bottom: 0, maxHeight: "92vh", borderRadius: "24px 24px 0 0", paddingBottom: "env(safe-area-inset-bottom)" };
     }
-    if (!formAnchor) {
-      return { ...base, left: "50%", top: "50%", transform: "translate(-50%, -50%)", width: PANEL_W, maxHeight: "calc(100vh - 32px)", borderRadius: 22 };
+    if (!anchor) {
+      return { ...base, left: "50%", top: "50%", transform: "translate(-50%, -50%)", width, maxHeight: "calc(100vh - 32px)", borderRadius: 22 };
     }
     const vw = window.innerWidth, vh = window.innerHeight;
-    const right = formAnchor.x + 16;
-    const left = right + PANEL_W <= vw - 16 ? right : Math.max(16, formAnchor.x - 16 - PANEL_W);
-    const top = Math.max(16, Math.min(formAnchor.y - 160, vh - 16 - 620));
-    return { ...base, left, top, width: PANEL_W, maxHeight: vh - top - 16, borderRadius: 22 };
-  })();
+    const right = anchor.x + 16;
+    const left = right + width <= vw - 16 ? right : Math.max(16, anchor.x - 16 - width);
+    const top = Math.max(16, Math.min(anchor.y - 120, vh - 16 - tall));
+    return { ...base, left, top, width, maxHeight: vh - top - 16, borderRadius: 22 };
+  };
+  const panelStyle = popStyle(formAnchor, 380, 620);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cal-ui", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       CalendarWidget,
@@ -50872,6 +51357,28 @@ This cancels the whole booking (TOIL/H4H/Flexi): any TOIL hours are refunded and
           },
           editingEvent ? `edit-${editingEvent.id}` : `new-${formDate.getTime()}`
         ) })
+      ] }),
+      document.body
+    ),
+    peek && reactDomExports.createPortal(
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cal-ui", style: { position: "fixed", inset: 0, zIndex: 60 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            onClick: () => setPeek(null),
+            style: { position: "absolute", inset: 0, background: isPhone || !peek.anchor ? "rgba(0,0,0,.4)" : "rgba(17,20,39,.04)" }
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          CalendarEventPeek,
+          {
+            item: peek.item,
+            watchName: watchShown,
+            style: popStyle(peek.anchor, 360, 380),
+            onClose: () => setPeek(null),
+            primary: peekAction(peek.item, peek.anchor)
+          }
+        )
       ] }),
       document.body
     ),
@@ -56387,6 +56894,15 @@ function Tasks() {
     }).catch(() => {
     });
   };
+  const location = useLocation();
+  const navigateTo = useNavigate();
+  reactExports.useEffect(() => {
+    var _a4;
+    const handed = (_a4 = location.state) == null ? void 0 : _a4.openTask;
+    if (!handed) return;
+    setSelectedTask(handed);
+    navigateTo(location.pathname + location.search, { replace: true, state: null });
+  }, [location.state]);
   const [searchParams, setSearchParams] = useSearchParams();
   reactExports.useEffect(() => {
     if (searchParams.get("new") !== "1" || columns.length === 0 || !shift2) return;

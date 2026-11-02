@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/App";
 import backend from "@/lib/backend";
@@ -190,6 +190,16 @@ export default function Tasks() {
       setSelectedTask(newTask as unknown as Task);
     }).catch(() => {});
   };
+
+  // A task opened from the calendar's event card arrives in router state.
+  const location = useLocation();
+  const navigateTo = useNavigate();
+  useEffect(() => {
+    const handed = (location.state as { openTask?: Task } | null)?.openTask;
+    if (!handed) return;
+    setSelectedTask(handed);
+    navigateTo(location.pathname + location.search, { replace: true, state: null });
+  }, [location.state]);
 
   // "?new=1" (the quick-add button) opens a new card once the board has loaded.
   const [searchParams, setSearchParams] = useSearchParams();
