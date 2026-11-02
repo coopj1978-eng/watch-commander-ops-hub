@@ -167,7 +167,6 @@ export default function PersonalCalendar() {
     try {
       const { start, end } = getDateRange();
       const result = await backend.calendar.exportICS({
-        user_id: userId,
         start_date: start.toISOString(),
         end_date: end.toISOString(),
       });

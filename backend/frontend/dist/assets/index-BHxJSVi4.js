@@ -27941,8 +27941,7 @@ var calendar;
     async exportICS(params) {
       const query = makeRecord({
         "end_date": params["end_date"],
-        "start_date": params["start_date"],
-        "user_id": params["user_id"]
+        "start_date": params["start_date"]
       });
       const resp = await this.baseClient.callTypedAPI("GET", `/calendar/export.ics`, void 0, { query });
       return await resp.json();

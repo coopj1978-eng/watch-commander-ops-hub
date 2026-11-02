@@ -3,6 +3,7 @@ import { Query } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
 import type { CalendarEvent } from "./types";
+import { eventVisibility, VISIBILITY_JOINS } from "./visibility";
 
 interface ListEventsRequest {
   user_id?: Query<string>;
@@ -28,37 +29,18 @@ export const list = api<ListEventsRequest, ListEventsResponse>(
     const limit = req.limit || 100;
     const offset = req.offset || 0;
 
-    // creator join: legacy watch events have no `watch` stored, so fall
-    // back to the creator's watch when scoping them below.
     let query = `
       SELECT ce.*, canceller.name AS cancelled_by_name, changer.name AS changed_by_name
       FROM calendar_events ce
-      LEFT JOIN notes n ON ce.id = n.calendar_event_id
-      LEFT JOIN users creator ON creator.id = ce.created_by
+      ${VISIBILITY_JOINS}
       LEFT JOIN users canceller ON canceller.id = ce.cancelled_by
       LEFT JOIN users changer ON changer.id = ce.changed_by
     `;
     let countQuery = `
       SELECT COUNT(*) as count FROM calendar_events ce
-      LEFT JOIN notes n ON ce.id = n.calendar_event_id
-      LEFT JOIN users creator ON creator.id = ce.created_by
+      ${VISIBILITY_JOINS}
     `;
-    const params: any[] = [];
-    const conditions: string[] = [];
-    let paramIndex = 1;
 
-    // Reminders (e.g. a note's follow-up, which carries part of the note)
-    // are private to whoever wrote them.
-    const visibilityCondition = `
-      (ce.event_type != 'reminder' OR
-       COALESCE(n.created_by_user_id, ce.created_by) = $${paramIndex})
-    `;
-    conditions.push(visibilityCondition);
-    params.push(auth.userID);
-    paramIndex++;
-
-    // Watch-calendar events are only visible to that watch. Station-wide and
-    // personal events are unaffected. Callers with no watch see all (admin).
     // A WC/CC can look at another watch's calendar by passing `watch` (they
     // can add to it and change it too — things move while a watch is off).
     const caller = await db.queryRow<{ watch_unit: string | null }>`
@@ -66,21 +48,10 @@ export const list = api<ListEventsRequest, ListEventsResponse>(
     `;
     const isManager = auth.role === "WC" || auth.role === "CC";
     const showWatch = isManager && req.watch ? req.watch : caller?.watch_unit;
-    if (showWatch) {
-      conditions.push(
-        `(ce.calendar_visibility <> 'watch' OR LOWER(COALESCE(ce.watch, creator.watch_unit, '')) = LOWER($${paramIndex}))`
-      );
-      params.push(showWatch);
-      paramIndex++;
-    }
-
-    // Personal calendars are private: only the owner (or whoever created
-    // the entry for them, e.g. a booking logged by their WC).
-    conditions.push(
-      `(ce.calendar_visibility <> 'personal' OR ce.user_id = $${paramIndex} OR ce.created_by = $${paramIndex})`
-    );
-    params.push(auth.userID);
-    paramIndex++;
+    const visibility = eventVisibility(auth.userID, showWatch, 1);
+    const params: any[] = [...visibility.params];
+    const conditions: string[] = [...visibility.conditions];
+    let paramIndex = visibility.nextParam;
 
     if (req.user_id !== undefined) {
       conditions.push(`(ce.user_id = $${paramIndex} OR ce.is_watch_event = true)`);

@@ -4,9 +4,11 @@ import db from "../db";
 import type { CalendarEvent } from "./types";
 import type { Task } from "../task/types";
 import type { Inspection } from "../inspection/types";
+import { eventVisibility, VISIBILITY_JOINS } from "./visibility";
 
+// Always the caller's own calendar: there is no user_id, so nobody can
+// download another person's events, tasks or inspections.
 interface ExportICSRequest {
-  user_id?: Query<string>;
   start_date?: Query<string>;
   end_date?: Query<string>;
 }
@@ -16,25 +18,52 @@ interface ExportICSResponse {
   filename: string;
 }
 
+// Named columns, not `SELECT *`: pooled connections cache a `*` query's
+// result shape (see note/columns.ts).
+type ExportEvent = Pick<
+  CalendarEvent,
+  "id" | "title" | "description" | "location" | "event_type" | "start_time" | "end_time" | "is_watch_event" | "cancelled_at"
+>;
+type ExportTask = Pick<Task, "id" | "title" | "description" | "category" | "priority" | "status" | "due_at">;
+type ExportInspection = Pick<Inspection, "id" | "type" | "address" | "notes" | "priority" | "scheduled_for">;
+
 export const exportICS = api<ExportICSRequest, ExportICSResponse>(
   { expose: true, method: "GET", path: "/calendar/export.ics", auth: true },
   async (req) => {
     const auth = getAuthData()!;
-    const userId = req.user_id || auth.userID;
+    const userId = auth.userID;
 
     const startDate = req.start_date || new Date().toISOString();
     const endDate = req.end_date || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
 
-    const events = await db.query<CalendarEvent>`
-      SELECT * FROM calendar_events
-      WHERE (user_id = ${userId} OR is_watch_event = true)
-        AND start_time >= ${startDate}
-        AND end_time <= ${endDate}
-      ORDER BY start_time ASC
+    // What the Calendar page shows: your own events plus station and watch
+    // events, under the calendar list's rules (reminders only to their
+    // writer, watch events only to your watch, personal only to the owner).
+    const caller = await db.queryRow<{ watch_unit: string | null }>`
+      SELECT watch_unit FROM users WHERE id = ${userId}
     `;
+    const visibility = eventVisibility(userId, caller?.watch_unit, 1);
+    const p = visibility.nextParam;
+    const events = await db.rawQueryAll<ExportEvent>(
+      `
+      SELECT ce.id, ce.title, ce.description, ce.location, ce.event_type,
+             ce.start_time, ce.end_time, ce.is_watch_event, ce.cancelled_at
+      FROM calendar_events ce
+      ${VISIBILITY_JOINS}
+      WHERE ${visibility.conditions.join(" AND ")}
+        AND (ce.user_id = $${p} OR ce.is_watch_event = true)
+        AND ce.start_time >= $${p + 1}
+        AND ce.end_time <= $${p + 2}
+      ORDER BY ce.start_time ASC
+    `,
+      ...visibility.params,
+      userId,
+      startDate,
+      endDate
+    );
 
-    const tasks = await db.query<Task>`
-      SELECT * /* tasks v68 */ FROM tasks
+    const tasks = await db.queryAll<ExportTask>`
+      SELECT id, title, description, category, priority, status, due_at FROM tasks
       WHERE assigned_to_user_id = ${userId}
         AND due_at IS NOT NULL
         AND due_at >= ${startDate}
@@ -42,9 +71,9 @@ export const exportICS = api<ExportICSRequest, ExportICSResponse>(
       ORDER BY due_at ASC
     `;
 
-    const inspections = await db.query<Inspection>`
-      SELECT * FROM inspections
-      WHERE assigned_to = ${userId}
+    const inspections = await db.queryAll<ExportInspection>`
+      SELECT id, type, address, notes, priority, scheduled_for FROM inspections
+      WHERE ${userId} = ANY(assigned_crew_ids)
         AND scheduled_for >= ${startDate}
         AND scheduled_for <= ${endDate}
       ORDER BY scheduled_for ASC
@@ -72,7 +101,7 @@ export const exportICS = api<ExportICSRequest, ExportICSResponse>(
         .replace(/\n/g, "\\n");
     };
 
-    for await (const event of events) {
+    for (const event of events) {
       lines.push("BEGIN:VEVENT");
       lines.push(`UID:event-${event.id}@watchcommander.local`);
       lines.push(`DTSTAMP:${formatDate(new Date())}`);
@@ -86,13 +115,16 @@ export const exportICS = api<ExportICSRequest, ExportICSResponse>(
         lines.push(`LOCATION:${escapeText(event.location)}`);
       }
       lines.push(`CATEGORIES:${event.event_type.toUpperCase()}`);
-      if (event.is_watch_event) {
+      // Struck through on the calendar (not deleted) → cancelled in the file.
+      if (event.cancelled_at) {
+        lines.push("STATUS:CANCELLED");
+      } else if (event.is_watch_event) {
         lines.push("STATUS:CONFIRMED");
       }
       lines.push("END:VEVENT");
     }
 
-    for await (const task of tasks) {
+    for (const task of tasks) {
       lines.push("BEGIN:VEVENT");
       lines.push(`UID:task-${task.id}@watchcommander.local`);
       lines.push(`DTSTAMP:${formatDate(new Date())}`);
@@ -108,7 +140,7 @@ export const exportICS = api<ExportICSRequest, ExportICSResponse>(
       lines.push("END:VEVENT");
     }
 
-    for await (const inspection of inspections) {
+    for (const inspection of inspections) {
       lines.push("BEGIN:VEVENT");
       lines.push(`UID:inspection-${inspection.id}@watchcommander.local`);
       lines.push(`DTSTAMP:${formatDate(new Date())}`);

@@ -1329,7 +1329,6 @@ export namespace calendar {
     export type EventType = "watch" | "personal" | "training" | "meeting" | "inspection" | "maintenance" | "reminder"
 
     export interface ExportICSRequest {
-        "user_id"?: string
         "start_date"?: string
         "end_date"?: string
     }
@@ -1415,7 +1414,6 @@ export namespace calendar {
             const query = makeRecord<string, string | string[]>({
                 "end_date":   params["end_date"],
                 "start_date": params["start_date"],
-                "user_id":    params["user_id"],
             })
 
             // Now make the actual call to the API
