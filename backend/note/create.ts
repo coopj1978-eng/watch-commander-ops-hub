@@ -9,6 +9,7 @@ interface DBNote {
   id: number;
   profile_id: number;
   created_by_user_id: string;
+  title?: string | null;
   note_text: string;
   next_follow_up_date?: Date | string;
   reminder_enabled: boolean;
@@ -31,6 +32,7 @@ function transformNote(dbNote: DBNote): Note {
   
   return {
     ...dbNote,
+    title: dbNote.title ?? undefined,
     next_follow_up_date: followUpDate,
     attachments: dbNote.attachments || [],
   };
@@ -41,6 +43,7 @@ export const create = api<CreateNoteRequest, Note>(
   async (req) => {
     const auth = getAuthData()!;
     assertCanWriteNotes();
+    const title = req.title?.trim() || null;
 
     if (req.reminder_enabled && !req.next_follow_up_date) {
       throw APIError.invalidArgument(
@@ -67,7 +70,7 @@ export const create = api<CreateNoteRequest, Note>(
         SELECT name FROM users WHERE id = ${profile!.user_id}
       `;
 
-      const title = `Follow-up: ${profileUser!.name}`;
+      const eventTitle = `Follow-up: ${profileUser!.name}${title ? ` · ${title}` : ""}`;
       const description = req.note_text.substring(0, 200);
       const startTime = new Date(req.next_follow_up_date);
       const endTime = new Date(req.next_follow_up_date);
@@ -87,7 +90,7 @@ export const create = api<CreateNoteRequest, Note>(
 
       const calendarEvent = await db.rawQueryRow<{ id: number }>(
         query,
-        title,
+        eventTitle,
         description,
         startTime,
         endTime,
@@ -102,13 +105,14 @@ export const create = api<CreateNoteRequest, Note>(
 
     const dbNote = await db.queryRow<DBNote>`
       INSERT INTO notes (
-        profile_id, created_by_user_id, note_text, 
+        profile_id, created_by_user_id, title, note_text,
         next_follow_up_date, reminder_enabled, 
         reminder_recipient_user_id, calendar_event_id
       )
       VALUES (
         ${req.profile_id}, 
         ${auth.userID}, 
+        ${title},
         ${req.note_text},
         ${req.next_follow_up_date ? new Date(req.next_follow_up_date) : null},
         ${req.reminder_enabled || false},

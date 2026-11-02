@@ -12,6 +12,7 @@ interface DBNote {
   id: number;
   profile_id: number;
   created_by_user_id: string;
+  title?: string | null;
   note_text: string;
   next_follow_up_date?: Date | string;
   reminder_enabled: boolean;
@@ -34,6 +35,7 @@ function transformNote(dbNote: DBNote): Note {
   
   return {
     ...dbNote,
+    title: dbNote.title ?? undefined,
     next_follow_up_date: followUpDate,
     attachments: dbNote.attachments || [],
   };
@@ -61,7 +63,13 @@ export const update = api(
     const queryParams: any[] = [];
     let paramIndex = 1;
 
+    if (updates.title !== undefined) {
+      setClauses.push(`title = $${paramIndex++}`);
+      queryParams.push(updates.title.trim() || null);
+    }
+
     if (updates.note_text !== undefined) {
+      if (!updates.note_text.trim()) throw APIError.invalidArgument("A note can't be empty.");
       setClauses.push(`note_text = $${paramIndex++}`);
       queryParams.push(updates.note_text);
     }
@@ -109,7 +117,7 @@ export const update = api(
         SELECT name FROM users WHERE id = ${profile!.user_id}
       `;
 
-      const title = `Follow-up: ${profileUser!.name}`;
+      const title = `Follow-up: ${profileUser!.name}${dbNote.title ? ` · ${dbNote.title}` : ""}`;
       const description = dbNote.note_text.substring(0, 200);
       const startTime = new Date(dbNote.next_follow_up_date!);
       const endTime = new Date(dbNote.next_follow_up_date!);
@@ -175,7 +183,8 @@ export const update = api(
       action: "update_note",
       entity_type: "note",
       entity_id: id.toString(),
-      details: updates,
+      // Which fields changed, not their words: notes are private to the writer.
+      details: { profile_id: dbNote.profile_id, fields: Object.keys(updates) },
     });
 
     return transformNote(dbNote);

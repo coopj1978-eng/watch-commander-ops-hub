@@ -7,6 +7,7 @@ interface DBNote {
   id: number;
   profile_id: number;
   created_by_user_id: string;
+  title?: string | null;
   note_text: string;
   next_follow_up_date?: Date | string;
   reminder_enabled: boolean;
@@ -29,6 +30,7 @@ function transformNote(dbNote: DBNote): Note {
   
   return {
     ...dbNote,
+    title: dbNote.title ?? undefined,
     next_follow_up_date: followUpDate,
     attachments: dbNote.attachments || [],
   };

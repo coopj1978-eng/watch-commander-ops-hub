@@ -3231,6 +3231,7 @@ export namespace mock {
 export namespace note {
     export interface CreateNoteRequest {
         "profile_id": number
+        title?: string
         "note_text": string
         "next_follow_up_date"?: string
         "reminder_enabled"?: boolean
@@ -3254,6 +3255,10 @@ export namespace note {
         id: number
         "profile_id": number
         "created_by_user_id": string
+        /**
+         * A short heading: what the note or 1:1 was about.
+         */
+        title?: string
         "note_text": string
         "next_follow_up_date"?: string
         "reminder_enabled": boolean
@@ -3343,6 +3348,10 @@ export namespace note {
         }
 
         public async update(id: number, params: {
+    /**
+     * An empty title clears it.
+     */
+    title?: string
     "note_text"?: string
     "next_follow_up_date"?: string
     "reminder_enabled"?: boolean

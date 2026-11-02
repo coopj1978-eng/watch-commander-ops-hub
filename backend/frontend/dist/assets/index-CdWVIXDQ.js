@@ -46996,6 +46996,578 @@ function RecordHistory({ profileId }) {
     ] }, day2)) })
   ] });
 }
+var ROOT_NAME = "AlertDialog";
+var [createAlertDialogContext] = createContextScope$1(ROOT_NAME, [
+  createDialogScope
+]);
+var useDialogScope = createDialogScope();
+var AlertDialog$1 = (props) => {
+  const { __scopeAlertDialog, ...alertDialogProps } = props;
+  const dialogScope = useDialogScope(__scopeAlertDialog);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Root$4, { ...dialogScope, ...alertDialogProps, modal: true });
+};
+AlertDialog$1.displayName = ROOT_NAME;
+var TRIGGER_NAME$1 = "AlertDialogTrigger";
+var AlertDialogTrigger = reactExports.forwardRef(
+  (props, forwardedRef) => {
+    const { __scopeAlertDialog, ...triggerProps } = props;
+    const dialogScope = useDialogScope(__scopeAlertDialog);
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(Trigger$2, { ...dialogScope, ...triggerProps, ref: forwardedRef });
+  }
+);
+AlertDialogTrigger.displayName = TRIGGER_NAME$1;
+var PORTAL_NAME = "AlertDialogPortal";
+var AlertDialogPortal$1 = (props) => {
+  const { __scopeAlertDialog, ...portalProps } = props;
+  const dialogScope = useDialogScope(__scopeAlertDialog);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Portal$1, { ...dialogScope, ...portalProps });
+};
+AlertDialogPortal$1.displayName = PORTAL_NAME;
+var OVERLAY_NAME = "AlertDialogOverlay";
+var AlertDialogOverlay$1 = reactExports.forwardRef(
+  (props, forwardedRef) => {
+    const { __scopeAlertDialog, ...overlayProps } = props;
+    const dialogScope = useDialogScope(__scopeAlertDialog);
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(Overlay, { ...dialogScope, ...overlayProps, ref: forwardedRef });
+  }
+);
+AlertDialogOverlay$1.displayName = OVERLAY_NAME;
+var CONTENT_NAME$1 = "AlertDialogContent";
+var [AlertDialogContentProvider, useAlertDialogContentContext] = createAlertDialogContext(CONTENT_NAME$1);
+var Slottable = /* @__PURE__ */ createSlottable("AlertDialogContent");
+var AlertDialogContent$1 = reactExports.forwardRef(
+  (props, forwardedRef) => {
+    const { __scopeAlertDialog, children, ...contentProps } = props;
+    const dialogScope = useDialogScope(__scopeAlertDialog);
+    const contentRef = reactExports.useRef(null);
+    const composedRefs = useComposedRefs(forwardedRef, contentRef);
+    const cancelRef = reactExports.useRef(null);
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      WarningProvider,
+      {
+        contentName: CONTENT_NAME$1,
+        titleName: TITLE_NAME,
+        docsSlug: "alert-dialog",
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogContentProvider, { scope: __scopeAlertDialog, cancelRef, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          Content$1,
+          {
+            role: "alertdialog",
+            ...dialogScope,
+            ...contentProps,
+            ref: composedRefs,
+            onOpenAutoFocus: composeEventHandlers(contentProps.onOpenAutoFocus, (event) => {
+              var _a3;
+              event.preventDefault();
+              (_a3 = cancelRef.current) == null ? void 0 : _a3.focus({ preventScroll: true });
+            }),
+            onPointerDownOutside: (event) => event.preventDefault(),
+            onInteractOutside: (event) => event.preventDefault(),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Slottable, { children }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DescriptionWarning, { contentRef })
+            ]
+          }
+        ) })
+      }
+    );
+  }
+);
+AlertDialogContent$1.displayName = CONTENT_NAME$1;
+var TITLE_NAME = "AlertDialogTitle";
+var AlertDialogTitle$1 = reactExports.forwardRef(
+  (props, forwardedRef) => {
+    const { __scopeAlertDialog, ...titleProps } = props;
+    const dialogScope = useDialogScope(__scopeAlertDialog);
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(Title, { ...dialogScope, ...titleProps, ref: forwardedRef });
+  }
+);
+AlertDialogTitle$1.displayName = TITLE_NAME;
+var DESCRIPTION_NAME = "AlertDialogDescription";
+var AlertDialogDescription$1 = reactExports.forwardRef((props, forwardedRef) => {
+  const { __scopeAlertDialog, ...descriptionProps } = props;
+  const dialogScope = useDialogScope(__scopeAlertDialog);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Description, { ...dialogScope, ...descriptionProps, ref: forwardedRef });
+});
+AlertDialogDescription$1.displayName = DESCRIPTION_NAME;
+var ACTION_NAME = "AlertDialogAction";
+var AlertDialogAction$1 = reactExports.forwardRef(
+  (props, forwardedRef) => {
+    const { __scopeAlertDialog, ...actionProps } = props;
+    const dialogScope = useDialogScope(__scopeAlertDialog);
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(Close, { ...dialogScope, ...actionProps, ref: forwardedRef });
+  }
+);
+AlertDialogAction$1.displayName = ACTION_NAME;
+var CANCEL_NAME = "AlertDialogCancel";
+var AlertDialogCancel$1 = reactExports.forwardRef(
+  (props, forwardedRef) => {
+    const { __scopeAlertDialog, ...cancelProps } = props;
+    const { cancelRef } = useAlertDialogContentContext(CANCEL_NAME, __scopeAlertDialog);
+    const dialogScope = useDialogScope(__scopeAlertDialog);
+    const ref = useComposedRefs(forwardedRef, cancelRef);
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(Close, { ...dialogScope, ...cancelProps, ref });
+  }
+);
+AlertDialogCancel$1.displayName = CANCEL_NAME;
+var DescriptionWarning = ({ contentRef }) => {
+  const MESSAGE = `\`${CONTENT_NAME$1}\` requires a description for the component to be accessible for screen reader users.
+
+You can add a description to the \`${CONTENT_NAME$1}\` by passing a \`${DESCRIPTION_NAME}\` component as a child, which also benefits sighted users by adding visible context to the dialog.
+
+Alternatively, you can use your own component as a description by assigning it an \`id\` and passing the same value to the \`aria-describedby\` prop in \`${CONTENT_NAME$1}\`. If the description is confusing or duplicative for sighted users, you can use the \`@radix-ui/react-visually-hidden\` primitive as a wrapper around your description component.
+
+For more information, see https://radix-ui.com/primitives/docs/components/alert-dialog`;
+  reactExports.useEffect(() => {
+    var _a3;
+    const hasDescription = document.getElementById(
+      (_a3 = contentRef.current) == null ? void 0 : _a3.getAttribute("aria-describedby")
+    );
+    if (!hasDescription) console.warn(MESSAGE);
+  }, [MESSAGE, contentRef]);
+  return null;
+};
+var Root2$1 = AlertDialog$1;
+var Portal2 = AlertDialogPortal$1;
+var Overlay2 = AlertDialogOverlay$1;
+var Content2 = AlertDialogContent$1;
+var Action$1 = AlertDialogAction$1;
+var Cancel = AlertDialogCancel$1;
+var Title2 = AlertDialogTitle$1;
+var Description2 = AlertDialogDescription$1;
+const AlertDialog = Root2$1;
+const AlertDialogPortal = Portal2;
+const AlertDialogOverlay = reactExports.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+  Overlay2,
+  {
+    className: cn(
+      "fixed inset-0 z-50 bg-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      className
+    ),
+    ...props,
+    ref
+  }
+));
+AlertDialogOverlay.displayName = Overlay2.displayName;
+const AlertDialogContent = reactExports.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogPortal, { children: [
+  /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogOverlay, {}),
+  /* @__PURE__ */ jsxRuntimeExports.jsx(
+    Content2,
+    {
+      ref,
+      className: cn(
+        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg",
+        className
+      ),
+      ...props
+    }
+  )
+] }));
+AlertDialogContent.displayName = Content2.displayName;
+const AlertDialogHeader = ({
+  className,
+  ...props
+}) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+  "div",
+  {
+    className: cn("flex flex-col space-y-2 text-center sm:text-left", className),
+    ...props
+  }
+);
+AlertDialogHeader.displayName = "AlertDialogHeader";
+const AlertDialogFooter = ({
+  className,
+  ...props
+}) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+  "div",
+  {
+    className: cn("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2", className),
+    ...props
+  }
+);
+AlertDialogFooter.displayName = "AlertDialogFooter";
+const AlertDialogTitle = reactExports.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+  Title2,
+  {
+    ref,
+    className: cn("text-lg font-semibold", className),
+    ...props
+  }
+));
+AlertDialogTitle.displayName = Title2.displayName;
+const AlertDialogDescription = reactExports.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+  Description2,
+  {
+    ref,
+    className: cn("text-sm text-muted-foreground", className),
+    ...props
+  }
+));
+AlertDialogDescription.displayName = Description2.displayName;
+const AlertDialogAction = reactExports.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+  Action$1,
+  {
+    ref,
+    className: cn(buttonVariants(), className),
+    ...props
+  }
+));
+AlertDialogAction.displayName = Action$1.displayName;
+const AlertDialogCancel = reactExports.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+  Cancel,
+  {
+    ref,
+    className: cn(buttonVariants({ variant: "outline" }), "mt-2 sm:mt-0", className),
+    ...props
+  }
+));
+AlertDialogCancel.displayName = Cancel.displayName;
+const longDate = (d) => new Date(d).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+const dayMonth$1 = (d) => new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+const titleCls = "h-10 w-full rounded-xl border border-border bg-background px-3 text-sm font-medium placeholder:font-normal";
+const textCls = "w-full rounded-xl border border-border bg-background p-3 text-sm";
+const dateCls = "h-8 rounded-lg border border-border bg-background px-2 text-xs text-foreground";
+const EMPTY = { title: "", note_text: "", next_follow_up_date: "", reminder_enabled: false };
+function NoteFields({ draft, onChange, firstName, autoFocus }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "input",
+      {
+        value: draft.title,
+        onChange: (e) => onChange({ ...draft, title: e.target.value }),
+        placeholder: "Title — what was it about?",
+        maxLength: 120,
+        autoFocus,
+        className: titleCls,
+        "aria-label": "Title"
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "textarea",
+      {
+        value: draft.note_text,
+        onChange: (e) => onChange({ ...draft, note_text: e.target.value }),
+        placeholder: `What did you and ${firstName} talk about?`,
+        rows: 5,
+        className: cn(textCls, "mt-2"),
+        "aria-label": "Note"
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 flex flex-wrap items-center gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 text-xs text-muted-foreground", children: [
+        "Follow up",
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "date",
+            value: draft.next_follow_up_date,
+            onChange: (e) => onChange({ ...draft, next_follow_up_date: e.target.value }),
+            className: dateCls
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex cursor-pointer items-center gap-1.5 text-xs", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "checkbox",
+            checked: draft.reminder_enabled,
+            onChange: (e) => onChange({ ...draft, reminder_enabled: e.target.checked }),
+            className: "h-4 w-4"
+          }
+        ),
+        "Remind me"
+      ] })
+    ] }),
+    draft.reminder_enabled && !draft.next_follow_up_date && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1 text-xs text-amber-700 dark:text-amber-300", children: "Pick a follow-up date for the reminder." })
+  ] });
+}
+function ProfileNotes({ profileId, firstName, notes, canWrite }) {
+  const backend = useBackend();
+  const queryClient2 = useQueryClient();
+  const { toast: toast2 } = useToast();
+  const [newNote, setNewNote] = reactExports.useState(EMPTY);
+  const [uploadingFiles, setUploadingFiles] = reactExports.useState([]);
+  const [editingId, setEditingId] = reactExports.useState(null);
+  const [edit, setEdit] = reactExports.useState(EMPTY);
+  const [deleting, setDeleting] = reactExports.useState(null);
+  const refresh = (calendarToo) => {
+    queryClient2.invalidateQueries({ queryKey: ["notes", profileId] });
+    if (calendarToo) {
+      queryClient2.invalidateQueries({ queryKey: ["cal-station"] });
+      queryClient2.invalidateQueries({ queryKey: ["cal-watch"] });
+      queryClient2.invalidateQueries({ queryKey: ["cal-personal"] });
+      queryClient2.invalidateQueries({ queryKey: ["crewing-roster"] });
+    }
+  };
+  const createNote = useMutation({
+    mutationFn: async () => {
+      if (newNote.reminder_enabled && !newNote.next_follow_up_date) {
+        throw new Error("Pick a follow-up date for the reminder");
+      }
+      const note2 = await backend.note.create({
+        profile_id: profileId,
+        title: newNote.title.trim() || void 0,
+        note_text: newNote.note_text,
+        next_follow_up_date: newNote.next_follow_up_date || void 0,
+        reminder_enabled: newNote.reminder_enabled
+      });
+      for (const file of uploadingFiles) {
+        try {
+          const { upload_url, file_key } = await backend.note.getUploadUrl(note2.id, {
+            filename: file.name,
+            content_type: file.type
+          });
+          await fetch(upload_url, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
+          await backend.note.saveAttachment(note2.id, {
+            file_key,
+            filename: file.name,
+            file_type: file.type,
+            file_size: file.size
+          });
+        } catch (error) {
+          console.error(`Failed to upload ${file.name}:`, error);
+          toast2({
+            title: "File upload warning",
+            description: `Couldn't upload ${file.name}. The note was saved without it.`,
+            variant: "destructive"
+          });
+        }
+      }
+      return note2;
+    },
+    onSuccess: () => {
+      refresh(newNote.reminder_enabled);
+      toast2({
+        title: "Note added",
+        description: [
+          uploadingFiles.length ? `${uploadingFiles.length} file(s) attached` : "",
+          newNote.reminder_enabled ? "reminder set" : ""
+        ].filter(Boolean).join(", ") || void 0
+      });
+      setNewNote(EMPTY);
+      setUploadingFiles([]);
+    },
+    onError: (error) => {
+      toast2({ title: "Couldn't add the note", description: (error == null ? void 0 : error.message) || "An error occurred", variant: "destructive" });
+    }
+  });
+  const updateNote = useMutation({
+    mutationFn: async (note2) => backend.note.update(note2.id, {
+      title: edit.title.trim(),
+      note_text: edit.note_text,
+      next_follow_up_date: edit.next_follow_up_date,
+      reminder_enabled: edit.reminder_enabled
+    }),
+    onSuccess: (_, note2) => {
+      refresh(note2.reminder_enabled || edit.reminder_enabled);
+      setEditingId(null);
+      toast2({ title: "Note saved" });
+    },
+    onError: (error) => {
+      toast2({ title: "Couldn't save the note", description: (error == null ? void 0 : error.message) || "An error occurred", variant: "destructive" });
+    }
+  });
+  const deleteNote = useMutation({
+    mutationFn: async (note2) => backend.note.deleteNote(note2.id),
+    onSuccess: (_, note2) => {
+      refresh(note2.reminder_enabled);
+      setDeleting(null);
+      if (editingId === note2.id) setEditingId(null);
+      toast2({ title: "Note deleted" });
+    },
+    onError: (error) => {
+      toast2({ title: "Couldn't delete the note", description: (error == null ? void 0 : error.message) || "An error occurred", variant: "destructive" });
+    }
+  });
+  const startEdit = (note2) => {
+    setEditingId(note2.id);
+    setEdit({
+      title: note2.title ?? "",
+      note_text: note2.note_text,
+      next_follow_up_date: note2.next_follow_up_date ?? "",
+      reminder_enabled: note2.reminder_enabled
+    });
+  };
+  const sorted = [...notes].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid items-start gap-4 lg:grid-cols-5", children: [
+    canWrite && /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "rounded-2xl border border-border/70 bg-card p-4 sm:p-5 lg:sticky lg:top-24 lg:col-span-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-sm font-semibold", children: "New note or 1:1" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mb-3 mt-0.5 text-xs text-muted-foreground", children: "Only you can see your notes and their reminders." }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(NoteFields, { draft: newNote, onChange: setNewNote, firstName }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2 flex", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "ml-auto inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-border px-2.5 text-xs font-medium hover:bg-muted", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Paperclip, { className: "h-3.5 w-3.5" }),
+        " Attach",
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "file",
+            multiple: true,
+            accept: ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif",
+            className: "sr-only",
+            onChange: (e) => e.target.files && setUploadingFiles(Array.from(e.target.files))
+          }
+        )
+      ] }) }),
+      uploadingFiles.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "mt-2 space-y-1", children: uploadingFiles.map((file, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-center gap-2 text-xs text-muted-foreground", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "h-3.5 w-3.5" }),
+        " ",
+        file.name,
+        " ",
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+          "(",
+          (file.size / 1024).toFixed(1),
+          " KB)"
+        ] })
+      ] }, idx)) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        Button,
+        {
+          onClick: () => createNote.mutate(),
+          disabled: !newNote.note_text.trim() || createNote.isPending,
+          className: "mt-3 w-full bg-indigo-600 hover:bg-indigo-700",
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "mr-2 h-4 w-4" }),
+            " ",
+            createNote.isPending ? "Saving…" : "Add note"
+          ]
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: cn("rounded-2xl border border-border/70 bg-card p-4 sm:p-5", canWrite ? "lg:col-span-3" : "lg:col-span-5"), children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-sm font-semibold", children: [
+        "Your notes ",
+        notes.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-normal text-muted-foreground", children: [
+          "· ",
+          notes.length
+        ] })
+      ] }),
+      sorted.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("ol", { className: "relative ml-1.5 mt-4 border-l border-border/70", children: sorted.map((note2) => {
+        const isEditing = editingId === note2.id;
+        const edited = new Date(note2.updated_at).getTime() - new Date(note2.created_at).getTime() > 6e4;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "relative pb-6 pl-5 last:pb-0", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "aria-hidden": true, className: "absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-card bg-foreground" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 flex-1 flex-wrap items-center gap-1.5", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-medium text-muted-foreground", children: longDate(note2.created_at) }),
+              edited && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-[11px] text-muted-foreground", children: [
+                "· edited ",
+                dayMonth$1(note2.updated_at)
+              ] }),
+              !isEditing && note2.next_follow_up_date && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Calendar, { className: "h-3 w-3" }),
+                " Follow up ",
+                dayMonth$1(note2.next_follow_up_date)
+              ] }),
+              !isEditing && note2.reminder_enabled && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Bell, { className: "h-3 w-3" }),
+                " Reminder"
+              ] })
+            ] }),
+            !isEditing && /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenu, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuTrigger, { asChild: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  type: "button",
+                  "aria-label": "Note options",
+                  className: "-mt-1 grid h-8 w-8 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground",
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(Ellipsis, { className: "h-4 w-4" })
+                }
+              ) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuContent, { align: "end", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuItem, { onClick: () => startEdit(note2), children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "mr-2 h-4 w-4" }),
+                  " Edit"
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuItem, { onClick: () => setDeleting(note2), className: "text-red-600 focus:text-red-600", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "mr-2 h-4 w-4" }),
+                  " Delete"
+                ] })
+              ] })
+            ] })
+          ] }),
+          isEditing ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 rounded-xl border border-foreground/30 p-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(NoteFields, { draft: edit, onChange: setEdit, firstName, autoFocus: true }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 flex justify-end gap-1.5", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => setEditingId(null),
+                  className: "h-8 rounded-lg border border-border px-2.5 text-xs font-medium hover:bg-muted",
+                  children: "Cancel"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => updateNote.mutate(note2),
+                  disabled: !edit.note_text.trim() || updateNote.isPending || edit.reminder_enabled && !edit.next_follow_up_date,
+                  className: "h-8 rounded-lg bg-foreground px-3 text-xs font-medium text-background disabled:opacity-50",
+                  children: updateNote.isPending ? "Saving…" : "Save"
+                }
+              )
+            ] })
+          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            note2.title ? /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "mt-1 text-[15px] font-semibold leading-snug", children: note2.title }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                type: "button",
+                onClick: () => startEdit(note2),
+                className: "mt-1 text-xs font-medium text-muted-foreground underline-offset-2 hover:text-foreground hover:underline",
+                children: "+ Add a title"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1 whitespace-pre-wrap text-sm text-foreground/90", children: note2.note_text })
+          ] }),
+          note2.attachments && note2.attachments.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2 flex flex-wrap gap-1.5", children: note2.attachments.map((attachment, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "a",
+            {
+              href: attachment.url,
+              target: "_blank",
+              rel: "noopener noreferrer",
+              className: "inline-flex items-center gap-1.5 rounded-lg border border-border px-2 py-1 text-xs hover:bg-muted",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "h-3.5 w-3.5" }),
+                " ",
+                attachment.filename,
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { className: "h-3 w-3 text-muted-foreground" })
+              ]
+            },
+            idx
+          )) })
+        ] }, note2.id);
+      }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "py-10 text-center text-sm text-muted-foreground", children: "No notes yet." })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialog, { open: !!deleting, onOpenChange: (open) => !open && setDeleting(null), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogContent, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogHeader, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogTitle, { children: "Delete this note?" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogDescription, { children: [
+          (deleting == null ? void 0 : deleting.title) ? `"${deleting.title}" from ` : "Your note from ",
+          deleting ? longDate(deleting.created_at) : "",
+          " will be gone for good",
+          (deleting == null ? void 0 : deleting.reminder_enabled) ? ", and its reminder comes off your calendar" : "",
+          "."
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogFooter, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogCancel, { children: "Keep it" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          AlertDialogAction,
+          {
+            onClick: (e) => {
+              e.preventDefault();
+              if (deleting) deleteNote.mutate(deleting);
+            },
+            disabled: deleteNote.isPending,
+            className: "bg-red-600 hover:bg-red-700",
+            children: deleteNote.isPending ? "Deleting…" : "Delete"
+          }
+        )
+      ] })
+    ] }) })
+  ] });
+}
 const RANKS$1 = ["Watch Commander", "Crew Commander", "Leading Firefighter", "Firefighter"];
 const WATCHES$c = ["Green", "Red", "White", "Blue", "Amber"];
 const shortDate$2 = (d) => d ? new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "";
@@ -47101,72 +47673,6 @@ function ProfileDetail() {
         description: (error == null ? void 0 : error.message) || ((error == null ? void 0 : error.details) ? JSON.stringify(error.details) : "An error occurred"),
         variant: "destructive"
       });
-    }
-  });
-  const [newNote, setNewNote] = reactExports.useState({
-    note_text: "",
-    next_follow_up_date: "",
-    reminder_enabled: false,
-    reminder_recipient_user_id: ""
-  });
-  const [uploadingFiles, setUploadingFiles] = reactExports.useState([]);
-  const createNoteMutation = useMutation({
-    mutationFn: async () => {
-      if (!profile2) throw new Error("No profile found");
-      if (newNote.reminder_enabled && !newNote.next_follow_up_date) {
-        throw new Error("Pick a follow-up date for the reminder");
-      }
-      const note2 = await backend.note.create({
-        profile_id: profile2.id,
-        note_text: newNote.note_text,
-        next_follow_up_date: newNote.next_follow_up_date || void 0,
-        reminder_enabled: newNote.reminder_enabled,
-        reminder_recipient_user_id: newNote.reminder_recipient_user_id || void 0
-      });
-      for (const file of uploadingFiles) {
-        try {
-          const { upload_url, file_key } = await backend.note.getUploadUrl(note2.id, {
-            filename: file.name,
-            content_type: file.type
-          });
-          await fetch(upload_url, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
-          await backend.note.saveAttachment(note2.id, {
-            file_key,
-            filename: file.name,
-            file_type: file.type,
-            file_size: file.size
-          });
-        } catch (error) {
-          console.error(`Failed to upload ${file.name}:`, error);
-          toast2({
-            title: "File upload warning",
-            description: `Couldn't upload ${file.name}. The note was saved without it.`,
-            variant: "destructive"
-          });
-        }
-      }
-      return note2;
-    },
-    onSuccess: () => {
-      queryClient2.invalidateQueries({ queryKey: ["notes", profile2 == null ? void 0 : profile2.id] });
-      if (newNote.reminder_enabled) {
-        queryClient2.invalidateQueries({ queryKey: ["cal-station"] });
-        queryClient2.invalidateQueries({ queryKey: ["cal-watch"] });
-        queryClient2.invalidateQueries({ queryKey: ["cal-personal"] });
-        queryClient2.invalidateQueries({ queryKey: ["crewing-roster"] });
-      }
-      toast2({
-        title: "Note added",
-        description: [
-          uploadingFiles.length ? `${uploadingFiles.length} file(s) attached` : "",
-          newNote.reminder_enabled ? "reminder set" : ""
-        ].filter(Boolean).join(", ") || void 0
-      });
-      setNewNote({ note_text: "", next_follow_up_date: "", reminder_enabled: false, reminder_recipient_user_id: "" });
-      setUploadingFiles([]);
-    },
-    onError: (error) => {
-      toast2({ title: "Couldn't add the note", description: (error == null ? void 0 : error.message) || "An error occurred", variant: "destructive" });
     }
   });
   const handleSaveProfile = () => {
@@ -47535,122 +48041,7 @@ function ProfileDetail() {
       ] })
     ] }),
     tab === "skills" && profile2 && /* @__PURE__ */ jsxRuntimeExports.jsx(SkillsTab, { profileId: profile2.id, userId }),
-    tab === "notes" && isManager && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid items-start gap-4 lg:grid-cols-5", children: [
-      canEdit && /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "rounded-2xl border border-border/70 bg-card p-4 sm:p-5 lg:sticky lg:top-24 lg:col-span-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-sm font-semibold", children: "New note or 1:1" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-0.5 text-xs text-muted-foreground", children: "Only you can see your notes and their reminders." }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "textarea",
-          {
-            value: newNote.note_text,
-            onChange: (e) => setNewNote({ ...newNote, note_text: e.target.value }),
-            placeholder: `What did you and ${((_f2 = user2 == null ? void 0 : user2.name) == null ? void 0 : _f2.split(" ")[0]) ?? "they"} talk about?`,
-            rows: 5,
-            className: "mt-3 w-full rounded-xl border border-border bg-background p-3 text-sm"
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 flex flex-wrap items-center gap-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 text-xs text-muted-foreground", children: [
-            "Follow up",
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                type: "date",
-                value: newNote.next_follow_up_date,
-                onChange: (e) => setNewNote({ ...newNote, next_follow_up_date: e.target.value }),
-                className: "h-8 rounded-lg border border-border bg-background px-2 text-xs text-foreground"
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex cursor-pointer items-center gap-1.5 text-xs", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                type: "checkbox",
-                checked: newNote.reminder_enabled,
-                onChange: (e) => setNewNote({ ...newNote, reminder_enabled: e.target.checked }),
-                className: "h-4 w-4"
-              }
-            ),
-            "Remind me"
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "ml-auto inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-border px-2.5 text-xs font-medium hover:bg-muted", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Paperclip, { className: "h-3.5 w-3.5" }),
-            " Attach",
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                type: "file",
-                multiple: true,
-                accept: ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif",
-                className: "sr-only",
-                onChange: (e) => e.target.files && setUploadingFiles(Array.from(e.target.files))
-              }
-            )
-          ] })
-        ] }),
-        newNote.reminder_enabled && !newNote.next_follow_up_date && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1 text-xs text-amber-700 dark:text-amber-300", children: "Pick a follow-up date for the reminder." }),
-        uploadingFiles.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "mt-2 space-y-1", children: uploadingFiles.map((file, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-center gap-2 text-xs text-muted-foreground", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "h-3.5 w-3.5" }),
-          " ",
-          file.name,
-          " ",
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-            "(",
-            (file.size / 1024).toFixed(1),
-            " KB)"
-          ] })
-        ] }, idx)) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Button,
-          {
-            onClick: () => createNoteMutation.mutate(),
-            disabled: !newNote.note_text.trim() || createNoteMutation.isPending,
-            className: "mt-3 w-full bg-indigo-600 hover:bg-indigo-700",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "mr-2 h-4 w-4" }),
-              " ",
-              createNoteMutation.isPending ? "Saving…" : "Add note"
-            ]
-          }
-        )
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: cn("rounded-2xl border border-border/70 bg-card p-4 sm:p-5", canEdit ? "lg:col-span-3" : "lg:col-span-5"), children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-sm font-semibold", children: "Your notes" }),
-        notes.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("ol", { className: "relative ml-1.5 mt-4 border-l border-border/70", children: [...notes].sort((a, b) => new Date(String(b.created_at)).getTime() - new Date(String(a.created_at)).getTime()).map((note2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "relative pb-5 pl-5 last:pb-0", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "aria-hidden": true, className: "absolute -left-[5px] top-1 h-2.5 w-2.5 rounded-full border-2 border-card bg-foreground" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-1.5", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-medium", children: new Date(String(note2.created_at)).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" }) }),
-            note2.next_follow_up_date && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Calendar, { className: "h-3 w-3" }),
-              " Follow up ",
-              dayMonth(String(note2.next_follow_up_date))
-            ] }),
-            note2.reminder_enabled && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Bell, { className: "h-3 w-3" }),
-              " Reminder"
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1 whitespace-pre-wrap text-sm", children: note2.note_text }),
-          note2.attachments && note2.attachments.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2 flex flex-wrap gap-1.5", children: note2.attachments.map((attachment, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "a",
-            {
-              href: attachment.url,
-              target: "_blank",
-              rel: "noopener noreferrer",
-              className: "inline-flex items-center gap-1.5 rounded-lg border border-border px-2 py-1 text-xs hover:bg-muted",
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "h-3.5 w-3.5" }),
-                " ",
-                attachment.filename,
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { className: "h-3 w-3 text-muted-foreground" })
-              ]
-            },
-            idx
-          )) })
-        ] }, note2.id)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "py-10 text-center text-sm text-muted-foreground", children: "No notes yet." })
-      ] })
-    ] }),
+    tab === "notes" && isManager && profile2 && /* @__PURE__ */ jsxRuntimeExports.jsx(ProfileNotes, { profileId: profile2.id, firstName: ((_f2 = user2 == null ? void 0 : user2.name) == null ? void 0 : _f2.split(" ")[0]) ?? "them", notes, canWrite: canEdit }),
     tab === "absences" && canSeeSickness && userId && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-4", children: [
       profile2 && profile2.trigger_stage !== "None" && /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "div",
@@ -61013,11 +61404,11 @@ var TabsList$1 = reactExports.forwardRef(
   }
 );
 TabsList$1.displayName = TAB_LIST_NAME;
-var TRIGGER_NAME$1 = "TabsTrigger";
+var TRIGGER_NAME = "TabsTrigger";
 var TabsTrigger$1 = reactExports.forwardRef(
   (props, forwardedRef) => {
     const { __scopeTabs, value, disabled = false, ...triggerProps } = props;
-    const context = useTabsContext(TRIGGER_NAME$1, __scopeTabs);
+    const context = useTabsContext(TRIGGER_NAME, __scopeTabs);
     const rovingFocusGroupScope = useRovingFocusGroupScope(__scopeTabs);
     const triggerId = makeTriggerId(context.baseId, value);
     const contentId = makeContentId(context.baseId, value);
@@ -61064,12 +61455,12 @@ var TabsTrigger$1 = reactExports.forwardRef(
     );
   }
 );
-TabsTrigger$1.displayName = TRIGGER_NAME$1;
-var CONTENT_NAME$1 = "TabsContent";
+TabsTrigger$1.displayName = TRIGGER_NAME;
+var CONTENT_NAME = "TabsContent";
 var TabsContent$1 = reactExports.forwardRef(
   (props, forwardedRef) => {
     const { __scopeTabs, value, forceMount, children, ...contentProps } = props;
-    const context = useTabsContext(CONTENT_NAME$1, __scopeTabs);
+    const context = useTabsContext(CONTENT_NAME, __scopeTabs);
     const triggerId = makeTriggerId(context.baseId, value);
     const contentId = makeContentId(context.baseId, value);
     const isSelected = value === context.value;
@@ -61099,14 +61490,14 @@ var TabsContent$1 = reactExports.forwardRef(
     ) });
   }
 );
-TabsContent$1.displayName = CONTENT_NAME$1;
+TabsContent$1.displayName = CONTENT_NAME;
 function makeTriggerId(baseId, value) {
   return `${baseId}-trigger-${value}`;
 }
 function makeContentId(baseId, value) {
   return `${baseId}-content-${value}`;
 }
-var Root2$1 = Tabs$1;
+var Root2 = Tabs$1;
 var List = TabsList$1;
 var Trigger = TabsTrigger$1;
 var Content = TabsContent$1;
@@ -61115,7 +61506,7 @@ function Tabs({
   ...props
 }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    Root2$1,
+    Root2,
     {
       "data-slot": "tabs",
       className: cn("flex flex-col gap-2", className),
@@ -61548,231 +61939,6 @@ function InviteUserDialog({ open, onClose, onSuccess }) {
     ] })
   ] }) });
 }
-var ROOT_NAME = "AlertDialog";
-var [createAlertDialogContext] = createContextScope$1(ROOT_NAME, [
-  createDialogScope
-]);
-var useDialogScope = createDialogScope();
-var AlertDialog$1 = (props) => {
-  const { __scopeAlertDialog, ...alertDialogProps } = props;
-  const dialogScope = useDialogScope(__scopeAlertDialog);
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Root$4, { ...dialogScope, ...alertDialogProps, modal: true });
-};
-AlertDialog$1.displayName = ROOT_NAME;
-var TRIGGER_NAME = "AlertDialogTrigger";
-var AlertDialogTrigger = reactExports.forwardRef(
-  (props, forwardedRef) => {
-    const { __scopeAlertDialog, ...triggerProps } = props;
-    const dialogScope = useDialogScope(__scopeAlertDialog);
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(Trigger$2, { ...dialogScope, ...triggerProps, ref: forwardedRef });
-  }
-);
-AlertDialogTrigger.displayName = TRIGGER_NAME;
-var PORTAL_NAME = "AlertDialogPortal";
-var AlertDialogPortal$1 = (props) => {
-  const { __scopeAlertDialog, ...portalProps } = props;
-  const dialogScope = useDialogScope(__scopeAlertDialog);
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Portal$1, { ...dialogScope, ...portalProps });
-};
-AlertDialogPortal$1.displayName = PORTAL_NAME;
-var OVERLAY_NAME = "AlertDialogOverlay";
-var AlertDialogOverlay$1 = reactExports.forwardRef(
-  (props, forwardedRef) => {
-    const { __scopeAlertDialog, ...overlayProps } = props;
-    const dialogScope = useDialogScope(__scopeAlertDialog);
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(Overlay, { ...dialogScope, ...overlayProps, ref: forwardedRef });
-  }
-);
-AlertDialogOverlay$1.displayName = OVERLAY_NAME;
-var CONTENT_NAME = "AlertDialogContent";
-var [AlertDialogContentProvider, useAlertDialogContentContext] = createAlertDialogContext(CONTENT_NAME);
-var Slottable = /* @__PURE__ */ createSlottable("AlertDialogContent");
-var AlertDialogContent$1 = reactExports.forwardRef(
-  (props, forwardedRef) => {
-    const { __scopeAlertDialog, children, ...contentProps } = props;
-    const dialogScope = useDialogScope(__scopeAlertDialog);
-    const contentRef = reactExports.useRef(null);
-    const composedRefs = useComposedRefs(forwardedRef, contentRef);
-    const cancelRef = reactExports.useRef(null);
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(
-      WarningProvider,
-      {
-        contentName: CONTENT_NAME,
-        titleName: TITLE_NAME,
-        docsSlug: "alert-dialog",
-        children: /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogContentProvider, { scope: __scopeAlertDialog, cancelRef, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Content$1,
-          {
-            role: "alertdialog",
-            ...dialogScope,
-            ...contentProps,
-            ref: composedRefs,
-            onOpenAutoFocus: composeEventHandlers(contentProps.onOpenAutoFocus, (event) => {
-              var _a3;
-              event.preventDefault();
-              (_a3 = cancelRef.current) == null ? void 0 : _a3.focus({ preventScroll: true });
-            }),
-            onPointerDownOutside: (event) => event.preventDefault(),
-            onInteractOutside: (event) => event.preventDefault(),
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Slottable, { children }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(DescriptionWarning, { contentRef })
-            ]
-          }
-        ) })
-      }
-    );
-  }
-);
-AlertDialogContent$1.displayName = CONTENT_NAME;
-var TITLE_NAME = "AlertDialogTitle";
-var AlertDialogTitle$1 = reactExports.forwardRef(
-  (props, forwardedRef) => {
-    const { __scopeAlertDialog, ...titleProps } = props;
-    const dialogScope = useDialogScope(__scopeAlertDialog);
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(Title, { ...dialogScope, ...titleProps, ref: forwardedRef });
-  }
-);
-AlertDialogTitle$1.displayName = TITLE_NAME;
-var DESCRIPTION_NAME = "AlertDialogDescription";
-var AlertDialogDescription$1 = reactExports.forwardRef((props, forwardedRef) => {
-  const { __scopeAlertDialog, ...descriptionProps } = props;
-  const dialogScope = useDialogScope(__scopeAlertDialog);
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Description, { ...dialogScope, ...descriptionProps, ref: forwardedRef });
-});
-AlertDialogDescription$1.displayName = DESCRIPTION_NAME;
-var ACTION_NAME = "AlertDialogAction";
-var AlertDialogAction$1 = reactExports.forwardRef(
-  (props, forwardedRef) => {
-    const { __scopeAlertDialog, ...actionProps } = props;
-    const dialogScope = useDialogScope(__scopeAlertDialog);
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(Close, { ...dialogScope, ...actionProps, ref: forwardedRef });
-  }
-);
-AlertDialogAction$1.displayName = ACTION_NAME;
-var CANCEL_NAME = "AlertDialogCancel";
-var AlertDialogCancel$1 = reactExports.forwardRef(
-  (props, forwardedRef) => {
-    const { __scopeAlertDialog, ...cancelProps } = props;
-    const { cancelRef } = useAlertDialogContentContext(CANCEL_NAME, __scopeAlertDialog);
-    const dialogScope = useDialogScope(__scopeAlertDialog);
-    const ref = useComposedRefs(forwardedRef, cancelRef);
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(Close, { ...dialogScope, ...cancelProps, ref });
-  }
-);
-AlertDialogCancel$1.displayName = CANCEL_NAME;
-var DescriptionWarning = ({ contentRef }) => {
-  const MESSAGE = `\`${CONTENT_NAME}\` requires a description for the component to be accessible for screen reader users.
-
-You can add a description to the \`${CONTENT_NAME}\` by passing a \`${DESCRIPTION_NAME}\` component as a child, which also benefits sighted users by adding visible context to the dialog.
-
-Alternatively, you can use your own component as a description by assigning it an \`id\` and passing the same value to the \`aria-describedby\` prop in \`${CONTENT_NAME}\`. If the description is confusing or duplicative for sighted users, you can use the \`@radix-ui/react-visually-hidden\` primitive as a wrapper around your description component.
-
-For more information, see https://radix-ui.com/primitives/docs/components/alert-dialog`;
-  reactExports.useEffect(() => {
-    var _a3;
-    const hasDescription = document.getElementById(
-      (_a3 = contentRef.current) == null ? void 0 : _a3.getAttribute("aria-describedby")
-    );
-    if (!hasDescription) console.warn(MESSAGE);
-  }, [MESSAGE, contentRef]);
-  return null;
-};
-var Root2 = AlertDialog$1;
-var Portal2 = AlertDialogPortal$1;
-var Overlay2 = AlertDialogOverlay$1;
-var Content2 = AlertDialogContent$1;
-var Action$1 = AlertDialogAction$1;
-var Cancel = AlertDialogCancel$1;
-var Title2 = AlertDialogTitle$1;
-var Description2 = AlertDialogDescription$1;
-const AlertDialog = Root2;
-const AlertDialogPortal = Portal2;
-const AlertDialogOverlay = reactExports.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-  Overlay2,
-  {
-    className: cn(
-      "fixed inset-0 z-50 bg-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-      className
-    ),
-    ...props,
-    ref
-  }
-));
-AlertDialogOverlay.displayName = Overlay2.displayName;
-const AlertDialogContent = reactExports.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogPortal, { children: [
-  /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogOverlay, {}),
-  /* @__PURE__ */ jsxRuntimeExports.jsx(
-    Content2,
-    {
-      ref,
-      className: cn(
-        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg",
-        className
-      ),
-      ...props
-    }
-  )
-] }));
-AlertDialogContent.displayName = Content2.displayName;
-const AlertDialogHeader = ({
-  className,
-  ...props
-}) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-  "div",
-  {
-    className: cn("flex flex-col space-y-2 text-center sm:text-left", className),
-    ...props
-  }
-);
-AlertDialogHeader.displayName = "AlertDialogHeader";
-const AlertDialogFooter = ({
-  className,
-  ...props
-}) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-  "div",
-  {
-    className: cn("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2", className),
-    ...props
-  }
-);
-AlertDialogFooter.displayName = "AlertDialogFooter";
-const AlertDialogTitle = reactExports.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-  Title2,
-  {
-    ref,
-    className: cn("text-lg font-semibold", className),
-    ...props
-  }
-));
-AlertDialogTitle.displayName = Title2.displayName;
-const AlertDialogDescription = reactExports.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-  Description2,
-  {
-    ref,
-    className: cn("text-sm text-muted-foreground", className),
-    ...props
-  }
-));
-AlertDialogDescription.displayName = Description2.displayName;
-const AlertDialogAction = reactExports.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-  Action$1,
-  {
-    ref,
-    className: cn(buttonVariants(), className),
-    ...props
-  }
-));
-AlertDialogAction.displayName = Action$1.displayName;
-const AlertDialogCancel = reactExports.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-  Cancel,
-  {
-    ref,
-    className: cn(buttonVariants({ variant: "outline" }), "mt-2 sm:mt-0", className),
-    ...props
-  }
-));
-AlertDialogCancel.displayName = Cancel.displayName;
 function AdminUsers() {
   const [users, setUsers] = reactExports.useState([]);
   const [loading, setLoading] = reactExports.useState(true);
@@ -71305,8 +71471,8 @@ function SkillBadges({ member, size: size2 = "normal" }) {
     member.driver_lgv && { label: "LGV", cls: "bg-slate-500" }
   ].filter(Boolean);
   if (!skills.length) return null;
-  const textCls = size2 === "small" ? "text-[8px]" : "text-[9px]";
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-0.5", children: skills.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `${textCls} font-bold px-1 py-px rounded text-white leading-tight ${s.cls}`, children: s.label }, s.label)) });
+  const textCls2 = size2 === "small" ? "text-[8px]" : "text-[9px]";
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-0.5", children: skills.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `${textCls2} font-bold px-1 py-px rounded text-white leading-tight ${s.cls}`, children: s.label }, s.label)) });
 }
 const OUTBOUND_ADJ_TYPES = ["flexi", "training", "h4h", "toil"];
 const ADJ_BADGE = {
@@ -72037,7 +72203,7 @@ function RosterPanel({
             };
             const isOrange = cover.type === "orange_day";
             const label2 = isOrange ? "Orange Day" : "Flexi PB";
-            const textCls = isOrange ? "text-orange-600" : "text-teal-600";
+            const textCls2 = isOrange ? "text-orange-600" : "text-teal-600";
             return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 DraggableTile,
@@ -72047,7 +72213,7 @@ function RosterPanel({
                   isAbsent: absentIds.has(cover.userId)
                 }
               ),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: `text-[9px] font-bold uppercase tracking-wide mt-0.5 ${textCls}`, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: `text-[9px] font-bold uppercase tracking-wide mt-0.5 ${textCls2}`, children: [
                 label2,
                 " · ",
                 cover.watchUnit

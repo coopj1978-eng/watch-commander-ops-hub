@@ -16,18 +16,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   AlertTriangle,
-  Bell,
-  Calendar as CalendarIcon,
   ChevronLeft,
   ChevronRight,
   Copy,
-  Download,
-  FileText,
   KeyRound,
   Lock,
   MoreHorizontal,
-  Paperclip,
-  Plus,
   Send,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -44,6 +38,7 @@ import { ProfileSection, Field } from "@/components/profile/ProfileSection";
 import { QualificationsPanel, type SkillLite } from "@/components/profile/QualificationsPanel";
 import { DriverPathway } from "@/components/profile/DriverPathway";
 import { RecordHistory } from "@/components/profile/RecordHistory";
+import { ProfileNotes } from "@/components/profile/ProfileNotes";
 import { QUALIFICATIONS, type QualificationKey } from "@/lib/qualifications";
 
 // A person's profile (redesigned Nov 2026, from John's "be bold" brief and a
@@ -185,75 +180,6 @@ export default function ProfileDetail() {
         description: error?.message || (error?.details ? JSON.stringify(error.details) : "An error occurred"),
         variant: "destructive",
       });
-    },
-  });
-
-  const [newNote, setNewNote] = useState({
-    note_text: "",
-    next_follow_up_date: "",
-    reminder_enabled: false,
-    reminder_recipient_user_id: "",
-  });
-  const [uploadingFiles, setUploadingFiles] = useState<File[]>([]);
-
-  const createNoteMutation = useMutation({
-    mutationFn: async () => {
-      if (!profile) throw new Error("No profile found");
-      if (newNote.reminder_enabled && !newNote.next_follow_up_date) {
-        throw new Error("Pick a follow-up date for the reminder");
-      }
-      const note = await backend.note.create({
-        profile_id: profile.id,
-        note_text: newNote.note_text,
-        next_follow_up_date: newNote.next_follow_up_date || undefined,
-        reminder_enabled: newNote.reminder_enabled,
-        reminder_recipient_user_id: newNote.reminder_recipient_user_id || undefined,
-      });
-
-      for (const file of uploadingFiles) {
-        try {
-          const { upload_url, file_key } = await backend.note.getUploadUrl(note.id, {
-            filename: file.name,
-            content_type: file.type,
-          });
-          await fetch(upload_url, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
-          await backend.note.saveAttachment(note.id, {
-            file_key,
-            filename: file.name,
-            file_type: file.type,
-            file_size: file.size,
-          });
-        } catch (error) {
-          console.error(`Failed to upload ${file.name}:`, error);
-          toast({
-            title: "File upload warning",
-            description: `Couldn't upload ${file.name}. The note was saved without it.`,
-            variant: "destructive",
-          });
-        }
-      }
-      return note;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notes", profile?.id] });
-      if (newNote.reminder_enabled) {
-        queryClient.invalidateQueries({ queryKey: ["cal-station"] });
-        queryClient.invalidateQueries({ queryKey: ["cal-watch"] });
-        queryClient.invalidateQueries({ queryKey: ["cal-personal"] });
-        queryClient.invalidateQueries({ queryKey: ["crewing-roster"] });
-      }
-      toast({
-        title: "Note added",
-        description: [
-          uploadingFiles.length ? `${uploadingFiles.length} file(s) attached` : "",
-          newNote.reminder_enabled ? "reminder set" : "",
-        ].filter(Boolean).join(", ") || undefined,
-      });
-      setNewNote({ note_text: "", next_follow_up_date: "", reminder_enabled: false, reminder_recipient_user_id: "" });
-      setUploadingFiles([]);
-    },
-    onError: (error: any) => {
-      toast({ title: "Couldn't add the note", description: error?.message || "An error occurred", variant: "destructive" });
     },
   });
 
@@ -668,120 +594,8 @@ export default function ProfileDetail() {
       {tab === "skills" && profile && <SkillsTab profileId={profile.id} userId={userId} />}
 
       {/* ── Notes & 1:1s (WC/CC; each note is private to whoever wrote it) ── */}
-      {tab === "notes" && isManager && (
-        <div className="grid items-start gap-4 lg:grid-cols-5">
-          {canEdit && (
-            <section className="rounded-2xl border border-border/70 bg-card p-4 sm:p-5 lg:sticky lg:top-24 lg:col-span-2">
-              <h2 className="text-sm font-semibold">New note or 1:1</h2>
-              <p className="mt-0.5 text-xs text-muted-foreground">Only you can see your notes and their reminders.</p>
-              <textarea
-                value={newNote.note_text}
-                onChange={(e) => setNewNote({ ...newNote, note_text: e.target.value })}
-                placeholder={`What did you and ${user?.name?.split(" ")[0] ?? "they"} talk about?`}
-                rows={5}
-                className="mt-3 w-full rounded-xl border border-border bg-background p-3 text-sm"
-              />
-              <div className="mt-2 flex flex-wrap items-center gap-2">
-                <label className="flex items-center gap-2 text-xs text-muted-foreground">
-                  Follow up
-                  <input
-                    type="date"
-                    value={newNote.next_follow_up_date}
-                    onChange={(e) => setNewNote({ ...newNote, next_follow_up_date: e.target.value })}
-                    className="h-8 rounded-lg border border-border bg-background px-2 text-xs text-foreground"
-                  />
-                </label>
-                <label className="flex cursor-pointer items-center gap-1.5 text-xs">
-                  <input
-                    type="checkbox"
-                    checked={newNote.reminder_enabled}
-                    onChange={(e) => setNewNote({ ...newNote, reminder_enabled: e.target.checked })}
-                    className="h-4 w-4"
-                  />
-                  Remind me
-                </label>
-                <label className="ml-auto inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-border px-2.5 text-xs font-medium hover:bg-muted">
-                  <Paperclip className="h-3.5 w-3.5" /> Attach
-                  <input
-                    type="file"
-                    multiple
-                    accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif"
-                    className="sr-only"
-                    onChange={(e) => e.target.files && setUploadingFiles(Array.from(e.target.files))}
-                  />
-                </label>
-              </div>
-              {newNote.reminder_enabled && !newNote.next_follow_up_date && (
-                <p className="mt-1 text-xs text-amber-700 dark:text-amber-300">Pick a follow-up date for the reminder.</p>
-              )}
-              {uploadingFiles.length > 0 && (
-                <ul className="mt-2 space-y-1">
-                  {uploadingFiles.map((file, idx) => (
-                    <li key={idx} className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <FileText className="h-3.5 w-3.5" /> {file.name} <span>({(file.size / 1024).toFixed(1)} KB)</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              <Button
-                onClick={() => createNoteMutation.mutate()}
-                disabled={!newNote.note_text.trim() || createNoteMutation.isPending}
-                className="mt-3 w-full bg-indigo-600 hover:bg-indigo-700"
-              >
-                <Plus className="mr-2 h-4 w-4" /> {createNoteMutation.isPending ? "Saving…" : "Add note"}
-              </Button>
-            </section>
-          )}
-
-          <section className={cn("rounded-2xl border border-border/70 bg-card p-4 sm:p-5", canEdit ? "lg:col-span-3" : "lg:col-span-5")}>
-            <h2 className="text-sm font-semibold">Your notes</h2>
-            {notes.length ? (
-              <ol className="relative ml-1.5 mt-4 border-l border-border/70">
-                {[...notes]
-                  .sort((a, b) => new Date(String(b.created_at)).getTime() - new Date(String(a.created_at)).getTime())
-                  .map((note) => (
-                    <li key={note.id} className="relative pb-5 pl-5 last:pb-0">
-                      <span aria-hidden className="absolute -left-[5px] top-1 h-2.5 w-2.5 rounded-full border-2 border-card bg-foreground" />
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="text-xs font-medium">
-                          {new Date(String(note.created_at)).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
-                        </span>
-                        {note.next_follow_up_date && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
-                            <CalendarIcon className="h-3 w-3" /> Follow up {dayMonth(String(note.next_follow_up_date))}
-                          </span>
-                        )}
-                        {note.reminder_enabled && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
-                            <Bell className="h-3 w-3" /> Reminder
-                          </span>
-                        )}
-                      </div>
-                      <p className="mt-1 whitespace-pre-wrap text-sm">{note.note_text}</p>
-                      {note.attachments && note.attachments.length > 0 && (
-                        <div className="mt-2 flex flex-wrap gap-1.5">
-                          {note.attachments.map((attachment, idx) => (
-                            <a
-                              key={idx}
-                              href={attachment.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2 py-1 text-xs hover:bg-muted"
-                            >
-                              <FileText className="h-3.5 w-3.5" /> {attachment.filename}
-                              <Download className="h-3 w-3 text-muted-foreground" />
-                            </a>
-                          ))}
-                        </div>
-                      )}
-                    </li>
-                  ))}
-              </ol>
-            ) : (
-              <p className="py-10 text-center text-sm text-muted-foreground">No notes yet.</p>
-            )}
-          </section>
-        </div>
+      {tab === "notes" && isManager && profile && (
+        <ProfileNotes profileId={profile.id} firstName={user?.name?.split(" ")[0] ?? "them"} notes={notes} canWrite={canEdit} />
       )}
 
       {/* ── Absences (the person, and the WC/CC on their watch) ───────────── */}

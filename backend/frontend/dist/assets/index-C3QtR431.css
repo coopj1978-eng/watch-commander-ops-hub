@@ -971,6 +971,10 @@
     margin-block: calc(var(--spacing) * 1);
   }
 
+  .-mt-1 {
+    margin-top: calc(var(--spacing) * -1);
+  }
+
   .-mt-2 {
     margin-top: calc(var(--spacing) * -2);
   }
@@ -2693,7 +2697,17 @@
     border-color: var(--color-emerald-500);
   }
 
-  .border-foreground, .border-foreground\/40 {
+  .border-foreground, .border-foreground\/30 {
+    border-color: var(--foreground);
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .border-foreground\/30 {
+      border-color: color-mix(in oklab, var(--foreground) 30%, transparent);
+    }
+  }
+
+  .border-foreground\/40 {
     border-color: var(--foreground);
   }
 
@@ -4408,10 +4422,6 @@
     padding-bottom: calc(var(--spacing) * 4);
   }
 
-  .pb-5 {
-    padding-bottom: calc(var(--spacing) * 5);
-  }
-
   .pb-6 {
     padding-bottom: calc(var(--spacing) * 6);
   }
@@ -5756,6 +5766,11 @@
     color: var(--foreground);
   }
 
+  .placeholder\:font-normal::placeholder {
+    --tw-font-weight: var(--font-weight-normal);
+    font-weight: var(--font-weight-normal);
+  }
+
   .placeholder\:text-\(--cal-muted\)::placeholder {
     color: var(--cal-muted);
   }
@@ -6471,6 +6486,10 @@
 
   .focus\:text-accent-foreground:focus {
     color: var(--accent-foreground);
+  }
+
+  .focus\:text-red-600:focus {
+    color: var(--color-red-600);
   }
 
   .focus\:opacity-100:focus {
