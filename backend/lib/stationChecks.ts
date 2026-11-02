@@ -2,7 +2,8 @@ import db from "../db";
 import log from "encore.dev/log";
 import { rruleFiresOn } from "./rrule";
 import { routineRuleFires } from "./routine";
-import { addDaysIso, shiftSlot, slotAt, ukInstant, watchForSlot } from "./shiftRota";
+import { referenceCardOwner, referenceCardPeriod, referenceHolders as referenceHoldersFor } from "./referenceRota";
+import { addDaysIso, shiftSlot, slotAt, ukInstant, watchForSlot, watchShiftOn, type ShiftSlot } from "./shiftRota";
 
 /**
  * Station checks from templates (shift board, Oct 2026). Each active template
@@ -49,12 +50,14 @@ export async function ensureStationChecks(now: Date = new Date()): Promise<{ cre
     routine_slot: string | null;
     routine_rule: string | null;
     cover: string | null;
+    reference_no: number | null;
     created_by: string;
     created_at: Date | null;
   }>(`SELECT * FROM task_templates WHERE is_active = true`);
 
   let created = 0;
   for (const t of templates) {
+    if (t.reference_no) continue; // reference cards follow the reference rota (below)
     if (!rruleFiresOn(t.rrule, slot.date, t.created_at)) continue;
     // A weekday's night routine isn't made on the day shift, and vice versa.
     if (t.per_shift && t.shift_only && t.shift_only !== slot.type) continue;
@@ -133,6 +136,7 @@ export async function ensureStationChecks(now: Date = new Date()): Promise<{ cre
       log.error("Station check generation failed", { template_id: t.id, error: String(err) });
     }
   }
+  created += await ensureReferenceCards(slot);
   if (created) log.info("Station checks made", { created, date: slot.date, shift: slot.type });
 
   // A check whose time is up is Missed: an every-shift or routine card when
@@ -146,4 +150,71 @@ export async function ensureStationChecks(now: Date = new Date()): Promise<{ cre
     now
   ).catch((err) => log.error("Retiring expired station checks failed", { error: String(err) }));
   return { created };
+}
+
+/**
+ * Reference duty cards (John, Nov 2026): each station reference's monthly,
+ * quarterly and annual card is made on the first shift in its period of the
+ * watch holding the reference — or, if that watch is on annual leave, of its
+ * secondary watch — and belongs to that watch (watch_unit), so it stays on
+ * their board until done. It's due when the period ends; making the next
+ * period's card marks an unfinished one Missed.
+ */
+async function ensureReferenceCards(slot: ShiftSlot): Promise<number> {
+  const onDuty = watchForSlot(slot)?.watch ?? null;
+  if (!onDuty) return 0;
+  const year = Number(slot.date.slice(0, 4));
+  const templates = await db.rawQueryAll<{
+    id: number; name: string; title_template: string; task_description: string | null; category: string; priority: string;
+    checklist: unknown; rrule: string; created_by: string; reference_no: number; reference_cadence: string; reference_month: number | null;
+  }>(`SELECT * FROM task_templates WHERE is_active = true AND reference_no IS NOT NULL`);
+
+  let created = 0;
+  for (const t of templates) {
+    const period = referenceCardPeriod(t.reference_cadence, t.reference_month, slot.date);
+    if (!period) continue;
+    const exists = await db.rawQueryRow<{ id: number }>(
+      `SELECT id FROM task_template_instances WHERE template_id = $1 AND generated_for_date = $2 AND generated_for_shift = 'ref'`,
+      t.id, period.start
+    );
+    if (exists) continue;
+    const mainOnLeave = watchShiftOn(referenceHoldersFor(t.reference_no, year).main, slot.date) === "Annual Leave";
+    const owner = referenceCardOwner(t.reference_no, year, onDuty, mainOnLeave);
+    if (!owner) continue;
+
+    const checklist = t.checklist ? (typeof t.checklist === "string" ? t.checklist : JSON.stringify(t.checklist)) : "[]";
+    const tx = await db.begin();
+    try {
+      const task = await tx.rawQueryRow<{ id: number }>(
+        `INSERT INTO tasks (title, description, category, assigned_by, priority, checklist, rrule, status, watch_unit, source_type, due_at, tags)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, 'NotStarted', $8, 'template', $9, $10)
+         RETURNING id`,
+        t.title_template, t.task_description ?? null, t.category, t.created_by, t.priority, checklist, t.rrule, owner,
+        ukInstant(period.endDate, 0), ["reference"]
+      );
+      const instance = task && await tx.rawQueryRow<{ id: number }>(
+        `INSERT INTO task_template_instances (template_id, task_id, generated_for_date, generated_for_shift)
+         VALUES ($1, $2, $3, 'ref')
+         ON CONFLICT (template_id, generated_for_date, generated_for_shift) DO NOTHING
+         RETURNING id`,
+        t.id, task.id, period.start
+      );
+      if (!task || !instance) {
+        await tx.rollback();
+        continue;
+      }
+      await tx.rawExec(
+        `UPDATE tasks SET status = 'Missed', updated_at = NOW()
+         WHERE id IN (SELECT task_id FROM task_template_instances WHERE template_id = $1 AND task_id <> $2)
+           AND status NOT IN ('Done', 'Missed')`,
+        t.id, task.id
+      );
+      await tx.commit();
+      created++;
+    } catch (err) {
+      await tx.rollback().catch(() => {});
+      log.error("Reference card failed", { template_id: t.id, error: String(err) });
+    }
+  }
+  return created;
 }

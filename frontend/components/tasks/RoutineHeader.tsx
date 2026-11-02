@@ -78,3 +78,57 @@ export function RoutineHeader({
     </div>
   );
 }
+
+// A station reference's duty card (Nov 2026): the reference number in big
+// type on its colour from the station standards sheet, and which period it's
+// for — "Monthly · November", "Quarterly · Oct–Dec", "Annual · 2026".
+const REF_COLOURS: Record<number, [string, string]> = {
+  1: ["#5b4bb7", "#a78bfa"],
+  2: ["#a16207", "#eab308"],
+  3: ["#57534e", "#a8a29e"],
+  4: ["#1d4ed8", "#38bdf8"],
+  5: ["#c2410c", "#fdba74"],
+};
+
+function periodLabel(cadence: string | undefined, dueAt: string | Date | undefined): string {
+  if (!dueAt) return cadence ?? "";
+  const last = new Date(new Date(dueAt).getTime() - 12 * 3_600_000); // the period's last day
+  if (cadence === "monthly") return `Monthly · ${last.toLocaleDateString("en-GB", { month: "long" })}`;
+  if (cadence === "quarterly") {
+    const end = last.getMonth();
+    const start = new Date(last.getFullYear(), end - 2, 1);
+    const m = (d: Date) => d.toLocaleDateString("en-GB", { month: "short" });
+    return `Quarterly · ${m(start)}–${m(last)}`;
+  }
+  return `Annual · ${last.getFullYear()}`;
+}
+
+export function ReferenceHeader({
+  refNo, cadence, dueAt, height = 72, radius = 11,
+}: { refNo: number; cadence?: string; dueAt?: string | Date; height?: number; radius?: number }) {
+  const [a, b] = REF_COLOURS[refNo] ?? REF_COLOURS[3];
+  const compact = height < 60;
+  return (
+    <div
+      aria-hidden
+      style={{
+        position: "relative", height, borderRadius: radius, overflow: "hidden", flex: "none", color: "#fff",
+        background: `${PATTERN[cadence === "monthly" ? "first" : cadence === "quarterly" ? "quarter-last" : "weekly"]}, linear-gradient(135deg, ${a}, ${b})`,
+        display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: compact ? "6px 10px" : "8px 12px",
+      }}
+    >
+      <span
+        className="cal-mono"
+        style={{
+          position: "relative", alignSelf: "flex-start", fontSize: compact ? 9 : 10, fontWeight: 700, letterSpacing: ".1em",
+          textTransform: "uppercase", padding: "2px 6px", borderRadius: 5, background: "rgba(0,0,0,.28)", marginBottom: compact ? 2 : 4,
+        }}
+      >
+        {periodLabel(cadence, dueAt)}
+      </span>
+      <span style={{ position: "relative", fontSize: compact ? 17 : 26, fontWeight: 800, letterSpacing: "-.02em", lineHeight: 1.05, textShadow: "0 1px 2px rgba(0,0,0,.25)" }}>
+        Reference {refNo}
+      </span>
+    </div>
+  );
+}

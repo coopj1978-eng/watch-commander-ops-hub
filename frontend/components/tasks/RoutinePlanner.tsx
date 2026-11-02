@@ -120,7 +120,7 @@ export default function RoutinePlanner({ open, onClose, canManage, onOpenOtherCh
     }
     return m;
   }, [templates]);
-  const otherChecks = templates.filter((t) => !t.routine_slot).length;
+  const otherChecks = templates.filter((t) => !t.routine_slot && !t.reference_no).length;
 
   // Edits show at once and save in order, one slot at a time; each save sends
   // the slot as it is by then, and new cards get their ids from the reply.

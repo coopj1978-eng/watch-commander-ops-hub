@@ -1,4 +1,4 @@
-import { RoutineHeader } from "@/components/tasks/RoutineHeader";
+import { ReferenceHeader, RoutineHeader } from "@/components/tasks/RoutineHeader";
 import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import * as Menu from "@radix-ui/react-dropdown-menu";
@@ -274,7 +274,7 @@ function CardMenu(props: MenuProps) {
 
 const FREQ_LABEL: Record<string, string> = {
   shift: "Every shift", routine: "Weekly routine", daily: "Daily", weekly: "Weekly", fortnightly: "Fortnightly",
-  monthly: "Monthly", quarterly: "Quarterly", repeat: "Repeating",
+  monthly: "Monthly", quarterly: "Quarterly", annual: "Annual", repeat: "Repeating",
 };
 
 const tagStyle = (bg: string, fg: string): React.CSSProperties => ({
@@ -298,7 +298,7 @@ function ShiftTag({ task, shiftStart }: { task: Task & { kind?: string; check_fr
     );
   }
   if (task.kind === "check") {
-    const long = ["weekly", "fortnightly", "monthly", "quarterly"].includes(task.check_freq ?? "");
+    const long = ["weekly", "fortnightly", "monthly", "quarterly", "annual"].includes(task.check_freq ?? "");
     return (
       <>
         <span style={tagStyle("var(--cal-brand-soft)", "var(--cal-brand-text)")}>
@@ -427,8 +427,11 @@ export default function TaskCard({ task, onTitleEdit, onClick, onChecklistToggle
   const labelIds = (task.tags ?? []).filter((id) => getLabelById(id) && !(isCheck && id === "routine"));
   const coverStyle = getCoverStyle((task as any).cover_colour);
   const routineSlot = (task as Task & { routine_slot?: string }).routine_slot;
+  const referenceNo = (task as Task & { reference_no?: number }).reference_no;
   const routineHeader = isCheck && routineSlot && !coverStyle
     ? <RoutineHeader slot={routineSlot} rule={(task as Task & { routine_rule?: string }).routine_rule} name={task.title} />
+    : isCheck && referenceNo && !coverStyle
+    ? <ReferenceHeader refNo={referenceNo} cadence={(task as Task & { reference_cadence?: string }).reference_cadence} dueAt={task.due_at} />
     : null;
   const recur = describeRRule(task.rrule);
   const assignee = task.assigned_to_user_id

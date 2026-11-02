@@ -28936,6 +28936,12 @@ var references;
       this.baseClient = baseClient;
       this.listReferences = this.listReferences.bind(this);
       this.saveReference = this.saveReference.bind(this);
+      this.saveReferenceCards = this.saveReferenceCards.bind(this);
+    }
+    /** Set a reference's monthly / quarterly / annual cards (WC/CC). No checks = switched off. */
+    async saveReferenceCards(ref, params) {
+      const resp = await this.baseClient.callTypedAPI("PUT", `/station-references/${encodeURIComponent(ref)}/cards`, JSON.stringify(params));
+      return await resp.json();
     }
     /** Every station reference's title and duties (0 = all watches). */
     async listReferences() {
@@ -37496,7 +37502,7 @@ function routineRuleFires(rule, dateIso) {
 const HFSV_TARGET_Q = 36;
 const COMMUNITY_TARGET_Q = 6;
 const COMMUNITY_TAP_MIN = 3;
-const MONTHS$2 = ["Apr–Jun", "Jul–Sep", "Oct–Dec", "Jan–Mar"];
+const MONTHS$3 = ["Apr–Jun", "Jul–Sep", "Oct–Dec", "Jan–Mar"];
 const fyLabel = (fy) => `${fy}/${String(fy + 1).slice(2)}`;
 function fyQuarter(fy, q) {
   const startMonth = [3, 6, 9, 0][q - 1];
@@ -37506,7 +37512,7 @@ function fyQuarter(fy, q) {
     q,
     start: new Date(year, startMonth, 1),
     end: new Date(year, startMonth + 3, 0),
-    months: MONTHS$2[q - 1],
+    months: MONTHS$3[q - 1],
     label: `Q${q} ${fyLabel(fy)}`
   };
 }
@@ -37590,7 +37596,7 @@ const mod = (n, m) => (n % m + m) % m;
 function referencePeriod(year) {
   return mod(Math.floor((year - REFERENCE_START) / REFERENCE_YEARS), 5);
 }
-function periodLabel(year) {
+function periodLabel$1(year) {
   const start = REFERENCE_START + Math.floor((year - REFERENCE_START) / REFERENCE_YEARS) * REFERENCE_YEARS;
   return `${start}–${start + REFERENCE_YEARS - 1}`;
 }
@@ -38399,7 +38405,7 @@ function OurReference() {
         /* @__PURE__ */ jsxRuntimeExports.jsx(BookMarked, { className: "h-4 w-4 text-muted-foreground" }),
         " Our reference"
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono text-[11px] text-muted-foreground", children: periodLabel(year) })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono text-[11px] text-muted-foreground", children: periodLabel$1(year) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Link, { to: `/references#ref-${mine.main}`, className: "mt-3 flex items-start gap-3 rounded-xl p-1 hover:bg-muted/50", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-foreground font-mono text-lg font-semibold text-background", children: mine.main }),
@@ -49039,7 +49045,7 @@ function CalendarWidget({
     ] })
   ] });
 }
-const MONTHS$1 = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const MONTHS$2 = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const WATCHES$b = ["Red", "White", "Green", "Blue", "Amber"];
 const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 const startOfDay$1 = (d) => {
@@ -49077,7 +49083,7 @@ function MiniMonth({
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "cal-card", style: { padding: 18 }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { style: sectionTitle, children: [
-        MONTHS$1[m],
+        MONTHS$2[m],
         " ",
         y
       ] }),
@@ -49102,7 +49108,7 @@ function MiniMonth({
             type: "button",
             onClick: () => onPickDay(d),
             className: "cal-focus cal-mono",
-            "aria-label": `${d.getDate()} ${MONTHS$1[m]}${k ? `, ${k === "leave" ? "annual leave" : `${k} shift`}` : ""}${isToday ? ", today" : ""}`,
+            "aria-label": `${d.getDate()} ${MONTHS$2[m]}${k ? `, ${k === "leave" ? "annual leave" : `${k} shift`}` : ""}${isToday ? ", today" : ""}`,
             style: {
               height: 38,
               border: "none",
@@ -50873,6 +50879,79 @@ function RoutineHeader({
     }
   );
 }
+const REF_COLOURS = {
+  1: ["#5b4bb7", "#a78bfa"],
+  2: ["#a16207", "#eab308"],
+  3: ["#57534e", "#a8a29e"],
+  4: ["#1d4ed8", "#38bdf8"],
+  5: ["#c2410c", "#fdba74"]
+};
+function periodLabel(cadence, dueAt) {
+  if (!dueAt) return cadence ?? "";
+  const last = new Date(new Date(dueAt).getTime() - 12 * 36e5);
+  if (cadence === "monthly") return `Monthly · ${last.toLocaleDateString("en-GB", { month: "long" })}`;
+  if (cadence === "quarterly") {
+    const end = last.getMonth();
+    const start = new Date(last.getFullYear(), end - 2, 1);
+    const m = (d) => d.toLocaleDateString("en-GB", { month: "short" });
+    return `Quarterly · ${m(start)}–${m(last)}`;
+  }
+  return `Annual · ${last.getFullYear()}`;
+}
+function ReferenceHeader({
+  refNo,
+  cadence,
+  dueAt,
+  height = 72,
+  radius = 11
+}) {
+  const [a, b] = REF_COLOURS[refNo] ?? REF_COLOURS[3];
+  const compact = height < 60;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      "aria-hidden": true,
+      style: {
+        position: "relative",
+        height,
+        borderRadius: radius,
+        overflow: "hidden",
+        flex: "none",
+        color: "#fff",
+        background: `${PATTERN[cadence === "monthly" ? "first" : cadence === "quarterly" ? "quarter-last" : "weekly"]}, linear-gradient(135deg, ${a}, ${b})`,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "flex-end",
+        padding: compact ? "6px 10px" : "8px 12px"
+      },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "span",
+          {
+            className: "cal-mono",
+            style: {
+              position: "relative",
+              alignSelf: "flex-start",
+              fontSize: compact ? 9 : 10,
+              fontWeight: 700,
+              letterSpacing: ".1em",
+              textTransform: "uppercase",
+              padding: "2px 6px",
+              borderRadius: 5,
+              background: "rgba(0,0,0,.28)",
+              marginBottom: compact ? 2 : 4
+            },
+            children: periodLabel(cadence, dueAt)
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { position: "relative", fontSize: compact ? 17 : 26, fontWeight: 800, letterSpacing: "-.02em", lineHeight: 1.05, textShadow: "0 1px 2px rgba(0,0,0,.25)" }, children: [
+          "Reference ",
+          refNo
+        ] })
+      ]
+    }
+  );
+}
 const TASK_LABELS = [
   { id: "urgent", name: "Urgent", colour: "#ef4444" },
   { id: "operational", name: "Operational", colour: "#f97316" },
@@ -51375,6 +51454,7 @@ const FREQ_LABEL = {
   fortnightly: "Fortnightly",
   monthly: "Monthly",
   quarterly: "Quarterly",
+  annual: "Annual",
   repeat: "Repeating"
 };
 const tagStyle = (bg, fg) => ({
@@ -51408,7 +51488,7 @@ function ShiftTag({ task: task2, shiftStart: shiftStart2 }) {
     ] });
   }
   if (task2.kind === "check") {
-    const long = ["weekly", "fortnightly", "monthly", "quarterly"].includes(task2.check_freq ?? "");
+    const long = ["weekly", "fortnightly", "monthly", "quarterly", "annual"].includes(task2.check_freq ?? "");
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: tagStyle("var(--cal-brand-soft)", "var(--cal-brand-text)"), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(ClipboardCheck, { className: "h-3 w-3" }),
@@ -51559,7 +51639,8 @@ function TaskCard({ task: task2, onTitleEdit, onClick, onChecklistToggle, userMa
   const labelIds = (task2.tags ?? []).filter((id) => getLabelById(id) && !(isCheck && id === "routine"));
   const coverStyle = getCoverStyle(task2.cover_colour);
   const routineSlot = task2.routine_slot;
-  const routineHeader = isCheck && routineSlot && !coverStyle ? /* @__PURE__ */ jsxRuntimeExports.jsx(RoutineHeader, { slot: routineSlot, rule: task2.routine_rule, name: task2.title }) : null;
+  const referenceNo = task2.reference_no;
+  const routineHeader = isCheck && routineSlot && !coverStyle ? /* @__PURE__ */ jsxRuntimeExports.jsx(RoutineHeader, { slot: routineSlot, rule: task2.routine_rule, name: task2.title }) : isCheck && referenceNo && !coverStyle ? /* @__PURE__ */ jsxRuntimeExports.jsx(ReferenceHeader, { refNo: referenceNo, cadence: task2.reference_cadence, dueAt: task2.due_at }) : null;
   const recur = describeRRule(task2.rrule);
   const assignee = task2.assigned_to_user_id ? { id: task2.assigned_to_user_id, initials: ((_a3 = userMap == null ? void 0 : userMap[task2.assigned_to_user_id]) == null ? void 0 : _a3.initials) ?? task2.assigned_to_user_id.slice(0, 2).toUpperCase() } : null;
   const done = task2.status === "Done";
@@ -54243,7 +54324,7 @@ function TaskTemplateManager({ isOpen, onClose, onUseTemplate, canManage }) {
     queryFn: async () => (await backendClient.task.listTemplates()).templates,
     enabled: isOpen
   });
-  const templates = (data ?? []).filter((t) => !t.routine_slot);
+  const templates = (data ?? []).filter((t) => !t.routine_slot && !t.reference_no);
   const { data: columnsData } = useQuery({
     queryKey: ["task-columns"],
     queryFn: async () => (await backendClient.task.listColumns()).columns,
@@ -54953,7 +55034,7 @@ select.ttm-input{appearance:none;-webkit-appearance:none;padding-right:36px;curs
 }
 @media (prefers-reduced-motion:reduce){.ttm-skel{animation:none}.ttm-knob,.ttm-switch{transition:none}}
 `;
-const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const MONTHS$1 = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const DOW = ["M", "T", "W", "T", "F", "S", "S"];
 const dayKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
@@ -55060,7 +55141,7 @@ function TaskSidePanel({ watch, tasks, selectedDay, onPickDay, onOpenTask }) {
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { height: 1, background: "var(--cal-line)", margin: "4px 0" } }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { style: { margin: 0, fontSize: 15, fontWeight: 600 }, children: [
-          MONTHS[m],
+          MONTHS$1[m],
           " ",
           y
         ] }),
@@ -55084,7 +55165,7 @@ function TaskSidePanel({ watch, tasks, selectedDay, onPickDay, onOpenTask }) {
               type: "button",
               onClick: () => onPickDay(isSel ? null : d),
               "aria-pressed": isSel,
-              "aria-label": `${d.getDate()} ${MONTHS[m]}${k ? `, ${k === "leave" ? "annual leave" : `${k} shift`}` : ", rest day"}${(info == null ? void 0 : info.overdue) ? ", overdue tasks" : (info == null ? void 0 : info.task) ? ", tasks due" : ""}${(info == null ? void 0 : info.event) ? ", watch event" : ""}${isToday ? ", today" : ""}`,
+              "aria-label": `${d.getDate()} ${MONTHS$1[m]}${k ? `, ${k === "leave" ? "annual leave" : `${k} shift`}` : ", rest day"}${(info == null ? void 0 : info.overdue) ? ", overdue tasks" : (info == null ? void 0 : info.task) ? ", tasks due" : ""}${(info == null ? void 0 : info.event) ? ", watch event" : ""}${isToday ? ", today" : ""}`,
               className: "cal-focus",
               style: {
                 height: 40,
@@ -55413,7 +55494,7 @@ function RoutinePlanner({ open, onClose, canManage, onOpenOtherChecks }) {
     }
     return m;
   }, [templates]);
-  const otherChecks = templates.filter((t) => !t.routine_slot).length;
+  const otherChecks = templates.filter((t) => !t.routine_slot && !t.reference_no).length;
   const [draft, setDraft] = reactExports.useState({});
   const draftRef = reactExports.useRef(draft);
   draftRef.current = draft;
@@ -59297,7 +59378,7 @@ function References() {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eyebrow", children: [
         "Station standards · ",
-        periodLabel(year)
+        periodLabel$1(year)
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "mt-1 text-3xl font-semibold tracking-tight", children: "References" }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "mt-2 max-w-3xl text-sm text-muted-foreground", children: [
@@ -59313,9 +59394,9 @@ function References() {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full min-w-[640px] text-sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "border-b border-border/60 text-left", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-2.5 text-xs font-medium text-muted-foreground", children: "Watch" }),
-          blocks.map((b) => /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: cn("px-3 py-2.5 font-mono text-xs font-semibold", periodLabel(b) === periodLabel(year) ? "text-foreground" : "text-muted-foreground"), children: [
-            periodLabel(b),
-            periodLabel(b) === periodLabel(year) && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-1.5 rounded bg-foreground px-1.5 py-0.5 text-[10px] text-background", children: "NOW" })
+          blocks.map((b) => /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: cn("px-3 py-2.5 font-mono text-xs font-semibold", periodLabel$1(b) === periodLabel$1(year) ? "text-foreground" : "text-muted-foreground"), children: [
+            periodLabel$1(b),
+            periodLabel$1(b) === periodLabel$1(year) && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-1.5 rounded bg-foreground px-1.5 py-0.5 text-[10px] text-background", children: "NOW" })
           ] }, b))
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: REFERENCE_WATCHES.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: cn("border-b border-border/40 last:border-0", w === watch && "bg-muted/40"), children: [
@@ -59327,7 +59408,7 @@ function References() {
           ] }),
           blocks.map((b) => {
             const r2 = watchReferences(w, b);
-            const now = periodLabel(b) === periodLabel(year);
+            const now = periodLabel$1(b) === periodLabel$1(year);
             return /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: cn("px-3 py-2", now && "bg-muted/60"), children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: cn("font-semibold", !now && "text-muted-foreground"), children: [
                 "Ref ",
@@ -59449,7 +59530,86 @@ function ReferenceCard({ n, data, loading, canEdit, badge }) {
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "aria-hidden": true, className: "mt-2 h-1 w-1 shrink-0 rounded-full bg-muted-foreground" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: item })
       ] }, j)) })
-    ] }, i)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: loading ? "Loading…" : canEdit ? "No duties written up yet — use Edit to add them." : "No duties written up yet." }) })
+    ] }, i)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: loading ? "Loading…" : canEdit ? "No duties written up yet — use Edit to add them." : "No duties written up yet." }) }),
+    !all && /* @__PURE__ */ jsxRuntimeExports.jsx(ReferenceCards, { n, cards: (data == null ? void 0 : data.cards) ?? [], canEdit, holder: holders.main })
+  ] });
+}
+const CADENCES = [
+  { key: "monthly", label: "Monthly", when: "first shift of each month" },
+  { key: "quarterly", label: "Quarterly", when: "first shift of Jan, Apr, Jul and Oct" },
+  { key: "annual", label: "Annual", when: "" }
+];
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+function ReferenceCards({ n, cards, canEdit, holder }) {
+  const qc = useQueryClient();
+  const { toast: toast2 } = useToast();
+  const [editing, setEditing] = reactExports.useState(false);
+  const [draft, setDraft] = reactExports.useState({});
+  const card = (k) => cards.find((c) => c.cadence === k);
+  const save = useMutation({
+    mutationFn: () => backendClient.references.saveReferenceCards(n, {
+      cards: CADENCES.map((c) => ({
+        cadence: c.key,
+        month: c.key === "annual" ? draft[c.key].month : null,
+        items: draft[c.key].text.split("\n").map((l) => l.replace(/^[-•*]\s*/, "").trim()).filter(Boolean)
+      }))
+    }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["references"] });
+      qc.invalidateQueries({ queryKey: ["tasks"] });
+      setEditing(false);
+      toast2({ title: `Reference ${n} cards saved` });
+    },
+    onError: (e) => toast2({ title: "Couldn't save the cards", description: e.message, variant: "destructive" })
+  });
+  const startEdit = () => {
+    setDraft(Object.fromEntries(CADENCES.map((c) => {
+      var _a3, _b3;
+      return [c.key, { text: (((_a3 = card(c.key)) == null ? void 0 : _a3.items) ?? []).join("\n"), month: ((_b3 = card(c.key)) == null ? void 0 : _b3.month) ?? 1 }];
+    })));
+    setEditing(true);
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "border-t border-border/60 px-4 py-3.5 sm:px-5", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "text-sm font-semibold", children: [
+        "Cards on ",
+        holder,
+        " Watch's board"
+      ] }),
+      canEdit && !editing && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: startEdit, className: "inline-flex h-8 items-center gap-1.5 rounded-lg border border-border px-2.5 text-xs font-medium hover:bg-muted", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "h-3.5 w-3.5" }),
+        " Edit cards"
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-0.5 text-xs text-muted-foreground", children: "Each card goes to the main watch on their first shift of the period (the secondary watch if the main watch is on leave) and stays on their board until done." }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 grid gap-3 sm:grid-cols-3", children: CADENCES.map((c) => {
+      const cur = card(c.key);
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-2 rounded-xl border border-border/60 p-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(ReferenceHeader, { refNo: n, cadence: c.key, height: 44, radius: 9 }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] text-muted-foreground", children: c.key === "annual" ? editing ? /* @__PURE__ */ jsxRuntimeExports.jsx("select", { value: draft.annual.month, onChange: (e) => setDraft((d) => ({ ...d, annual: { ...d.annual, month: Number(e.target.value) } })), className: "h-7 rounded-md border border-border bg-background px-1 text-xs text-foreground", children: MONTHS.map((m, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: i + 1, children: [
+          "From ",
+          m
+        ] }, m)) }) : `First shift from ${MONTHS[((cur == null ? void 0 : cur.month) ?? 1) - 1]}, due by 31 Dec` : `${c.when}, due by the end of it` }),
+        editing ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "textarea",
+          {
+            value: draft[c.key].text,
+            onChange: (e) => setDraft((d) => ({ ...d, [c.key]: { ...d[c.key], text: e.target.value } })),
+            rows: 6,
+            placeholder: "One check per line",
+            "aria-label": `${c.label} checks`,
+            className: "w-full rounded-lg border border-border bg-background p-2 text-xs leading-relaxed text-foreground"
+          }
+        ) : (cur == null ? void 0 : cur.items.length) ? /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "space-y-1", children: cur.items.map((i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex gap-2 text-xs", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "aria-hidden": true, className: "mt-1.5 h-1 w-1 shrink-0 rounded-full bg-muted-foreground" }),
+          i
+        ] }, i)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "No checks — no card." })
+      ] }, c.key);
+    }) }),
+    editing && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 flex gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", disabled: save.isPending, onClick: () => save.mutate(), className: "h-9 rounded-lg bg-foreground px-3 text-sm font-medium text-background disabled:opacity-50", children: save.isPending ? "Saving…" : "Save cards" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setEditing(false), className: "h-9 rounded-lg border border-border px-3 text-sm", children: "Cancel" })
+    ] })
   ] });
 }
 const DOC_CATEGORIES = [

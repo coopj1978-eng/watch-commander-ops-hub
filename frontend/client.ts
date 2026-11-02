@@ -4123,11 +4123,21 @@ export namespace references {
         items: string[]
     }
 
+    /** A reference's monthly / quarterly / annual card of checks. */
+    export interface ReferenceCard {
+        id: number
+        cadence: string
+        month: number | null
+        items: string[]
+        active: boolean
+    }
+
     export interface StationReference {
         ref: number
         title: string
         sections: ReferenceSection[]
         "updated_at": string
+        cards: ReferenceCard[]
     }
 
     export class ServiceClient {
@@ -4137,6 +4147,13 @@ export namespace references {
             this.baseClient = baseClient
             this.listReferences = this.listReferences.bind(this)
             this.saveReference = this.saveReference.bind(this)
+            this.saveReferenceCards = this.saveReferenceCards.bind(this)
+        }
+
+        /** Set a reference's monthly / quarterly / annual cards (WC/CC). No checks = switched off. */
+        public async saveReferenceCards(ref: number, params: { cards: { cadence: string; month?: number | null; items: string[] }[] }): Promise<{ cards: ReferenceCard[] }> {
+            const resp = await this.baseClient.callTypedAPI("PUT", `/station-references/${encodeURIComponent(ref)}/cards`, JSON.stringify(params))
+            return await resp.json() as { cards: ReferenceCard[] }
         }
 
         /** Every station reference's title and duties (0 = all watches). */
@@ -4780,6 +4797,7 @@ export namespace task {
         /** Header: null = automatic; a colour id, image URL or uploaded picture. */
         cover?: string | null
         "routine_position"?: number
+        "reference_no"?: number | null
         "is_active": boolean
         "created_by": string
         "created_at": string
@@ -4831,6 +4849,9 @@ export namespace task {
         "check_freq"?: string
         "routine_slot"?: string
         "routine_rule"?: string
+        /** A reference duty card: which reference (1–5) and how often. */
+        "reference_no"?: number
+        "reference_cadence"?: string
         "completed_by_name"?: string
     }
 

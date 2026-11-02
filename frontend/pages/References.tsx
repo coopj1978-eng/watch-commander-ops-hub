@@ -10,12 +10,15 @@ import { WatchDot } from "@/components/WatchBadge";
 import { useToast } from "@/components/ui/use-toast";
 import { REFERENCE_START, REFERENCE_WATCHES, nextChangeYear, periodLabel, referenceHolders, watchReferences } from "@/lib/referenceRota";
 import { coverNow, useReferences } from "@/lib/references";
+import { ReferenceHeader } from "@/components/tasks/RoutineHeader";
 
 // Station references (Nov 2026): the station standards' Appendix A (the five
 // watch references and the duties for all watches) and Appendix B (the
 // 10-year planner) in one place. Each watch holds a reference for two years
 // and is secondary on the next one — covering it when the main watch is off.
 // WCs and CCs can edit the wording; who holds what comes from the planner.
+// Each reference also has monthly, quarterly and annual cards of checks that
+// go on the holding watch's shift board (lib/referenceRota.ts on the server).
 
 type Ref = references.StationReference;
 
@@ -201,6 +204,105 @@ function ReferenceCard({ n, data, loading, canEdit, badge }: { n: number; data?:
           <p className="text-sm text-muted-foreground">{loading ? "Loading…" : canEdit ? "No duties written up yet — use Edit to add them." : "No duties written up yet."}</p>
         )}
       </div>
+      {!all && <ReferenceCards n={n} cards={data?.cards ?? []} canEdit={canEdit} holder={holders!.main} />}
     </section>
+  );
+}
+
+const CADENCES = [
+  { key: "monthly", label: "Monthly", when: "first shift of each month" },
+  { key: "quarterly", label: "Quarterly", when: "first shift of Jan, Apr, Jul and Oct" },
+  { key: "annual", label: "Annual", when: "" },
+] as const;
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+/** The reference's monthly / quarterly / annual cards of checks, as they go on the holding watch's board. */
+function ReferenceCards({ n, cards, canEdit, holder }: { n: number; cards: references.ReferenceCard[]; canEdit: boolean; holder: string }) {
+  const qc = useQueryClient();
+  const { toast } = useToast();
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState<Record<string, { text: string; month: number }>>({});
+  const card = (k: string) => cards.find((c) => c.cadence === k);
+
+  const save = useMutation({
+    mutationFn: () => backend.references.saveReferenceCards(n, {
+      cards: CADENCES.map((c) => ({
+        cadence: c.key,
+        month: c.key === "annual" ? draft[c.key].month : null,
+        items: draft[c.key].text.split("\n").map((l) => l.replace(/^[-•*]\s*/, "").trim()).filter(Boolean),
+      })),
+    }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["references"] });
+      qc.invalidateQueries({ queryKey: ["tasks"] });
+      setEditing(false);
+      toast({ title: `Reference ${n} cards saved` });
+    },
+    onError: (e) => toast({ title: "Couldn't save the cards", description: (e as Error).message, variant: "destructive" }),
+  });
+  const startEdit = () => {
+    setDraft(Object.fromEntries(CADENCES.map((c) => [c.key, { text: (card(c.key)?.items ?? []).join("\n"), month: card(c.key)?.month ?? 1 }])));
+    setEditing(true);
+  };
+
+  return (
+    <div className="border-t border-border/60 px-4 py-3.5 sm:px-5">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h3 className="text-sm font-semibold">Cards on {holder} Watch's board</h3>
+        {canEdit && !editing && (
+          <button type="button" onClick={startEdit} className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-border px-2.5 text-xs font-medium hover:bg-muted">
+            <Pencil className="h-3.5 w-3.5" /> Edit cards
+          </button>
+        )}
+      </div>
+      <p className="mt-0.5 text-xs text-muted-foreground">
+        Each card goes to the main watch on their first shift of the period (the secondary watch if the main watch is on leave) and stays on their board until done.
+      </p>
+      <div className="mt-3 grid gap-3 sm:grid-cols-3">
+        {CADENCES.map((c) => {
+          const cur = card(c.key);
+          return (
+            <div key={c.key} className="flex flex-col gap-2 rounded-xl border border-border/60 p-2">
+              <ReferenceHeader refNo={n} cadence={c.key} height={44} radius={9} />
+              <div className="text-[11px] text-muted-foreground">
+                {c.key === "annual"
+                  ? editing
+                    ? <select value={draft.annual.month} onChange={(e) => setDraft((d) => ({ ...d, annual: { ...d.annual, month: Number(e.target.value) } }))} className="h-7 rounded-md border border-border bg-background px-1 text-xs text-foreground">
+                        {MONTHS.map((m, i) => <option key={m} value={i + 1}>From {m}</option>)}
+                      </select>
+                    : `First shift from ${MONTHS[(cur?.month ?? 1) - 1]}, due by 31 Dec`
+                  : `${c.when}, due by the end of it`}
+              </div>
+              {editing ? (
+                <textarea
+                  value={draft[c.key].text}
+                  onChange={(e) => setDraft((d) => ({ ...d, [c.key]: { ...d[c.key], text: e.target.value } }))}
+                  rows={6}
+                  placeholder="One check per line"
+                  aria-label={`${c.label} checks`}
+                  className="w-full rounded-lg border border-border bg-background p-2 text-xs leading-relaxed text-foreground"
+                />
+              ) : cur?.items.length ? (
+                <ul className="space-y-1">
+                  {cur.items.map((i) => (
+                    <li key={i} className="flex gap-2 text-xs"><span aria-hidden className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-muted-foreground" />{i}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-xs text-muted-foreground">No checks — no card.</p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {editing && (
+        <div className="mt-3 flex gap-2">
+          <button type="button" disabled={save.isPending} onClick={() => save.mutate()} className="h-9 rounded-lg bg-foreground px-3 text-sm font-medium text-background disabled:opacity-50">
+            {save.isPending ? "Saving…" : "Save cards"}
+          </button>
+          <button type="button" onClick={() => setEditing(false)} className="h-9 rounded-lg border border-border px-3 text-sm">Cancel</button>
+        </div>
+      )}
+    </div>
   );
 }

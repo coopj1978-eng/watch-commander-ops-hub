@@ -69,6 +69,8 @@ export interface TaskTemplate {
   /** Header: null = automatic (day + how often); a colour id, image URL or uploaded picture. */
   cover?: string | null;
   routine_position?: number;
+  /** A reference duty card (1–5) — made by the reference rota, not shown under Other checks. */
+  reference_no?: number | null;
   is_active: boolean;
   created_by: string;
   created_at: Date;
