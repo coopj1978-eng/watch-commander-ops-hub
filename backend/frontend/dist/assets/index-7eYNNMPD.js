@@ -33152,7 +33152,7 @@ function WatchShiftPill() {
   const on = Math.max(0, total - off);
   const shift2 = shiftDisplay(watch);
   if (!watch) return null;
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden lg:flex items-center gap-2 px-2.5 py-1 rounded bg-muted/60 text-xs", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden xl:flex items-center gap-2 px-2.5 py-1 rounded bg-muted/60 text-xs whitespace-nowrap min-w-0 overflow-hidden", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "inline-block h-1.5 w-1.5 rounded-full bg-brand", "aria-hidden": true }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-medium text-foreground", children: [
       watch,
@@ -33319,7 +33319,7 @@ function TopBar({ onSearch }) {
   const page = pageFor(location.pathname);
   const isDashboard = location.pathname === "/";
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "sticky top-0 z-30 flex items-center gap-3 px-4 md:px-6 py-2.5 bg-background/80 backdrop-blur-md border-b border-border print:hidden", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2.5 min-w-0", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2.5 min-w-0 shrink-0 max-w-[50%]", children: [
       page && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-muted/70 text-foreground/80 md:hidden", "aria-hidden": true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(page.icon, { className: "h-4 w-4" }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold text-foreground truncate text-base md:text-sm", children: (page == null ? void 0 : page.name) ?? "Ops" })
     ] }),

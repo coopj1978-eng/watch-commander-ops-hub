@@ -111,7 +111,7 @@ function WatchShiftPill() {
   if (!watch) return null;
 
   return (
-    <div className="hidden lg:flex items-center gap-2 px-2.5 py-1 rounded bg-muted/60 text-xs">
+    <div className="hidden xl:flex items-center gap-2 px-2.5 py-1 rounded bg-muted/60 text-xs whitespace-nowrap min-w-0 overflow-hidden">
       <span className="inline-block h-1.5 w-1.5 rounded-full bg-brand" aria-hidden />
       <span className="font-medium text-foreground">{watch} Watch</span>
       <span className="text-muted-foreground">·</span>
@@ -343,7 +343,7 @@ export default function TopBar({ onSearch }: TopBarProps) {
   return (
     <header className="sticky top-0 z-30 flex items-center gap-3 px-4 md:px-6 py-2.5 bg-background/80 backdrop-blur-md border-b border-border print:hidden">
       {/* ── Left: the page you're on ───────────────────────────────────── */}
-      <div className="flex items-center gap-2.5 min-w-0">
+      <div className="flex items-center gap-2.5 min-w-0 shrink-0 max-w-[50%]">
         {page && (
           <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-muted/70 text-foreground/80 md:hidden" aria-hidden>
             <page.icon className="h-4 w-4" />

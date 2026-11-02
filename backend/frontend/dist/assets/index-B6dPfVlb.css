@@ -1750,6 +1750,10 @@
     max-width: var(--container-6xl);
   }
 
+  .max-w-\[50\%\] {
+    max-width: 50%;
+  }
+
   .max-w-\[88vw\] {
     max-width: 88vw;
   }
@@ -7858,10 +7862,6 @@
       display: block;
     }
 
-    .lg\:flex {
-      display: flex;
-    }
-
     .lg\:inline-grid {
       display: inline-grid;
     }
@@ -7927,6 +7927,10 @@
 
     .xl\:top-4 {
       top: calc(var(--spacing) * 4);
+    }
+
+    .xl\:flex {
+      display: flex;
     }
 
     .xl\:grid-cols-3 {
