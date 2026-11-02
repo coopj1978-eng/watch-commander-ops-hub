@@ -23,6 +23,11 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AdminUsers } from "./AdminUsers";
+import { useSearchParams } from "react-router-dom";
+import { DictionariesManager } from "@/components/DictionaryManager";
+import { AbsenceThresholds } from "@/components/AbsenceThresholds";
+import { InspectionPlans } from "@/components/InspectionPlans";
+import { BrandingSettings } from "@/components/BrandingSettings";
 import { useIsAdmin } from "@/lib/rbac";
 import { useFeatureFlags, type FeatureFlags } from "@/lib/feature-flags";
 import { useToast } from "@/components/ui/use-toast";
@@ -62,28 +67,66 @@ const FEATURE_CONFIG: {
   { key: "reports",      label: "Reports",        description: "Quarterly reports and analytics",                  icon: BarChart3,       phase: "Phase 4" },
 ];
 
+// Station setup lives here (Nov 2026) — it used to share the Settings page
+// with personal preferences. Every WC (and the admin) can open Admin;
+// switching pages on/off and managing user accounts are the admin's alone.
+const STATION_TABS = [
+  { value: "skills", label: "Skills & certs" },
+  { value: "absence", label: "Absence triggers" },
+  { value: "inspection-plans", label: "Inspection plans" },
+  { value: "branding", label: "Branding" },
+  { value: "activity", label: "Activity log" },
+];
+const ADMIN_TABS = [
+  { value: "features", label: "Feature management" },
+  { value: "users", label: "Users" },
+];
+
 export default function AdminPanel() {
   const isAdmin = useIsAdmin();
-  const [activeTab, setActiveTab] = useState(isAdmin ? "features" : "activity");
+  const [params, setParams] = useSearchParams();
+  const tabs = [...STATION_TABS, ...(isAdmin ? ADMIN_TABS : [])];
+  const asked = params.get("tab");
+  const activeTab = tabs.some((t) => t.value === asked) ? asked! : tabs[0].value;
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
           <ShieldCheck className="h-7 w-7 text-indigo-500 shrink-0" />
-          Admin Panel
+          Admin
         </h1>
-        <p className="text-muted-foreground mt-1">System administration, feature management, and audit logs</p>
+        <p className="text-muted-foreground mt-1">Station setup, activity log{isAdmin ? ", page switches and user accounts" : ""}</p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          {/* Switching pages on/off (station-wide) and adding, removing and
-              inviting people are the admin's job. */}
-          {isAdmin && <TabsTrigger value="features">Feature Management</TabsTrigger>}
-          {isAdmin && <TabsTrigger value="users">Users</TabsTrigger>}
-          <TabsTrigger value="activity">Activity Log</TabsTrigger>
-        </TabsList>
+      <Tabs value={activeTab} onValueChange={(tab) => setParams({ tab }, { replace: true })}>
+        <div className="-mx-4 overflow-x-auto px-4 md:mx-0 md:px-0">
+          <TabsList className="w-max">
+            {tabs.map((t) => (
+              <TabsTrigger key={t.value} value={t.value}>{t.label}</TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
+
+        <TabsContent value="skills" className="mt-6 space-y-6">
+          <DictionariesManager />
+        </TabsContent>
+
+        <TabsContent value="absence" className="mt-6 space-y-6">
+          <AbsenceThresholds />
+        </TabsContent>
+
+        <TabsContent value="inspection-plans" className="mt-6 space-y-6">
+          <InspectionPlans />
+        </TabsContent>
+
+        <TabsContent value="branding" className="mt-6 space-y-6">
+          <BrandingSettings />
+        </TabsContent>
+
+        <TabsContent value="activity" className="mt-6">
+          <ActivityLogTab />
+        </TabsContent>
 
         {isAdmin && (
           <TabsContent value="features" className="mt-6">
@@ -96,10 +139,6 @@ export default function AdminPanel() {
             <AdminUsers />
           </TabsContent>
         )}
-
-        <TabsContent value="activity" className="mt-6">
-          <ActivityLogTab />
-        </TabsContent>
       </Tabs>
     </div>
   );

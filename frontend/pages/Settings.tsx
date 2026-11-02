@@ -1,86 +1,75 @@
-import { useSearchParams } from "react-router-dom";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DictionariesManager } from "@/components/DictionaryManager";
-import { AbsenceThresholds } from "@/components/AbsenceThresholds";
-import { BrandingSettings } from "@/components/BrandingSettings";
-import { CSVExportUtility } from "@/components/CSVExportUtility";
-import { InspectionPlans } from "@/components/InspectionPlans";
+import { Link, Navigate, useSearchParams } from "react-router-dom";
+import { ArrowRight, Moon, Settings as SettingsIcon, ShieldCheck, Sun } from "lucide-react";
 import { AppearanceSettings } from "@/components/AppearanceSettings";
-import { Settings as SettingsIcon, FileSpreadsheet, Palette, AlertTriangle, Database, ClipboardList, Sparkles } from "lucide-react";
+import { useThemeMode } from "@/components/ThemeSwitcher";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { useCanAccessAdmin } from "@/lib/rbac";
 
-const TABS = ["appearance", "dictionaries", "absence", "branding", "export", "inspection-plans"];
+// Your own preferences (Nov 2026). Station setup — skills lists, absence
+// triggers, inspection plans, branding — moved to Admin; the CSV export is
+// on Reports.
+const MOVED_TO_ADMIN: Record<string, string> = {
+  dictionaries: "skills",
+  absence: "absence",
+  "inspection-plans": "inspection-plans",
+  branding: "branding",
+};
 
 export default function Settings() {
-  // "?tab=inspection-plans" (e.g. from the Targets page's hydrant card) opens that tab.
   const [params] = useSearchParams();
-  const initialTab = TABS.includes(params.get("tab") ?? "") ? params.get("tab")! : "appearance";
-  // Layout already wraps every page in PageContainer.
+  const canAdmin = useCanAccessAdmin();
+  const { isDark, toggle } = useThemeMode();
+
+  // Old links (e.g. ?tab=inspection-plans) go to where that now lives.
+  const tab = params.get("tab") ?? "";
+  if (tab === "export") return <Navigate to="/reports" replace />;
+  if (MOVED_TO_ADMIN[tab]) {
+    return <Navigate to={canAdmin ? `/admin?tab=${MOVED_TO_ADMIN[tab]}` : "/settings"} replace />;
+  }
+
   return (
-      <div className="space-y-6">
-        {/* Visual-refresh page header: h1 + eyebrow context line. */}
-        <div className="flex items-baseline flex-wrap gap-x-4 gap-y-1">
-          <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-            <SettingsIcon className="h-7 w-7 text-brand shrink-0" />
-            Settings &amp; Utilities
-          </h1>
-          <span className="eyebrow">
-            Configure system settings and export data
-          </span>
-        </div>
-
-        <Tabs defaultValue={initialTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="appearance" className="gap-2">
-              <Sparkles className="h-4 w-4" />
-              <span className="hidden sm:inline">Appearance</span>
-            </TabsTrigger>
-            <TabsTrigger value="dictionaries" className="gap-2">
-              <Database className="h-4 w-4" />
-              <span className="hidden sm:inline">Skills & Certs</span>
-            </TabsTrigger>
-            <TabsTrigger value="absence" className="gap-2">
-              <AlertTriangle className="h-4 w-4" />
-              <span className="hidden sm:inline">Absence</span>
-            </TabsTrigger>
-            <TabsTrigger value="branding" className="gap-2">
-              <Palette className="h-4 w-4" />
-              <span className="hidden sm:inline">Branding</span>
-            </TabsTrigger>
-            <TabsTrigger value="export" className="gap-2">
-              <FileSpreadsheet className="h-4 w-4" />
-              <span className="hidden sm:inline">Export</span>
-            </TabsTrigger>
-            <TabsTrigger value="inspection-plans" className="gap-2">
-              <ClipboardList className="h-4 w-4" />
-              <span className="hidden sm:inline">Inspection Plans</span>
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="appearance" className="space-y-6">
-            <AppearanceSettings />
-          </TabsContent>
-
-          <TabsContent value="dictionaries" className="space-y-6">
-            <DictionariesManager />
-          </TabsContent>
-
-          <TabsContent value="absence" className="space-y-6">
-            <AbsenceThresholds />
-          </TabsContent>
-
-          <TabsContent value="branding" className="space-y-6">
-            <BrandingSettings />
-          </TabsContent>
-
-          <TabsContent value="export" className="space-y-6">
-            <CSVExportUtility />
-          </TabsContent>
-
-          <TabsContent value="inspection-plans" className="space-y-6">
-            <InspectionPlans />
-          </TabsContent>
-        </Tabs>
+    <div className="space-y-6">
+      <div className="flex items-baseline flex-wrap gap-x-4 gap-y-1">
+        <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+          <SettingsIcon className="h-7 w-7 text-brand shrink-0" />
+          Settings
+        </h1>
+        <span className="eyebrow">Your preferences · saved on this device</span>
       </div>
-    
+
+      {canAdmin && (
+        <Link
+          to="/admin"
+          className="group flex items-center gap-3 rounded-2xl border border-border/70 bg-card px-4 py-3 text-sm transition-colors hover:bg-muted/60"
+        >
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-muted text-foreground/80">
+            <ShieldCheck className="h-4 w-4" />
+          </span>
+          <span className="flex-1 text-muted-foreground">
+            Skills lists, absence triggers, inspection plans and branding are in <span className="font-medium text-foreground">Admin</span> now.
+          </span>
+          <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+        </Link>
+      )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Theme</CardTitle>
+          <CardDescription>Dark mode is easier on the eyes on nights.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <label className="flex items-center gap-3">
+            <span className="grid h-9 w-9 place-items-center rounded-lg bg-muted text-foreground/80">
+              {isDark ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+            </span>
+            <span className="flex-1 text-sm font-medium">Dark mode</span>
+            <Switch checked={isDark} onCheckedChange={toggle} aria-label="Dark mode" />
+          </label>
+        </CardContent>
+      </Card>
+
+      <AppearanceSettings />
+    </div>
   );
 }

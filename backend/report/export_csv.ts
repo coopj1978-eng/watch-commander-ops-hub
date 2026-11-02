@@ -3,6 +3,7 @@ import { getAuthData } from "~encore/auth";
 import db, { type SQLPrimitive } from "../db";
 import { absenceViewer, visibleAbsencesSql } from "../lib/absenceAccess";
 import { logActivity } from "../logging/logger";
+import { eventVisibility, VISIBILITY_JOINS } from "../calendar/visibility";
 
 interface ExportCsvRequest {
   table: string;
@@ -55,20 +56,26 @@ export const exportCsv = api<ExportCsvRequest, ExportCsvResponse>(
 
     // Absence records only for the caller's own watch (and themself).
     const params: SQLPrimitive[] = [];
-    // Private reminders (a note's follow-up carries part of the note) only
-    // for whoever wrote them.
+    let from = table;
     let where = "";
     if (table === "absences") {
       where = ` WHERE ${visibleAbsencesSql(await absenceViewer(), "firefighter_id", params)}`;
     } else if (table === "calendar_events") {
-      params.push(auth.userID);
-      where = ` WHERE event_type <> 'reminder' OR created_by = $${params.length}`;
+      // The calendar page's own rules: no one else's reminders (a note's
+      // follow-up carries part of the note) or personal entries, and watch
+      // events only for your watch. Only the event's own columns come out.
+      const me = await db.queryRow<{ watch_unit: string | null }>`
+        SELECT watch_unit FROM users WHERE id = ${auth.userID}
+      `;
+      const visibility = eventVisibility(auth.userID, me?.watch_unit, 1);
+      params.push(...visibility.params);
+      from = `(SELECT ce.* FROM calendar_events ce ${VISIBILITY_JOINS} WHERE ${visibility.conditions.join(" AND ")}) AS visible`;
     } else if (table === "activity_log") {
       // Note entries only for whoever wrote the note.
       params.push(auth.userID);
       where = ` WHERE entity_type IS DISTINCT FROM 'note' OR user_id = $${params.length}`;
     }
-    const rows = await db.rawQueryAll(`SELECT * FROM ${table}${where}`, ...params);
+    const rows = await db.rawQueryAll(`SELECT * FROM ${from}${where}`, ...params);
 
     if (rows.length === 0) {
       return { csv: "" };

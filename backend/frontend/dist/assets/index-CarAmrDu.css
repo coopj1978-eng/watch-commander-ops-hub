@@ -1726,6 +1726,10 @@
     width: 100%;
   }
 
+  .w-max {
+    width: max-content;
+  }
+
   .w-px {
     width: 1px;
   }
@@ -2025,14 +2029,6 @@
     scroll-margin-top: calc(var(--spacing) * 24);
   }
 
-  .list-inside {
-    list-style-position: inside;
-  }
-
-  .list-disc {
-    list-style-type: disc;
-  }
-
   .auto-rows-min {
     grid-auto-rows: min-content;
   }
@@ -2055,10 +2051,6 @@
 
   .grid-cols-5 {
     grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
-
-  .grid-cols-6 {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 
   .grid-cols-7 {

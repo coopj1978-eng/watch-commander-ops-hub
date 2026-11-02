@@ -4188,15 +4188,6 @@ export namespace report {
         csv: string
     }
 
-    export interface ExportTableCSVRequest {
-        table: string
-    }
-
-    export interface ExportTableCSVResponse {
-        csv: string
-        filename: string
-    }
-
     export interface ImportStaffCsvRequest {
         "csv_data": string
         "user_id": string
@@ -4213,7 +4204,6 @@ export namespace report {
         constructor(baseClient: BaseClient) {
             this.baseClient = baseClient
             this.exportCsv = this.exportCsv.bind(this)
-            this.exportTableCSV = this.exportTableCSV.bind(this)
             this.importStaffCsv = this.importStaffCsv.bind(this)
         }
 
@@ -4226,12 +4216,6 @@ export namespace report {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/reports/export/${encodeURIComponent(table)}`, undefined, {query})
             return await resp.json() as ExportCsvResponse
-        }
-
-        public async exportTableCSV(params: ExportTableCSVRequest): Promise<ExportTableCSVResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/report/export`, JSON.stringify(params))
-            return await resp.json() as ExportTableCSVResponse
         }
 
         public async importStaffCsv(params: ImportStaffCsvRequest): Promise<ImportStaffCsvResponse> {
