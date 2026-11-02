@@ -83,8 +83,8 @@ export function RoutineHeader({
 // type on its colour from the station standards sheet, and which period it's
 // for — "Monthly · November", "Quarterly · Q3 Oct–Dec", "Annual · 2026" (it
 // comes up on the period's last tour, which can run into the next one).
-// Reference 0 is "All watches" — duties every watch has, like the quarterly
-// targets report.
+// reference_no 0 is the quarterly report to the SC — not a reference, but it
+// comes round on every watch's last tour of the quarter the same way.
 const REF_COLOURS: Record<number, [string, string]> = {
   0: ["#334155", "#94a3b8"],
   1: ["#5b4bb7", "#a78bfa"],
@@ -128,7 +128,7 @@ export function ReferenceHeader({
         {periodLabel(cadence, period)}
       </span>
       <span style={{ position: "relative", fontSize: compact ? 17 : 26, fontWeight: 800, letterSpacing: "-.02em", lineHeight: 1.05, textShadow: "0 1px 2px rgba(0,0,0,.25)" }}>
-        {refNo === 0 ? "All watches" : `Reference ${refNo}`}
+        {refNo === 0 ? "Report to the SC" : `Reference ${refNo}`}
       </span>
     </div>
   );

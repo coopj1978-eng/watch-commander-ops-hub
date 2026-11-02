@@ -37,7 +37,7 @@ describe("reference rota (server)", () => {
     expect(referenceCardPlans(4, "monthly", "2028-01-05")[0].watch).toBe("Green");
   });
 
-  it("gives an all-watches card (reference 0) to every watch on its own last tour", () => {
+  it("gives the SC report card (reference_no 0) to every watch on its own last tour", () => {
     const q3 = referenceCardPlans(0, "quarterly", "2026-11-02").map((p) => `${p.watch} ${p.tourStart}`);
     expect(q3).toEqual(["Green 2026-12-24", "Blue 2026-12-30", "White 2026-12-20", "Red 2026-12-28", "Amber 2026-12-26"]);
   });

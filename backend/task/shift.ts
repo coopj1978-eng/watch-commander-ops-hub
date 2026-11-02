@@ -39,7 +39,7 @@ export interface ShiftTask extends Task {
   routine_slot?: string;
   /** Which weeks a routine card comes round — for its header ('weekly', 'first'…). */
   routine_rule?: string;
-  /** A reference duty card: which reference (1–5, or 0 for all watches) and how often. */
+  /** A reference duty card: which reference (1–5, or 0 for the quarterly report to the SC) and how often. */
   reference_no?: number;
   reference_cadence?: string;
   /** The first day of the month / quarter / year a reference card is for. */

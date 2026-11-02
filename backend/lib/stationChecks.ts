@@ -160,10 +160,32 @@ export async function ensureStationChecks(now: Date = new Date()): Promise<{ cre
  * last tour of the month, quarter or year (lib/referenceRota.ts), belongs to
  * that watch (watch_unit) and is due when the tour's 2nd Night ends. If it
  * isn't done by then it stays on their board, overdue, until it is; the next
- * period's card marks an unfinished one Missed. Reference 0's cards (all
- * watches) are made for each watch, keyed 'ref-<watch>' instead of 'ref'.
+ * period's card marks an unfinished one Missed.
+ *
+ * The quarterly report to the SC isn't a reference — every WC/CC sends one —
+ * but it comes round the same way, so it's kept as reference_no 0's quarterly
+ * card: one for each watch on its own last tour of the financial quarter,
+ * keyed 'ref-<watch>' instead of 'ref'. It's built in (not set on the
+ * References page), so it's made here if it's missing.
  */
+const SC_REPORT_TITLE = "Quarterly report to the SC";
+const SC_REPORT_CHECK = "Quarterly targets spreadsheet filled in and emailed to the SC";
+
+async function ensureScReportTemplate(): Promise<void> {
+  await db.rawExec(
+    `INSERT INTO task_templates
+       (name, description, title_template, category, priority, checklist, rrule, created_by, per_shift, is_active, reference_no, reference_cadence)
+     SELECT $1, NULL, $1, 'Other', 'Med', $2, 'FREQ=MONTHLY;INTERVAL=3', u.id, false, true, 0, 'quarterly'
+     FROM users u WHERE u.role = 'WC' ORDER BY u.created_at LIMIT 1
+     ON CONFLICT (reference_no, reference_cadence) WHERE reference_no IS NOT NULL
+     DO UPDATE SET name = EXCLUDED.name, title_template = EXCLUDED.title_template, updated_at = NOW()
+     WHERE task_templates.title_template IS DISTINCT FROM EXCLUDED.title_template`,
+    SC_REPORT_TITLE, JSON.stringify([{ label: SC_REPORT_CHECK, done: false }])
+  ).catch((err) => log.error("SC report template failed", { error: String(err) }));
+}
+
 async function ensureReferenceCards(slot: ShiftSlot): Promise<number> {
+  await ensureScReportTemplate();
   const templates = await db.rawQueryAll<{
     id: number; name: string; title_template: string; task_description: string | null; category: string; priority: string;
     checklist: unknown; rrule: string; created_by: string; reference_no: number; reference_cadence: string;

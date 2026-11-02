@@ -68,9 +68,9 @@ export interface ReferenceCardPlan {
  * Day of the main watch's last tour of the month, quarter or year, due by
  * the end of that tour's 2nd Night (a tour starting on the last days of the
  * period runs over into the next one). The secondary watch only takes it if
- * the main watch has no tour in the period at all. Reference 0 — the duties
- * for all watches, like the quarterly targets report to the SC — goes to
- * every watch, each on its own last tour.
+ * the main watch has no tour in the period at all. reference_no 0 — the
+ * quarterly report to the SC, which isn't a reference — goes to every watch,
+ * each on its own last tour.
  */
 export function referenceCardPlans(ref: number, cadence: string, dateIso: string): ReferenceCardPlan[] {
   const period = referenceCardPeriod(cadence, dateIso);

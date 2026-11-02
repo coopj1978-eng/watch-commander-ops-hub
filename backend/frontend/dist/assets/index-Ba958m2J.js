@@ -37626,18 +37626,17 @@ function cardPeriod(cadence, date2) {
   }
   return [new Date(y, 0, 1), new Date(y + 1, 0, 1)];
 }
-function nextReferenceCard(ref, cadence, today = /* @__PURE__ */ new Date(), watch) {
+function nextReferenceCard(ref, cadence, today = /* @__PURE__ */ new Date()) {
   var _a3;
-  if (ref === 0 && !watch) return null;
   const day2 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   let [start, end] = cardPeriod(cadence, day2);
   for (let i = 0; i < 2; i++) {
     const { main, secondary } = referenceHolders(ref, start.getFullYear());
-    for (const w of ref === 0 ? [watch] : [main, secondary]) {
+    for (const watch of [main, secondary]) {
       let last = null;
-      for (let d = start; d < end; d = addDays$1(d, 1)) if (((_a3 = getShiftForDate(w, d)) == null ? void 0 : _a3.shiftType) === "1st Day") last = d;
+      for (let d = start; d < end; d = addDays$1(d, 1)) if (((_a3 = getShiftForDate(watch, d)) == null ? void 0 : _a3.shiftType) === "1st Day") last = d;
       if (!last) continue;
-      if (addDays$1(last, 3) >= day2) return { watch: w, date: last };
+      if (addDays$1(last, 3) >= day2) return { watch, date: last };
       break;
     }
     [start, end] = cardPeriod(cadence, end);
@@ -50969,7 +50968,7 @@ function ReferenceHeader({
             children: periodLabel(cadence, period)
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { position: "relative", fontSize: compact ? 17 : 26, fontWeight: 800, letterSpacing: "-.02em", lineHeight: 1.05, textShadow: "0 1px 2px rgba(0,0,0,.25)" }, children: refNo === 0 ? "All watches" : `Reference ${refNo}` })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { position: "relative", fontSize: compact ? 17 : 26, fontWeight: 800, letterSpacing: "-.02em", lineHeight: 1.05, textShadow: "0 1px 2px rgba(0,0,0,.25)" }, children: refNo === 0 ? "Report to the SC" : `Reference ${refNo}` })
       ]
     }
   );
@@ -59495,10 +59494,10 @@ function References() {
       },
       n
     )) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(ReferenceCard, { n: 0, data: byRef.get(0), loading: isLoading, canEdit, badge: null, myWatch: watch })
+    /* @__PURE__ */ jsxRuntimeExports.jsx(ReferenceCard, { n: 0, data: byRef.get(0), loading: isLoading, canEdit, badge: null })
   ] });
 }
-function ReferenceCard({ n, data, loading, canEdit, badge, myWatch }) {
+function ReferenceCard({ n, data, loading, canEdit, badge }) {
   const qc = useQueryClient();
   const { toast: toast2 } = useToast();
   const year = (/* @__PURE__ */ new Date()).getFullYear();
@@ -59587,7 +59586,7 @@ function ReferenceCard({ n, data, loading, canEdit, badge, myWatch }) {
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: item })
       ] }, j)) })
     ] }, i)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: loading ? "Loading…" : canEdit ? "No duties written up yet — use Edit to add them." : "No duties written up yet." }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(ReferenceCards, { n, cards: (data == null ? void 0 : data.cards) ?? [], canEdit, holder: (holders == null ? void 0 : holders.main) ?? null, myWatch })
+    !all && /* @__PURE__ */ jsxRuntimeExports.jsx(ReferenceCards, { n, cards: (data == null ? void 0 : data.cards) ?? [], canEdit, holder: holders.main })
   ] });
 }
 const CADENCES = [
@@ -59596,7 +59595,7 @@ const CADENCES = [
   { key: "annual", label: "Annual", when: "Last tour of the year" }
 ];
 const day = (d) => d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
-function ReferenceCards({ n, cards, canEdit, holder, myWatch }) {
+function ReferenceCards({ n, cards, canEdit, holder }) {
   const qc = useQueryClient();
   const { toast: toast2 } = useToast();
   const [editing, setEditing] = reactExports.useState(false);
@@ -59633,7 +59632,11 @@ function ReferenceCards({ n, cards, canEdit, holder, myWatch }) {
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "border-t border-border/60 px-4 py-3.5 sm:px-5", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-2", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-sm font-semibold", children: holder ? `Cards on ${holder} Watch's board` : "Cards on every watch's board" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "text-sm font-semibold", children: [
+        "Cards on ",
+        holder,
+        " Watch's board"
+      ] }),
       canEdit && !editing && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: startEdit, className: "inline-flex h-8 items-center gap-1.5 rounded-lg border border-border px-2.5 text-xs font-medium hover:bg-muted", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "h-3.5 w-3.5" }),
         " Edit cards"
@@ -59642,7 +59645,7 @@ function ReferenceCards({ n, cards, canEdit, holder, myWatch }) {
     /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-0.5 text-xs text-muted-foreground", children: "Each card comes up on the 1st day of the watch's last tour of the month, quarter or year, and is due by the end of that tour's 2nd night. If it isn't done by then, it stays on their board until it is." }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 grid gap-3 sm:grid-cols-3", children: CADENCES.map((c) => {
       const cur = card(c.key);
-      const next = (cur == null ? void 0 : cur.items.length) ? nextReferenceCard(n, c.key, today, myWatch) : null;
+      const next = (cur == null ? void 0 : cur.items.length) ? nextReferenceCard(n, c.key, today) : null;
       return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-2 rounded-xl border border-border/60 p-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(ReferenceHeader, { refNo: n, cadence: c.key, height: 44, radius: 9 }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-[11px] text-muted-foreground", children: [

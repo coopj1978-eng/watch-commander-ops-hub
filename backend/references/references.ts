@@ -22,7 +22,7 @@ export interface ReferenceCard {
   cadence: string;
   items: string[];
   active: boolean;
-  /** A web link shown on the card, e.g. the shared spreadsheet it's about. */
+  /** A web link shown on the card, e.g. a document it's about. */
   link: string | null;
 }
 
@@ -101,7 +101,8 @@ const checklistOf = (v: unknown): ChecklistItem[] => {
 
 async function referenceCards(): Promise<(ReferenceCard & { ref: number })[]> {
   const rows = await db.rawQueryAll<{ id: number; reference_no: number; reference_cadence: string; checklist: unknown; is_active: boolean; link_url: string | null }>(
-    `SELECT id, reference_no, reference_cadence, checklist, is_active, link_url FROM task_templates WHERE reference_no IS NOT NULL`
+    // reference_no 0 is the quarterly report to the SC, not a reference card (lib/stationChecks.ts).
+    `SELECT id, reference_no, reference_cadence, checklist, is_active, link_url FROM task_templates WHERE reference_no BETWEEN 1 AND 5`
   );
   return rows
     .map((r) => ({
@@ -112,8 +113,7 @@ async function referenceCards(): Promise<(ReferenceCard & { ref: number })[]> {
 }
 
 // PUT /station-references/:ref/cards — set a reference's monthly, quarterly
-// and annual cards of checks (WC/CC); reference 0's go to every watch. A card
-// with no checks is switched off.
+// and annual cards of checks (WC/CC). A card with no checks is switched off.
 // Cards already on a watch's board pick up the change; ticks are kept.
 export const saveReferenceCards = api(
   { auth: true, expose: true, method: "PUT", path: "/station-references/:ref/cards" },
@@ -121,13 +121,13 @@ export const saveReferenceCards = api(
     const auth = getAuthData()!;
     requireRole(auth, "WC", "CC");
     const ref = Number(req.ref);
-    if (!Number.isInteger(ref) || ref < 0 || ref > 5) throw APIError.invalidArgument("Reference cards are for references 1 to 5, or 0 for all watches.");
+    if (!Number.isInteger(ref) || ref < 1 || ref > 5) throw APIError.invalidArgument("Reference cards are for references 1 to 5.");
 
     for (const card of req.cards ?? []) {
       const cadence = String(card.cadence);
       if (!(REFERENCE_CADENCES as string[]).includes(cadence)) throw APIError.invalidArgument(`Unknown frequency "${cadence}".`);
       const checklist = cleanRoutineItems(Array.isArray(card.items) ? card.items : []);
-      const name = `${ref === 0 ? "All watches" : `Reference ${ref}`} · ${CADENCE_NAME[cadence]}`;
+      const name = `Reference ${ref} · ${CADENCE_NAME[cadence]}`;
       // Left out = unchanged; empty = no link. Web links only.
       const setLink = card.link !== undefined;
       const link = String(card.link ?? "").trim() || null;
