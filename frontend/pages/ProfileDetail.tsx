@@ -192,6 +192,8 @@ export default function ProfileDetail() {
       }
       
       queryClient.invalidateQueries({ queryKey: ["profile", userId] });
+      queryClient.invalidateQueries({ queryKey: ["skill-renewals"] });
+      queryClient.invalidateQueries({ queryKey: ["people"] });
       toast({
         title: "Profile updated",
         description: "Changes saved successfully",
@@ -925,7 +927,7 @@ export default function ProfileDetail() {
                   Operational Qualifications
                 </CardTitle>
                 <CardDescription>
-                  Drives the amber warnings on the crewing board. Tick what this person holds.
+                  Drives the amber warnings on the crewing board. Tick what this person holds — each tick is also a skill on their Skills tab, so ticking adds it there and unticking removes it.
                 </CardDescription>
               </CardHeader>
               <CardContent>

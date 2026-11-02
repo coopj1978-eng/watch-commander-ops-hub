@@ -3,6 +3,7 @@ import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { logActivity } from "../logging/logger";
 import { syncSkillsToDictionary } from "../dictionary/sync_skills";
+import { syncSkillsFromQualifications } from "../lib/qualifications";
 import type { UpdateProfileRequest, FirefighterProfile } from "./types";
 
 interface UpdateProfileParams {
@@ -251,6 +252,12 @@ export const update = api(
     if (!dbProfile) {
       throw APIError.notFound("profile not found");
     }
+
+    // A ticked / unticked qualification adds / removes the skill on their Skills tab.
+    await syncSkillsFromQualifications(dbProfile.id, {
+      ba: updates.ba, prps: updates.prps, oic: updates.oic, mass_decon: updates.mass_decon,
+      hooklift_operator: updates.hooklift_operator, driver_lgv: updates.driver?.lgv,
+    });
 
     // Keep users.watch_unit in sync — it is the operational source of truth
     // used by crewing, crew stats, absence routing, and all dashboard widgets.

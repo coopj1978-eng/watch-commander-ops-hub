@@ -44824,6 +44824,11 @@ function SkillsTab({ profileId, userId }) {
   const availableSkills = (availableSkillsData == null ? void 0 : availableSkillsData.items) || [];
   const availableCerts = (availableCertsData == null ? void 0 : availableCertsData.items) || [];
   const allDictionaryItems = [...availableSkills, ...availableCerts];
+  const invalidateSkills = () => {
+    queryClient2.invalidateQueries({ queryKey: ["skill-renewals", profileId] });
+    queryClient2.invalidateQueries({ queryKey: ["profile"] });
+    queryClient2.invalidateQueries({ queryKey: ["people"] });
+  };
   const skills = (skillsData == null ? void 0 : skillsData.skills) || [];
   const createSkillMutation = useMutation({
     mutationFn: async (data) => {
@@ -44851,7 +44856,7 @@ function SkillsTab({ profileId, userId }) {
       return result;
     },
     onSuccess: () => {
-      queryClient2.invalidateQueries({ queryKey: ["skill-renewals", profileId] });
+      invalidateSkills();
       toast2({ title: "Skill added successfully" });
       handleCloseAddDialog();
     },
@@ -44870,7 +44875,7 @@ function SkillsTab({ profileId, userId }) {
       return await backend.skill.update(id, { ...updates });
     },
     onSuccess: () => {
-      queryClient2.invalidateQueries({ queryKey: ["skill-renewals", profileId] });
+      invalidateSkills();
       toast2({ title: "Skill updated successfully" });
       handleCloseEditDialog();
     },
@@ -44888,7 +44893,7 @@ function SkillsTab({ profileId, userId }) {
       return await backend.skill.deleteSkillRenewal(id);
     },
     onSuccess: () => {
-      queryClient2.invalidateQueries({ queryKey: ["skill-renewals", profileId] });
+      invalidateSkills();
       toast2({ title: "Skill deleted successfully" });
     },
     onError: (error) => {
@@ -46951,6 +46956,8 @@ function ProfileDetail() {
         }
       }
       queryClient2.invalidateQueries({ queryKey: ["profile", userId] });
+      queryClient2.invalidateQueries({ queryKey: ["skill-renewals"] });
+      queryClient2.invalidateQueries({ queryKey: ["people"] });
       toast2({
         title: "Profile updated",
         description: "Changes saved successfully"
@@ -47524,7 +47531,7 @@ function ProfileDetail() {
               /* @__PURE__ */ jsxRuntimeExports.jsx(Award, { className: "h-5 w-5" }),
               "Operational Qualifications"
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { children: "Drives the amber warnings on the crewing board. Tick what this person holds." })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { children: "Drives the amber warnings on the crewing board. Tick what this person holds — each tick is also a skill on their Skills tab, so ticking adds it there and unticking removes it." })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { children: [
             (() => {

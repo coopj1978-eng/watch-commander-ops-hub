@@ -3,6 +3,7 @@ import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { logActivity } from "../logging/logger";
 import { syncSkillsToDictionary } from "../dictionary/sync_skills";
+import { syncSkillsFromQualifications } from "../lib/qualifications";
 import type { CreateProfileRequest, FirefighterProfile } from "./types";
 
 interface DBProfile {
@@ -115,6 +116,8 @@ export const create = api<CreateProfileRequest, FirefighterProfile>(
     if (!dbProfile) {
       throw new Error("Failed to create profile");
     }
+    // Ticked qualifications go on their Skills tab too.
+    await syncSkillsFromQualifications(dbProfile.id, { ba: req.ba || undefined, prps: req.prps || undefined, driver_lgv: req.driver?.lgv || undefined });
 
     const profile = transformProfile(dbProfile);
 

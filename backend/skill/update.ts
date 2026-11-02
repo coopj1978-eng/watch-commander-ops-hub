@@ -3,6 +3,7 @@ import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { hasPermission, Permission } from "../auth/rbac";
 import { logActivity } from "../logging/logger";
+import { syncQualificationsFromSkills } from "../lib/qualifications";
 import type { UpdateSkillRenewalRequest, SkillRenewal } from "./types";
 
 interface UpdateSkillRenewalParams {
@@ -94,6 +95,8 @@ export const update = api(
     if (!dbSkill) {
       throw APIError.notFound("skill renewal not found");
     }
+    // Renaming a skill can tick or untick a crewing qualification.
+    if (updates.skill_name !== undefined) await syncQualificationsFromSkills(dbSkill.profile_id);
 
     await logActivity({
       user_id: auth.userID,

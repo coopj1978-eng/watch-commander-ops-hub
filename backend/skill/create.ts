@@ -3,6 +3,7 @@ import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { hasPermission, Permission } from "../auth/rbac";
 import { logActivity } from "../logging/logger";
+import { syncQualificationsFromSkills } from "../lib/qualifications";
 import type { CreateSkillRenewalRequest, SkillRenewal } from "./types";
 
 interface DBSkillRenewal {
@@ -57,6 +58,8 @@ export const create = api<CreateSkillRenewalRequest, SkillRenewal>(
     if (!dbSkill) {
       throw new Error("Failed to create skill renewal");
     }
+    // A crewing qualification's skill ticks it on their Overview.
+    await syncQualificationsFromSkills(req.profile_id);
 
     await logActivity({
       user_id: auth.userID,

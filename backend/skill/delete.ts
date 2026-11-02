@@ -3,6 +3,7 @@ import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { hasPermission, Permission } from "../auth/rbac";
 import { logActivity } from "../logging/logger";
+import { syncQualificationsFromSkills } from "../lib/qualifications";
 
 interface DeleteSkillRenewalRequest {
   id: number;
@@ -35,6 +36,8 @@ export const deleteSkillRenewal = api<DeleteSkillRenewalRequest, { success: bool
     await db.exec`
       DELETE FROM skill_renewals WHERE id = ${id}
     `;
+    // Removing a crewing qualification's skill unticks it on their Overview.
+    await syncQualificationsFromSkills(skill.profile_id);
 
     await logActivity({
       user_id: auth.userID,

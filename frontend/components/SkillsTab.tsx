@@ -75,6 +75,12 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
   const availableSkills = availableSkillsData?.items || [];
   const availableCerts = availableCertsData?.items || [];
   const allDictionaryItems = [...availableSkills, ...availableCerts];
+  // A crewing qualification's skill also ticks it on Overview, and the People list shows skills.
+  const invalidateSkills = () => {
+    queryClient.invalidateQueries({ queryKey: ["skill-renewals", profileId] });
+    queryClient.invalidateQueries({ queryKey: ["profile"] });
+    queryClient.invalidateQueries({ queryKey: ["people"] });
+  };
   const skills = (skillsData?.skills || []) as unknown as SkillRenewal[];
 
   const createSkillMutation = useMutation({
@@ -105,7 +111,7 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
       return result;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["skill-renewals", profileId] });
+      invalidateSkills();
       toast({ title: "Skill added successfully" });
       handleCloseAddDialog();
     },
@@ -125,7 +131,7 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
       return await backend.skill.update(id, { ...updates });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["skill-renewals", profileId] });
+      invalidateSkills();
       toast({ title: "Skill updated successfully" });
       handleCloseEditDialog();
     },
@@ -144,7 +150,7 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
       return await backend.skill.deleteSkillRenewal(id);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["skill-renewals", profileId] });
+      invalidateSkills();
       toast({ title: "Skill deleted successfully" });
     },
     onError: (error) => {
