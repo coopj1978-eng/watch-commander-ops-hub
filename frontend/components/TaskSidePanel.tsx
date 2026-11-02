@@ -6,6 +6,7 @@ import backend from "@/lib/backend";
 import { useAuth } from "@/App";
 import { getShiftForDate, getWatchShiftStatus, hasRotaConfig, type ShiftDay } from "@/lib/shiftRota";
 import { getLabelById } from "@/lib/taskLabels";
+import { CALENDAR_EVENTS_KEY } from "@/lib/calendarQueries";
 import type { Task } from "~backend/task/types";
 
 // The Tasks page's right-hand panel (Claude Design, Oct 2026). It is the
@@ -34,13 +35,17 @@ interface WatchEvent { id: number; title: string; start: Date; allDay: boolean }
 function useWatchCalendar(tasks: Task[], from: Date, to: Date) {
   const { user } = useAuth();
   const { data: events = [] } = useQuery({
-    queryKey: ["cal-watch-tasks-panel", user?.id, user?.watch_unit, dayKey(from), dayKey(to)],
+    // Under the calendar's key, so adding or changing an event refreshes it.
+    queryKey: [CALENDAR_EVENTS_KEY, "tasks-panel", user?.watch_unit, dayKey(from), dayKey(to)],
     queryFn: async () => {
+      // Every Watch Calendar event for your watch (the server's rules pick
+      // the watch). No user_id: that only matched events flagged
+      // is_watch_event, so some watch events went missing.
       const r = await backend.calendar.list({
         calendar_visibility: "watch" as any,
-        user_id: user!.id,
         start_date: from.toISOString(),
         end_date: to.toISOString(),
+        limit: 500,
       });
       return r.events
         .filter((e: any) => !e.cancelled_at)

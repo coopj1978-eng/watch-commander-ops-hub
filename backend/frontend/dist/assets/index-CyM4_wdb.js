@@ -55083,13 +55083,14 @@ function shiftKind(s) {
 function useWatchCalendar(tasks, from, to) {
   const { user: user2 } = useAuth();
   const { data: events2 = [] } = useQuery({
-    queryKey: ["cal-watch-tasks-panel", user2 == null ? void 0 : user2.id, user2 == null ? void 0 : user2.watch_unit, dayKey(from), dayKey(to)],
+    // Under the calendar's key, so adding or changing an event refreshes it.
+    queryKey: [CALENDAR_EVENTS_KEY, "tasks-panel", user2 == null ? void 0 : user2.watch_unit, dayKey(from), dayKey(to)],
     queryFn: async () => {
       const r2 = await backendClient.calendar.list({
         calendar_visibility: "watch",
-        user_id: user2.id,
         start_date: from.toISOString(),
-        end_date: to.toISOString()
+        end_date: to.toISOString(),
+        limit: 500
       });
       return r2.events.filter((e) => !e.cancelled_at).map((e) => ({ id: e.id, title: e.title, start: new Date(e.start_time), allDay: !!e.all_day }));
     },
