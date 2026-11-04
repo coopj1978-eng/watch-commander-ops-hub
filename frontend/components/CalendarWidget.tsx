@@ -1,10 +1,11 @@
-import { useRef, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Lock, FileText, ArrowRight } from "lucide-react";
+import { createContext, useContext, useRef, useEffect } from "react";
+import { ChevronLeft, ChevronRight, Lock, FileText, ArrowRight, Users } from "lucide-react";
 import type { CalendarEvent } from "~backend/calendar/types";
 import type { Task } from "~backend/task/types";
 import type { Inspection } from "~backend/inspection/types";
 import type { ShiftDay } from "@/lib/shiftRota";
 import { getShiftForDate } from "@/lib/shiftRota";
+import type { crewing } from "@/client";
 
 // Calendar views — redesigned from the Claude Design week view (Oct 2026).
 // Colours come from the .cal-ui tokens in index.css (light + dark).
@@ -52,6 +53,8 @@ interface CalendarWidgetProps {
   filters?: React.ReactNode;
   /** The "New" menu at the end of the desktop toolbar (phones use a "+"). */
   newButton?: React.ReactNode;
+  /** WC/CC: how many each shift can ride. */
+  riding?: RidingInfo;
 }
 
 // ─── Colours ──────────────────────────────────────────────────────────────────
@@ -132,6 +135,112 @@ function ShiftChip({ shift, onBrand }: { shift?: ShiftDay; onBrand?: boolean }) 
     </span>
   );
 }
+
+// ─── Riding count (WC/CC) ─────────────────────────────────────────────────────
+// How many each of the watch's shifts can ride, from sickness, leave and
+// bookings (Nov 2026), so a short shift stands out weeks ahead. Neutral when
+// both pumps can ride; amber when short for both, red when short for one.
+export interface RidingInfo {
+  byDate: Map<string, crewing.ShiftStrength>;
+  rideOne: number;
+  rideBoth: number;
+  onOpen: (shift: crewing.ShiftStrength, anchor?: CalendarAnchor) => void;
+}
+const RidingContext = createContext<RidingInfo | null>(null);
+
+export type RidingLevel = "ok" | "short" | "crit";
+export function ridingLevel(s: crewing.ShiftStrength, rideOne: number, rideBoth: number): RidingLevel {
+  return s.available < rideOne ? "crit" : s.available < rideBoth ? "short" : "ok";
+}
+export function ridingSummary(s: crewing.ShiftStrength, rideOne: number, rideBoth: number): string {
+  const head = `${s.available} of ${s.total} available`;
+  const level = ridingLevel(s, rideOne, rideBoth);
+  if (level === "crit") return `${head} — not enough to ride one pump (needs ${rideOne})`;
+  if (level === "short") return `${head} — ${rideBoth - s.available} short to ride both pumps`;
+  return `${head} — enough to ride both pumps`;
+}
+function ridingTooltip(s: crewing.ShiftStrength, rideOne: number, rideBoth: number): string {
+  const lines = [ridingSummary(s, rideOne, rideBoth)];
+  if (s.away.length) lines.push(`Away: ${s.away.map((a) => (a.name ? `${a.name} (${a.why})` : a.why)).join(", ")}`);
+  if (s.covers.length) lines.push(`Covering: ${s.covers.map((c) => `${c.name} (${c.why})`).join(", ")}`);
+  return lines.join("\n");
+}
+
+function ridingFor(ctx: RidingInfo | null, day: Date) {
+  const shift = ctx?.byDate.get(isoDate(day));
+  if (!ctx || !shift) return null;
+  return { ctx, shift, level: ridingLevel(shift, ctx.rideOne, ctx.rideBoth) };
+}
+const useRiding = (day: Date) => ridingFor(useContext(RidingContext), day);
+
+const RIDING_STYLE: Record<RidingLevel, React.CSSProperties> = {
+  ok: { background: "transparent", color: "var(--cal-ink-2)", boxShadow: "inset 0 0 0 1px var(--cal-line-2)" },
+  short: { background: "var(--cal-short-bg)", color: "var(--cal-short-fg)" },
+  crit: { background: "var(--cal-crit-bg)", color: "var(--cal-crit-fg)" },
+};
+
+/** "9/10" with a people icon. A button that opens the shift's card, or a plain label inside another button. */
+function RidingCount({ day, onBrand, label }: { day: Date; onBrand?: boolean; label?: boolean }) {
+  const r = useRiding(day);
+  if (!r) return null;
+  const { ctx, shift, level } = r;
+  const style: React.CSSProperties = {
+    display: "inline-flex", alignItems: "center", gap: 4, height: 22, padding: "0 7px", borderRadius: 999,
+    fontSize: 11.5, fontWeight: 650, whiteSpace: "nowrap", border: "none", font: "inherit", lineHeight: 1,
+    ...RIDING_STYLE[level],
+    ...(onBrand && level === "ok" ? { background: "rgba(255,255,255,.2)", color: "#fff", boxShadow: "none" } : {}),
+  };
+  const body = (
+    <>
+      <Users className="h-3 w-3" aria-hidden />
+      <span className="cal-mono" style={{ fontSize: 11.5, fontWeight: 650 }}>{shift.available}/{shift.total}</span>
+    </>
+  );
+  const tip = ridingTooltip(shift, ctx.rideOne, ctx.rideBoth);
+  if (label) return <span title={tip} aria-label={ridingSummary(shift, ctx.rideOne, ctx.rideBoth)} style={style}>{body}</span>;
+  return (
+    <button
+      type="button"
+      data-event
+      title={tip}
+      aria-label={`Riding: ${ridingSummary(shift, ctx.rideOne, ctx.rideBoth)}`}
+      onClick={(e) => { e.stopPropagation(); ctx.onOpen(shift, anchorOf(e)); }}
+      className="cal-focus"
+      style={{ ...style, cursor: "pointer" }}
+    >
+      {body}
+    </button>
+  );
+}
+
+/** Words beside the count when there's room (List, phone day). */
+function RidingNote({ day }: { day: Date }) {
+  const r = useRiding(day);
+  if (!r || r.level === "ok") return null;
+  const { ctx, shift, level } = r;
+  return (
+    <span style={{ fontSize: 12, fontWeight: 600, color: level === "crit" ? "var(--cal-danger-fg)" : "var(--cal-ink-2)" }}>
+      {level === "crit" ? `Can't ride a pump (needs ${ctx.rideOne})` : `${ctx.rideBoth - shift.available} short to ride both pumps`}
+    </span>
+  );
+}
+
+/** A small corner mark on a short shift, for the tight grids (phone month, year). */
+function ShortMark({ day }: { day: Date }) {
+  const r = useRiding(day);
+  if (!r || r.level === "ok") return null;
+  return (
+    <span
+      aria-hidden
+      style={{
+        position: "absolute", top: 2, right: 2, width: 7, height: 7, borderRadius: "50%",
+        background: r.level === "crit" ? "var(--cal-crit-bg)" : "var(--cal-short-bg)", boxShadow: "0 0 0 1.5px var(--cal-surface)",
+      }}
+    />
+  );
+}
+const shortWord = (r: ReturnType<typeof ridingFor>) =>
+  !r || r.level === "ok" ? "" : r.level === "crit" ? ", can't ride a pump" : ", short of crew";
 
 // ─── Constants & dates ────────────────────────────────────────────────────────
 const HOUR_PX = 48;
@@ -538,6 +647,7 @@ function DayTile({ day, shift, showShift, onClick }: { day: Date; shift?: ShiftD
       <span style={{ fontSize: 12, fontWeight: 500, opacity: 0.85 }}>{name}</span>
       <span className="cal-mono" style={{ fontSize: 26, fontWeight: 600, lineHeight: 1 }}>{day.getDate()}</span>
       {showShift ? <ShiftChip shift={shift} onBrand={today} /> : <span style={{ height: 20 }} />}
+      <RidingCount day={day} onBrand={today} label />
     </button>
   );
 }
@@ -740,6 +850,9 @@ function MonthView({
                   +{more} more
                 </button>
               )}
+              <div style={{ marginTop: "auto", display: "flex" }}>
+                <RidingCount day={day} />
+              </div>
             </div>
           );
         })}
@@ -763,6 +876,7 @@ function YearView({
 }) {
   const today = new Date();
   const busy = new Set(items.map((it) => isoDate(it.startTime)));
+  const riding = useContext(RidingContext);
   const chip = (k: ShiftKind | "rest", label: string) => (
     <span
       style={{
@@ -791,6 +905,12 @@ function YearView({
           <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--cal-ink-2)" }}>
             <span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--cal-ink)" }} /> Something on
           </span>
+          {riding && (
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--cal-ink-2)" }}>
+              <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--cal-short-bg)" }} /> Short for both pumps
+              <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--cal-crit-bg)", marginLeft: 6 }} /> Can't ride a pump
+            </span>
+          )}
         </div>
       )}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(232px, 1fr))", gap: 14 }}>
@@ -802,6 +922,7 @@ function YearView({
             ? cells.filter((d) => d && shiftKind(getShiftForDate(userWatch, d) ?? undefined) === "leave").length
             : 0;
           const isThisMonth = today.getFullYear() === year && today.getMonth() === mi;
+          const shortShifts = cells.filter((d) => d && (ridingFor(riding, d)?.level ?? "ok") !== "ok").length;
           return (
             <section
               key={mi}
@@ -817,11 +938,18 @@ function YearView({
                 >
                   {MONTH_NAMES[mi]}
                 </button>
-                {leaveDays > 0 && (
-                  <span style={{ fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 999, background: tok("leave", "bg"), color: tok("leave", "fg") }}>
-                    Leave · {leaveDays}d
-                  </span>
-                )}
+                <span style={{ display: "inline-flex", gap: 4 }}>
+                  {shortShifts > 0 && (
+                    <span style={{ fontSize: 11, fontWeight: 650, padding: "2px 8px", borderRadius: 999, background: "var(--cal-short-bg)", color: "var(--cal-short-fg)" }}>
+                      {shortShifts} short
+                    </span>
+                  )}
+                  {leaveDays > 0 && (
+                    <span style={{ fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 999, background: tok("leave", "bg"), color: tok("leave", "fg") }}>
+                      Leave · {leaveDays}d
+                    </span>
+                  )}
+                </span>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: 2, textAlign: "center" }}>
                 {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
@@ -838,7 +966,7 @@ function YearView({
                       type="button"
                       onClick={() => onDayClick(day)}
                       className="cal-focus cal-mono"
-                      aria-label={`${day.getDate()} ${MONTH_NAMES[mi]}${k ? `, ${k === "leave" ? "leave" : `${k} shift`}` : ""}${hasItems ? ", something on" : ""}`}
+                      aria-label={`${day.getDate()} ${MONTH_NAMES[mi]}${k ? `, ${k === "leave" ? "leave" : `${k} shift`}` : ""}${shortWord(ridingFor(riding, day))}${hasItems ? ", something on" : ""}`}
                       style={{
                         position: "relative", height: 26, border: "none", padding: 0, borderRadius: 6, cursor: "pointer",
                         font: "inherit", fontSize: 11, fontWeight: isToday ? 700 : 500,
@@ -850,6 +978,7 @@ function YearView({
                       }}
                     >
                       {day.getDate()}
+                      <ShortMark day={day} />
                       {hasItems && (
                         <span
                           style={{
@@ -974,11 +1103,13 @@ function AgendaView({
             </button>
             <div style={{ display: "flex", flexDirection: "column", gap: 6, minWidth: 0, paddingTop: 2 }}>
               {k && (
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 12 }}>
+                <span style={{ display: "inline-flex", flexWrap: "wrap", alignItems: "center", gap: 8, fontSize: 12 }}>
                   <ShiftChip shift={r.shift} />
                   {r.shift?.startTime && !r.shift.isLeave && (
                     <span className="cal-mono" style={{ color: "var(--cal-muted)" }}>{r.shift.startTime}–{r.shift.endTime}</span>
                   )}
+                  <RidingCount day={r.date} />
+                  <RidingNote day={r.date} />
                 </span>
               )}
               {r.items.length === 0 ? (
@@ -1031,6 +1162,7 @@ function MobileMonth({
   onDaySelect: (d: Date) => void;
 }) {
   const today = new Date();
+  const riding = useContext(RidingContext);
   return (
     <section className="cal-card" style={{ padding: "10px 10px 12px" }}>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", textAlign: "center", rowGap: 4 }}>
@@ -1049,9 +1181,9 @@ function MobileMonth({
               type="button"
               onClick={() => onDaySelect(day)}
               className="cal-focus"
-              aria-label={`${day.getDate()} ${MONTH_NAMES[day.getMonth()]}${k ? `, ${k} shift` : ""}${dots.length ? `, ${dots.length} calendar${dots.length > 1 ? "s" : ""} with events` : ""}`}
+              aria-label={`${day.getDate()} ${MONTH_NAMES[day.getMonth()]}${k ? `, ${k} shift` : ""}${shortWord(ridingFor(riding, day))}${dots.length ? `, ${dots.length} calendar${dots.length > 1 ? "s" : ""} with events` : ""}`}
               style={{
-                height: 50, border: "none", borderRadius: 12, padding: 0, cursor: "pointer", font: "inherit",
+                position: "relative", height: 50, border: "none", borderRadius: 12, padding: 0, cursor: "pointer", font: "inherit",
                 display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
                 background: selected ? "var(--cal-brand)" : "transparent",
                 color: selected ? "#fff" : isToday ? "var(--cal-brand)" : "var(--cal-ink)",
@@ -1059,6 +1191,7 @@ function MobileMonth({
                 opacity: outside && !selected ? 0.4 : 1,
               }}
             >
+              <ShortMark day={day} />
               <span className="cal-mono" style={{ fontSize: 14, fontWeight: isToday || selected ? 700 : 500 }}>{day.getDate()}</span>
               <span style={{ width: 14, height: 3, borderRadius: 2, background: k ? (selected ? "#fff" : tok(k, "dot")) : "transparent" }} />
               <span style={{ display: "flex", gap: 3, height: 5 }}>
@@ -1095,7 +1228,12 @@ function MobileAgenda({
             {date.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })}
           </span>
           {(!!userWatch || shiftSchedule.length > 0) && (
-            <span><ShiftChip shift={shift} />{shift?.startTime && <span className="cal-mono" style={{ fontSize: 11, color: "var(--cal-muted)", marginLeft: 6 }}>{shift.startTime}–{shift.endTime}</span>}</span>
+            <span style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6 }}>
+              <ShiftChip shift={shift} />
+              {shift?.startTime && <span className="cal-mono" style={{ fontSize: 11, color: "var(--cal-muted)" }}>{shift.startTime}–{shift.endTime}</span>}
+              <RidingCount day={date} />
+              <RidingNote day={date} />
+            </span>
           )}
         </div>
       </div>
@@ -1288,6 +1426,7 @@ export default function CalendarWidget({
   pendingSlot,
   filters,
   newButton,
+  riding,
 }: CalendarWidgetProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const items = buildItems(events, tasks, inspections);
@@ -1336,6 +1475,7 @@ export default function CalendarWidget({
   }, []);
 
   return (
+    <RidingContext.Provider value={riding ?? null}>
     <div className="cal-ui" style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }}>
       {/* ── Phone: the month, then the picked day ── */}
       <div className="flex flex-col gap-3 md:hidden">
@@ -1435,5 +1575,6 @@ export default function CalendarWidget({
         )}
       </div>
     </div>
+    </RidingContext.Provider>
   );
 }

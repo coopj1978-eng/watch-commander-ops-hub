@@ -5,12 +5,13 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { useUserRole } from "@/lib/rbac";
 import backend from "@/lib/backend";
-import type { shift_adjustments } from "@/client";
-import CalendarWidget, { viewRange, type CalendarViewType, type CalendarItem, type CalendarAnchor } from "../components/CalendarWidget";
+import type { crewing, shift_adjustments } from "@/client";
+import CalendarWidget, { viewRange, type CalendarViewType, type CalendarItem, type CalendarAnchor, type RidingInfo } from "../components/CalendarWidget";
 import CalendarFilters from "../components/CalendarFilters";
 import { CalendarNewButton, CalendarNewFab, type NewKind } from "../components/CalendarNewMenu";
 import CalendarEventPeek, { type PeekAction } from "../components/CalendarEventPeek";
-import { CALENDAR_EVENTS_KEY, refreshCalendar } from "@/lib/calendarQueries";
+import CalendarRidingPeek from "../components/CalendarRidingPeek";
+import { CALENDAR_EVENTS_KEY, CALENDAR_STRENGTH_KEY, refreshCalendar } from "@/lib/calendarQueries";
 import EventForm, { type EventFormData } from "../components/EventForm";
 import InspectionEventModal, { type ExistingInspectionEvent } from "../components/InspectionEventModal";
 import ShiftAdjustmentModal from "@/components/ShiftAdjustmentModal";
@@ -124,6 +125,26 @@ export default function UnifiedCalendar() {
       return r.events;
     },
   });
+
+  // WC/CC: how many each of the watch's shifts can ride (with the rota on).
+  const ymd = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const showRiding = isManager && visibleCalendars.has("shifts") && hasRotaConfig(watchShown);
+  const { data: strength } = useQuery({
+    queryKey: [CALENDAR_STRENGTH_KEY, watchShown, ymd(start), ymd(end)],
+    queryFn: () => backend.crewing.strength({ watch: watchShown, start_date: ymd(start), end_date: ymd(end) }),
+    enabled: showRiding,
+    staleTime: 60_000,
+  });
+  const [ridingPeek, setRidingPeek] = useState<{ shift: crewing.ShiftStrength; anchor: CalendarAnchor | null } | null>(null);
+  const riding = useMemo<RidingInfo | undefined>(() => {
+    if (!showRiding || !strength) return undefined;
+    return {
+      byDate: new Map(strength.shifts.map((s) => [s.date, s])),
+      rideOne: strength.ride_one,
+      rideBoth: strength.ride_both,
+      onOpen: (shift, anchor) => { setPeek(null); setRidingPeek({ shift, anchor: anchor ?? null }); },
+    };
+  }, [showRiding, strength]);
 
   const { data: tasks = [] } = useQuery({
     queryKey: ["cal-tasks", userId, startISO, endISO],
@@ -243,11 +264,11 @@ export default function UnifiedCalendar() {
 
   // Escape closes the add/edit panel or the event card.
   useEffect(() => {
-    if (!formOpen && !peek) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") { closeForm(); setPeek(null); } };
+    if (!formOpen && !peek && !ridingPeek) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") { closeForm(); setPeek(null); setRidingPeek(null); } };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [formOpen, peek]);
+  }, [formOpen, peek, ridingPeek]);
 
   // ─── Handlers ────────────────────────────────────────────────────────────────
   const handleSlotClick = (date: Date, anchor?: CalendarAnchor) => {
@@ -465,6 +486,7 @@ export default function UnifiedCalendar() {
         pendingSlot={formOpen && !editingEvent ? pendingSlot : null}
         filters={filters}
         newButton={<CalendarNewButton onPick={onNew} />}
+        riding={riding}
       />
 
       {/* Phones: the calendar's own "+" (the app-wide one is hidden here) */}
@@ -513,6 +535,29 @@ export default function UnifiedCalendar() {
             style={popStyle(peek.anchor, 360, 380)}
             onClose={() => setPeek(null)}
             primary={peekAction(peek.item, peek.anchor)}
+          />
+        </div>,
+        document.body
+      )}
+
+      {/* ── A shift's riding count ─────────────────────────────────────────── */}
+      {ridingPeek && riding && createPortal(
+        <div className="cal-ui" style={{ position: "fixed", inset: 0, zIndex: 60 }}>
+          <div
+            onClick={() => setRidingPeek(null)}
+            style={{ position: "absolute", inset: 0, background: isPhone || !ridingPeek.anchor ? "rgba(0,0,0,.4)" : "rgba(17,20,39,.04)" }}
+          />
+          <CalendarRidingPeek
+            shift={ridingPeek.shift}
+            watch={watchShown}
+            rideOne={riding.rideOne}
+            rideBoth={riding.rideBoth}
+            style={popStyle(ridingPeek.anchor, 360, 420)}
+            onClose={() => setRidingPeek(null)}
+            onOpenBoard={() => {
+              const s = ridingPeek.shift;
+              routerNavigate(`/handover?tab=crewing&date=${s.date}&shift=${encodeURIComponent(s.shift_type)}&watch=${encodeURIComponent(watchShown)}`);
+            }}
           />
         </div>,
         document.body

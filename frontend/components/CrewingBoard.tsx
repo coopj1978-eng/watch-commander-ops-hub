@@ -44,6 +44,7 @@ import { AutoCrewDialog } from "@/components/crewing/AutoCrewDialog";
 import { CanteenCard, CanteenContext, CanteenToggle, useCanteen } from "@/components/crewing/CanteenCard";
 import type { crewing } from "@/client";
 import { useAuth } from "@/App";
+import { useSearchParams } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -1750,11 +1751,17 @@ export default function CrewingBoard({ onOpenCanteenRota }: { onOpenCanteenRota?
 
   const userWatch     = user?.watch_unit ?? "Red";
   const smartDefaults = getSmartDefaults(userWatch);
+  // "?date=&shift=&watch=" opens a given shift (the calendar's riding card).
+  const [params] = useSearchParams();
+  const askedDate  = params.get("date");
+  const askedShift = SHIFT_TYPES.find(t => t.value === params.get("shift"))?.value;
+  const asked      = askedDate && /^\d{4}-\d{2}-\d{2}$/.test(askedDate) && askedShift ? { shiftDate: askedDate, shiftType: askedShift } : null;
+  const askedWatch = params.get("watch");
 
   // ── State ─────────────────────────────────────────────────────────────────
-  const [shiftDate,      setShiftDate]      = useState(smartDefaults.shiftDate);
-  const [shiftType,      setShiftType]      = useState<ShiftType>(smartDefaults.shiftType);
-  const [watch,          setWatch]          = useState<string>(userWatch);
+  const [shiftDate,      setShiftDate]      = useState(asked?.shiftDate ?? smartDefaults.shiftDate);
+  const [shiftType,      setShiftType]      = useState<ShiftType>(asked?.shiftType ?? smartDefaults.shiftType);
+  const [watch,          setWatch]          = useState<string>(asked && askedWatch && hasRotaConfig(askedWatch) ? askedWatch : userWatch);
   const [activeSlotId,   setActiveSlotId]   = useState<string | null>(null);
   const [showDetached,   setShowDetached]   = useState(false);
   const [showExtDialog,  setShowExtDialog]  = useState(false);

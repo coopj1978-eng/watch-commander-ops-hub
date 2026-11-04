@@ -10104,6 +10104,10 @@ table.plain tbody tr:last-child td {
   --cal-danger-bg: #fde4e4;
   --cal-danger-fg: #861b1b;
   --cal-danger-dot: #ef4444;
+  --cal-short-bg: #f59e0b;
+  --cal-short-fg: #2a1800;
+  --cal-crit-bg: #dc2626;
+  --cal-crit-fg: #fff;
   --cal-watch-bg: #dde9fe;
   --cal-watch-fg: #1e3a8a;
   --cal-watch-dot: #3b82f6;
@@ -10191,6 +10195,10 @@ table.plain tbody tr:last-child td {
   --cal-danger-bg: #ef444433;
   --cal-danger-fg: #fecaca;
   --cal-danger-dot: #f87171;
+  --cal-short-bg: #f59e0b;
+  --cal-short-fg: #1f1300;
+  --cal-crit-bg: #dc2626;
+  --cal-crit-fg: #fff;
   --cal-watch-bg: #3b82f638;
   --cal-watch-fg: #cfe0ff;
   --cal-watch-dot: #60a5fa;

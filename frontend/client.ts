@@ -1609,6 +1609,23 @@ export namespace crewing {
         "recent_count": number
     }
 
+    export interface ShiftStrength {
+        date: string
+        "shift_type": string
+        total: number
+        available: number
+        /** No name on leave for a watch that isn't the viewer's own. */
+        away: { name?: string, why: "Sick" | "Leave" | "Flexi" | "Training" | "H4H" | "TOIL" | "Detached" }[]
+        covers: { name: string, why: "H4H cover" | "TOIL cover" | "Flexi payback" | "Orange day" }[]
+    }
+
+    export interface StrengthResponse {
+        watch: string
+        "ride_one": number
+        "ride_both": number
+        shifts: ShiftStrength[]
+    }
+
     export class ServiceClient {
         private baseClient: BaseClient
 
@@ -1619,6 +1636,7 @@ export namespace crewing {
             this.list = this.list.bind(this)
             this.remove = this.remove.bind(this)
             this.roster = this.roster.bind(this)
+            this.strength = this.strength.bind(this)
             this.listCanteen = this.listCanteen.bind(this)
             this.addCanteen = this.addCanteen.bind(this)
             this.removeCanteen = this.removeCanteen.bind(this)
@@ -1737,6 +1755,21 @@ export namespace crewing {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/crewing/roster`, undefined, {query})
             return await resp.json() as RosterResponse
+        }
+
+        /**
+         * GET /crewing/strength — how many each of a watch's shifts can ride,
+         * for the calendar's riding count. WC/CC only.
+         */
+        public async strength(params: { watch: string, "start_date": string, "end_date": string }): Promise<StrengthResponse> {
+            const query = makeRecord<string, string | string[]>({
+                "end_date":   params["end_date"],
+                "start_date": params["start_date"],
+                watch:        params.watch,
+            })
+
+            const resp = await this.baseClient.callTypedAPI("GET", `/crewing/strength`, undefined, {query})
+            return await resp.json() as StrengthResponse
         }
     }
 }
