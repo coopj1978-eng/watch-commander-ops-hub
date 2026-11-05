@@ -33908,7 +33908,7 @@ function QuickAddButton() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { actions } = useNav();
-  if (pathname.startsWith("/tasks") || pathname.startsWith("/hydrants") || pathname.startsWith("/calendar")) return null;
+  if (pathname.startsWith("/tasks") || pathname.startsWith("/hydrants") || pathname.startsWith("/calendar") || pathname.startsWith("/requests")) return null;
   const go = (to) => {
     setOpen(false);
     navigate(to);
@@ -42224,11 +42224,11 @@ function WatchPerson({ watch, onWatch, person, onPerson, exclude, label: label2 
       onWatch(w);
       onPerson("");
     }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { "aria-label": `${label2}: watch`, children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Watch" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { "aria-label": `${label2}: watch`, className: "w-full", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Watch" }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$g.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: person, onValueChange: onPerson, disabled: !watch, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { "aria-label": label2, children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Person" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { "aria-label": label2, className: "w-full", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Person" }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: members.map((m) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: m.id, children: m.name }, m.id)) })
     ] })
   ] });
@@ -42260,7 +42260,7 @@ function NewRequestDialog({ open, onClose, initialType = "flexi", defaultDate, o
   reactExports.useEffect(() => {
     if (!open) return;
     setType(initialType);
-    setDate(ymd(defaultDate ?? /* @__PURE__ */ new Date()));
+    setDate(defaultDate ? ymd(defaultDate) : "");
     setDayNight("Day");
     setForOther(false);
     setForWatch("");
@@ -42327,7 +42327,7 @@ function NewRequestDialog({ open, onClose, initialType = "flexi", defaultDate, o
       qc.invalidateQueries({ queryKey: ["shift-requests"] });
       toast2({
         title: "Request sent",
-        description: d.request.status === "with_cover" ? `${d.request.cover_name} has been asked to confirm. It goes to the WC after that.` : "It's with the WC to review. You'll get a notification with the decision."
+        description: d.request.status === "with_cover" ? `${d.request.cover_name} has been asked to confirm. It goes to the WC after that.` : forOther ? "It's with the WC to review. They'll get a notification with the decision." : "It's with the WC to review. You'll get a notification with the decision."
       });
       onCreated == null ? void 0 : onCreated(d.request.id);
       onClose();
@@ -42383,7 +42383,7 @@ function NewRequestDialog({ open, onClose, initialType = "flexi", defaultDate, o
           /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { "aria-label": "Payroll number", placeholder: "Payroll number", value: coverPayroll, onChange: (e) => setCoverPayroll(e.target.value) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { "aria-label": "Station", placeholder: "Station", value: coverStation, onChange: (e) => setCoverStation(e.target.value) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: coverOtherWatch, onValueChange: setCoverOtherWatch, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { "aria-label": "Their watch", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Watch" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { "aria-label": "Their watch", className: "w-full", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Watch" }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$g.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
           ] })
         ] }),
@@ -42401,7 +42401,7 @@ function NewRequestDialog({ open, onClose, initialType = "flexi", defaultDate, o
       needsReviewer && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-sm", children: "Which WC should review this?" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: reviewer, onValueChange: setReviewer, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { "aria-label": "Which WC should review this", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Choose a WC" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { "aria-label": "Which WC should review this", className: "w-full", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Choose a WC" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: reviewers.map((r2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: r2.id, children: [
             r2.name,
             r2.watch ? ` (${r2.watch})` : ""

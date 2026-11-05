@@ -23,7 +23,7 @@ export function QuickAddButton() {
 
   // Pages with a tick list down the right of the screen, and the calendar,
   // which has its own "+".
-  if (pathname.startsWith("/tasks") || pathname.startsWith("/hydrants") || pathname.startsWith("/calendar")) return null;
+  if (pathname.startsWith("/tasks") || pathname.startsWith("/hydrants") || pathname.startsWith("/calendar") || pathname.startsWith("/requests")) return null;
 
   const go = (to: string) => {
     setOpen(false);

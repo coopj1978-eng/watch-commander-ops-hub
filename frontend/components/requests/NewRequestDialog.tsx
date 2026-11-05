@@ -71,11 +71,11 @@ function WatchPerson({ watch, onWatch, person, onPerson, exclude, label }: {
   return (
     <div className="grid grid-cols-[110px_minmax(0,1fr)] gap-2">
       <Select value={watch} onValueChange={(w) => { onWatch(w); onPerson(""); }}>
-        <SelectTrigger aria-label={`${label}: watch`}><SelectValue placeholder="Watch" /></SelectTrigger>
+        <SelectTrigger aria-label={`${label}: watch`} className="w-full"><SelectValue placeholder="Watch" /></SelectTrigger>
         <SelectContent>{WATCHES.map((w) => <SelectItem key={w} value={w}>{w}</SelectItem>)}</SelectContent>
       </Select>
       <Select value={person} onValueChange={onPerson} disabled={!watch}>
-        <SelectTrigger aria-label={label}><SelectValue placeholder="Person" /></SelectTrigger>
+        <SelectTrigger aria-label={label} className="w-full"><SelectValue placeholder="Person" /></SelectTrigger>
         <SelectContent>{members.map((m) => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}</SelectContent>
       </Select>
     </div>
@@ -116,7 +116,9 @@ export function NewRequestDialog({ open, onClose, initialType = "flexi", default
   useEffect(() => {
     if (!open) return;
     setType(initialType);
-    setDate(ymd(defaultDate ?? new Date()));
+    // From the calendar it's the day in view; otherwise nothing yet, so no
+    // red checks about today before they've picked a date.
+    setDate(defaultDate ? ymd(defaultDate) : "");
     setDayNight("Day");
     setForOther(false);
     setForWatch("");
@@ -192,6 +194,8 @@ export function NewRequestDialog({ open, onClose, initialType = "flexi", default
         title: "Request sent",
         description: d.request.status === "with_cover"
           ? `${d.request.cover_name} has been asked to confirm. It goes to the WC after that.`
+          : forOther
+          ? "It's with the WC to review. They'll get a notification with the decision."
           : "It's with the WC to review. You'll get a notification with the decision.",
       });
       onCreated?.(d.request.id);
@@ -258,7 +262,7 @@ export function NewRequestDialog({ open, onClose, initialType = "flexi", default
                   <Input aria-label="Payroll number" placeholder="Payroll number" value={coverPayroll} onChange={(e) => setCoverPayroll(e.target.value)} />
                   <Input aria-label="Station" placeholder="Station" value={coverStation} onChange={(e) => setCoverStation(e.target.value)} />
                   <Select value={coverOtherWatch} onValueChange={setCoverOtherWatch}>
-                    <SelectTrigger aria-label="Their watch"><SelectValue placeholder="Watch" /></SelectTrigger>
+                    <SelectTrigger aria-label="Their watch" className="w-full"><SelectValue placeholder="Watch" /></SelectTrigger>
                     <SelectContent>{WATCHES.map((w) => <SelectItem key={w} value={w}>{w}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
@@ -282,7 +286,7 @@ export function NewRequestDialog({ open, onClose, initialType = "flexi", default
             <div className="space-y-1.5">
               <Label className="text-sm">Which WC should review this?</Label>
               <Select value={reviewer} onValueChange={setReviewer}>
-                <SelectTrigger aria-label="Which WC should review this"><SelectValue placeholder="Choose a WC" /></SelectTrigger>
+                <SelectTrigger aria-label="Which WC should review this" className="w-full"><SelectValue placeholder="Choose a WC" /></SelectTrigger>
                 <SelectContent>
                   {reviewers.map((r) => <SelectItem key={r.id} value={r.id}>{r.name}{r.watch ? ` (${r.watch})` : ""}</SelectItem>)}
                 </SelectContent>
