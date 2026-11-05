@@ -4446,6 +4446,104 @@ export namespace shift_adjustments {
             this.deleteAdjustment = this.deleteAdjustment.bind(this)
             this.list = this.list.bind(this)
             this.update = this.update.bind(this)
+            this.previewRequest = this.previewRequest.bind(this)
+            this.createRequest = this.createRequest.bind(this)
+            this.getRequest = this.getRequest.bind(this)
+            this.confirmCover = this.confirmCover.bind(this)
+            this.decideRequest = this.decideRequest.bind(this)
+            this.recordOutcome = this.recordOutcome.bind(this)
+            this.withdrawRequest = this.withdrawRequest.bind(this)
+            this.addPayback = this.addPayback.bind(this)
+            this.decidePayback = this.decidePayback.bind(this)
+            this.listRequests = this.listRequests.bind(this)
+            this.requestsNeedingMe = this.requestsNeedingMe.bind(this)
+            this.listReviewers = this.listReviewers.bind(this)
+            this.flexiBalances = this.flexiBalances.bind(this)
+            this.setFlexiOpening = this.setFlexiOpening.bind(this)
+            this.setFlexiLimits = this.setFlexiLimits.bind(this)
+        }
+
+        public async previewRequest(params: shift_adjustments.RequestDraft): Promise<shift_adjustments.RequestPreview> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests/preview`, JSON.stringify(params))
+            return await resp.json() as shift_adjustments.RequestPreview
+        }
+
+        public async createRequest(params: shift_adjustments.CreateRequestBody): Promise<shift_adjustments.RequestDetail> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests`, JSON.stringify(params))
+            return await resp.json() as shift_adjustments.RequestDetail
+        }
+
+        public async getRequest(id: number): Promise<shift_adjustments.RequestDetail> {
+            const resp = await this.baseClient.callTypedAPI("GET", `/shift-requests/record/${encodeURIComponent(id)}`)
+            return await resp.json() as shift_adjustments.RequestDetail
+        }
+
+        public async confirmCover(id: number, params: { agreed: boolean, note?: string }): Promise<shift_adjustments.RequestDetail> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests/${encodeURIComponent(id)}/confirm-cover`, JSON.stringify(params))
+            return await resp.json() as shift_adjustments.RequestDetail
+        }
+
+        public async decideRequest(id: number, params: shift_adjustments.DecideBody): Promise<shift_adjustments.RequestDetail> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests/${encodeURIComponent(id)}/decide`, JSON.stringify(params))
+            return await resp.json() as shift_adjustments.RequestDetail
+        }
+
+        public async recordOutcome(id: number, params: shift_adjustments.OutcomeBody): Promise<shift_adjustments.RequestDetail> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests/${encodeURIComponent(id)}/outcome`, JSON.stringify(params))
+            return await resp.json() as shift_adjustments.RequestDetail
+        }
+
+        public async withdrawRequest(id: number, params: { reason?: string }): Promise<shift_adjustments.RequestDetail> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests/${encodeURIComponent(id)}/withdraw`, JSON.stringify(params))
+            return await resp.json() as shift_adjustments.RequestDetail
+        }
+
+        public async addPayback(id: number, params: { "payback_date": string, "payback_day_night": shift_adjustments.DayNight }): Promise<shift_adjustments.RequestDetail> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests/${encodeURIComponent(id)}/payback`, JSON.stringify(params))
+            return await resp.json() as shift_adjustments.RequestDetail
+        }
+
+        public async decidePayback(id: number, params: { authorised: boolean, comments?: string }): Promise<shift_adjustments.RequestDetail> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests/${encodeURIComponent(id)}/payback-decision`, JSON.stringify(params))
+            return await resp.json() as shift_adjustments.RequestDetail
+        }
+
+        public async listRequests(params: { scope: "review" | "mine" | "records", year?: number }): Promise<{ requests: shift_adjustments.ShiftRequest[] }> {
+            const query = makeRecord<string, string | string[]>({
+                scope: params.scope,
+                year:  params.year === undefined ? undefined : String(params.year),
+            })
+            const resp = await this.baseClient.callTypedAPI("GET", `/shift-requests`, undefined, {query})
+            return await resp.json() as { requests: shift_adjustments.ShiftRequest[] }
+        }
+
+        public async requestsNeedingMe(): Promise<{ "to_review": number, "to_confirm": number, "to_record": number }> {
+            const resp = await this.baseClient.callTypedAPI("GET", `/shift-requests/needs-me`)
+            return await resp.json() as { "to_review": number, "to_confirm": number, "to_record": number }
+        }
+
+        public async listReviewers(): Promise<{ reviewers: { id: string, name: string, watch: string | null }[] }> {
+            const resp = await this.baseClient.callTypedAPI("GET", `/shift-requests/reviewers`)
+            return await resp.json() as { reviewers: { id: string, name: string, watch: string | null }[] }
+        }
+
+        public async flexiBalances(params: { watch?: string, year?: number }): Promise<shift_adjustments.FlexiBalances> {
+            const query = makeRecord<string, string | string[]>({
+                watch: params.watch,
+                year:  params.year === undefined ? undefined : String(params.year),
+            })
+            const resp = await this.baseClient.callTypedAPI("GET", `/shift-requests/balances`, undefined, {query})
+            return await resp.json() as shift_adjustments.FlexiBalances
+        }
+
+        public async setFlexiOpening(params: { "user_id": string, year: number, used: number }): Promise<{ ok: boolean }> {
+            const resp = await this.baseClient.callTypedAPI("PUT", `/shift-requests/balances`, JSON.stringify(params))
+            return await resp.json() as { ok: boolean }
+        }
+
+        public async setFlexiLimits(params: shift_adjustments.FlexiLimits): Promise<shift_adjustments.FlexiLimits> {
+            const resp = await this.baseClient.callTypedAPI("PATCH", `/shift-requests/limits`, JSON.stringify(params))
+            return await resp.json() as shift_adjustments.FlexiLimits
         }
 
         public async create(params: shift_adjustments.CreateShiftAdjustmentRequest): Promise<shift_adjustments.ShiftAdjustment> {
@@ -5469,6 +5567,141 @@ export namespace user {
 }
 
 export namespace shift_adjustments {
+    export type RequestType = "flexi" | "h4h"
+    export type DayNight = "Day" | "Night"
+    export type RequestStatus = "with_cover" | "cover_declined" | "with_wc" | "authorised" | "referred" | "declined" | "approved" | "not_approved" | "withdrawn" | "cancelled"
+    export type RequestOutcome = "authorised" | "referred" | "declined"
+
+    export interface RequestCheck {
+        key: string
+        label: string
+        state: "ok" | "warn" | "fail" | "manual" | "info"
+        detail: string
+        blocks?: boolean
+        managersOnly?: boolean
+    }
+
+    export interface ShiftRequest {
+        id: number
+        type: RequestType
+        status: RequestStatus
+        "user_id": string | null
+        "user_name": string
+        "user_role": string
+        "payroll_number": string | null
+        station: string | null
+        watch: string
+        "shift_date": string
+        "shift_type": string
+        "day_night": DayNight
+        notes: string | null
+        "reviewer_user_id": string | null
+        "reviewer_name": string | null
+        "cover_user_id": string | null
+        "cover_name": string | null
+        "cover_payroll": string | null
+        "cover_station": string | null
+        "cover_watch": string | null
+        "cover_confirmed_at": string | null
+        "cover_confirmed_by_name": string | null
+        "payback_date": string | null
+        "payback_day_night": DayNight | null
+        "payback_watch": string | null
+        "payback_status": "with_wc" | "authorised" | null
+        "payback_signed_by_name": string | null
+        "payback_signed_at": string | null
+        "decided_by_name": string | null
+        "decided_by_role": string | null
+        "decided_at": string | null
+        "wc_comments": string | null
+        "pinch_point": "green" | "white" | "red" | null
+        "over_limit_agreed": boolean
+        "sc_endorsed": boolean
+        checks: RequestCheck[] | null
+        "outcome_at": string | null
+        "outcome_by_name": string | null
+        "outcome_note": string | null
+        "shift_adjustment_id": number | null
+        "payback_adjustment_id": number | null
+        "created_by_name": string
+        "created_at": string
+    }
+
+    export interface RequestDetail {
+        request: ShiftRequest
+        events: { at: string, "by_name": string, action: string, detail: string | null }[]
+        /** Live while it's waiting on a decision, then what the WC saw when they signed. */
+        checks: RequestCheck[]
+        recommended: RequestOutcome | null
+        "kronos_by": string | null
+        can: {
+            decide: boolean
+            "confirm_cover": boolean
+            "record_outcome": boolean
+            withdraw: boolean
+            "add_payback": boolean
+            "decide_payback": boolean
+        }
+    }
+
+    export interface RequestDraft {
+        type: RequestType
+        "shift_date": string
+        "day_night"?: DayNight
+        "for_user_id"?: string
+        "cover_user_id"?: string
+        "cover_name"?: string
+        "payback_date"?: string
+        "payback_day_night"?: DayNight
+    }
+
+    export interface RequestPreview {
+        "shift_type": string
+        "day_night": DayNight
+        "needs_day_night": boolean
+        checks: RequestCheck[]
+        recommended: RequestOutcome | null
+        "kronos_by": string | null
+    }
+
+    export interface CreateRequestBody extends RequestDraft {
+        notes?: string
+        "reviewer_user_id"?: string
+        "cover_payroll"?: string
+        "cover_station"?: string
+        "cover_watch"?: string
+    }
+
+    export interface DecideBody {
+        decision: RequestOutcome
+        comments?: string
+        "pinch_point"?: "green" | "white" | "red"
+        "over_limit_agreed"?: boolean
+        "sc_endorsed"?: boolean
+    }
+
+    export interface OutcomeBody {
+        approved: boolean
+        note?: string
+        "payback_date"?: string
+        "payback_day_night"?: DayNight
+    }
+
+    export interface FlexiLimits {
+        "per_year": number
+        "days_ahead": number
+        "notice_hours": number
+    }
+
+    export interface FlexiBalances {
+        year: number
+        watch: string
+        limits: FlexiLimits
+        "can_edit_limits": boolean
+        "can_edit": boolean
+        people: { "user_id": string, name: string, role: string, opening: number, "in_app": number }[]
+    }
+
     export interface CreateShiftAdjustmentRequest {
         type: ShiftAdjustmentType
         "start_date": string

@@ -23,6 +23,11 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
   async (req) => {
     const auth = getAuthData()!;
 
+    // These need the WC's review first; see requests.ts.
+    if (req.type === "flexi" || req.type === "h4h") {
+      throw APIError.failedPrecondition("Flexi Days and Head for Heads are sent as a request now, so the WC can review them.");
+    }
+
     // WC/CC can log on behalf of another user
     let targetUserId = auth.userID;
     if (req.for_user_id) {
@@ -41,10 +46,6 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
 
     if (!userInfo?.watch_unit) {
       throw APIError.failedPrecondition("The user must have a watch unit assigned before logging a shift adjustment.");
-    }
-
-    if (req.type === "h4h" && !req.covering_user_id && !req.covering_name) {
-      throw APIError.invalidArgument("Head for Head requires a covering person.");
     }
 
     if (req.type === "toil") {
@@ -118,59 +119,6 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
       console.error("Failed to create shift adjustment calendar events:", err);
     }
 
-    // ── H4H Ledger ────────────────────────────────────────────────────────────
-    // Only applies to H4H where the covering person is an in-system user
-    if (req.type === "h4h" && req.covering_user_id) {
-      try {
-        const coveringUser = await db.queryRow<{ name: string }>`
-          SELECT name FROM users WHERE id = ${req.covering_user_id}
-        `;
-
-        if (coveringUser) {
-          // Check: does the covering person already owe the logged-in user a shift?
-          // i.e. creditor = auth.userID (is owed), debtor = covering_user_id (owes us)
-          // If yes → this H4H is the payback, auto-settle and don't create new debt.
-          const existingDebt = await db.queryRow<{ id: number }>`
-            SELECT id FROM h4h_ledger
-            WHERE creditor_user_id = ${targetUserId}
-              AND debtor_user_id   = ${req.covering_user_id}
-              AND status = 'pending'
-            LIMIT 1
-          `;
-
-          if (existingDebt) {
-            // Auto-settle — payback confirmed
-            await db.exec`
-              UPDATE h4h_ledger SET
-                status                      = 'settled',
-                settled_at                  = NOW(),
-                settled_by_user_id          = ${auth.userID},
-                settled_via                 = 'auto',
-                payback_shift_adjustment_id = ${adjustment.id},
-                updated_at                  = NOW()
-              WHERE id = ${existingDebt.id}
-            `;
-          } else {
-            // No existing debt — create a new one:
-            // covering person (creditor) is owed; target user (debtor) owes them
-            await db.exec`
-              INSERT INTO h4h_ledger (
-                creditor_user_id, creditor_name,
-                debtor_user_id,   debtor_name,
-                shift_date, shift_adjustment_id
-              ) VALUES (
-                ${req.covering_user_id}, ${coveringUser.name},
-                ${targetUserId},          ${userInfo.name},
-                ${req.start_date},       ${adjustment.id}
-              )
-            `;
-          }
-        }
-      } catch (err) {
-        console.error("Failed to update H4H ledger:", err);
-      }
-    }
-
     // ── TOIL Ledger — deduct hours ──────────────────────────────────────────────
     // Manual two-row transaction: the shift_adjustment row is already
     // committed at this point. If the spent ledger INSERT fails for any
@@ -241,9 +189,7 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
       `;
 
       const typeLabel =
-        req.type === "flexi"         ? "Flexi Day"     :
         req.type === "training"      ? "Training"      :
-        req.type === "h4h"           ? "Head for Head" :
         req.type === "toil"          ? "TOIL"          :
         req.type === "flexi_payback" ? "Flexi Payback" : "Orange Day";
 
@@ -263,10 +209,7 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
       // recipient knows where the cover is coming from. Only resolved if
       // the cover is an in-system user.
       let coveringWatch: string | null = null;
-      if (
-        (req.type === "h4h" || req.type === "toil") &&
-        req.covering_user_id
-      ) {
+      if (req.type === "toil" && req.covering_user_id) {
         const coverRow = await db.queryRow<{ watch_unit: string | null }>`
           SELECT watch_unit FROM users WHERE id = ${req.covering_user_id}
         `;
@@ -282,9 +225,7 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
       //   "Sam Degg (White Watch) has logged a TOIL for 25/04/2026 · Night
       //    Shift. 16hrs TOIL used. Covered by Daniel Hazlett (Amber Watch)."
       let message = `${userInfo.name} (${userInfo.watch_unit} Watch) has logged a ${typeLabel} for ${dateRange}${shiftLabel}.`;
-      if (req.type === "h4h") {
-        message += ` Covered by ${coverLabel}.`;
-      } else if (req.type === "toil") {
+      if (req.type === "toil") {
         message += ` ${req.toil_hours}hrs TOIL used. Covered by ${coverLabel}.`;
       } else if (isFlexiPayback) {
         message += ` They will cover ${notifyWatch} Watch.`;

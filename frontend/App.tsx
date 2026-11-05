@@ -12,6 +12,7 @@ import Targets from "./pages/Targets";
 import Hydrants from "./pages/Hydrants";
 import References from "./pages/References";
 import Policies from "./pages/Policies";
+import Requests from "./pages/Requests";
 import PolicyQA from "./pages/PolicyQA";
 import Reports from "./pages/Reports";
 import QuarterlyReport from "./pages/QuarterlyReport";
@@ -205,6 +206,7 @@ function AppRoutes() {
         <Route path="/targets" element={<Targets />} />
         <Route path="/hydrants" element={<Hydrants />} />
         <Route path="/references" element={<References />} />
+        <Route path="/requests" element={<Requests />} />
         <Route path="/policies" element={<Policies />} />
         {/* Q&A is a stub (fakes RAG responses). Route hidden until real
             vector-based search is wired up — see policy/ask.ts for the TODO.

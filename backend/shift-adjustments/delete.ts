@@ -2,6 +2,7 @@ import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import { logActivity } from "../logging/logger";
 import { canModifyAdjustment, cascadeDeleteAdjustment, loadAdjustment } from "./events";
+import { noteBookingRemoved } from "./requests";
 
 interface DeleteShiftAdjustmentRequest {
   id: number;
@@ -21,6 +22,7 @@ export const deleteAdjustment = api<DeleteShiftAdjustmentRequest, void>(
       );
     }
 
+    await noteBookingRemoved(req.id, auth.userID);
     await cascadeDeleteAdjustment(existing);
 
     await logActivity({

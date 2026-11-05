@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import type { shift_adjustments } from "@/client";
 import { CALENDAR_EVENTS_KEY } from "@/lib/calendarQueries";
+import { NewRequestDialog } from "@/components/requests/NewRequestDialog";
 
 type AdjType = shift_adjustments.ShiftAdjustmentType;
 
@@ -104,6 +105,8 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
     : new Date().toISOString().split("T")[0];
 
   const [type, setType] = useState<AdjType | null>(null);
+  // Flexi and Head for Head are requests the WC reviews, not just logged.
+  const [requestType, setRequestType] = useState<"flexi" | "h4h" | null>(null);
   const [startDate, setStartDate] = useState(today);
   const [endDate, setEndDate] = useState(today);
   const [notes, setNotes] = useState("");
@@ -147,6 +150,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
       setStartDate(d);
       setEndDate(d);
       setType(null);
+      setRequestType(null);
       setNotes("");
       setEditingId(null);
       setEditingAdj(null);
@@ -380,7 +384,14 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
   });
 
   return (
-    <Dialog open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
+    <>
+    <NewRequestDialog
+      open={open && !!requestType}
+      initialType={requestType ?? "flexi"}
+      defaultDate={defaultDate}
+      onClose={onClose}
+    />
+    <Dialog open={open && !requestType} onOpenChange={(o) => { if (!o) onClose(); }}>
       <DialogContent className="sm:max-w-md p-0 overflow-hidden">
         <DialogHeader className="px-5 pt-5 pb-3 border-b border-border">
           <DialogTitle className="flex items-center gap-2 text-base">
@@ -412,7 +423,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
                   <button
                     key={key}
                     type="button"
-                    onClick={() => setType(key)}
+                    onClick={() => key === "flexi" || key === "h4h" ? setRequestType(key) : setType(key)}
                     className={`
                       flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all text-center
                       ${selected
@@ -422,6 +433,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
                   >
                     <Icon className="h-5 w-5" />
                     <span className="text-xs font-semibold leading-tight">{cfg.label}</span>
+                    {(key === "flexi" || key === "h4h") && <span className="text-[11px] leading-tight">Request to the WC</span>}
                   </button>
                 );
               })}
@@ -808,5 +820,6 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
         </div>
       </DialogContent>
     </Dialog>
+    </>
   );
 }

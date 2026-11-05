@@ -5,6 +5,7 @@ import {
   CalendarPlus,
   CheckSquare,
   ClipboardList,
+  FileCheck,
   FileHeart,
   FileText,
   Flame,
@@ -31,7 +32,7 @@ import { useFeatureFlags, type FeatureFlags } from "@/lib/feature-flags";
 // here, so a new page is added once.
 // ──────────────────────────────────────────────────────────────────────────────
 
-export type NavBadgeKey = "tasks" | "people" | "bulletins";
+export type NavBadgeKey = "tasks" | "people" | "bulletins" | "requests";
 
 export interface NavItem {
   name: string;
@@ -70,6 +71,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "Crew",
     items: [
       { name: "People",      path: "/people",      icon: Users,         featureKey: "people", shortcut: "P", badge: "people", keywords: "crew staff firefighters profiles" },
+      { name: "Requests",    path: "/requests",    icon: FileCheck,     badge: "requests", keywords: "flexi day head for head h4h swap annual leave move kronos authorise decline records" },
       { name: "Bulletins",   path: "/bulletins",   icon: Megaphone,     badge: "bulletins", keywords: "news announcements messages" },
       { name: "Training",    path: "/training",    icon: GraduationCap, keywords: "courses skills certificates" },
       { name: "Detachments", path: "/detachments", icon: Navigation,    featureKey: "detachments", keywords: "detached duty rota" },

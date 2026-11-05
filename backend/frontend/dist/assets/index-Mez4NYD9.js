@@ -15205,6 +15205,9 @@ function replaceData(prevData, data, options) {
   }
   return data;
 }
+function keepPreviousData(previousData) {
+  return previousData;
+}
 function addToEnd(items, item, max2 = 0) {
   const newItems = [...items, item];
   return max2 && newItems.length > max2 ? newItems.slice(1) : newItems;
@@ -19600,12 +19603,25 @@ const createLucideIcon = (iconName, iconNode) => {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$2l = [
+const __iconNode$2m = [
   ["path", { d: "M15 12H3", key: "6jk70r" }],
   ["path", { d: "M17 18H3", key: "1amg6g" }],
   ["path", { d: "M21 6H3", key: "1jwq7v" }]
 ];
-const AlignLeft = createLucideIcon("align-left", __iconNode$2l);
+const AlignLeft = createLucideIcon("align-left", __iconNode$2m);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$2l = [
+  ["path", { d: "M8 3 4 7l4 4", key: "9rb6wj" }],
+  ["path", { d: "M4 7h16", key: "6tx8e3" }],
+  ["path", { d: "m16 21 4-4-4-4", key: "siv7j2" }],
+  ["path", { d: "M20 17H4", key: "h6l3hr" }]
+];
+const ArrowLeftRight = createLucideIcon("arrow-left-right", __iconNode$2l);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19613,12 +19629,10 @@ const AlignLeft = createLucideIcon("align-left", __iconNode$2l);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2k = [
-  ["path", { d: "M8 3 4 7l4 4", key: "9rb6wj" }],
-  ["path", { d: "M4 7h16", key: "6tx8e3" }],
-  ["path", { d: "m16 21 4-4-4-4", key: "siv7j2" }],
-  ["path", { d: "M20 17H4", key: "h6l3hr" }]
+  ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
+  ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowLeftRight = createLucideIcon("arrow-left-right", __iconNode$2k);
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$2k);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19626,10 +19640,12 @@ const ArrowLeftRight = createLucideIcon("arrow-left-right", __iconNode$2k);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2j = [
-  ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
-  ["path", { d: "M19 12H5", key: "x3x0zl" }]
+  ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
+  ["path", { d: "M20 7H4", key: "zbl0bi" }],
+  ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
+  ["path", { d: "M4 17h16", key: "g4d7ey" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$2j);
+const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$2j);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19637,12 +19653,10 @@ const ArrowLeft = createLucideIcon("arrow-left", __iconNode$2j);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2i = [
-  ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
-  ["path", { d: "M20 7H4", key: "zbl0bi" }],
-  ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
-  ["path", { d: "M4 17h16", key: "g4d7ey" }]
+  ["path", { d: "M5 12h14", key: "1ays0h" }],
+  ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$2i);
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$2i);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19650,17 +19664,6 @@ const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$2i);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2h = [
-  ["path", { d: "M5 12h14", key: "1ays0h" }],
-  ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
-];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$2h);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$2g = [
   [
     "path",
     {
@@ -19670,7 +19673,18 @@ const __iconNode$2g = [
   ],
   ["circle", { cx: "12", cy: "8", r: "6", key: "1vp47v" }]
 ];
-const Award = createLucideIcon("award", __iconNode$2g);
+const Award = createLucideIcon("award", __iconNode$2h);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$2g = [
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["path", { d: "m4.9 4.9 14.2 14.2", key: "1m5liu" }]
+];
+const Ban = createLucideIcon("ban", __iconNode$2g);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19678,10 +19692,12 @@ const Award = createLucideIcon("award", __iconNode$2g);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2f = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["path", { d: "m4.9 4.9 14.2 14.2", key: "1m5liu" }]
+  ["path", { d: "M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8", key: "1k78r4" }],
+  ["path", { d: "M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4", key: "fb3tl2" }],
+  ["path", { d: "M12 4v6", key: "1dcgq2" }],
+  ["path", { d: "M2 18h20", key: "ajqnye" }]
 ];
-const Ban = createLucideIcon("ban", __iconNode$2f);
+const BedDouble = createLucideIcon("bed-double", __iconNode$2f);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19689,19 +19705,6 @@ const Ban = createLucideIcon("ban", __iconNode$2f);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2e = [
-  ["path", { d: "M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8", key: "1k78r4" }],
-  ["path", { d: "M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4", key: "fb3tl2" }],
-  ["path", { d: "M12 4v6", key: "1dcgq2" }],
-  ["path", { d: "M2 18h20", key: "ajqnye" }]
-];
-const BedDouble = createLucideIcon("bed-double", __iconNode$2e);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$2d = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -19711,14 +19714,14 @@ const __iconNode$2d = [
     }
   ]
 ];
-const Bell = createLucideIcon("bell", __iconNode$2d);
+const Bell = createLucideIcon("bell", __iconNode$2e);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$2c = [
+const __iconNode$2d = [
   ["path", { d: "M10 2v8l3-3 3 3V2", key: "sqw3rj" }],
   [
     "path",
@@ -19728,14 +19731,14 @@ const __iconNode$2c = [
     }
   ]
 ];
-const BookMarked = createLucideIcon("book-marked", __iconNode$2c);
+const BookMarked = createLucideIcon("book-marked", __iconNode$2d);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$2b = [
+const __iconNode$2c = [
   ["path", { d: "M12 7v14", key: "1akyts" }],
   [
     "path",
@@ -19745,14 +19748,14 @@ const __iconNode$2b = [
     }
   ]
 ];
-const BookOpen = createLucideIcon("book-open", __iconNode$2b);
+const BookOpen = createLucideIcon("book-open", __iconNode$2c);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$2a = [
+const __iconNode$2b = [
   ["path", { d: "M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z", key: "1b4qmf" }],
   ["path", { d: "M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2", key: "i71pzd" }],
   ["path", { d: "M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2", key: "10jefs" }],
@@ -19761,7 +19764,21 @@ const __iconNode$2a = [
   ["path", { d: "M10 14h4", key: "kelpxr" }],
   ["path", { d: "M10 18h4", key: "1ulq68" }]
 ];
-const Building2 = createLucideIcon("building-2", __iconNode$2a);
+const Building2 = createLucideIcon("building-2", __iconNode$2b);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$2a = [
+  ["path", { d: "M8 2v4", key: "1cmpym" }],
+  ["path", { d: "M16 2v4", key: "4m81vk" }],
+  ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
+  ["path", { d: "M3 10h18", key: "8toen8" }],
+  ["path", { d: "m9 16 2 2 4-4", key: "19s6y9" }]
+];
+const CalendarCheck = createLucideIcon("calendar-check", __iconNode$2a);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19769,20 +19786,6 @@ const Building2 = createLucideIcon("building-2", __iconNode$2a);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$29 = [
-  ["path", { d: "M8 2v4", key: "1cmpym" }],
-  ["path", { d: "M16 2v4", key: "4m81vk" }],
-  ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
-  ["path", { d: "M3 10h18", key: "8toen8" }],
-  ["path", { d: "m9 16 2 2 4-4", key: "19s6y9" }]
-];
-const CalendarCheck = createLucideIcon("calendar-check", __iconNode$29);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$28 = [
   ["path", { d: "M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5", key: "1osxxc" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["path", { d: "M8 2v4", key: "1cmpym" }],
@@ -19790,14 +19793,14 @@ const __iconNode$28 = [
   ["path", { d: "M17.5 17.5 16 16.3V14", key: "akvzfd" }],
   ["circle", { cx: "16", cy: "16", r: "6", key: "qoo3c4" }]
 ];
-const CalendarClock = createLucideIcon("calendar-clock", __iconNode$28);
+const CalendarClock = createLucideIcon("calendar-clock", __iconNode$29);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$27 = [
+const __iconNode$28 = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
@@ -19809,14 +19812,14 @@ const __iconNode$27 = [
   ["path", { d: "M12 18h.01", key: "mhygvu" }],
   ["path", { d: "M16 18h.01", key: "kzsmim" }]
 ];
-const CalendarDays = createLucideIcon("calendar-days", __iconNode$27);
+const CalendarDays = createLucideIcon("calendar-days", __iconNode$28);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$26 = [
+const __iconNode$27 = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["path", { d: "M21 13V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8", key: "3spt84" }],
@@ -19824,14 +19827,14 @@ const __iconNode$26 = [
   ["path", { d: "M16 19h6", key: "xwg31i" }],
   ["path", { d: "M19 16v6", key: "tddt3s" }]
 ];
-const CalendarPlus = createLucideIcon("calendar-plus", __iconNode$26);
+const CalendarPlus = createLucideIcon("calendar-plus", __iconNode$27);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$25 = [
+const __iconNode$26 = [
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["path", { d: "M3 10h18", key: "8toen8" }],
@@ -19841,7 +19844,20 @@ const __iconNode$25 = [
   ["path", { d: "M7 14h.01", key: "1qa3f1" }],
   ["path", { d: "M17 18h.01", key: "1bdyru" }]
 ];
-const CalendarRange = createLucideIcon("calendar-range", __iconNode$25);
+const CalendarRange = createLucideIcon("calendar-range", __iconNode$26);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$25 = [
+  ["path", { d: "M8 2v4", key: "1cmpym" }],
+  ["path", { d: "M16 2v4", key: "4m81vk" }],
+  ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
+  ["path", { d: "M3 10h18", key: "8toen8" }]
+];
+const Calendar = createLucideIcon("calendar", __iconNode$25);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19849,19 +19865,6 @@ const CalendarRange = createLucideIcon("calendar-range", __iconNode$25);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$24 = [
-  ["path", { d: "M8 2v4", key: "1cmpym" }],
-  ["path", { d: "M16 2v4", key: "4m81vk" }],
-  ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
-  ["path", { d: "M3 10h18", key: "8toen8" }]
-];
-const Calendar = createLucideIcon("calendar", __iconNode$24);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$23 = [
   [
     "path",
     {
@@ -19871,7 +19874,20 @@ const __iconNode$23 = [
   ],
   ["circle", { cx: "12", cy: "13", r: "3", key: "1vg3eu" }]
 ];
-const Camera = createLucideIcon("camera", __iconNode$23);
+const Camera = createLucideIcon("camera", __iconNode$24);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$23 = [
+  ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
+  ["path", { d: "M18 17V9", key: "2bz60n" }],
+  ["path", { d: "M13 17V5", key: "1frdt8" }],
+  ["path", { d: "M8 17v-3", key: "17ska0" }]
+];
+const ChartColumn = createLucideIcon("chart-column", __iconNode$23);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19879,12 +19895,11 @@ const Camera = createLucideIcon("camera", __iconNode$23);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$22 = [
-  ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
-  ["path", { d: "M18 17V9", key: "2bz60n" }],
-  ["path", { d: "M13 17V5", key: "1frdt8" }],
-  ["path", { d: "M8 17v-3", key: "17ska0" }]
+  ["line", { x1: "18", x2: "18", y1: "20", y2: "10", key: "1xfpm4" }],
+  ["line", { x1: "12", x2: "12", y1: "20", y2: "4", key: "be30l9" }],
+  ["line", { x1: "6", x2: "6", y1: "20", y2: "14", key: "1r4le6" }]
 ];
-const ChartColumn = createLucideIcon("chart-column", __iconNode$22);
+const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$22);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19892,11 +19907,10 @@ const ChartColumn = createLucideIcon("chart-column", __iconNode$22);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$21 = [
-  ["line", { x1: "18", x2: "18", y1: "20", y2: "10", key: "1xfpm4" }],
-  ["line", { x1: "12", x2: "12", y1: "20", y2: "4", key: "be30l9" }],
-  ["line", { x1: "6", x2: "6", y1: "20", y2: "14", key: "1r4le6" }]
+  ["path", { d: "M18 6 7 17l-5-5", key: "116fxf" }],
+  ["path", { d: "m22 10-7.5 7.5L13 16", key: "ke71qq" }]
 ];
-const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$21);
+const CheckCheck = createLucideIcon("check-check", __iconNode$21);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19904,17 +19918,6 @@ const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$21
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$20 = [
-  ["path", { d: "M18 6 7 17l-5-5", key: "116fxf" }],
-  ["path", { d: "m22 10-7.5 7.5L13 16", key: "ke71qq" }]
-];
-const CheckCheck = createLucideIcon("check-check", __iconNode$20);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1$ = [
   [
     "path",
     {
@@ -19924,47 +19927,58 @@ const __iconNode$1$ = [
   ],
   ["path", { d: "M6 17h12", key: "1jwigz" }]
 ];
-const ChefHat = createLucideIcon("chef-hat", __iconNode$1$);
+const ChefHat = createLucideIcon("chef-hat", __iconNode$20);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1_ = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$1_);
+const __iconNode$1$ = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$1$);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1Z = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-const ChevronDown = createLucideIcon("chevron-down", __iconNode$1Z);
+const __iconNode$1_ = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+const ChevronDown = createLucideIcon("chevron-down", __iconNode$1_);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1Y = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
-const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1Y);
+const __iconNode$1Z = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
+const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1Z);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1X = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$1X);
+const __iconNode$1Y = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$1Y);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1W = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
-const ChevronUp = createLucideIcon("chevron-up", __iconNode$1W);
+const __iconNode$1X = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
+const ChevronUp = createLucideIcon("chevron-up", __iconNode$1X);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1W = [
+  ["path", { d: "m11 17-5-5 5-5", key: "13zhaf" }],
+  ["path", { d: "m18 17-5-5 5-5", key: "h8a8et" }]
+];
+const ChevronsLeft = createLucideIcon("chevrons-left", __iconNode$1W);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19972,10 +19986,10 @@ const ChevronUp = createLucideIcon("chevron-up", __iconNode$1W);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1V = [
-  ["path", { d: "m11 17-5-5 5-5", key: "13zhaf" }],
-  ["path", { d: "m18 17-5-5 5-5", key: "h8a8et" }]
+  ["path", { d: "m6 17 5-5-5-5", key: "xnjwq" }],
+  ["path", { d: "m13 17 5-5-5-5", key: "17xmmf" }]
 ];
-const ChevronsLeft = createLucideIcon("chevrons-left", __iconNode$1V);
+const ChevronsRight = createLucideIcon("chevrons-right", __iconNode$1V);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19983,10 +19997,10 @@ const ChevronsLeft = createLucideIcon("chevrons-left", __iconNode$1V);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1U = [
-  ["path", { d: "m6 17 5-5-5-5", key: "xnjwq" }],
-  ["path", { d: "m13 17 5-5-5-5", key: "17xmmf" }]
+  ["path", { d: "m7 15 5 5 5-5", key: "1hf1tw" }],
+  ["path", { d: "m7 9 5-5 5 5", key: "sgt6xg" }]
 ];
-const ChevronsRight = createLucideIcon("chevrons-right", __iconNode$1U);
+const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1U);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19994,10 +20008,11 @@ const ChevronsRight = createLucideIcon("chevrons-right", __iconNode$1U);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1T = [
-  ["path", { d: "m7 15 5 5 5-5", key: "1hf1tw" }],
-  ["path", { d: "m7 9 5-5 5 5", key: "sgt6xg" }]
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
+  ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
 ];
-const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1T);
+const CircleAlert = createLucideIcon("circle-alert", __iconNode$1T);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20006,10 +20021,9 @@ const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1T);
  */
 const __iconNode$1S = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
-  ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
+  ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const CircleAlert = createLucideIcon("circle-alert", __iconNode$1S);
+const CircleCheck = createLucideIcon("circle-check", __iconNode$1S);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20017,10 +20031,10 @@ const CircleAlert = createLucideIcon("circle-alert", __iconNode$1S);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1R = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
+  ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
+  ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
 ];
-const CircleCheck = createLucideIcon("circle-check", __iconNode$1R);
+const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1R);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20028,17 +20042,6 @@ const CircleCheck = createLucideIcon("circle-check", __iconNode$1R);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1Q = [
-  ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
-  ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
-];
-const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1Q);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1P = [
   ["path", { d: "M10.1 2.182a10 10 0 0 1 3.8 0", key: "5ilxe3" }],
   ["path", { d: "M13.9 21.818a10 10 0 0 1-3.8 0", key: "11zvb9" }],
   ["path", { d: "M17.609 3.721a10 10 0 0 1 2.69 2.7", key: "1iw5b2" }],
@@ -20048,7 +20051,19 @@ const __iconNode$1P = [
   ["path", { d: "M3.721 6.391a10 10 0 0 1 2.7-2.69", key: "1mcia2" }],
   ["path", { d: "M6.391 20.279a10 10 0 0 1-2.69-2.7", key: "1fvljs" }]
 ];
-const CircleDashed = createLucideIcon("circle-dashed", __iconNode$1P);
+const CircleDashed = createLucideIcon("circle-dashed", __iconNode$1Q);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1P = [
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["circle", { cx: "12", cy: "10", r: "3", key: "ilqhr7" }],
+  ["path", { d: "M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662", key: "154egf" }]
+];
+const CircleUser = createLucideIcon("circle-user", __iconNode$1P);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20057,30 +20072,36 @@ const CircleDashed = createLucideIcon("circle-dashed", __iconNode$1P);
  */
 const __iconNode$1O = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["circle", { cx: "12", cy: "10", r: "3", key: "ilqhr7" }],
-  ["path", { d: "M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662", key: "154egf" }]
-];
-const CircleUser = createLucideIcon("circle-user", __iconNode$1O);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1N = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
   ["path", { d: "m9 9 6 6", key: "z0biqf" }]
 ];
-const CircleX = createLucideIcon("circle-x", __iconNode$1N);
+const CircleX = createLucideIcon("circle-x", __iconNode$1O);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1M = [["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]];
-const Circle = createLucideIcon("circle", __iconNode$1M);
+const __iconNode$1N = [["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]];
+const Circle = createLucideIcon("circle", __iconNode$1N);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1M = [
+  ["rect", { width: "8", height: "4", x: "8", y: "2", rx: "1", ry: "1", key: "tgr4d6" }],
+  [
+    "path",
+    {
+      d: "M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2",
+      key: "116196"
+    }
+  ],
+  ["path", { d: "m9 14 2 2 4-4", key: "df797q" }]
+];
+const ClipboardCheck = createLucideIcon("clipboard-check", __iconNode$1M);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20096,9 +20117,12 @@ const __iconNode$1L = [
       key: "116196"
     }
   ],
-  ["path", { d: "m9 14 2 2 4-4", key: "df797q" }]
+  ["path", { d: "M12 11h4", key: "1jrz19" }],
+  ["path", { d: "M12 16h4", key: "n85exb" }],
+  ["path", { d: "M8 11h.01", key: "1dfujw" }],
+  ["path", { d: "M8 16h.01", key: "18s6g9" }]
 ];
-const ClipboardCheck = createLucideIcon("clipboard-check", __iconNode$1L);
+const ClipboardList = createLucideIcon("clipboard-list", __iconNode$1L);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20114,12 +20138,10 @@ const __iconNode$1K = [
       key: "116196"
     }
   ],
-  ["path", { d: "M12 11h4", key: "1jrz19" }],
-  ["path", { d: "M12 16h4", key: "n85exb" }],
-  ["path", { d: "M8 11h.01", key: "1dfujw" }],
-  ["path", { d: "M8 16h.01", key: "18s6g9" }]
+  ["path", { d: "M9 14h6", key: "159ibu" }],
+  ["path", { d: "M12 17v-6", key: "1y8rbf" }]
 ];
-const ClipboardList = createLucideIcon("clipboard-list", __iconNode$1K);
+const ClipboardPlus = createLucideIcon("clipboard-plus", __iconNode$1K);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20127,18 +20149,10 @@ const ClipboardList = createLucideIcon("clipboard-list", __iconNode$1K);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1J = [
-  ["rect", { width: "8", height: "4", x: "8", y: "2", rx: "1", ry: "1", key: "tgr4d6" }],
-  [
-    "path",
-    {
-      d: "M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2",
-      key: "116196"
-    }
-  ],
-  ["path", { d: "M9 14h6", key: "159ibu" }],
-  ["path", { d: "M12 17v-6", key: "1y8rbf" }]
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["polyline", { points: "12 6 12 12 16 14", key: "68esgv" }]
 ];
-const ClipboardPlus = createLucideIcon("clipboard-plus", __iconNode$1J);
+const Clock = createLucideIcon("clock", __iconNode$1J);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20146,17 +20160,6 @@ const ClipboardPlus = createLucideIcon("clipboard-plus", __iconNode$1J);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1I = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["polyline", { points: "12 6 12 12 16 14", key: "68esgv" }]
-];
-const Clock = createLucideIcon("clock", __iconNode$1I);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1H = [
   ["path", { d: "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242", key: "1pljnt" }],
   ["path", { d: "M8 19v1", key: "1dk2by" }],
   ["path", { d: "M8 14v1", key: "84yxot" }],
@@ -20165,7 +20168,19 @@ const __iconNode$1H = [
   ["path", { d: "M12 21v1", key: "q8vafk" }],
   ["path", { d: "M12 16v1", key: "1mx6rx" }]
 ];
-const CloudDrizzle = createLucideIcon("cloud-drizzle", __iconNode$1H);
+const CloudDrizzle = createLucideIcon("cloud-drizzle", __iconNode$1I);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1H = [
+  ["path", { d: "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242", key: "1pljnt" }],
+  ["path", { d: "M16 17H7", key: "pygtm1" }],
+  ["path", { d: "M17 21H9", key: "1u2q02" }]
+];
+const CloudFog = createLucideIcon("cloud-fog", __iconNode$1H);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20173,11 +20188,10 @@ const CloudDrizzle = createLucideIcon("cloud-drizzle", __iconNode$1H);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1G = [
-  ["path", { d: "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242", key: "1pljnt" }],
-  ["path", { d: "M16 17H7", key: "pygtm1" }],
-  ["path", { d: "M17 21H9", key: "1u2q02" }]
+  ["path", { d: "M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.973", key: "1cez44" }],
+  ["path", { d: "m13 12-3 5h4l-3 5", key: "1t22er" }]
 ];
-const CloudFog = createLucideIcon("cloud-fog", __iconNode$1G);
+const CloudLightning = createLucideIcon("cloud-lightning", __iconNode$1G);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20185,10 +20199,10 @@ const CloudFog = createLucideIcon("cloud-fog", __iconNode$1G);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1F = [
-  ["path", { d: "M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.973", key: "1cez44" }],
-  ["path", { d: "m13 12-3 5h4l-3 5", key: "1t22er" }]
+  ["path", { d: "M10.188 8.5A6 6 0 0 1 16 4a1 1 0 0 0 6 6 6 6 0 0 1-3 5.197", key: "erj67n" }],
+  ["path", { d: "M13 16a3 3 0 1 1 0 6H7a5 5 0 1 1 4.9-6Z", key: "p44pc9" }]
 ];
-const CloudLightning = createLucideIcon("cloud-lightning", __iconNode$1F);
+const CloudMoon = createLucideIcon("cloud-moon", __iconNode$1F);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20196,10 +20210,12 @@ const CloudLightning = createLucideIcon("cloud-lightning", __iconNode$1F);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1E = [
-  ["path", { d: "M10.188 8.5A6 6 0 0 1 16 4a1 1 0 0 0 6 6 6 6 0 0 1-3 5.197", key: "erj67n" }],
-  ["path", { d: "M13 16a3 3 0 1 1 0 6H7a5 5 0 1 1 4.9-6Z", key: "p44pc9" }]
+  ["path", { d: "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242", key: "1pljnt" }],
+  ["path", { d: "M16 14v6", key: "1j4efv" }],
+  ["path", { d: "M8 14v6", key: "17c4r9" }],
+  ["path", { d: "M12 16v6", key: "c8a4gj" }]
 ];
-const CloudMoon = createLucideIcon("cloud-moon", __iconNode$1E);
+const CloudRain = createLucideIcon("cloud-rain", __iconNode$1E);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20207,19 +20223,6 @@ const CloudMoon = createLucideIcon("cloud-moon", __iconNode$1E);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1D = [
-  ["path", { d: "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242", key: "1pljnt" }],
-  ["path", { d: "M16 14v6", key: "1j4efv" }],
-  ["path", { d: "M8 14v6", key: "17c4r9" }],
-  ["path", { d: "M12 16v6", key: "c8a4gj" }]
-];
-const CloudRain = createLucideIcon("cloud-rain", __iconNode$1D);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1C = [
   ["path", { d: "M12 2v2", key: "tus03m" }],
   ["path", { d: "m4.93 4.93 1.41 1.41", key: "149t6j" }],
   ["path", { d: "M20 12h2", key: "1q8mjw" }],
@@ -20227,7 +20230,17 @@ const __iconNode$1C = [
   ["path", { d: "M15.947 12.65a4 4 0 0 0-5.925-4.128", key: "dpwdj0" }],
   ["path", { d: "M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z", key: "s09mg5" }]
 ];
-const CloudSun = createLucideIcon("cloud-sun", __iconNode$1C);
+const CloudSun = createLucideIcon("cloud-sun", __iconNode$1D);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1C = [
+  ["path", { d: "M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z", key: "p7xjir" }]
+];
+const Cloud = createLucideIcon("cloud", __iconNode$1C);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20235,9 +20248,10 @@ const CloudSun = createLucideIcon("cloud-sun", __iconNode$1C);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1B = [
-  ["path", { d: "M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z", key: "p7xjir" }]
+  ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
+  ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
 ];
-const Cloud = createLucideIcon("cloud", __iconNode$1B);
+const Copy = createLucideIcon("copy", __iconNode$1B);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20245,10 +20259,10 @@ const Cloud = createLucideIcon("cloud", __iconNode$1B);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1A = [
-  ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
-  ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
+  ["polyline", { points: "9 10 4 15 9 20", key: "r3jprv" }],
+  ["path", { d: "M20 4v7a4 4 0 0 1-4 4H4", key: "6o5b7l" }]
 ];
-const Copy = createLucideIcon("copy", __iconNode$1A);
+const CornerDownLeft = createLucideIcon("corner-down-left", __iconNode$1A);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20256,10 +20270,11 @@ const Copy = createLucideIcon("copy", __iconNode$1A);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1z = [
-  ["polyline", { points: "9 10 4 15 9 20", key: "r3jprv" }],
-  ["path", { d: "M20 4v7a4 4 0 0 1-4 4H4", key: "6o5b7l" }]
+  ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
+  ["polyline", { points: "7 10 12 15 17 10", key: "2ggqvy" }],
+  ["line", { x1: "12", x2: "12", y1: "15", y2: "3", key: "1vk2je" }]
 ];
-const CornerDownLeft = createLucideIcon("corner-down-left", __iconNode$1z);
+const Download = createLucideIcon("download", __iconNode$1z);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20267,18 +20282,6 @@ const CornerDownLeft = createLucideIcon("corner-down-left", __iconNode$1z);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1y = [
-  ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
-  ["polyline", { points: "7 10 12 15 17 10", key: "2ggqvy" }],
-  ["line", { x1: "12", x2: "12", y1: "15", y2: "3", key: "1vk2je" }]
-];
-const Download = createLucideIcon("download", __iconNode$1y);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1x = [
   [
     "path",
     {
@@ -20294,7 +20297,19 @@ const __iconNode$1x = [
     }
   ]
 ];
-const Droplets = createLucideIcon("droplets", __iconNode$1x);
+const Droplets = createLucideIcon("droplets", __iconNode$1y);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1x = [
+  ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }],
+  ["circle", { cx: "19", cy: "12", r: "1", key: "1wjl8i" }],
+  ["circle", { cx: "5", cy: "12", r: "1", key: "1pcz8c" }]
+];
+const Ellipsis = createLucideIcon("ellipsis", __iconNode$1x);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20302,11 +20317,11 @@ const Droplets = createLucideIcon("droplets", __iconNode$1x);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1w = [
-  ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }],
-  ["circle", { cx: "19", cy: "12", r: "1", key: "1wjl8i" }],
-  ["circle", { cx: "5", cy: "12", r: "1", key: "1pcz8c" }]
+  ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
+  ["path", { d: "M10 14 21 3", key: "gplh6r" }],
+  ["path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6", key: "a6xqqp" }]
 ];
-const Ellipsis = createLucideIcon("ellipsis", __iconNode$1w);
+const ExternalLink = createLucideIcon("external-link", __iconNode$1w);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20314,18 +20329,6 @@ const Ellipsis = createLucideIcon("ellipsis", __iconNode$1w);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1v = [
-  ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
-  ["path", { d: "M10 14 21 3", key: "gplh6r" }],
-  ["path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6", key: "a6xqqp" }]
-];
-const ExternalLink = createLucideIcon("external-link", __iconNode$1v);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1u = [
   [
     "path",
     {
@@ -20343,14 +20346,14 @@ const __iconNode$1u = [
   ],
   ["path", { d: "m2 2 20 20", key: "1ooewy" }]
 ];
-const EyeOff = createLucideIcon("eye-off", __iconNode$1u);
+const EyeOff = createLucideIcon("eye-off", __iconNode$1v);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1t = [
+const __iconNode$1u = [
   [
     "path",
     {
@@ -20360,7 +20363,19 @@ const __iconNode$1t = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Eye = createLucideIcon("eye", __iconNode$1t);
+const Eye = createLucideIcon("eye", __iconNode$1u);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1t = [
+  ["path", { d: "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z", key: "1rqfz7" }],
+  ["path", { d: "M14 2v4a2 2 0 0 0 2 2h4", key: "tnqrlb" }],
+  ["path", { d: "m9 15 2 2 4-4", key: "1grp1n" }]
+];
+const FileCheck = createLucideIcon("file-check", __iconNode$1t);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -29049,7 +29064,7 @@ var Root3 = Menu;
 var Anchor2 = MenuAnchor;
 var Portal$2 = MenuPortal;
 var Content2$3 = MenuContent;
-var Group = MenuGroup;
+var Group$1 = MenuGroup;
 var Label$2 = MenuLabel;
 var Item2$1 = MenuItem;
 var CheckboxItem = MenuCheckboxItem;
@@ -29193,7 +29208,7 @@ var DropdownMenuGroup = reactExports.forwardRef(
   (props, forwardedRef) => {
     const { __scopeDropdownMenu, ...groupProps } = props;
     const menuScope = useMenuScope(__scopeDropdownMenu);
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(Group, { ...menuScope, ...groupProps, ref: forwardedRef });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(Group$1, { ...menuScope, ...groupProps, ref: forwardedRef });
   }
 );
 DropdownMenuGroup.displayName = GROUP_NAME$1;
@@ -31081,6 +31096,89 @@ var shift_adjustments;
       this.deleteAdjustment = this.deleteAdjustment.bind(this);
       this.list = this.list.bind(this);
       this.update = this.update.bind(this);
+      this.previewRequest = this.previewRequest.bind(this);
+      this.createRequest = this.createRequest.bind(this);
+      this.getRequest = this.getRequest.bind(this);
+      this.confirmCover = this.confirmCover.bind(this);
+      this.decideRequest = this.decideRequest.bind(this);
+      this.recordOutcome = this.recordOutcome.bind(this);
+      this.withdrawRequest = this.withdrawRequest.bind(this);
+      this.addPayback = this.addPayback.bind(this);
+      this.decidePayback = this.decidePayback.bind(this);
+      this.listRequests = this.listRequests.bind(this);
+      this.requestsNeedingMe = this.requestsNeedingMe.bind(this);
+      this.listReviewers = this.listReviewers.bind(this);
+      this.flexiBalances = this.flexiBalances.bind(this);
+      this.setFlexiOpening = this.setFlexiOpening.bind(this);
+      this.setFlexiLimits = this.setFlexiLimits.bind(this);
+    }
+    async previewRequest(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests/preview`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async createRequest(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async getRequest(id) {
+      const resp = await this.baseClient.callTypedAPI("GET", `/shift-requests/record/${encodeURIComponent(id)}`);
+      return await resp.json();
+    }
+    async confirmCover(id, params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests/${encodeURIComponent(id)}/confirm-cover`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async decideRequest(id, params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests/${encodeURIComponent(id)}/decide`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async recordOutcome(id, params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests/${encodeURIComponent(id)}/outcome`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async withdrawRequest(id, params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests/${encodeURIComponent(id)}/withdraw`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async addPayback(id, params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests/${encodeURIComponent(id)}/payback`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async decidePayback(id, params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests/${encodeURIComponent(id)}/payback-decision`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async listRequests(params) {
+      const query = makeRecord({
+        scope: params.scope,
+        year: params.year === void 0 ? void 0 : String(params.year)
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/shift-requests`, void 0, { query });
+      return await resp.json();
+    }
+    async requestsNeedingMe() {
+      const resp = await this.baseClient.callTypedAPI("GET", `/shift-requests/needs-me`);
+      return await resp.json();
+    }
+    async listReviewers() {
+      const resp = await this.baseClient.callTypedAPI("GET", `/shift-requests/reviewers`);
+      return await resp.json();
+    }
+    async flexiBalances(params) {
+      const query = makeRecord({
+        watch: params.watch,
+        year: params.year === void 0 ? void 0 : String(params.year)
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/shift-requests/balances`, void 0, { query });
+      return await resp.json();
+    }
+    async setFlexiOpening(params) {
+      const resp = await this.baseClient.callTypedAPI("PUT", `/shift-requests/balances`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async setFlexiLimits(params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/shift-requests/limits`, JSON.stringify(params));
+      return await resp.json();
     }
     async create(params) {
       const resp = await this.baseClient.callTypedAPI("POST", `/shift-adjustments`, JSON.stringify(params));
@@ -31829,6 +31927,7 @@ const NAV_GROUPS = [
     label: "Crew",
     items: [
       { name: "People", path: "/people", icon: Users, featureKey: "people", shortcut: "P", badge: "people", keywords: "crew staff firefighters profiles" },
+      { name: "Requests", path: "/requests", icon: FileCheck, badge: "requests", keywords: "flexi day head for head h4h swap annual leave move kronos authorise decline records" },
       { name: "Bulletins", path: "/bulletins", icon: Megaphone, badge: "bulletins", keywords: "news announcements messages" },
       { name: "Training", path: "/training", icon: GraduationCap, keywords: "courses skills certificates" },
       { name: "Detachments", path: "/detachments", icon: Navigation, featureKey: "detachments", keywords: "detached duty rota" }
@@ -31917,7 +32016,19 @@ function useNavBadges() {
     enabled: isManager,
     ...quiet
   });
+  const { data: requests } = useQuery({
+    queryKey: ["shift-requests", "needs-me"],
+    queryFn: () => backendClient.shift_adjustments.requestsNeedingMe(),
+    enabled: !!user2,
+    ...quiet
+  });
   const badges = {};
+  const toSign = (requests == null ? void 0 : requests.to_review) ?? 0;
+  const yours = ((requests == null ? void 0 : requests.to_confirm) ?? 0) + ((requests == null ? void 0 : requests.to_record) ?? 0);
+  if (toSign + yours > 0) {
+    const parts = [toSign > 0 && `${toSign} to review`, yours > 0 && `${yours} waiting on you`].filter(Boolean);
+    badges.requests = { count: toSign + yours, tone: "warn", hint: parts.join(" · ") };
+  }
   const overdue = (crewStats == null ? void 0 : crewStats.overdue_tasks) ?? 0;
   if (overdue > 0) badges.tasks = { count: overdue, tone: "alert", hint: `${overdue} overdue` };
   const news = (unread == null ? void 0 : unread.total) ?? 0;
@@ -37113,6 +37224,11 @@ function WCAlertBanner() {
     queryFn: () => backendClient.absence.listBackToWork({}),
     staleTime: 6e4
   });
+  const { data: requestsData } = useQuery({
+    queryKey: ["shift-requests", "needs-me"],
+    queryFn: () => backendClient.shift_adjustments.requestsNeedingMe(),
+    staleTime: 3e4
+  });
   const hydrantYear = (/* @__PURE__ */ new Date()).getFullYear();
   const { data: hydrantData } = useQuery({
     queryKey: ["hydrants", "route", watch, hydrantYear],
@@ -37264,6 +37380,17 @@ function WCAlertBanner() {
       label: overdueTasks === 1 ? "Overdue task" : "Overdue tasks",
       count: overdueTasks,
       href: "/tasks"
+    });
+  }
+  const requestsToReview = (requestsData == null ? void 0 : requestsData.to_review) ?? 0;
+  if (requestsToReview > 0) {
+    alerts.push({
+      id: "shift-requests",
+      severity: "warning",
+      Icon: ClipboardCheck,
+      label: requestsToReview === 1 ? "Flexi or Head for Head request to review" : "Flexi or Head for Head requests to review",
+      count: requestsToReview,
+      href: "/requests"
     });
   }
   const expiringSoon = (skillsData == null ? void 0 : skillsData.warning_count) ?? 0;
@@ -41979,6 +42106,325 @@ function refreshCalendar(queryClient2) {
   queryClient2.invalidateQueries({ queryKey: [CALENDAR_EVENTS_KEY] });
   queryClient2.invalidateQueries({ queryKey: [CALENDAR_STRENGTH_KEY] });
 }
+const REQUEST_LABEL = {
+  flexi: "Flexi Day",
+  h4h: "Head for Head"
+};
+const STATUS_LABEL = {
+  with_cover: "Waiting for cover to agree",
+  cover_declined: "Cover said no",
+  with_wc: "With the WC",
+  authorised: "Authorised: submit on Kronos",
+  referred: "Referred: submit on Kronos",
+  declined: "Declined by WC",
+  approved: "Approved",
+  not_approved: "Declined on Kronos",
+  withdrawn: "Withdrawn",
+  cancelled: "Cancelled"
+};
+const dayText = (iso2) => (/* @__PURE__ */ new Date(`${iso2}T12:00:00`)).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+const stampText = (at) => new Date(at).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+const deadlineText = (at) => new Date(at).toLocaleString("en-GB", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+function signedAs(r2) {
+  if (!r2.decided_by_name) return "";
+  return r2.decided_by_role === "CC" ? `${r2.decided_by_name} (CC, WC off)` : `${r2.decided_by_name} (${r2.decided_by_role})`;
+}
+function csvCell$1(value) {
+  const text2 = value === null || value === void 0 ? "" : String(value);
+  const safe = /^[=+\-@\t\r]/.test(text2) ? `'${text2}` : text2;
+  return /[",\n\r]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
+}
+const COLUMNS = [
+  ["Ref", (r2) => r2.id],
+  ["Type", (r2) => REQUEST_LABEL[r2.type]],
+  ["Name", (r2) => r2.user_name],
+  ["Role", (r2) => r2.user_role],
+  ["Payroll number", (r2) => r2.payroll_number],
+  ["Station", (r2) => r2.station],
+  ["Watch", (r2) => r2.watch],
+  ["Date requested", (r2) => r2.shift_date],
+  ["Shift", (r2) => r2.shift_type],
+  ["Submitted", (r2) => r2.created_at.slice(0, 10)],
+  ["Status", (r2) => STATUS_LABEL[r2.status]],
+  ["Working H4H", (r2) => r2.cover_name],
+  ["Their payroll number", (r2) => r2.cover_payroll],
+  ["Their station", (r2) => r2.cover_station],
+  ["Their watch", (r2) => r2.cover_watch],
+  ["Signed by", (r2) => signedAs(r2)],
+  ["Signed on", (r2) => {
+    var _a3;
+    return ((_a3 = r2.decided_at) == null ? void 0 : _a3.slice(0, 10)) ?? "";
+  }],
+  ["Pinch point", (r2) => r2.pinch_point],
+  ["WC agreed over limit", (r2) => r2.over_limit_agreed ? "Yes" : ""],
+  ["SC endorsed over limit", (r2) => r2.sc_endorsed ? "Yes" : ""],
+  ["WC comments", (r2) => r2.wc_comments],
+  ["Kronos result recorded", (r2) => {
+    var _a3;
+    return ((_a3 = r2.outcome_at) == null ? void 0 : _a3.slice(0, 10)) ?? "";
+  }],
+  ["Recorded by", (r2) => r2.outcome_by_name],
+  ["Payback date", (r2) => r2.payback_date],
+  ["Payback shift", (r2) => r2.payback_day_night]
+];
+function requestsCsv(rows) {
+  const lines = [COLUMNS.map(([h]) => csvCell$1(h)).join(",")];
+  for (const r2 of rows) lines.push(COLUMNS.map(([, get]) => csvCell$1(get(r2))).join(","));
+  return lines.join("\r\n");
+}
+const LOOK = {
+  ok: { Icon: Check, tone: "text-muted-foreground" },
+  info: { Icon: Info, tone: "text-muted-foreground" },
+  manual: { Icon: Eye, tone: "text-foreground" },
+  warn: { Icon: TriangleAlert, tone: "text-amber-600 dark:text-amber-400" },
+  fail: { Icon: CircleX, tone: "text-red-600 dark:text-red-400" }
+};
+function CheckList({ checks }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "divide-y divide-border rounded-xl border border-border", children: checks.map((c) => {
+    const { Icon: Icon2, tone } = LOOK[c.state];
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex gap-2.5 px-3 py-2.5 text-sm", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: cn("mt-0.5 h-4 w-4 shrink-0", tone), "aria-hidden": true }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium text-foreground", children: c.label }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: cn("text-[13px] leading-snug", c.state === "fail" ? "text-red-700 dark:text-red-300" : "text-muted-foreground"), children: c.detail })
+      ] })
+    ] }, c.key);
+  }) });
+}
+const WATCHES$g = ["Red", "White", "Green", "Blue", "Amber"];
+const pad$2 = (n) => String(n).padStart(2, "0");
+const ymd = (d) => `${d.getFullYear()}-${pad$2(d.getMonth() + 1)}-${pad$2(d.getDate())}`;
+function Toggle({ value, options, onChange, label: label2 }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { role: "radiogroup", "aria-label": label2, className: "flex gap-1.5", children: options.map((o) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "button",
+    {
+      type: "button",
+      role: "radio",
+      "aria-checked": value === o.value,
+      onClick: () => onChange(o.value),
+      className: cn(
+        "h-9 flex-1 rounded-lg border px-3 text-sm font-medium transition-colors",
+        value === o.value ? "border-foreground bg-foreground text-background" : "border-border text-foreground hover:bg-muted"
+      ),
+      children: o.label
+    },
+    o.value
+  )) });
+}
+const DAY_NIGHT$1 = [{ value: "Day", label: "Day" }, { value: "Night", label: "Night" }];
+function WatchPerson({ watch, onWatch, person, onPerson, exclude, label: label2 }) {
+  const { data } = useQuery({
+    queryKey: ["crewing-roster", watch],
+    queryFn: () => backendClient.crewing.roster({ watch }),
+    enabled: !!watch
+  });
+  const members = ((data == null ? void 0 : data.members) ?? []).filter((m) => m.id !== exclude);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-[110px_minmax(0,1fr)] gap-2", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watch, onValueChange: (w) => {
+      onWatch(w);
+      onPerson("");
+    }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { "aria-label": `${label2}: watch`, children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Watch" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$g.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: person, onValueChange: onPerson, disabled: !watch, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { "aria-label": label2, children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Person" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: members.map((m) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: m.id, children: m.name }, m.id)) })
+    ] })
+  ] });
+}
+function NewRequestDialog({ open, onClose, initialType = "flexi", defaultDate, onCreated }) {
+  var _a3;
+  const { user: user2 } = useAuth();
+  const { toast: toast2 } = useToast();
+  const qc = useQueryClient();
+  const isManager = (user2 == null ? void 0 : user2.role) === "WC" || (user2 == null ? void 0 : user2.role) === "CC";
+  const [type, setType] = reactExports.useState(initialType);
+  const [date2, setDate] = reactExports.useState("");
+  const [dayNight, setDayNight] = reactExports.useState("Day");
+  const [forOther, setForOther] = reactExports.useState(false);
+  const [forWatch, setForWatch] = reactExports.useState("");
+  const [forId, setForId] = reactExports.useState("");
+  const [reviewer, setReviewer] = reactExports.useState("");
+  const [coverMode, setCoverMode] = reactExports.useState("app");
+  const [coverWatch, setCoverWatch] = reactExports.useState("");
+  const [coverId, setCoverId] = reactExports.useState("");
+  const [coverName, setCoverName] = reactExports.useState("");
+  const [coverPayroll, setCoverPayroll] = reactExports.useState("");
+  const [coverStation, setCoverStation] = reactExports.useState("");
+  const [coverOtherWatch, setCoverOtherWatch] = reactExports.useState("");
+  const [hasPayback, setHasPayback] = reactExports.useState(false);
+  const [paybackDate, setPaybackDate] = reactExports.useState("");
+  const [paybackShift, setPaybackShift] = reactExports.useState("Day");
+  const [notes, setNotes] = reactExports.useState("");
+  reactExports.useEffect(() => {
+    if (!open) return;
+    setType(initialType);
+    setDate(ymd(defaultDate ?? /* @__PURE__ */ new Date()));
+    setDayNight("Day");
+    setForOther(false);
+    setForWatch("");
+    setForId("");
+    setReviewer("");
+    setCoverMode("app");
+    setCoverWatch("");
+    setCoverId("");
+    setCoverName("");
+    setCoverPayroll("");
+    setCoverStation("");
+    setCoverOtherWatch("");
+    setHasPayback(false);
+    setPaybackDate("");
+    setPaybackShift("Day");
+    setNotes("");
+  }, [open, initialType, defaultDate]);
+  const applicantId = forOther ? forId : (user2 == null ? void 0 : user2.id) ?? "";
+  const { data: forRoster } = useQuery({
+    queryKey: ["crewing-roster", forWatch],
+    queryFn: () => backendClient.crewing.roster({ watch: forWatch }),
+    enabled: forOther && !!forWatch
+  });
+  const applicantRole = forOther ? (_a3 = forRoster == null ? void 0 : forRoster.members.find((m) => m.id === forId)) == null ? void 0 : _a3.system_role : user2 == null ? void 0 : user2.role;
+  const needsReviewer = applicantRole === "WC";
+  const { data: reviewerData } = useQuery({
+    queryKey: ["shift-requests", "reviewers"],
+    queryFn: () => backendClient.shift_adjustments.listReviewers(),
+    enabled: open && needsReviewer
+  });
+  const reviewers = ((reviewerData == null ? void 0 : reviewerData.reviewers) ?? []).filter((r2) => r2.id !== applicantId);
+  const coverReady = type === "flexi" || (coverMode === "app" ? !!coverId : !!coverName.trim());
+  const applicantReady = !forOther || !!forId;
+  const paybackReady = !(type === "h4h" && hasPayback) || !!paybackDate;
+  const draft = {
+    type,
+    shift_date: date2,
+    day_night: dayNight,
+    for_user_id: forOther ? forId : void 0,
+    cover_user_id: type === "h4h" && coverMode === "app" ? coverId || void 0 : void 0,
+    cover_name: type === "h4h" && coverMode === "other" ? coverName.trim() || void 0 : void 0,
+    payback_date: type === "h4h" && hasPayback ? paybackDate || void 0 : void 0,
+    payback_day_night: type === "h4h" && hasPayback ? paybackShift : void 0
+  };
+  const { data: preview, error: previewError } = useQuery({
+    queryKey: ["shift-requests", "preview", draft],
+    queryFn: () => backendClient.shift_adjustments.previewRequest(draft),
+    enabled: open && !!date2 && applicantReady && coverReady && paybackReady,
+    placeholderData: keepPreviousData,
+    retry: false
+  });
+  const blocked = preview == null ? void 0 : preview.checks.some((c) => c.blocks);
+  const canSend = !!date2 && applicantReady && coverReady && paybackReady && !blocked && (!needsReviewer || !!reviewer);
+  const create = useMutation({
+    mutationFn: () => backendClient.shift_adjustments.createRequest({
+      ...draft,
+      notes: notes.trim() || void 0,
+      reviewer_user_id: needsReviewer ? reviewer : void 0,
+      cover_payroll: coverMode === "other" ? coverPayroll.trim() || void 0 : void 0,
+      cover_station: coverMode === "other" ? coverStation.trim() || void 0 : void 0,
+      cover_watch: coverMode === "other" ? coverOtherWatch || void 0 : void 0
+    }),
+    onSuccess: (d) => {
+      qc.invalidateQueries({ queryKey: ["shift-requests"] });
+      toast2({
+        title: "Request sent",
+        description: d.request.status === "with_cover" ? `${d.request.cover_name} has been asked to confirm. It goes to the WC after that.` : "It's with the WC to review. You'll get a notification with the decision."
+      });
+      onCreated == null ? void 0 : onCreated(d.request.id);
+      onClose();
+    },
+    onError: (err2) => toast2({ title: "Couldn't send it", description: err2.message, variant: "destructive" })
+  });
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: (o) => {
+    if (!o) onClose();
+  }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "gap-0 overflow-hidden p-0 sm:max-w-lg", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { className: "border-b border-border px-5 pb-3 pt-5 text-left", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { className: "text-base", children: "New request" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: "The WC reviews it here first. If it's authorised, you then submit it on Kronos." })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-h-[75vh] space-y-4 overflow-y-auto px-5 py-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Toggle, { label: "Type of request", value: type, onChange: setType, options: [
+        { value: "flexi", label: REQUEST_LABEL.flexi },
+        { value: "h4h", label: REQUEST_LABEL.h4h }
+      ] }),
+      isManager && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 text-sm", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Checkbox, { checked: forOther, onCheckedChange: (v) => {
+            setForOther(!!v);
+            setForId("");
+            setReviewer("");
+          } }),
+          "Raise this for someone else"
+        ] }),
+        forOther && /* @__PURE__ */ jsxRuntimeExports.jsx(WatchPerson, { label: "Who it's for", watch: forWatch, onWatch: setForWatch, person: forId, onPerson: setForId })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "req-date", className: "text-sm", children: type === "flexi" ? "Shift you want off" : "Shift to swap" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "req-date", type: "date", value: date2, onChange: (e) => setDate(e.target.value) }),
+        (preview == null ? void 0 : preview.shift_type) && !preview.needs_day_night && /Day|Night/.test(preview.shift_type) && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "mt-1 text-xs text-muted-foreground", children: [
+          preview.shift_type,
+          ", ",
+          preview.day_night === "Night" ? "18:00 to 08:00" : "08:00 to 18:00"
+        ] })
+      ] }),
+      (preview == null ? void 0 : preview.needs_day_night) && type === "h4h" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-sm", children: "That's annual leave. Which shift are you swapping?" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Toggle, { label: "Which shift", value: dayNight, onChange: setDayNight, options: DAY_NIGHT$1 })
+      ] }),
+      type === "h4h" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-sm", children: "Who's working it?" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Toggle, { label: "Where they are", value: coverMode, onChange: setCoverMode, options: [
+            { value: "app", label: "Someone in the app" },
+            { value: "other", label: "Not in the app" }
+          ] })
+        ] }),
+        coverMode === "app" ? /* @__PURE__ */ jsxRuntimeExports.jsx(WatchPerson, { label: "Who's working it", watch: coverWatch, onWatch: setCoverWatch, person: coverId, onPerson: setCoverId, exclude: applicantId }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { "aria-label": "Name", placeholder: "Name", className: "col-span-2", value: coverName, onChange: (e) => setCoverName(e.target.value) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { "aria-label": "Payroll number", placeholder: "Payroll number", value: coverPayroll, onChange: (e) => setCoverPayroll(e.target.value) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { "aria-label": "Station", placeholder: "Station", value: coverStation, onChange: (e) => setCoverStation(e.target.value) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: coverOtherWatch, onValueChange: setCoverOtherWatch, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { "aria-label": "Their watch", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Watch" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$g.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 text-sm", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Checkbox, { checked: hasPayback, onCheckedChange: (v) => setHasPayback(!!v) }),
+            "Payback date already agreed"
+          ] }),
+          hasPayback && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { "aria-label": "Payback date", type: "date", value: paybackDate, onChange: (e) => setPaybackDate(e.target.value) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Toggle, { label: "Payback shift", value: paybackShift, onChange: setPaybackShift, options: DAY_NIGHT$1 })
+          ] })
+        ] })
+      ] }),
+      needsReviewer && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-sm", children: "Which WC should review this?" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: reviewer, onValueChange: setReviewer, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { "aria-label": "Which WC should review this", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Choose a WC" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: reviewers.map((r2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: r2.id, children: [
+            r2.name,
+            r2.watch ? ` (${r2.watch})` : ""
+          ] }, r2.id)) })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "req-notes", className: "text-sm", children: "Note for the WC (optional)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Textarea, { id: "req-notes", rows: 2, value: notes, onChange: (e) => setNotes(e.target.value) })
+      ] }),
+      previewError && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { role: "alert", className: "text-sm text-red-700 dark:text-red-300", children: previewError.message }),
+      preview && applicantReady && coverReady && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-xs font-semibold uppercase tracking-wide text-muted-foreground", children: "Checks so far" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(CheckList, { checks: preview.checks }),
+        type === "flexi" && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "The WC also checks the pinch point on Kronos." })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end gap-2 pt-1", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", onClick: onClose, children: "Cancel" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { disabled: !canSend || create.isPending, onClick: () => create.mutate(), children: type === "h4h" && coverMode === "app" ? "Send to cover" : "Send to WC" })
+      ] })
+    ] })
+  ] }) });
+}
 const TYPE_CONFIG = {
   flexi: {
     label: "Flexi Day",
@@ -42029,7 +42475,7 @@ const TYPE_CONFIG = {
     description: "Use your banked TOIL hours for a shift off. Someone covers for you and receives payment (min 4hrs)."
   }
 };
-const WATCHES$e = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$f = ["Red", "White", "Green", "Blue", "Amber"];
 function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
   const { user: user2 } = useAuth();
   const userRole = useUserRole();
@@ -42038,6 +42484,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
   const queryClient2 = useQueryClient();
   const today = defaultDate ? defaultDate.toISOString().split("T")[0] : (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
   const [type, setType] = reactExports.useState(null);
+  const [requestType, setRequestType] = reactExports.useState(null);
   const [startDate, setStartDate] = reactExports.useState(today);
   const [endDate, setEndDate] = reactExports.useState(today);
   const [notes, setNotes] = reactExports.useState("");
@@ -42061,6 +42508,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
       setStartDate(d);
       setEndDate(d);
       setType(null);
+      setRequestType(null);
       setNotes("");
       setEditingId(null);
       setEditingAdj(null);
@@ -42252,210 +42700,136 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
   })();
   const userWatch = (editingAdj == null ? void 0 : editingAdj.watch_unit) ?? (user2 == null ? void 0 : user2.watch_unit) ?? "";
   const subjectName = (editingAdj == null ? void 0 : editingAdj.user_name) ?? (user2 == null ? void 0 : user2.name);
-  const otherWatches = WATCHES$e.filter((w) => w !== userWatch);
+  const otherWatches = WATCHES$f.filter((w) => w !== userWatch);
   const fmt2 = (d) => (/* @__PURE__ */ new Date(d + "T12:00:00")).toLocaleDateString("en-GB", {
     day: "numeric",
     month: "short",
     year: "numeric"
   });
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: (o) => {
-    if (!o) onClose();
-  }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-md p-0 overflow-hidden", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { className: "px-5 pt-5 pb-3 border-b border-border", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { className: "flex items-center gap-2 text-base", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarDays, { className: "h-4 w-4 text-indigo-500" }),
-        editingId ? "Edit Shift Adjustment" : "Log Shift Adjustment"
-      ] }),
-      userWatch && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground mt-0.5", children: [
-        userWatch,
-        " Watch · ",
-        subjectName
-      ] })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "px-5 py-4 space-y-5 max-h-[75vh] overflow-y-auto", children: [
-      editingId && type ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `flex items-center gap-2 rounded-xl border-2 px-3 py-2 ${TYPE_CONFIG[type].border} ${TYPE_CONFIG[type].bg}`, children: [
-        (() => {
-          const Icon2 = TYPE_CONFIG[type].icon;
-          return /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: `h-5 w-5 ${TYPE_CONFIG[type].color}` });
-        })(),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: `text-sm font-semibold ${TYPE_CONFIG[type].color}`, children: [
-          "Editing: ",
-          TYPE_CONFIG[type].label
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      NewRequestDialog,
+      {
+        open: open && !!requestType,
+        initialType: requestType ?? "flexi",
+        defaultDate,
+        onClose
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: open && !requestType, onOpenChange: (o) => {
+      if (!o) onClose();
+    }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-md p-0 overflow-hidden", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { className: "px-5 pt-5 pb-3 border-b border-border", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { className: "flex items-center gap-2 text-base", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarDays, { className: "h-4 w-4 text-indigo-500" }),
+          editingId ? "Edit Shift Adjustment" : "Log Shift Adjustment"
+        ] }),
+        userWatch && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground mt-0.5", children: [
+          userWatch,
+          " Watch · ",
+          subjectName
         ] })
-      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground mb-2 block", children: "Off your watch" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-2", children: ["flexi", "training", "h4h", "toil"].map((key2) => {
-          const cfg = TYPE_CONFIG[key2];
-          const Icon2 = cfg.icon;
-          const selected = type === key2;
-          return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "button",
-            {
-              type: "button",
-              onClick: () => setType(key2),
-              className: `
-                      flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all text-center
-                      ${selected ? `${cfg.border} ${cfg.bg} ${cfg.color}` : "border-border text-muted-foreground hover:border-indigo-300 hover:bg-muted/40"}
-                    `,
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "h-5 w-5" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold leading-tight", children: cfg.label })
-              ]
-            },
-            key2
-          );
-        }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground mb-2 mt-3 block", children: "Additional shifts" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-2", children: ["flexi_payback", "orange_day"].map((key2) => {
-          const cfg = TYPE_CONFIG[key2];
-          const Icon2 = cfg.icon;
-          const selected = type === key2;
-          return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "button",
-            {
-              type: "button",
-              onClick: () => setType(key2),
-              className: `
-                      flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all text-center
-                      ${selected ? `${cfg.border} ${cfg.bg} ${cfg.color}` : "border-border text-muted-foreground hover:border-indigo-300 hover:bg-muted/40"}
-                    `,
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "h-5 w-5" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold leading-tight", children: cfg.label })
-              ]
-            },
-            key2
-          );
-        }) }),
-        type && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground mt-2 px-1", children: TYPE_CONFIG[type].description })
       ] }),
-      type && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground mb-1 block", children: "First day" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                type: "date",
-                value: startDate,
-                onChange: (e) => {
-                  setStartDate(e.target.value);
-                  if (e.target.value > endDate) setEndDate(e.target.value);
-                },
-                className: "w-full h-8 rounded-lg border border-border px-2 text-sm bg-background outline-none focus:border-indigo-400"
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground mb-1 block", children: "Last day" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                type: "date",
-                value: endDate,
-                min: startDate,
-                onChange: (e) => setEndDate(e.target.value),
-                className: "w-full h-8 rounded-lg border border-border px-2 text-sm bg-background outline-none focus:border-indigo-400"
-              }
-            )
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "px-5 py-4 space-y-5 max-h-[75vh] overflow-y-auto", children: [
+        editingId && type ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `flex items-center gap-2 rounded-xl border-2 px-3 py-2 ${TYPE_CONFIG[type].border} ${TYPE_CONFIG[type].bg}`, children: [
+          (() => {
+            const Icon2 = TYPE_CONFIG[type].icon;
+            return /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: `h-5 w-5 ${TYPE_CONFIG[type].color}` });
+          })(),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: `text-sm font-semibold ${TYPE_CONFIG[type].color}`, children: [
+            "Editing: ",
+            TYPE_CONFIG[type].label
           ] })
-        ] }),
-        (type === "h4h" || type === "toil") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50/40 dark:bg-blue-950/30 p-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarDays, { className: "h-4 w-4 text-blue-500" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-sm font-medium text-blue-700 dark:text-blue-300", children: "Which shift are you off?" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-2", children: ["Day", "Night"].map((s) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "button",
-            {
-              type: "button",
-              onClick: () => setOutboundShift(s),
-              className: `flex-1 text-xs py-1.5 rounded-lg border transition-all ${outboundShift === s ? "border-blue-400 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 font-semibold" : "border-border text-muted-foreground"}`,
-              children: [
-                s,
-                " Shift"
-              ]
-            },
-            s
-          )) })
-        ] }),
-        (type === "h4h" || type === "toil") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 rounded-xl border border-purple-200 dark:border-purple-800 bg-purple-50/40 dark:bg-purple-950/30 p-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { className: "h-4 w-4 text-purple-500" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-sm font-medium text-purple-700 dark:text-purple-300", children: "Who is covering for you?" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
+        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground mb-2 block", children: "Off your watch" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-2", children: ["flexi", "training", "h4h", "toil"].map((key2) => {
+            const cfg = TYPE_CONFIG[key2];
+            const Icon2 = cfg.icon;
+            const selected = type === key2;
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "button",
               {
                 type: "button",
-                onClick: () => setCoverMode("roster"),
-                className: `flex-1 text-xs py-1.5 rounded-lg border transition-all ${coverMode === "roster" ? "border-purple-400 bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 font-semibold" : "border-border text-muted-foreground"}`,
-                children: "From roster"
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
+                onClick: () => key2 === "flexi" || key2 === "h4h" ? setRequestType(key2) : setType(key2),
+                className: `
+                      flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all text-center
+                      ${selected ? `${cfg.border} ${cfg.bg} ${cfg.color}` : "border-border text-muted-foreground hover:border-indigo-300 hover:bg-muted/40"}
+                    `,
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "h-5 w-5" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold leading-tight", children: cfg.label }),
+                  (key2 === "flexi" || key2 === "h4h") && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px] leading-tight", children: "Request to the WC" })
+                ]
+              },
+              key2
+            );
+          }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground mb-2 mt-3 block", children: "Additional shifts" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-2", children: ["flexi_payback", "orange_day"].map((key2) => {
+            const cfg = TYPE_CONFIG[key2];
+            const Icon2 = cfg.icon;
+            const selected = type === key2;
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "button",
               {
                 type: "button",
-                onClick: () => setCoverMode("freetext"),
-                className: `flex-1 text-xs py-1.5 rounded-lg border transition-all ${coverMode === "freetext" ? "border-purple-400 bg-purple-100 text-purple-700 font-semibold" : "border-border text-muted-foreground"}`,
-                children: "Type name"
-              }
-            )
-          ] }),
-          coverMode === "roster" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: coverWatch, onValueChange: (v) => {
-              setCoverWatch(v);
-              setCoverUserId("");
-            }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select their watch…" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: otherWatches.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
-                w,
-                " Watch"
-              ] }, w)) })
+                onClick: () => setType(key2),
+                className: `
+                      flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all text-center
+                      ${selected ? `${cfg.border} ${cfg.bg} ${cfg.color}` : "border-border text-muted-foreground hover:border-indigo-300 hover:bg-muted/40"}
+                    `,
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "h-5 w-5" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold leading-tight", children: cfg.label })
+                ]
+              },
+              key2
+            );
+          }) }),
+          type && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground mt-2 px-1", children: TYPE_CONFIG[type].description })
+        ] }),
+        type && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground mb-1 block", children: "First day" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "date",
+                  value: startDate,
+                  onChange: (e) => {
+                    setStartDate(e.target.value);
+                    if (e.target.value > endDate) setEndDate(e.target.value);
+                  },
+                  className: "w-full h-8 rounded-lg border border-border px-2 text-sm bg-background outline-none focus:border-indigo-400"
+                }
+              )
             ] }),
-            coverWatch && /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: coverUserId, onValueChange: setCoverUserId, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select person…" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
-                coverRoster.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "_none", disabled: true, children: "No roster found" }),
-                coverRoster.map((m) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: m.id, children: [
-                  m.name,
-                  " ",
-                  m.rank ? `· ${m.rank}` : ""
-                ] }, m.id))
-              ] })
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground mb-1 block", children: "Last day" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "date",
+                  value: endDate,
+                  min: startDate,
+                  onChange: (e) => setEndDate(e.target.value),
+                  className: "w-full h-8 rounded-lg border border-border px-2 text-sm bg-background outline-none focus:border-indigo-400"
+                }
+              )
             ] })
-          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Input,
-            {
-              placeholder: "e.g. FF Smith (Red Watch)",
-              value: coverName,
-              onChange: (e) => setCoverName(e.target.value),
-              className: "h-8 text-xs"
-            }
-          )
-        ] }),
-        type === "flexi_payback" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 rounded-xl border border-teal-200 dark:border-teal-800 bg-teal-50/40 dark:bg-teal-950/30 p-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { className: "h-4 w-4 text-teal-500" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-sm font-medium text-teal-700 dark:text-teal-300", children: "Which watch are you covering?" })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: inboundWatch, onValueChange: setInboundWatch, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select watch…" }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: otherWatches.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
-              w,
-              " Watch"
-            ] }, w)) })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground mb-1 block", children: "Shift" }),
+          (type === "h4h" || type === "toil") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50/40 dark:bg-blue-950/30 p-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarDays, { className: "h-4 w-4 text-blue-500" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-sm font-medium text-blue-700 dark:text-blue-300", children: "Which shift are you off?" })
+            ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-2", children: ["Day", "Night"].map((s) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "button",
               {
                 type: "button",
-                onClick: () => setInboundShift(s),
-                className: `flex-1 text-xs py-1.5 rounded-lg border transition-all ${inboundShift === s ? "border-teal-400 bg-teal-100 dark:bg-teal-900/50 text-teal-700 dark:text-teal-300 font-semibold" : "border-border text-muted-foreground"}`,
+                onClick: () => setOutboundShift(s),
+                className: `flex-1 text-xs py-1.5 rounded-lg border transition-all ${outboundShift === s ? "border-blue-400 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 font-semibold" : "border-border text-muted-foreground"}`,
                 children: [
                   s,
                   " Shift"
@@ -42463,200 +42837,286 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
               },
               s
             )) })
-          ] })
-        ] }),
-        type === "orange_day" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 rounded-xl border border-orange-200 dark:border-orange-800 bg-orange-50/40 dark:bg-orange-950/30 p-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Sun, { className: "h-4 w-4 text-orange-500" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-sm font-medium text-orange-700 dark:text-orange-300", children: "Which shift?" })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-2", children: ["Day", "Night"].map((s) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "button",
-            {
-              type: "button",
-              onClick: () => setOrangeShift(s),
-              className: `flex-1 text-xs py-1.5 rounded-lg border transition-all ${orangeShift === s ? "border-orange-400 bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300 font-semibold" : "border-border text-muted-foreground"}`,
-              children: [
-                s,
-                " Shift"
-              ]
-            },
-            s
-          )) })
-        ] }),
-        type === "toil" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/30 p-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: "h-4 w-4 text-emerald-500" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-sm font-medium text-emerald-700 dark:text-emerald-300", children: "How many TOIL hours?" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
+          (type === "h4h" || type === "toil") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 rounded-xl border border-purple-200 dark:border-purple-800 bg-purple-50/40 dark:bg-purple-950/30 p-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { className: "h-4 w-4 text-purple-500" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-sm font-medium text-purple-700 dark:text-purple-300", children: "Who is covering for you?" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => setCoverMode("roster"),
+                  className: `flex-1 text-xs py-1.5 rounded-lg border transition-all ${coverMode === "roster" ? "border-purple-400 bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 font-semibold" : "border-border text-muted-foreground"}`,
+                  children: "From roster"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => setCoverMode("freetext"),
+                  className: `flex-1 text-xs py-1.5 rounded-lg border transition-all ${coverMode === "freetext" ? "border-purple-400 bg-purple-100 text-purple-700 font-semibold" : "border-border text-muted-foreground"}`,
+                  children: "Type name"
+                }
+              )
+            ] }),
+            coverMode === "roster" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: coverWatch, onValueChange: (v) => {
+                setCoverWatch(v);
+                setCoverUserId("");
+              }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select their watch…" }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: otherWatches.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+                  w,
+                  " Watch"
+                ] }, w)) })
+              ] }),
+              coverWatch && /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: coverUserId, onValueChange: setCoverUserId, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select person…" }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
+                  coverRoster.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "_none", disabled: true, children: "No roster found" }),
+                  coverRoster.map((m) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: m.id, children: [
+                    m.name,
+                    " ",
+                    m.rank ? `· ${m.rank}` : ""
+                  ] }, m.id))
+                ] })
+              ] })
+            ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Input,
               {
-                type: "range",
-                min: 4,
-                max: 16,
-                step: 0.5,
-                value: toilHours,
-                onChange: (e) => setToilHours(Number(e.target.value)),
-                className: "flex-1 accent-emerald-500"
+                placeholder: "e.g. FF Smith (Red Watch)",
+                value: coverName,
+                onChange: (e) => setCoverName(e.target.value),
+                className: "h-8 text-xs"
               }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-lg font-bold text-emerald-700 dark:text-emerald-300 w-16 text-right", children: [
-              toilHours,
-              "hrs"
-            ] })
+            )
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px] text-muted-foreground", children: "Minimum 4hrs, up to 16hrs (full night shift). Deducted from your TOIL balance." })
-        ] }),
-        isManager && !editingId && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 cursor-pointer", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                type: "checkbox",
-                checked: forAnother,
-                onChange: (e) => {
-                  setForAnother(e.target.checked);
-                  setForWatch("");
-                  setForUserId("");
-                },
-                className: "h-4 w-4 rounded border-border text-indigo-600 focus:ring-indigo-500"
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-medium text-muted-foreground", children: "Log this for another user" })
-          ] }),
-          forAnother && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2 rounded-xl border border-indigo-200 dark:border-indigo-800 bg-indigo-50/40 dark:bg-indigo-950/30 p-3", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: forWatch, onValueChange: (v) => {
-              setForWatch(v);
-              setForUserId("");
-            }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select their watch…" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$e.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+          type === "flexi_payback" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 rounded-xl border border-teal-200 dark:border-teal-800 bg-teal-50/40 dark:bg-teal-950/30 p-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { className: "h-4 w-4 text-teal-500" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-sm font-medium text-teal-700 dark:text-teal-300", children: "Which watch are you covering?" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: inboundWatch, onValueChange: setInboundWatch, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select watch…" }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: otherWatches.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
                 w,
                 " Watch"
               ] }, w)) })
             ] }),
-            forWatch && /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: forUserId, onValueChange: setForUserId, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select person…" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
-                forRoster.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "_none", disabled: true, children: "No members found" }),
-                forRoster.map((m) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: m.id, children: [
-                  m.name,
-                  " ",
-                  m.rank ? `· ${m.rank}` : ""
-                ] }, m.id))
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground mb-1 block", children: "Shift" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-2", children: ["Day", "Night"].map((s) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => setInboundShift(s),
+                  className: `flex-1 text-xs py-1.5 rounded-lg border transition-all ${inboundShift === s ? "border-teal-400 bg-teal-100 dark:bg-teal-900/50 text-teal-700 dark:text-teal-300 font-semibold" : "border-border text-muted-foreground"}`,
+                  children: [
+                    s,
+                    " Shift"
+                  ]
+                },
+                s
+              )) })
+            ] })
+          ] }),
+          type === "orange_day" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 rounded-xl border border-orange-200 dark:border-orange-800 bg-orange-50/40 dark:bg-orange-950/30 p-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Sun, { className: "h-4 w-4 text-orange-500" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-sm font-medium text-orange-700 dark:text-orange-300", children: "Which shift?" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-2", children: ["Day", "Night"].map((s) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                onClick: () => setOrangeShift(s),
+                className: `flex-1 text-xs py-1.5 rounded-lg border transition-all ${orangeShift === s ? "border-orange-400 bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300 font-semibold" : "border-border text-muted-foreground"}`,
+                children: [
+                  s,
+                  " Shift"
+                ]
+              },
+              s
+            )) })
+          ] }),
+          type === "toil" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/30 p-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: "h-4 w-4 text-emerald-500" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-sm font-medium text-emerald-700 dark:text-emerald-300", children: "How many TOIL hours?" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "range",
+                  min: 4,
+                  max: 16,
+                  step: 0.5,
+                  value: toilHours,
+                  onChange: (e) => setToilHours(Number(e.target.value)),
+                  className: "flex-1 accent-emerald-500"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-lg font-bold text-emerald-700 dark:text-emerald-300 w-16 text-right", children: [
+                toilHours,
+                "hrs"
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px] text-muted-foreground", children: "Minimum 4hrs, up to 16hrs (full night shift). Deducted from your TOIL balance." })
+          ] }),
+          isManager && !editingId && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 cursor-pointer", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "checkbox",
+                  checked: forAnother,
+                  onChange: (e) => {
+                    setForAnother(e.target.checked);
+                    setForWatch("");
+                    setForUserId("");
+                  },
+                  className: "h-4 w-4 rounded border-border text-indigo-600 focus:ring-indigo-500"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-medium text-muted-foreground", children: "Log this for another user" })
+            ] }),
+            forAnother && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2 rounded-xl border border-indigo-200 dark:border-indigo-800 bg-indigo-50/40 dark:bg-indigo-950/30 p-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: forWatch, onValueChange: (v) => {
+                setForWatch(v);
+                setForUserId("");
+              }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select their watch…" }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$f.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+                  w,
+                  " Watch"
+                ] }, w)) })
+              ] }),
+              forWatch && /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: forUserId, onValueChange: setForUserId, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select person…" }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
+                  forRoster.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "_none", disabled: true, children: "No members found" }),
+                  forRoster.map((m) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: m.id, children: [
+                    m.name,
+                    " ",
+                    m.rank ? `· ${m.rank}` : ""
+                  ] }, m.id))
+                ] })
               ] })
             ] })
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground mb-1 block", children: "Notes (optional)" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Input,
-            {
-              placeholder: "e.g. Course at Training Centre",
-              value: notes,
-              onChange: (e) => setNotes(e.target.value),
-              className: "h-8 text-xs"
-            }
-          )
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
-          editingId && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground mb-1 block", children: "Notes (optional)" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Button,
+              Input,
               {
-                variant: "outline",
-                className: "flex-shrink-0",
-                onClick: finishEditing,
-                children: "Cancel"
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Button,
-              {
-                variant: "outline",
-                className: "flex-shrink-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30",
-                disabled: deleteMutation.isPending,
-                onClick: () => confirmDelete({ id: editingId, type }, finishEditing),
-                "aria-label": "Delete booking",
-                title: "Delete booking",
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-4 w-4" })
+                placeholder: "e.g. Course at Training Centre",
+                value: notes,
+                onChange: (e) => setNotes(e.target.value),
+                className: "h-8 text-xs"
               }
             )
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Button,
-            {
-              className: "w-full",
-              disabled: !canSubmit || createMutation.isPending || updateMutation.isPending,
-              onClick: () => editingId ? updateMutation.mutate() : createMutation.mutate(),
-              children: createMutation.isPending || updateMutation.isPending ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "h-4 w-4 animate-spin mr-2" }),
-                " ",
-                editingId ? "Saving…" : "Logging…"
-              ] }) : editingId ? `Save Changes` : `Log ${TYPE_CONFIG[type].label}`
-            }
-          )
-        ] })
-      ] }),
-      existing.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "border-t border-border pt-4 space-y-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs font-semibold text-muted-foreground uppercase tracking-wide", children: "Logged adjustments" }),
-        existing.map((a) => {
-          const cfg = TYPE_CONFIG[a.type];
-          const Icon2 = cfg.icon;
-          const sameDay2 = a.start_date === a.end_date;
-          const dateStr = sameDay2 ? fmt2(String(a.start_date).split("T")[0]) : `${fmt2(String(a.start_date).split("T")[0])} – ${fmt2(String(a.end_date).split("T")[0])}`;
-          return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `flex items-center gap-2 rounded-xl border px-3 py-2 ${cfg.border} ${cfg.bg}`, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: `h-4 w-4 shrink-0 ${cfg.color}` }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: `text-xs font-semibold ${cfg.color}`, children: [
-                cfg.label,
-                a.user_id !== (user2 == null ? void 0 : user2.id) && a.user_name && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-normal text-muted-foreground", children: [
-                  " · you're covering ",
-                  a.user_name
-                ] })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground truncate", children: dateStr }),
-              a.toil_hours ? /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground truncate", children: [
-                a.toil_hours,
-                "hrs · Cover: ",
-                a.covering_name
-              ] }) : a.covering_watch ? /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground truncate", children: [
-                a.covering_watch,
-                " Watch · ",
-                a.shift_day_night ?? "Day",
-                " Shift"
-              ] }) : a.covering_name ? /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground truncate", children: [
-                "Cover: ",
-                a.covering_name
-              ] }) : null
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+            editingId && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Button,
+                {
+                  variant: "outline",
+                  className: "flex-shrink-0",
+                  onClick: finishEditing,
+                  children: "Cancel"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Button,
+                {
+                  variant: "outline",
+                  className: "flex-shrink-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30",
+                  disabled: deleteMutation.isPending,
+                  onClick: () => confirmDelete({ id: editingId, type }, finishEditing),
+                  "aria-label": "Delete booking",
+                  title: "Delete booking",
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-4 w-4" })
+                }
+              )
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
+              Button,
               {
-                onClick: () => startEditing(a),
-                className: "shrink-0 h-6 w-6 rounded flex items-center justify-center text-muted-foreground hover:text-indigo-500",
-                title: "Edit",
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "h-3 w-3" })
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                onClick: () => confirmDelete(a),
-                disabled: deleteMutation.isPending,
-                className: "shrink-0 h-6 w-6 rounded flex items-center justify-center text-muted-foreground hover:text-red-500",
-                title: "Delete",
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" })
+                className: "w-full",
+                disabled: !canSubmit || createMutation.isPending || updateMutation.isPending,
+                onClick: () => editingId ? updateMutation.mutate() : createMutation.mutate(),
+                children: createMutation.isPending || updateMutation.isPending ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "h-4 w-4 animate-spin mr-2" }),
+                  " ",
+                  editingId ? "Saving…" : "Logging…"
+                ] }) : editingId ? `Save Changes` : `Log ${TYPE_CONFIG[type].label}`
               }
             )
-          ] }, a.id);
-        })
+          ] })
+        ] }),
+        existing.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "border-t border-border pt-4 space-y-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs font-semibold text-muted-foreground uppercase tracking-wide", children: "Logged adjustments" }),
+          existing.map((a) => {
+            const cfg = TYPE_CONFIG[a.type];
+            const Icon2 = cfg.icon;
+            const sameDay2 = a.start_date === a.end_date;
+            const dateStr = sameDay2 ? fmt2(String(a.start_date).split("T")[0]) : `${fmt2(String(a.start_date).split("T")[0])} – ${fmt2(String(a.end_date).split("T")[0])}`;
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `flex items-center gap-2 rounded-xl border px-3 py-2 ${cfg.border} ${cfg.bg}`, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: `h-4 w-4 shrink-0 ${cfg.color}` }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: `text-xs font-semibold ${cfg.color}`, children: [
+                  cfg.label,
+                  a.user_id !== (user2 == null ? void 0 : user2.id) && a.user_name && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-normal text-muted-foreground", children: [
+                    " · you're covering ",
+                    a.user_name
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground truncate", children: dateStr }),
+                a.toil_hours ? /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground truncate", children: [
+                  a.toil_hours,
+                  "hrs · Cover: ",
+                  a.covering_name
+                ] }) : a.covering_watch ? /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground truncate", children: [
+                  a.covering_watch,
+                  " Watch · ",
+                  a.shift_day_night ?? "Day",
+                  " Shift"
+                ] }) : a.covering_name ? /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground truncate", children: [
+                  "Cover: ",
+                  a.covering_name
+                ] }) : null
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  onClick: () => startEditing(a),
+                  className: "shrink-0 h-6 w-6 rounded flex items-center justify-center text-muted-foreground hover:text-indigo-500",
+                  title: "Edit",
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "h-3 w-3" })
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  onClick: () => confirmDelete(a),
+                  disabled: deleteMutation.isPending,
+                  className: "shrink-0 h-6 w-6 rounded flex items-center justify-center text-muted-foreground hover:text-red-500",
+                  title: "Delete",
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" })
+                }
+              )
+            ] }, a.id);
+          })
+        ] })
       ] })
-    ] })
-  ] }) });
+    ] }) })
+  ] });
 }
 const TYPE_STYLE$1 = {
   flexi: { label: "Flexi Day", icon: CalendarDays, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-950/40", border: "border-amber-300 dark:border-amber-700" },
@@ -42773,7 +43233,7 @@ function FFShiftAdjustmentWidget() {
     )
   ] });
 }
-const WATCHES$d = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$e = ["Red", "White", "Green", "Blue", "Amber"];
 function ToilWidget() {
   var _a3;
   const { user: user2 } = useAuth();
@@ -43070,7 +43530,7 @@ function ToilWidget() {
               setEarnForUserId("");
             }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select watch…" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$d.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$e.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
                 w,
                 " Watch"
               ] }, w)) })
@@ -46810,7 +47270,7 @@ function ProfileSection({
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-4 pb-4 sm:px-5", children })
   ] });
 }
-function Field$1({ label: label2, children }) {
+function Field$2({ label: label2, children }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-h-[40px] items-center justify-between gap-4 border-b border-border/50 py-2 last:border-0", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "shrink-0 text-xs text-muted-foreground", children: label2 }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-w-0 text-right text-sm font-medium", children })
@@ -47637,7 +48097,7 @@ function ProfileNotes({ profileId, firstName, notes, canWrite }) {
   ] });
 }
 const RANKS$1 = ["Watch Commander", "Crew Commander", "Leading Firefighter", "Firefighter"];
-const WATCHES$c = ["Green", "Red", "White", "Blue", "Amber"];
+const WATCHES$d = ["Green", "Red", "White", "Blue", "Amber"];
 const shortDate$2 = (d) => d ? new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "";
 const dayMonth = (d) => new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 const selectCls = "h-9 w-full max-w-[220px] rounded-lg border border-border bg-background px-2 text-sm font-normal";
@@ -48063,20 +48523,20 @@ function ProfileDetail() {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(ProfileSection, { title: "Details", ...sectionProps("details", canEdit && ["rank", "station", "watch", "service_number"].some(canEditField)), children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Rank", children: editableValue("details", "rank", profile2.rank || "—", /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: selectCls, value: getDisplayValue("rank") || "", onChange: (e) => set({ rank: e.target.value }), children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Field$2, { label: "Rank", children: editableValue("details", "rank", profile2.rank || "—", /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: selectCls, value: getDisplayValue("rank") || "", onChange: (e) => set({ rank: e.target.value }), children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", disabled: true, children: "Choose a rank" }),
             RANKS$1.map((r2) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: r2, children: r2 }, r2))
           ] })) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Watch", children: editableValue("details", "watch", watchValue ? `${watchValue} Watch` : "—", /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: selectCls, value: watchValue || "_none", onChange: (e) => set({ watch: e.target.value }), children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Field$2, { label: "Watch", children: editableValue("details", "watch", watchValue ? `${watchValue} Watch` : "—", /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: selectCls, value: watchValue || "_none", onChange: (e) => set({ watch: e.target.value }), children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "_none", children: "No watch" }),
-            WATCHES$c.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: w, children: w }, w))
+            WATCHES$d.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: w, children: w }, w))
           ] })) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Station", children: editableValue("details", "station", profile2.station || "—", /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: selectCls, value: getDisplayValue("station") || "", onChange: (e) => set({ station: e.target.value }), children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Field$2, { label: "Station", children: editableValue("details", "station", profile2.station || "—", /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: selectCls, value: getDisplayValue("station") || "", onChange: (e) => set({ station: e.target.value }), children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", disabled: true, children: "Choose a station or area" }),
             STATION_OPTIONS.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: s.value, children: s.label }, s.value))
           ] })) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Service number", children: editableValue("details", "service_number", /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono", children: profile2.service_number || "—" }), /* @__PURE__ */ jsxRuntimeExports.jsx("input", { className: cn(inputCls, "font-mono"), value: getDisplayValue("service_number") || "", onChange: (e) => set({ service_number: e.target.value }) })) }),
-          profile2.hire_date && /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Started", children: shortDate$2(profile2.hire_date) })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Field$2, { label: "Service number", children: editableValue("details", "service_number", /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono", children: profile2.service_number || "—" }), /* @__PURE__ */ jsxRuntimeExports.jsx("input", { className: cn(inputCls, "font-mono"), value: getDisplayValue("service_number") || "", onChange: (e) => set({ service_number: e.target.value }) })) }),
+          profile2.hire_date && /* @__PURE__ */ jsxRuntimeExports.jsx(Field$2, { label: "Started", children: shortDate$2(profile2.hire_date) })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           ProfileSection,
@@ -48084,8 +48544,8 @@ function ProfileDetail() {
             title: "Contact",
             ...sectionProps("contact", (canEdit || isViewingOwnProfile) && ["phone", "emergency_contact_name", "emergency_contact_phone"].some(canEditField)),
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Phone", children: editableValue("contact", "phone", profile2.phone ? /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: `tel:${profile2.phone.replace(/[^\d+]/g, "")}`, className: "font-mono hover:underline", children: profile2.phone }) : "—", /* @__PURE__ */ jsxRuntimeExports.jsx("input", { className: cn(inputCls, "font-mono"), type: "tel", inputMode: "tel", value: getDisplayValue("phone") || "", onChange: (e) => set({ phone: e.target.value }) })) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Email", children: (user2 == null ? void 0 : user2.email) ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex max-w-full items-center gap-1", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Field$2, { label: "Phone", children: editableValue("contact", "phone", profile2.phone ? /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: `tel:${profile2.phone.replace(/[^\d+]/g, "")}`, className: "font-mono hover:underline", children: profile2.phone }) : "—", /* @__PURE__ */ jsxRuntimeExports.jsx("input", { className: cn(inputCls, "font-mono"), type: "tel", inputMode: "tel", value: getDisplayValue("phone") || "", onChange: (e) => set({ phone: e.target.value }) })) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Field$2, { label: "Email", children: (user2 == null ? void 0 : user2.email) ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex max-w-full items-center gap-1", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: `mailto:${user2.email}`, className: "truncate hover:underline", children: user2.email }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "button",
@@ -48101,8 +48561,8 @@ function ProfileDetail() {
                   }
                 )
               ] }) : "—" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Emergency contact", children: editableValue("contact", "emergency_contact_name", profile2.emergency_contact_name || "—", /* @__PURE__ */ jsxRuntimeExports.jsx("input", { className: inputCls, placeholder: "Name", value: getDisplayValue("emergency_contact_name") || "", onChange: (e) => set({ emergency_contact_name: e.target.value }) })) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Their number", children: editableValue("contact", "emergency_contact_phone", profile2.emergency_contact_phone ? /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: `tel:${profile2.emergency_contact_phone.replace(/[^\d+]/g, "")}`, className: "font-mono hover:underline", children: profile2.emergency_contact_phone }) : "—", /* @__PURE__ */ jsxRuntimeExports.jsx("input", { className: cn(inputCls, "font-mono"), type: "tel", inputMode: "tel", placeholder: "Phone", value: getDisplayValue("emergency_contact_phone") || "", onChange: (e) => set({ emergency_contact_phone: e.target.value }) })) })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Field$2, { label: "Emergency contact", children: editableValue("contact", "emergency_contact_name", profile2.emergency_contact_name || "—", /* @__PURE__ */ jsxRuntimeExports.jsx("input", { className: inputCls, placeholder: "Name", value: getDisplayValue("emergency_contact_name") || "", onChange: (e) => set({ emergency_contact_name: e.target.value }) })) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Field$2, { label: "Their number", children: editableValue("contact", "emergency_contact_phone", profile2.emergency_contact_phone ? /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: `tel:${profile2.emergency_contact_phone.replace(/[^\d+]/g, "")}`, className: "font-mono hover:underline", children: profile2.emergency_contact_phone }) : "—", /* @__PURE__ */ jsxRuntimeExports.jsx("input", { className: cn(inputCls, "font-mono"), type: "tel", inputMode: "tel", placeholder: "Phone", value: getDisplayValue("emergency_contact_phone") || "", onChange: (e) => set({ emergency_contact_phone: e.target.value }) })) })
             ]
           }
         )
@@ -49810,7 +50270,7 @@ function CalendarWidget({
     ] })
   ] }) });
 }
-const WATCHES$b = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$c = ["Red", "White", "Green", "Blue", "Amber"];
 const CALENDAR_LAYERS = [
   { key: "station", label: "Springburn Station", sub: "Everyone", dot: "var(--cal-station-dot)" },
   { key: "watch", label: "Watch calendar", sub: "", dot: "var(--cal-watch-dot)" },
@@ -49896,7 +50356,7 @@ function CalendarFilters({
       isManager && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuSeparator, {}),
         /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuLabel, { className: "text-xs font-semibold uppercase tracking-wide text-muted-foreground", children: "Whose watch calendar" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuRadioGroup, { value: watchShown, onValueChange: onWatchChange, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-5 gap-1 px-1 pb-1", children: WATCHES$b.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuRadioGroup, { value: watchShown, onValueChange: onWatchChange, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-5 gap-1 px-1 pb-1", children: WATCHES$c.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(
           DropdownMenuRadioItem,
           {
             value: w,
@@ -51285,11 +51745,11 @@ function UnifiedCalendar() {
       return r2.events;
     }
   });
-  const ymd = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const ymd2 = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   const showRiding = isManager && visibleCalendars.has("shifts") && hasRotaConfig(watchShown);
   const { data: strength } = useQuery({
-    queryKey: [CALENDAR_STRENGTH_KEY, watchShown, ymd(start), ymd(end)],
-    queryFn: () => backendClient.crewing.strength({ watch: watchShown, start_date: ymd(start), end_date: ymd(end) }),
+    queryKey: [CALENDAR_STRENGTH_KEY, watchShown, ymd2(start), ymd2(end)],
+    queryFn: () => backendClient.crewing.strength({ watch: watchShown, start_date: ymd2(start), end_date: ymd2(end) }),
     enabled: showRiding,
     staleTime: 6e4
   });
@@ -54050,7 +54510,7 @@ function parseRRuleLabel(rrule) {
   const p = RRULE_PRESETS.find((p2) => p2.value === rrule && p2.value !== "__custom__" && p2.value !== "__none__");
   return p ? p.label : "Custom";
 }
-const WATCHES$a = ["Amber", "Green", "Blue", "Red", "White"];
+const WATCHES$b = ["Amber", "Green", "Blue", "Red", "White"];
 const ITEM_CLS = "rounded-[10px] py-2 pl-3 text-sm focus:bg-[var(--cal-surface-2)] focus:text-[var(--cal-ink)]";
 const CSS$2 = `
 .tdd-lbl{font-size:12px;font-weight:600;color:var(--cal-muted);letter-spacing:.06em;text-transform:uppercase}
@@ -54120,7 +54580,7 @@ const CSS$2 = `
 function Dot({ color, size: size2 = 8 }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "aria-hidden": "true", style: { display: "inline-block", width: size2, height: size2, borderRadius: "50%", flex: "none", background: color } });
 }
-function Field({ label: label2, htmlFor, hint, children }) {
+function Field$1({ label: label2, htmlFor, hint, children }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-1.5", children: [
     htmlFor ? /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor, className: "tdd-lbl", children: label2 }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tdd-lbl", children: label2 }),
     children,
@@ -54417,7 +54877,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
     /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id, className: "tdd-field cal-focus", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Assign watch…" }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { className: "cal-menu", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "__none__", className: ITEM_CLS, children: "— None —" }),
-      WATCHES$a.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, className: ITEM_CLS, children: [
+      WATCHES$b.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, className: ITEM_CLS, children: [
         w,
         " Watch"
       ] }, w))
@@ -54755,9 +55215,9 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
                     )
                   ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "order-5 sm:hidden flex flex-col gap-3.5", children: [
-                    !isCheck && /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Category", htmlFor: `${uid}-cat-m`, children: categorySelect(`${uid}-cat-m`) }),
-                    userRole === "WC" && !isCheck && /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Move to watch", htmlFor: `${uid}-watch-m`, children: watchSelect(`${uid}-watch-m`) }),
-                    canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Cover", htmlFor: `${uid}-cover-m`, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    !isCheck && /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Category", htmlFor: `${uid}-cat-m`, children: categorySelect(`${uid}-cat-m`) }),
+                    userRole === "WC" && !isCheck && /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Move to watch", htmlFor: `${uid}-watch-m`, children: watchSelect(`${uid}-watch-m`) }),
+                    canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Cover", htmlFor: `${uid}-cover-m`, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
                       "button",
                       {
                         id: `${uid}-cover-m`,
@@ -54917,7 +55377,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
                   ] })
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden sm:flex flex-col gap-3.5 min-w-0", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Column", htmlFor: `${uid}-col`, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: status, onValueChange: handleStatusChange, disabled: !canWork, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Column", htmlFor: `${uid}-col`, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: status, onValueChange: handleStatusChange, disabled: !canWork, children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: `${uid}-col`, className: "tdd-field cal-focus", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { children: statusCol ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center gap-2", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx(Dot, { color: statusCol.color }),
                       statusCol.name
@@ -54925,8 +55385,8 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
                     /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { className: "cal-menu", children: columnItems })
                   ] }) }),
                   isCheck ? checkNote : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Category", htmlFor: `${uid}-cat`, children: categorySelect(`${uid}-cat`) }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Due date", htmlFor: `${uid}-due`, hint: dueHint, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Category", htmlFor: `${uid}-cat`, children: categorySelect(`${uid}-cat`) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Due date", htmlFor: `${uid}-due`, hint: dueHint, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
                       "input",
                       {
                         id: `${uid}-due`,
@@ -54943,8 +55403,8 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
                         /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: `${uid}-rec`, className: "tdd-lbl", children: "Recurrence" }),
                         recurrenceSelect(`${uid}-rec`, "compact")
                       ] })
-                    ) : /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Recurrence", htmlFor: `${uid}-rec`, children: recurrenceSelect(`${uid}-rec`, "field") }),
-                    userRole === "WC" && /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Move to watch", htmlFor: `${uid}-watch`, children: watchSelect(`${uid}-watch`) })
+                    ) : /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Recurrence", htmlFor: `${uid}-rec`, children: recurrenceSelect(`${uid}-rec`, "field") }),
+                    userRole === "WC" && /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Move to watch", htmlFor: `${uid}-watch`, children: watchSelect(`${uid}-watch`) })
                   ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-1.5", children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { id: `${uid}-pri`, className: "tdd-lbl", children: "Priority" }),
@@ -61210,6 +61670,627 @@ function Policies() {
       )
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(PolicyUpload, { open: uploadDialogOpen, onOpenChange: setUploadDialogOpen })
+  ] });
+}
+const DECLINE_REASONS = {
+  flexi: ["Red or white pinch point", "Skills can't be covered", "Important watch or area event", "Not enough time to check"],
+  h4h: ["Shift clash", "Potential shift clash"]
+};
+function Field({ label: label2, value }) {
+  if (!value) return null;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("dt", { className: "text-xs text-muted-foreground", children: label2 }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("dd", { className: "truncate text-sm font-medium text-foreground", children: value })
+  ] });
+}
+function Section$1({ title, children }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "space-y-2", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-xs font-semibold uppercase tracking-wide text-muted-foreground", children: title }),
+    children
+  ] });
+}
+function Choice({ value, options, onChange, label: label2 }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { role: "radiogroup", "aria-label": label2, className: "flex gap-1.5", children: options.map((o) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "button",
+    {
+      type: "button",
+      role: "radio",
+      "aria-checked": value === o.value,
+      onClick: () => onChange(o.value),
+      className: cn(
+        "h-9 flex-1 rounded-lg border px-3 text-sm font-medium transition-colors",
+        value === o.value ? "border-foreground bg-foreground text-background" : "border-border text-foreground hover:bg-muted"
+      ),
+      children: o.label
+    },
+    o.value
+  )) });
+}
+const DAY_NIGHT = [{ value: "Day", label: "Day" }, { value: "Night", label: "Night" }];
+function CoverAnswer({ d, act, busy }) {
+  const { user: user2 } = useAuth();
+  const r2 = d.request;
+  const self = (user2 == null ? void 0 : user2.id) === r2.cover_user_id;
+  const answer = (agreed) => act(() => backendClient.shift_adjustments.confirmCover(r2.id, { agreed }), agreed ? "Confirmed" : "Answer recorded");
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Section$1, { title: "Does the cover agree?", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: self ? `${r2.user_name} has put you down to work ${dayText(r2.shift_date)} (${r2.shift_type}). Have you agreed?` : `${r2.cover_name} hasn't answered yet. If you've checked with them, you can answer for them.` }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", disabled: busy, onClick: () => answer(false), children: self ? "No, not agreed" : "They haven't" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { disabled: busy, onClick: () => answer(true), children: self ? "Yes, I've agreed" : "They've agreed" })
+    ] })
+  ] });
+}
+function Decision({ d, act, busy }) {
+  var _a3, _b3;
+  const { user: user2 } = useAuth();
+  const r2 = d.request;
+  const [pinch, setPinch] = reactExports.useState(null);
+  const [comments, setComments] = reactExports.useState("");
+  const [agreed, setAgreed] = reactExports.useState(false);
+  const [endorsed, setEndorsed] = reactExports.useState(false);
+  const [problem, setProblem] = reactExports.useState("");
+  const overLimit = ((_a3 = d.checks.find((c) => c.key === "balance")) == null ? void 0 : _a3.state) === "fail";
+  const skills = (_b3 = d.checks.find((c) => c.key === "skills_match")) == null ? void 0 : _b3.state;
+  const flagged = d.checks.filter((c) => c.state === "fail" && c.key !== "balance");
+  const send = (decision) => {
+    const note2 = comments.trim();
+    if (decision === "declined" && !note2) return setProblem("Say why it's declined. The person sees this.");
+    if (decision !== "declined") {
+      if (r2.type === "flexi" && !pinch) return setProblem("Check Kronos and record the pinch point first.");
+      if (r2.type === "flexi" && pinch !== "green") return setProblem("A flexi day needs a green pinch point, so this should be declined.");
+      if (overLimit && !(agreed && endorsed)) return setProblem("Going over the limit needs your agreement and the SC's endorsement.");
+      if (flagged.length && !note2) return setProblem(`Say why you're going ahead despite: ${flagged.map((c) => c.label).join(", ")}.`);
+    }
+    setProblem("");
+    act(() => backendClient.shift_adjustments.decideRequest(r2.id, {
+      decision,
+      comments: note2 || void 0,
+      pinch_point: pinch ?? void 0,
+      over_limit_agreed: overLimit ? agreed : void 0,
+      sc_endorsed: overLimit ? endorsed : void 0
+    }), decision === "declined" ? "Declined. They've been told." : "Signed. They've been told to submit it on Kronos.");
+  };
+  const addReason = (reason) => {
+    setProblem("");
+    setComments((c) => c.trim() ? `${c.trim()} ${reason}.` : `${reason}.`);
+  };
+  const rec = d.recommended;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Section$1, { title: "Your decision", children: [
+    r2.type === "flexi" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-sm", children: "Pinch point on Kronos" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground", children: [
+        "Only Kronos has this. Look it up under Pinch Points, Time Off, for ",
+        dayText(r2.shift_date),
+        "."
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Choice, { label: "Pinch point", value: pinch, onChange: (p) => {
+        setPinch(p);
+        setProblem("");
+      }, options: [
+        { value: "green", label: "Green" },
+        { value: "white", label: "White" },
+        { value: "red", label: "Red" }
+      ] })
+    ] }),
+    overLimit && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2 rounded-xl border border-border p-3 text-sm", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Checkbox, { checked: agreed, onCheckedChange: (v) => setAgreed(!!v) }),
+        " I agree to going over the limit"
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Checkbox, { checked: endorsed, onCheckedChange: (v) => setEndorsed(!!v) }),
+        " The SC has endorsed it"
+      ] })
+    ] }),
+    rec && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-muted-foreground", children: [
+      "The checks point to ",
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold text-foreground", children: rec === "authorised" ? "Authorised" : rec === "referred" ? "Referred" : "Declined" }),
+      "."
+    ] }),
+    r2.type === "h4h" && !rec && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "The cover isn't in the app, so check Kronos, then choose." }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "wc-comments", className: "text-sm", children: "Comments" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Textarea, { id: "wc-comments", rows: 2, value: comments, onChange: (e) => {
+        setComments(e.target.value);
+        setProblem("");
+      } }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1.5", children: DECLINE_REASONS[r2.type].map((reason) => /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => addReason(reason), className: "rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground hover:bg-muted", children: reason }, reason)) })
+    ] }),
+    (user2 == null ? void 0 : user2.role) === "CC" && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "You're signing as CC, so the record will show the WC was off." }),
+    problem && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { role: "alert", className: "text-sm font-medium text-red-700 dark:text-red-300", children: problem }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap justify-end gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", disabled: busy, onClick: () => send("declined"), children: "Decline" }),
+      r2.type === "h4h" && skills !== "ok" && /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: rec === "referred" ? "default" : "outline", disabled: busy, onClick: () => send("referred"), children: "Refer" }),
+      (r2.type === "flexi" || skills !== "warn") && /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: rec === "declined" ? "outline" : "default", disabled: busy, onClick: () => send("authorised"), children: "Authorise" })
+    ] })
+  ] });
+}
+function KronosResult({ d, act, busy }) {
+  const r2 = d.request;
+  const [date2, setDate] = reactExports.useState("");
+  const [shift2, setShift] = reactExports.useState("Day");
+  const [note2, setNote] = reactExports.useState("");
+  const [problem, setProblem] = reactExports.useState("");
+  const send = (approved) => {
+    if (approved && r2.type === "flexi" && !date2) return setProblem("Enter the payback date Kronos gave.");
+    setProblem("");
+    act(() => backendClient.shift_adjustments.recordOutcome(r2.id, {
+      approved,
+      note: note2.trim() || void 0,
+      payback_date: approved && r2.type === "flexi" ? date2 : void 0,
+      payback_day_night: approved && r2.type === "flexi" ? shift2 : void 0
+    }), approved ? "Approved. It's on the calendar now." : "Result recorded");
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Section$1, { title: "Result from Kronos", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-muted-foreground", children: [
+      d.kronos_by ? `Submit it on Kronos by ${deadlineText(d.kronos_by)}. ` : "Submit it on Kronos. ",
+      "Record the answer here once it comes back. It only goes on the calendar when approved."
+    ] }),
+    r2.type === "flexi" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-[minmax(0,1fr)_auto] items-end gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "flexi-payback", className: "text-sm", children: "Payback date Kronos gave" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "flexi-payback", type: "date", value: date2, onChange: (e) => {
+          setDate(e.target.value);
+          setProblem("");
+        } })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Choice, { label: "Payback shift", value: shift2, onChange: setShift, options: DAY_NIGHT })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { "aria-label": "Note", placeholder: "Note (optional)", value: note2, onChange: (e) => setNote(e.target.value) }),
+    problem && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { role: "alert", className: "text-sm font-medium text-red-700 dark:text-red-300", children: problem }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap justify-end gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", disabled: busy, onClick: () => send(false), children: "Declined on Kronos" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { disabled: busy, onClick: () => send(true), children: "Approved on Kronos" })
+    ] })
+  ] });
+}
+function AddPayback({ d, act, busy }) {
+  const [date2, setDate] = reactExports.useState("");
+  const [shift2, setShift] = reactExports.useState("Day");
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Section$1, { title: "Payback", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "Add the date once it's agreed. It goes to the WC to check first." }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-[minmax(0,1fr)_auto] items-end gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "h4h-payback", className: "text-sm", children: "Payback date" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "h4h-payback", type: "date", value: date2, onChange: (e) => setDate(e.target.value) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Choice, { label: "Payback shift", value: shift2, onChange: setShift, options: DAY_NIGHT })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", disabled: busy || !date2, onClick: () => act(() => backendClient.shift_adjustments.addPayback(d.request.id, { payback_date: date2, payback_day_night: shift2 }), "Payback added"), children: "Add payback" }) })
+  ] });
+}
+function PaybackDecision({ d, act, busy }) {
+  var _a3;
+  const r2 = d.request;
+  const [comments, setComments] = reactExports.useState("");
+  const [problem, setProblem] = reactExports.useState("");
+  const clash = ((_a3 = d.checks.find((c) => c.key === "payback_clash")) == null ? void 0 : _a3.state) === "fail";
+  const send = (authorised) => {
+    if (!comments.trim() && (!authorised || clash)) {
+      return setProblem(authorised ? "Say why you're going ahead despite the clash." : "Say why it's declined.");
+    }
+    setProblem("");
+    act(() => backendClient.shift_adjustments.decidePayback(r2.id, { authorised, comments: comments.trim() || void 0 }), authorised ? "Payback authorised" : "Payback declined");
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Section$1, { title: "Sign the payback", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-muted-foreground", children: [
+      r2.user_name,
+      " works ",
+      r2.payback_date && dayText(r2.payback_date),
+      " (",
+      r2.payback_day_night,
+      ") to pay this back."
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Textarea, { "aria-label": "Comments", rows: 2, value: comments, onChange: (e) => {
+      setComments(e.target.value);
+      setProblem("");
+    } }),
+    problem && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { role: "alert", className: "text-sm font-medium text-red-700 dark:text-red-300", children: problem }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", disabled: busy, onClick: () => send(false), children: "Decline" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { disabled: busy, onClick: () => send(true), children: "Authorise" })
+    ] })
+  ] });
+}
+function RequestCard({ id, onClose }) {
+  const { toast: toast2 } = useToast();
+  const qc = useQueryClient();
+  const [confirmingWithdraw, setConfirmingWithdraw] = reactExports.useState(false);
+  reactExports.useEffect(() => setConfirmingWithdraw(false), [id]);
+  const { data: d, isLoading, error } = useQuery({
+    queryKey: ["shift-request", id],
+    queryFn: () => backendClient.shift_adjustments.getRequest(id),
+    enabled: id !== null,
+    retry: false
+  });
+  const mutation = useMutation({
+    mutationFn: ({ run }) => run(),
+    onSuccess: (detail, { done }) => {
+      qc.setQueryData(["shift-request", id], detail);
+      qc.invalidateQueries({ queryKey: ["shift-requests"] });
+      refreshCalendar(qc);
+      for (const key2 of ["shift-adjustments", "shift-adjustments-mine", "shift-adjustments-for-profile", "shift-adjustments-inbound"]) {
+        qc.invalidateQueries({ queryKey: [key2] });
+      }
+      if (done) toast2({ title: done });
+    },
+    onError: (err2) => toast2({ title: "That didn't work", description: err2.message, variant: "destructive" })
+  });
+  const act = (run, done) => mutation.mutate({ run, done });
+  const busy = mutation.isPending;
+  const r2 = d == null ? void 0 : d.request;
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: id !== null, onOpenChange: (o) => {
+    if (!o) onClose();
+  }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "gap-0 overflow-hidden p-0 sm:max-w-lg", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { className: "border-b border-border px-5 pb-3 pt-5 text-left", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { className: "pr-6 text-base", children: r2 ? `${REQUEST_LABEL[r2.type]}: ${r2.user_name}` : "Request" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: r2 ? `${dayText(r2.shift_date)} · ${r2.shift_type} · ${r2.watch} Watch` : "Loading" }),
+      r2 && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "pt-1 text-sm font-medium text-foreground", children: [
+        STATUS_LABEL[r2.status],
+        r2.payback_status === "with_wc" && " · payback with the WC",
+        (d == null ? void 0 : d.kronos_by) && r2.status === "with_wc" && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-normal text-muted-foreground", children: [
+          " · on Kronos by ",
+          deadlineText(d.kronos_by)
+        ] })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-h-[75vh] space-y-5 overflow-y-auto px-5 py-4", children: [
+      isLoading && /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-48 w-full" }),
+      error && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: error.message }),
+      d && r2 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        d.can.confirm_cover && /* @__PURE__ */ jsxRuntimeExports.jsx(CoverAnswer, { d, act, busy }),
+        d.checks.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(Section$1, { title: r2.status === "with_cover" || r2.status === "with_wc" || r2.payback_status === "with_wc" ? "Checks" : "Checks when signed", children: /* @__PURE__ */ jsxRuntimeExports.jsx(CheckList, { checks: d.checks }) }),
+        d.can.decide && /* @__PURE__ */ jsxRuntimeExports.jsx(Decision, { d, act, busy }, r2.id),
+        d.can.record_outcome && /* @__PURE__ */ jsxRuntimeExports.jsx(KronosResult, { d, act, busy }, `k${r2.id}`),
+        d.can.decide_payback && /* @__PURE__ */ jsxRuntimeExports.jsx(PaybackDecision, { d, act, busy }, `p${r2.id}`),
+        d.can.add_payback && /* @__PURE__ */ jsxRuntimeExports.jsx(AddPayback, { d, act, busy }, `a${r2.id}`),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Section$1, { title: "Record", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("dl", { className: "grid grid-cols-2 gap-x-4 gap-y-2.5 rounded-xl border border-border p-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Name", value: `${r2.user_name} (${r2.user_role})` }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Payroll number", value: r2.payroll_number }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Station", value: r2.station }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Watch", value: r2.watch }),
+            r2.type === "h4h" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Working it", value: r2.cover_name }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Their payroll number", value: r2.cover_payroll }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Their station", value: r2.cover_station }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Their watch", value: r2.cover_watch })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Payback", value: r2.payback_date ? `${dayText(r2.payback_date)} (${r2.payback_day_night})` : null }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Payback watch", value: r2.payback_watch }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Reviewer asked", value: r2.reviewer_name }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Signed by", value: signedAs(r2) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Signed on", value: r2.decided_at ? stampText(r2.decided_at) : null }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Pinch point", value: r2.pinch_point ? r2.pinch_point[0].toUpperCase() + r2.pinch_point.slice(1) : null }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Over the limit", value: r2.over_limit_agreed || r2.sc_endorsed ? `WC agreed: ${r2.over_limit_agreed ? "yes" : "no"}. SC endorsed: ${r2.sc_endorsed ? "yes" : "no"}` : null })
+          ] }),
+          r2.notes && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-muted-foreground", children: [
+            "Their note: ",
+            r2.notes
+          ] }),
+          r2.wc_comments && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-foreground", children: [
+            "WC comments: ",
+            r2.wc_comments
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Section$1, { title: "Timeline", children: /* @__PURE__ */ jsxRuntimeExports.jsx("ol", { className: "space-y-2.5 border-l border-border pl-3.5", children: d.events.map((e, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "text-sm", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium text-foreground", children: e.action }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground", children: [
+            e.by_name,
+            " · ",
+            stampText(e.at)
+          ] }),
+          e.detail && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[13px] text-muted-foreground", children: e.detail })
+        ] }, i)) }) }),
+        d.can.withdraw && (confirmingWithdraw ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-end gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mr-auto text-sm text-muted-foreground", children: "Withdraw this request? It stays on the record." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "ghost", onClick: () => setConfirmingWithdraw(false), children: "Keep it" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", disabled: busy, onClick: () => act(() => backendClient.shift_adjustments.withdrawRequest(r2.id, {}), "Withdrawn"), children: "Withdraw" })
+        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "ghost", className: "text-muted-foreground", onClick: () => setConfirmingWithdraw(true), children: "Withdraw request" }) }))
+      ] })
+    ] })
+  ] }) });
+}
+const WATCHES$a = ["Red", "White", "Green", "Blue", "Amber"];
+function RequestRow({ r: r2, onOpen, extra }) {
+  const Icon2 = r2.type === "flexi" ? CalendarDays : ArrowLeftRight;
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: onOpen, className: "flex w-full items-center gap-3 px-3 py-3 text-left transition-colors hover:bg-muted/60 sm:px-4", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "h-4 w-4", "aria-hidden": true }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "min-w-0 flex-1", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "block truncate text-sm font-semibold text-foreground", children: [
+        r2.user_name,
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-normal text-muted-foreground", children: [
+          " · ",
+          REQUEST_LABEL[r2.type],
+          r2.cover_name ? ` with ${r2.cover_name}` : ""
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "block truncate text-[13px] text-muted-foreground", children: [
+        dayText(r2.shift_date),
+        " · ",
+        r2.shift_type,
+        " · ",
+        r2.watch
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "block truncate text-[13px] text-muted-foreground", children: [
+        r2.payback_status === "with_wc" ? "Payback with the WC" : STATUS_LABEL[r2.status],
+        extra ? ` · ${extra}` : ""
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-4 w-4 shrink-0 text-muted-foreground", "aria-hidden": true })
+  ] }) });
+}
+function Group({ title, rows, onOpen, extra }) {
+  if (rows.length === 0) return null;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "space-y-2", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-sm font-semibold text-foreground", children: [
+      title,
+      " ",
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-normal text-muted-foreground", children: rows.length })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "divide-y divide-border overflow-hidden rounded-xl border border-border bg-card", children: rows.map((r2) => /* @__PURE__ */ jsxRuntimeExports.jsx(RequestRow, { r: r2, onOpen: () => onOpen(r2.id), extra: extra == null ? void 0 : extra(r2) }, r2.id)) })
+  ] });
+}
+function Empty({ title, body }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-xl border border-dashed border-border px-4 py-10 text-center", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm font-medium text-foreground", children: title }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1 text-sm text-muted-foreground", children: body })
+  ] });
+}
+const Loading = () => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+  /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-16 w-full" }),
+  /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-16 w-full" })
+] });
+function ReviewTab({ onOpen }) {
+  const { data, isLoading } = useQuery({
+    queryKey: ["shift-requests", "review"],
+    queryFn: () => backendClient.shift_adjustments.listRequests({ scope: "review" })
+  });
+  if (isLoading) return /* @__PURE__ */ jsxRuntimeExports.jsx(Loading, {});
+  const rows = (data == null ? void 0 : data.requests) ?? [];
+  const toSign = rows.filter((r2) => r2.status === "with_wc" || r2.payback_status === "with_wc");
+  const cover = rows.filter((r2) => r2.status === "with_cover");
+  const kronos = rows.filter((r2) => r2.status === "authorised" || r2.status === "referred");
+  if (rows.length === 0) return /* @__PURE__ */ jsxRuntimeExports.jsx(Empty, { title: "Nothing to review", body: "Requests from your watch come here, and you'll get a notification." });
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Group, { title: "To sign", rows: toSign, onOpen }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Group, { title: "Waiting for the cover to agree", rows: cover, onOpen }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Group, { title: "Waiting on Kronos", rows: kronos, onOpen })
+  ] });
+}
+function MineTab({ onOpen }) {
+  const { user: user2 } = useAuth();
+  const { data, isLoading } = useQuery({
+    queryKey: ["shift-requests", "mine"],
+    queryFn: () => backendClient.shift_adjustments.listRequests({ scope: "mine" })
+  });
+  if (isLoading) return /* @__PURE__ */ jsxRuntimeExports.jsx(Loading, {});
+  const rows = (data == null ? void 0 : data.requests) ?? [];
+  const needsMe = (r2) => r2.status === "with_cover" && r2.cover_user_id === (user2 == null ? void 0 : user2.id) || (r2.status === "authorised" || r2.status === "referred") && r2.user_id === (user2 == null ? void 0 : user2.id);
+  if (rows.length === 0) return /* @__PURE__ */ jsxRuntimeExports.jsx(Empty, { title: "No requests yet", body: "Ask for a Flexi Day or a Head for Head with New request." });
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Group, { title: "Needs you", rows: rows.filter(needsMe), onOpen }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Group, { title: "Your requests", rows: rows.filter((r2) => !needsMe(r2)), onOpen })
+  ] });
+}
+function RecordsTab({ onOpen }) {
+  const thisYear2 = (/* @__PURE__ */ new Date()).getFullYear();
+  const [year, setYear] = reactExports.useState(thisYear2);
+  const [type, setType] = reactExports.useState("all");
+  const [search, setSearch] = reactExports.useState("");
+  const { data, isLoading } = useQuery({
+    queryKey: ["shift-requests", "records", year],
+    queryFn: () => backendClient.shift_adjustments.listRequests({ scope: "records", year })
+  });
+  const rows = reactExports.useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return ((data == null ? void 0 : data.requests) ?? []).filter(
+      (r2) => (type === "all" || r2.type === type) && (!q || r2.user_name.toLowerCase().includes(q) || (r2.cover_name ?? "").toLowerCase().includes(q) || (r2.payroll_number ?? "").includes(q))
+    );
+  }, [data, type, search]);
+  const download = () => {
+    const url = URL.createObjectURL(new Blob([requestsCsv(rows)], { type: "text/csv" }));
+    const a = Object.assign(document.createElement("a"), { href: url, download: `Flexi and H4H records ${year}.csv` });
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: String(year), onValueChange: (v) => setYear(Number(v)), children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { "aria-label": "Year", className: "w-24", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: [thisYear2 + 1, thisYear2, thisYear2 - 1, thisYear2 - 2].map((y) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: String(y), children: y }, y)) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: type, onValueChange: setType, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { "aria-label": "Type", className: "w-40", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "all", children: "All requests" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "flexi", children: REQUEST_LABEL.flexi }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "h4h", children: REQUEST_LABEL.h4h })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { "aria-label": "Search by name or payroll number", placeholder: "Name or payroll number", className: "min-w-40 flex-1", value: search, onChange: (e) => setSearch(e.target.value) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline", disabled: rows.length === 0, onClick: download, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { className: "mr-2 h-4 w-4" }),
+        "Download"
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "Kept for good, including anything declined, withdrawn or cancelled. Your watch's requests, and any you signed." }),
+    isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Loading, {}) : rows.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(Empty, { title: `No records for ${year}`, body: "Each request is saved here once it's made." }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "divide-y divide-border overflow-hidden rounded-xl border border-border bg-card", children: rows.map((r2) => /* @__PURE__ */ jsxRuntimeExports.jsx(RequestRow, { r: r2, onOpen: () => onOpen(r2.id), extra: r2.decided_by_name ? `signed by ${signedAs(r2)}` : void 0 }, r2.id)) })
+  ] });
+}
+function OpeningInput({ person, year, disabled }) {
+  const { toast: toast2 } = useToast();
+  const qc = useQueryClient();
+  const [value, setValue] = reactExports.useState(String(person.opening));
+  reactExports.useEffect(() => setValue(String(person.opening)), [person.opening]);
+  const save = useMutation({
+    mutationFn: (used) => backendClient.shift_adjustments.setFlexiOpening({ user_id: person.user_id, year, used }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["shift-requests", "balances"] }),
+    onError: (err2) => {
+      setValue(String(person.opening));
+      toast2({ title: "Couldn't save that", description: err2.message, variant: "destructive" });
+    }
+  });
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    Input,
+    {
+      "aria-label": `Flexi days ${person.name} used before the app, ${year}`,
+      type: "number",
+      inputMode: "numeric",
+      min: 0,
+      disabled,
+      className: "h-9 w-16 text-center",
+      value,
+      onChange: (e) => setValue(e.target.value),
+      onBlur: () => {
+        const n = Number(value);
+        if (value !== "" && Number.isInteger(n) && n >= 0 && n !== person.opening) save.mutate(n);
+        else setValue(String(person.opening));
+      }
+    }
+  );
+}
+function LimitsForm({ limits }) {
+  const { toast: toast2 } = useToast();
+  const qc = useQueryClient();
+  const [form, setForm] = reactExports.useState(limits);
+  reactExports.useEffect(() => setForm(limits), [limits]);
+  const save = useMutation({
+    mutationFn: () => backendClient.shift_adjustments.setFlexiLimits(form),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["shift-requests"] });
+      toast2({ title: "Limits saved" });
+    },
+    onError: (err2) => toast2({ title: "Couldn't save those", description: err2.message, variant: "destructive" })
+  });
+  const field = (key2, label2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: `limit-${key2}`, className: "text-xs text-muted-foreground", children: label2 }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: `limit-${key2}`, type: "number", inputMode: "numeric", min: 0, className: "h-9 w-24", value: form[key2], onChange: (e) => setForm({ ...form, [key2]: Number(e.target.value) }) })
+  ] });
+  const changed = form.per_year !== limits.per_year || form.days_ahead !== limits.days_ahead || form.notice_hours !== limits.notice_hours;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("details", { className: "rounded-xl border border-border bg-card px-4 py-3", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("summary", { className: "cursor-pointer text-sm font-medium text-foreground", children: "Limits, in case the procedure changes" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 flex flex-wrap items-end gap-3", children: [
+      field("per_year", "Flexi days a year"),
+      field("days_ahead", "Days ahead"),
+      field("notice_hours", "Hours' notice"),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", disabled: !changed || save.isPending, onClick: () => save.mutate(), children: "Save" })
+    ] })
+  ] });
+}
+function BalancesTab() {
+  const { user: user2 } = useAuth();
+  const thisYear2 = (/* @__PURE__ */ new Date()).getFullYear();
+  const [watch, setWatch] = reactExports.useState((user2 == null ? void 0 : user2.watch_unit) ?? "Blue");
+  const [year, setYear] = reactExports.useState(thisYear2);
+  const { data, isLoading } = useQuery({
+    queryKey: ["shift-requests", "balances", watch, year],
+    queryFn: () => backendClient.shift_adjustments.flexiBalances({ watch, year })
+  });
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watch, onValueChange: setWatch, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { "aria-label": "Watch", className: "w-28", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$a.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: String(year), onValueChange: (v) => setYear(Number(v)), children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { "aria-label": "Year", className: "w-24", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: [thisYear2 + 1, thisYear2, thisYear2 - 1].map((y) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: String(y), children: y }, y)) })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "Enter how many flexi days each person had already used this year. The app adds its own requests on top, once they've reached the WC." }),
+    isLoading || !data ? /* @__PURE__ */ jsxRuntimeExports.jsx(Loading, {}) : /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { className: "divide-y divide-border overflow-hidden rounded-xl border border-border bg-card", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "grid grid-cols-[minmax(0,1fr)_64px_44px_64px] items-center gap-2 px-3 py-2 text-xs text-muted-foreground sm:px-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Person" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-center", children: "Before" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-center", children: "App" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-right", children: "Total" })
+      ] }),
+      data.people.map((p) => {
+        const total = p.opening + p.in_app;
+        const over = total > data.limits.per_year;
+        const atLimit = total === data.limits.per_year;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "grid grid-cols-[minmax(0,1fr)_64px_44px_64px] items-center gap-2 px-3 py-2 sm:px-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "min-w-0 truncate text-sm font-medium text-foreground", children: [
+            p.name,
+            " ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-normal text-muted-foreground", children: p.role })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(OpeningInput, { person: p, year, disabled: !data.can_edit }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-center text-sm tabular-nums text-muted-foreground", children: p.in_app }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: cn(
+            "text-right text-sm font-medium tabular-nums",
+            over ? "text-red-600 dark:text-red-400" : atLimit ? "text-amber-600 dark:text-amber-400" : "text-foreground"
+          ), children: [
+            total,
+            " of ",
+            data.limits.per_year
+          ] })
+        ] }, p.user_id);
+      })
+    ] }),
+    (data == null ? void 0 : data.can_edit_limits) && /* @__PURE__ */ jsxRuntimeExports.jsx(LimitsForm, { limits: data.limits })
+  ] });
+}
+function Requests() {
+  const { user: user2 } = useAuth();
+  const isManager = (user2 == null ? void 0 : user2.role) === "WC" || (user2 == null ? void 0 : user2.role) === "CC";
+  const [params, setParams] = useSearchParams();
+  const tabs = isManager ? [{ key: "review", label: "To review" }, { key: "mine", label: "My requests" }, { key: "records", label: "Records" }, { key: "balances", label: "Flexi balances" }] : [{ key: "mine", label: "My requests" }];
+  const asked = params.get("tab");
+  const tab = tabs.some((t) => t.key === asked) ? asked : tabs[0].key;
+  const openParam = params.get("open");
+  const openId = openParam && /^\d+$/.test(openParam) ? Number(openParam) : null;
+  const update = (change) => {
+    const next = new URLSearchParams(params);
+    change(next);
+    setParams(next, { replace: true });
+  };
+  const open = (id) => update((n) => n.set("open", String(id)));
+  const [newOpen, setNewOpen] = reactExports.useState(false);
+  const { data: needs } = useQuery({
+    queryKey: ["shift-requests", "needs-me"],
+    queryFn: () => backendClient.shift_adjustments.requestsNeedingMe(),
+    staleTime: 3e4
+  });
+  const counts = {
+    review: (needs == null ? void 0 : needs.to_review) ?? 0,
+    mine: ((needs == null ? void 0 : needs.to_confirm) ?? 0) + ((needs == null ? void 0 : needs.to_record) ?? 0)
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-3", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-3xl font-semibold tracking-tight text-foreground", children: "Requests" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1 text-sm text-muted-foreground", children: "Flexi Days and Head for Heads, reviewed here before they go on Kronos." })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { onClick: () => setNewOpen(true), children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "mr-2 h-4 w-4" }),
+        "New request"
+      ] })
+    ] }),
+    tabs.length > 1 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "-mx-4 flex gap-1 overflow-x-auto border-b border-border px-4 sm:mx-0 sm:px-0 [scrollbar-width:none]", children: tabs.map((t) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "button",
+      {
+        type: "button",
+        "aria-current": tab === t.key ? "page" : void 0,
+        onClick: () => update((n) => n.set("tab", t.key)),
+        className: cn(
+          "flex shrink-0 items-center gap-2 whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium transition-colors sm:px-4",
+          tab === t.key ? "border-indigo-500 text-indigo-600 dark:text-indigo-400" : "border-transparent text-muted-foreground hover:border-border hover:text-foreground"
+        ),
+        children: [
+          t.label,
+          !!counts[t.key] && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "rounded-full bg-amber-400 px-1.5 text-xs font-semibold tabular-nums text-neutral-950", children: counts[t.key] })
+        ]
+      },
+      t.key
+    )) }),
+    tab === "review" && /* @__PURE__ */ jsxRuntimeExports.jsx(ReviewTab, { onOpen: open }),
+    tab === "mine" && /* @__PURE__ */ jsxRuntimeExports.jsx(MineTab, { onOpen: open }),
+    tab === "records" && /* @__PURE__ */ jsxRuntimeExports.jsx(RecordsTab, { onOpen: open }),
+    tab === "balances" && /* @__PURE__ */ jsxRuntimeExports.jsx(BalancesTab, {}),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(RequestCard, { id: openId, onClose: () => update((n) => n.delete("open")) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(NewRequestDialog, { open: newOpen, onClose: () => setNewOpen(false), onCreated: open })
   ] });
 }
 function getCurrentFinancialQuarter() {
@@ -76983,6 +78064,7 @@ function AppRoutes() {
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/targets", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Targets, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/hydrants", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Hydrants, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/references", element: /* @__PURE__ */ jsxRuntimeExports.jsx(References, {}) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/requests", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Requests, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/policies", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Policies, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/policies/qa", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Navigate, { to: "/policies", replace: true }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/resources", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Navigate, { to: "/policies", replace: true }) }),

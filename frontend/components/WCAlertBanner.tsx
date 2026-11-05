@@ -85,6 +85,12 @@ export function WCAlertBanner() {
     queryFn: () => backend.absence.listBackToWork({}),
     staleTime: 60_000,
   });
+  // Flexi Day and Head for Head requests waiting on a signature.
+  const { data: requestsData } = useQuery({
+    queryKey: ["shift-requests", "needs-me"],
+    queryFn: () => backend.shift_adjustments.requestsNeedingMe(),
+    staleTime: 30_000,
+  });
   // Hydrant faults found on this watch's route and not yet emailed away.
   const hydrantYear = new Date().getFullYear();
   const { data: hydrantData } = useQuery({
@@ -283,6 +289,19 @@ export function WCAlertBanner() {
   }
 
 
+
+  // WARNING: Requests to sign (Kronos needs them in time)
+  const requestsToReview = requestsData?.to_review ?? 0;
+  if (requestsToReview > 0) {
+    alerts.push({
+      id:    "shift-requests",
+      severity: "warning",
+      Icon:  ClipboardCheck,
+      label: requestsToReview === 1 ? "Flexi or Head for Head request to review" : "Flexi or Head for Head requests to review",
+      count: requestsToReview,
+      href:  "/requests",
+    });
+  }
 
   // WARNING: Certifications expiring soon
   const expiringSoon = skillsData?.warning_count ?? 0;

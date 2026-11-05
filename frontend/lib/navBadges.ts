@@ -51,7 +51,21 @@ export function useNavBadges(): Partial<Record<NavBadgeKey, NavBadge>> {
     ...quiet,
   });
 
+  const { data: requests } = useQuery({
+    queryKey: ["shift-requests", "needs-me"],
+    queryFn: () => backend.shift_adjustments.requestsNeedingMe(),
+    enabled: !!user,
+    ...quiet,
+  });
+
   const badges: Partial<Record<NavBadgeKey, NavBadge>> = {};
+
+  const toSign = requests?.to_review ?? 0;
+  const yours = (requests?.to_confirm ?? 0) + (requests?.to_record ?? 0);
+  if (toSign + yours > 0) {
+    const parts = [toSign > 0 && `${toSign} to review`, yours > 0 && `${yours} waiting on you`].filter(Boolean);
+    badges.requests = { count: toSign + yours, tone: "warn", hint: parts.join(" · ") };
+  }
 
   const overdue = crewStats?.overdue_tasks ?? 0;
   if (overdue > 0) badges.tasks = { count: overdue, tone: "alert", hint: `${overdue} overdue` };
