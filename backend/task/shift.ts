@@ -112,8 +112,8 @@ export const shiftBoard = api<ShiftBoardRequest, ShiftBoardResponse>(
             (t.status NOT IN ('Done', 'Missed') AND (t.due_at IS NULL OR t.due_at < $3))
             OR (t.status = 'Done' AND t.completed_at >= $2)))
          OR
-         -- A monthly / quarterly routine card stays with the watch it came round
-         -- for, on every shift of theirs, until they've done it.
+         -- A routine card stays with the watch it came round for, on every shift
+         -- of theirs, until they've done it or its time is up (lib/stationChecks).
          ($4::text IS NOT NULL AND t.source_type = 'template' AND LOWER(t.watch_unit) = LOWER($4::text) AND (
             (t.status NOT IN ('Done', 'Missed') AND t.created_at < $3)
             OR (t.status = 'Done' AND t.completed_at >= $2)))

@@ -60,6 +60,10 @@ export const list = api<ListTasksRequest, ListTasksResponse>(
     if (req.status) {
       conditions.push(`status = $${paramIndex++}`);
       params.push(req.status);
+    } else {
+      // A missed station check is a record (GET /api/tasks/missed-checks), not
+      // open work: it mustn't show as overdue on the side calendar.
+      conditions.push(`status <> 'Missed'`);
     }
     if (req.priority) {
       conditions.push(`priority = $${paramIndex++}`);

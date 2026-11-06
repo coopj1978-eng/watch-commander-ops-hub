@@ -451,13 +451,13 @@ export default function TaskCard({ task, onTitleEdit, onClick, onChecklistToggle
   const done = task.status === "Done";
   const shiftTask = task as Task & { kind?: string; check_freq?: string; completed_by_name?: string };
   // A routine card's header already says it's a station check and how often.
-  // A monthly / quarterly routine card stays until done; say since when.
+  // A routine card stays with its watch while it isn't done; say since when.
   const routineRule = (task as Task & { routine_rule?: string }).routine_rule;
-  const carriedSince = routineSlot && routineRule && routineRule !== "weekly" && !done && shiftStart && new Date(task.created_at) < new Date(shiftStart)
+  const carriedSince = routineSlot && routineSlot !== "every" && !done && shiftStart && new Date(task.created_at) < new Date(shiftStart)
     ? new Date(task.created_at).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })
     : null;
   const tag = shiftTask.kind && !routineSlot ? <ShiftTag task={shiftTask} shiftStart={shiftStart} />
-    : carriedSince ? <span style={tagStyle("var(--cal-day-bg)", "var(--cal-day-fg)")} title="Not done yet — it stays on the board until it is"><Repeat className="h-3 w-3" /> Carried from {carriedSince}</span>
+    : carriedSince ? <span style={tagStyle("var(--cal-day-bg)", "var(--cal-day-fg)")} title={routineRule === "weekly" ? "Not done yet — it stays on this watch's board until it is, or until their 2nd Night ends" : "Not done yet — it stays on this watch's board until it is"}><Repeat className="h-3 w-3" /> Carried from {carriedSince}</span>
     : null;
   // On the shift board the tag says when it's for, so the due chip is only kept for plain watch tasks.
   const showDue = !!task.due_at && (!shiftTask.kind || (shiftTask.kind === "watch" && !(shiftStart && new Date(task.due_at) < new Date(shiftStart))));

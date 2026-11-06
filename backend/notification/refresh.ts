@@ -105,9 +105,11 @@ export const refresh = api<void, RefreshResponse>(
     }>(
       `SELECT t.id, t.title, t.due_at, t.assigned_to_user_id, t.watch_unit
        FROM tasks t
-       WHERE t.status != 'Done'
+       WHERE t.status NOT IN ('Done', 'Missed')
          AND t.due_at IS NOT NULL
          AND t.due_at < NOW()
+         -- A routine card whose time is up goes down as missed, not overdue.
+         AND NOT (t.source_type = 'template' AND 'routine' = ANY(COALESCE(t.tags, '{}')))
          AND (
            LOWER(t.watch_unit) = LOWER($1)
            OR t.assigned_to_user_id = $2

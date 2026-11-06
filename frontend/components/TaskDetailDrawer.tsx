@@ -455,12 +455,21 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
   // Station checks come from the routine / scheduled checks: their timing,
   // repeat and watch are set there, so those fields aren't shown on the card.
   const isCheck = (task as Task & { source_type?: string }).source_type === "template";
-  const fromRoutine = !!(task as Task & { routine_slot?: string }).routine_slot;
+  const routineSlot = (task as Task & { routine_slot?: string }).routine_slot;
+  const fromRoutine = !!routineSlot;
+  const routineRule = (task as Task & { routine_rule?: string }).routine_rule ?? "weekly";
+  const checkTiming = !routineSlot
+    ? "Due by the end of its shift (or before the next one is made); anything not done then is marked missed."
+    : routineSlot === "every"
+    ? "Due by the end of this shift; anything not done then is marked missed."
+    : routineRule === "weekly"
+    ? "Stays on this watch's board until it's done or their 2nd Night ends, then it's marked missed. It never passes to another watch."
+    : "Stays on this watch's board until it's done, and is marked missed when the next one comes round. It never passes to another watch.";
   const checkNote = isCheck && (
     <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: 12, borderRadius: 14, background: "var(--cal-brand-soft)", color: "var(--cal-brand-text)", fontSize: 13, lineHeight: 1.4 }}>
       <span style={{ fontWeight: 600 }}>{fromRoutine ? "From the weekly routine" : "Station check"}</span>
       <span style={{ color: "var(--cal-ink-2)" }}>
-        Due by the end of its shift (or before the next one is made); anything not done then is marked missed. Change what's on it in the {fromRoutine ? "weekly routine" : "other checks"}.
+        {checkTiming} Change what's on it in the {fromRoutine ? "weekly routine" : "other checks"}.
       </span>
       {onOpenRoutine && (
         <button type="button" onClick={onOpenRoutine} className="cal-btn" style={{ alignSelf: "flex-start", height: 34, padding: "0 12px", fontSize: 13 }}>

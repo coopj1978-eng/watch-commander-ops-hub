@@ -1,5 +1,30 @@
 import { describe, it, expect } from "vitest";
-import { slotAt, slotForWatch, ukInstant, watchForSlot } from "./shiftRota";
+import { slotAt, slotForWatch, tourEnd, ukInstant, watchForSlot } from "./shiftRota";
+
+describe("tourEnd", () => {
+  it("is 08:00 after the 2nd Night from any shift of the tour", () => {
+    const end = "2026-11-10T08:00:00.000Z";
+    expect(tourEnd("2026-11-06", "1st Day")?.toISOString()).toBe(end);
+    expect(tourEnd("2026-11-07", "2nd Day")?.toISOString()).toBe(end);
+    expect(tourEnd("2026-11-08", "1st Night")?.toISOString()).toBe(end);
+    expect(tourEnd("2026-11-09", "2nd Night")?.toISOString()).toBe(end);
+  });
+
+  it("is 08:00 UK time in BST", () => {
+    expect(tourEnd("2026-07-01", "2nd Night")?.toISOString()).toBe("2026-07-02T07:00:00.000Z");
+  });
+
+  it("is null on rest days and leave", () => {
+    expect(tourEnd("2026-11-10", "Rest")).toBeNull();
+    expect(tourEnd("2026-11-10", "Annual Leave")).toBeNull();
+  });
+
+  it("matches the rota: Blue's Friday 6 Nov tour runs to Tuesday morning", () => {
+    const friday = watchForSlot({ date: "2026-11-06", type: "day", start: new Date(), end: new Date() });
+    expect(friday?.watch).toBe("Blue");
+    expect(tourEnd("2026-11-06", friday!.label)?.toISOString()).toBe("2026-11-10T08:00:00.000Z");
+  });
+});
 
 describe("shift slots (UK time)", () => {
   it("day shift runs 08:00–18:00 UK time in BST", () => {

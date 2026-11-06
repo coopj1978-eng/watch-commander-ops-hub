@@ -38306,7 +38306,7 @@ function ShiftRunningOrder() {
     for (const t of checks) {
       const list = checklistOf(t.checklist);
       const d = list.filter((i) => i.done).length;
-      const carried = t.routine_rule && t.routine_rule !== "weekly" && t.status !== "Done" && new Date(t.created_at).getTime() < start;
+      const carried = t.routine_slot && t.routine_slot !== "every" && t.status !== "Done" && new Date(t.created_at).getTime() < start;
       rows.push({
         key: `check-${t.id}`,
         at: start + 1,
@@ -53057,8 +53057,8 @@ function TaskCard({ task: task2, onTitleEdit, onClick, onChecklistToggle, userMa
   const done = task2.status === "Done";
   const shiftTask = task2;
   const routineRule = task2.routine_rule;
-  const carriedSince = routineSlot && routineRule && routineRule !== "weekly" && !done && shiftStart2 && new Date(task2.created_at) < new Date(shiftStart2) ? new Date(task2.created_at).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" }) : null;
-  const tag = shiftTask.kind && !routineSlot ? /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftTag, { task: shiftTask, shiftStart: shiftStart2 }) : carriedSince ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: tagStyle("var(--cal-day-bg)", "var(--cal-day-fg)"), title: "Not done yet — it stays on the board until it is", children: [
+  const carriedSince = routineSlot && routineSlot !== "every" && !done && shiftStart2 && new Date(task2.created_at) < new Date(shiftStart2) ? new Date(task2.created_at).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" }) : null;
+  const tag = shiftTask.kind && !routineSlot ? /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftTag, { task: shiftTask, shiftStart: shiftStart2 }) : carriedSince ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: tagStyle("var(--cal-day-bg)", "var(--cal-day-fg)"), title: routineRule === "weekly" ? "Not done yet — it stays on this watch's board until it is, or until their 2nd Night ends" : "Not done yet — it stays on this watch's board until it is", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat, { className: "h-3 w-3" }),
     " Carried from ",
     carriedSince
@@ -54846,11 +54846,15 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
   const recurLabel = parseRRuleLabel(showCustomRrule ? customRrule : rrule);
   const recurText = describeRRule(showCustomRrule ? task2.rrule : rrule && rrule !== "__none__" ? rrule : null);
   const isCheck = task2.source_type === "template";
-  const fromRoutine = !!task2.routine_slot;
+  const routineSlot = task2.routine_slot;
+  const fromRoutine = !!routineSlot;
+  const routineRule = task2.routine_rule ?? "weekly";
+  const checkTiming = !routineSlot ? "Due by the end of its shift (or before the next one is made); anything not done then is marked missed." : routineSlot === "every" ? "Due by the end of this shift; anything not done then is marked missed." : routineRule === "weekly" ? "Stays on this watch's board until it's done or their 2nd Night ends, then it's marked missed. It never passes to another watch." : "Stays on this watch's board until it's done, and is marked missed when the next one comes round. It never passes to another watch.";
   const checkNote = isCheck && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 8, padding: 12, borderRadius: 14, background: "var(--cal-brand-soft)", color: "var(--cal-brand-text)", fontSize: 13, lineHeight: 1.4 }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 600 }, children: fromRoutine ? "From the weekly routine" : "Station check" }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--cal-ink-2)" }, children: [
-      "Due by the end of its shift (or before the next one is made); anything not done then is marked missed. Change what's on it in the ",
+      checkTiming,
+      " Change what's on it in the ",
       fromRoutine ? "weekly routine" : "other checks",
       "."
     ] }),
@@ -57061,7 +57065,7 @@ function RoutinePlanner({ open, onClose, canManage, onOpenOtherChecks }) {
                   DAYS.map((d) => cell(`${d.key}-${s.key}`, { minHeight: s.key === "day" ? 160 : 90 }))
                 ] }, s.key))
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: 0, fontSize: 13, color: "var(--cal-muted)", maxWidth: 860 }, children: canManage ? `Changes save as you go and reach today's cards straight away (ticks are kept). ${isPhone ? "" : "Drag an item to move it to another card. "}Use a card's ⋯ to set how often it comes round, change its header or copy it to another day. Anything not done when the shift ends is marked missed and shows on the WC dashboard.` : "Only Watch and Crew Commanders can change the routine." })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: 0, fontSize: 13, color: "var(--cal-muted)", maxWidth: 860 }, children: canManage ? `Changes save as you go and reach today's cards straight away (ticks are kept). ${isPhone ? "" : "Drag an item to move it to another card. "}Use a card's ⋯ to set how often it comes round, change its header or copy it to another day. A weekly card stays with its watch until it's done or their 2nd Night ends, and an every-shift card until the shift ends. Anything not done by then is marked missed and shows on the WC dashboard.` : "Only Watch and Crew Commanders can change the routine." })
             ] }) })
           ]
         }

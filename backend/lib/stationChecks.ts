@@ -3,7 +3,7 @@ import log from "encore.dev/log";
 import { rruleFiresOn } from "./rrule";
 import { routineRuleFires } from "./routine";
 import { referenceCardPeriod, referenceCardPlans, type ReferenceCardPlan } from "./referenceRota";
-import { addDaysIso, shiftSlot, slotAt, ukInstant, watchForSlot, type ShiftSlot } from "./shiftRota";
+import { addDaysIso, shiftSlot, slotAt, tourEnd, ukInstant, watchForSlot, type ShiftSlot } from "./shiftRota";
 
 /**
  * Station checks from templates (shift board, Oct 2026). Each active template
@@ -16,11 +16,13 @@ import { addDaysIso, shiftSlot, slotAt, ukInstant, watchForSlot, type ShiftSlot 
  *     08:00), due when the next one is made — so a weekly/monthly/quarterly
  *     check stays on every shift until it's done, and a daily one lasts the day.
  * Making a check's next card — or its due time passing — marks its earlier
- * unfinished card Missed, so missed checks never pile up. Weekly routine and
- * every-shift cards are due when their shift ends (then Missed and off the
- * board); monthly and quarterly routine cards belong to the watch on duty
- * and stay on that watch's board until done, due when the next one comes. Idempotent (unique template + date + shift),
- * so it runs hourly and whenever the shift board is opened.
+ * unfinished card Missed, so missed checks never pile up. Every-shift cards
+ * are due when their shift ends (then Missed and off the board). Routine cards
+ * belong to the watch on duty when they come round and stay only on that
+ * watch's board, never passed to the next watch (John, Nov 2026): a weekly one
+ * until it's done or their 2nd Night ends, a monthly or quarterly one until
+ * it's done, due when the next one comes. Idempotent (unique template + date +
+ * shift), so it runs hourly and whenever the shift board is opened.
  */
 /** "{date}" and "{shift}" in a template's card title become the day and shift, e.g. "Mon 2 Nov" / "Night". */
 export function fillTitle(template: string, dateIso: string, shift: "day" | "night", perShift: boolean): string {
@@ -66,7 +68,12 @@ export async function ensureStationChecks(now: Date = new Date()): Promise<{ cre
 
     const shiftKey = t.per_shift ? slot.type : "";
     let due: Date;
-    const monthlyRoutine = !!t.routine_slot && t.routine_slot !== "every" && !!t.routine_rule && t.routine_rule !== "weekly";
+    const routineCard = !!t.routine_slot && t.routine_slot !== "every";
+    const monthlyRoutine = routineCard && !!t.routine_rule && t.routine_rule !== "weekly";
+    // A routine card belongs to the watch on duty when it comes round: what
+    // they don't finish stays on their board, not the next watch's.
+    const owner = routineCard ? watchForSlot(slot) : null;
+    const weeklyDue = owner && !monthlyRoutine ? tourEnd(slot.date, owner.label) : null;
     if (monthlyRoutine) {
       // A monthly or quarterly routine card stays with the watch whose shift it
       // came on until they've done it (John, Nov 2026) — never moved onto
@@ -77,6 +84,9 @@ export async function ensureStationChecks(now: Date = new Date()): Promise<{ cre
         if (rruleFiresOn(t.rrule, d, t.created_at) && routineRuleFires(t.routine_rule, d)) next = d;
       }
       due = next ? shiftSlot(next, slot.type).start : ukInstant(addDaysIso(slot.date, 120), 8);
+    } else if (weeklyDue) {
+      // A weekly routine card stays with its watch until their 2nd Night ends.
+      due = weeklyDue;
     } else if (t.per_shift) {
       due = slot.end;
     } else {
@@ -108,9 +118,7 @@ export async function ensureStationChecks(now: Date = new Date()): Promise<{ cre
          RETURNING id`,
         fillTitle(t.title_template, slot.date, slot.type, t.per_shift), t.task_description ?? null, t.category, t.created_by, t.priority, checklist, t.rrule, due,
         t.routine_slot ? ["routine"] : null, t.cover ?? null,
-        // A monthly / quarterly card belongs to the watch on duty when it comes
-        // round: if they don't finish it, it stays on their board, not the next watch's.
-        monthlyRoutine ? watchForSlot(slot)?.watch ?? null : null
+        owner?.watch ?? null
       );
       const instance = task && await tx.rawQueryRow<{ id: number }>(
         `INSERT INTO task_template_instances (template_id, task_id, generated_for_date, generated_for_shift)
@@ -139,10 +147,11 @@ export async function ensureStationChecks(now: Date = new Date()): Promise<{ cre
   created += await ensureReferenceCards(slot);
   if (created) log.info("Station checks made", { created, date: slot.date, shift: slot.type });
 
-  // A check whose time is up is Missed: an every-shift or routine card when
-  // its shift ends, a daily/weekly/monthly one when its next card is due.
-  // (Making the next card does the same, but a weekday's routine only comes
-  // round again next week, and a deleted template's cards would never go.)
+  // A check whose time is up is Missed: an every-shift card when its shift
+  // ends, a weekly routine card when its watch's 2nd Night ends, a daily, weekly
+  // or monthly one when its next card is due. (Making the next card does the
+  // same, but a weekday's routine only comes round again next week, and a
+  // deleted template's cards would never go.)
   // Reference cards are left: they stay with their watch until done.
   await db.rawExec(
     `UPDATE tasks SET status = 'Missed', updated_at = NOW()

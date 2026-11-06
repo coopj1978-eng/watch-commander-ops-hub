@@ -140,6 +140,16 @@ export function watchForSlot(slot: ShiftSlot): { watch: string; label: ShiftType
   return null;
 }
 
+/**
+ * When the tour a rota entry belongs to ends: 08:00 after its 2nd Night.
+ * Null for a rest day or leave. E.g. a 1st Day on the 6th ends at 08:00 on the 10th.
+ */
+export function tourEnd(date: string, label: ShiftType): Date | null {
+  const tour: ShiftType[] = ["1st Day", "2nd Day", "1st Night", "2nd Night"];
+  const i = tour.indexOf(label);
+  return i < 0 ? null : ukInstant(addDaysIso(date, tour.length - i), 8);
+}
+
 /** The slot a watch is working now, or its next one (past rest days and leave). */
 export function slotForWatch(watch: string, now: Date = new Date()): (ShiftSlot & { label: ShiftType; onDuty: boolean }) | null {
   let { date, type } = slotAt(now);

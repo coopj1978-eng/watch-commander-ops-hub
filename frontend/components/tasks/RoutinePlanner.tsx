@@ -381,7 +381,7 @@ export default function RoutinePlanner({ open, onClose, canManage, onOpenOtherCh
 
               <p style={{ margin: 0, fontSize: 13, color: "var(--cal-muted)", maxWidth: 860 }}>
                 {canManage
-                  ? `Changes save as you go and reach today's cards straight away (ticks are kept). ${isPhone ? "" : "Drag an item to move it to another card. "}Use a card's ⋯ to set how often it comes round, change its header or copy it to another day. Anything not done when the shift ends is marked missed and shows on the WC dashboard.`
+                  ? `Changes save as you go and reach today's cards straight away (ticks are kept). ${isPhone ? "" : "Drag an item to move it to another card. "}Use a card's ⋯ to set how often it comes round, change its header or copy it to another day. A weekly card stays with its watch until it's done or their 2nd Night ends, and an every-shift card until the shift ends. Anything not done by then is marked missed and shows on the WC dashboard.`
                   : "Only Watch and Crew Commanders can change the routine."}
               </p>
             </>

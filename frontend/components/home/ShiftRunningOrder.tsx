@@ -111,14 +111,14 @@ export function ShiftRunningOrder() {
       body: <span>Riding positions and duties — <Link to="/handover" className="font-medium text-foreground hover:underline">crewing board</Link></span>,
     });
 
-    // ── Station checks: the cards on the board (a monthly or quarterly one
-    //    stays until done), and before the shift starts a preview of the
+    // ── Station checks: the cards on the board (a routine card stays with its
+    //    watch while it isn't done), and before the shift starts a preview of the
     //    routine cards due that haven't been made yet.
     const checks = tasks.filter((t) => t.kind === "check");
     for (const t of checks) {
       const list = checklistOf(t.checklist);
       const d = list.filter((i) => i.done).length;
-      const carried = t.routine_rule && t.routine_rule !== "weekly" && t.status !== "Done" && new Date(t.created_at).getTime() < start;
+      const carried = t.routine_slot && t.routine_slot !== "every" && t.status !== "Done" && new Date(t.created_at).getTime() < start;
       rows.push({
         key: `check-${t.id}`, at: start + 1, time: null, Icon: ClipboardCheck, to: "/tasks",
         tone: t.status === "Done" ? "done" : carried ? "warn" : undefined,
