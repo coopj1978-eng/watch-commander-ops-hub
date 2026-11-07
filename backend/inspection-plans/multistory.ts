@@ -59,6 +59,17 @@ export const updateMultistory = api(
       ...values
     );
     if (!row) throw new Error("Multi-story inspection not found");
+
+    // Inspections keep a copy of the address as their label, so a corrected
+    // address has to reach them too, including ones already ticked.
+    if (fields.address !== undefined) {
+      await db.exec`
+        UPDATE inspection_assignments
+           SET label = ${row.address}, updated_at = now()
+         WHERE plan_type = 'multistory' AND plan_id = ${id}
+      `;
+    }
+
     return row;
   }
 );
