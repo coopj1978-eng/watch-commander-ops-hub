@@ -3,6 +3,7 @@ import { getAuthData } from "~encore/auth";
 import db, { type SQLPrimitive } from "../db";
 import { requirePermission } from "../auth/rbac";
 import { Permission } from "../auth/rbac";
+import { watchInYear } from "../lib/multistoryProgramme";
 import type {
   InspectionAssignment,
   GenerateAssignmentsRequest,
@@ -19,7 +20,8 @@ const ALL_WATCHES: WatchName[] = ["Red", "White", "Green", "Blue", "Amber"];
 // WC/CC only — reads the 4 plan tables and creates assignments for the given year.
 // Passing quarter= limits multi-story to that quarter only; omitting it generates all quarters.
 // Multi-story quarters are calendar quarters (Q1 = Jan–Mar), as on the station's programme
-// (John, 7 Nov 2026), so `year` is the calendar year for every plan type.
+// (John, 7 Nov 2026), so `year` is the calendar year for every plan type. The programme
+// moves along each January, so the plan's watches are moved on to `year` (lib/multistoryProgramme).
 // Care homes always generate annual assignments (quarter = null) for ALL watches.
 // OIs generate annual assignments for their own watch field. Hydrants have their own
 // routes and rota now (backend/hydrants), so the old register no longer makes any.
@@ -44,9 +46,10 @@ export const generateAssignments = api(
       const quarters: Array<[number, string | null]> = [
         [1, row.q1_watch], [2, row.q2_watch], [3, row.q3_watch], [4, row.q4_watch],
       ];
-      for (const [q, watch] of quarters) {
-        if (!watch) continue;
+      for (const [q, planWatch] of quarters) {
+        if (!planWatch) continue;
         if (req.quarter !== undefined && req.quarter !== q) continue;
+        const watch = watchInYear(planWatch, req.year);
         const result = await db.rawQueryRow<{ id: number }>(
           `INSERT INTO inspection_assignments (plan_type, plan_id, label, watch, year, quarter)
            VALUES ('multistory', $1, $2, $3, $4, $5)
