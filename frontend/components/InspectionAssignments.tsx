@@ -373,7 +373,9 @@ export default function InspectionAssignments({ year, quarter, exclude = [] }: P
             <Building2 className="h-10 w-10 text-muted-foreground/40 mx-auto mb-3" />
             <p className="font-medium text-foreground">No assignments for {year}</p>
             <p className="text-sm text-muted-foreground mt-1">
-              {canManage
+              {year > new Date().getFullYear()
+                ? `These appear by themselves on 1 January ${year}.`
+                : canManage
                 ? `Click "Generate ${year}" to create assignments from the Inspection Plans.`
                 : "No inspection assignments have been generated for this period yet."}
             </p>

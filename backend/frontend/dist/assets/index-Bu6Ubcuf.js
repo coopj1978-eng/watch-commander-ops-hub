@@ -58579,7 +58579,7 @@ function InspectionAssignments({ year, quarter, exclude = [] }) {
         "No assignments for ",
         year
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground mt-1", children: canManage ? `Click "Generate ${year}" to create assignments from the Inspection Plans.` : "No inspection assignments have been generated for this period yet." })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground mt-1", children: year > (/* @__PURE__ */ new Date()).getFullYear() ? `These appear by themselves on 1 January ${year}.` : canManage ? `Click "Generate ${year}" to create assignments from the Inspection Plans.` : "No inspection assignments have been generated for this period yet." })
     ] }) }),
     !isLoading && hasAnyAssignments && sections.map((config) => {
       const sectionItems = getItemsForSection(config.type);
