@@ -5,7 +5,7 @@ import { AlertTriangle, ArrowRight, ChevronDown, Moon, Sun } from "lucide-react"
 import backend from "@/lib/backend";
 import { useAuth } from "@/App";
 import { getWatchShiftStatus, hasRotaConfig } from "@/lib/shiftRota";
-import { getLabelById } from "@/lib/taskLabels";
+import { buildUpcoming, dayKey, daysFromToday, type CalEvent, type UpcomingItem } from "@/lib/taskUpcoming";
 import { CALENDAR_EVENTS_KEY } from "@/lib/calendarQueries";
 import type { Task } from "~backend/task/types";
 
@@ -14,13 +14,7 @@ import type { Task } from "~backend/task/types";
 // events. Personal events stay on the Calendar page. (The small month calendar
 // was taken out in Nov 2026 — John: the Calendar page is the one calendar.)
 
-const dayKey = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
-const daysFromToday = (d: Date) => Math.round((startOfDay(d).getTime() - startOfDay(new Date()).getTime()) / 86400000);
-const shortDate = (d: Date) => d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
-const hhmm = (d: Date) => `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-
-interface CalEvent { id: number; title: string; start: Date; allDay: boolean; station: boolean }
 
 /** Watch Calendar and Station events from today to 60 days ahead. */
 function usePanelEvents(): CalEvent[] {
@@ -62,24 +56,22 @@ function useMissedChecks() {
   return data?.checks ?? [];
 }
 
-function ShiftPill({ watch, small }: { watch: string; small?: boolean }) {
+function ShiftPill({ watch }: { watch: string }) {
   const s = getWatchShiftStatus(watch);
   if (!s) return null;
   const k = s.state === "on" && s.current ? (s.current.startTime === "18:00" ? "night" : "day") : s.state === "leave" ? "leave" : null;
   const main = s.state === "on" && s.current ? s.current.shiftType : s.label;
-  const sub = s.state === "on" && s.current
-    ? (small ? `${s.current.startTime?.slice(0, 2)}–${s.current.endTime?.slice(0, 2)}` : `${s.current.startTime}–${s.current.endTime}`)
-    : small ? "" : s.nextLabel ? `next ${s.nextLabel}` : "";
+  const sub = s.state === "on" && s.current ? `${s.current.startTime}–${s.current.endTime}` : s.nextLabel ? `next ${s.nextLabel}` : "";
   const Icon = k === "night" ? Moon : k === "day" ? Sun : null;
   return (
     <span
       style={{
-        display: "inline-flex", alignItems: "center", gap: small ? 4 : 6, padding: small ? "2px 8px" : "5px 10px", borderRadius: 999,
-        fontSize: small ? 11 : 12, fontWeight: 600, flexWrap: "wrap",
+        display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 10px", borderRadius: 999,
+        fontSize: 12, fontWeight: 600, flexWrap: "wrap",
         background: k ? `var(--cal-${k}-bg)` : "var(--cal-surface-2)", color: k ? `var(--cal-${k}-fg)` : "var(--cal-ink-2)",
       }}
     >
-      {Icon && !small && <Icon className="h-[13px] w-[13px]" strokeWidth={2.2} />}
+      {Icon && <Icon className="h-[13px] w-[13px]" strokeWidth={2.2} />}
       {main}
       {sub && <span className="cal-mono" style={{ fontWeight: 500 }}>{sub}</span>}
     </span>
@@ -177,44 +169,7 @@ const UPCOMING_COLOURS: Record<UpcomingItem["kind"], React.CSSProperties> = {
   plain: { background: "var(--cal-surface)", color: "var(--cal-ink)" },
 };
 
-interface UpcomingItem { key: string; kind: "over" | "soon" | "ev" | "station" | "plain"; tag: string; when: string; title: string; at: number; date: string; task?: Task }
-
-const UPCOMING_MAX = 8;
-
-/** Overdue first, then the next tasks, watch events and station events by date. */
-function buildUpcoming(tasks: Task[], events: CalEvent[]): UpcomingItem[] {
-  const now = Date.now();
-  const items: UpcomingItem[] = [];
-  for (const t of tasks) {
-    if (!t.due_at || t.status === "Done") continue;
-    const due = new Date(t.due_at);
-    const diff = daysFromToday(due);
-    const label = (t.tags ?? []).map(getLabelById).find(Boolean)?.name ?? (t.category && t.category !== "Other" ? t.category : "Task");
-    const rel = diff < 0 ? `Overdue ${-diff}d` : diff === 0 ? "Today" : diff <= 3 ? `In ${diff}d` : "";
-    items.push({
-      key: `t${t.id}`, kind: diff < 0 ? "over" : diff <= 3 ? "soon" : "plain",
-      tag: rel ? `${label} · ${rel}` : label, when: shortDate(due), title: t.title,
-      at: diff < 0 ? -1e15 + due.getTime() : startOfDay(due).getTime(), date: dayKey(due), task: t,
-    });
-  }
-  // A Station event puts a task on the board of the watch on duty; that task
-  // already stands for it, so the event isn't listed twice.
-  const linked = new Set(tasks.map((t) => t.calendar_event_id).filter(Boolean));
-  for (const e of events) {
-    if (e.start.getTime() < now - (e.allDay ? 86400000 : 0)) continue;
-    if (linked.has(e.id)) continue;
-    const diff = daysFromToday(e.start);
-    const day = diff === 0 ? "Today" : diff === 1 ? "Tomorrow" : shortDate(e.start);
-    items.push({
-      key: `e${e.id}`, kind: e.station ? "station" : "ev", tag: e.station ? "Station" : "Watch Calendar",
-      when: e.allDay ? `${day} · all day` : `${day} ${hhmm(e.start)}`,
-      title: e.title, at: e.start.getTime(), date: dayKey(e.start),
-    });
-  }
-  return items.sort((a, b) => a.at - b.at).slice(0, UPCOMING_MAX);
-}
-
-/** Phone: a tappable card with today's shift and any overdue count; opens missed checks and Upcoming. */
+/** Phone: a tappable card with any overdue count; opens missed checks and Upcoming. */
 export function TaskUpcomingCard({ watch, tasks, onOpenTask }: PanelProps) {
   const [open, setOpen] = useState(false);
   const overdue = tasks.filter((t) => t.due_at && t.status !== "Done" && daysFromToday(new Date(t.due_at)) < 0).length;
@@ -230,7 +185,6 @@ export function TaskUpcomingCard({ watch, tasks, onOpenTask }: PanelProps) {
         style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", borderRadius: 16, border: "none", background: "var(--cal-surface)", boxShadow: "var(--cal-card-shadow)", font: "inherit", color: "var(--cal-ink)", textAlign: "left", cursor: "pointer" }}
       >
         <span style={{ fontSize: 13, fontWeight: 600 }}>Upcoming</span>
-        {hasRotaConfig(watch) && <ShiftPill watch={watch} small />}
         {overdue > 0 && (
           <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--cal-danger-bg)", color: "var(--cal-danger-fg)" }}>
             {overdue} overdue

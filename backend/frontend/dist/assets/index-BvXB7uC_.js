@@ -35372,7 +35372,7 @@ function normalizeDates(context, ...dates) {
   );
   return dates.map(normalize);
 }
-function startOfDay$2(date2, options) {
+function startOfDay$3(date2, options) {
   const _date = toDate(date2, options == null ? void 0 : options.in);
   _date.setHours(0, 0, 0, 0);
   return _date;
@@ -35383,8 +35383,8 @@ function differenceInCalendarDays(laterDate, earlierDate, options) {
     laterDate,
     earlierDate
   );
-  const laterStartOfDay = startOfDay$2(laterDate_);
-  const earlierStartOfDay = startOfDay$2(earlierDate_);
+  const laterStartOfDay = startOfDay$3(laterDate_);
+  const earlierStartOfDay = startOfDay$3(earlierDate_);
   const laterTimestamp = +laterStartOfDay - getTimezoneOffsetInMilliseconds(laterStartOfDay);
   const earlierTimestamp = +earlierStartOfDay - getTimezoneOffsetInMilliseconds(earlierStartOfDay);
   return Math.round((laterTimestamp - earlierTimestamp) / millisecondsInDay);
@@ -37279,7 +37279,7 @@ function WCAlertBanner() {
     enabled: !!watch && !!crewShift
   });
   const alerts = [];
-  const now = startOfDay$2(/* @__PURE__ */ new Date());
+  const now = startOfDay$3(/* @__PURE__ */ new Date());
   const overdueCount = ((inspectionsData == null ? void 0 : inspectionsData.inspections) ?? []).filter((i) => {
     if (i.status === "Complete") return false;
     if (!i.scheduled_for) return false;
@@ -48891,7 +48891,7 @@ function isoDate(d) {
 function sameDay$1(a, b) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
-function startOfDay$1(d) {
+function startOfDay$2(d) {
   const x = new Date(d);
   x.setHours(0, 0, 0, 0);
   return x;
@@ -48902,7 +48902,7 @@ function addDays(d, n) {
   return x;
 }
 function spansDay(item, day2) {
-  const start = startOfDay$1(item.startTime);
+  const start = startOfDay$2(item.startTime);
   const end = new Date(item.endTime);
   end.setHours(23, 59, 59, 999);
   const d = new Date(day2);
@@ -48911,7 +48911,7 @@ function spansDay(item, day2) {
 }
 function getWeekDays(date2) {
   const day2 = date2.getDay();
-  const monday = addDays(startOfDay$1(date2), day2 === 0 ? -6 : 1 - day2);
+  const monday = addDays(startOfDay$2(date2), day2 === 0 ? -6 : 1 - day2);
   return Array.from({ length: 7 }, (_, i) => addDays(monday, i));
 }
 function getMonthGridDays(date2) {
@@ -48919,7 +48919,7 @@ function getMonthGridDays(date2) {
   const gridStart = addDays(first, -((first.getDay() + 6) % 7));
   const last = new Date(date2.getFullYear(), date2.getMonth() + 1, 0);
   const gridEnd = addDays(last, 6 - (last.getDay() + 6) % 7);
-  const n = Math.round((startOfDay$1(gridEnd).getTime() - gridStart.getTime()) / 864e5) + 1;
+  const n = Math.round((startOfDay$2(gridEnd).getTime() - gridStart.getTime()) / 864e5) + 1;
   return Array.from({ length: n }, (_, i) => addDays(gridStart, i));
 }
 function viewRange(view, date2) {
@@ -48936,10 +48936,10 @@ function viewRange(view, date2) {
     start = days[0];
     last = days[6];
   } else if (view === "agenda") {
-    start = startOfDay$1(date2);
+    start = startOfDay$2(date2);
     last = addDays(start, AGENDA_DAYS - 1);
   } else {
-    start = startOfDay$1(date2);
+    start = startOfDay$2(date2);
     last = start;
   }
   const end = new Date(last);
@@ -49099,7 +49099,7 @@ function EventPill({
 }
 const inTopLane = (it) => it.allDay || it.endTime.getTime() - it.startTime.getTime() >= 864e5;
 function layoutDay(items, day2) {
-  const dayStart = startOfDay$1(day2).getTime();
+  const dayStart = startOfDay$2(day2).getTime();
   const dayEnd = dayStart + 864e5;
   const timed = items.filter((it) => !inTopLane(it) && it.startTime.getTime() < dayEnd && Math.max(it.endTime.getTime(), it.startTime.getTime() + 1) > dayStart).map((it) => {
     const s = Math.max(it.startTime.getTime(), dayStart);
@@ -49341,11 +49341,11 @@ function AllDayLane({
   items,
   onEventClick
 }) {
-  const first = startOfDay$1(days[0]).getTime();
-  const last = startOfDay$1(days[days.length - 1]).getTime();
-  const idx = (d) => Math.round((startOfDay$1(d).getTime() - first) / 864e5);
+  const first = startOfDay$2(days[0]).getTime();
+  const last = startOfDay$2(days[days.length - 1]).getTime();
+  const idx = (d) => Math.round((startOfDay$2(d).getTime() - first) / 864e5);
   const rows = [];
-  const placed = items.filter((it) => inTopLane(it) && startOfDay$1(it.startTime).getTime() <= last && startOfDay$1(it.endTime).getTime() >= first).sort((a, b) => a.startTime.getTime() - b.startTime.getTime()).map((it) => {
+  const placed = items.filter((it) => inTopLane(it) && startOfDay$2(it.startTime).getTime() <= last && startOfDay$2(it.endTime).getTime() >= first).sort((a, b) => a.startTime.getTime() - b.startTime.getTime()).map((it) => {
     const c0 = Math.max(0, idx(it.startTime));
     const c1 = Math.min(days.length - 1, idx(it.endTime));
     let lane = rows.findIndex((cols) => cols.every((c) => c < c0 || c > c1));
@@ -49717,7 +49717,7 @@ function AgendaView({
   onDayClick
 }) {
   const today = /* @__PURE__ */ new Date();
-  const days = Array.from({ length: AGENDA_DAYS }, (_, i) => addDays(startOfDay$1(start), i));
+  const days = Array.from({ length: AGENDA_DAYS }, (_, i) => addDays(startOfDay$2(start), i));
   const rows = [];
   let lastMonth = -1;
   for (const d of days) {
@@ -50228,7 +50228,7 @@ function CalendarWidget({
       (view === "week" || view === "day") && /* @__PURE__ */ jsxRuntimeExports.jsx(
         TimeGridCard,
         {
-          days: view === "week" ? getWeekDays(currentDate) : [startOfDay$1(currentDate)],
+          days: view === "week" ? getWeekDays(currentDate) : [startOfDay$2(currentDate)],
           items,
           shiftSchedule,
           userWatch,
@@ -56357,11 +56357,51 @@ select.ttm-input{appearance:none;-webkit-appearance:none;padding-right:36px;curs
 }
 @media (prefers-reduced-motion:reduce){.ttm-skel{animation:none}.ttm-knob,.ttm-switch{transition:none}}
 `;
+const UPCOMING_MAX = 8;
 const dayKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
-const daysFromToday = (d) => Math.round((startOfDay(d).getTime() - startOfDay(/* @__PURE__ */ new Date()).getTime()) / 864e5);
+const startOfDay$1 = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+const daysFromToday = (d, now = /* @__PURE__ */ new Date()) => Math.round((startOfDay$1(d).getTime() - startOfDay$1(now).getTime()) / 864e5);
 const shortDate$1 = (d) => d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
 const hhmm$1 = (d) => `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+function buildUpcoming(tasks, events2, now = /* @__PURE__ */ new Date()) {
+  var _a3;
+  const items = [];
+  for (const t of tasks) {
+    if (!t.due_at || t.status === "Done") continue;
+    const due = new Date(t.due_at);
+    const diff = daysFromToday(due, now);
+    const label2 = ((_a3 = (t.tags ?? []).map(getLabelById).find(Boolean)) == null ? void 0 : _a3.name) ?? (t.category && t.category !== "Other" ? t.category : "Task");
+    const rel = diff < 0 ? `Overdue ${-diff}d` : diff === 0 ? "Today" : diff <= 3 ? `In ${diff}d` : "";
+    items.push({
+      key: `t${t.id}`,
+      kind: diff < 0 ? "over" : diff <= 3 ? "soon" : "plain",
+      tag: rel ? `${label2} · ${rel}` : label2,
+      when: shortDate$1(due),
+      title: t.title,
+      at: diff < 0 ? -1e15 + due.getTime() : startOfDay$1(due).getTime(),
+      date: dayKey(due),
+      task: t
+    });
+  }
+  const linked = new Set(tasks.map((t) => t.calendar_event_id).filter(Boolean));
+  for (const e of events2) {
+    if (e.start.getTime() < now.getTime() - (e.allDay ? 864e5 : 0)) continue;
+    if (linked.has(e.id)) continue;
+    const diff = daysFromToday(e.start, now);
+    const day2 = diff === 0 ? "Today" : diff === 1 ? "Tomorrow" : shortDate$1(e.start);
+    items.push({
+      key: `e${e.id}`,
+      kind: e.station ? "station" : "ev",
+      tag: e.station ? "Station" : "Watch Calendar",
+      when: e.allDay ? `${day2} · all day` : `${day2} ${hhmm$1(e.start)}`,
+      title: e.title,
+      at: e.start.getTime(),
+      date: dayKey(e.start)
+    });
+  }
+  return items.sort((a, b) => a.at - b.at).slice(0, UPCOMING_MAX);
+}
+const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
 function usePanelEvents() {
   const { user: user2 } = useAuth();
   const today = startOfDay(/* @__PURE__ */ new Date());
@@ -56392,13 +56432,12 @@ function useMissedChecks() {
   });
   return (data == null ? void 0 : data.checks) ?? [];
 }
-function ShiftPill({ watch, small }) {
-  var _a3, _b3;
+function ShiftPill({ watch }) {
   const s = getWatchShiftStatus(watch);
   if (!s) return null;
   const k = s.state === "on" && s.current ? s.current.startTime === "18:00" ? "night" : "day" : s.state === "leave" ? "leave" : null;
   const main = s.state === "on" && s.current ? s.current.shiftType : s.label;
-  const sub = s.state === "on" && s.current ? small ? `${(_a3 = s.current.startTime) == null ? void 0 : _a3.slice(0, 2)}–${(_b3 = s.current.endTime) == null ? void 0 : _b3.slice(0, 2)}` : `${s.current.startTime}–${s.current.endTime}` : small ? "" : s.nextLabel ? `next ${s.nextLabel}` : "";
+  const sub = s.state === "on" && s.current ? `${s.current.startTime}–${s.current.endTime}` : s.nextLabel ? `next ${s.nextLabel}` : "";
   const Icon2 = k === "night" ? Moon : k === "day" ? Sun : null;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "span",
@@ -56406,17 +56445,17 @@ function ShiftPill({ watch, small }) {
       style: {
         display: "inline-flex",
         alignItems: "center",
-        gap: small ? 4 : 6,
-        padding: small ? "2px 8px" : "5px 10px",
+        gap: 6,
+        padding: "5px 10px",
         borderRadius: 999,
-        fontSize: small ? 11 : 12,
+        fontSize: 12,
         fontWeight: 600,
         flexWrap: "wrap",
         background: k ? `var(--cal-${k}-bg)` : "var(--cal-surface-2)",
         color: k ? `var(--cal-${k}-fg)` : "var(--cal-ink-2)"
       },
       children: [
-        Icon2 && !small && /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "h-[13px] w-[13px]", strokeWidth: 2.2 }),
+        Icon2 && /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "h-[13px] w-[13px]", strokeWidth: 2.2 }),
         main,
         sub && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontWeight: 500 }, children: sub })
       ]
@@ -56503,46 +56542,6 @@ const UPCOMING_COLOURS = {
   station: { background: "var(--cal-station-bg)", color: "var(--cal-station-fg)" },
   plain: { background: "var(--cal-surface)", color: "var(--cal-ink)" }
 };
-const UPCOMING_MAX = 8;
-function buildUpcoming(tasks, events2) {
-  var _a3;
-  const now = Date.now();
-  const items = [];
-  for (const t of tasks) {
-    if (!t.due_at || t.status === "Done") continue;
-    const due = new Date(t.due_at);
-    const diff = daysFromToday(due);
-    const label2 = ((_a3 = (t.tags ?? []).map(getLabelById).find(Boolean)) == null ? void 0 : _a3.name) ?? (t.category && t.category !== "Other" ? t.category : "Task");
-    const rel = diff < 0 ? `Overdue ${-diff}d` : diff === 0 ? "Today" : diff <= 3 ? `In ${diff}d` : "";
-    items.push({
-      key: `t${t.id}`,
-      kind: diff < 0 ? "over" : diff <= 3 ? "soon" : "plain",
-      tag: rel ? `${label2} · ${rel}` : label2,
-      when: shortDate$1(due),
-      title: t.title,
-      at: diff < 0 ? -1e15 + due.getTime() : startOfDay(due).getTime(),
-      date: dayKey(due),
-      task: t
-    });
-  }
-  const linked = new Set(tasks.map((t) => t.calendar_event_id).filter(Boolean));
-  for (const e of events2) {
-    if (e.start.getTime() < now - (e.allDay ? 864e5 : 0)) continue;
-    if (linked.has(e.id)) continue;
-    const diff = daysFromToday(e.start);
-    const day2 = diff === 0 ? "Today" : diff === 1 ? "Tomorrow" : shortDate$1(e.start);
-    items.push({
-      key: `e${e.id}`,
-      kind: e.station ? "station" : "ev",
-      tag: e.station ? "Station" : "Watch Calendar",
-      when: e.allDay ? `${day2} · all day` : `${day2} ${hhmm$1(e.start)}`,
-      title: e.title,
-      at: e.start.getTime(),
-      date: dayKey(e.start)
-    });
-  }
-  return items.sort((a, b) => a.at - b.at).slice(0, UPCOMING_MAX);
-}
 function TaskUpcomingCard({ watch, tasks, onOpenTask }) {
   const [open, setOpen] = reactExports.useState(false);
   const overdue = tasks.filter((t) => t.due_at && t.status !== "Done" && daysFromToday(new Date(t.due_at)) < 0).length;
@@ -56558,7 +56557,6 @@ function TaskUpcomingCard({ watch, tasks, onOpenTask }) {
         style: { display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", borderRadius: 16, border: "none", background: "var(--cal-surface)", boxShadow: "var(--cal-card-shadow)", font: "inherit", color: "var(--cal-ink)", textAlign: "left", cursor: "pointer" },
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 13, fontWeight: 600 }, children: "Upcoming" }),
-          hasRotaConfig(watch) && /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftPill, { watch, small: true }),
           overdue > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--cal-danger-bg)", color: "var(--cal-danger-fg)" }, children: [
             overdue,
             " overdue"
