@@ -1,5 +1,7 @@
 import { api } from "encore.dev/api";
+import { getAuthData } from "~encore/auth";
 import db, { type SQLPrimitive } from "../db";
+import { requirePermission, Permission } from "../auth/rbac";
 import type {
   CareHomeValidation,
   CreateCareHomeRequest,
@@ -20,6 +22,9 @@ export const listCareHomes = api(
 export const createCareHome = api(
   { auth: true, expose: true, method: "POST", path: "/inspection-plans/care-homes" },
   async (req: CreateCareHomeRequest): Promise<CareHomeValidation> => {
+    const auth = getAuthData()!;
+    requirePermission(auth, Permission.MANAGE_ALL_INSPECTIONS);
+
     const row = await db.rawQueryRow<CareHomeValidation>(
       `INSERT INTO care_home_validations (address, position)
        SELECT $1, COALESCE(MAX(position) + 1, 0) FROM care_home_validations
@@ -34,6 +39,9 @@ export const createCareHome = api(
 export const updateCareHome = api(
   { auth: true, expose: true, method: "PATCH", path: "/inspection-plans/care-homes/:id" },
   async (req: { id: number } & UpdateCareHomeRequest): Promise<CareHomeValidation> => {
+    const auth = getAuthData()!;
+    requirePermission(auth, Permission.MANAGE_ALL_INSPECTIONS);
+
     const { id, ...fields } = req;
     const setClauses: string[] = [];
     const values: SQLPrimitive[] = [];
@@ -58,6 +66,9 @@ export const updateCareHome = api(
 export const deleteCareHome = api(
   { auth: true, expose: true, method: "DELETE", path: "/inspection-plans/care-homes/:id" },
   async (req: { id: number }): Promise<void> => {
+    const auth = getAuthData()!;
+    requirePermission(auth, Permission.MANAGE_ALL_INSPECTIONS);
+
     await db.exec`DELETE FROM care_home_validations WHERE id = ${req.id}`;
   }
 );

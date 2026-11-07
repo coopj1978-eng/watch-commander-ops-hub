@@ -1,5 +1,7 @@
 import { api } from "encore.dev/api";
+import { getAuthData } from "~encore/auth";
 import db, { type SQLPrimitive } from "../db";
+import { requirePermission, Permission } from "../auth/rbac";
 import type {
   HydrantRegister,
   CreateHydrantRequest,
@@ -20,6 +22,9 @@ export const listHydrants = api(
 export const createHydrant = api(
   { auth: true, expose: true, method: "POST", path: "/inspection-plans/hydrants" },
   async (req: CreateHydrantRequest): Promise<HydrantRegister> => {
+    const auth = getAuthData()!;
+    requirePermission(auth, Permission.MANAGE_ALL_INSPECTIONS);
+
     const row = await db.rawQueryRow<HydrantRegister>(
       `INSERT INTO hydrant_registers (area_code, street, section, year, watch, position)
        SELECT $1, $2, $3, $4, $5, COALESCE(MAX(position) + 1, 0) FROM hydrant_registers
@@ -38,6 +43,9 @@ export const createHydrant = api(
 export const updateHydrant = api(
   { auth: true, expose: true, method: "PATCH", path: "/inspection-plans/hydrants/:id" },
   async (req: { id: number } & UpdateHydrantRequest): Promise<HydrantRegister> => {
+    const auth = getAuthData()!;
+    requirePermission(auth, Permission.MANAGE_ALL_INSPECTIONS);
+
     const { id, ...fields } = req;
     const setClauses: string[] = [];
     const values: SQLPrimitive[] = [];
@@ -66,6 +74,9 @@ export const updateHydrant = api(
 export const deleteHydrant = api(
   { auth: true, expose: true, method: "DELETE", path: "/inspection-plans/hydrants/:id" },
   async (req: { id: number }): Promise<void> => {
+    const auth = getAuthData()!;
+    requirePermission(auth, Permission.MANAGE_ALL_INSPECTIONS);
+
     await db.exec`DELETE FROM hydrant_registers WHERE id = ${req.id}`;
   }
 );

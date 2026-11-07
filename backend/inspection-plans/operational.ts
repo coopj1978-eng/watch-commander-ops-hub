@@ -1,5 +1,7 @@
 import { api } from "encore.dev/api";
+import { getAuthData } from "~encore/auth";
 import db, { type SQLPrimitive } from "../db";
+import { requirePermission, Permission } from "../auth/rbac";
 import type {
   OperationalInspection,
   CreateOperationalRequest,
@@ -20,6 +22,9 @@ export const listOperational = api(
 export const createOperational = api(
   { auth: true, expose: true, method: "POST", path: "/inspection-plans/operational" },
   async (req: CreateOperationalRequest): Promise<OperationalInspection> => {
+    const auth = getAuthData()!;
+    requirePermission(auth, Permission.MANAGE_ALL_INSPECTIONS);
+
     const row = await db.rawQueryRow<OperationalInspection>(
       `INSERT INTO operational_inspections (address, uprn, watch, position)
        SELECT $1, $2, $3, COALESCE(MAX(position) + 1, 0) FROM operational_inspections
@@ -36,6 +41,9 @@ export const createOperational = api(
 export const updateOperational = api(
   { auth: true, expose: true, method: "PATCH", path: "/inspection-plans/operational/:id" },
   async (req: { id: number } & UpdateOperationalRequest): Promise<OperationalInspection> => {
+    const auth = getAuthData()!;
+    requirePermission(auth, Permission.MANAGE_ALL_INSPECTIONS);
+
     const { id, ...fields } = req;
     const setClauses: string[] = [];
     const values: SQLPrimitive[] = [];
@@ -62,6 +70,9 @@ export const updateOperational = api(
 export const deleteOperational = api(
   { auth: true, expose: true, method: "DELETE", path: "/inspection-plans/operational/:id" },
   async (req: { id: number }): Promise<void> => {
+    const auth = getAuthData()!;
+    requirePermission(auth, Permission.MANAGE_ALL_INSPECTIONS);
+
     await db.exec`DELETE FROM operational_inspections WHERE id = ${req.id}`;
   }
 );

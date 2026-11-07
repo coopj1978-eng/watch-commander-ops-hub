@@ -1,5 +1,7 @@
 import { api } from "encore.dev/api";
+import { getAuthData } from "~encore/auth";
 import db, { type SQLPrimitive } from "../db";
+import { requirePermission, Permission } from "../auth/rbac";
 import type {
   MultistoryInspection,
   CreateMultistoryRequest,
@@ -20,6 +22,9 @@ export const listMultistory = api(
 export const createMultistory = api(
   { auth: true, expose: true, method: "POST", path: "/inspection-plans/multistory" },
   async (req: CreateMultistoryRequest): Promise<MultistoryInspection> => {
+    const auth = getAuthData()!;
+    requirePermission(auth, Permission.MANAGE_ALL_INSPECTIONS);
+
     const row = await db.rawQueryRow<MultistoryInspection>(
       `INSERT INTO multistory_inspections (address, q1_watch, q2_watch, q3_watch, q4_watch, position)
        SELECT $1, $2, $3, $4, $5, COALESCE(MAX(position) + 1, 0) FROM multistory_inspections
@@ -38,6 +43,9 @@ export const createMultistory = api(
 export const updateMultistory = api(
   { auth: true, expose: true, method: "PATCH", path: "/inspection-plans/multistory/:id" },
   async (req: { id: number } & UpdateMultistoryRequest): Promise<MultistoryInspection> => {
+    const auth = getAuthData()!;
+    requirePermission(auth, Permission.MANAGE_ALL_INSPECTIONS);
+
     const { id, ...fields } = req;
     const setClauses: string[] = [];
     const values: SQLPrimitive[] = [];
@@ -77,6 +85,9 @@ export const updateMultistory = api(
 export const deleteMultistory = api(
   { auth: true, expose: true, method: "DELETE", path: "/inspection-plans/multistory/:id" },
   async (req: { id: number }): Promise<void> => {
+    const auth = getAuthData()!;
+    requirePermission(auth, Permission.MANAGE_ALL_INSPECTIONS);
+
     await db.exec`DELETE FROM multistory_inspections WHERE id = ${req.id}`;
   }
 );
