@@ -64410,6 +64410,20 @@ function AbsenceThresholds() {
     ] })
   ] });
 }
+const PLAN_YEAR = 2026;
+const COLUMNS_IN_PLAN_YEAR = ["White", "Red", "Amber", "Blue", "Green"];
+function moveAlong(watch, years) {
+  const column = COLUMNS_IN_PLAN_YEAR.indexOf(watch);
+  if (column < 0) return watch;
+  const count2 = COLUMNS_IN_PLAN_YEAR.length;
+  return COLUMNS_IN_PLAN_YEAR[((column - years) % count2 + count2) % count2];
+}
+function watchInYear(planWatch, year) {
+  return moveAlong(planWatch, year - PLAN_YEAR);
+}
+function watchInPlan(yearWatch, year) {
+  return moveAlong(yearWatch, PLAN_YEAR - year);
+}
 const WATCHES$7 = ["Red", "White", "Green", "Blue", "Amber"];
 const watchBadgeClass = {
   Red: "bg-red-500/10 text-red-600 border-red-400/30",
@@ -64516,6 +64530,10 @@ function MultistorySection({ canEdit }) {
   const [editState, setEditState] = reactExports.useState({ address: "", q1: null, q2: null, q3: null, q4: null });
   const [confirmDelete, setConfirmDelete] = reactExports.useState(null);
   const [movePending, setMovePending] = reactExports.useState(false);
+  const thisYear2 = (/* @__PURE__ */ new Date()).getFullYear();
+  const [year, setYear] = reactExports.useState(thisYear2);
+  const shownWatch = (w) => w ? watchInYear(w, year) : null;
+  const planWatch = (w) => w ? watchInPlan(w, year) : null;
   const { data, isLoading } = useQuery({
     queryKey: ["inspection-plans-multistory"],
     queryFn: () => backendClient.inspection_plans.listMultistory()
@@ -64523,10 +64541,10 @@ function MultistorySection({ canEdit }) {
   const createMutation = useMutation({
     mutationFn: () => backendClient.inspection_plans.createMultistory({
       address: newAddr.trim(),
-      q1_watch: newQ1 ?? void 0,
-      q2_watch: newQ2 ?? void 0,
-      q3_watch: newQ3 ?? void 0,
-      q4_watch: newQ4 ?? void 0
+      q1_watch: planWatch(newQ1) ?? void 0,
+      q2_watch: planWatch(newQ2) ?? void 0,
+      q3_watch: planWatch(newQ3) ?? void 0,
+      q4_watch: planWatch(newQ4) ?? void 0
     }),
     onSuccess: () => {
       toast2({ title: "Entry added" });
@@ -64544,10 +64562,10 @@ function MultistorySection({ canEdit }) {
   const updateMutation = useMutation({
     mutationFn: () => backendClient.inspection_plans.updateMultistory(editId, {
       address: editState.address,
-      q1_watch: editState.q1,
-      q2_watch: editState.q2,
-      q3_watch: editState.q3,
-      q4_watch: editState.q4
+      q1_watch: planWatch(editState.q1),
+      q2_watch: planWatch(editState.q2),
+      q3_watch: planWatch(editState.q3),
+      q4_watch: planWatch(editState.q4)
     }),
     onSuccess: () => {
       toast2({ title: "Updated" });
@@ -64587,6 +64605,22 @@ function MultistorySection({ canEdit }) {
   };
   const items = (data == null ? void 0 : data.items) ?? [];
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "The watches move along one place each January." }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { role: "group", "aria-label": "Programme year", className: "inline-flex gap-0.5 rounded-lg border border-border p-0.5", children: [thisYear2, thisYear2 + 1].map((y) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        Button,
+        {
+          size: "sm",
+          variant: y === year ? "secondary" : "ghost",
+          className: "h-7 px-3",
+          "aria-pressed": y === year,
+          disabled: adding || editId !== null,
+          onClick: () => setYear(y),
+          children: y
+        },
+        y
+      )) })
+    ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto rounded-lg border border-border", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full text-sm", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "border-b border-border bg-muted/40", children: [
         canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "w-[36px]" }),
@@ -64627,14 +64661,14 @@ function MultistorySection({ canEdit }) {
           ] }, item.id) : /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "border-b border-border last:border-0 hover:bg-muted/30 transition-colors", children: [
             canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-2 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(MoveButtons, { onUp: () => moveItem(index2, "up"), onDown: () => moveItem(index2, "down"), isFirst: index2 === 0, isLast: index2 === items.length - 1, isPending: movePending }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 font-medium", children: item.address }),
-            [item.q1_watch, item.q2_watch, item.q3_watch, item.q4_watch].map((w, i) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-3 py-3 text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(WatchBadge, { watch: w }) }, i)),
+            [item.q1_watch, item.q2_watch, item.q3_watch, item.q4_watch].map((w, i) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-3 py-3 text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(WatchBadge, { watch: shownWatch(w) }) }, i)),
             canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-3 py-3", children: confirmDelete === item.id ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1 justify-end", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "icon", variant: "ghost", className: "h-7 w-7 text-destructive", onClick: () => deleteMutation.mutate(item.id), disabled: deleteMutation.isPending, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-3.5 w-3.5" }) }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "icon", variant: "ghost", className: "h-7 w-7", onClick: () => setConfirmDelete(null), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" }) })
             ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1 justify-end", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "icon", variant: "ghost", className: "h-7 w-7", onClick: () => {
                 setEditId(item.id);
-                setEditState({ address: item.address, q1: item.q1_watch ?? null, q2: item.q2_watch ?? null, q3: item.q3_watch ?? null, q4: item.q4_watch ?? null });
+                setEditState({ address: item.address, q1: shownWatch(item.q1_watch), q2: shownWatch(item.q2_watch), q3: shownWatch(item.q3_watch), q4: shownWatch(item.q4_watch) });
               }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "h-3.5 w-3.5" }) }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "icon", variant: "ghost", className: "h-7 w-7 text-destructive", onClick: () => setConfirmDelete(item.id), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-3.5 w-3.5" }) })
             ] }) })

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { invalidateTargetViews } from "@/lib/targetsCache";
+import { watchInPlan, watchInYear } from "~backend/lib/multistoryProgramme";
 import backend from "@/lib/backend";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -189,6 +190,13 @@ function MultistorySection({ canEdit }: { canEdit: boolean }) {
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
   const [movePending, setMovePending] = useState(false);
 
+  // The plan stores one year's watches; the programme moves along each January, so
+  // the table shows them for the year picked and turns any edit back into the plan's.
+  const thisYear = new Date().getFullYear();
+  const [year, setYear] = useState(thisYear);
+  const shownWatch = (w?: WatchName | null) => (w ? watchInYear(w, year) : null);
+  const planWatch = (w: WatchName | null) => (w ? watchInPlan(w, year) : null);
+
   const { data, isLoading } = useQuery({
     queryKey: ["inspection-plans-multistory"],
     queryFn: () => backend.inspection_plans.listMultistory(),
@@ -198,10 +206,10 @@ function MultistorySection({ canEdit }: { canEdit: boolean }) {
     mutationFn: () =>
       backend.inspection_plans.createMultistory({
         address: newAddr.trim(),
-        q1_watch: newQ1 ?? undefined,
-        q2_watch: newQ2 ?? undefined,
-        q3_watch: newQ3 ?? undefined,
-        q4_watch: newQ4 ?? undefined,
+        q1_watch: planWatch(newQ1) ?? undefined,
+        q2_watch: planWatch(newQ2) ?? undefined,
+        q3_watch: planWatch(newQ3) ?? undefined,
+        q4_watch: planWatch(newQ4) ?? undefined,
       }),
     onSuccess: () => {
       toast({ title: "Entry added" });
@@ -217,10 +225,10 @@ function MultistorySection({ canEdit }: { canEdit: boolean }) {
     mutationFn: () =>
       backend.inspection_plans.updateMultistory(editId!, {
         address: editState.address,
-        q1_watch: editState.q1,
-        q2_watch: editState.q2,
-        q3_watch: editState.q3,
-        q4_watch: editState.q4,
+        q1_watch: planWatch(editState.q1),
+        q2_watch: planWatch(editState.q2),
+        q3_watch: planWatch(editState.q3),
+        q4_watch: planWatch(editState.q4),
       }),
     onSuccess: () => {
       toast({ title: "Updated" });
@@ -265,6 +273,24 @@ function MultistorySection({ canEdit }: { canEdit: boolean }) {
 
   return (
     <div className="space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-xs text-muted-foreground">The watches move along one place each January.</p>
+        <div role="group" aria-label="Programme year" className="inline-flex gap-0.5 rounded-lg border border-border p-0.5">
+          {[thisYear, thisYear + 1].map((y) => (
+            <Button
+              key={y}
+              size="sm"
+              variant={y === year ? "secondary" : "ghost"}
+              className="h-7 px-3"
+              aria-pressed={y === year}
+              disabled={adding || editId !== null}
+              onClick={() => setYear(y)}
+            >
+              {y}
+            </Button>
+          ))}
+        </div>
+      </div>
       <div className="overflow-x-auto rounded-lg border border-border">
         <table className="w-full text-sm">
           <thead>
@@ -317,7 +343,7 @@ function MultistorySection({ canEdit }: { canEdit: boolean }) {
                   )}
                   <td className="px-4 py-3 font-medium">{item.address}</td>
                   {[item.q1_watch, item.q2_watch, item.q3_watch, item.q4_watch].map((w, i) => (
-                    <td key={i} className="px-3 py-3 text-center"><WatchBadge watch={w as WatchName | null} /></td>
+                    <td key={i} className="px-3 py-3 text-center"><WatchBadge watch={shownWatch(w as WatchName | null)} /></td>
                   ))}
                   {canEdit && (
                     <td className="px-3 py-3">
@@ -332,7 +358,7 @@ function MultistorySection({ canEdit }: { canEdit: boolean }) {
                         </div>
                       ) : (
                         <div className="flex gap-1 justify-end">
-                          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => { setEditId(item.id); setEditState({ address: item.address, q1: (item.q1_watch ?? null) as WatchName | null, q2: (item.q2_watch ?? null) as WatchName | null, q3: (item.q3_watch ?? null) as WatchName | null, q4: (item.q4_watch ?? null) as WatchName | null }); }}>
+                          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => { setEditId(item.id); setEditState({ address: item.address, q1: shownWatch(item.q1_watch as WatchName | null), q2: shownWatch(item.q2_watch as WatchName | null), q3: shownWatch(item.q3_watch as WatchName | null), q4: shownWatch(item.q4_watch as WatchName | null) }); }}>
                             <Pencil className="h-3.5 w-3.5" />
                           </Button>
                           <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => setConfirmDelete(item.id)}>
