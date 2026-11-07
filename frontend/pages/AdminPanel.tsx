@@ -28,7 +28,7 @@ import { DictionariesManager } from "@/components/DictionaryManager";
 import { AbsenceThresholds } from "@/components/AbsenceThresholds";
 import { InspectionPlans } from "@/components/InspectionPlans";
 import { BrandingSettings } from "@/components/BrandingSettings";
-import { useIsAdmin } from "@/lib/rbac";
+import { useCanAccessAdmin, useIsAdmin } from "@/lib/rbac";
 import { useFeatureFlags, type FeatureFlags } from "@/lib/feature-flags";
 import { useToast } from "@/components/ui/use-toast";
 import {
@@ -70,10 +70,12 @@ const FEATURE_CONFIG: {
 // Station setup lives here (Nov 2026) — it used to share the Settings page
 // with personal preferences. Every WC (and the admin) can open Admin;
 // switching pages on/off and managing user accounts are the admin's alone.
+// A CC gets the inspection plans only (John, 7 Nov 2026).
+const PLANS_TAB = { value: "inspection-plans", label: "Inspection plans" };
 const STATION_TABS = [
   { value: "skills", label: "Skills & certs" },
   { value: "absence", label: "Absence triggers" },
-  { value: "inspection-plans", label: "Inspection plans" },
+  PLANS_TAB,
   { value: "branding", label: "Branding" },
   { value: "activity", label: "Activity log" },
 ];
@@ -84,8 +86,9 @@ const ADMIN_TABS = [
 
 export default function AdminPanel() {
   const isAdmin = useIsAdmin();
+  const canSetUpStation = useCanAccessAdmin();
   const [params, setParams] = useSearchParams();
-  const tabs = [...STATION_TABS, ...(isAdmin ? ADMIN_TABS : [])];
+  const tabs = [...(canSetUpStation ? STATION_TABS : [PLANS_TAB]), ...(isAdmin ? ADMIN_TABS : [])];
   const asked = params.get("tab");
   const activeTab = tabs.some((t) => t.value === asked) ? asked! : tabs[0].value;
 
@@ -96,17 +99,21 @@ export default function AdminPanel() {
           <ShieldCheck className="h-7 w-7 text-indigo-500 shrink-0" />
           Admin
         </h1>
-        <p className="text-muted-foreground mt-1">Station setup, activity log{isAdmin ? ", page switches and user accounts" : ""}</p>
+        {canSetUpStation && (
+          <p className="text-muted-foreground mt-1">Station setup, activity log{isAdmin ? ", page switches and user accounts" : ""}</p>
+        )}
       </div>
 
       <Tabs value={activeTab} onValueChange={(tab) => setParams({ tab }, { replace: true })}>
-        <div className="-mx-4 overflow-x-auto px-4 md:mx-0 md:px-0">
-          <TabsList className="w-max">
-            {tabs.map((t) => (
-              <TabsTrigger key={t.value} value={t.value}>{t.label}</TabsTrigger>
-            ))}
-          </TabsList>
-        </div>
+        {tabs.length > 1 && (
+          <div className="-mx-4 overflow-x-auto px-4 md:mx-0 md:px-0">
+            <TabsList className="w-max">
+              {tabs.map((t) => (
+                <TabsTrigger key={t.value} value={t.value}>{t.label}</TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
+        )}
 
         <TabsContent value="skills" className="mt-6 space-y-6">
           <DictionariesManager />

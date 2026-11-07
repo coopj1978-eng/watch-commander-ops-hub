@@ -46,6 +46,12 @@ export function useCanManageEquipment() {
   return role === "WC" || role === "CC";
 }
 
+/** Changing the inspection plans. Same rule as MANAGE_ALL_INSPECTIONS on the server. */
+export function useCanManageInspections() {
+  const role = useUserRole();
+  return role === "WC" || role === "CC";
+}
+
 export function useCanPerformChecks() {
   const role = useUserRole();
   return role === "WC" || role === "CC" || role === "FF";

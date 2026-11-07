@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
-import { useIsWC } from "@/lib/rbac";
+import { useCanManageInspections } from "@/lib/rbac";
 import {
   Select,
   SelectContent,
@@ -770,7 +770,7 @@ function OperationalSection({ canEdit }: { canEdit: boolean }) {
 // ─── Main Export ───────────────────────────────────────────────────────────
 
 export function InspectionPlans() {
-  const isWC = useIsWC();
+  const canEdit = useCanManageInspections();
 
   return (
     <div className="space-y-6">
@@ -778,16 +778,16 @@ export function InspectionPlans() {
         <h2 className="text-xl font-semibold text-foreground">Inspection Plans</h2>
         <p className="text-sm text-muted-foreground mt-1">
           Manage the register of sites and assets that form part of your quarterly inspection targets.
-          {!isWC && " (Read-only — contact your Watch Commander to make changes)"}
+          {!canEdit && " (Read-only — contact your Watch Commander to make changes)"}
         </p>
       </div>
 
       <SectionCard icon={Building2} title="Multi-Story Inspections" description="Premises requiring quarterly inspection — one watch assigned per quarter">
-        <MultistorySection canEdit={isWC} />
+        <MultistorySection canEdit={canEdit} />
       </SectionCard>
 
       <SectionCard icon={Heart} title="Care Home Validations" description="Annual care home visits — all watches attend each property">
-        <CareHomeSection canEdit={isWC} />
+        <CareHomeSection canEdit={canEdit} />
       </SectionCard>
 
       <SectionCard icon={Flame} title="Hydrant Routes" description="The station's SP hydrant routes and the 15-year watch rota">
@@ -798,7 +798,7 @@ export function InspectionPlans() {
       </SectionCard>
 
       <SectionCard icon={ClipboardCheck} title="Operational Inspections" description="Annual operational inspections — one watch assigned per premises">
-        <OperationalSection canEdit={isWC} />
+        <OperationalSection canEdit={canEdit} />
       </SectionCard>
     </div>
   );

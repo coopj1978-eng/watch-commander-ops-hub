@@ -31948,7 +31948,7 @@ const NAV_GROUPS = [
 const ACCOUNT_ITEMS = [
   { name: "My profile", path: "/profile", icon: CircleUser, keywords: "me account skills toil" },
   { name: "Settings", path: "/settings", icon: Settings$1, keywords: "appearance accent colour density dark mode theme" },
-  { name: "Admin", path: "/admin", icon: ShieldCheck, adminOnly: true, keywords: "station setup skills certs dictionaries absence triggers thresholds inspection plans multi-storey care homes branding activity log users feature switches" }
+  { name: "Admin", path: "/admin", icon: ShieldCheck, managersOrAdmin: true, keywords: "station setup skills certs dictionaries absence triggers thresholds inspection plans multi-storey care homes branding activity log users feature switches" }
 ];
 const TASK = { label: "Task for this shift", hint: "A card on the shift board", to: "/tasks?new=1", Icon: SquareKanban, tint: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300" };
 const MANAGER_ACTIONS$1 = [
@@ -31968,7 +31968,7 @@ function useNav() {
   const isWCOrAdmin = (user2 == null ? void 0 : user2.role) === "WC" || (user2 == null ? void 0 : user2.is_admin) === true;
   const isManager = (user2 == null ? void 0 : user2.role) === "WC" || (user2 == null ? void 0 : user2.role) === "CC";
   const allowed = (item) => {
-    if (item.adminOnly && !isWCOrAdmin) return false;
+    if (item.managersOrAdmin && !isManager && !(user2 == null ? void 0 : user2.is_admin)) return false;
     if (item.managersOnly && !isManager) return false;
     if (item.featureKey && !isWCOrAdmin && !flags[item.featureKey]) return false;
     return true;
@@ -34721,6 +34721,10 @@ function useCanCreatePerson() {
 }
 function useIsWC() {
   return useIsWatchCommander();
+}
+function useCanManageInspections() {
+  const role = useUserRole();
+  return role === "WC" || role === "CC";
 }
 function useIsAdmin() {
   const { user: user2 } = useAuth();
@@ -64955,23 +64959,23 @@ function OperationalSection({ canEdit }) {
   ] });
 }
 function InspectionPlans() {
-  const isWC = useIsWC();
+  const canEdit = useCanManageInspections();
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl font-semibold text-foreground", children: "Inspection Plans" }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-muted-foreground mt-1", children: [
         "Manage the register of sites and assets that form part of your quarterly inspection targets.",
-        !isWC && " (Read-only — contact your Watch Commander to make changes)"
+        !canEdit && " (Read-only — contact your Watch Commander to make changes)"
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(SectionCard, { icon: Building2, title: "Multi-Story Inspections", description: "Premises requiring quarterly inspection — one watch assigned per quarter", children: /* @__PURE__ */ jsxRuntimeExports.jsx(MultistorySection, { canEdit: isWC }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(SectionCard, { icon: Heart, title: "Care Home Validations", description: "Annual care home visits — all watches attend each property", children: /* @__PURE__ */ jsxRuntimeExports.jsx(CareHomeSection, { canEdit: isWC }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(SectionCard, { icon: Building2, title: "Multi-Story Inspections", description: "Premises requiring quarterly inspection — one watch assigned per quarter", children: /* @__PURE__ */ jsxRuntimeExports.jsx(MultistorySection, { canEdit }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(SectionCard, { icon: Heart, title: "Care Home Validations", description: "Annual care home visits — all watches attend each property", children: /* @__PURE__ */ jsxRuntimeExports.jsx(CareHomeSection, { canEdit }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(SectionCard, { icon: Flame, title: "Hydrant Routes", description: "The station's SP hydrant routes and the 15-year watch rota", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-muted-foreground", children: [
       "Hydrants are loaded from the station's route sheets, and each watch's route for the year comes from the rota.",
       " ",
       /* @__PURE__ */ jsxRuntimeExports.jsx(Link$1, { to: "/hydrants", className: "font-medium text-brand hover:underline", children: "Open Hydrants →" })
     ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(SectionCard, { icon: ClipboardCheck, title: "Operational Inspections", description: "Annual operational inspections — one watch assigned per premises", children: /* @__PURE__ */ jsxRuntimeExports.jsx(OperationalSection, { canEdit: isWC }) })
+    /* @__PURE__ */ jsxRuntimeExports.jsx(SectionCard, { icon: ClipboardCheck, title: "Operational Inspections", description: "Annual operational inspections — one watch assigned per premises", children: /* @__PURE__ */ jsxRuntimeExports.jsx(OperationalSection, { canEdit }) })
   ] });
 }
 function BrandingSettings() {
@@ -65175,10 +65179,11 @@ const FEATURE_CONFIG = [
   { key: "policies", label: "Docs", description: "Policy documents and useful links", icon: FileText, phase: "Phase 4" },
   { key: "reports", label: "Reports", description: "Quarterly reports and analytics", icon: ChartColumn, phase: "Phase 4" }
 ];
+const PLANS_TAB = { value: "inspection-plans", label: "Inspection plans" };
 const STATION_TABS = [
   { value: "skills", label: "Skills & certs" },
   { value: "absence", label: "Absence triggers" },
-  { value: "inspection-plans", label: "Inspection plans" },
+  PLANS_TAB,
   { value: "branding", label: "Branding" },
   { value: "activity", label: "Activity log" }
 ];
@@ -65188,8 +65193,9 @@ const ADMIN_TABS = [
 ];
 function AdminPanel() {
   const isAdmin = useIsAdmin();
+  const canSetUpStation = useCanAccessAdmin();
   const [params, setParams] = useSearchParams();
-  const tabs = [...STATION_TABS, ...isAdmin ? ADMIN_TABS : []];
+  const tabs = [...canSetUpStation ? STATION_TABS : [PLANS_TAB], ...isAdmin ? ADMIN_TABS : []];
   const asked = params.get("tab");
   const activeTab = tabs.some((t) => t.value === asked) ? asked : tabs[0].value;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
@@ -65198,13 +65204,13 @@ function AdminPanel() {
         /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldCheck, { className: "h-7 w-7 text-indigo-500 shrink-0" }),
         "Admin"
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-muted-foreground mt-1", children: [
+      canSetUpStation && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-muted-foreground mt-1", children: [
         "Station setup, activity log",
         isAdmin ? ", page switches and user accounts" : ""
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Tabs, { value: activeTab, onValueChange: (tab) => setParams({ tab }, { replace: true }), children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "-mx-4 overflow-x-auto px-4 md:mx-0 md:px-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx(TabsList, { className: "w-max", children: tabs.map((t) => /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: t.value, children: t.label }, t.value)) }) }),
+      tabs.length > 1 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "-mx-4 overflow-x-auto px-4 md:mx-0 md:px-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx(TabsList, { className: "w-max", children: tabs.map((t) => /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: t.value, children: t.label }, t.value)) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "skills", className: "mt-6 space-y-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(DictionariesManager, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "absence", className: "mt-6 space-y-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(AbsenceThresholds, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "inspection-plans", className: "mt-6 space-y-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(InspectionPlans, {}) }),
@@ -78098,7 +78104,7 @@ function AppRoutes() {
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/training", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Training, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/reports", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Reports, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/reports/quarterly/:id", element: /* @__PURE__ */ jsxRuntimeExports.jsx(QuarterlyReportPage, {}) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/admin", element: role === "WC" || (user2 == null ? void 0 : user2.is_admin) ? /* @__PURE__ */ jsxRuntimeExports.jsx(AdminPanel, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(Navigate, { to: "/", replace: true }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/admin", element: role === "WC" || role === "CC" || (user2 == null ? void 0 : user2.is_admin) ? /* @__PURE__ */ jsxRuntimeExports.jsx(AdminPanel, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(Navigate, { to: "/", replace: true }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/settings", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings, {}) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/reports/quarterly/:id/print", element: /* @__PURE__ */ jsxRuntimeExports.jsx(QuarterlyReportPrint, {}) })

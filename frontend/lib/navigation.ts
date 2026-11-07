@@ -42,8 +42,8 @@ export interface NavItem {
   keywords?: string;
   /** Hidden when this feature is switched off (a WC or admin still sees it). */
   featureKey?: keyof FeatureFlags;
-  /** WC or admin only. */
-  adminOnly?: boolean;
+  /** WC, CC or the admin. */
+  managersOrAdmin?: boolean;
   /** WC/CC only. */
   managersOnly?: boolean;
   /** Its single-key shortcut (see useKeyboardShortcuts). */
@@ -94,7 +94,7 @@ export const NAV_GROUPS: NavGroup[] = [
 export const ACCOUNT_ITEMS: NavItem[] = [
   { name: "My profile", path: "/profile",  icon: UserCircle, keywords: "me account skills toil" },
   { name: "Settings",   path: "/settings", icon: Settings,   keywords: "appearance accent colour density dark mode theme" },
-  { name: "Admin",      path: "/admin",    icon: ShieldCheck, adminOnly: true, keywords: "station setup skills certs dictionaries absence triggers thresholds inspection plans multi-storey care homes branding activity log users feature switches" },
+  { name: "Admin",      path: "/admin",    icon: ShieldCheck, managersOrAdmin: true, keywords: "station setup skills certs dictionaries absence triggers thresholds inspection plans multi-storey care homes branding activity log users feature switches" },
 ];
 
 // ── Quick add — the phone "+" and the ⌘K "Add" group ─────────────────────────
@@ -132,7 +132,7 @@ export function useNav() {
   const isManager = user?.role === "WC" || user?.role === "CC";
 
   const allowed = (item: NavItem) => {
-    if (item.adminOnly && !isWCOrAdmin) return false;
+    if (item.managersOrAdmin && !isManager && !user?.is_admin) return false;
     if (item.managersOnly && !isManager) return false;
     if (item.featureKey && !isWCOrAdmin && !flags[item.featureKey]) return false;
     return true;

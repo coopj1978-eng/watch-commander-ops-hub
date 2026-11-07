@@ -222,7 +222,7 @@ function AppRoutes() {
         <Route path="/reports" element={<Reports />} />
         <Route path="/reports/quarterly/:id" element={<QuarterlyReport />} />
         <Route path="/admin" element={
-          (role === "WC" || user?.is_admin) ? <AdminPanel /> : <Navigate to="/" replace />
+          (role === "WC" || role === "CC" || user?.is_admin) ? <AdminPanel /> : <Navigate to="/" replace />
         } />
         <Route path="/settings" element={<Settings />} />
       </Route>
