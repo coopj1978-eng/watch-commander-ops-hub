@@ -38,8 +38,22 @@ export function currentFyQuarter(now: Date = new Date()): FyQuarter {
   return fyQuarter(fy, q);
 }
 
+/** Calendar-quarter months, Q1 first: the multi-storey programme's quarters. */
+export const CALENDAR_QUARTER_MONTHS = ["Jan–Mar", "Apr–Jun", "Jul–Sep", "Oct–Dec"];
+
+/**
+ * Multi-storey inspections follow the station's programme, which runs on calendar
+ * quarters (Q1 = Jan–Mar … Q4 = Oct–Dec; John, 7 Nov 2026), unlike HFSV and community.
+ * A financial quarter covers the same months as one calendar quarter, so this gives
+ * the programme's year and quarter for a quarter on the Targets page:
+ * Oct–Dec 2026 is financial Q3 2026/27 and programme Q4 2026.
+ */
+export function multiStoryPeriod(fq: FyQuarter): { year: number; quarter: number } {
+  return { year: fq.start.getFullYear(), quarter: Math.floor(fq.start.getMonth() / 3) + 1 };
+}
+
 const DAY = 86_400_000;
-const midnight = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+const midnight =(d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
 /** How far through the quarter we are: 0 before it starts, 1 once it's over. */
 export function quarterTime(fq: FyQuarter, now: Date = new Date()) {

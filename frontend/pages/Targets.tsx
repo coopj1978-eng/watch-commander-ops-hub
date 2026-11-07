@@ -7,7 +7,7 @@ import { HfsvCard } from "@/components/targets/HfsvCard";
 import { CommunityCard } from "@/components/targets/CommunityCard";
 import { HydrantCard, MultiStoryCard } from "@/components/targets/InspectionCards";
 import { STATION_WATCHES, StationComparison } from "@/components/targets/StationComparison";
-import { currentFyQuarter, fyLabel, fyQuarter, quarterTime, shiftsLeft, type QuarterNo } from "@/lib/quarters";
+import { currentFyQuarter, fyLabel, fyQuarter, multiStoryPeriod, quarterTime, shiftsLeft, type QuarterNo } from "@/lib/quarters";
 
 // Targets — one financial quarter at a time (Nov 2026 redesign).
 //
@@ -122,9 +122,7 @@ export default function Targets() {
           {/* ── Annual inspections (care homes, operational) ──────────────── */}
           {!otherWatch && (
             <InspectionAssignments
-              financialYear={fy}
-              quarter={q}
-              year={fq.start.getFullYear()}
+              {...multiStoryPeriod(fq)}
               exclude={["multistory", "hydrant"]}
             />
           )}

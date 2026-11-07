@@ -271,10 +271,10 @@ function MultistorySection({ canEdit }: { canEdit: boolean }) {
             <tr className="border-b border-border bg-muted/40">
               {canEdit && <th className="w-[36px]" />}
               <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">Address</th>
-              <th className="text-center px-3 py-2.5 font-medium text-muted-foreground w-[115px]">Q1<span className="block text-[10px] font-normal">Apr–Jun</span></th>
-              <th className="text-center px-3 py-2.5 font-medium text-muted-foreground w-[115px]">Q2<span className="block text-[10px] font-normal">Jul–Sep</span></th>
-              <th className="text-center px-3 py-2.5 font-medium text-muted-foreground w-[115px]">Q3<span className="block text-[10px] font-normal">Oct–Dec</span></th>
-              <th className="text-center px-3 py-2.5 font-medium text-muted-foreground w-[115px]">Q4<span className="block text-[10px] font-normal">Jan–Mar</span></th>
+              <th className="text-center px-3 py-2.5 font-medium text-muted-foreground w-[115px]">Q1<span className="block text-[10px] font-normal">Jan–Mar</span></th>
+              <th className="text-center px-3 py-2.5 font-medium text-muted-foreground w-[115px]">Q2<span className="block text-[10px] font-normal">Apr–Jun</span></th>
+              <th className="text-center px-3 py-2.5 font-medium text-muted-foreground w-[115px]">Q3<span className="block text-[10px] font-normal">Jul–Sep</span></th>
+              <th className="text-center px-3 py-2.5 font-medium text-muted-foreground w-[115px]">Q4<span className="block text-[10px] font-normal">Oct–Dec</span></th>
               {canEdit && <th className="w-[80px]" />}
             </tr>
           </thead>

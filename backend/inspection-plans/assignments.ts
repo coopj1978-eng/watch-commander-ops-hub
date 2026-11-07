@@ -18,8 +18,8 @@ const ALL_WATCHES: WatchName[] = ["Red", "White", "Green", "Blue", "Amber"];
 // POST /inspection-plans/assignments/generate
 // WC/CC only — reads the 4 plan tables and creates assignments for the given year.
 // Passing quarter= limits multi-story to that quarter only; omitting it generates all quarters.
-// Multi-story quarters are SFRS financial quarters (Q1 = Apr–Jun, John Nov 2026), so for
-// multi-story `year` is the April-start financial year; the annual items use the calendar year.
+// Multi-story quarters are calendar quarters (Q1 = Jan–Mar), as on the station's programme
+// (John, 7 Nov 2026), so `year` is the calendar year for every plan type.
 // Care homes always generate annual assignments (quarter = null) for ALL watches.
 // OIs generate annual assignments for their own watch field. Hydrants have their own
 // routes and rota now (backend/hydrants), so the old register no longer makes any.

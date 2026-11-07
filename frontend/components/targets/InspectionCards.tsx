@@ -4,22 +4,23 @@ import { Building2, Check, Flame } from "lucide-react";
 import backend from "@/lib/backend";
 import { cn } from "@/lib/utils";
 import { invalidateTargetViews } from "@/lib/targetsCache";
-import { pace as paceOf, quarterTime, shiftsLeft, type FyQuarter } from "@/lib/quarters";
+import { multiStoryPeriod, pace as paceOf, quarterTime, shiftsLeft, type FyQuarter } from "@/lib/quarters";
 import { useToast } from "@/components/ui/use-toast";
 import { PaceLines, PacePill, TargetCard, TargetRing } from "./TargetParts";
 
 // Multi-story and hydrant targets. Multi-story buildings come from the
-// inspection plan for this watch and financial quarter, ticked right here (the
-// only place they're listed). The hydrant route is annual, by calendar year,
-// and ticked hydrant by hydrant on the Hydrants page.
+// inspection plan for this watch and calendar quarter (the months on screen),
+// ticked right here (the only place they're listed). The hydrant route is
+// annual, by calendar year, and ticked hydrant by hydrant on the Hydrants page.
 
 export function MultiStoryCard({ watch, fq, canEdit }: { watch: string; fq: FyQuarter; canEdit: boolean }) {
   const qc = useQueryClient();
   const { toast } = useToast();
+  const period = multiStoryPeriod(fq);
   const { data, isLoading } = useQuery({
     queryKey: ["assignments", "multistory", watch, fq.fy, fq.q],
     queryFn: () =>
-      backend.inspection_plans.listAssignments({ plan_type: "multistory", watch: watch || undefined, year: fq.fy, quarter: fq.q }),
+      backend.inspection_plans.listAssignments({ plan_type: "multistory", watch: watch || undefined, ...period }),
     enabled: !!watch,
   });
   const items = [...(data?.items ?? [])].sort((a, b) => a.label.localeCompare(b.label));
@@ -41,7 +42,7 @@ export function MultiStoryCard({ watch, fq, canEdit }: { watch: string; fq: FyQu
         reference={3}
       icon={<Building2 className="h-[18px] w-[18px]" />}
       title="Multi-story inspections"
-      subtitle={`From the inspection plan · ${fq.months}`}
+      subtitle={`Inspection programme · Q${period.quarter} ${period.year} · ${fq.months}`}
       pill={<PacePill state={p.state} label={total === 0 && !isLoading ? "None this quarter" : undefined} />}
       ring={
         <TargetRing actual={done} target={total} pace={p}>

@@ -1,5 +1,18 @@
 import { describe, it, expect } from "vitest";
-import { currentFyQuarter, fyQuarter, pace, quarterTime } from "./quarters";
+import { currentFyQuarter, fyQuarter, multiStoryPeriod, pace, quarterTime } from "./quarters";
+
+describe("multi-storey programme quarters", () => {
+  it("are calendar quarters, whichever financial quarter is showing", () => {
+    expect(multiStoryPeriod(fyQuarter(2026, 1))).toEqual({ year: 2026, quarter: 2 }); // Apr–Jun
+    expect(multiStoryPeriod(fyQuarter(2026, 2))).toEqual({ year: 2026, quarter: 3 }); // Jul–Sep
+    expect(multiStoryPeriod(fyQuarter(2026, 3))).toEqual({ year: 2026, quarter: 4 }); // Oct–Dec
+    expect(multiStoryPeriod(fyQuarter(2026, 4))).toEqual({ year: 2027, quarter: 1 }); // Jan–Mar
+  });
+
+  it("Jan–Mar of a calendar year belongs to that year's programme", () => {
+    expect(multiStoryPeriod(fyQuarter(2025, 4))).toEqual({ year: 2026, quarter: 1 });
+  });
+});
 
 describe("financial quarters", () => {
   it("Q3 is Oct–Dec of the financial year", () => {

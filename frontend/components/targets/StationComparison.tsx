@@ -4,7 +4,7 @@ import backend from "@/lib/backend";
 import type { activity, inspection_plans } from "@/client";
 import { cn } from "@/lib/utils";
 import { COMMUNITY_TAP_MIN, COMMUNITY_TARGET_Q, HFSV_TARGET_Q } from "@/lib/targets";
-import { pace, quarterTime, type FyQuarter, type Pace } from "@/lib/quarters";
+import { multiStoryPeriod, pace, quarterTime, type FyQuarter, type Pace } from "@/lib/quarters";
 import { WatchDot } from "@/components/WatchBadge";
 import { BAR_COLOUR } from "./TargetParts";
 
@@ -65,7 +65,7 @@ export function StationComparison({
       },
       {
         queryKey: ["assignments", "multistory", w, fq.fy, fq.q],
-        queryFn: () => backend.inspection_plans.listAssignments({ plan_type: "multistory", watch: w, year: fq.fy, quarter: fq.q }),
+        queryFn: () => backend.inspection_plans.listAssignments({ plan_type: "multistory", watch: w, ...multiStoryPeriod(fq) }),
       },
     ]),
   });

@@ -4,13 +4,14 @@ import backend from "@/lib/backend";
 import type { activity, hydrants, inspection_plans } from "@/client";
 import { useAuth } from "@/App";
 import { COMMUNITY_TAP_MIN, COMMUNITY_TARGET_Q, HFSV_TARGET_Q } from "@/lib/targets";
-import { PACE_LABEL, currentFyQuarter, pace, quarterTime, type Pace } from "@/lib/quarters";
+import { PACE_LABEL, currentFyQuarter, multiStoryPeriod, pace, quarterTime, type Pace } from "@/lib/quarters";
 import { TargetRing } from "@/components/targets/TargetParts";
 import { cn } from "@/lib/utils";
 
 // The watch's four targets as rings (Nov 2026) — the dashboard's at-a-glance
-// version of the Targets page, with the same pace tick: HFSV, community and
-// multi-story for the financial quarter, hydrants for the calendar year.
+// version of the Targets page, with the same pace tick: HFSV and community for
+// the financial quarter, multi-story for the same months on its own programme,
+// hydrants for the calendar year.
 // Replaces the Performance Summary card and the HFSV tile. Same queries as the
 // Targets page, so the two always agree.
 
@@ -58,7 +59,7 @@ export function TargetRings() {
     queries: [
       { queryKey: ["activities", "hfsv", watch, fq.fy, fq.q], queryFn: () => backend.activity.list({ type: "hfsv", watch, financial_year: fq.fy, quarter: fq.q }), enabled: !!watch },
       { queryKey: ["activities", "community", watch, fq.fy, fq.q], queryFn: () => backend.activity.list({ type: "community", watch, financial_year: fq.fy, quarter: fq.q }), enabled: !!watch },
-      { queryKey: ["assignments", "multistory", watch, fq.fy, fq.q], queryFn: () => backend.inspection_plans.listAssignments({ plan_type: "multistory", watch, year: fq.fy, quarter: fq.q }), enabled: !!watch },
+      { queryKey: ["assignments", "multistory", watch, fq.fy, fq.q], queryFn: () => backend.inspection_plans.listAssignments({ plan_type: "multistory", watch, ...multiStoryPeriod(fq) }), enabled: !!watch },
       { queryKey: ["hydrants", "summary", year], queryFn: () => backend.hydrants.getHydrantSummary({ year }), enabled: !!watch },
     ],
   });

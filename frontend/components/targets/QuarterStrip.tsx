@@ -4,7 +4,7 @@ import backend from "@/lib/backend";
 import type { activity, inspection_plans } from "@/client";
 import { cn } from "@/lib/utils";
 import { COMMUNITY_TAP_MIN, COMMUNITY_TARGET_Q, HFSV_TARGET_Q } from "@/lib/targets";
-import { currentFyQuarter, fyLabel, fyQuarter, pace, quarterTime, type QuarterNo } from "@/lib/quarters";
+import { currentFyQuarter, fyLabel, fyQuarter, multiStoryPeriod, pace, quarterTime, type QuarterNo } from "@/lib/quarters";
 import { BAR_COLOUR } from "./TargetParts";
 
 // The year as four quarter tiles: each shows HFSV, community and multi-story
@@ -35,7 +35,7 @@ export function QuarterStrip({
       },
       {
         queryKey: ["assignments", "multistory", watch, fy, q],
-        queryFn: () => backend.inspection_plans.listAssignments({ plan_type: "multistory", watch: watch || undefined, year: fy, quarter: q }),
+        queryFn: () => backend.inspection_plans.listAssignments({ plan_type: "multistory", watch: watch || undefined, ...multiStoryPeriod(fyQuarter(fy, q)) }),
         enabled: !!watch,
       },
     ]),
