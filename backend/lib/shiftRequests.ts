@@ -161,7 +161,8 @@ export function flexiChecks(i: {
   /** Flexi days already used or asked for this calendar year, not counting this one. */
   used: number;
   crew?: { available: number; total: number; rideOne: number; rideBoth: number };
-  skillsLeft?: { oic: number; drivers: number; ba: number };
+  /** `pumps` the skills left can crew (lib/ridingSeats) and what the empty seats need. */
+  skillsLeft?: { oic: number; drivers: number; ba: number; pumps: number; short: string };
   events: string[];
 }): RequestCheck[] {
   const checks: RequestCheck[] = [];
@@ -207,15 +208,17 @@ export function flexiChecks(i: {
     );
   }
   if (i.skillsLeft) {
-    const { oic, drivers, ba } = i.skillsLeft;
-    // Both pumps: 2 OIC, 2 drivers, and 5 BA for the seats behind them.
-    const short = oic < 2 || drivers < 2 || ba < 5;
+    // The same seat check as the calendar's riding count: can those left fill
+    // both pumps' OIC, driver and BA seats, one seat each?
+    const { oic, drivers, ba, pumps, short } = i.skillsLeft;
+    const counts = `${oic} OIC, ${drivers} LGV and ${ba} BA left on the watch`;
     checks.push({
       key: "skills",
       label: "Skills left",
-      state: short ? "warn" : "ok",
+      state: pumps >= 2 ? "ok" : pumps === 1 ? "warn" : "fail",
       managersOnly: true,
-      detail: `${oic} OIC, ${drivers} LGV and ${ba} BA left on the watch${short ? ". Check a detached duty could cover it" : ""}`,
+      detail: pumps >= 2 ? counts
+        : `${counts}. ${pumps === 1 ? "Both pumps" : "B10P1"} would be short of ${short}. Check a detached duty could cover it`,
     });
   }
   checks.push(

@@ -48764,26 +48764,35 @@ function ShiftChip({ shift: shift2, onBrand }) {
   );
 }
 const RidingContext = reactExports.createContext(null);
-function ridingLevel(s, rideOne, rideBoth) {
-  return s.available < rideOne ? "crit" : s.available < rideBoth ? "short" : "ok";
+function ridingLevel(s) {
+  return s.pumps >= 2 ? "ok" : s.pumps === 1 ? "short" : "crit";
 }
-function ridingSummary(s, rideOne, rideBoth) {
-  const head = `${s.available} of ${s.total} available`;
-  const level = ridingLevel(s, rideOne, rideBoth);
-  if (level === "crit") return `${head} — not enough to ride one pump (needs ${rideOne})`;
-  if (level === "short") return `${head} — ${rideBoth - s.available} short to ride both pumps`;
-  return `${head} — enough to ride both pumps`;
+function ridingShortText(s) {
+  const level = ridingLevel(s);
+  if (level === "crit") return `can't ride a pump: B10P1 is short of ${s.short}`;
+  if (level === "short") return `short of ${s.short} to ride both pumps`;
+  return "enough to ride both pumps";
 }
-function ridingTooltip(s, rideOne, rideBoth) {
-  const lines = [ridingSummary(s, rideOne, rideBoth)];
+function skillsUnknownText(s) {
+  const names = s.skills_unknown ?? [];
+  if (!names.length) return "";
+  return `${names.join(", ")} ${names.length === 1 ? "isn't" : "aren't"} in the app, so their skills aren't counted`;
+}
+function ridingSummary(s) {
+  return `${s.available} of ${s.total} available — ${ridingShortText(s)}`;
+}
+function ridingTooltip(s) {
+  const lines = [ridingSummary(s)];
   if (s.away.length) lines.push(`Away: ${s.away.map((a) => a.name ? `${a.name} (${a.why})` : a.why).join(", ")}`);
   if (s.covers.length) lines.push(`Covering: ${s.covers.map((c) => `${c.name} (${c.why})`).join(", ")}`);
+  const unknown = skillsUnknownText(s);
+  if (unknown) lines.push(`${unknown}.`);
   return lines.join("\n");
 }
 function ridingFor(ctx, day2) {
   const shift2 = ctx == null ? void 0 : ctx.byDate.get(isoDate(day2));
   if (!ctx || !shift2) return null;
-  return { ctx, shift: shift2, level: ridingLevel(shift2, ctx.rideOne, ctx.rideBoth) };
+  return { ctx, shift: shift2, level: ridingLevel(shift2) };
 }
 const useRiding = (day2) => ridingFor(reactExports.useContext(RidingContext), day2);
 const RIDING_STYLE = {
@@ -48819,15 +48828,15 @@ function RidingCount({ day: day2, onBrand, label: label2 }) {
       shift2.total
     ] })
   ] });
-  const tip = ridingTooltip(shift2, ctx.rideOne, ctx.rideBoth);
-  if (label2) return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { title: tip, "aria-label": ridingSummary(shift2, ctx.rideOne, ctx.rideBoth), style, children: body });
+  const tip = ridingTooltip(shift2);
+  if (label2) return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { title: tip, "aria-label": ridingSummary(shift2), style, children: body });
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
     "button",
     {
       type: "button",
       "data-event": true,
       title: tip,
-      "aria-label": `Riding: ${ridingSummary(shift2, ctx.rideOne, ctx.rideBoth)}`,
+      "aria-label": `Riding: ${ridingSummary(shift2)}`,
       onClick: (e) => {
         e.stopPropagation();
         ctx.onOpen(shift2, anchorOf(e));
@@ -48841,8 +48850,9 @@ function RidingCount({ day: day2, onBrand, label: label2 }) {
 function RidingNote({ day: day2 }) {
   const r2 = useRiding(day2);
   if (!r2 || r2.level === "ok") return null;
-  const { ctx, shift: shift2, level } = r2;
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 12, fontWeight: 600, color: level === "crit" ? "var(--cal-danger-fg)" : "var(--cal-ink-2)" }, children: level === "crit" ? `Can't ride a pump (needs ${ctx.rideOne})` : `${ctx.rideBoth - shift2.available} short to ride both pumps` });
+  const { shift: shift2, level } = r2;
+  const text2 = ridingShortText(shift2);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 12, fontWeight: 600, color: level === "crit" ? "var(--cal-danger-fg)" : "var(--cal-ink-2)" }, children: text2[0].toUpperCase() + text2.slice(1) });
 }
 function ShortMark({ day: day2 }) {
   const r2 = useRiding(day2);
@@ -50679,15 +50689,18 @@ function Row({ name, why }) {
 function CalendarRidingPeek({
   shift: shift2,
   watch,
-  rideOne,
-  rideBoth,
   style,
   onClose,
   onOpenBoard
 }) {
-  const level = ridingLevel(shift2, rideOne, rideBoth);
+  const level = ridingLevel(shift2);
   const night = shift2.shift_type.includes("Night");
-  const status = level === "crit" ? { text: `Not enough to ride a pump — B10P1 needs ${rideOne}.`, bg: "var(--cal-crit-bg)", fg: "var(--cal-crit-fg)" } : level === "short" ? { text: `${rideBoth - shift2.available} short to ride both pumps (needs ${rideBoth}).`, bg: "var(--cal-short-bg)", fg: "var(--cal-short-fg)" } : { text: `Enough to ride both pumps (needs ${rideBoth}).`, bg: "var(--cal-surface-2)", fg: "var(--cal-ink-2)" };
+  const text2 = ridingShortText(shift2);
+  const status = {
+    text: level === "ok" ? "Enough crew, with the skills, to ride both pumps." : `${text2[0].toUpperCase()}${text2.slice(1)}.`,
+    ...level === "crit" ? { bg: "var(--cal-crit-bg)", fg: "var(--cal-crit-fg)" } : level === "short" ? { bg: "var(--cal-short-bg)", fg: "var(--cal-short-fg)" } : { bg: "var(--cal-surface-2)", fg: "var(--cal-ink-2)" }
+  };
+  const unknown = skillsUnknownText(shift2);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { role: "dialog", "aria-modal": "true", "aria-label": `${watch} Watch ${shift2.shift_type} riding`, style: { ...style, padding: 20, display: "flex", flexDirection: "column", gap: 14 }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "flex-start", gap: 12 }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 12, height: 12, borderRadius: 4, marginTop: 6, flex: "none", background: `var(--cal-${night ? "night" : "day"}-dot)` } }),
@@ -50738,7 +50751,10 @@ function CalendarRidingPeek({
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { style: { listStyle: "none", margin: 0, padding: 0 }, children: shift2.covers.map((c, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Row, { name: c.name, why: c.why }, i)) })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: 0, fontSize: 12, color: "var(--cal-muted)" }, children: "From sickness, leave and shift bookings. It doesn't check skills (OIC, drivers, BA) — the crewing board does." }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { margin: 0, fontSize: 12, color: "var(--cal-muted)" }, children: [
+      "From sickness, leave and shift bookings, and the OIC, LGV and BA ticks on each profile. The crewing board picks who rides where.",
+      unknown && ` ${unknown}.`
+    ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", justifyContent: "flex-end" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "button",
       {
@@ -51766,8 +51782,6 @@ function UnifiedCalendar() {
     if (!showRiding || !strength) return void 0;
     return {
       byDate: new Map(strength.shifts.map((s) => [s.date, s])),
-      rideOne: strength.ride_one,
-      rideBoth: strength.ride_both,
       onOpen: (shift2, anchor) => {
         setPeek(null);
         setRidingPeek({ shift: shift2, anchor: anchor ?? null });
@@ -52148,8 +52162,6 @@ This cancels the whole booking (TOIL/H4H/Flexi): any TOIL hours are refunded and
           {
             shift: ridingPeek.shift,
             watch: watchShown,
-            rideOne: riding.rideOne,
-            rideBoth: riding.rideBoth,
             style: popStyle(ridingPeek.anchor, 360, 420),
             onClose: () => setRidingPeek(null),
             onOpenBoard: () => {

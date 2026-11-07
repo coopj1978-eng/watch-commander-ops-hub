@@ -138,38 +138,49 @@ function ShiftChip({ shift, onBrand }: { shift?: ShiftDay; onBrand?: boolean }) 
 
 // ─── Riding count (WC/CC) ─────────────────────────────────────────────────────
 // How many each of the watch's shifts can ride, from sickness, leave and
-// bookings (Nov 2026), so a short shift stands out weeks ahead. Neutral when
-// both pumps can ride; amber when short for both, red when short for one.
+// bookings (Nov 2026), so a short shift stands out weeks ahead. The colour
+// also checks skills (the server's lib/ridingSeats): neutral when those
+// available can fill both pumps' OIC, driver and BA seats; amber when only
+// B10P1's; red when not even that.
 export interface RidingInfo {
   byDate: Map<string, crewing.ShiftStrength>;
-  rideOne: number;
-  rideBoth: number;
   onOpen: (shift: crewing.ShiftStrength, anchor?: CalendarAnchor) => void;
 }
 const RidingContext = createContext<RidingInfo | null>(null);
 
 export type RidingLevel = "ok" | "short" | "crit";
-export function ridingLevel(s: crewing.ShiftStrength, rideOne: number, rideBoth: number): RidingLevel {
-  return s.available < rideOne ? "crit" : s.available < rideBoth ? "short" : "ok";
+export function ridingLevel(s: crewing.ShiftStrength): RidingLevel {
+  return s.pumps >= 2 ? "ok" : s.pumps === 1 ? "short" : "crit";
 }
-export function ridingSummary(s: crewing.ShiftStrength, rideOne: number, rideBoth: number): string {
-  const head = `${s.available} of ${s.total} available`;
-  const level = ridingLevel(s, rideOne, rideBoth);
-  if (level === "crit") return `${head} — not enough to ride one pump (needs ${rideOne})`;
-  if (level === "short") return `${head} — ${rideBoth - s.available} short to ride both pumps`;
-  return `${head} — enough to ride both pumps`;
+/** "short of 1 driver to ride both pumps", or why not even B10P1 can ride. */
+export function ridingShortText(s: crewing.ShiftStrength): string {
+  const level = ridingLevel(s);
+  if (level === "crit") return `can't ride a pump: B10P1 is short of ${s.short}`;
+  if (level === "short") return `short of ${s.short} to ride both pumps`;
+  return "enough to ride both pumps";
 }
-function ridingTooltip(s: crewing.ShiftStrength, rideOne: number, rideBoth: number): string {
-  const lines = [ridingSummary(s, rideOne, rideBoth)];
+/** Covers who aren't in the app, whose skills the count can't see. */
+export function skillsUnknownText(s: crewing.ShiftStrength): string {
+  const names = s.skills_unknown ?? [];
+  if (!names.length) return "";
+  return `${names.join(", ")} ${names.length === 1 ? "isn't" : "aren't"} in the app, so their skills aren't counted`;
+}
+export function ridingSummary(s: crewing.ShiftStrength): string {
+  return `${s.available} of ${s.total} available — ${ridingShortText(s)}`;
+}
+function ridingTooltip(s: crewing.ShiftStrength): string {
+  const lines = [ridingSummary(s)];
   if (s.away.length) lines.push(`Away: ${s.away.map((a) => (a.name ? `${a.name} (${a.why})` : a.why)).join(", ")}`);
   if (s.covers.length) lines.push(`Covering: ${s.covers.map((c) => `${c.name} (${c.why})`).join(", ")}`);
+  const unknown = skillsUnknownText(s);
+  if (unknown) lines.push(`${unknown}.`);
   return lines.join("\n");
 }
 
 function ridingFor(ctx: RidingInfo | null, day: Date) {
   const shift = ctx?.byDate.get(isoDate(day));
   if (!ctx || !shift) return null;
-  return { ctx, shift, level: ridingLevel(shift, ctx.rideOne, ctx.rideBoth) };
+  return { ctx, shift, level: ridingLevel(shift) };
 }
 const useRiding = (day: Date) => ridingFor(useContext(RidingContext), day);
 
@@ -196,14 +207,14 @@ function RidingCount({ day, onBrand, label }: { day: Date; onBrand?: boolean; la
       <span className="cal-mono" style={{ fontSize: 11.5, fontWeight: 650 }}>{shift.available}/{shift.total}</span>
     </>
   );
-  const tip = ridingTooltip(shift, ctx.rideOne, ctx.rideBoth);
-  if (label) return <span title={tip} aria-label={ridingSummary(shift, ctx.rideOne, ctx.rideBoth)} style={style}>{body}</span>;
+  const tip = ridingTooltip(shift);
+  if (label) return <span title={tip} aria-label={ridingSummary(shift)} style={style}>{body}</span>;
   return (
     <button
       type="button"
       data-event
       title={tip}
-      aria-label={`Riding: ${ridingSummary(shift, ctx.rideOne, ctx.rideBoth)}`}
+      aria-label={`Riding: ${ridingSummary(shift)}`}
       onClick={(e) => { e.stopPropagation(); ctx.onOpen(shift, anchorOf(e)); }}
       className="cal-focus"
       style={{ ...style, cursor: "pointer" }}
@@ -217,10 +228,11 @@ function RidingCount({ day, onBrand, label }: { day: Date; onBrand?: boolean; la
 function RidingNote({ day }: { day: Date }) {
   const r = useRiding(day);
   if (!r || r.level === "ok") return null;
-  const { ctx, shift, level } = r;
+  const { shift, level } = r;
+  const text = ridingShortText(shift);
   return (
     <span style={{ fontSize: 12, fontWeight: 600, color: level === "crit" ? "var(--cal-danger-fg)" : "var(--cal-ink-2)" }}>
-      {level === "crit" ? `Can't ride a pump (needs ${ctx.rideOne})` : `${ctx.rideBoth - shift.available} short to ride both pumps`}
+      {text[0].toUpperCase() + text.slice(1)}
     </span>
   );
 }

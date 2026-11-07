@@ -3,7 +3,8 @@ import { getAuthData } from "~encore/auth";
 import { requireRole } from "../auth/rbac";
 import { absenceViewer } from "../lib/absenceAccess";
 import { addDaysIso, watchShiftOn } from "../lib/shiftRota";
-import { RIDE_BOTH, RIDE_ONE, shiftStrength, type AwayWhy, type CoverWhy } from "../lib/strength";
+import { RIDE_BOTH, RIDE_ONE, ridersOf, shiftStrength, type AwayWhy, type CoverWhy } from "../lib/strength";
+import { describeShort, seatCheck } from "../lib/ridingSeats";
 import { loadStrengthData } from "../lib/strengthData";
 
 interface StrengthRequest {
@@ -21,6 +22,12 @@ export interface ShiftStrength {
   /** No name on leave for a watch that isn't the viewer's own. */
   away: { name?: string; why: AwayWhy }[];
   covers: { name: string; why: CoverWhy }[];
+  /** Pumps the people available can crew with the skills they hold: 2, 1 or 0. */
+  pumps: number;
+  /** What the empty seats need, e.g. "1 driver" — for both pumps, or for B10P1 when pumps is 0. */
+  short: string;
+  /** Covers who aren't in the app, so their skills aren't known. */
+  skills_unknown: string[];
 }
 
 interface StrengthResponse {
@@ -35,6 +42,8 @@ const ISO = /^\d{4}-\d{2}-\d{2}$/;
 /**
  * GET /crewing/strength — how many each of a watch's shifts can ride, for
  * the calendar's riding count. WC/CC only, like strength on the home screen.
+ * `pumps` also checks skills: whether those available can fill each pump's
+ * OIC, driver and BA seats (lib/ridingSeats), as the crewing board does.
  *
  * Sickness names are shown station-wide (as on the crewing board, via
  * /absences/today-sick); names on leave only for the viewer's own watch,
@@ -57,7 +66,7 @@ export const strength = api<StrengthRequest, StrengthResponse>(
     const viewer = await absenceViewer();
     const ownWatch = !!viewer.watch && viewer.watch.toLowerCase() === req.watch.toLowerCase();
 
-    const { roster, absences, adjustments, detached } = await loadStrengthData(req.watch, req.start_date, req.end_date);
+    const { roster, absences, adjustments, detached, quals } = await loadStrengthData(req.watch, req.start_date, req.end_date);
 
     const shifts: ShiftStrength[] = [];
     for (let date = req.start_date; date <= req.end_date; date = addDaysIso(date, 1)) {
@@ -72,6 +81,8 @@ export const strength = api<StrengthRequest, StrengthResponse>(
         adjustments,
         detachedIds: new Set(detached.filter((d) => d.date === date && d.shift_type === label).map((d) => d.user_id)),
       });
+      const riders = ridersOf(r, roster, quals);
+      const seats = seatCheck(riders.quals);
       shifts.push({
         date,
         shift_type: label,
@@ -79,6 +90,9 @@ export const strength = api<StrengthRequest, StrengthResponse>(
         available: r.available,
         away: r.away.map(({ name, why }) => (why === "Leave" && !ownWatch ? { why } : { name, why })),
         covers: r.covers.map(({ name, why }) => ({ name, why })),
+        pumps: seats.pumps,
+        short: describeShort(seats.short),
+        skills_unknown: riders.unknown,
       });
     }
 

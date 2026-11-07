@@ -1,9 +1,10 @@
 import { ArrowRight, Users, X } from "lucide-react";
 import type { crewing } from "@/client";
-import { ridingLevel } from "./CalendarWidget";
+import { ridingLevel, ridingShortText, skillsUnknownText } from "./CalendarWidget";
 
 // Tap a shift's riding count on the calendar (Nov 2026): who's away and why,
-// who's coming in to cover, and a way to that shift's crewing board.
+// who's coming in to cover, whether their skills fill both pumps' seats, and
+// a way to that shift's crewing board.
 
 const dayLabel = (iso: string) =>
   new Date(`${iso}T12:00:00`).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
@@ -26,22 +27,24 @@ function Row({ name, why }: { name?: string; why: string }) {
 }
 
 export default function CalendarRidingPeek({
-  shift, watch, rideOne, rideBoth, style, onClose, onOpenBoard,
+  shift, watch, style, onClose, onOpenBoard,
 }: {
   shift: crewing.ShiftStrength;
   watch: string;
-  rideOne: number;
-  rideBoth: number;
   style: React.CSSProperties;
   onClose: () => void;
   onOpenBoard: () => void;
 }) {
-  const level = ridingLevel(shift, rideOne, rideBoth);
+  const level = ridingLevel(shift);
   const night = shift.shift_type.includes("Night");
-  const status =
-    level === "crit" ? { text: `Not enough to ride a pump — B10P1 needs ${rideOne}.`, bg: "var(--cal-crit-bg)", fg: "var(--cal-crit-fg)" }
-    : level === "short" ? { text: `${rideBoth - shift.available} short to ride both pumps (needs ${rideBoth}).`, bg: "var(--cal-short-bg)", fg: "var(--cal-short-fg)" }
-    : { text: `Enough to ride both pumps (needs ${rideBoth}).`, bg: "var(--cal-surface-2)", fg: "var(--cal-ink-2)" };
+  const text = ridingShortText(shift);
+  const status = {
+    text: level === "ok" ? "Enough crew, with the skills, to ride both pumps." : `${text[0].toUpperCase()}${text.slice(1)}.`,
+    ...(level === "crit" ? { bg: "var(--cal-crit-bg)", fg: "var(--cal-crit-fg)" }
+      : level === "short" ? { bg: "var(--cal-short-bg)", fg: "var(--cal-short-fg)" }
+      : { bg: "var(--cal-surface-2)", fg: "var(--cal-ink-2)" }),
+  };
+  const unknown = skillsUnknownText(shift);
 
   return (
     <div role="dialog" aria-modal="true" aria-label={`${watch} Watch ${shift.shift_type} riding`} style={{ ...style, padding: 20, display: "flex", flexDirection: "column", gap: 14 }}>
@@ -94,7 +97,8 @@ export default function CalendarRidingPeek({
       )}
 
       <p style={{ margin: 0, fontSize: 12, color: "var(--cal-muted)" }}>
-        From sickness, leave and shift bookings. It doesn't check skills (OIC, drivers, BA) — the crewing board does.
+        From sickness, leave and shift bookings, and the OIC, LGV and BA ticks on each profile. The crewing board picks who rides where.
+        {unknown && ` ${unknown}.`}
       </p>
 
       <div style={{ display: "flex", justifyContent: "flex-end" }}>

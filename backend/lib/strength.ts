@@ -8,6 +8,8 @@
 //   covers — the named cover on an H4H/TOIL, and anyone booked onto this
 //            watch from another (Flexi payback, Orange day).
 
+import { NO_QUALS, type RiderQuals } from "./ridingSeats";
+
 /** B10P1 rides with 5, B10P2 with 4 (the crewing board's required seats). */
 export const RIDE_ONE = 5;
 export const RIDE_BOTH = 9;
@@ -105,4 +107,24 @@ export function shiftStrength(input: {
   const names = new Map(roster.map((m) => [m.id, m.name]));
   const away = [...why].map(([id, w]) => ({ id, name: names.get(id) ?? "", why: w }));
   return { total: roster.length, available: roster.length - away.length + covers.length, away, covers };
+}
+
+/**
+ * The skills of who would ride (lib/ridingSeats): the watch less those away,
+ * plus covers, less `without` (someone asking to come off). A cover who isn't
+ * in the app has no skills on record; they're named in `unknown`.
+ */
+export function ridersOf(
+  r: StrengthResult,
+  roster: StrengthMember[],
+  quals: Map<string, RiderQuals>,
+  without?: string,
+): { quals: RiderQuals[]; unknown: string[] } {
+  const away = new Set(r.away.map((a) => a.id));
+  const ids = [
+    ...roster.map((m) => m.id).filter((id) => !away.has(id)),
+    ...r.covers.flatMap((c) => (c.id ? [c.id] : [])),
+  ].filter((id) => id !== without);
+  const unknown = r.covers.filter((c) => !c.id).map((c) => c.name);
+  return { quals: [...ids.map((id) => quals.get(id) ?? NO_QUALS), ...unknown.map(() => NO_QUALS)], unknown };
 }

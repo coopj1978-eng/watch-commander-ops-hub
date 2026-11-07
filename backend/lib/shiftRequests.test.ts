@@ -145,10 +145,11 @@ describe("flexi checks", () => {
     expect(crew(4).state).toBe("fail");
   });
 
-  it("warns when skills run short", () => {
-    const skills = (oic: number) => of(flexiChecks({ ...base, skillsLeft: { oic, drivers: 3, ba: 7 } }), "skills");
-    expect(skills(2).state).toBe("ok");
-    expect(skills(1).state).toBe("warn");
+  it("warns when the seats left can't be filled", () => {
+    const skills = (pumps: number, short: string) => of(flexiChecks({ ...base, skillsLeft: { oic: 2, drivers: 1, ba: 7, pumps, short } }), "skills");
+    expect(skills(2, "").state).toBe("ok");
+    expect(skills(1, "1 driver")).toMatchObject({ state: "warn", detail: expect.stringContaining("Both pumps would be short of 1 driver") });
+    expect(skills(0, "1 OIC")).toMatchObject({ state: "fail", detail: expect.stringContaining("B10P1 would be short of 1 OIC") });
   });
 
   it("shows events that shift", () => {

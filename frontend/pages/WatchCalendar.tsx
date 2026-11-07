@@ -140,8 +140,6 @@ export default function UnifiedCalendar() {
     if (!showRiding || !strength) return undefined;
     return {
       byDate: new Map(strength.shifts.map((s) => [s.date, s])),
-      rideOne: strength.ride_one,
-      rideBoth: strength.ride_both,
       onOpen: (shift, anchor) => { setPeek(null); setRidingPeek({ shift, anchor: anchor ?? null }); },
     };
   }, [showRiding, strength]);
@@ -550,8 +548,6 @@ export default function UnifiedCalendar() {
           <CalendarRidingPeek
             shift={ridingPeek.shift}
             watch={watchShown}
-            rideOne={riding.rideOne}
-            rideBoth={riding.rideBoth}
             style={popStyle(ridingPeek.anchor, 360, 420)}
             onClose={() => setRidingPeek(null)}
             onOpenBoard={() => {

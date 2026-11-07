@@ -1,5 +1,6 @@
 import db from "../db";
 import type { StrengthAbsence, StrengthAdjustment, StrengthMember } from "./strength";
+import { riderQuals, type RiderQuals } from "./ridingSeats";
 
 /** Everything lib/strength needs for a watch over some dates. */
 export async function loadStrengthData(watch: string, start: string, end: string) {
@@ -46,5 +47,18 @@ export async function loadStrengthData(watch: string, start: string, end: string
     ),
   ]);
 
-  return { roster, absences, adjustments, detached };
+  // Crewing skills for everyone who could ride: the watch and anyone covering.
+  const riderIds = [...new Set([
+    ...ids,
+    ...adjustments.flatMap((a) => [a.user_id, a.covering_user_id].filter((id): id is string => !!id)),
+  ])];
+  const qualRows = await db.rawQueryAll<{ id: string; role: string; rank: string | null; oic: boolean; driver_lgv: boolean; ba: boolean }>(
+    `SELECT u.id, u.role, u.rank, COALESCE(p.oic, false) AS oic, COALESCE(p.driver_lgv, false) AS driver_lgv, COALESCE(p.ba, false) AS ba
+     FROM users u LEFT JOIN firefighter_profiles p ON p.user_id = u.id
+     WHERE u.id = ANY($1::text[])`,
+    riderIds
+  );
+  const quals = new Map<string, RiderQuals>(qualRows.map((q) => [q.id, riderQuals(q)]));
+
+  return { roster, absences, adjustments, detached, quals };
 }

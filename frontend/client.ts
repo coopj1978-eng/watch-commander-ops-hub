@@ -1617,6 +1617,21 @@ export namespace crewing {
         /** No name on leave for a watch that isn't the viewer's own. */
         away: { name?: string, why: "Sick" | "Leave" | "Flexi" | "Training" | "H4H" | "TOIL" | "Detached" }[]
         covers: { name: string, why: "H4H cover" | "TOIL cover" | "Flexi payback" | "Orange day" }[]
+
+        /**
+         * Pumps the people available can crew with the skills they hold: 2, 1 or 0.
+         */
+        pumps: number
+
+        /**
+         * What the empty seats need, e.g. "1 driver" — for both pumps, or for B10P1 when pumps is 0.
+         */
+        short: string
+
+        /**
+         * Covers who aren't in the app, so their skills aren't known.
+         */
+        "skills_unknown": string[]
     }
 
     export interface StrengthResponse {

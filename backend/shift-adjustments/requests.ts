@@ -8,7 +8,8 @@ import {
   canDecide, canRecordOutcome, canViewRequest, dayLabel, flexiChecks, h4hChecks, kronosDeadline, recommendedH4H, rotaFor,
   type Commitment, type DayNight, type FlexiLimits, type Quals, type RequestCheck, type RequestType, type RequestViewer,
 } from "../lib/shiftRequests";
-import { RIDE_BOTH, RIDE_ONE, shiftStrength } from "../lib/strength";
+import { RIDE_BOTH, RIDE_ONE, ridersOf, shiftStrength } from "../lib/strength";
+import { describeShort, seatCheck } from "../lib/ridingSeats";
 import { loadStrengthData } from "../lib/strengthData";
 import { bookAdjustment } from "./book";
 
@@ -248,22 +249,16 @@ async function crewWithout(userId: string, watch: string, date: string, dayNight
   });
   const away = new Set(s.away.map((a) => a.id));
   const counted = data.roster.some((m) => m.id === userId) && !away.has(userId);
-  const left = [
-    ...data.roster.map((m) => m.id).filter((id) => id !== userId && !away.has(id)),
-    ...s.covers.flatMap((c) => (c.id ? [c.id] : [])),
-  ];
-  const quals = await db.rawQueryAll<{ role: string; oic: boolean; driver_lgv: boolean; ba: boolean }>(
-    `SELECT u.role, COALESCE(p.oic, false) AS oic, COALESCE(p.driver_lgv, false) AS driver_lgv, COALESCE(p.ba, false) AS ba
-     FROM users u LEFT JOIN firefighter_profiles p ON p.user_id = u.id
-     WHERE u.id = ANY($1::text[])`,
-    left
-  );
+  const { quals } = ridersOf(s, data.roster, data.quals, userId);
+  const seats = seatCheck(quals);
   return {
     crew: { available: s.available - (counted ? 1 : 0), total: s.total, rideOne: RIDE_ONE, rideBoth: RIDE_BOTH },
     skillsLeft: {
-      oic: quals.filter((q) => q.oic || q.role === "WC" || q.role === "CC").length,
-      drivers: quals.filter((q) => q.driver_lgv).length,
+      oic: quals.filter((q) => q.oic).length,
+      drivers: quals.filter((q) => q.driver).length,
       ba: quals.filter((q) => q.ba).length,
+      pumps: seats.pumps,
+      short: describeShort(seats.short),
     },
   };
 }
