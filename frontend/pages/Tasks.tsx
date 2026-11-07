@@ -12,7 +12,7 @@ import TaskBoard from "@/components/TaskBoard";
 import TaskList from "@/components/TaskList";
 import TaskDetailDrawer from "@/components/TaskDetailDrawer";
 import TaskTemplateManager from "@/components/TaskTemplateManager";
-import TaskSidePanel, { TaskWeekStrip } from "@/components/TaskSidePanel";
+import TaskSidePanel, { TaskUpcomingCard } from "@/components/TaskSidePanel";
 import RoutinePlanner from "@/components/tasks/RoutinePlanner";
 import ShiftProgress from "@/components/tasks/ShiftProgress";
 import { autoStatusFor, personTint, useIsPhone } from "@/lib/taskUi";
@@ -28,7 +28,7 @@ export default function Tasks() {
   const [viewMode, setViewMode] = useState<"board" | "list">("board");
   const [showTemplateManager, setShowTemplateManager] = useState(false);
   const [showRoutines, setShowRoutines] = useState(false);
-  // The watch calendar beside the board folds away (remembered per device).
+  // The panel beside the board (missed checks, Upcoming) folds away (remembered per device).
   const [calOpen, setCalOpen] = useState(() => { try { return localStorage.getItem("tasks-cal-panel") !== "closed"; } catch { return true; } });
   const toggleCal = () => setCalOpen((open) => {
     try { localStorage.setItem("tasks-cal-panel", open ? "closed" : "open"); } catch { /* private mode */ }
@@ -48,8 +48,6 @@ export default function Tasks() {
   const [filterLabels, setFilterLabels] = useState<string[]>([]);
   const [filterOverdue, setFilterOverdue] = useState(false);
   const [filterAssignee, setFilterAssignee] = useState("");
-  // Day picked on the watch calendar panel — the panel lists what's planned that day.
-  const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const hasActiveFilters = !!(filterSearch || filterLabels.length > 0 || filterOverdue || filterAssignee);
   const clearFilters = () => { setFilterSearch(""); setFilterLabels([]); setFilterOverdue(false); setFilterAssignee(""); };
   const [showFilterSheet, setShowFilterSheet] = useState(false);
@@ -521,8 +519,8 @@ export default function Tasks() {
                     type="button"
                     onClick={toggleCal}
                     aria-pressed={calOpen}
-                    aria-label={calOpen ? "Hide the watch calendar" : "Show the watch calendar"}
-                    title={calOpen ? "Hide the watch calendar" : "Show the watch calendar"}
+                    aria-label={calOpen ? "Hide Upcoming" : "Show Upcoming"}
+                    title={calOpen ? "Hide Upcoming" : "Show Upcoming"}
                     className="cal-btn"
                     style={iconBtn}
                   >
@@ -600,9 +598,9 @@ export default function Tasks() {
             <ShiftProgress shift={shift} stats={shiftStats} carriedOnly={filterOverdue} onToggleCarried={() => setFilterOverdue(!filterOverdue)} compact={isPhone} />
           )}
 
-          {/* ── Phone: this week on the watch calendar (tap to open it) ───────── */}
+          {/* ── Phone: Upcoming and missed checks (tap to open) ──────────────── */}
           {isPhone && watchName !== "Watch" && (
-            <TaskWeekStrip watch={watchName} tasks={tasks} selectedDay={selectedDay} onPickDay={setSelectedDay} onOpenTask={setSelectedTask} />
+            <TaskUpcomingCard watch={watchName} tasks={tasks} onOpenTask={setSelectedTask} />
           )}
 
           {/* ── Search + filters (desktop board) ─────────────────────────────── */}
@@ -692,10 +690,10 @@ export default function Tasks() {
           )}
         </main>
 
-        {/* ════════════════ Watch calendar (desktop, folds away) ════════════════ */}
+        {/* ═══════════ Missed checks + Upcoming (desktop, folds away) ═══════════ */}
         {showCalPanel && (
           <div style={{ flex: "1 1 300px", maxWidth: 330, minWidth: 0 }}>
-            <TaskSidePanel watch={watchName} tasks={tasks} selectedDay={selectedDay} onPickDay={setSelectedDay} onOpenTask={setSelectedTask} />
+            <TaskSidePanel watch={watchName} tasks={tasks} onOpenTask={setSelectedTask} />
           </div>
         )}
       </div>
