@@ -13,9 +13,11 @@ export const updateFeatureFlags = api<UpdateFeatureFlagsRequest, SystemSettings>
       throw APIError.permissionDenied("Only the admin can switch pages on or off.");
     }
 
+    // $1::text::jsonb — a bare $1::jsonb makes Encore store the switches as a
+    // JSON string, which then read back as all off (fixed 8 Nov 2026).
     const result = await db.rawQueryRow<SystemSettings>(
       `UPDATE system_settings
-       SET feature_flags = $1::jsonb, updated_at = NOW()
+       SET feature_flags = $1::text::jsonb, updated_at = NOW()
        WHERE id = (SELECT id FROM system_settings ORDER BY id DESC LIMIT 1)
        RETURNING *`,
       JSON.stringify(req.feature_flags)

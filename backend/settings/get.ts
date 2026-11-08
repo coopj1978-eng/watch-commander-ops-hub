@@ -13,6 +13,11 @@ export const get = api<void, SystemSettings>(
       throw new Error("System settings not found");
     }
 
+    // Saves before 8 Nov 2026 could store the switches as a JSON string.
+    if (typeof settings.feature_flags === "string") {
+      try { settings.feature_flags = JSON.parse(settings.feature_flags); } catch { /* leave as is */ }
+    }
+
     return settings;
   }
 );
