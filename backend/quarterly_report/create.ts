@@ -1,5 +1,6 @@
 import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
+import { requireRole } from "../auth/rbac";
 import db from "../db";
 import type {
   CreateReportRequest,
@@ -46,6 +47,9 @@ function toISO(d: Date | string): string {
 export const create = api<CreateReportRequest, CreateReportResponse>(
   { auth: true, expose: true, method: "POST", path: "/quarterly-reports" },
   async (req) => {
+    // Only a WC or CC changes quarterly reports (Nov 2026: the screen already limits
+    // it; now the server does too, so a firefighter's phone can't).
+    requireRole(getAuthData()!, "WC", "CC");
     const auth = getAuthData()!;
 
     if (!req.watch) throw APIError.invalidArgument("watch is required");

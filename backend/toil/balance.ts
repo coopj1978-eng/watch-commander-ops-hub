@@ -1,4 +1,5 @@
 import { api } from "encore.dev/api";
+import { getAuthData } from "~encore/auth";
 import db, { type SQLPrimitive } from "../db";
 import { ukTodayIso } from "../lib/sicknessMath";
 import type { ToilBalanceRequest, ToilBalanceResponse, ToilBalance } from "./types";
@@ -10,7 +11,10 @@ import type { ToilBalanceRequest, ToilBalanceResponse, ToilBalance } from "./typ
 // back to zero on 1 January (dated by the incident / shift date).
 export const balance = api<ToilBalanceRequest, ToilBalanceResponse>(
   { auth: true, expose: true, method: "GET", path: "/toil/balance" },
-  async (req) => {
+  async (input) => {
+    // A firefighter only gets their own balance; a WC/CC anyone's (Nov 2026).
+    const auth = getAuthData()!;
+    const req = auth.role === "WC" || auth.role === "CC" ? input : { ...input, user_id: auth.userID, watch_unit: undefined };
     const year = req.year ?? Number(ukTodayIso().slice(0, 4));
 
     const conditions: string[] = ["TRUE"];

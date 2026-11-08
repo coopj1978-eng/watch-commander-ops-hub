@@ -1,11 +1,15 @@
 import { api } from "encore.dev/api";
+import { getAuthData } from "~encore/auth";
 import db, { type SQLPrimitive } from "../db";
 import type { ListToilRequest, ListToilResponse, ToilEntry } from "./types";
 
 // GET /toil — List TOIL entries with optional filters
 export const list = api<ListToilRequest, ListToilResponse>(
   { auth: true, expose: true, method: "GET", path: "/toil" },
-  async (req) => {
+  async (input) => {
+    // A firefighter only gets their own TOIL; a WC/CC anyone's (Nov 2026).
+    const auth = getAuthData()!;
+    const req = auth.role === "WC" || auth.role === "CC" ? input : { ...input, user_id: auth.userID, watch_unit: undefined };
     const conditions: string[] = [];
     const values: SQLPrimitive[] = [];
     let idx = 1;

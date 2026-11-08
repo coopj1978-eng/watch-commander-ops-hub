@@ -1,5 +1,6 @@
 import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
+import { requireRole } from "../auth/rbac";
 import db from "../db";
 import type { AddAttendanceRequest, RemoveAttendanceRequest } from "./types";
 
@@ -10,7 +11,9 @@ interface SuccessResponse {
 export const addAttendance = api<AddAttendanceRequest, SuccessResponse>(
   { auth: true, expose: true, method: "POST", path: "/api/training/:id/attendance" },
   async (req) => {
-    getAuthData()!;
+    // Only a WC or CC changes training records (Nov 2026: the screen already limits
+    // it; now the server does too, so a firefighter's phone can't).
+    requireRole(getAuthData()!, "WC", "CC");
 
     const hasInternal = !!(req.user_ids && req.user_ids.length > 0);
     const hasExternal = !!(req.externals && req.externals.length > 0);
@@ -82,7 +85,9 @@ export const addAttendance = api<AddAttendanceRequest, SuccessResponse>(
 export const removeAttendance = api<RemoveAttendanceRequest, SuccessResponse>(
   { auth: true, expose: true, method: "DELETE", path: "/api/training/:id/attendance/:userId" },
   async (req) => {
-    getAuthData()!;
+    // Only a WC or CC changes training records (Nov 2026: the screen already limits
+    // it; now the server does too, so a firefighter's phone can't).
+    requireRole(getAuthData()!, "WC", "CC");
 
     await db.rawExec(
       `DELETE FROM training_attendance WHERE training_id = $1 AND user_id = $2`,

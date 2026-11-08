@@ -1,4 +1,6 @@
 import { api, APIError } from "encore.dev/api";
+import { getAuthData } from "~encore/auth";
+import { requireRole } from "../auth/rbac";
 import db from "../db";
 import type { AddCustomItemRequest, AddCustomItemResponse, QuarterlyReportCustomItem } from "./types";
 
@@ -21,6 +23,9 @@ function toISO(d: Date | string): string {
 export const addCustomItem = api<{ id: number } & AddCustomItemRequest, AddCustomItemResponse>(
   { auth: true, expose: true, method: "POST", path: "/quarterly-reports/:id/custom-items" },
   async (req) => {
+    // Only a WC or CC changes quarterly reports (Nov 2026: the screen already limits
+    // it; now the server does too, so a firefighter's phone can't).
+    requireRole(getAuthData()!, "WC", "CC");
     const reportExists = await db.queryRow<{ id: number }>`
       SELECT id FROM quarterly_reports WHERE id = ${req.id}
     `;

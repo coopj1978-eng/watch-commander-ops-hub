@@ -1,5 +1,6 @@
 import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
+import { requireRole } from "../auth/rbac";
 import db, { type SQLPrimitive } from "../db";
 import type { UpdateTrainingRequest, TrainingRecord } from "./types";
 
@@ -49,6 +50,9 @@ function transformRecord(row: DBTrainingRecord): TrainingRecord {
 export const update = api<UpdateTrainingRequest, TrainingRecord>(
   { auth: true, expose: true, method: "PUT", path: "/api/training/:id" },
   async (req) => {
+    // Only a WC or CC changes training records (Nov 2026: the screen already limits
+    // it; now the server does too, so a firefighter's phone can't).
+    requireRole(getAuthData()!, "WC", "CC");
     const auth = getAuthData()!;
 
     const existing = await db.rawQueryRow<{ id: number; created_by: string }>(

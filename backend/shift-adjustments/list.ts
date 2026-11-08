@@ -1,5 +1,6 @@
 import { api } from "encore.dev/api";
 import { Query } from "encore.dev/api";
+import { getAuthData } from "~encore/auth";
 import db from "../db";
 import type { ShiftAdjustment } from "./types";
 
@@ -64,6 +65,14 @@ export const list = api<ListShiftAdjustmentsRequest, ListShiftAdjustmentsRespons
     query += " ORDER BY sa.start_date DESC";
 
     const adjustments = await db.rawQueryAll<ShiftAdjustment>(query, ...params);
-    return { adjustments };
+    // A firefighter still sees who's away and when (as the watch calendar
+    // shows), but not the notes on anyone else's booking (Nov 2026).
+    const auth = getAuthData()!;
+    if (auth.role === "WC" || auth.role === "CC") return { adjustments };
+    return {
+      adjustments: adjustments.map((a) =>
+        a.user_id === auth.userID || a.covering_user_id === auth.userID ? a : { ...a, notes: undefined }
+      ),
+    };
   }
 );
