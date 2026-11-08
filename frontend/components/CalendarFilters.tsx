@@ -16,10 +16,11 @@ import {
 
 const WATCHES = ["Red", "White", "Green", "Blue", "Amber"] as const;
 
+// Yours first, then the watch's, then the station's (Nov 2026).
 export const CALENDAR_LAYERS = [
-  { key: "station", label: "Springburn Station", sub: "Everyone", dot: "var(--cal-station-dot)" },
+  { key: "personal", label: "My calendar", sub: "Only you, plus your shifts and bookings", dot: "var(--cal-personal-dot)" },
   { key: "watch", label: "Watch calendar", sub: "", dot: "var(--cal-watch-dot)" },
-  { key: "personal", label: "Personal", sub: "Only you", dot: "var(--cal-personal-dot)" },
+  { key: "station", label: "Springburn Station", sub: "Everyone", dot: "var(--cal-station-dot)" },
 ] as const;
 
 const OVERLAYS = [

@@ -6,6 +6,7 @@ import type { Inspection } from "~backend/inspection/types";
 import type { ShiftDay } from "@/lib/shiftRota";
 import { getShiftForDate } from "@/lib/shiftRota";
 import type { crewing } from "@/client";
+import type { MyDay } from "@/lib/myShifts";
 
 // Calendar views — redesigned from the Claude Design week view (Oct 2026).
 // Colours come from the .cal-ui tokens in index.css (light + dark).
@@ -55,6 +56,8 @@ interface CalendarWidgetProps {
   newButton?: React.ReactNode;
   /** WC/CC: how many each shift can ride. */
   riding?: RidingInfo;
+  /** Your own calendar: days your bookings take you off, or put you in (YYYY-MM-DD). */
+  myDays?: Map<string, MyDay>;
 }
 
 // ─── Colours ──────────────────────────────────────────────────────────────────
@@ -253,6 +256,59 @@ function ShortMark({ day }: { day: Date }) {
 }
 const shortWord = (r: ReturnType<typeof ridingFor>) =>
   !r || r.level === "ok" ? "" : r.level === "crit" ? ", can't ride a pump" : ", short of crew";
+
+// ─── Your own day (Nov 2026) ──────────────────────────────────────────────────
+// The calendar is yours first (John: "the FF default calendar should be
+// theirs, with the watch's next"): the watch's shift, plus what your own
+// bookings make of it — off on a flexi day, in for an orange day.
+const MyDaysContext = createContext<Map<string, MyDay> | null>(null);
+const useMyDays = () => useContext(MyDaysContext);
+
+/** The shift colours an extra shift of yours takes (day/night), if known. */
+const myKind = (m?: MyDay): ShiftKind | null => (m?.state !== "in" ? null : m.shift === "Night" ? "night" : m.shift === "Day" ? "day" : null);
+
+export function myDayText(m: MyDay): string {
+  if (m.state === "off") return `You're off · ${m.label}`;
+  if (m.state === "asked") return `${m.label} asked for · waiting`;
+  const when = m.shift === "Day" ? " · Day 08–18" : m.shift === "Night" ? " · Night 18–08" : "";
+  return `You're in · ${m.label}${when}`;
+}
+
+function MyDayPill({ note, small }: { note?: MyDay; small?: boolean }) {
+  if (!note) return null;
+  const k = myKind(note) ?? "personal";
+  // A request still waiting: dashed and quiet until it's decided.
+  const colours: React.CSSProperties = note.state === "asked"
+    ? { background: "var(--cal-surface)", color: "var(--cal-ink-2)", border: "1px dashed var(--cal-muted)" }
+    : { background: tok(k, "bg"), color: tok(k, "fg") };
+  return (
+    <span
+      title={myDayText(note)}
+      style={{
+        alignSelf: "flex-start", maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+        fontSize: small ? 10.5 : 12, fontWeight: 600, padding: small ? "2px 6px" : "3px 9px", borderRadius: 999,
+        ...colours,
+      }}
+    >
+      {myDayText(note)}
+    </span>
+  );
+}
+
+// Yours first, then the watch's, then the station's.
+const RANK: Record<CalKey, number> = { personal: 0, tasks: 1, watch: 2, training: 2, station: 3, insp: 4 };
+const rank = (it: CalendarItem) => RANK[calKey(it)];
+/** A day's list: all-day entries first (yours first), then by time. */
+function listOrder(a: CalendarItem, b: CalendarItem): number {
+  return Number(b.allDay) - Number(a.allDay)
+    || (a.allDay && b.allDay ? rank(a) - rank(b) : 0)
+    || a.startTime.getTime() - b.startTime.getTime()
+    || rank(a) - rank(b);
+}
+/** A month cell only has room for a few: all-day first, then yours first. */
+function cellOrder(a: CalendarItem, b: CalendarItem): number {
+  return Number(b.allDay) - Number(a.allDay) || rank(a) - rank(b) || a.startTime.getTime() - b.startTime.getTime();
+}
 
 // ─── Constants & dates ────────────────────────────────────────────────────────
 const HOUR_PX = 48;
@@ -786,6 +842,7 @@ function MonthView({
   onDayNavigate?: (date: Date) => void;
 }) {
   const today = new Date();
+  const mine = useMyDays();
   // Whole weeks: the days either side of the month show too, faded, so the
   // rota and anything booked carry on across the month's edges.
   const cells = getMonthGridDays(date);
@@ -801,11 +858,12 @@ function MonthView({
           const isToday = sameDay(day, today);
           const outside = day.getMonth() !== date.getMonth();
           const shift = getShiftsForDay(shiftSchedule, day, userWatch)[0];
-          const k = shiftKind(shift);
-          const dayItems = items
-            .filter((it) => spansDay(it, day))
-            .sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.startTime.getTime() - b.startTime.getTime());
-          const visible = dayItems.slice(0, dayItems.length > 4 ? 3 : 4);
+          const note = mine?.get(isoDate(day));
+          // An extra shift of yours on a rest day takes that shift's colours.
+          const k = shiftKind(shift) ?? myKind(note);
+          const dayItems = items.filter((it) => spansDay(it, day)).sort(cellOrder);
+          const room = note ? 3 : 4;
+          const visible = dayItems.slice(0, dayItems.length > room ? room - 1 : room);
           const more = dayItems.length - visible.length;
           return (
             <div
@@ -842,12 +900,19 @@ function MonthView({
                 >
                   {day.getDate()}{day.getDate() === 1 && (outside || date.getMonth() !== day.getMonth()) ? ` ${MONTH_NAMES[day.getMonth()].slice(0, 3)}` : ""}
                 </span>
-                {k && (
-                  <span style={{ fontSize: 10.5, fontWeight: 600, padding: "2px 6px", borderRadius: 999, background: tok(k, "bg"), color: tok(k, "fg"), whiteSpace: "nowrap" }}>
-                    {k === "leave" ? "Leave" : shift?.shiftType ?? (k === "day" ? "Day" : "Night")}
+                {k && shift && (
+                  <span
+                    style={{
+                      fontSize: 10.5, fontWeight: 600, padding: "2px 6px", borderRadius: 999, background: tok(k, "bg"), color: tok(k, "fg"), whiteSpace: "nowrap",
+                      // Your watch is on, but you're not.
+                      ...(note?.state === "off" ? { textDecoration: "line-through", opacity: 0.6 } : {}),
+                    }}
+                  >
+                    {k === "leave" ? "Leave" : shift.shiftType}
                   </span>
                 )}
               </div>
+              <MyDayPill note={note} small />
               {visible.map((it) => (
                 <EventPill key={`${it.type}-${it.id}`} item={it} showTime onClick={(e) => onEventClick?.(it, anchorOf(e))} style={{ height: 22, fontSize: 11.5 }} />
               ))}
@@ -1029,11 +1094,12 @@ function AgendaView({
   onDayClick?: (d: Date, anchor?: CalendarAnchor) => void;
 }) {
   const today = new Date();
+  const mine = useMyDays();
   const days = Array.from({ length: AGENDA_DAYS }, (_, i) => addDays(startOfDay(start), i));
 
   type Row =
     | { kind: "month"; date: Date }
-    | { kind: "day"; date: Date; shift?: ShiftDay; items: CalendarItem[] }
+    | { kind: "day"; date: Date; shift?: ShiftDay; note?: MyDay; items: CalendarItem[] }
     | { kind: "quiet"; from: Date; to: Date; count: number };
   const rows: Row[] = [];
   let lastMonth = -1;
@@ -1043,10 +1109,9 @@ function AgendaView({
       lastMonth = d.getMonth();
     }
     const shift = getShiftsForDay(shiftSchedule, d, userWatch)[0];
-    const dayItems = items
-      .filter((it) => spansDay(it, d))
-      .sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.startTime.getTime() - b.startTime.getTime());
-    const quiet = !shift && dayItems.length === 0 && !sameDay(d, today);
+    const note = mine?.get(isoDate(d));
+    const dayItems = items.filter((it) => spansDay(it, d)).sort(listOrder);
+    const quiet = !shift && !note && dayItems.length === 0 && !sameDay(d, today);
     const prev = rows[rows.length - 1];
     if (quiet && prev?.kind === "quiet") {
       prev.to = d;
@@ -1054,7 +1119,7 @@ function AgendaView({
     } else if (quiet) {
       rows.push({ kind: "quiet", from: d, to: d, count: 1 });
     } else {
-      rows.push({ kind: "day", date: d, shift, items: dayItems });
+      rows.push({ kind: "day", date: d, shift, note, items: dayItems });
     }
   }
 
@@ -1089,6 +1154,7 @@ function AgendaView({
         }
         const isToday = sameDay(r.date, today);
         const k = shiftKind(r.shift);
+        const offShift: React.CSSProperties | undefined = r.note?.state === "off" ? { textDecoration: "line-through", opacity: 0.6 } : undefined;
         return (
           <div
             key={`d${i}`}
@@ -1114,18 +1180,19 @@ function AgendaView({
               <span className="cal-mono" style={{ fontSize: 22, fontWeight: 600, lineHeight: 1.15 }}>{r.date.getDate()}</span>
             </button>
             <div style={{ display: "flex", flexDirection: "column", gap: 6, minWidth: 0, paddingTop: 2 }}>
-              {k && (
+              {(k || r.note) && (
                 <span style={{ display: "inline-flex", flexWrap: "wrap", alignItems: "center", gap: 8, fontSize: 12 }}>
-                  <ShiftChip shift={r.shift} />
+                  {k && <span style={offShift}><ShiftChip shift={r.shift} /></span>}
                   {r.shift?.startTime && !r.shift.isLeave && (
-                    <span className="cal-mono" style={{ color: "var(--cal-muted)" }}>{r.shift.startTime}–{r.shift.endTime}</span>
+                    <span className="cal-mono" style={{ color: "var(--cal-muted)", ...offShift }}>{r.shift.startTime}–{r.shift.endTime}</span>
                   )}
+                  <MyDayPill note={r.note} />
                   <RidingCount day={r.date} />
                   <RidingNote day={r.date} />
                 </span>
               )}
               {r.items.length === 0 ? (
-                <span style={{ fontSize: 13, color: "var(--cal-muted)" }}>{k ? "Nothing planned" : "Rest · nothing on"}</span>
+                <span style={{ fontSize: 13, color: "var(--cal-muted)" }}>{k || r.note ? "Nothing planned" : "Rest · nothing on"}</span>
               ) : (
                 r.items.map((it) => {
                   const ck = calKey(it);
@@ -1175,6 +1242,7 @@ function MobileMonth({
 }) {
   const today = new Date();
   const riding = useContext(RidingContext);
+  const mine = useMyDays();
   return (
     <section className="cal-card" style={{ padding: "10px 10px 12px" }}>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", textAlign: "center", rowGap: 4 }}>
@@ -1185,15 +1253,19 @@ function MobileMonth({
           const isToday = sameDay(day, today);
           const selected = sameDay(day, selectedDay);
           const outside = day.getMonth() !== date.getMonth();
-          const k = shiftKind(getShiftsForDay(shiftSchedule, day, userWatch)[0]);
-          const dots = Array.from(new Set(items.filter((it) => spansDay(it, day)).map((it) => calKey(it)))).slice(0, 3);
+          const note = mine?.get(isoDate(day));
+          const watchK = shiftKind(getShiftsForDay(shiftSchedule, day, userWatch)[0]);
+          const k = watchK ?? myKind(note);
+          // Your watch on, you off: the shift bar fades.
+          const barOff = note?.state === "off";
+          const dots = Array.from(new Set(items.filter((it) => spansDay(it, day)).sort(cellOrder).map((it) => calKey(it)))).slice(0, 3);
           return (
             <button
               key={i}
               type="button"
               onClick={() => onDaySelect(day)}
               className="cal-focus"
-              aria-label={`${day.getDate()} ${MONTH_NAMES[day.getMonth()]}${k ? `, ${k} shift` : ""}${shortWord(ridingFor(riding, day))}${dots.length ? `, ${dots.length} calendar${dots.length > 1 ? "s" : ""} with events` : ""}`}
+              aria-label={`${day.getDate()} ${MONTH_NAMES[day.getMonth()]}${watchK ? `, ${watchK} shift` : ""}${note ? `, ${myDayText(note)}` : ""}${shortWord(ridingFor(riding, day))}${dots.length ? `, ${dots.length} calendar${dots.length > 1 ? "s" : ""} with events` : ""}`}
               style={{
                 position: "relative", height: 50, border: "none", borderRadius: 12, padding: 0, cursor: "pointer", font: "inherit",
                 display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
@@ -1205,7 +1277,7 @@ function MobileMonth({
             >
               <ShortMark day={day} />
               <span className="cal-mono" style={{ fontSize: 14, fontWeight: isToday || selected ? 700 : 500 }}>{day.getDate()}</span>
-              <span style={{ width: 14, height: 3, borderRadius: 2, background: k ? (selected ? "#fff" : tok(k, "dot")) : "transparent" }} />
+              <span style={{ width: 14, height: 3, borderRadius: 2, background: k ? (selected ? "#fff" : tok(k, "dot")) : "transparent", opacity: barOff ? 0.3 : 1 }} />
               <span style={{ display: "flex", gap: 3, height: 5 }}>
                 {dots.map((c) => (
                   <span key={c} style={{ width: 5, height: 5, borderRadius: "50%", background: selected ? "#fff" : tok(c, "dot") }} />
@@ -1229,9 +1301,9 @@ function MobileAgenda({
   onEventClick?: (item: CalendarItem, anchor?: CalendarAnchor) => void;
 }) {
   const shift = getShiftsForDay(shiftSchedule, date, userWatch)[0];
-  const dayItems = items
-    .filter((it) => spansDay(it, date))
-    .sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.startTime.getTime() - b.startTime.getTime());
+  const note = useMyDays()?.get(isoDate(date));
+  const offShift: React.CSSProperties | undefined = note?.state === "off" ? { textDecoration: "line-through", opacity: 0.6 } : undefined;
+  const dayItems = items.filter((it) => spansDay(it, date)).sort(listOrder);
   return (
     <section className="cal-card" style={{ padding: 14, display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
@@ -1239,10 +1311,12 @@ function MobileAgenda({
           <span style={{ fontSize: 15, fontWeight: 600 }}>
             {date.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })}
           </span>
-          {(!!userWatch || shiftSchedule.length > 0) && (
+          {(!!userWatch || shiftSchedule.length > 0 || !!note) && (
             <span style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6 }}>
-              <ShiftChip shift={shift} />
-              {shift?.startTime && <span className="cal-mono" style={{ fontSize: 11, color: "var(--cal-muted)" }}>{shift.startTime}–{shift.endTime}</span>}
+              {/* "Rest" says nothing when you're in on an extra shift. */}
+              {!(note?.state === "in" && !shift) && <span style={offShift}><ShiftChip shift={shift} /></span>}
+              {shift?.startTime && <span className="cal-mono" style={{ fontSize: 11, color: "var(--cal-muted)", ...offShift }}>{shift.startTime}–{shift.endTime}</span>}
+              <MyDayPill note={note} />
               <RidingCount day={date} />
               <RidingNote day={date} />
             </span>
@@ -1439,6 +1513,7 @@ export default function CalendarWidget({
   filters,
   newButton,
   riding,
+  myDays,
 }: CalendarWidgetProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const items = buildItems(events, tasks, inspections);
@@ -1488,6 +1563,7 @@ export default function CalendarWidget({
 
   return (
     <RidingContext.Provider value={riding ?? null}>
+    <MyDaysContext.Provider value={myDays ?? null}>
     <div className="cal-ui" style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }}>
       {/* ── Phone: the month, then the picked day ── */}
       <div className="flex flex-col gap-3 md:hidden">
@@ -1587,6 +1663,7 @@ export default function CalendarWidget({
         )}
       </div>
     </div>
+    </MyDaysContext.Provider>
     </RidingContext.Provider>
   );
 }

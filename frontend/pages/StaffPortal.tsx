@@ -4,7 +4,6 @@ import PersonalDashboard from "@/components/PersonalDashboard";
 import MyTasks from "@/components/MyTasks";
 import MyCalendar from "@/components/MyCalendar";
 import MyProfile from "@/components/MyProfile";
-import AbsenceRequest from "@/components/AbsenceRequest";
 import FFSickLineUpload from "@/components/FFSickLineUpload";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ShiftHero } from "@/components/ShiftHero";
@@ -88,8 +87,10 @@ export default function StaffPortal() {
                 most time-sensitive action (compliance clock starts when
                 a GP issues a sick line). */}
             <FFSickLineUpload />
-            {/* Request other leave types (annual leave, TOIL, etc.). */}
-            <AbsenceRequest />
+            {/* No leave request form (John, 8 Nov 2026): the watch takes its
+                annual leave together on the rota, sickness is booked by the
+                WC/CC when someone phones in, and TOIL, flexi and H4H are
+                booked from the calendar. */}
           </TabsContent>
         </Tabs>
       </div>

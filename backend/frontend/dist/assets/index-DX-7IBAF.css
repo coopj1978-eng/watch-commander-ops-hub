@@ -4839,10 +4839,6 @@
     color: var(--color-blue-800);
   }
 
-  .text-blue-900 {
-    color: var(--color-blue-900);
-  }
-
   .text-brand {
     color: var(--brand);
   }
@@ -8817,10 +8813,6 @@
     .dark\:text-amber-400\/60:is(.dark *) {
       color: color-mix(in oklab, var(--color-amber-400) 60%, transparent);
     }
-  }
-
-  .dark\:text-blue-200:is(.dark *) {
-    color: var(--color-blue-200);
   }
 
   .dark\:text-blue-300:is(.dark *) {

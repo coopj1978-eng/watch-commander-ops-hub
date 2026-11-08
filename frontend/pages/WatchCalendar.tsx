@@ -19,7 +19,8 @@ import { useToast } from "@/components/ui/use-toast";
 import type { CalendarVisibility } from "~backend/calendar/types";
 import type { Task } from "~backend/task/types";
 import type { Inspection } from "~backend/inspection/types";
-import { getShiftsForDateRange, hasRotaConfig } from "@/lib/shiftRota";
+import { getShiftForDate, getShiftsForDateRange, hasRotaConfig } from "@/lib/shiftRota";
+import { myDays as buildMyDays } from "@/lib/myShifts";
 import ScheduleTrainingDialog from "@/components/ScheduleTrainingDialog";
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -42,9 +43,15 @@ export default function UnifiedCalendar() {
   );
   const [view, setView] = useState<CalendarViewType>(dateParam ? "day" : "month");
 
-  // Calendar visibility toggles
+  const role = useUserRole();
+  const isManager = role === "WC" || role === "CC";
+
+  // Calendar visibility toggles. A firefighter's calendar is theirs first,
+  // then the watch's (John, Nov 2026); inspections are WC/CC planning.
   const [visibleCalendars, setVisibleCalendars] = useState<Set<string>>(
-    new Set(["station", "watch", "personal", "tasks", "inspections", "shifts"])
+    () => new Set(isManager
+      ? ["station", "watch", "personal", "tasks", "inspections", "shifts"]
+      : ["personal", "watch", "station", "tasks", "shifts"])
   );
 
   // Shift rota
@@ -59,16 +66,17 @@ export default function UnifiedCalendar() {
   // and the dashed "new event" slot shown in Day/Week while adding.
   const [formAnchor, setFormAnchor] = useState<CalendarAnchor | null>(null);
   const [pendingSlot, setPendingSlot] = useState<Date | null>(null);
-  const [defaultCalendar, setDefaultCalendar] = useState<CalendarVisibility>("station");
   // New events start on the calendar this person last picked (kept on this
-  // device) until they pick another.
+  // device) until they pick another — at first, a firefighter's own.
+  const firstCalendar: CalendarVisibility = isManager ? "station" : "personal";
+  const [defaultCalendar, setDefaultCalendar] = useState<CalendarVisibility>(firstCalendar);
   const lastCalendarKey = `cal-last-calendar:${userId}`;
   const lastCalendar = (): CalendarVisibility => {
     try {
       const saved = localStorage.getItem(lastCalendarKey);
       if (saved === "station" || saved === "watch" || saved === "personal") return saved;
     } catch { /* storage unavailable */ }
-    return "station";
+    return firstCalendar;
   };
   const rememberCalendar = (calendar: CalendarVisibility) => {
     try { localStorage.setItem(lastCalendarKey, calendar); } catch { /* storage unavailable */ }
@@ -88,8 +96,6 @@ export default function UnifiedCalendar() {
   // A booking clicked on the calendar opens in the booking form, so its
   // TOIL hours, cover and linked entries stay in step.
   const [bookingToEdit, setBookingToEdit] = useState<shift_adjustments.ShiftAdjustment | null>(null);
-  const role = useUserRole();
-  const isManager = role === "WC" || role === "CC";
   // A WC/CC can look at (and add to / change) another watch's calendar —
   // things move while a watch is off shift.
   const [viewWatch, setViewWatch] = useState("");
@@ -143,6 +149,33 @@ export default function UnifiedCalendar() {
       onOpen: (shift, anchor) => { setPeek(null); setRidingPeek({ shift, anchor: anchor ?? null }); },
     };
   }, [showRiding, strength]);
+
+  // Your own calendar: on your own watch with "My calendar" showing, your
+  // bookings say whether you're off or in (a flexi day, an orange day…), and
+  // a Flexi/H4H you've asked for shows until it's decided.
+  const showMine = visibleCalendars.has("personal") && !!userWatch && watchShown === userWatch;
+  const { data: myBookings } = useQuery({
+    queryKey: [CALENDAR_EVENTS_KEY, "my-bookings", userId, ymd(start), ymd(end)],
+    queryFn: () => backend.shift_adjustments.list({ involving_user_id: userId, start_date: ymd(start), end_date: ymd(end) }),
+    enabled: showMine,
+    staleTime: 60_000,
+  });
+  const { data: myRequests } = useQuery({
+    queryKey: ["shift-requests", "mine"],
+    queryFn: () => backend.shift_adjustments.listRequests({ scope: "mine" }),
+    enabled: showMine,
+    staleTime: 60_000,
+  });
+  const myDays = useMemo(() => {
+    if (!showMine) return undefined;
+    const days: string[] = [];
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) days.push(ymd(d));
+    const watchShift = (day: string) => {
+      const s = getShiftForDate(userWatch, new Date(`${day}T12:00:00`));
+      return !s || s.isLeave ? null : s.shiftType.includes("Night") ? "Night" : s.shiftType.includes("Day") ? "Day" : null;
+    };
+    return buildMyDays(myBookings?.adjustments ?? [], userId, days, watchShift, myRequests?.requests ?? []);
+  }, [showMine, myBookings, myRequests, userId, userWatch, startISO, endISO]);
 
   const { data: tasks = [] } = useQuery({
     queryKey: ["cal-tasks", userId, startISO, endISO],
@@ -483,13 +516,15 @@ export default function UnifiedCalendar() {
         onEventClick={handleEventClick}
         pendingSlot={formOpen && !editingEvent ? pendingSlot : null}
         filters={filters}
-        newButton={<CalendarNewButton onPick={onNew} />}
+        newButton={<CalendarNewButton onPick={onNew} isManager={isManager} />}
         riding={riding}
+        myDays={myDays}
       />
 
       {/* Phones: the calendar's own "+" (the app-wide one is hidden here) */}
       <CalendarNewFab
         onPick={onNew}
+        isManager={isManager}
         dayLabel={currentDate.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })}
       />
 

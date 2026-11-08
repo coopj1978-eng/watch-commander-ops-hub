@@ -119,7 +119,7 @@ export const MANAGER_ACTIONS: QuickAction[] = [
 export const CREW_ACTIONS: QuickAction[] = [
   TASK,
   { label: "Calendar event", hint: "On your personal calendar", to: "/calendar?new=1", Icon: CalendarPlus, tint: "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300" },
-  { label: "Leave or sick line", hint: "Request leave, attach a sick line", to: "/?tab=absence", Icon: FileHeart, tint: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300" },
+  { label: "Sick line", hint: "Attach your sick line", to: "/?tab=absence", Icon: FileHeart, tint: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300" },
 ];
 
 // ── Who sees what ────────────────────────────────────────────────────────────

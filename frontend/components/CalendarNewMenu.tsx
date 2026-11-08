@@ -21,7 +21,13 @@ const ITEMS: { kind: NewKind; label: string; hint: string; Icon: LucideIcon; tin
   { kind: "training", label: "Training", hint: "Plan a session for the watch", Icon: GraduationCap, tint: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" },
 ];
 
-export function CalendarNewButton({ onPick }: { onPick: (kind: NewKind) => void }) {
+// A firefighter adds to their own calendar and books their own time; planning
+// inspections and training is the WC/CC's (Nov 2026).
+const CREW_HINTS: Partial<Record<NewKind, string>> = { event: "On your calendar, or the watch's", shift: "Flexi, H4H, TOIL, orange day" };
+const itemsFor = (isManager: boolean) =>
+  isManager ? ITEMS : ITEMS.filter((i) => CREW_HINTS[i.kind]).map((i) => ({ ...i, hint: CREW_HINTS[i.kind]! }));
+
+export function CalendarNewButton({ onPick, isManager = true }: { onPick: (kind: NewKind) => void; isManager?: boolean }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -38,7 +44,7 @@ export function CalendarNewButton({ onPick }: { onPick: (kind: NewKind) => void 
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" sideOffset={6} className="w-64 p-1.5">
-        {ITEMS.map(({ kind, label, hint, Icon, tint }) => (
+        {itemsFor(isManager).map(({ kind, label, hint, Icon, tint }) => (
           <DropdownMenuItem key={kind} onSelect={() => onPick(kind)} className="gap-3 py-2">
             <span className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-lg", tint)}>
               <Icon className="h-4 w-4" />
@@ -55,7 +61,7 @@ export function CalendarNewButton({ onPick }: { onPick: (kind: NewKind) => void 
 }
 
 /** Phones: the calendar's own "+" (the app-wide one is hidden here). */
-export function CalendarNewFab({ onPick, dayLabel }: { onPick: (kind: NewKind) => void; dayLabel: string }) {
+export function CalendarNewFab({ onPick, dayLabel, isManager = true }: { onPick: (kind: NewKind) => void; dayLabel: string; isManager?: boolean }) {
   const [open, setOpen] = useState(false);
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
@@ -94,7 +100,7 @@ export function CalendarNewFab({ onPick, dayLabel }: { onPick: (kind: NewKind) =
             </Dialog.Close>
           </div>
           <ul className="grid gap-1.5">
-            {ITEMS.map(({ kind, label, hint, Icon, tint }) => (
+            {itemsFor(isManager).map(({ kind, label, hint, Icon, tint }) => (
               <li key={kind}>
                 <button
                   type="button"

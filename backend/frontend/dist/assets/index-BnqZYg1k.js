@@ -31960,7 +31960,7 @@ const MANAGER_ACTIONS$1 = [
 const CREW_ACTIONS$1 = [
   TASK,
   { label: "Calendar event", hint: "On your personal calendar", to: "/calendar?new=1", Icon: CalendarPlus, tint: "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300" },
-  { label: "Leave or sick line", hint: "Request leave, attach a sick line", to: "/?tab=absence", Icon: FileHeart, tint: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300" }
+  { label: "Sick line", hint: "Attach your sick line", to: "/?tab=absence", Icon: FileHeart, tint: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300" }
 ];
 function useNav() {
   const { user: user2 } = useAuth();
@@ -34260,8 +34260,8 @@ function CommandPalette({ open, onOpenChange, onShowShortcuts }) {
       const recent = recentPaths().map((path) => pages.find((p) => p.id === `page:${path}`)).filter((p) => !!p).slice(0, MAX_RECENT).map((p) => ({ ...p, id: `recent:${p.id}`, group: "Recent" }));
       return [...recent, ...adds, ...pages, ...dos];
     }
-    const rank = (list, limit = 50) => list.map((e) => ({ e, s: score(e, q) })).filter((x) => x.s >= 0).sort((a, b) => a.s - b.s).slice(0, limit).map((x) => x.e);
-    return [...rank(pages), ...rank(crew2, 8), ...rank(adds), ...rank(dos)];
+    const rank2 = (list, limit = 50) => list.map((e) => ({ e, s: score(e, q) })).filter((x) => x.s >= 0).sort((a, b) => a.s - b.s).slice(0, limit).map((x) => x.e);
+    return [...rank2(pages), ...rank2(crew2, 8), ...rank2(adds), ...rank2(dos)];
   }, [query, groups, account, actions, people, badges, isDark]);
   reactExports.useEffect(() => setActive(0), [query]);
   reactExports.useEffect(() => {
@@ -43892,7 +43892,7 @@ function AddPersonModal({ isOpen, onClose }) {
   const [name, setName] = reactExports.useState("");
   const [email, setEmail] = reactExports.useState("");
   const [watch, setWatch] = reactExports.useState("");
-  const [rank, setRank] = reactExports.useState("");
+  const [rank2, setRank] = reactExports.useState("");
   const [station, setStation] = reactExports.useState("B10 Springburn");
   const [serviceNumber, setServiceNumber] = reactExports.useState("");
   const [phone, setPhone] = reactExports.useState("");
@@ -43908,7 +43908,7 @@ function AddPersonModal({ isOpen, onClose }) {
         name,
         email,
         service_number: serviceNumber || void 0,
-        rank: rank && rank !== "_none" ? rank : void 0,
+        rank: rank2 && rank2 !== "_none" ? rank2 : void 0,
         watch_unit: watch && watch !== "_none" ? watch : void 0,
         phone: phone || void 0,
         station: station || void 0
@@ -43966,7 +43966,7 @@ function AddPersonModal({ isOpen, onClose }) {
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!name.trim() || !email.trim() || !rank || rank === "_none" || !serviceNumber.trim()) {
+    if (!name.trim() || !email.trim() || !rank2 || rank2 === "_none" || !serviceNumber.trim()) {
       toast2({
         title: "Missing required fields",
         description: "Name, Email, Rank, and Staff Number are required.",
@@ -44034,7 +44034,7 @@ function AddPersonModal({ isOpen, onClose }) {
             "Rank ",
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-red-500", children: "*" })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: rank, onValueChange: setRank, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: rank2, onValueChange: setRank, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select rank" }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "_none", children: "Select rank" }),
@@ -45124,16 +45124,16 @@ function People() {
             rankFilters.length,
             ")"
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border border-border rounded-md p-2 space-y-1 bg-card", children: RANK_OPTIONS.map((rank) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 cursor-pointer hover:bg-muted/50 p-1 rounded", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border border-border rounded-md p-2 space-y-1 bg-card", children: RANK_OPTIONS.map((rank2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 cursor-pointer hover:bg-muted/50 p-1 rounded", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               Checkbox,
               {
-                checked: rankFilters.includes(rank),
-                onCheckedChange: () => toggleFilter(rank, rankFilters, setRankFilters)
+                checked: rankFilters.includes(rank2),
+                onCheckedChange: () => toggleFilter(rank2, rankFilters, setRankFilters)
               }
             ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm leading-tight", children: rank })
-          ] }, rank)) })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm leading-tight", children: rank2 })
+          ] }, rank2)) })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "eyebrow mb-2 block", children: [
@@ -47125,7 +47125,7 @@ const WATCH_RING = {
 const initials$2 = (name) => name.split(/\s+/).filter(Boolean).map((p) => p[0]).slice(0, 2).join("").toUpperCase() || "?";
 function ProfileHero({
   name,
-  rank,
+  rank: rank2,
   watch,
   station,
   serviceNumber,
@@ -47155,7 +47155,7 @@ function ProfileHero({
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "eyebrow truncate", children: [serviceNumber && `Service #${serviceNumber}`, station].filter(Boolean).join(" · ") || "Profile" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "mt-0.5 truncate text-2xl font-semibold tracking-tight sm:text-3xl", children: name }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-1.5 flex flex-wrap items-center gap-1.5 text-sm", children: [
-            rank && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: rank }),
+            rank2 && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: rank2 }),
             watch && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1.5 rounded-full border border-border/70 px-2 py-0.5 text-xs font-medium", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "aria-hidden": true, className: "h-2 w-2 rounded-full", style: { background: WATCH_RING[watch] ?? "currentColor" } }),
               watch,
@@ -48875,6 +48875,47 @@ function ShortMark({ day: day2 }) {
   );
 }
 const shortWord = (r2) => !r2 || r2.level === "ok" ? "" : r2.level === "crit" ? ", can't ride a pump" : ", short of crew";
+const MyDaysContext = reactExports.createContext(null);
+const useMyDays = () => reactExports.useContext(MyDaysContext);
+const myKind = (m) => (m == null ? void 0 : m.state) !== "in" ? null : m.shift === "Night" ? "night" : m.shift === "Day" ? "day" : null;
+function myDayText(m) {
+  if (m.state === "off") return `You're off · ${m.label}`;
+  if (m.state === "asked") return `${m.label} asked for · waiting`;
+  const when = m.shift === "Day" ? " · Day 08–18" : m.shift === "Night" ? " · Night 18–08" : "";
+  return `You're in · ${m.label}${when}`;
+}
+function MyDayPill({ note: note2, small }) {
+  if (!note2) return null;
+  const k = myKind(note2) ?? "personal";
+  const colours = note2.state === "asked" ? { background: "var(--cal-surface)", color: "var(--cal-ink-2)", border: "1px dashed var(--cal-muted)" } : { background: tok(k, "bg"), color: tok(k, "fg") };
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "span",
+    {
+      title: myDayText(note2),
+      style: {
+        alignSelf: "flex-start",
+        maxWidth: "100%",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
+        fontSize: small ? 10.5 : 12,
+        fontWeight: 600,
+        padding: small ? "2px 6px" : "3px 9px",
+        borderRadius: 999,
+        ...colours
+      },
+      children: myDayText(note2)
+    }
+  );
+}
+const RANK = { personal: 0, tasks: 1, watch: 2, training: 2, station: 3, insp: 4 };
+const rank = (it) => RANK[calKey(it)];
+function listOrder(a, b) {
+  return Number(b.allDay) - Number(a.allDay) || (a.allDay && b.allDay ? rank(a) - rank(b) : 0) || a.startTime.getTime() - b.startTime.getTime() || rank(a) - rank(b);
+}
+function cellOrder(a, b) {
+  return Number(b.allDay) - Number(a.allDay) || rank(a) - rank(b) || a.startTime.getTime() - b.startTime.getTime();
+}
 const HOUR_PX = 48;
 const DAY_PX = HOUR_PX * 24;
 const TIME_COL = 56;
@@ -49463,6 +49504,7 @@ function MonthView({
   onDayNavigate
 }) {
   const today = /* @__PURE__ */ new Date();
+  const mine = useMyDays();
   const cells = getMonthGridDays(date2);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "cal-card", style: { borderRadius: 24, padding: 16 }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: 6, marginBottom: 6 }, children: DOW.map((d) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 12, fontWeight: 600, color: "var(--cal-muted)", padding: "2px 8px" }, children: d }, d)) }),
@@ -49470,9 +49512,11 @@ function MonthView({
       const isToday = sameDay$1(day2, today);
       const outside = day2.getMonth() !== date2.getMonth();
       const shift2 = getShiftsForDay(shiftSchedule, day2, userWatch)[0];
-      const k = shiftKind(shift2);
-      const dayItems = items.filter((it) => spansDay(it, day2)).sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.startTime.getTime() - b.startTime.getTime());
-      const visible = dayItems.slice(0, dayItems.length > 4 ? 3 : 4);
+      const note2 = mine == null ? void 0 : mine.get(isoDate(day2));
+      const k = shiftKind(shift2) ?? myKind(note2);
+      const dayItems = items.filter((it) => spansDay(it, day2)).sort(cellOrder);
+      const room = note2 ? 3 : 4;
+      const visible = dayItems.slice(0, dayItems.length > room ? room - 1 : room);
       const more = dayItems.length - visible.length;
       return /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "div",
@@ -49527,8 +49571,25 @@ function MonthView({
                   ]
                 }
               ),
-              k && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 10.5, fontWeight: 600, padding: "2px 6px", borderRadius: 999, background: tok(k, "bg"), color: tok(k, "fg"), whiteSpace: "nowrap" }, children: k === "leave" ? "Leave" : (shift2 == null ? void 0 : shift2.shiftType) ?? (k === "day" ? "Day" : "Night") })
+              k && shift2 && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "span",
+                {
+                  style: {
+                    fontSize: 10.5,
+                    fontWeight: 600,
+                    padding: "2px 6px",
+                    borderRadius: 999,
+                    background: tok(k, "bg"),
+                    color: tok(k, "fg"),
+                    whiteSpace: "nowrap",
+                    // Your watch is on, but you're not.
+                    ...(note2 == null ? void 0 : note2.state) === "off" ? { textDecoration: "line-through", opacity: 0.6 } : {}
+                  },
+                  children: k === "leave" ? "Leave" : shift2.shiftType
+                }
+              )
             ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(MyDayPill, { note: note2, small: true }),
             visible.map((it) => /* @__PURE__ */ jsxRuntimeExports.jsx(EventPill, { item: it, showTime: true, onClick: (e) => onEventClick == null ? void 0 : onEventClick(it, anchorOf(e)), style: { height: 22, fontSize: 11.5 } }, `${it.type}-${it.id}`)),
             more > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "button",
@@ -49727,6 +49788,7 @@ function AgendaView({
   onDayClick
 }) {
   const today = /* @__PURE__ */ new Date();
+  const mine = useMyDays();
   const days = Array.from({ length: AGENDA_DAYS }, (_, i) => addDays(startOfDay$2(start), i));
   const rows = [];
   let lastMonth = -1;
@@ -49736,8 +49798,9 @@ function AgendaView({
       lastMonth = d.getMonth();
     }
     const shift2 = getShiftsForDay(shiftSchedule, d, userWatch)[0];
-    const dayItems = items.filter((it) => spansDay(it, d)).sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.startTime.getTime() - b.startTime.getTime());
-    const quiet2 = !shift2 && dayItems.length === 0 && !sameDay$1(d, today);
+    const note2 = mine == null ? void 0 : mine.get(isoDate(d));
+    const dayItems = items.filter((it) => spansDay(it, d)).sort(listOrder);
+    const quiet2 = !shift2 && !note2 && dayItems.length === 0 && !sameDay$1(d, today);
     const prev = rows[rows.length - 1];
     if (quiet2 && (prev == null ? void 0 : prev.kind) === "quiet") {
       prev.to = d;
@@ -49745,12 +49808,12 @@ function AgendaView({
     } else if (quiet2) {
       rows.push({ kind: "quiet", from: d, to: d, count: 1 });
     } else {
-      rows.push({ kind: "day", date: d, shift: shift2, items: dayItems });
+      rows.push({ kind: "day", date: d, shift: shift2, note: note2, items: dayItems });
     }
   }
   const short2 = (d) => d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric" });
   return /* @__PURE__ */ jsxRuntimeExports.jsx("section", { className: "cal-card", style: { padding: "6px 0", overflow: "hidden" }, children: rows.map((r2, i) => {
-    var _a3;
+    var _a3, _b3;
     if (r2.kind === "month") {
       return /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "h2",
@@ -49786,6 +49849,7 @@ function AgendaView({
     }
     const isToday = sameDay$1(r2.date, today);
     const k = shiftKind(r2.shift);
+    const offShift = ((_a3 = r2.note) == null ? void 0 : _a3.state) === "off" ? { textDecoration: "line-through", opacity: 0.6 } : void 0;
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "div",
       {
@@ -49824,17 +49888,18 @@ function AgendaView({
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 6, minWidth: 0, paddingTop: 2 }, children: [
-            k && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "inline-flex", flexWrap: "wrap", alignItems: "center", gap: 8, fontSize: 12 }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftChip, { shift: r2.shift }),
-              ((_a3 = r2.shift) == null ? void 0 : _a3.startTime) && !r2.shift.isLeave && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: { color: "var(--cal-muted)" }, children: [
+            (k || r2.note) && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "inline-flex", flexWrap: "wrap", alignItems: "center", gap: 8, fontSize: 12 }, children: [
+              k && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: offShift, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftChip, { shift: r2.shift }) }),
+              ((_b3 = r2.shift) == null ? void 0 : _b3.startTime) && !r2.shift.isLeave && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: { color: "var(--cal-muted)", ...offShift }, children: [
                 r2.shift.startTime,
                 "–",
                 r2.shift.endTime
               ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(MyDayPill, { note: r2.note }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(RidingCount, { day: r2.date }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(RidingNote, { day: r2.date })
             ] }),
-            r2.items.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 13, color: "var(--cal-muted)" }, children: k ? "Nothing planned" : "Rest · nothing on" }) : r2.items.map((it) => {
+            r2.items.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 13, color: "var(--cal-muted)" }, children: k || r2.note ? "Nothing planned" : "Rest · nothing on" }) : r2.items.map((it) => {
               const ck = calKey(it);
               return /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "button",
@@ -49886,21 +49951,25 @@ function MobileMonth({
 }) {
   const today = /* @__PURE__ */ new Date();
   const riding = reactExports.useContext(RidingContext);
+  const mine = useMyDays();
   return /* @__PURE__ */ jsxRuntimeExports.jsx("section", { className: "cal-card", style: { padding: "10px 10px 12px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", textAlign: "center", rowGap: 4 }, children: [
     ["M", "T", "W", "T", "F", "S", "S"].map((d, i) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 11, fontWeight: 600, color: "var(--cal-muted)", padding: "2px 0" }, children: d }, i)),
     getMonthGridDays(date2).map((day2, i) => {
       const isToday = sameDay$1(day2, today);
       const selected = sameDay$1(day2, selectedDay);
       const outside = day2.getMonth() !== date2.getMonth();
-      const k = shiftKind(getShiftsForDay(shiftSchedule, day2, userWatch)[0]);
-      const dots = Array.from(new Set(items.filter((it) => spansDay(it, day2)).map((it) => calKey(it)))).slice(0, 3);
+      const note2 = mine == null ? void 0 : mine.get(isoDate(day2));
+      const watchK = shiftKind(getShiftsForDay(shiftSchedule, day2, userWatch)[0]);
+      const k = watchK ?? myKind(note2);
+      const barOff = (note2 == null ? void 0 : note2.state) === "off";
+      const dots = Array.from(new Set(items.filter((it) => spansDay(it, day2)).sort(cellOrder).map((it) => calKey(it)))).slice(0, 3);
       return /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "button",
         {
           type: "button",
           onClick: () => onDaySelect(day2),
           className: "cal-focus",
-          "aria-label": `${day2.getDate()} ${MONTH_NAMES[day2.getMonth()]}${k ? `, ${k} shift` : ""}${shortWord(ridingFor(riding, day2))}${dots.length ? `, ${dots.length} calendar${dots.length > 1 ? "s" : ""} with events` : ""}`,
+          "aria-label": `${day2.getDate()} ${MONTH_NAMES[day2.getMonth()]}${watchK ? `, ${watchK} shift` : ""}${note2 ? `, ${myDayText(note2)}` : ""}${shortWord(ridingFor(riding, day2))}${dots.length ? `, ${dots.length} calendar${dots.length > 1 ? "s" : ""} with events` : ""}`,
           style: {
             position: "relative",
             height: 50,
@@ -49922,7 +49991,7 @@ function MobileMonth({
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(ShortMark, { day: day2 }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 14, fontWeight: isToday || selected ? 700 : 500 }, children: day2.getDate() }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 14, height: 3, borderRadius: 2, background: k ? selected ? "#fff" : tok(k, "dot") : "transparent" } }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 14, height: 3, borderRadius: 2, background: k ? selected ? "#fff" : tok(k, "dot") : "transparent", opacity: barOff ? 0.3 : 1 } }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { display: "flex", gap: 3, height: 5 }, children: dots.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 5, height: 5, borderRadius: "50%", background: selected ? "#fff" : tok(c, "dot") } }, c)) })
           ]
         },
@@ -49938,18 +50007,22 @@ function MobileAgenda({
   userWatch,
   onEventClick
 }) {
+  var _a3;
   const shift2 = getShiftsForDay(shiftSchedule, date2, userWatch)[0];
-  const dayItems = items.filter((it) => spansDay(it, date2)).sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.startTime.getTime() - b.startTime.getTime());
+  const note2 = (_a3 = useMyDays()) == null ? void 0 : _a3.get(isoDate(date2));
+  const offShift = (note2 == null ? void 0 : note2.state) === "off" ? { textDecoration: "line-through", opacity: 0.6 } : void 0;
+  const dayItems = items.filter((it) => spansDay(it, date2)).sort(listOrder);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "cal-card", style: { padding: 14, display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 4, minWidth: 0 }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 15, fontWeight: 600 }, children: date2.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }) }),
-      (!!userWatch || shiftSchedule.length > 0) && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6 }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftChip, { shift: shift2 }),
-        (shift2 == null ? void 0 : shift2.startTime) && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: { fontSize: 11, color: "var(--cal-muted)" }, children: [
+      (!!userWatch || shiftSchedule.length > 0 || !!note2) && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6 }, children: [
+        !((note2 == null ? void 0 : note2.state) === "in" && !shift2) && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: offShift, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftChip, { shift: shift2 }) }),
+        (shift2 == null ? void 0 : shift2.startTime) && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: { fontSize: 11, color: "var(--cal-muted)", ...offShift }, children: [
           shift2.startTime,
           "–",
           shift2.endTime
         ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(MyDayPill, { note: note2 }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(RidingCount, { day: date2 }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(RidingNote, { day: date2 })
       ] })
@@ -50125,7 +50198,8 @@ function CalendarWidget({
   pendingSlot,
   filters,
   newButton,
-  riding
+  riding,
+  myDays: myDays2
 }) {
   const scrollRef = reactExports.useRef(null);
   const items = buildItems(events2, tasks, inspections);
@@ -50170,7 +50244,7 @@ function CalendarWidget({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(RidingContext.Provider, { value: riding ?? null, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cal-ui", style: { display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }, children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(RidingContext.Provider, { value: riding ?? null, children: /* @__PURE__ */ jsxRuntimeExports.jsx(MyDaysContext.Provider, { value: myDays2 ?? null, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cal-ui", style: { display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-3 md:hidden", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         PhoneHeader,
@@ -50286,13 +50360,13 @@ function CalendarWidget({
         }
       )
     ] })
-  ] }) });
+  ] }) }) });
 }
 const WATCHES$c = ["Red", "White", "Green", "Blue", "Amber"];
 const CALENDAR_LAYERS = [
-  { key: "station", label: "Springburn Station", sub: "Everyone", dot: "var(--cal-station-dot)" },
+  { key: "personal", label: "My calendar", sub: "Only you, plus your shifts and bookings", dot: "var(--cal-personal-dot)" },
   { key: "watch", label: "Watch calendar", sub: "", dot: "var(--cal-watch-dot)" },
-  { key: "personal", label: "Personal", sub: "Only you", dot: "var(--cal-personal-dot)" }
+  { key: "station", label: "Springburn Station", sub: "Everyone", dot: "var(--cal-station-dot)" }
 ];
 const OVERLAYS = [
   { key: "tasks", label: "My tasks", dot: "var(--cal-tasks-dot)" },
@@ -50438,7 +50512,9 @@ const ITEMS = [
   { kind: "inspection", label: "Inspection", hint: "HFSV, hydrant, multi-storey, OI, care home", Icon: ClipboardPlus, tint: "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300" },
   { kind: "training", label: "Training", hint: "Plan a session for the watch", Icon: GraduationCap, tint: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" }
 ];
-function CalendarNewButton({ onPick }) {
+const CREW_HINTS = { event: "On your calendar, or the watch's", shift: "Flexi, H4H, TOIL, orange day" };
+const itemsFor = (isManager) => isManager ? ITEMS : ITEMS.filter((i) => CREW_HINTS[i.kind]).map((i) => ({ ...i, hint: CREW_HINTS[i.kind] }));
+function CalendarNewButton({ onPick, isManager = true }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenu, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuTrigger, { asChild: true, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "button",
@@ -50466,7 +50542,7 @@ function CalendarNewButton({ onPick }) {
         ]
       }
     ) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuContent, { align: "end", sideOffset: 6, className: "w-64 p-1.5", children: ITEMS.map(({ kind, label: label2, hint, Icon: Icon2, tint }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuItem, { onSelect: () => onPick(kind), className: "gap-3 py-2", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuContent, { align: "end", sideOffset: 6, className: "w-64 p-1.5", children: itemsFor(isManager).map(({ kind, label: label2, hint, Icon: Icon2, tint }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuItem, { onSelect: () => onPick(kind), className: "gap-3 py-2", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn("grid h-8 w-8 shrink-0 place-items-center rounded-lg", tint), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "h-4 w-4" }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "min-w-0", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block text-sm font-medium", children: label2 }),
@@ -50475,7 +50551,7 @@ function CalendarNewButton({ onPick }) {
     ] }, kind)) })
   ] });
 }
-function CalendarNewFab({ onPick, dayLabel: dayLabel2 }) {
+function CalendarNewFab({ onPick, dayLabel: dayLabel2, isManager = true }) {
   const [open, setOpen] = reactExports.useState(false);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Root$4, { open, onOpenChange: setOpen, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(Trigger$2, { asChild: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -50512,7 +50588,7 @@ function CalendarNewFab({ onPick, dayLabel: dayLabel2 }) {
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(Close, { className: "grid h-9 w-9 place-items-center rounded-full text-muted-foreground hover:bg-muted", "aria-label": "Close", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-5 w-5" }) })
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "grid gap-1.5", children: ITEMS.map(({ kind, label: label2, hint, Icon: Icon2, tint }) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "grid gap-1.5", children: itemsFor(isManager).map(({ kind, label: label2, hint, Icon: Icon2, tint }) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "button",
               {
                 type: "button",
@@ -51561,6 +51637,41 @@ function InspectionEventModal({ open, onClose, defaultDate, editingEvent }) {
     ] })
   ] }) });
 }
+const WAITING = /* @__PURE__ */ new Set(["with_cover", "with_wc", "authorised", "referred"]);
+const ASKED_LABEL = { flexi: "Flexi day", h4h: "H4H" };
+const OFF_LABEL = { flexi: "Flexi day", training: "Training", h4h: "H4H", toil: "TOIL" };
+const EXTRA_LABEL = { flexi_payback: "Flexi payback", orange_day: "Orange day" };
+function isoDay(v) {
+  return typeof v === "string" ? v.slice(0, 10) : v.toISOString().slice(0, 10);
+}
+const covers = (b, day2) => isoDay(b.start_date) <= day2 && isoDay(b.end_date) >= day2;
+const withWatch = (label2, watch) => watch ? `${label2} · ${watch}` : label2;
+function myDays(bookings, me, days, watchShift, requests = []) {
+  const out = /* @__PURE__ */ new Map();
+  for (const day2 of days) {
+    let extra;
+    let off;
+    for (const b of bookings) {
+      if (!covers(b, day2)) continue;
+      const dn = b.shift_day_night ?? void 0;
+      if ((b.type === "h4h" || b.type === "toil") && b.covering_user_id === me && b.user_id !== me) {
+        const what = b.type === "h4h" ? "H4H" : "TOIL cover";
+        extra ?? (extra = { state: "in", label: withWatch(b.user_name ? `${what} for ${b.user_name}` : what, b.watch_unit), shift: dn });
+      } else if (EXTRA_LABEL[b.type] && b.user_id === me) {
+        extra ?? (extra = { state: "in", label: withWatch(EXTRA_LABEL[b.type], b.covering_watch), shift: dn });
+      } else if (OFF_LABEL[b.type] && b.user_id === me) {
+        const mine = watchShift(day2);
+        if (!mine || dn && dn !== mine) continue;
+        const label2 = b.type === "h4h" && b.covering_name ? `H4H · ${b.covering_name} covering` : OFF_LABEL[b.type];
+        off ?? (off = { state: "off", label: label2 });
+      }
+    }
+    const asked = requests.find((r2) => r2.user_id === me && WAITING.has(r2.status) && isoDay(r2.shift_date) === day2 && ASKED_LABEL[r2.type]);
+    const note2 = extra ?? off ?? (asked ? { state: "asked", label: ASKED_LABEL[asked.type], shift: asked.day_night ?? void 0 } : void 0);
+    if (note2) out.set(day2, note2);
+  }
+  return out;
+}
 const TRAINING_TYPE_LABELS$1 = {
   ba_drill: "BA Drill",
   rtc: "RTC / Extrication",
@@ -51715,8 +51826,10 @@ function UnifiedCalendar() {
     () => dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam) ? /* @__PURE__ */ new Date(`${dateParam}T12:00:00`) : /* @__PURE__ */ new Date()
   );
   const [view, setView] = reactExports.useState(dateParam ? "day" : "month");
+  const role = useUserRole();
+  const isManager = role === "WC" || role === "CC";
   const [visibleCalendars, setVisibleCalendars] = reactExports.useState(
-    /* @__PURE__ */ new Set(["station", "watch", "personal", "tasks", "inspections", "shifts"])
+    () => new Set(isManager ? ["station", "watch", "personal", "tasks", "inspections", "shifts"] : ["personal", "watch", "station", "tasks", "shifts"])
   );
   const userWatch = (user2 == null ? void 0 : user2.watch_unit) ?? "";
   const [formOpen, setFormOpen] = reactExports.useState(false);
@@ -51724,7 +51837,8 @@ function UnifiedCalendar() {
   const [editingEvent, setEditingEvent] = reactExports.useState(null);
   const [formAnchor, setFormAnchor] = reactExports.useState(null);
   const [pendingSlot, setPendingSlot] = reactExports.useState(null);
-  const [defaultCalendar, setDefaultCalendar] = reactExports.useState("station");
+  const firstCalendar = isManager ? "station" : "personal";
+  const [defaultCalendar, setDefaultCalendar] = reactExports.useState(firstCalendar);
   const lastCalendarKey = `cal-last-calendar:${userId}`;
   const lastCalendar = () => {
     try {
@@ -51732,7 +51846,7 @@ function UnifiedCalendar() {
       if (saved === "station" || saved === "watch" || saved === "personal") return saved;
     } catch {
     }
-    return "station";
+    return firstCalendar;
   };
   const rememberCalendar = (calendar2) => {
     try {
@@ -51747,8 +51861,6 @@ function UnifiedCalendar() {
   const [shiftAdjModalOpen, setShiftAdjModalOpen] = reactExports.useState(false);
   const [shiftAdjDate, setShiftAdjDate] = reactExports.useState(void 0);
   const [bookingToEdit, setBookingToEdit] = reactExports.useState(null);
-  const role = useUserRole();
-  const isManager = role === "WC" || role === "CC";
   const [viewWatch, setViewWatch] = reactExports.useState("");
   const watchShown = isManager && viewWatch || userWatch;
   const [trainingModalOpen, setTrainingModalOpen] = reactExports.useState(false);
@@ -51788,6 +51900,29 @@ function UnifiedCalendar() {
       }
     };
   }, [showRiding, strength]);
+  const showMine = visibleCalendars.has("personal") && !!userWatch && watchShown === userWatch;
+  const { data: myBookings } = useQuery({
+    queryKey: [CALENDAR_EVENTS_KEY, "my-bookings", userId, ymd2(start), ymd2(end)],
+    queryFn: () => backendClient.shift_adjustments.list({ involving_user_id: userId, start_date: ymd2(start), end_date: ymd2(end) }),
+    enabled: showMine,
+    staleTime: 6e4
+  });
+  const { data: myRequests } = useQuery({
+    queryKey: ["shift-requests", "mine"],
+    queryFn: () => backendClient.shift_adjustments.listRequests({ scope: "mine" }),
+    enabled: showMine,
+    staleTime: 6e4
+  });
+  const myDays$1 = reactExports.useMemo(() => {
+    if (!showMine) return void 0;
+    const days = [];
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) days.push(ymd2(d));
+    const watchShift = (day2) => {
+      const s = getShiftForDate(userWatch, /* @__PURE__ */ new Date(`${day2}T12:00:00`));
+      return !s || s.isLeave ? null : s.shiftType.includes("Night") ? "Night" : s.shiftType.includes("Day") ? "Day" : null;
+    };
+    return myDays((myBookings == null ? void 0 : myBookings.adjustments) ?? [], userId, days, watchShift, (myRequests == null ? void 0 : myRequests.requests) ?? []);
+  }, [showMine, myBookings, myRequests, userId, userWatch, startISO, endISO]);
   const { data: tasks = [] } = useQuery({
     queryKey: ["cal-tasks", userId, startISO, endISO],
     queryFn: async () => {
@@ -52087,14 +52222,16 @@ This cancels the whole booking (TOIL/H4H/Flexi): any TOIL hours are refunded and
         onEventClick: handleEventClick,
         pendingSlot: formOpen && !editingEvent ? pendingSlot : null,
         filters,
-        newButton: /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarNewButton, { onPick: onNew }),
-        riding
+        newButton: /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarNewButton, { onPick: onNew, isManager }),
+        riding,
+        myDays: myDays$1
       }
     ),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       CalendarNewFab,
       {
         onPick: onNew,
+        isManager,
         dayLabel: currentDate.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })
       }
     ),
@@ -63563,7 +63700,7 @@ const RANKS = ["Firefighter", "Leading Firefighter", "Crew Commander", "Watch Co
 function InviteUserDialog({ open, onClose, onSuccess }) {
   const [name, setName] = reactExports.useState("");
   const [email, setEmail] = reactExports.useState("");
-  const [rank, setRank] = reactExports.useState("Firefighter");
+  const [rank2, setRank] = reactExports.useState("Firefighter");
   const [watchUnit, setWatchUnit] = reactExports.useState("");
   const [loading, setLoading] = reactExports.useState(false);
   const [inviteLink, setInviteLink] = reactExports.useState("");
@@ -63588,7 +63725,7 @@ function InviteUserDialog({ open, onClose, onSuccess }) {
       await backendClient.profile.createPerson({
         name: name.trim(),
         email: cleanEmail,
-        rank,
+        rank: rank2,
         watch_unit: watchUnit
       });
       const invite = await backendClient.admin.getInviteLink({
@@ -63660,7 +63797,7 @@ function InviteUserDialog({ open, onClose, onSuccess }) {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Rank" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: rank, onValueChange: setRank, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: rank2, onValueChange: setRank, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: RANKS.map((r2) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: r2, children: r2 }, r2)) })
           ] })
@@ -67819,217 +67956,6 @@ function MyProfile() {
     ] })
   ] });
 }
-function AbsenceRequest() {
-  const { user: user2 } = useAuth();
-  const { toast: toast2 } = useToast();
-  const queryClient2 = useQueryClient();
-  const [formData, setFormData] = reactExports.useState({
-    type: "sickness",
-    start_date: "",
-    end_date: "",
-    reason: ""
-  });
-  const createAbsenceMutation = useMutation({
-    mutationFn: async () => {
-      if (!user2) throw new Error("User not authenticated");
-      return await backendClient.absence.create({
-        user_id: user2.id,
-        type: formData.type,
-        start_date: formData.start_date,
-        end_date: formData.end_date,
-        reason: formData.reason
-      });
-    },
-    onSuccess: () => {
-      invalidateAbsenceViews(queryClient2);
-      toast2({
-        title: "Absence request submitted",
-        description: "Your request has been sent to your supervisor for approval"
-      });
-      setFormData({
-        type: "sickness",
-        start_date: "",
-        end_date: "",
-        reason: ""
-      });
-    },
-    onError: (error) => {
-      console.error("Failed to create absence request:", error);
-      toast2({
-        title: "Request failed",
-        description: error instanceof Error ? error.message : "Failed to submit absence request",
-        variant: "destructive"
-      });
-    }
-  });
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!formData.start_date || !formData.end_date || !formData.reason) {
-      toast2({
-        title: "Missing information",
-        description: "Please fill in all required fields",
-        variant: "destructive"
-      });
-      return;
-    }
-    const startDate = new Date(formData.start_date);
-    const endDate = new Date(formData.end_date);
-    if (endDate < startDate) {
-      toast2({
-        title: "Invalid dates",
-        description: "End date must be after start date",
-        variant: "destructive"
-      });
-      return;
-    }
-    createAbsenceMutation.mutate();
-  };
-  const calculateDays = () => {
-    if (!formData.start_date || !formData.end_date) return 0;
-    const start = new Date(formData.start_date);
-    const end = new Date(formData.end_date);
-    const days2 = Math.ceil((end.getTime() - start.getTime()) / (1e3 * 60 * 60 * 24)) + 1;
-    return days2 > 0 ? days2 : 0;
-  };
-  const days = calculateDays();
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-bold text-foreground", children: "Request Absence" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground mt-1", children: "Submit a new absence request for approval" })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("form", { onSubmit: handleSubmit, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(CardHeader, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(CardTitle, { className: "flex items-center gap-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Calendar, { className: "h-5 w-5" }),
-          "Absence Details"
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { children: "All requests are sent to your Crew Commander or Watch Commander for approval" })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "space-y-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "type", children: "Type *" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            Select,
-            {
-              value: formData.type,
-              onValueChange: (value) => setFormData({ ...formData, type: value }),
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "type", className: "mt-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "sickness", children: "Sickness" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "AL", children: "Annual Leave (AL)" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "TOIL", children: "Time Off In Lieu (TOIL)" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "parental", children: "Parental Leave" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "other", children: "Other" })
-                ] })
-              ]
-            }
-          )
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "start_date", children: "Start Date *" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Input,
-              {
-                id: "start_date",
-                type: "date",
-                value: formData.start_date,
-                onChange: (e) => setFormData({ ...formData, start_date: e.target.value }),
-                className: "mt-1",
-                required: true
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "end_date", children: "End Date *" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Input,
-              {
-                id: "end_date",
-                type: "date",
-                value: formData.end_date,
-                onChange: (e) => setFormData({ ...formData, end_date: e.target.value }),
-                className: "mt-1",
-                required: true
-              }
-            )
-          ] })
-        ] }),
-        days > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900 rounded-md p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { className: "h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm font-medium text-blue-900 dark:text-blue-200", children: [
-              "Total duration: ",
-              days,
-              " day",
-              days === 1 ? "" : "s"
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-blue-700 dark:text-blue-300 mt-1", children: formData.start_date && formData.end_date && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-              "From ",
-              new Date(formData.start_date).toLocaleDateString(),
-              " to",
-              " ",
-              new Date(formData.end_date).toLocaleDateString()
-            ] }) })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "reason", children: "Reason *" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Textarea,
-            {
-              id: "reason",
-              value: formData.reason,
-              onChange: (e) => setFormData({ ...formData, reason: e.target.value }),
-              placeholder: "Provide details about your absence...",
-              className: "mt-1",
-              rows: 4,
-              required: true
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground mt-2", children: "For sickness absences, please include symptoms or diagnosis. For leave requests, provide any relevant details." })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-900 rounded-md p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-5 w-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm font-medium text-yellow-900 dark:text-yellow-200", children: "Approval Process" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-yellow-700 dark:text-yellow-300 mt-1", children: "Your request will be reviewed by your line manager (CC/WC). You'll receive notification once it's been reviewed." })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-3 pt-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            Button,
-            {
-              type: "submit",
-              disabled: createAbsenceMutation.isPending,
-              className: "bg-indigo-600 hover:bg-indigo-700",
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Send, { className: "h-4 w-4 mr-2" }),
-                createAbsenceMutation.isPending ? "Submitting..." : "Submit Request"
-              ]
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Button,
-            {
-              type: "button",
-              variant: "outline",
-              onClick: () => setFormData({
-                type: "sickness",
-                start_date: "",
-                end_date: "",
-                reason: ""
-              }),
-              disabled: createAbsenceMutation.isPending,
-              children: "Clear Form"
-            }
-          )
-        ] })
-      ] })
-    ] }) })
-  ] });
-}
 function compressImage(file, maxWidth = 1200) {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -68269,10 +68195,7 @@ function StaffPortal() {
         /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "tasks", className: "mt-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(MyTasks, {}) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "calendar", className: "mt-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(MyCalendar, {}) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "profile", className: "mt-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(MyProfile, {}) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(TabsContent, { value: "absence", className: "mt-6 space-y-6", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(FFSickLineUpload, {}),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(AbsenceRequest, {})
-        ] })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "absence", className: "mt-6 space-y-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(FFSickLineUpload, {}) })
       ] })
     ] }) })
   );
