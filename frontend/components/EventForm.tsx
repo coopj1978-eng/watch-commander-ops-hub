@@ -36,10 +36,11 @@ export interface EventFormData {
   change_note?: string;
 }
 
+// Yours first, then the watch's, then the station's (Nov 2026).
 const CALENDAR_OPTIONS: { value: CalendarVisibility; label: string; key: string }[] = [
-  { value: "station", label: "Station", key: "station" },
-  { value: "watch", label: "Watch", key: "watch" },
   { value: "personal", label: "Personal", key: "personal" },
+  { value: "watch", label: "Watch", key: "watch" },
+  { value: "station", label: "Station", key: "station" },
 ];
 
 function toInputDate(d: Date): string {

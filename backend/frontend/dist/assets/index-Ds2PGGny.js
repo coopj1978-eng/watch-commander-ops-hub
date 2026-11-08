@@ -50861,9 +50861,9 @@ function CalendarRidingPeek({
   ] });
 }
 const CALENDAR_OPTIONS = [
-  { value: "station", label: "Station", key: "station" },
+  { value: "personal", label: "Personal", key: "personal" },
   { value: "watch", label: "Watch", key: "watch" },
-  { value: "personal", label: "Personal", key: "personal" }
+  { value: "station", label: "Station", key: "station" }
 ];
 function toInputDate(d) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
