@@ -1,7 +1,7 @@
 import { api } from "encore.dev/api";
 import { Query } from "encore.dev/api";
 import db from "../db";
-import { withoutLegacyNotes } from "./privacy";
+import { contactsFor, withoutLegacyNotes } from "./privacy";
 import { absenceViewer, redactSickness, visiblePersonIds } from "../lib/absenceAccess";
 import type { FirefighterProfile } from "./types";
 import type { User } from "../user/types";
@@ -255,10 +255,12 @@ export const listWithUsers = api<ListPeopleRequest, ListPeopleResponse>(
     params.push(limit, offset);
 
     const rows = await db.rawQueryAll<DBUserProfile>(query, ...params);
-    // Sickness totals only for the person and their watch's WC/CC.
-    const visible = await visiblePersonIds(await absenceViewer());
+    // Sickness totals only for the person and their watch's WC/CC; contacts
+    // only for the person and a WC/CC.
+    const viewer = await absenceViewer();
+    const visible = await visiblePersonIds(viewer);
     const people = rows.map(transformUserProfile).map((p) =>
-      p.profile ? { ...p, profile: withoutLegacyNotes(redactSickness(p.profile, visible)) } : p
+      p.profile ? { ...p, profile: contactsFor(withoutLegacyNotes(redactSickness(p.profile, visible)), viewer) } : p
     );
 
     const countResult = await db.rawQueryRow<{ count: number }>(

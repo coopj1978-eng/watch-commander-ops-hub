@@ -1,7 +1,7 @@
 import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
-import { withoutLegacyNotes } from "./privacy";
+import { contactsFor, withoutLegacyNotes } from "./privacy";
 import { absenceViewer, redactSickness, visiblePersonIds } from "../lib/absenceAccess";
 import type { FirefighterProfile } from "./types";
 import { canViewProfile } from "../auth/rbac";
@@ -106,8 +106,10 @@ export const getByUser = api<GetProfileByUserRequest, FirefighterProfile>(
       throw APIError.notFound("profile not found");
     }
 
-    // Sickness totals only for the person and their watch's WC/CC.
-    const visible = await visiblePersonIds(await absenceViewer());
-    return withoutLegacyNotes(redactSickness(transformProfile(dbProfile), visible));
+    // Sickness totals only for the person and their watch's WC/CC; contacts
+    // only for the person and a WC/CC.
+    const viewer = await absenceViewer();
+    const visible = await visiblePersonIds(viewer);
+    return contactsFor(withoutLegacyNotes(redactSickness(transformProfile(dbProfile), visible)), viewer);
   }
 );
