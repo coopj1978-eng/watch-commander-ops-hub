@@ -33,7 +33,6 @@ import { useFeatureFlags, type FeatureFlags } from "@/lib/feature-flags";
 import { useToast } from "@/components/ui/use-toast";
 import {
   ShieldCheck,
-  LayoutDashboard,
   Users,
   Calendar,
   CheckSquare,
@@ -43,10 +42,16 @@ import {
   ClipboardList,
   FileText,
   BarChart3,
-  ClipboardCheck,
   Save,
+  FileCheck,
+  Megaphone,
+  GraduationCap,
+  Flame,
+  BookMarked,
 } from "lucide-react";
 
+// What firefighters (FF and RO) can open, phased in (John, 8 Nov 2026).
+// Home, My profile and Settings are always on; WC and CC see everything.
 const FEATURE_CONFIG: {
   key: keyof FeatureFlags;
   label: string;
@@ -54,17 +59,20 @@ const FEATURE_CONFIG: {
   icon: React.ElementType;
   phase: string;
 }[] = [
-  { key: "dashboard",    label: "Dashboard",      description: "Main dashboard with operational overview",          icon: LayoutDashboard, phase: "Phase 1" },
-  { key: "people",       label: "People",         description: "Staff directory and profile management",           icon: Users,           phase: "Phase 1" },
-  { key: "calendar",     label: "Calendar",       description: "Watch calendar and event management",              icon: Calendar,        phase: "Phase 1" },
-  { key: "detachments",  label: "Detachments",    description: "Detachment rota and planning",                     icon: Navigation,      phase: "Phase 1" },
-  { key: "tasks",        label: "Tasks",          description: "Task board and assignment tracking",               icon: CheckSquare,     phase: "Phase 2" },
-  { key: "handover",     label: "Shift / Handover", description: "Shift management and handover notes",            icon: ClipboardList,   phase: "Phase 2" },
-  { key: "equipment",    label: "J4 Checks",      description: "Equipment checks and defect tracking",             icon: Truck,           phase: "Phase 3" },
-  { key: "inspections",  label: "Inspections",    description: "HFSV and multi-storey inspections",                icon: ClipboardCheck,  phase: "Phase 3" },
-  { key: "targets",      label: "Targets",        description: "Performance targets and tracking",                 icon: Target,          phase: "Phase 4" },
-  { key: "policies",     label: "Docs",           description: "Policy documents and useful links",               icon: FileText,        phase: "Phase 4" },
-  { key: "reports",      label: "Reports",        description: "Quarterly reports and analytics",                  icon: BarChart3,       phase: "Phase 4" },
+  { key: "calendar",     label: "Calendar",       description: "Their own calendar first, then the watch's; log TOIL and orange days, ask for a flexi or H4H", icon: Calendar,      phase: "Phase 1 · first release" },
+  { key: "handover",     label: "Shift",          description: "Crewing board (to look at), handover notes to read, the rotas",       icon: ClipboardList, phase: "Phase 1 · first release" },
+  { key: "tasks",        label: "Tasks",          description: "Today's shift board: tick checks, add a job",                         icon: CheckSquare,   phase: "Phase 1 · first release" },
+  { key: "requests",     label: "Requests",       description: "Their own flexi and H4H requests, and recording the Kronos answer",   icon: FileCheck,     phase: "Phase 1 · first release" },
+  { key: "detachments",  label: "Detachments",    description: "The detachment rota and history",                                     icon: Navigation,    phase: "Phase 1 · first release" },
+  { key: "equipment",    label: "J4 Checks",      description: "Appliance checks and reporting defects",                              icon: Truck,         phase: "Phase 1 · first release" },
+  { key: "bulletins",    label: "Bulletins",      description: "News and announcements",                                              icon: Megaphone,     phase: "Phase 2 · information" },
+  { key: "training",     label: "Training",       description: "Training sessions and records",                                       icon: GraduationCap, phase: "Phase 2 · information" },
+  { key: "policies",     label: "Docs",           description: "Policies, guidance and the policy question box",                      icon: FileText,      phase: "Phase 2 · information" },
+  { key: "hydrants",     label: "Hydrants",       description: "Hydrant routes and faults",                                           icon: Flame,         phase: "Phase 3 · station work" },
+  { key: "references",   label: "References",     description: "The watch's station references (and Our reference on Home)",         icon: BookMarked,    phase: "Phase 3 · station work" },
+  { key: "targets",      label: "Targets",        description: "HFSV, community and multi-storey targets",                            icon: Target,        phase: "Phase 3 · station work" },
+  { key: "people",       label: "People",         description: "Everyone's profiles",                                                 icon: Users,         phase: "WC/CC tools" },
+  { key: "reports",      label: "Reports",        description: "Quarterly reports",                                                   icon: BarChart3,     phase: "WC/CC tools" },
 ];
 
 // Station setup lives here (Nov 2026) — it used to share the Settings page
@@ -178,7 +186,7 @@ function FeatureManagementTab() {
       setHasChanges(false);
       toast({
         title: "Features updated",
-        description: "Feature visibility has been saved. Changes take effect immediately for all users.",
+        description: "Saved. Firefighters see the change the next time they open the app.",
       });
     } catch (error) {
       toast({
@@ -203,9 +211,11 @@ function FeatureManagementTab() {
   };
 
   const handleEnableAll = () => {
-    const allOn: FeatureFlags = {} as FeatureFlags;
-    FEATURE_CONFIG.forEach((f) => { allOn[f.key] = true; });
-    setLocalFlags(allOn);
+    setLocalFlags((prev) => {
+      const allOn = { ...prev };
+      FEATURE_CONFIG.forEach((f) => { allOn[f.key] = true; });
+      return allOn;
+    });
     setHasChanges(true);
   };
 
@@ -217,9 +227,9 @@ function FeatureManagementTab() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Feature Visibility</CardTitle>
+              <CardTitle>What firefighters see</CardTitle>
               <CardDescription className="mt-1">
-                Control which sections are visible to CC, FF, and RO users. WC and Admin users always see all sections regardless of these settings.
+                Which pages firefighters (FF and RO) can open. A page that's off is gone from their menu, their Home shortcuts and search, and won't open from a link. Home, My profile and Settings are always on. WC and CC always see everything.
               </CardDescription>
             </div>
             {hasChanges && (
@@ -241,11 +251,11 @@ function FeatureManagementTab() {
                 onClick={() => handleEnablePhase(phase)}
                 className="text-xs"
               >
-                Enable {phase}
+                Turn on {phase.split(" · ")[0]}
               </Button>
             ))}
             <Button size="sm" variant="outline" onClick={handleEnableAll} className="text-xs">
-              Enable All
+              Turn everything on
             </Button>
           </div>
 
@@ -259,7 +269,7 @@ function FeatureManagementTab() {
                 <div className="grid gap-3">
                   {FEATURE_CONFIG.filter((f) => f.phase === phase).map((feature) => {
                     const Icon = feature.icon;
-                    const isOn = localFlags[feature.key] ?? true;
+                    const isOn = localFlags[feature.key] ?? false;
                     return (
                       <div
                         key={feature.key}
@@ -282,7 +292,7 @@ function FeatureManagementTab() {
                         </div>
                         <div className="flex items-center gap-3">
                           <Badge variant={isOn ? "default" : "secondary"} className={`text-xs ${isOn ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : ""}`}>
-                            {isOn ? "Visible" : "Hidden"}
+                            {isOn ? "On" : "Off"}
                           </Badge>
                           <Switch
                             id={`feature-${feature.key}`}

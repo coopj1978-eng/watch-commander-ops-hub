@@ -24818,6 +24818,2526 @@ function Toaster() {
     /* @__PURE__ */ jsxRuntimeExports.jsx(ToastViewport, {})
   ] });
 }
+const Local = "http://localhost:4000";
+const BROWSER = typeof globalThis === "object" && "window" in globalThis;
+class Client {
+  /**
+   * Creates a Client for calling the public and authenticated APIs of your Encore application.
+   *
+   * @param target  The target which the client should be configured to use. See Local and Environment for options.
+   * @param options Options for the client
+   */
+  constructor(target, options) {
+    this.target = target;
+    this.options = options ?? {};
+    const base = new BaseClient(this.target, this.options);
+    this.absence = new absence.ServiceClient(base);
+    this.activity = new activity.ServiceClient(base);
+    this.admin = new admin.ServiceClient(base);
+    this.appliance = new appliance.ServiceClient(base);
+    this.bulletin = new bulletin.ServiceClient(base);
+    this.calendar = new calendar.ServiceClient(base);
+    this.crew = new crew.ServiceClient(base);
+    this.crewing = new crewing.ServiceClient(base);
+    this.detachments = new detachments.ServiceClient(base);
+    this.dictionary = new dictionary.ServiceClient(base);
+    this.frontend = new frontend.ServiceClient(base);
+    this.h4h = new h4h.ServiceClient(base);
+    this.handover = new handover.ServiceClient(base);
+    this.hydrants = new hydrants.ServiceClient(base);
+    this.inspection = new inspection.ServiceClient(base);
+    this.inspection_plans = new inspection_plans.ServiceClient(base);
+    this.localauth = new localauth.ServiceClient(base);
+    this.mock = new mock.ServiceClient(base);
+    this.note = new note.ServiceClient(base);
+    this.notification = new notification.ServiceClient(base);
+    this.policy = new policy.ServiceClient(base);
+    this.profile = new profile.ServiceClient(base);
+    this.quarterly_report = new quarterly_report.ServiceClient(base);
+    this.references = new references.ServiceClient(base);
+    this.report = new report.ServiceClient(base);
+    this.schedule = new schedule.ServiceClient(base);
+    this.settings = new settings.ServiceClient(base);
+    this.shift_adjustments = new shift_adjustments.ServiceClient(base);
+    this.skill = new skill.ServiceClient(base);
+    this.targets = new targets.ServiceClient(base);
+    this.task = new task.ServiceClient(base);
+    this.toil = new toil.ServiceClient(base);
+    this.training = new training.ServiceClient(base);
+    this.user = new user.ServiceClient(base);
+  }
+  /**
+   * Creates a new Encore client with the given client options set.
+   *
+   * @param options Client options to set. They are merged with existing options.
+   **/
+  with(options) {
+    return new Client(this.target, {
+      ...this.options,
+      ...options
+    });
+  }
+}
+var absence;
+((absence2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.approve = this.approve.bind(this);
+      this.listBackToWork = this.listBackToWork.bind(this);
+      this.backToWorkDone = this.backToWorkDone.bind(this);
+      this.bookBackFit = this.bookBackFit.bind(this);
+      this.create = this.create.bind(this);
+      this.deleteAbsence = this.deleteAbsence.bind(this);
+      this.getStats = this.getStats.bind(this);
+      this.list = this.list.bind(this);
+      this.selfReport = this.selfReport.bind(this);
+      this.todaySick = this.todaySick.bind(this);
+      this.updateAbsence = this.updateAbsence.bind(this);
+    }
+    async approve(id) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/absences/${encodeURIComponent(id)}/approve`);
+      return await resp.json();
+    }
+    /**
+     * Closes out an open sickness absence. Until this is called, the FF
+     * is treated as currently off regardless of end_date.
+     */
+    async listBackToWork(params) {
+      const query = makeRecord({ "user_id": params["user_id"] });
+      const resp = await this.baseClient.callTypedAPI("GET", `/absences/back-to-work`, void 0, { query });
+      return await resp.json();
+    }
+    async backToWorkDone(absenceId) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/absences/${encodeURIComponent(absenceId)}/back-to-work-done`);
+      return await resp.json();
+    }
+    async bookBackFit(params) {
+      const { absence_id, ...body } = params;
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/absences/${encodeURIComponent(absence_id)}/book-back-fit`,
+        JSON.stringify(body)
+      );
+      return await resp.json();
+    }
+    async create(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/absences`, JSON.stringify(params));
+      return await resp.json();
+    }
+    /**
+     * Permanently deletes an absence record. WC/CC only.
+     */
+    async deleteAbsence(id) {
+      const resp = await this.baseClient.callTypedAPI("DELETE", `/absences/${encodeURIComponent(id)}`);
+      return await resp.json();
+    }
+    async getStats(user_id) {
+      const resp = await this.baseClient.callTypedAPI("GET", `/absences/stats/${encodeURIComponent(user_id)}`);
+      return await resp.json();
+    }
+    async list(params) {
+      const query = makeRecord({
+        "end_date": params["end_date"],
+        limit: params.limit === void 0 ? void 0 : String(params.limit),
+        offset: params.offset === void 0 ? void 0 : String(params.offset),
+        "start_date": params["start_date"],
+        status: params.status === void 0 ? void 0 : String(params.status),
+        "user_id": params["user_id"]
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/absences`, void 0, { query });
+      return await resp.json();
+    }
+    async selfReport(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/absences/self-report`, JSON.stringify(params));
+      return await resp.json();
+    }
+    /**
+     * Returns all staff with an approved sickness absence that covers today's date.
+     * Used by the WC dashboard to cross-reference against the crewing board.
+     */
+    async todaySick(params = {}) {
+      const query = makeRecord({
+        date: params.date
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/absences/today-sick`, void 0, { query });
+      return await resp.json();
+    }
+    /**
+     * FF can update dates/sick line on their own absence. WC can update anything.
+     */
+    async updateAbsence(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/absences/${encodeURIComponent(id)}/update`, JSON.stringify(params));
+      return await resp.json();
+    }
+  }
+  absence2.ServiceClient = ServiceClient;
+})(absence || (absence = {}));
+var activity;
+((activity2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.create = this.create.bind(this);
+      this.list = this.list.bind(this);
+      this.remove = this.remove.bind(this);
+      this.seedHfsv = this.seedHfsv.bind(this);
+      this.toggle = this.toggle.bind(this);
+      this.update = this.update.bind(this);
+    }
+    /**
+     * POST /activities
+     * Creates a single activity record (hydrant inspection or community engagement).
+     * HFSV records should be bulk-seeded via POST /activities/seed-hfsv instead.
+     */
+    async create(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/activities`, JSON.stringify(params));
+      return await resp.json();
+    }
+    /**
+     * GET /activities
+     * Returns activity records filtered by type / watch / financial_year / quarter.
+     */
+    async list(params) {
+      const query = makeRecord({
+        "financial_year": params["financial_year"] === void 0 ? void 0 : String(params["financial_year"]),
+        quarter: params.quarter === void 0 ? void 0 : String(params.quarter),
+        type: params.type === void 0 ? void 0 : String(params.type),
+        watch: params.watch
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/activities`, void 0, { query });
+      return await resp.json();
+    }
+    /**
+     * DELETE /activities/:id
+     */
+    async remove(id) {
+      const resp = await this.baseClient.callTypedAPI("DELETE", `/activities/${encodeURIComponent(id)}`);
+      return await resp.json();
+    }
+    /**
+     * POST /activities/seed-hfsv
+     * Creates 36 numbered HFSV placeholders for a given watch/financial_year/quarter.
+     * Safe to re-run: skips rows where item_number already exists for that slot.
+     */
+    async seedHfsv(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/activities/seed-hfsv`, JSON.stringify(params));
+      return await resp.json();
+    }
+    /**
+     * PATCH /activities/:id/toggle
+     * Flips the completed flag on an activity record.
+     */
+    async toggle(id) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/activities/${encodeURIComponent(id)}/toggle`);
+      return await resp.json();
+    }
+    /**
+     * PATCH /activities/:id
+     * Updates editable fields (title, address, engagement_date, details).
+     */
+    async update(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/activities/${encodeURIComponent(id)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+  }
+  activity2.ServiceClient = ServiceClient;
+})(activity || (activity = {}));
+var admin;
+((admin2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.bootstrap = this.bootstrap.bind(this);
+      this.changeRole = this.changeRole.bind(this);
+      this.checkWC = this.checkWC.bind(this);
+      this.createActivityLog = this.createActivityLog.bind(this);
+      this.deactivateUser = this.deactivateUser.bind(this);
+      this.getActivityLog = this.getActivityLog.bind(this);
+      this.getInviteLink = this.getInviteLink.bind(this);
+      this.getReassignmentPreview = this.getReassignmentPreview.bind(this);
+      this.healthz = this.healthz.bind(this);
+      this.inviteUser = this.inviteUser.bind(this);
+      this.listUsers = this.listUsers.bind(this);
+      this.reactivateUser = this.reactivateUser.bind(this);
+      this.reassignAssets = this.reassignAssets.bind(this);
+    }
+    async bootstrap(params) {
+      const query = makeRecord({
+        setupToken: params.setupToken
+      });
+      const resp = await this.baseClient.callTypedAPI("POST", `/admin/bootstrap`, void 0, { query });
+      return await resp.json();
+    }
+    async changeRole(userId, params) {
+      await this.baseClient.callTypedAPI("PUT", `/api/admin/users/${encodeURIComponent(userId)}/role`, JSON.stringify(params));
+    }
+    async checkWC() {
+      const resp = await this.baseClient.callTypedAPI("GET", `/admin/check-wc`);
+      return await resp.json();
+    }
+    async createActivityLog(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/admin/activity-log`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async deactivateUser(userId, params) {
+      await this.baseClient.callTypedAPI("POST", `/api/admin/users/${encodeURIComponent(userId)}/deactivate`, JSON.stringify(params));
+    }
+    async getActivityLog(params) {
+      const query = makeRecord({
+        action: params.action,
+        "end_date": params["end_date"],
+        "entity_type": params["entity_type"],
+        limit: params.limit === void 0 ? void 0 : String(params.limit),
+        offset: params.offset === void 0 ? void 0 : String(params.offset),
+        "start_date": params["start_date"],
+        "user_id": params["user_id"]
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/admin/activity-log`, void 0, { query });
+      return await resp.json();
+    }
+    async getInviteLink(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/admin/get-invite-link`, JSON.stringify(params));
+      return await resp.json();
+    }
+    /** Admin: a one-time link for someone to choose a new password (24 hours). */
+    async getPasswordResetLink(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/admin/password-reset-link`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async getReassignmentPreview(userId) {
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/admin/reassign/${encodeURIComponent(userId)}/preview`);
+      return await resp.json();
+    }
+    /**
+     * Path is /uptime-check rather than /healthz because /healthz is reserved by
+     * Encore Cloud's platform-level load balancer for its own health probes —
+     * user-defined endpoints at that path return 404 externally.
+     */
+    async healthz() {
+      const resp = await this.baseClient.callTypedAPI("GET", `/uptime-check`);
+      return await resp.json();
+    }
+    async inviteUser(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/api/admin/invite`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async listUsers() {
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/admin/users`);
+      return await resp.json();
+    }
+    async reactivateUser(userId) {
+      await this.baseClient.callTypedAPI("POST", `/api/admin/users/${encodeURIComponent(userId)}/reactivate`);
+    }
+    async reassignAssets(params) {
+      await this.baseClient.callTypedAPI("POST", `/api/admin/reassign`, JSON.stringify(params));
+    }
+  }
+  admin2.ServiceClient = ServiceClient;
+})(admin || (admin = {}));
+var appliance;
+((appliance2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.createAppliance = this.createAppliance.bind(this);
+      this.createEquipment = this.createEquipment.bind(this);
+      this.deleteEquipment = this.deleteEquipment.bind(this);
+      this.getCheck = this.getCheck.bind(this);
+      this.listAppliances = this.listAppliances.bind(this);
+      this.listChecks = this.listChecks.bind(this);
+      this.listDefects = this.listDefects.bind(this);
+      this.listEquipment = this.listEquipment.bind(this);
+      this.reportDefect = this.reportDefect.bind(this);
+      this.startCheck = this.startCheck.bind(this);
+      this.updateAppliance = this.updateAppliance.bind(this);
+      this.updateDefect = this.updateDefect.bind(this);
+      this.updateEquipment = this.updateEquipment.bind(this);
+    }
+    async createAppliance(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/appliances`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async createEquipment(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/appliances/equipment`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async deleteEquipment(id) {
+      await this.baseClient.callTypedAPI("DELETE", `/appliances/equipment/${encodeURIComponent(id)}`);
+    }
+    async getCheck(id) {
+      const resp = await this.baseClient.callTypedAPI("GET", `/appliances/checks/${encodeURIComponent(id)}`);
+      return await resp.json();
+    }
+    async listAppliances(params) {
+      const query = makeRecord({
+        "active_only": params["active_only"] === void 0 ? void 0 : String(params["active_only"]),
+        "station_call_sign": params["station_call_sign"]
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/appliances`, void 0, { query });
+      return await resp.json();
+    }
+    async listChecks(params) {
+      const query = makeRecord({
+        "appliance_id": params["appliance_id"] === void 0 ? void 0 : String(params["appliance_id"]),
+        "checked_by": params["checked_by"],
+        limit: params.limit === void 0 ? void 0 : String(params.limit),
+        offset: params.offset === void 0 ? void 0 : String(params.offset),
+        watch: params.watch
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/appliances/checks`, void 0, { query });
+      return await resp.json();
+    }
+    async listDefects(params) {
+      const query = makeRecord({
+        "appliance_id": params["appliance_id"] === void 0 ? void 0 : String(params["appliance_id"]),
+        status: params.status
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/appliances/defects`, void 0, { query });
+      return await resp.json();
+    }
+    async listEquipment(params) {
+      const query = makeRecord({
+        "active_only": params["active_only"] === void 0 ? void 0 : String(params["active_only"]),
+        "appliance_id": String(params["appliance_id"])
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/appliances/equipment`, void 0, { query });
+      return await resp.json();
+    }
+    async reportDefect(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/appliances/defects`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async startCheck(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/appliances/checks`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async updateAppliance(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/appliances/${encodeURIComponent(id)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async updateDefect(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/appliances/defects/${encodeURIComponent(id)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async updateEquipment(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/appliances/equipment/${encodeURIComponent(id)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+  }
+  appliance2.ServiceClient = ServiceClient;
+})(appliance || (appliance = {}));
+var bulletin;
+((bulletin2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.create = this.create.bind(this);
+      this.list = this.list.bind(this);
+      this.markRead = this.markRead.bind(this);
+      this.acknowledge = this.acknowledge.bind(this);
+      this.getStats = this.getStats.bind(this);
+      this.deleteBulletin = this.deleteBulletin.bind(this);
+    }
+    async create(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/api/bulletins`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async list(params) {
+      const qs = [];
+      if ((params == null ? void 0 : params.include_read) !== void 0) qs.push(`include_read=${params.include_read}`);
+      if ((params == null ? void 0 : params.limit) !== void 0) qs.push(`limit=${params.limit}`);
+      if ((params == null ? void 0 : params.offset) !== void 0) qs.push(`offset=${params.offset}`);
+      const q = qs.length ? `?${qs.join("&")}` : "";
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/bulletins${q}`);
+      return await resp.json();
+    }
+    async markRead(id) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/bulletins/${encodeURIComponent(id)}/read`);
+      return await resp.json();
+    }
+    async acknowledge(id) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/bulletins/${encodeURIComponent(id)}/acknowledge`);
+      return await resp.json();
+    }
+    async getStats(id) {
+      const resp = await this.baseClient.callTypedAPI("GET", `/bulletins/${encodeURIComponent(id)}/stats`);
+      return await resp.json();
+    }
+    async deleteBulletin(id) {
+      const resp = await this.baseClient.callTypedAPI("DELETE", `/bulletins/${encodeURIComponent(id)}`);
+      return await resp.json();
+    }
+  }
+  bulletin2.ServiceClient = ServiceClient;
+})(bulletin || (bulletin = {}));
+var calendar;
+((calendar2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.create = this.create.bind(this);
+      this.createInspectionEvent = this.createInspectionEvent.bind(this);
+      this.deleteEvent = this.deleteEvent.bind(this);
+      this.exportICS = this.exportICS.bind(this);
+      this.list = this.list.bind(this);
+      this.update = this.update.bind(this);
+    }
+    async create(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/calendar/events`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async createInspectionEvent(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/calendar/inspection-event`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async deleteEvent(id, params) {
+      const query = makeRecord({
+        "user_id": params["user_id"]
+      });
+      await this.baseClient.callTypedAPI("DELETE", `/calendar/events/${encodeURIComponent(id)}`, void 0, { query });
+    }
+    async exportICS(params) {
+      const query = makeRecord({
+        "end_date": params["end_date"],
+        "start_date": params["start_date"]
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/calendar/export.ics`, void 0, { query });
+      return await resp.json();
+    }
+    async list(params) {
+      const query = makeRecord({
+        "calendar_visibility": params["calendar_visibility"],
+        "end_date": params["end_date"],
+        "is_watch_event": params["is_watch_event"] === void 0 ? void 0 : String(params["is_watch_event"]),
+        limit: params.limit === void 0 ? void 0 : String(params.limit),
+        offset: params.offset === void 0 ? void 0 : String(params.offset),
+        "start_date": params["start_date"],
+        "user_id": params["user_id"],
+        watch: params.watch
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/calendar/events`, void 0, { query });
+      return await resp.json();
+    }
+    async update(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/calendar/events/${encodeURIComponent(id)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+    /** Strike an event through (kept on the calendar with the reason). */
+    async cancelEvent(id, params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/calendar/events/${encodeURIComponent(id)}/cancel`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async reinstateEvent(id) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/calendar/events/${encodeURIComponent(id)}/reinstate`);
+      return await resp.json();
+    }
+  }
+  calendar2.ServiceClient = ServiceClient;
+})(calendar || (calendar = {}));
+var crew;
+((crew2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.bulkAssign = this.bulkAssign.bind(this);
+      this.getStats = this.getStats.bind(this);
+    }
+    async bulkAssign(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/crew/bulk-assign`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async getStats() {
+      const resp = await this.baseClient.callTypedAPI("GET", `/crew/stats`);
+      return await resp.json();
+    }
+  }
+  crew2.ServiceClient = ServiceClient;
+})(crew || (crew = {}));
+var crewing;
+((crewing2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.add = this.add.bind(this);
+      this.copyPrevious = this.copyPrevious.bind(this);
+      this.list = this.list.bind(this);
+      this.remove = this.remove.bind(this);
+      this.roster = this.roster.bind(this);
+      this.strength = this.strength.bind(this);
+      this.listCanteen = this.listCanteen.bind(this);
+      this.addCanteen = this.addCanteen.bind(this);
+      this.removeCanteen = this.removeCanteen.bind(this);
+      this.canteenRota = this.canteenRota.bind(this);
+      this.canteenHistory = this.canteenHistory.bind(this);
+    }
+    /** GET /canteen-history — recent canteen duties for a watch, newest first */
+    async canteenHistory(params) {
+      const query = makeRecord({
+        watch: params.watch,
+        limit: params.limit === void 0 ? void 0 : String(params.limit)
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/canteen-history`, void 0, { query });
+      return await resp.json();
+    }
+    /** GET /canteen — who's on canteen for one shift */
+    async listCanteen(params) {
+      const query = makeRecord({
+        watch: params.watch,
+        "shift_date": params["shift_date"],
+        "shift_type": params["shift_type"]
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/canteen`, void 0, { query });
+      return await resp.json();
+    }
+    /** POST /canteen — put someone on canteen for a shift (WC/CC, at most two) */
+    async addCanteen(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/canteen`, JSON.stringify(params));
+      return await resp.json();
+    }
+    /** DELETE /canteen/:id — take someone off canteen (WC/CC) */
+    async removeCanteen(id) {
+      const resp = await this.baseClient.callTypedAPI("DELETE", `/canteen/${encodeURIComponent(id)}`);
+      return await resp.json();
+    }
+    /** GET /canteen-rota — the watch, longest since canteen first */
+    async canteenRota(params) {
+      const query = makeRecord({ watch: params.watch });
+      const resp = await this.baseClient.callTypedAPI("GET", `/canteen-rota`, void 0, { query });
+      return await resp.json();
+    }
+    /**
+     * POST /crewing — add a crew member to an appliance for a shift
+     */
+    async add(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/crewing`, JSON.stringify(params));
+      return await resp.json();
+    }
+    /**
+     * POST /crewing/copy-previous
+     * Copies crewing from the most recent previous shift of the same type for this watch.
+     * Change-of-shift (external) entries are NOT copied — they're specific to their shift.
+     * Any existing crewing for the target date is replaced.
+     */
+    async copyPrevious(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/crewing/copy-previous`, JSON.stringify(params));
+      return await resp.json();
+    }
+    /**
+     * GET /crewing — returns all crewing entries for a specific watch/date/shift
+     */
+    async list(params) {
+      const query = makeRecord({
+        "shift_date": params["shift_date"],
+        "shift_type": String(params["shift_type"]),
+        watch: params.watch
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/crewing`, void 0, { query });
+      return await resp.json();
+    }
+    /**
+     * DELETE /crewing/:id — remove a crew member from a shift
+     */
+    async remove(id) {
+      const resp = await this.baseClient.callTypedAPI("DELETE", `/crewing/${encodeURIComponent(id)}`);
+      return await resp.json();
+    }
+    /**
+     * GET /crewing/roster
+     * Returns all active WC/CC/FF members for a watch, checking BOTH
+     * users.watch_unit AND firefighter_profiles.watch so no one is missed
+     * regardless of which column was populated for their account.
+     */
+    async roster(params) {
+      const query = makeRecord({
+        watch: params.watch
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/crewing/roster`, void 0, { query });
+      return await resp.json();
+    }
+    /**
+     * GET /crewing/strength — how many each of a watch's shifts can ride,
+     * for the calendar's riding count. WC/CC only.
+     */
+    async strength(params) {
+      const query = makeRecord({
+        "end_date": params["end_date"],
+        "start_date": params["start_date"],
+        watch: params.watch
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/crewing/strength`, void 0, { query });
+      return await resp.json();
+    }
+  }
+  crewing2.ServiceClient = ServiceClient;
+})(crewing || (crewing = {}));
+var detachments;
+((detachments2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.create = this.create.bind(this);
+      this.getRota = this.getRota.bind(this);
+      this.list = this.list.bind(this);
+    }
+    /**
+     * POST /detachments — record a firefighter detachment event
+     */
+    async create(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/api/detachments`, JSON.stringify(params));
+      return await resp.json();
+    }
+    /**
+     * GET /detachments/rota — fairness rota: all watch members sorted by last detachment (oldest first = next in line)
+     */
+    async getRota(params) {
+      const query = makeRecord({
+        watch: params.watch
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/detachments/rota`, void 0, { query });
+      return await resp.json();
+    }
+    /**
+     * GET /detachments — list detachment history, optionally filtered by watch
+     */
+    async list(params) {
+      const query = makeRecord({
+        limit: params.limit === void 0 ? void 0 : String(params.limit),
+        offset: params.offset === void 0 ? void 0 : String(params.offset),
+        watch: params.watch
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/detachments`, void 0, { query });
+      return await resp.json();
+    }
+  }
+  detachments2.ServiceClient = ServiceClient;
+})(detachments || (detachments = {}));
+var dictionary;
+((dictionary2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.create = this.create.bind(this);
+      this.deleteDictionary = this.deleteDictionary.bind(this);
+      this.list = this.list.bind(this);
+      this.update = this.update.bind(this);
+    }
+    async create(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/dictionary`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async deleteDictionary(id) {
+      const resp = await this.baseClient.callTypedAPI("DELETE", `/dictionary/${encodeURIComponent(id)}`);
+      return await resp.json();
+    }
+    async list(params) {
+      const query = makeRecord({
+        active: params.active === void 0 ? void 0 : String(params.active),
+        type: params.type === void 0 ? void 0 : String(params.type)
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/dictionary`, void 0, { query });
+      return await resp.json();
+    }
+    async update(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/dictionary/${encodeURIComponent(id)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+  }
+  dictionary2.ServiceClient = ServiceClient;
+})(dictionary || (dictionary = {}));
+var frontend;
+((frontend2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.assets = this.assets.bind(this);
+    }
+    /**
+     * ──────────────────────────────────────────────────────────────────────────────
+     * Security headers for the static frontend.
+     * NOTE: Encore statically analyses api.static() at build time, so the `headers`
+     * option MUST be an inline object literal — referencing an imported constant
+     * fails the build ("headers must be an object"). Kept inline for that reason;
+     * the accompanying doc lives in observability/security_headers.ts.
+     * CSP is tight: self-only with inline styles for Tailwind + React style props,
+     * data: for icons, https: for images. All other directives locked down. HSTS,
+     * X-Frame-Options, nosniff, Referrer-Policy, Permissions-Policy round out the
+     * hardening baseline we lost when we moved off Vercel.
+     * ──────────────────────────────────────────────────────────────────────────────
+     */
+    async assets(path) {
+      await this.baseClient.callTypedAPI("HEAD", `/${path.map(encodeURIComponent).join("/")}`);
+    }
+  }
+  frontend2.ServiceClient = ServiceClient;
+})(frontend || (frontend = {}));
+var h4h;
+((h4h2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.list = this.list.bind(this);
+      this.settle = this.settle.bind(this);
+    }
+    async list(params) {
+      const query = makeRecord({
+        status: params.status === void 0 ? void 0 : String(params.status),
+        "user_id": params["user_id"]
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/h4h`, void 0, { query });
+      return await resp.json();
+    }
+    async settle(id) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/h4h/${encodeURIComponent(id)}/settle`);
+      return await resp.json();
+    }
+  }
+  h4h2.ServiceClient = ServiceClient;
+})(h4h || (h4h = {}));
+var handover;
+((handover2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.create = this.create.bind(this);
+      this.deleteHandover = this.deleteHandover.bind(this);
+      this.getLatest = this.getLatest.bind(this);
+      this.list = this.list.bind(this);
+      this.update = this.update.bind(this);
+      this.boardNotes = this.boardNotes.bind(this);
+      this.markRead = this.markRead.bind(this);
+    }
+    async boardNotes(params) {
+      const query = makeRecord({ watch: params.watch });
+      const resp = await this.baseClient.callTypedAPI("GET", `/handovers/notes`, void 0, { query });
+      return await resp.json();
+    }
+    async markRead(id, params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/handovers/${encodeURIComponent(id)}/read`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async create(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/handovers`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async deleteHandover(id) {
+      const resp = await this.baseClient.callTypedAPI("DELETE", `/handovers/${encodeURIComponent(id)}`);
+      return await resp.json();
+    }
+    async getLatest(params) {
+      const query = makeRecord({
+        watch: params.watch
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/handovers/latest`, void 0, { query });
+      return await resp.json();
+    }
+    async list(params) {
+      const query = makeRecord({
+        limit: params.limit === void 0 ? void 0 : String(params.limit),
+        offset: params.offset === void 0 ? void 0 : String(params.offset),
+        watch: params.watch
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/handovers`, void 0, { query });
+      return await resp.json();
+    }
+    async update(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/handovers/${encodeURIComponent(id)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+  }
+  handover2.ServiceClient = ServiceClient;
+})(handover || (handover = {}));
+var hydrants;
+((hydrants2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.getHydrantRoute = this.getHydrantRoute.bind(this);
+      this.getHydrantSummary = this.getHydrantSummary.bind(this);
+      this.saveHydrantInspection = this.saveHydrantInspection.bind(this);
+      this.clearHydrantInspection = this.clearHydrantInspection.bind(this);
+      this.setHydrantInUse = this.setHydrantInUse.bind(this);
+      this.markHydrantsReported = this.markHydrantsReported.bind(this);
+      this.importHydrants = this.importHydrants.bind(this);
+    }
+    /** One watch's hydrant routes for a year, hydrant by hydrant. */
+    async getHydrantRoute(params) {
+      const query = makeRecord({
+        watch: params.watch,
+        year: params.year === void 0 ? void 0 : String(params.year)
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/hydrants/route`, void 0, { query });
+      return await resp.json();
+    }
+    /** Every watch's hydrant total and progress for a year. */
+    async getHydrantSummary(params) {
+      const query = makeRecord({
+        year: params.year === void 0 ? void 0 : String(params.year)
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/hydrants/summary`, void 0, { query });
+      return await resp.json();
+    }
+    /** Tick a hydrant (first tick = 1 Fully functional, 1 Tested, lid secured, no trip hazard) or change its result. */
+    async saveHydrantInspection(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PUT", `/hydrants/${encodeURIComponent(id)}/inspection`, JSON.stringify(params));
+      return await resp.json();
+    }
+    /** Untick a hydrant for a year. */
+    async clearHydrantInspection(id, params) {
+      const query = makeRecord({ year: String(params.year) });
+      await this.baseClient.callTypedAPI("DELETE", `/hydrants/${encodeURIComponent(id)}/inspection`, void 0, { query });
+    }
+    /** After the fault report is emailed: mark those hydrants reported (WC/CC). */
+    async markHydrantsReported(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/hydrants/reported`, JSON.stringify(params));
+      return await resp.json();
+    }
+    /** Mark a hydrant abandoned/removed, or back in use (WC/CC). */
+    async setHydrantInUse(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/hydrants/${encodeURIComponent(id)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+    /** Load or refresh the route sheets (WC/CC). */
+    async importHydrants(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/hydrants/import`, JSON.stringify(params));
+      return await resp.json();
+    }
+  }
+  hydrants2.ServiceClient = ServiceClient;
+})(hydrants || (hydrants = {}));
+var inspection;
+((inspection2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.create = this.create.bind(this);
+      this.list = this.list.bind(this);
+      this.update = this.update.bind(this);
+    }
+    async create(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/inspections`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async list(params) {
+      const query = makeRecord({
+        "inspection_type": params["inspection_type"],
+        "inspector_id": params["inspector_id"],
+        limit: params.limit === void 0 ? void 0 : String(params.limit),
+        offset: params.offset === void 0 ? void 0 : String(params.offset),
+        status: params.status === void 0 ? void 0 : String(params.status)
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/inspections`, void 0, { query });
+      return await resp.json();
+    }
+    async update(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/inspections/${encodeURIComponent(id)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+  }
+  inspection2.ServiceClient = ServiceClient;
+})(inspection || (inspection = {}));
+var inspection_plans;
+((inspection_plans2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.createCareHome = this.createCareHome.bind(this);
+      this.createHydrant = this.createHydrant.bind(this);
+      this.createMultistory = this.createMultistory.bind(this);
+      this.createOperational = this.createOperational.bind(this);
+      this.deleteCareHome = this.deleteCareHome.bind(this);
+      this.deleteHydrant = this.deleteHydrant.bind(this);
+      this.deleteMultistory = this.deleteMultistory.bind(this);
+      this.deleteOperational = this.deleteOperational.bind(this);
+      this.generateAssignments = this.generateAssignments.bind(this);
+      this.listAssignments = this.listAssignments.bind(this);
+      this.listCareHomes = this.listCareHomes.bind(this);
+      this.listHydrants = this.listHydrants.bind(this);
+      this.listMultistory = this.listMultistory.bind(this);
+      this.listOperational = this.listOperational.bind(this);
+      this.updateAssignment = this.updateAssignment.bind(this);
+      this.updateCareHome = this.updateCareHome.bind(this);
+      this.updateHydrant = this.updateHydrant.bind(this);
+      this.updateMultistory = this.updateMultistory.bind(this);
+      this.updateOperational = this.updateOperational.bind(this);
+    }
+    async createCareHome(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/inspection-plans/care-homes`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async createHydrant(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/inspection-plans/hydrants`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async createMultistory(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/inspection-plans/multistory`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async createOperational(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/inspection-plans/operational`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async deleteCareHome(id) {
+      await this.baseClient.callTypedAPI("DELETE", `/inspection-plans/care-homes/${encodeURIComponent(id)}`);
+    }
+    async deleteHydrant(id) {
+      await this.baseClient.callTypedAPI("DELETE", `/inspection-plans/hydrants/${encodeURIComponent(id)}`);
+    }
+    async deleteMultistory(id) {
+      await this.baseClient.callTypedAPI("DELETE", `/inspection-plans/multistory/${encodeURIComponent(id)}`);
+    }
+    async deleteOperational(id) {
+      await this.baseClient.callTypedAPI("DELETE", `/inspection-plans/operational/${encodeURIComponent(id)}`);
+    }
+    /**
+     * POST /inspection-plans/assignments/generate
+     * WC/CC only — reads the 4 plan tables and creates assignments for the given year.
+     * Passing quarter= limits multi-story to that quarter only; omitting it generates all quarters.
+     * Care homes always generate annual assignments (quarter = null) for ALL watches.
+     * Hydrants + OIs generate annual assignments for their own watch field.
+     * Uses ON CONFLICT DO NOTHING so it is safe to re-run.
+     */
+    async generateAssignments(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/inspection-plans/assignments/generate`, JSON.stringify(params));
+      return await resp.json();
+    }
+    /**
+     * GET /inspection-plans/assignments
+     * Returns assignments filtered by optional watch, year, quarter, plan_type, status.
+     */
+    async listAssignments(params) {
+      const query = makeRecord({
+        "plan_type": params["plan_type"],
+        quarter: params.quarter === void 0 ? void 0 : String(params.quarter),
+        status: params.status,
+        watch: params.watch,
+        year: params.year === void 0 ? void 0 : String(params.year)
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/inspection-plans/assignments`, void 0, { query });
+      return await resp.json();
+    }
+    async listCareHomes() {
+      const resp = await this.baseClient.callTypedAPI("GET", `/inspection-plans/care-homes`);
+      return await resp.json();
+    }
+    async listHydrants() {
+      const resp = await this.baseClient.callTypedAPI("GET", `/inspection-plans/hydrants`);
+      return await resp.json();
+    }
+    async listMultistory() {
+      const resp = await this.baseClient.callTypedAPI("GET", `/inspection-plans/multistory`);
+      return await resp.json();
+    }
+    async listOperational() {
+      const resp = await this.baseClient.callTypedAPI("GET", `/inspection-plans/operational`);
+      return await resp.json();
+    }
+    /**
+     * PATCH /inspection-plans/assignments/:id
+     * WC/CC only — marks an assignment complete or reverts it to pending.
+     * Side-effect: if the assignment is multistory, recalculates the HighRise target
+     * actual_count for the assignment's year so the Targets dashboard stays in sync.
+     */
+    async updateAssignment(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/inspection-plans/assignments/${encodeURIComponent(id)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async updateCareHome(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/inspection-plans/care-homes/${encodeURIComponent(id)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async updateHydrant(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/inspection-plans/hydrants/${encodeURIComponent(id)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async updateMultistory(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/inspection-plans/multistory/${encodeURIComponent(id)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async updateOperational(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/inspection-plans/operational/${encodeURIComponent(id)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+  }
+  inspection_plans2.ServiceClient = ServiceClient;
+})(inspection_plans || (inspection_plans = {}));
+var localauth;
+((localauth2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.changePassword = this.changePassword.bind(this);
+      this.forgotPassword = this.forgotPassword.bind(this);
+      this.resetPassword = this.resetPassword.bind(this);
+      this.signIn = this.signIn.bind(this);
+      this.signOut = this.signOut.bind(this);
+      this.signUp = this.signUp.bind(this);
+    }
+    async changePassword(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/auth/change-password`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async forgotPassword(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/auth/forgot-password`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async resetPassword(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/auth/reset-password`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async signIn(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/auth/signin`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async signOut() {
+      const resp = await this.baseClient.callTypedAPI("POST", `/auth/signout`);
+      return await resp.json();
+    }
+    async signUp(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/auth/signup`, JSON.stringify(params));
+      return await resp.json();
+    }
+  }
+  localauth2.ServiceClient = ServiceClient;
+})(localauth || (localauth = {}));
+var mock;
+((mock2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.createMockAbsence = this.createMockAbsence.bind(this);
+      this.createSkill = this.createSkill.bind(this);
+      this.getAbsenceTriggers = this.getAbsenceTriggers.bind(this);
+      this.getMockAbsences = this.getMockAbsences.bind(this);
+      this.getMockInspection = this.getMockInspection.bind(this);
+      this.getMockInspections = this.getMockInspections.bind(this);
+      this.getMockPeople = this.getMockPeople.bind(this);
+      this.getMockPerson = this.getMockPerson.bind(this);
+      this.getMockPolicyDocs = this.getMockPolicyDocs.bind(this);
+      this.getMockPolicyQueries = this.getMockPolicyQueries.bind(this);
+      this.getMockTarget = this.getMockTarget.bind(this);
+      this.getMockTargets = this.getMockTargets.bind(this);
+      this.getMockTask = this.getMockTask.bind(this);
+      this.getMockTasks = this.getMockTasks.bind(this);
+      this.getMockUser = this.getMockUser.bind(this);
+      this.getMockUsers = this.getMockUsers.bind(this);
+      this.getSkills = this.getSkills.bind(this);
+      this.mockAskPolicy = this.mockAskPolicy.bind(this);
+      this.updateAbsenceTriggers = this.updateAbsenceTriggers.bind(this);
+      this.updateMockPerson = this.updateMockPerson.bind(this);
+    }
+    async createMockAbsence(id, params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/api/mock/people/${encodeURIComponent(id)}/absences`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async createSkill(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/api/dictionaries/skills`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async getAbsenceTriggers() {
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/settings/absence-triggers`);
+      return await resp.json();
+    }
+    async getMockAbsences(id) {
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/people/${encodeURIComponent(id)}/absences`);
+      return await resp.json();
+    }
+    async getMockInspection(id) {
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/inspections/${encodeURIComponent(id)}`);
+      return await resp.json();
+    }
+    async getMockInspections(params) {
+      const query = makeRecord({
+        status: params.status,
+        type: params.type
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/inspections`, void 0, { query });
+      return await resp.json();
+    }
+    async getMockPeople() {
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/people`);
+      return await resp.json();
+    }
+    async getMockPerson(id) {
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/people/${encodeURIComponent(id)}`);
+      return await resp.json();
+    }
+    async getMockPolicyDocs(params) {
+      const query = makeRecord({
+        category: params.category
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/policies/docs`, void 0, { query });
+      return await resp.json();
+    }
+    async getMockPolicyQueries(params) {
+      const query = makeRecord({
+        "user_id": params["user_id"]
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/policies/queries`, void 0, { query });
+      return await resp.json();
+    }
+    async getMockTarget(id) {
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/targets/${encodeURIComponent(id)}`);
+      return await resp.json();
+    }
+    async getMockTargets(params) {
+      const query = makeRecord({
+        metric: params.metric,
+        status: params.status
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/targets`, void 0, { query });
+      return await resp.json();
+    }
+    async getMockTask(id) {
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/tasks/${encodeURIComponent(id)}`);
+      return await resp.json();
+    }
+    async getMockTasks(params) {
+      const query = makeRecord({
+        "assigned_to": params["assigned_to"],
+        status: params.status
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/tasks`, void 0, { query });
+      return await resp.json();
+    }
+    async getMockUser(id) {
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/users/${encodeURIComponent(id)}`);
+      return await resp.json();
+    }
+    async getMockUsers(params) {
+      const query = makeRecord({
+        role: params.role
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/users`, void 0, { query });
+      return await resp.json();
+    }
+    async getSkills() {
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/dictionaries/skills`);
+      return await resp.json();
+    }
+    async mockAskPolicy(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/api/mock/policies/ask`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async updateAbsenceTriggers(params) {
+      const resp = await this.baseClient.callTypedAPI("PUT", `/api/settings/absence-triggers`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async updateMockPerson(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PUT", `/api/mock/people/${encodeURIComponent(id)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+  }
+  mock2.ServiceClient = ServiceClient;
+})(mock || (mock = {}));
+var note;
+((note2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.create = this.create.bind(this);
+      this.deleteNote = this.deleteNote.bind(this);
+      this.list = this.list.bind(this);
+      this.update = this.update.bind(this);
+      this.uploadFile = this.uploadFile.bind(this);
+    }
+    async create(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/notes`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async deleteNote(id) {
+      const resp = await this.baseClient.callTypedAPI("DELETE", `/notes/${encodeURIComponent(id)}`);
+      return await resp.json();
+    }
+    async list(params) {
+      const query = makeRecord({
+        "profile_id": params["profile_id"] === void 0 ? void 0 : String(params["profile_id"]),
+        "user_id": params["user_id"]
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/notes`, void 0, { query });
+      return await resp.json();
+    }
+    async update(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/notes/${encodeURIComponent(id)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+    /**
+     * Attaches a file to one of your notes (raw endpoint: the file is the body).
+     */
+    async uploadFile(note_id, file, filename) {
+      await this.baseClient.callAPI("POST", `/notes/${encodeURIComponent(note_id)}/files`, file, {
+        query: { filename },
+        headers: { "Content-Type": file.type || "application/octet-stream" }
+      });
+    }
+  }
+  note2.ServiceClient = ServiceClient;
+})(note || (note = {}));
+var notification;
+((notification2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.list = this.list.bind(this);
+      this.markAllRead = this.markAllRead.bind(this);
+      this.markRead = this.markRead.bind(this);
+      this.refresh = this.refresh.bind(this);
+    }
+    async list() {
+      const resp = await this.baseClient.callTypedAPI("GET", `/notifications`);
+      return await resp.json();
+    }
+    async markAllRead() {
+      const resp = await this.baseClient.callTypedAPI("POST", `/notifications/read-all`);
+      return await resp.json();
+    }
+    async markRead(id) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/notifications/${encodeURIComponent(id)}/read`);
+      return await resp.json();
+    }
+    /**
+     * Refreshes notifications for the current user.
+     * Generates cert_expiry, task_overdue, and crewing_gap notifications.
+     * Deduplicates: will not create a duplicate notification for the same entity
+     * if one already exists that is unread.
+     */
+    async refresh() {
+      const resp = await this.baseClient.callTypedAPI("POST", `/notifications/refresh`);
+      return await resp.json();
+    }
+  }
+  notification2.ServiceClient = ServiceClient;
+})(notification || (notification = {}));
+var policy;
+((policy2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.ask = this.ask.bind(this);
+      this.deletePolicy = this.deletePolicy.bind(this);
+      this.getDownloadUrl = this.getDownloadUrl.bind(this);
+      this.list = this.list.bind(this);
+      this.processEmbedding = this.processEmbedding.bind(this);
+      this.queryHistory = this.queryHistory.bind(this);
+      this.upload = this.upload.bind(this);
+      this.uploadFile = this.uploadFile.bind(this);
+      this.acknowledge = this.acknowledge.bind(this);
+      this.setRequiresAck = this.setRequiresAck.bind(this);
+      this.getStats = this.getStats.bind(this);
+    }
+    async acknowledge(id) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/policies/${encodeURIComponent(id)}/acknowledge`);
+      return await resp.json();
+    }
+    async setRequiresAck(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/policies/${encodeURIComponent(id)}/require-ack`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async getStats(id) {
+      const resp = await this.baseClient.callTypedAPI("GET", `/policies/${encodeURIComponent(id)}/stats`);
+      return await resp.json();
+    }
+    async ask(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/policies/ask`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async deletePolicy(id) {
+      const resp = await this.baseClient.callTypedAPI("DELETE", `/policies/${encodeURIComponent(id)}`);
+      return await resp.json();
+    }
+    async getDownloadUrl(id) {
+      const resp = await this.baseClient.callTypedAPI("GET", `/policies/${encodeURIComponent(id)}/download-url`);
+      return await resp.json();
+    }
+    async list(params) {
+      const query = makeRecord({
+        category: params.category,
+        limit: params.limit === void 0 ? void 0 : String(params.limit),
+        offset: params.offset === void 0 ? void 0 : String(params.offset)
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/policies`, void 0, { query });
+      return await resp.json();
+    }
+    async processEmbedding(policy_id) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/policies/${encodeURIComponent(policy_id)}/embed`);
+      return await resp.json();
+    }
+    async queryHistory(params) {
+      const query = makeRecord({
+        limit: params.limit === void 0 ? void 0 : String(params.limit),
+        offset: params.offset === void 0 ? void 0 : String(params.offset),
+        "user_id": params["user_id"]
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/policies/queries`, void 0, { query });
+      return await resp.json();
+    }
+    async upload(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/api/policies`, JSON.stringify(params));
+      return await resp.json();
+    }
+    /**
+     * Stores a policy PDF (raw endpoint: the file is the body). Save the record with upload() after.
+     */
+    async uploadFile(file, filename) {
+      const resp = await this.baseClient.callAPI("POST", `/policies/files`, file, {
+        query: { filename },
+        headers: { "Content-Type": "application/pdf" }
+      });
+      return await resp.json();
+    }
+  }
+  policy2.ServiceClient = ServiceClient;
+})(policy || (policy = {}));
+var profile;
+((profile2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.create = this.create.bind(this);
+      this.createPerson = this.createPerson.bind(this);
+      this.getByUser = this.getByUser.bind(this);
+      this.profileHistory = this.profileHistory.bind(this);
+      this.importNotionPersonnel = this.importNotionPersonnel.bind(this);
+      this.list = this.list.bind(this);
+      this.listWithUsers = this.listWithUsers.bind(this);
+      this.recalculateTriggers = this.recalculateTriggers.bind(this);
+      this.update = this.update.bind(this);
+    }
+    async create(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/profiles`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async createPerson(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/api/people`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async getByUser(user_id) {
+      const resp = await this.baseClient.callTypedAPI("GET", `/profiles/user/${encodeURIComponent(user_id)}`);
+      return await resp.json();
+    }
+    async profileHistory(id, params = {}) {
+      const query = makeRecord({ limit: params.limit === void 0 ? void 0 : String(params.limit) });
+      const resp = await this.baseClient.callTypedAPI("GET", `/profiles/${encodeURIComponent(id)}/history`, void 0, { query });
+      return await resp.json();
+    }
+    async importNotionPersonnel(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/import/notion-personnel`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async list(params) {
+      const query = makeRecord({
+        limit: params.limit === void 0 ? void 0 : String(params.limit),
+        offset: params.offset === void 0 ? void 0 : String(params.offset),
+        shift: params.shift,
+        station: params.station,
+        watch: params.watch
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/profiles`, void 0, { query });
+      return await resp.json();
+    }
+    async listWithUsers(params) {
+      const query = makeRecord({
+        limit: params.limit === void 0 ? void 0 : String(params.limit),
+        offset: params.offset === void 0 ? void 0 : String(params.offset),
+        rank: params.rank,
+        shift: params.shift,
+        station: params.station,
+        status: params.status === void 0 ? void 0 : String(params.status),
+        "watch_unit": params["watch_unit"]
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/people`, void 0, { query });
+      return await resp.json();
+    }
+    async recalculateTriggers(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/profile/recalculate-triggers`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async update(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/profiles/${encodeURIComponent(id)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+  }
+  profile2.ServiceClient = ServiceClient;
+})(profile || (profile = {}));
+var quarterly_report;
+((quarterly_report2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.addCustomItem = this.addCustomItem.bind(this);
+      this.create = this.create.bind(this);
+      this.deleteCustomItem = this.deleteCustomItem.bind(this);
+      this.get = this.get.bind(this);
+      this.list = this.list.bind(this);
+      this.updateCustomItem = this.updateCustomItem.bind(this);
+      this.updateItem = this.updateItem.bind(this);
+      this.updateReport = this.updateReport.bind(this);
+    }
+    async addCustomItem(id, params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/quarterly-reports/${encodeURIComponent(id)}/custom-items`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async create(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/quarterly-reports`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async deleteCustomItem(id, itemId) {
+      await this.baseClient.callTypedAPI("DELETE", `/quarterly-reports/${encodeURIComponent(id)}/custom-items/${encodeURIComponent(itemId)}`);
+    }
+    async get(id) {
+      const resp = await this.baseClient.callTypedAPI("GET", `/quarterly-reports/${encodeURIComponent(id)}`);
+      return await resp.json();
+    }
+    async list(params) {
+      const query = makeRecord({
+        "financial_year": params["financial_year"] === void 0 ? void 0 : String(params["financial_year"]),
+        quarter: params.quarter === void 0 ? void 0 : String(params.quarter),
+        watch: params.watch
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/quarterly-reports`, void 0, { query });
+      return await resp.json();
+    }
+    async updateCustomItem(id, itemId, params) {
+      const resp = await this.baseClient.callTypedAPI("PUT", `/quarterly-reports/${encodeURIComponent(id)}/custom-items/${encodeURIComponent(itemId)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async updateItem(id, itemId, params) {
+      const resp = await this.baseClient.callTypedAPI("PUT", `/quarterly-reports/${encodeURIComponent(id)}/items/${encodeURIComponent(itemId)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async updateReport(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PUT", `/quarterly-reports/${encodeURIComponent(id)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+  }
+  quarterly_report2.ServiceClient = ServiceClient;
+})(quarterly_report || (quarterly_report = {}));
+var references;
+((references2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.listReferences = this.listReferences.bind(this);
+      this.saveReference = this.saveReference.bind(this);
+      this.saveReferenceCards = this.saveReferenceCards.bind(this);
+    }
+    /** Set a reference's monthly / quarterly / annual cards (WC/CC). No checks = switched off. */
+    async saveReferenceCards(ref, params) {
+      const resp = await this.baseClient.callTypedAPI("PUT", `/station-references/${encodeURIComponent(ref)}/cards`, JSON.stringify(params));
+      return await resp.json();
+    }
+    /** Every station reference's title and duties (0 = all watches). */
+    async listReferences() {
+      const resp = await this.baseClient.callTypedAPI("GET", `/station-references`);
+      return await resp.json();
+    }
+    /** Set a reference's title and duties (WC/CC). */
+    async saveReference(ref, params) {
+      const resp = await this.baseClient.callTypedAPI("PUT", `/station-references/${encodeURIComponent(ref)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+  }
+  references2.ServiceClient = ServiceClient;
+})(references || (references = {}));
+var report;
+((report2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.exportCsv = this.exportCsv.bind(this);
+      this.importStaffCsv = this.importStaffCsv.bind(this);
+    }
+    async exportCsv(table, params) {
+      const query = makeRecord({
+        "user_id": params["user_id"]
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/reports/export/${encodeURIComponent(table)}`, void 0, { query });
+      return await resp.json();
+    }
+    async importStaffCsv(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/reports/import-staff`, JSON.stringify(params));
+      return await resp.json();
+    }
+  }
+  report2.ServiceClient = ServiceClient;
+})(report || (report = {}));
+var schedule;
+((schedule2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.list = this.list.bind(this);
+    }
+    async list(params) {
+      const qs = [];
+      if (params == null ? void 0 : params.from) qs.push(`from=${encodeURIComponent(params.from)}`);
+      if (params == null ? void 0 : params.to) qs.push(`to=${encodeURIComponent(params.to)}`);
+      const q = qs.length ? `?${qs.join("&")}` : "";
+      const resp = await this.baseClient.callTypedAPI("GET", `/schedule${q}`);
+      return await resp.json();
+    }
+  }
+  schedule2.ServiceClient = ServiceClient;
+})(schedule || (schedule = {}));
+var settings;
+((settings2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.get = this.get.bind(this);
+      this.updateAbsenceThresholds = this.updateAbsenceThresholds.bind(this);
+      this.updateBranding = this.updateBranding.bind(this);
+      this.updateFeatureFlags = this.updateFeatureFlags.bind(this);
+      this.updateSkillsCerts = this.updateSkillsCerts.bind(this);
+      this.updateTriggerThresholds = this.updateTriggerThresholds.bind(this);
+    }
+    async get() {
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/settings`);
+      return await resp.json();
+    }
+    async updateAbsenceThresholds(params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/settings/absence-thresholds`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async updateBranding(params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/settings/branding`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async updateFeatureFlags(params) {
+      const resp = await this.baseClient.callTypedAPI("PUT", `/settings/feature-flags`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async updateSkillsCerts(params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/settings/skills-certs`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async updateTriggerThresholds(params) {
+      const resp = await this.baseClient.callTypedAPI("PUT", `/settings/trigger-thresholds`, JSON.stringify(params));
+      return await resp.json();
+    }
+  }
+  settings2.ServiceClient = ServiceClient;
+})(settings || (settings = {}));
+var shift_adjustments;
+((shift_adjustments2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.create = this.create.bind(this);
+      this.deleteAdjustment = this.deleteAdjustment.bind(this);
+      this.list = this.list.bind(this);
+      this.update = this.update.bind(this);
+      this.previewRequest = this.previewRequest.bind(this);
+      this.createRequest = this.createRequest.bind(this);
+      this.getRequest = this.getRequest.bind(this);
+      this.confirmCover = this.confirmCover.bind(this);
+      this.decideRequest = this.decideRequest.bind(this);
+      this.recordOutcome = this.recordOutcome.bind(this);
+      this.withdrawRequest = this.withdrawRequest.bind(this);
+      this.addPayback = this.addPayback.bind(this);
+      this.decidePayback = this.decidePayback.bind(this);
+      this.listRequests = this.listRequests.bind(this);
+      this.requestsNeedingMe = this.requestsNeedingMe.bind(this);
+      this.listReviewers = this.listReviewers.bind(this);
+      this.flexiBalances = this.flexiBalances.bind(this);
+      this.setFlexiOpening = this.setFlexiOpening.bind(this);
+      this.setFlexiLimits = this.setFlexiLimits.bind(this);
+    }
+    async previewRequest(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests/preview`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async createRequest(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async getRequest(id) {
+      const resp = await this.baseClient.callTypedAPI("GET", `/shift-requests/record/${encodeURIComponent(id)}`);
+      return await resp.json();
+    }
+    async confirmCover(id, params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests/${encodeURIComponent(id)}/confirm-cover`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async decideRequest(id, params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests/${encodeURIComponent(id)}/decide`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async recordOutcome(id, params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests/${encodeURIComponent(id)}/outcome`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async withdrawRequest(id, params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests/${encodeURIComponent(id)}/withdraw`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async addPayback(id, params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests/${encodeURIComponent(id)}/payback`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async decidePayback(id, params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests/${encodeURIComponent(id)}/payback-decision`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async listRequests(params) {
+      const query = makeRecord({
+        scope: params.scope,
+        year: params.year === void 0 ? void 0 : String(params.year)
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/shift-requests`, void 0, { query });
+      return await resp.json();
+    }
+    async requestsNeedingMe() {
+      const resp = await this.baseClient.callTypedAPI("GET", `/shift-requests/needs-me`);
+      return await resp.json();
+    }
+    async listReviewers() {
+      const resp = await this.baseClient.callTypedAPI("GET", `/shift-requests/reviewers`);
+      return await resp.json();
+    }
+    async flexiBalances(params) {
+      const query = makeRecord({
+        watch: params.watch,
+        year: params.year === void 0 ? void 0 : String(params.year)
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/shift-requests/balances`, void 0, { query });
+      return await resp.json();
+    }
+    async setFlexiOpening(params) {
+      const resp = await this.baseClient.callTypedAPI("PUT", `/shift-requests/balances`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async setFlexiLimits(params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/shift-requests/limits`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async create(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/shift-adjustments`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async deleteAdjustment(id) {
+      await this.baseClient.callTypedAPI("DELETE", `/shift-adjustments/${encodeURIComponent(id)}`);
+    }
+    async list(params) {
+      const query = makeRecord({
+        "covering_watch": params["covering_watch"],
+        "end_date": params["end_date"],
+        id: params.id === void 0 ? void 0 : String(params.id),
+        "involving_user_id": params["involving_user_id"],
+        "start_date": params["start_date"],
+        "user_id": params["user_id"],
+        "watch_unit": params["watch_unit"]
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/shift-adjustments`, void 0, { query });
+      return await resp.json();
+    }
+    async update(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/shift-adjustments/${encodeURIComponent(id)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+  }
+  shift_adjustments2.ServiceClient = ServiceClient;
+})(shift_adjustments || (shift_adjustments = {}));
+var skill;
+((skill2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.create = this.create.bind(this);
+      this.deleteSkillRenewal = this.deleteSkillRenewal.bind(this);
+      this.list = this.list.bind(this);
+      this.listExpiring = this.listExpiring.bind(this);
+      this.update = this.update.bind(this);
+    }
+    async create(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/skills/renewals`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async deleteSkillRenewal(id) {
+      const resp = await this.baseClient.callTypedAPI("DELETE", `/skills/renewals/${encodeURIComponent(id)}`);
+      return await resp.json();
+    }
+    async list(params) {
+      const query = makeRecord({
+        "profile_id": String(params["profile_id"])
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/skills/renewals`, void 0, { query });
+      return await resp.json();
+    }
+    async listExpiring() {
+      const resp = await this.baseClient.callTypedAPI("GET", `/skills/renewals/expiring`);
+      return await resp.json();
+    }
+    async update(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/skills/renewals/${encodeURIComponent(id)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+  }
+  skill2.ServiceClient = ServiceClient;
+})(skill || (skill = {}));
+var targets;
+((targets2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.create = this.create.bind(this);
+      this.list = this.list.bind(this);
+      this.update = this.update.bind(this);
+    }
+    async create(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/api/targets`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async list(params) {
+      const query = makeRecord({
+        limit: params.limit === void 0 ? void 0 : String(params.limit),
+        metric: params.metric === void 0 ? void 0 : String(params.metric),
+        offset: params.offset === void 0 ? void 0 : String(params.offset),
+        "period_end": params["period_end"],
+        "period_start": params["period_start"],
+        status: params.status === void 0 ? void 0 : String(params.status)
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/targets`, void 0, { query });
+      return await resp.json();
+    }
+    async update(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/api/targets/${encodeURIComponent(id)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+  }
+  targets2.ServiceClient = ServiceClient;
+})(targets || (targets = {}));
+var task;
+((task2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.create = this.create.bind(this);
+      this.createColumn = this.createColumn.bind(this);
+      this.createTemplate = this.createTemplate.bind(this);
+      this.deleteColumn = this.deleteColumn.bind(this);
+      this.deleteTask = this.deleteTask.bind(this);
+      this.deleteTemplate = this.deleteTemplate.bind(this);
+      this.list = this.list.bind(this);
+      this.listColumns = this.listColumns.bind(this);
+      this.shiftBoard = this.shiftBoard.bind(this);
+      this.missedChecks = this.missedChecks.bind(this);
+      this.listTemplates = this.listTemplates.bind(this);
+      this.reorderColumns = this.reorderColumns.bind(this);
+      this.update = this.update.bind(this);
+      this.updateColumn = this.updateColumn.bind(this);
+      this.updateTemplate = this.updateTemplate.bind(this);
+      this.saveRoutine = this.saveRoutine.bind(this);
+    }
+    /** Set one weekly-routine slot's cards ('every', 'MO-day', 'MO-night'…). Cards left out are removed. */
+    async saveRoutine(slot, params) {
+      const resp = await this.baseClient.callTypedAPI("PUT", `/task-templates/routine/${encodeURIComponent(slot)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async create(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/api/tasks`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async createColumn(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/task-columns`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async createTemplate(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/task-templates`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async deleteColumn(id) {
+      await this.baseClient.callTypedAPI("DELETE", `/task-columns/${encodeURIComponent(id)}`);
+    }
+    async deleteTask(id) {
+      await this.baseClient.callTypedAPI("DELETE", `/api/tasks/${encodeURIComponent(id)}`);
+    }
+    async deleteTemplate(id) {
+      await this.baseClient.callTypedAPI("DELETE", `/task-templates/${encodeURIComponent(id)}`);
+    }
+    async list(params) {
+      const query = makeRecord({
+        "assigned_by": params["assigned_by"],
+        "assigned_to": params["assigned_to"],
+        limit: params.limit === void 0 ? void 0 : String(params.limit),
+        offset: params.offset === void 0 ? void 0 : String(params.offset),
+        priority: params.priority === void 0 ? void 0 : String(params.priority),
+        status: params.status === void 0 ? void 0 : String(params.status),
+        "watch_unit": params["watch_unit"]
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/tasks`, void 0, { query });
+      return await resp.json();
+    }
+    async missedChecks(params) {
+      const query = makeRecord({ days: params.days === void 0 ? void 0 : String(params.days) });
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/tasks/missed-checks`, void 0, { query });
+      return await resp.json();
+    }
+    async shiftBoard(params) {
+      const query = makeRecord({ watch: params.watch });
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/tasks/shift`, void 0, { query });
+      return await resp.json();
+    }
+    async listColumns() {
+      const resp = await this.baseClient.callTypedAPI("GET", `/task-columns`);
+      return await resp.json();
+    }
+    async listTemplates() {
+      const resp = await this.baseClient.callTypedAPI("GET", `/task-templates`);
+      return await resp.json();
+    }
+    async reorderColumns(params) {
+      await this.baseClient.callTypedAPI("POST", `/task-columns/reorder`, JSON.stringify(params));
+    }
+    async update(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/api/tasks/${encodeURIComponent(id)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async updateColumn(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/task-columns/${encodeURIComponent(id)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async updateTemplate(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/task-templates/${encodeURIComponent(id)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+  }
+  task2.ServiceClient = ServiceClient;
+})(task || (task = {}));
+var toil;
+((toil2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.approve = this.approve.bind(this);
+      this.balance = this.balance.bind(this);
+      this.earn = this.earn.bind(this);
+      this.list = this.list.bind(this);
+      this.update = this.update.bind(this);
+      this.deleteEntry = this.deleteEntry.bind(this);
+    }
+    /**
+     * PATCH /toil/:id/approve — WC/CC approves or rejects a pending TOIL entry
+     */
+    async approve(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/toil/${encodeURIComponent(id)}/approve`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async update(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/toil/${encodeURIComponent(id)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async deleteEntry(id) {
+      const resp = await this.baseClient.callTypedAPI("DELETE", `/toil/${encodeURIComponent(id)}`);
+      return await resp.json();
+    }
+    /**
+     * GET /toil/balance — Get TOIL balances for user(s)
+     */
+    async balance(params) {
+      const query = makeRecord({
+        "user_id": params["user_id"],
+        "watch_unit": params["watch_unit"],
+        year: params.year === void 0 ? void 0 : String(params.year)
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/toil/balance`, void 0, { query });
+      return await resp.json();
+    }
+    /**
+     * POST /toil/earn — Log TOIL hours earned (pending WC/CC approval)
+     */
+    async earn(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/toil/earn`, JSON.stringify(params));
+      return await resp.json();
+    }
+    /**
+     * GET /toil — List TOIL entries with optional filters
+     */
+    async list(params) {
+      const query = makeRecord({
+        "financial_year": params["financial_year"] === void 0 ? void 0 : String(params["financial_year"]),
+        status: params.status,
+        type: params.type,
+        "user_id": params["user_id"],
+        "watch_unit": params["watch_unit"]
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/toil`, void 0, { query });
+      return await resp.json();
+    }
+  }
+  toil2.ServiceClient = ServiceClient;
+})(toil || (toil = {}));
+var training;
+((training2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.addAttendance = this.addAttendance.bind(this);
+      this.create = this.create.bind(this);
+      this.get = this.get.bind(this);
+      this.list = this.list.bind(this);
+      this.removeAttendance = this.removeAttendance.bind(this);
+      this.update = this.update.bind(this);
+    }
+    async addAttendance(id, params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/api/training/${encodeURIComponent(id)}/attendance`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async create(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/api/training`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async get(id) {
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/training/${encodeURIComponent(id)}`);
+      return await resp.json();
+    }
+    async list(params) {
+      const query = makeRecord({
+        "end_date": params["end_date"],
+        limit: params.limit === void 0 ? void 0 : String(params.limit),
+        offset: params.offset === void 0 ? void 0 : String(params.offset),
+        "start_date": params["start_date"],
+        status: params.status,
+        watch: params.watch
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/training`, void 0, { query });
+      return await resp.json();
+    }
+    async removeAttendance(id, userId) {
+      const resp = await this.baseClient.callTypedAPI("DELETE", `/api/training/${encodeURIComponent(id)}/attendance/${encodeURIComponent(userId)}`);
+      return await resp.json();
+    }
+    async update(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PUT", `/api/training/${encodeURIComponent(id)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+  }
+  training2.ServiceClient = ServiceClient;
+})(training || (training = {}));
+var user;
+((user2) => {
+  class ServiceClient {
+    constructor(baseClient) {
+      this.baseClient = baseClient;
+      this.create = this.create.bind(this);
+      this.deleteUser = this.deleteUser.bind(this);
+      this.get = this.get.bind(this);
+      this.list = this.list.bind(this);
+      this.listBasic = this.listBasic.bind(this);
+      this.update = this.update.bind(this);
+    }
+    async create(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/users`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async deleteUser(id) {
+      await this.baseClient.callTypedAPI("DELETE", `/users/${encodeURIComponent(id)}`);
+    }
+    async get(id) {
+      const resp = await this.baseClient.callTypedAPI("GET", `/users/${encodeURIComponent(id)}`);
+      return await resp.json();
+    }
+    async list(params) {
+      const query = makeRecord({
+        limit: params.limit === void 0 ? void 0 : String(params.limit),
+        offset: params.offset === void 0 ? void 0 : String(params.offset),
+        role: params.role === void 0 ? void 0 : String(params.role)
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/users`, void 0, { query });
+      return await resp.json();
+    }
+    async listBasic() {
+      const resp = await this.baseClient.callTypedAPI("GET", `/users/basic`);
+      return await resp.json();
+    }
+    async update(id, params) {
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/users/${encodeURIComponent(id)}`, JSON.stringify(params));
+      return await resp.json();
+    }
+  }
+  user2.ServiceClient = ServiceClient;
+})(user || (user = {}));
+function encodeQuery(parts) {
+  const pairs = [];
+  for (const key2 in parts) {
+    const val = Array.isArray(parts[key2]) ? parts[key2] : [parts[key2]];
+    for (const v of val) {
+      pairs.push(`${key2}=${encodeURIComponent(v)}`);
+    }
+  }
+  return pairs.join("&");
+}
+function makeRecord(record) {
+  for (const key2 in record) {
+    if (record[key2] === void 0) {
+      delete record[key2];
+    }
+  }
+  return record;
+}
+function encodeWebSocketHeaders(headers) {
+  const base64encoded = btoa(JSON.stringify(headers)).replaceAll("=", "").replaceAll("+", "-").replaceAll("/", "_");
+  return "encore.dev.headers." + base64encoded;
+}
+class WebSocketConnection {
+  constructor(url, headers) {
+    this.hasUpdateHandlers = [];
+    let protocols = ["encore-ws"];
+    if (headers) {
+      protocols.push(encodeWebSocketHeaders(headers));
+    }
+    this.ws = new WebSocket(url, protocols);
+    this.on("error", () => {
+      this.resolveHasUpdateHandlers();
+    });
+    this.on("close", () => {
+      this.resolveHasUpdateHandlers();
+    });
+  }
+  resolveHasUpdateHandlers() {
+    const handlers = this.hasUpdateHandlers;
+    this.hasUpdateHandlers = [];
+    for (const handler of handlers) {
+      handler();
+    }
+  }
+  async hasUpdate() {
+    await new Promise((resolve) => {
+      this.hasUpdateHandlers.push(() => resolve(null));
+    });
+  }
+  on(type, handler) {
+    this.ws.addEventListener(type, handler);
+  }
+  off(type, handler) {
+    this.ws.removeEventListener(type, handler);
+  }
+  close() {
+    this.ws.close();
+  }
+}
+class StreamInOut {
+  constructor(url, headers) {
+    this.buffer = [];
+    this.socket = new WebSocketConnection(url, headers);
+    this.socket.on("message", (event) => {
+      this.buffer.push(JSON.parse(event.data));
+      this.socket.resolveHasUpdateHandlers();
+    });
+  }
+  close() {
+    this.socket.close();
+  }
+  async send(msg) {
+    if (this.socket.ws.readyState === WebSocket.CONNECTING) {
+      await new Promise((resolve) => {
+        this.socket.ws.addEventListener("open", resolve, { once: true });
+      });
+    }
+    return this.socket.ws.send(JSON.stringify(msg));
+  }
+  async next() {
+    for await (const next of this) return next;
+    return void 0;
+  }
+  async *[Symbol.asyncIterator]() {
+    while (true) {
+      if (this.buffer.length > 0) {
+        yield this.buffer.shift();
+      } else {
+        if (this.socket.ws.readyState === WebSocket.CLOSED) return;
+        await this.socket.hasUpdate();
+      }
+    }
+  }
+}
+class StreamIn {
+  constructor(url, headers) {
+    this.buffer = [];
+    this.socket = new WebSocketConnection(url, headers);
+    this.socket.on("message", (event) => {
+      this.buffer.push(JSON.parse(event.data));
+      this.socket.resolveHasUpdateHandlers();
+    });
+  }
+  close() {
+    this.socket.close();
+  }
+  async next() {
+    for await (const next of this) return next;
+    return void 0;
+  }
+  async *[Symbol.asyncIterator]() {
+    while (true) {
+      if (this.buffer.length > 0) {
+        yield this.buffer.shift();
+      } else {
+        if (this.socket.ws.readyState === WebSocket.CLOSED) return;
+        await this.socket.hasUpdate();
+      }
+    }
+  }
+}
+class StreamOut {
+  constructor(url, headers) {
+    let responseResolver;
+    this.responseValue = new Promise((resolve) => responseResolver = resolve);
+    this.socket = new WebSocketConnection(url, headers);
+    this.socket.on("message", (event) => {
+      responseResolver(JSON.parse(event.data));
+    });
+  }
+  async response() {
+    return this.responseValue;
+  }
+  close() {
+    this.socket.close();
+  }
+  async send(msg) {
+    if (this.socket.ws.readyState === WebSocket.CONNECTING) {
+      await new Promise((resolve) => {
+        this.socket.ws.addEventListener("open", resolve, { once: true });
+      });
+    }
+    return this.socket.ws.send(JSON.stringify(msg));
+  }
+}
+const boundFetch = fetch.bind(void 0);
+class BaseClient {
+  constructor(baseURL2, options) {
+    this.baseURL = baseURL2;
+    this.headers = {};
+    if (!BROWSER) {
+      this.headers["User-Agent"] = "watch-commander-ops-hub-8spi-Generated-TS-Client (Encore/v1.54.0)";
+    }
+    this.requestInit = options.requestInit ?? {};
+    if (options.fetcher !== void 0) {
+      this.fetcher = options.fetcher;
+    } else {
+      this.fetcher = boundFetch;
+    }
+    if (options.auth !== void 0) {
+      const auth = options.auth;
+      if (typeof auth === "function") {
+        this.authGenerator = auth;
+      } else {
+        this.authGenerator = () => auth;
+      }
+    }
+  }
+  async getAuthData() {
+    let authData;
+    if (this.authGenerator) {
+      const mayBePromise = this.authGenerator();
+      if (mayBePromise instanceof Promise) {
+        authData = await mayBePromise;
+      } else {
+        authData = mayBePromise;
+      }
+    }
+    if (authData) {
+      const data = {};
+      data.headers = makeRecord({
+        authorization: authData.authorization
+      });
+      return data;
+    }
+    return void 0;
+  }
+  // createStreamInOut sets up a stream to a streaming API endpoint.
+  async createStreamInOut(path, params) {
+    let { query, headers } = params ?? {};
+    const authData = await this.getAuthData();
+    if (authData) {
+      if (authData.query) {
+        query = { ...query, ...authData.query };
+      }
+      if (authData.headers) {
+        headers = { ...headers, ...authData.headers };
+      }
+    }
+    const queryString = query ? "?" + encodeQuery(query) : "";
+    return new StreamInOut(this.baseURL + path + queryString, headers);
+  }
+  // createStreamIn sets up a stream to a streaming API endpoint.
+  async createStreamIn(path, params) {
+    let { query, headers } = params ?? {};
+    const authData = await this.getAuthData();
+    if (authData) {
+      if (authData.query) {
+        query = { ...query, ...authData.query };
+      }
+      if (authData.headers) {
+        headers = { ...headers, ...authData.headers };
+      }
+    }
+    const queryString = query ? "?" + encodeQuery(query) : "";
+    return new StreamIn(this.baseURL + path + queryString, headers);
+  }
+  // createStreamOut sets up a stream to a streaming API endpoint.
+  async createStreamOut(path, params) {
+    let { query, headers } = params ?? {};
+    const authData = await this.getAuthData();
+    if (authData) {
+      if (authData.query) {
+        query = { ...query, ...authData.query };
+      }
+      if (authData.headers) {
+        headers = { ...headers, ...authData.headers };
+      }
+    }
+    const queryString = query ? "?" + encodeQuery(query) : "";
+    return new StreamOut(this.baseURL + path + queryString, headers);
+  }
+  // callTypedAPI makes an API call, defaulting content type to "application/json"
+  async callTypedAPI(method, path, body, params) {
+    return this.callAPI(method, path, body, {
+      ...params,
+      headers: { "Content-Type": "application/json", ...params == null ? void 0 : params.headers }
+    });
+  }
+  // callAPI is used by each generated API method to actually make the request
+  async callAPI(method, path, body, params) {
+    let { query, headers, ...rest } = params ?? {};
+    const init = {
+      ...this.requestInit,
+      ...rest,
+      method,
+      body: body ?? null
+    };
+    init.headers = { ...this.headers, ...init.headers, ...headers };
+    const authData = await this.getAuthData();
+    if (authData) {
+      if (authData.query) {
+        query = { ...query, ...authData.query };
+      }
+      if (authData.headers) {
+        init.headers = { ...init.headers, ...authData.headers };
+      }
+    }
+    const queryString = query ? "?" + encodeQuery(query) : "";
+    const response = await this.fetcher(this.baseURL + path + queryString, init);
+    if (!response.ok) {
+      let body2 = { code: "unknown", message: `request failed: status ${response.status}` };
+      try {
+        const text2 = await response.text();
+        try {
+          const jsonBody = JSON.parse(text2);
+          if (isAPIErrorResponse(jsonBody)) {
+            body2 = jsonBody;
+          } else {
+            body2.message += ": " + JSON.stringify(jsonBody);
+          }
+        } catch {
+          body2.message += ": " + text2;
+        }
+      } catch (e) {
+        body2.message += ": " + String(e);
+      }
+      throw new APIError(response.status, body2);
+    }
+    return response;
+  }
+}
+function isAPIErrorResponse(err2) {
+  return err2 !== void 0 && err2 !== null && isErrCode(err2.code) && typeof err2.message === "string" && (err2.details === void 0 || err2.details === null || typeof err2.details === "object");
+}
+function isErrCode(code) {
+  return code !== void 0 && Object.values(ErrCode).includes(code);
+}
+class APIError extends Error {
+  constructor(status, response) {
+    super(response.message);
+    Object.defineProperty(this, "name", {
+      value: "APIError",
+      enumerable: false,
+      configurable: true
+    });
+    if (Object.setPrototypeOf == void 0) {
+      this.__proto__ = APIError.prototype;
+    } else {
+      Object.setPrototypeOf(this, APIError.prototype);
+    }
+    if (Error.captureStackTrace !== void 0) {
+      Error.captureStackTrace(this, this.constructor);
+    }
+    this.status = status;
+    this.code = response.code;
+    this.details = response.details;
+  }
+}
+var ErrCode = /* @__PURE__ */ ((ErrCode2) => {
+  ErrCode2["OK"] = "ok";
+  ErrCode2["Canceled"] = "canceled";
+  ErrCode2["Unknown"] = "unknown";
+  ErrCode2["InvalidArgument"] = "invalid_argument";
+  ErrCode2["DeadlineExceeded"] = "deadline_exceeded";
+  ErrCode2["NotFound"] = "not_found";
+  ErrCode2["AlreadyExists"] = "already_exists";
+  ErrCode2["PermissionDenied"] = "permission_denied";
+  ErrCode2["ResourceExhausted"] = "resource_exhausted";
+  ErrCode2["FailedPrecondition"] = "failed_precondition";
+  ErrCode2["Aborted"] = "aborted";
+  ErrCode2["OutOfRange"] = "out_of_range";
+  ErrCode2["Unimplemented"] = "unimplemented";
+  ErrCode2["Internal"] = "internal";
+  ErrCode2["Unavailable"] = "unavailable";
+  ErrCode2["DataLoss"] = "data_loss";
+  ErrCode2["Unauthenticated"] = "unauthenticated";
+  return ErrCode2;
+})(ErrCode || {});
+const authGenerator = () => {
+  const token = localStorage.getItem("auth_token");
+  if (token) {
+    return { authorization: `Bearer ${token}` };
+  }
+  return void 0;
+};
+const baseURL = typeof window !== "undefined" && window.location.hostname !== "localhost" ? "" : Local;
+const backendClient = new Client(baseURL, { auth: authGenerator });
+function useBackend$1() {
+  return backendClient;
+}
+const DEFAULT_FLAGS = {
+  dashboard: true,
+  people: true,
+  calendar: true,
+  tasks: true,
+  targets: true,
+  detachments: true,
+  equipment: true,
+  handover: true,
+  policies: true,
+  resources: true,
+  reports: true,
+  inspections: true,
+  requests: true,
+  bulletins: true,
+  training: true,
+  hydrants: true,
+  references: true
+};
+const ALL_OFF = Object.fromEntries(Object.keys(DEFAULT_FLAGS).map((k) => [k, false]));
+const FeatureFlagContext = reactExports.createContext({
+  flags: DEFAULT_FLAGS,
+  isLoaded: false,
+  refetch: () => {
+  }
+});
+function FeatureFlagProvider({ children }) {
+  const { user: user2 } = useAuth();
+  const [flags, setFlags] = reactExports.useState(DEFAULT_FLAGS);
+  const [isLoaded, setIsLoaded] = reactExports.useState(false);
+  const fetchFlags = async () => {
+    try {
+      const settings2 = await backendClient.settings.get();
+      if (settings2.feature_flags) {
+        setFlags({ ...ALL_OFF, ...settings2.feature_flags });
+      }
+    } catch (err2) {
+      console.error("Failed to load feature flags:", err2);
+    } finally {
+      setIsLoaded(true);
+    }
+  };
+  reactExports.useEffect(() => {
+    if (user2) {
+      fetchFlags();
+    }
+  }, [user2 == null ? void 0 : user2.id]);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(FeatureFlagContext.Provider, { value: { flags, isLoaded, refetch: fetchFlags }, children });
+}
+function useFeatureFlags() {
+  return reactExports.useContext(FeatureFlagContext);
+}
+const NAV_GROUPS = [
+  {
+    label: "Today",
+    items: [
+      { name: "Home", path: "/", icon: House, shortcut: "D", keywords: "dashboard needs you" },
+      { name: "Shift", path: "/handover", icon: ClipboardList, featureKey: "handover", shortcut: "H", keywords: "handover crewing board riding" },
+      { name: "Tasks", path: "/tasks", icon: SquareCheckBig, featureKey: "tasks", shortcut: "T", badge: "tasks", keywords: "shift board checks to do" },
+      { name: "Calendar", path: "/calendar", icon: Calendar, featureKey: "calendar", keywords: "events leave rota" }
+    ]
+  },
+  {
+    label: "Crew",
+    items: [
+      { name: "People", path: "/people", icon: Users, featureKey: "people", shortcut: "P", badge: "people", keywords: "crew staff firefighters profiles" },
+      { name: "Requests", path: "/requests", icon: FileCheck, featureKey: "requests", badge: "requests", keywords: "flexi day head for head h4h swap annual leave move kronos authorise decline records" },
+      { name: "Bulletins", path: "/bulletins", icon: Megaphone, featureKey: "bulletins", badge: "bulletins", keywords: "news announcements messages" },
+      { name: "Training", path: "/training", icon: GraduationCap, featureKey: "training", keywords: "courses skills certificates" },
+      { name: "Detachments", path: "/detachments", icon: Navigation, featureKey: "detachments", keywords: "detached duty rota" }
+    ]
+  },
+  {
+    label: "Station",
+    items: [
+      { name: "Targets", path: "/targets", icon: Target, featureKey: "targets", shortcut: "G", keywords: "hfsv community multi-story performance" },
+      { name: "Reports", path: "/reports", icon: ChartNoAxesColumn, featureKey: "reports", keywords: "quarterly report export csv" },
+      { name: "Hydrants", path: "/hydrants", icon: Flame, featureKey: "hydrants", keywords: "hydrant routes faults" },
+      { name: "J4 Checks", path: "/equipment", icon: Truck, featureKey: "equipment", keywords: "equipment appliance defects" },
+      { name: "References", path: "/references", icon: BookMarked, featureKey: "references", keywords: "watch references monthly" },
+      { name: "Docs", path: "/policies", icon: FileText, featureKey: "policies", keywords: "policies guidance documents resources processes links" }
+    ]
+  }
+];
+const ACCOUNT_ITEMS = [
+  { name: "My profile", path: "/profile", icon: CircleUser, keywords: "me account skills toil" },
+  { name: "Settings", path: "/settings", icon: Settings$1, keywords: "appearance accent colour density dark mode theme" },
+  { name: "Admin", path: "/admin", icon: ShieldCheck, managersOrAdmin: true, keywords: "station setup skills certs dictionaries absence triggers thresholds inspection plans multi-storey care homes branding activity log users feature switches" }
+];
+const TASK = { label: "Task for this shift", hint: "A card on the shift board", to: "/tasks?new=1", Icon: SquareKanban, tint: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300" };
+const MANAGER_ACTIONS$1 = [
+  TASK,
+  { label: "Handover note", hint: "For the next watch", to: "/handover?tab=handover&new=1", Icon: NotebookPen, tint: "bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300" },
+  { label: "Calendar event", hint: "Station, watch or personal", to: "/calendar?new=1", Icon: CalendarPlus, tint: "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300" },
+  { label: "Crewing", hint: "Who's riding what", to: "/handover", Icon: Truck, tint: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300" }
+];
+const CREW_ACTIONS$1 = [
+  TASK,
+  { label: "Calendar event", hint: "On your personal calendar", to: "/calendar?new=1", Icon: CalendarPlus, tint: "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300" },
+  { label: "Sick line", hint: "Attach your sick line", to: "/?tab=absence", Icon: FileHeart, tint: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300" }
+];
+function useAllowed() {
+  const { user: user2 } = useAuth();
+  const { flags } = useFeatureFlags();
+  const isManager = (user2 == null ? void 0 : user2.role) === "WC" || (user2 == null ? void 0 : user2.role) === "CC";
+  const seesAll = isManager || (user2 == null ? void 0 : user2.is_admin) === true;
+  const allowed = (item) => {
+    if (item.managersOrAdmin && !isManager && !(user2 == null ? void 0 : user2.is_admin)) return false;
+    if (item.managersOnly && !isManager) return false;
+    if (item.featureKey && !seesAll && !flags[item.featureKey]) return false;
+    return true;
+  };
+  return { allowed, isManager };
+}
+function useCanOpen() {
+  return useNav().opens;
+}
+function useNav() {
+  const { allowed, isManager } = useAllowed();
+  const opens = (to) => {
+    const page = pageFor(to.split(/[?#]/)[0]);
+    return !page || allowed(page);
+  };
+  return {
+    isManager,
+    groups: NAV_GROUPS.map((g) => ({ ...g, items: g.items.filter(allowed) })).filter((g) => g.items.length > 0),
+    account: ACCOUNT_ITEMS.filter(allowed),
+    // Quick-add only offers pages this person can open.
+    actions: (isManager ? MANAGER_ACTIONS$1 : CREW_ACTIONS$1).filter((a) => opens(a.to)),
+    opens
+  };
+}
+const ALL_PAGES = [...NAV_GROUPS.flatMap((g) => g.items), ...ACCOUNT_ITEMS];
+function pageFor(pathname) {
+  if (pathname === "/") return ALL_PAGES[0];
+  return ALL_PAGES.filter((p) => p.path !== "/" && (pathname === p.path || pathname.startsWith(p.path + "/"))).sort((a, b) => b.path.length - a.path.length)[0];
+}
+function isActivePath(pathname, path) {
+  return path === "/" ? pathname === "/" : pathname === path || pathname.startsWith(path + "/");
+}
 var DirectionContext = reactExports.createContext(void 0);
 function useDirection(localDir) {
   const globalDir = reactExports.useContext(DirectionContext);
@@ -29487,2507 +32007,6 @@ function DropdownMenuShortcut({
     }
   );
 }
-const Local = "http://localhost:4000";
-const BROWSER = typeof globalThis === "object" && "window" in globalThis;
-class Client {
-  /**
-   * Creates a Client for calling the public and authenticated APIs of your Encore application.
-   *
-   * @param target  The target which the client should be configured to use. See Local and Environment for options.
-   * @param options Options for the client
-   */
-  constructor(target, options) {
-    this.target = target;
-    this.options = options ?? {};
-    const base = new BaseClient(this.target, this.options);
-    this.absence = new absence.ServiceClient(base);
-    this.activity = new activity.ServiceClient(base);
-    this.admin = new admin.ServiceClient(base);
-    this.appliance = new appliance.ServiceClient(base);
-    this.bulletin = new bulletin.ServiceClient(base);
-    this.calendar = new calendar.ServiceClient(base);
-    this.crew = new crew.ServiceClient(base);
-    this.crewing = new crewing.ServiceClient(base);
-    this.detachments = new detachments.ServiceClient(base);
-    this.dictionary = new dictionary.ServiceClient(base);
-    this.frontend = new frontend.ServiceClient(base);
-    this.h4h = new h4h.ServiceClient(base);
-    this.handover = new handover.ServiceClient(base);
-    this.hydrants = new hydrants.ServiceClient(base);
-    this.inspection = new inspection.ServiceClient(base);
-    this.inspection_plans = new inspection_plans.ServiceClient(base);
-    this.localauth = new localauth.ServiceClient(base);
-    this.mock = new mock.ServiceClient(base);
-    this.note = new note.ServiceClient(base);
-    this.notification = new notification.ServiceClient(base);
-    this.policy = new policy.ServiceClient(base);
-    this.profile = new profile.ServiceClient(base);
-    this.quarterly_report = new quarterly_report.ServiceClient(base);
-    this.references = new references.ServiceClient(base);
-    this.report = new report.ServiceClient(base);
-    this.schedule = new schedule.ServiceClient(base);
-    this.settings = new settings.ServiceClient(base);
-    this.shift_adjustments = new shift_adjustments.ServiceClient(base);
-    this.skill = new skill.ServiceClient(base);
-    this.targets = new targets.ServiceClient(base);
-    this.task = new task.ServiceClient(base);
-    this.toil = new toil.ServiceClient(base);
-    this.training = new training.ServiceClient(base);
-    this.user = new user.ServiceClient(base);
-  }
-  /**
-   * Creates a new Encore client with the given client options set.
-   *
-   * @param options Client options to set. They are merged with existing options.
-   **/
-  with(options) {
-    return new Client(this.target, {
-      ...this.options,
-      ...options
-    });
-  }
-}
-var absence;
-((absence2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.approve = this.approve.bind(this);
-      this.listBackToWork = this.listBackToWork.bind(this);
-      this.backToWorkDone = this.backToWorkDone.bind(this);
-      this.bookBackFit = this.bookBackFit.bind(this);
-      this.create = this.create.bind(this);
-      this.deleteAbsence = this.deleteAbsence.bind(this);
-      this.getStats = this.getStats.bind(this);
-      this.list = this.list.bind(this);
-      this.selfReport = this.selfReport.bind(this);
-      this.todaySick = this.todaySick.bind(this);
-      this.updateAbsence = this.updateAbsence.bind(this);
-    }
-    async approve(id) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/absences/${encodeURIComponent(id)}/approve`);
-      return await resp.json();
-    }
-    /**
-     * Closes out an open sickness absence. Until this is called, the FF
-     * is treated as currently off regardless of end_date.
-     */
-    async listBackToWork(params) {
-      const query = makeRecord({ "user_id": params["user_id"] });
-      const resp = await this.baseClient.callTypedAPI("GET", `/absences/back-to-work`, void 0, { query });
-      return await resp.json();
-    }
-    async backToWorkDone(absenceId) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/absences/${encodeURIComponent(absenceId)}/back-to-work-done`);
-      return await resp.json();
-    }
-    async bookBackFit(params) {
-      const { absence_id, ...body } = params;
-      const resp = await this.baseClient.callTypedAPI(
-        "POST",
-        `/absences/${encodeURIComponent(absence_id)}/book-back-fit`,
-        JSON.stringify(body)
-      );
-      return await resp.json();
-    }
-    async create(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/absences`, JSON.stringify(params));
-      return await resp.json();
-    }
-    /**
-     * Permanently deletes an absence record. WC/CC only.
-     */
-    async deleteAbsence(id) {
-      const resp = await this.baseClient.callTypedAPI("DELETE", `/absences/${encodeURIComponent(id)}`);
-      return await resp.json();
-    }
-    async getStats(user_id) {
-      const resp = await this.baseClient.callTypedAPI("GET", `/absences/stats/${encodeURIComponent(user_id)}`);
-      return await resp.json();
-    }
-    async list(params) {
-      const query = makeRecord({
-        "end_date": params["end_date"],
-        limit: params.limit === void 0 ? void 0 : String(params.limit),
-        offset: params.offset === void 0 ? void 0 : String(params.offset),
-        "start_date": params["start_date"],
-        status: params.status === void 0 ? void 0 : String(params.status),
-        "user_id": params["user_id"]
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/absences`, void 0, { query });
-      return await resp.json();
-    }
-    async selfReport(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/absences/self-report`, JSON.stringify(params));
-      return await resp.json();
-    }
-    /**
-     * Returns all staff with an approved sickness absence that covers today's date.
-     * Used by the WC dashboard to cross-reference against the crewing board.
-     */
-    async todaySick(params = {}) {
-      const query = makeRecord({
-        date: params.date
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/absences/today-sick`, void 0, { query });
-      return await resp.json();
-    }
-    /**
-     * FF can update dates/sick line on their own absence. WC can update anything.
-     */
-    async updateAbsence(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/absences/${encodeURIComponent(id)}/update`, JSON.stringify(params));
-      return await resp.json();
-    }
-  }
-  absence2.ServiceClient = ServiceClient;
-})(absence || (absence = {}));
-var activity;
-((activity2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.create = this.create.bind(this);
-      this.list = this.list.bind(this);
-      this.remove = this.remove.bind(this);
-      this.seedHfsv = this.seedHfsv.bind(this);
-      this.toggle = this.toggle.bind(this);
-      this.update = this.update.bind(this);
-    }
-    /**
-     * POST /activities
-     * Creates a single activity record (hydrant inspection or community engagement).
-     * HFSV records should be bulk-seeded via POST /activities/seed-hfsv instead.
-     */
-    async create(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/activities`, JSON.stringify(params));
-      return await resp.json();
-    }
-    /**
-     * GET /activities
-     * Returns activity records filtered by type / watch / financial_year / quarter.
-     */
-    async list(params) {
-      const query = makeRecord({
-        "financial_year": params["financial_year"] === void 0 ? void 0 : String(params["financial_year"]),
-        quarter: params.quarter === void 0 ? void 0 : String(params.quarter),
-        type: params.type === void 0 ? void 0 : String(params.type),
-        watch: params.watch
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/activities`, void 0, { query });
-      return await resp.json();
-    }
-    /**
-     * DELETE /activities/:id
-     */
-    async remove(id) {
-      const resp = await this.baseClient.callTypedAPI("DELETE", `/activities/${encodeURIComponent(id)}`);
-      return await resp.json();
-    }
-    /**
-     * POST /activities/seed-hfsv
-     * Creates 36 numbered HFSV placeholders for a given watch/financial_year/quarter.
-     * Safe to re-run: skips rows where item_number already exists for that slot.
-     */
-    async seedHfsv(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/activities/seed-hfsv`, JSON.stringify(params));
-      return await resp.json();
-    }
-    /**
-     * PATCH /activities/:id/toggle
-     * Flips the completed flag on an activity record.
-     */
-    async toggle(id) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/activities/${encodeURIComponent(id)}/toggle`);
-      return await resp.json();
-    }
-    /**
-     * PATCH /activities/:id
-     * Updates editable fields (title, address, engagement_date, details).
-     */
-    async update(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/activities/${encodeURIComponent(id)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-  }
-  activity2.ServiceClient = ServiceClient;
-})(activity || (activity = {}));
-var admin;
-((admin2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.bootstrap = this.bootstrap.bind(this);
-      this.changeRole = this.changeRole.bind(this);
-      this.checkWC = this.checkWC.bind(this);
-      this.createActivityLog = this.createActivityLog.bind(this);
-      this.deactivateUser = this.deactivateUser.bind(this);
-      this.getActivityLog = this.getActivityLog.bind(this);
-      this.getInviteLink = this.getInviteLink.bind(this);
-      this.getReassignmentPreview = this.getReassignmentPreview.bind(this);
-      this.healthz = this.healthz.bind(this);
-      this.inviteUser = this.inviteUser.bind(this);
-      this.listUsers = this.listUsers.bind(this);
-      this.reactivateUser = this.reactivateUser.bind(this);
-      this.reassignAssets = this.reassignAssets.bind(this);
-    }
-    async bootstrap(params) {
-      const query = makeRecord({
-        setupToken: params.setupToken
-      });
-      const resp = await this.baseClient.callTypedAPI("POST", `/admin/bootstrap`, void 0, { query });
-      return await resp.json();
-    }
-    async changeRole(userId, params) {
-      await this.baseClient.callTypedAPI("PUT", `/api/admin/users/${encodeURIComponent(userId)}/role`, JSON.stringify(params));
-    }
-    async checkWC() {
-      const resp = await this.baseClient.callTypedAPI("GET", `/admin/check-wc`);
-      return await resp.json();
-    }
-    async createActivityLog(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/admin/activity-log`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async deactivateUser(userId, params) {
-      await this.baseClient.callTypedAPI("POST", `/api/admin/users/${encodeURIComponent(userId)}/deactivate`, JSON.stringify(params));
-    }
-    async getActivityLog(params) {
-      const query = makeRecord({
-        action: params.action,
-        "end_date": params["end_date"],
-        "entity_type": params["entity_type"],
-        limit: params.limit === void 0 ? void 0 : String(params.limit),
-        offset: params.offset === void 0 ? void 0 : String(params.offset),
-        "start_date": params["start_date"],
-        "user_id": params["user_id"]
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/admin/activity-log`, void 0, { query });
-      return await resp.json();
-    }
-    async getInviteLink(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/admin/get-invite-link`, JSON.stringify(params));
-      return await resp.json();
-    }
-    /** Admin: a one-time link for someone to choose a new password (24 hours). */
-    async getPasswordResetLink(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/admin/password-reset-link`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async getReassignmentPreview(userId) {
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/admin/reassign/${encodeURIComponent(userId)}/preview`);
-      return await resp.json();
-    }
-    /**
-     * Path is /uptime-check rather than /healthz because /healthz is reserved by
-     * Encore Cloud's platform-level load balancer for its own health probes —
-     * user-defined endpoints at that path return 404 externally.
-     */
-    async healthz() {
-      const resp = await this.baseClient.callTypedAPI("GET", `/uptime-check`);
-      return await resp.json();
-    }
-    async inviteUser(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/api/admin/invite`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async listUsers() {
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/admin/users`);
-      return await resp.json();
-    }
-    async reactivateUser(userId) {
-      await this.baseClient.callTypedAPI("POST", `/api/admin/users/${encodeURIComponent(userId)}/reactivate`);
-    }
-    async reassignAssets(params) {
-      await this.baseClient.callTypedAPI("POST", `/api/admin/reassign`, JSON.stringify(params));
-    }
-  }
-  admin2.ServiceClient = ServiceClient;
-})(admin || (admin = {}));
-var appliance;
-((appliance2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.createAppliance = this.createAppliance.bind(this);
-      this.createEquipment = this.createEquipment.bind(this);
-      this.deleteEquipment = this.deleteEquipment.bind(this);
-      this.getCheck = this.getCheck.bind(this);
-      this.listAppliances = this.listAppliances.bind(this);
-      this.listChecks = this.listChecks.bind(this);
-      this.listDefects = this.listDefects.bind(this);
-      this.listEquipment = this.listEquipment.bind(this);
-      this.reportDefect = this.reportDefect.bind(this);
-      this.startCheck = this.startCheck.bind(this);
-      this.updateAppliance = this.updateAppliance.bind(this);
-      this.updateDefect = this.updateDefect.bind(this);
-      this.updateEquipment = this.updateEquipment.bind(this);
-    }
-    async createAppliance(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/appliances`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async createEquipment(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/appliances/equipment`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async deleteEquipment(id) {
-      await this.baseClient.callTypedAPI("DELETE", `/appliances/equipment/${encodeURIComponent(id)}`);
-    }
-    async getCheck(id) {
-      const resp = await this.baseClient.callTypedAPI("GET", `/appliances/checks/${encodeURIComponent(id)}`);
-      return await resp.json();
-    }
-    async listAppliances(params) {
-      const query = makeRecord({
-        "active_only": params["active_only"] === void 0 ? void 0 : String(params["active_only"]),
-        "station_call_sign": params["station_call_sign"]
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/appliances`, void 0, { query });
-      return await resp.json();
-    }
-    async listChecks(params) {
-      const query = makeRecord({
-        "appliance_id": params["appliance_id"] === void 0 ? void 0 : String(params["appliance_id"]),
-        "checked_by": params["checked_by"],
-        limit: params.limit === void 0 ? void 0 : String(params.limit),
-        offset: params.offset === void 0 ? void 0 : String(params.offset),
-        watch: params.watch
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/appliances/checks`, void 0, { query });
-      return await resp.json();
-    }
-    async listDefects(params) {
-      const query = makeRecord({
-        "appliance_id": params["appliance_id"] === void 0 ? void 0 : String(params["appliance_id"]),
-        status: params.status
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/appliances/defects`, void 0, { query });
-      return await resp.json();
-    }
-    async listEquipment(params) {
-      const query = makeRecord({
-        "active_only": params["active_only"] === void 0 ? void 0 : String(params["active_only"]),
-        "appliance_id": String(params["appliance_id"])
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/appliances/equipment`, void 0, { query });
-      return await resp.json();
-    }
-    async reportDefect(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/appliances/defects`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async startCheck(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/appliances/checks`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async updateAppliance(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/appliances/${encodeURIComponent(id)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async updateDefect(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/appliances/defects/${encodeURIComponent(id)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async updateEquipment(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/appliances/equipment/${encodeURIComponent(id)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-  }
-  appliance2.ServiceClient = ServiceClient;
-})(appliance || (appliance = {}));
-var bulletin;
-((bulletin2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.create = this.create.bind(this);
-      this.list = this.list.bind(this);
-      this.markRead = this.markRead.bind(this);
-      this.acknowledge = this.acknowledge.bind(this);
-      this.getStats = this.getStats.bind(this);
-      this.deleteBulletin = this.deleteBulletin.bind(this);
-    }
-    async create(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/api/bulletins`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async list(params) {
-      const qs = [];
-      if ((params == null ? void 0 : params.include_read) !== void 0) qs.push(`include_read=${params.include_read}`);
-      if ((params == null ? void 0 : params.limit) !== void 0) qs.push(`limit=${params.limit}`);
-      if ((params == null ? void 0 : params.offset) !== void 0) qs.push(`offset=${params.offset}`);
-      const q = qs.length ? `?${qs.join("&")}` : "";
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/bulletins${q}`);
-      return await resp.json();
-    }
-    async markRead(id) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/bulletins/${encodeURIComponent(id)}/read`);
-      return await resp.json();
-    }
-    async acknowledge(id) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/bulletins/${encodeURIComponent(id)}/acknowledge`);
-      return await resp.json();
-    }
-    async getStats(id) {
-      const resp = await this.baseClient.callTypedAPI("GET", `/bulletins/${encodeURIComponent(id)}/stats`);
-      return await resp.json();
-    }
-    async deleteBulletin(id) {
-      const resp = await this.baseClient.callTypedAPI("DELETE", `/bulletins/${encodeURIComponent(id)}`);
-      return await resp.json();
-    }
-  }
-  bulletin2.ServiceClient = ServiceClient;
-})(bulletin || (bulletin = {}));
-var calendar;
-((calendar2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.create = this.create.bind(this);
-      this.createInspectionEvent = this.createInspectionEvent.bind(this);
-      this.deleteEvent = this.deleteEvent.bind(this);
-      this.exportICS = this.exportICS.bind(this);
-      this.list = this.list.bind(this);
-      this.update = this.update.bind(this);
-    }
-    async create(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/calendar/events`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async createInspectionEvent(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/calendar/inspection-event`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async deleteEvent(id, params) {
-      const query = makeRecord({
-        "user_id": params["user_id"]
-      });
-      await this.baseClient.callTypedAPI("DELETE", `/calendar/events/${encodeURIComponent(id)}`, void 0, { query });
-    }
-    async exportICS(params) {
-      const query = makeRecord({
-        "end_date": params["end_date"],
-        "start_date": params["start_date"]
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/calendar/export.ics`, void 0, { query });
-      return await resp.json();
-    }
-    async list(params) {
-      const query = makeRecord({
-        "calendar_visibility": params["calendar_visibility"],
-        "end_date": params["end_date"],
-        "is_watch_event": params["is_watch_event"] === void 0 ? void 0 : String(params["is_watch_event"]),
-        limit: params.limit === void 0 ? void 0 : String(params.limit),
-        offset: params.offset === void 0 ? void 0 : String(params.offset),
-        "start_date": params["start_date"],
-        "user_id": params["user_id"],
-        watch: params.watch
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/calendar/events`, void 0, { query });
-      return await resp.json();
-    }
-    async update(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/calendar/events/${encodeURIComponent(id)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-    /** Strike an event through (kept on the calendar with the reason). */
-    async cancelEvent(id, params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/calendar/events/${encodeURIComponent(id)}/cancel`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async reinstateEvent(id) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/calendar/events/${encodeURIComponent(id)}/reinstate`);
-      return await resp.json();
-    }
-  }
-  calendar2.ServiceClient = ServiceClient;
-})(calendar || (calendar = {}));
-var crew;
-((crew2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.bulkAssign = this.bulkAssign.bind(this);
-      this.getStats = this.getStats.bind(this);
-    }
-    async bulkAssign(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/crew/bulk-assign`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async getStats() {
-      const resp = await this.baseClient.callTypedAPI("GET", `/crew/stats`);
-      return await resp.json();
-    }
-  }
-  crew2.ServiceClient = ServiceClient;
-})(crew || (crew = {}));
-var crewing;
-((crewing2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.add = this.add.bind(this);
-      this.copyPrevious = this.copyPrevious.bind(this);
-      this.list = this.list.bind(this);
-      this.remove = this.remove.bind(this);
-      this.roster = this.roster.bind(this);
-      this.strength = this.strength.bind(this);
-      this.listCanteen = this.listCanteen.bind(this);
-      this.addCanteen = this.addCanteen.bind(this);
-      this.removeCanteen = this.removeCanteen.bind(this);
-      this.canteenRota = this.canteenRota.bind(this);
-      this.canteenHistory = this.canteenHistory.bind(this);
-    }
-    /** GET /canteen-history — recent canteen duties for a watch, newest first */
-    async canteenHistory(params) {
-      const query = makeRecord({
-        watch: params.watch,
-        limit: params.limit === void 0 ? void 0 : String(params.limit)
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/canteen-history`, void 0, { query });
-      return await resp.json();
-    }
-    /** GET /canteen — who's on canteen for one shift */
-    async listCanteen(params) {
-      const query = makeRecord({
-        watch: params.watch,
-        "shift_date": params["shift_date"],
-        "shift_type": params["shift_type"]
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/canteen`, void 0, { query });
-      return await resp.json();
-    }
-    /** POST /canteen — put someone on canteen for a shift (WC/CC, at most two) */
-    async addCanteen(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/canteen`, JSON.stringify(params));
-      return await resp.json();
-    }
-    /** DELETE /canteen/:id — take someone off canteen (WC/CC) */
-    async removeCanteen(id) {
-      const resp = await this.baseClient.callTypedAPI("DELETE", `/canteen/${encodeURIComponent(id)}`);
-      return await resp.json();
-    }
-    /** GET /canteen-rota — the watch, longest since canteen first */
-    async canteenRota(params) {
-      const query = makeRecord({ watch: params.watch });
-      const resp = await this.baseClient.callTypedAPI("GET", `/canteen-rota`, void 0, { query });
-      return await resp.json();
-    }
-    /**
-     * POST /crewing — add a crew member to an appliance for a shift
-     */
-    async add(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/crewing`, JSON.stringify(params));
-      return await resp.json();
-    }
-    /**
-     * POST /crewing/copy-previous
-     * Copies crewing from the most recent previous shift of the same type for this watch.
-     * Change-of-shift (external) entries are NOT copied — they're specific to their shift.
-     * Any existing crewing for the target date is replaced.
-     */
-    async copyPrevious(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/crewing/copy-previous`, JSON.stringify(params));
-      return await resp.json();
-    }
-    /**
-     * GET /crewing — returns all crewing entries for a specific watch/date/shift
-     */
-    async list(params) {
-      const query = makeRecord({
-        "shift_date": params["shift_date"],
-        "shift_type": String(params["shift_type"]),
-        watch: params.watch
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/crewing`, void 0, { query });
-      return await resp.json();
-    }
-    /**
-     * DELETE /crewing/:id — remove a crew member from a shift
-     */
-    async remove(id) {
-      const resp = await this.baseClient.callTypedAPI("DELETE", `/crewing/${encodeURIComponent(id)}`);
-      return await resp.json();
-    }
-    /**
-     * GET /crewing/roster
-     * Returns all active WC/CC/FF members for a watch, checking BOTH
-     * users.watch_unit AND firefighter_profiles.watch so no one is missed
-     * regardless of which column was populated for their account.
-     */
-    async roster(params) {
-      const query = makeRecord({
-        watch: params.watch
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/crewing/roster`, void 0, { query });
-      return await resp.json();
-    }
-    /**
-     * GET /crewing/strength — how many each of a watch's shifts can ride,
-     * for the calendar's riding count. WC/CC only.
-     */
-    async strength(params) {
-      const query = makeRecord({
-        "end_date": params["end_date"],
-        "start_date": params["start_date"],
-        watch: params.watch
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/crewing/strength`, void 0, { query });
-      return await resp.json();
-    }
-  }
-  crewing2.ServiceClient = ServiceClient;
-})(crewing || (crewing = {}));
-var detachments;
-((detachments2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.create = this.create.bind(this);
-      this.getRota = this.getRota.bind(this);
-      this.list = this.list.bind(this);
-    }
-    /**
-     * POST /detachments — record a firefighter detachment event
-     */
-    async create(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/api/detachments`, JSON.stringify(params));
-      return await resp.json();
-    }
-    /**
-     * GET /detachments/rota — fairness rota: all watch members sorted by last detachment (oldest first = next in line)
-     */
-    async getRota(params) {
-      const query = makeRecord({
-        watch: params.watch
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/detachments/rota`, void 0, { query });
-      return await resp.json();
-    }
-    /**
-     * GET /detachments — list detachment history, optionally filtered by watch
-     */
-    async list(params) {
-      const query = makeRecord({
-        limit: params.limit === void 0 ? void 0 : String(params.limit),
-        offset: params.offset === void 0 ? void 0 : String(params.offset),
-        watch: params.watch
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/detachments`, void 0, { query });
-      return await resp.json();
-    }
-  }
-  detachments2.ServiceClient = ServiceClient;
-})(detachments || (detachments = {}));
-var dictionary;
-((dictionary2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.create = this.create.bind(this);
-      this.deleteDictionary = this.deleteDictionary.bind(this);
-      this.list = this.list.bind(this);
-      this.update = this.update.bind(this);
-    }
-    async create(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/dictionary`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async deleteDictionary(id) {
-      const resp = await this.baseClient.callTypedAPI("DELETE", `/dictionary/${encodeURIComponent(id)}`);
-      return await resp.json();
-    }
-    async list(params) {
-      const query = makeRecord({
-        active: params.active === void 0 ? void 0 : String(params.active),
-        type: params.type === void 0 ? void 0 : String(params.type)
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/dictionary`, void 0, { query });
-      return await resp.json();
-    }
-    async update(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/dictionary/${encodeURIComponent(id)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-  }
-  dictionary2.ServiceClient = ServiceClient;
-})(dictionary || (dictionary = {}));
-var frontend;
-((frontend2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.assets = this.assets.bind(this);
-    }
-    /**
-     * ──────────────────────────────────────────────────────────────────────────────
-     * Security headers for the static frontend.
-     * NOTE: Encore statically analyses api.static() at build time, so the `headers`
-     * option MUST be an inline object literal — referencing an imported constant
-     * fails the build ("headers must be an object"). Kept inline for that reason;
-     * the accompanying doc lives in observability/security_headers.ts.
-     * CSP is tight: self-only with inline styles for Tailwind + React style props,
-     * data: for icons, https: for images. All other directives locked down. HSTS,
-     * X-Frame-Options, nosniff, Referrer-Policy, Permissions-Policy round out the
-     * hardening baseline we lost when we moved off Vercel.
-     * ──────────────────────────────────────────────────────────────────────────────
-     */
-    async assets(path) {
-      await this.baseClient.callTypedAPI("HEAD", `/${path.map(encodeURIComponent).join("/")}`);
-    }
-  }
-  frontend2.ServiceClient = ServiceClient;
-})(frontend || (frontend = {}));
-var h4h;
-((h4h2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.list = this.list.bind(this);
-      this.settle = this.settle.bind(this);
-    }
-    async list(params) {
-      const query = makeRecord({
-        status: params.status === void 0 ? void 0 : String(params.status),
-        "user_id": params["user_id"]
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/h4h`, void 0, { query });
-      return await resp.json();
-    }
-    async settle(id) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/h4h/${encodeURIComponent(id)}/settle`);
-      return await resp.json();
-    }
-  }
-  h4h2.ServiceClient = ServiceClient;
-})(h4h || (h4h = {}));
-var handover;
-((handover2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.create = this.create.bind(this);
-      this.deleteHandover = this.deleteHandover.bind(this);
-      this.getLatest = this.getLatest.bind(this);
-      this.list = this.list.bind(this);
-      this.update = this.update.bind(this);
-      this.boardNotes = this.boardNotes.bind(this);
-      this.markRead = this.markRead.bind(this);
-    }
-    async boardNotes(params) {
-      const query = makeRecord({ watch: params.watch });
-      const resp = await this.baseClient.callTypedAPI("GET", `/handovers/notes`, void 0, { query });
-      return await resp.json();
-    }
-    async markRead(id, params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/handovers/${encodeURIComponent(id)}/read`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async create(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/handovers`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async deleteHandover(id) {
-      const resp = await this.baseClient.callTypedAPI("DELETE", `/handovers/${encodeURIComponent(id)}`);
-      return await resp.json();
-    }
-    async getLatest(params) {
-      const query = makeRecord({
-        watch: params.watch
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/handovers/latest`, void 0, { query });
-      return await resp.json();
-    }
-    async list(params) {
-      const query = makeRecord({
-        limit: params.limit === void 0 ? void 0 : String(params.limit),
-        offset: params.offset === void 0 ? void 0 : String(params.offset),
-        watch: params.watch
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/handovers`, void 0, { query });
-      return await resp.json();
-    }
-    async update(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/handovers/${encodeURIComponent(id)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-  }
-  handover2.ServiceClient = ServiceClient;
-})(handover || (handover = {}));
-var hydrants;
-((hydrants2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.getHydrantRoute = this.getHydrantRoute.bind(this);
-      this.getHydrantSummary = this.getHydrantSummary.bind(this);
-      this.saveHydrantInspection = this.saveHydrantInspection.bind(this);
-      this.clearHydrantInspection = this.clearHydrantInspection.bind(this);
-      this.setHydrantInUse = this.setHydrantInUse.bind(this);
-      this.markHydrantsReported = this.markHydrantsReported.bind(this);
-      this.importHydrants = this.importHydrants.bind(this);
-    }
-    /** One watch's hydrant routes for a year, hydrant by hydrant. */
-    async getHydrantRoute(params) {
-      const query = makeRecord({
-        watch: params.watch,
-        year: params.year === void 0 ? void 0 : String(params.year)
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/hydrants/route`, void 0, { query });
-      return await resp.json();
-    }
-    /** Every watch's hydrant total and progress for a year. */
-    async getHydrantSummary(params) {
-      const query = makeRecord({
-        year: params.year === void 0 ? void 0 : String(params.year)
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/hydrants/summary`, void 0, { query });
-      return await resp.json();
-    }
-    /** Tick a hydrant (first tick = 1 Fully functional, 1 Tested, lid secured, no trip hazard) or change its result. */
-    async saveHydrantInspection(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PUT", `/hydrants/${encodeURIComponent(id)}/inspection`, JSON.stringify(params));
-      return await resp.json();
-    }
-    /** Untick a hydrant for a year. */
-    async clearHydrantInspection(id, params) {
-      const query = makeRecord({ year: String(params.year) });
-      await this.baseClient.callTypedAPI("DELETE", `/hydrants/${encodeURIComponent(id)}/inspection`, void 0, { query });
-    }
-    /** After the fault report is emailed: mark those hydrants reported (WC/CC). */
-    async markHydrantsReported(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/hydrants/reported`, JSON.stringify(params));
-      return await resp.json();
-    }
-    /** Mark a hydrant abandoned/removed, or back in use (WC/CC). */
-    async setHydrantInUse(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/hydrants/${encodeURIComponent(id)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-    /** Load or refresh the route sheets (WC/CC). */
-    async importHydrants(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/hydrants/import`, JSON.stringify(params));
-      return await resp.json();
-    }
-  }
-  hydrants2.ServiceClient = ServiceClient;
-})(hydrants || (hydrants = {}));
-var inspection;
-((inspection2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.create = this.create.bind(this);
-      this.list = this.list.bind(this);
-      this.update = this.update.bind(this);
-    }
-    async create(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/inspections`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async list(params) {
-      const query = makeRecord({
-        "inspection_type": params["inspection_type"],
-        "inspector_id": params["inspector_id"],
-        limit: params.limit === void 0 ? void 0 : String(params.limit),
-        offset: params.offset === void 0 ? void 0 : String(params.offset),
-        status: params.status === void 0 ? void 0 : String(params.status)
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/inspections`, void 0, { query });
-      return await resp.json();
-    }
-    async update(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/inspections/${encodeURIComponent(id)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-  }
-  inspection2.ServiceClient = ServiceClient;
-})(inspection || (inspection = {}));
-var inspection_plans;
-((inspection_plans2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.createCareHome = this.createCareHome.bind(this);
-      this.createHydrant = this.createHydrant.bind(this);
-      this.createMultistory = this.createMultistory.bind(this);
-      this.createOperational = this.createOperational.bind(this);
-      this.deleteCareHome = this.deleteCareHome.bind(this);
-      this.deleteHydrant = this.deleteHydrant.bind(this);
-      this.deleteMultistory = this.deleteMultistory.bind(this);
-      this.deleteOperational = this.deleteOperational.bind(this);
-      this.generateAssignments = this.generateAssignments.bind(this);
-      this.listAssignments = this.listAssignments.bind(this);
-      this.listCareHomes = this.listCareHomes.bind(this);
-      this.listHydrants = this.listHydrants.bind(this);
-      this.listMultistory = this.listMultistory.bind(this);
-      this.listOperational = this.listOperational.bind(this);
-      this.updateAssignment = this.updateAssignment.bind(this);
-      this.updateCareHome = this.updateCareHome.bind(this);
-      this.updateHydrant = this.updateHydrant.bind(this);
-      this.updateMultistory = this.updateMultistory.bind(this);
-      this.updateOperational = this.updateOperational.bind(this);
-    }
-    async createCareHome(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/inspection-plans/care-homes`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async createHydrant(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/inspection-plans/hydrants`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async createMultistory(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/inspection-plans/multistory`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async createOperational(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/inspection-plans/operational`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async deleteCareHome(id) {
-      await this.baseClient.callTypedAPI("DELETE", `/inspection-plans/care-homes/${encodeURIComponent(id)}`);
-    }
-    async deleteHydrant(id) {
-      await this.baseClient.callTypedAPI("DELETE", `/inspection-plans/hydrants/${encodeURIComponent(id)}`);
-    }
-    async deleteMultistory(id) {
-      await this.baseClient.callTypedAPI("DELETE", `/inspection-plans/multistory/${encodeURIComponent(id)}`);
-    }
-    async deleteOperational(id) {
-      await this.baseClient.callTypedAPI("DELETE", `/inspection-plans/operational/${encodeURIComponent(id)}`);
-    }
-    /**
-     * POST /inspection-plans/assignments/generate
-     * WC/CC only — reads the 4 plan tables and creates assignments for the given year.
-     * Passing quarter= limits multi-story to that quarter only; omitting it generates all quarters.
-     * Care homes always generate annual assignments (quarter = null) for ALL watches.
-     * Hydrants + OIs generate annual assignments for their own watch field.
-     * Uses ON CONFLICT DO NOTHING so it is safe to re-run.
-     */
-    async generateAssignments(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/inspection-plans/assignments/generate`, JSON.stringify(params));
-      return await resp.json();
-    }
-    /**
-     * GET /inspection-plans/assignments
-     * Returns assignments filtered by optional watch, year, quarter, plan_type, status.
-     */
-    async listAssignments(params) {
-      const query = makeRecord({
-        "plan_type": params["plan_type"],
-        quarter: params.quarter === void 0 ? void 0 : String(params.quarter),
-        status: params.status,
-        watch: params.watch,
-        year: params.year === void 0 ? void 0 : String(params.year)
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/inspection-plans/assignments`, void 0, { query });
-      return await resp.json();
-    }
-    async listCareHomes() {
-      const resp = await this.baseClient.callTypedAPI("GET", `/inspection-plans/care-homes`);
-      return await resp.json();
-    }
-    async listHydrants() {
-      const resp = await this.baseClient.callTypedAPI("GET", `/inspection-plans/hydrants`);
-      return await resp.json();
-    }
-    async listMultistory() {
-      const resp = await this.baseClient.callTypedAPI("GET", `/inspection-plans/multistory`);
-      return await resp.json();
-    }
-    async listOperational() {
-      const resp = await this.baseClient.callTypedAPI("GET", `/inspection-plans/operational`);
-      return await resp.json();
-    }
-    /**
-     * PATCH /inspection-plans/assignments/:id
-     * WC/CC only — marks an assignment complete or reverts it to pending.
-     * Side-effect: if the assignment is multistory, recalculates the HighRise target
-     * actual_count for the assignment's year so the Targets dashboard stays in sync.
-     */
-    async updateAssignment(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/inspection-plans/assignments/${encodeURIComponent(id)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async updateCareHome(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/inspection-plans/care-homes/${encodeURIComponent(id)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async updateHydrant(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/inspection-plans/hydrants/${encodeURIComponent(id)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async updateMultistory(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/inspection-plans/multistory/${encodeURIComponent(id)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async updateOperational(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/inspection-plans/operational/${encodeURIComponent(id)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-  }
-  inspection_plans2.ServiceClient = ServiceClient;
-})(inspection_plans || (inspection_plans = {}));
-var localauth;
-((localauth2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.changePassword = this.changePassword.bind(this);
-      this.forgotPassword = this.forgotPassword.bind(this);
-      this.resetPassword = this.resetPassword.bind(this);
-      this.signIn = this.signIn.bind(this);
-      this.signOut = this.signOut.bind(this);
-      this.signUp = this.signUp.bind(this);
-    }
-    async changePassword(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/auth/change-password`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async forgotPassword(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/auth/forgot-password`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async resetPassword(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/auth/reset-password`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async signIn(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/auth/signin`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async signOut() {
-      const resp = await this.baseClient.callTypedAPI("POST", `/auth/signout`);
-      return await resp.json();
-    }
-    async signUp(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/auth/signup`, JSON.stringify(params));
-      return await resp.json();
-    }
-  }
-  localauth2.ServiceClient = ServiceClient;
-})(localauth || (localauth = {}));
-var mock;
-((mock2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.createMockAbsence = this.createMockAbsence.bind(this);
-      this.createSkill = this.createSkill.bind(this);
-      this.getAbsenceTriggers = this.getAbsenceTriggers.bind(this);
-      this.getMockAbsences = this.getMockAbsences.bind(this);
-      this.getMockInspection = this.getMockInspection.bind(this);
-      this.getMockInspections = this.getMockInspections.bind(this);
-      this.getMockPeople = this.getMockPeople.bind(this);
-      this.getMockPerson = this.getMockPerson.bind(this);
-      this.getMockPolicyDocs = this.getMockPolicyDocs.bind(this);
-      this.getMockPolicyQueries = this.getMockPolicyQueries.bind(this);
-      this.getMockTarget = this.getMockTarget.bind(this);
-      this.getMockTargets = this.getMockTargets.bind(this);
-      this.getMockTask = this.getMockTask.bind(this);
-      this.getMockTasks = this.getMockTasks.bind(this);
-      this.getMockUser = this.getMockUser.bind(this);
-      this.getMockUsers = this.getMockUsers.bind(this);
-      this.getSkills = this.getSkills.bind(this);
-      this.mockAskPolicy = this.mockAskPolicy.bind(this);
-      this.updateAbsenceTriggers = this.updateAbsenceTriggers.bind(this);
-      this.updateMockPerson = this.updateMockPerson.bind(this);
-    }
-    async createMockAbsence(id, params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/api/mock/people/${encodeURIComponent(id)}/absences`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async createSkill(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/api/dictionaries/skills`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async getAbsenceTriggers() {
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/settings/absence-triggers`);
-      return await resp.json();
-    }
-    async getMockAbsences(id) {
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/people/${encodeURIComponent(id)}/absences`);
-      return await resp.json();
-    }
-    async getMockInspection(id) {
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/inspections/${encodeURIComponent(id)}`);
-      return await resp.json();
-    }
-    async getMockInspections(params) {
-      const query = makeRecord({
-        status: params.status,
-        type: params.type
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/inspections`, void 0, { query });
-      return await resp.json();
-    }
-    async getMockPeople() {
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/people`);
-      return await resp.json();
-    }
-    async getMockPerson(id) {
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/people/${encodeURIComponent(id)}`);
-      return await resp.json();
-    }
-    async getMockPolicyDocs(params) {
-      const query = makeRecord({
-        category: params.category
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/policies/docs`, void 0, { query });
-      return await resp.json();
-    }
-    async getMockPolicyQueries(params) {
-      const query = makeRecord({
-        "user_id": params["user_id"]
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/policies/queries`, void 0, { query });
-      return await resp.json();
-    }
-    async getMockTarget(id) {
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/targets/${encodeURIComponent(id)}`);
-      return await resp.json();
-    }
-    async getMockTargets(params) {
-      const query = makeRecord({
-        metric: params.metric,
-        status: params.status
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/targets`, void 0, { query });
-      return await resp.json();
-    }
-    async getMockTask(id) {
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/tasks/${encodeURIComponent(id)}`);
-      return await resp.json();
-    }
-    async getMockTasks(params) {
-      const query = makeRecord({
-        "assigned_to": params["assigned_to"],
-        status: params.status
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/tasks`, void 0, { query });
-      return await resp.json();
-    }
-    async getMockUser(id) {
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/users/${encodeURIComponent(id)}`);
-      return await resp.json();
-    }
-    async getMockUsers(params) {
-      const query = makeRecord({
-        role: params.role
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/mock/users`, void 0, { query });
-      return await resp.json();
-    }
-    async getSkills() {
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/dictionaries/skills`);
-      return await resp.json();
-    }
-    async mockAskPolicy(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/api/mock/policies/ask`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async updateAbsenceTriggers(params) {
-      const resp = await this.baseClient.callTypedAPI("PUT", `/api/settings/absence-triggers`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async updateMockPerson(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PUT", `/api/mock/people/${encodeURIComponent(id)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-  }
-  mock2.ServiceClient = ServiceClient;
-})(mock || (mock = {}));
-var note;
-((note2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.create = this.create.bind(this);
-      this.deleteNote = this.deleteNote.bind(this);
-      this.list = this.list.bind(this);
-      this.update = this.update.bind(this);
-      this.uploadFile = this.uploadFile.bind(this);
-    }
-    async create(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/notes`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async deleteNote(id) {
-      const resp = await this.baseClient.callTypedAPI("DELETE", `/notes/${encodeURIComponent(id)}`);
-      return await resp.json();
-    }
-    async list(params) {
-      const query = makeRecord({
-        "profile_id": params["profile_id"] === void 0 ? void 0 : String(params["profile_id"]),
-        "user_id": params["user_id"]
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/notes`, void 0, { query });
-      return await resp.json();
-    }
-    async update(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/notes/${encodeURIComponent(id)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-    /**
-     * Attaches a file to one of your notes (raw endpoint: the file is the body).
-     */
-    async uploadFile(note_id, file, filename) {
-      await this.baseClient.callAPI("POST", `/notes/${encodeURIComponent(note_id)}/files`, file, {
-        query: { filename },
-        headers: { "Content-Type": file.type || "application/octet-stream" }
-      });
-    }
-  }
-  note2.ServiceClient = ServiceClient;
-})(note || (note = {}));
-var notification;
-((notification2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.list = this.list.bind(this);
-      this.markAllRead = this.markAllRead.bind(this);
-      this.markRead = this.markRead.bind(this);
-      this.refresh = this.refresh.bind(this);
-    }
-    async list() {
-      const resp = await this.baseClient.callTypedAPI("GET", `/notifications`);
-      return await resp.json();
-    }
-    async markAllRead() {
-      const resp = await this.baseClient.callTypedAPI("POST", `/notifications/read-all`);
-      return await resp.json();
-    }
-    async markRead(id) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/notifications/${encodeURIComponent(id)}/read`);
-      return await resp.json();
-    }
-    /**
-     * Refreshes notifications for the current user.
-     * Generates cert_expiry, task_overdue, and crewing_gap notifications.
-     * Deduplicates: will not create a duplicate notification for the same entity
-     * if one already exists that is unread.
-     */
-    async refresh() {
-      const resp = await this.baseClient.callTypedAPI("POST", `/notifications/refresh`);
-      return await resp.json();
-    }
-  }
-  notification2.ServiceClient = ServiceClient;
-})(notification || (notification = {}));
-var policy;
-((policy2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.ask = this.ask.bind(this);
-      this.deletePolicy = this.deletePolicy.bind(this);
-      this.getDownloadUrl = this.getDownloadUrl.bind(this);
-      this.list = this.list.bind(this);
-      this.processEmbedding = this.processEmbedding.bind(this);
-      this.queryHistory = this.queryHistory.bind(this);
-      this.upload = this.upload.bind(this);
-      this.uploadFile = this.uploadFile.bind(this);
-      this.acknowledge = this.acknowledge.bind(this);
-      this.setRequiresAck = this.setRequiresAck.bind(this);
-      this.getStats = this.getStats.bind(this);
-    }
-    async acknowledge(id) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/policies/${encodeURIComponent(id)}/acknowledge`);
-      return await resp.json();
-    }
-    async setRequiresAck(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/policies/${encodeURIComponent(id)}/require-ack`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async getStats(id) {
-      const resp = await this.baseClient.callTypedAPI("GET", `/policies/${encodeURIComponent(id)}/stats`);
-      return await resp.json();
-    }
-    async ask(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/policies/ask`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async deletePolicy(id) {
-      const resp = await this.baseClient.callTypedAPI("DELETE", `/policies/${encodeURIComponent(id)}`);
-      return await resp.json();
-    }
-    async getDownloadUrl(id) {
-      const resp = await this.baseClient.callTypedAPI("GET", `/policies/${encodeURIComponent(id)}/download-url`);
-      return await resp.json();
-    }
-    async list(params) {
-      const query = makeRecord({
-        category: params.category,
-        limit: params.limit === void 0 ? void 0 : String(params.limit),
-        offset: params.offset === void 0 ? void 0 : String(params.offset)
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/policies`, void 0, { query });
-      return await resp.json();
-    }
-    async processEmbedding(policy_id) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/policies/${encodeURIComponent(policy_id)}/embed`);
-      return await resp.json();
-    }
-    async queryHistory(params) {
-      const query = makeRecord({
-        limit: params.limit === void 0 ? void 0 : String(params.limit),
-        offset: params.offset === void 0 ? void 0 : String(params.offset),
-        "user_id": params["user_id"]
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/policies/queries`, void 0, { query });
-      return await resp.json();
-    }
-    async upload(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/api/policies`, JSON.stringify(params));
-      return await resp.json();
-    }
-    /**
-     * Stores a policy PDF (raw endpoint: the file is the body). Save the record with upload() after.
-     */
-    async uploadFile(file, filename) {
-      const resp = await this.baseClient.callAPI("POST", `/policies/files`, file, {
-        query: { filename },
-        headers: { "Content-Type": "application/pdf" }
-      });
-      return await resp.json();
-    }
-  }
-  policy2.ServiceClient = ServiceClient;
-})(policy || (policy = {}));
-var profile;
-((profile2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.create = this.create.bind(this);
-      this.createPerson = this.createPerson.bind(this);
-      this.getByUser = this.getByUser.bind(this);
-      this.profileHistory = this.profileHistory.bind(this);
-      this.importNotionPersonnel = this.importNotionPersonnel.bind(this);
-      this.list = this.list.bind(this);
-      this.listWithUsers = this.listWithUsers.bind(this);
-      this.recalculateTriggers = this.recalculateTriggers.bind(this);
-      this.update = this.update.bind(this);
-    }
-    async create(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/profiles`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async createPerson(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/api/people`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async getByUser(user_id) {
-      const resp = await this.baseClient.callTypedAPI("GET", `/profiles/user/${encodeURIComponent(user_id)}`);
-      return await resp.json();
-    }
-    async profileHistory(id, params = {}) {
-      const query = makeRecord({ limit: params.limit === void 0 ? void 0 : String(params.limit) });
-      const resp = await this.baseClient.callTypedAPI("GET", `/profiles/${encodeURIComponent(id)}/history`, void 0, { query });
-      return await resp.json();
-    }
-    async importNotionPersonnel(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/import/notion-personnel`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async list(params) {
-      const query = makeRecord({
-        limit: params.limit === void 0 ? void 0 : String(params.limit),
-        offset: params.offset === void 0 ? void 0 : String(params.offset),
-        shift: params.shift,
-        station: params.station,
-        watch: params.watch
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/profiles`, void 0, { query });
-      return await resp.json();
-    }
-    async listWithUsers(params) {
-      const query = makeRecord({
-        limit: params.limit === void 0 ? void 0 : String(params.limit),
-        offset: params.offset === void 0 ? void 0 : String(params.offset),
-        rank: params.rank,
-        shift: params.shift,
-        station: params.station,
-        status: params.status === void 0 ? void 0 : String(params.status),
-        "watch_unit": params["watch_unit"]
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/people`, void 0, { query });
-      return await resp.json();
-    }
-    async recalculateTriggers(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/profile/recalculate-triggers`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async update(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/profiles/${encodeURIComponent(id)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-  }
-  profile2.ServiceClient = ServiceClient;
-})(profile || (profile = {}));
-var quarterly_report;
-((quarterly_report2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.addCustomItem = this.addCustomItem.bind(this);
-      this.create = this.create.bind(this);
-      this.deleteCustomItem = this.deleteCustomItem.bind(this);
-      this.get = this.get.bind(this);
-      this.list = this.list.bind(this);
-      this.updateCustomItem = this.updateCustomItem.bind(this);
-      this.updateItem = this.updateItem.bind(this);
-      this.updateReport = this.updateReport.bind(this);
-    }
-    async addCustomItem(id, params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/quarterly-reports/${encodeURIComponent(id)}/custom-items`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async create(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/quarterly-reports`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async deleteCustomItem(id, itemId) {
-      await this.baseClient.callTypedAPI("DELETE", `/quarterly-reports/${encodeURIComponent(id)}/custom-items/${encodeURIComponent(itemId)}`);
-    }
-    async get(id) {
-      const resp = await this.baseClient.callTypedAPI("GET", `/quarterly-reports/${encodeURIComponent(id)}`);
-      return await resp.json();
-    }
-    async list(params) {
-      const query = makeRecord({
-        "financial_year": params["financial_year"] === void 0 ? void 0 : String(params["financial_year"]),
-        quarter: params.quarter === void 0 ? void 0 : String(params.quarter),
-        watch: params.watch
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/quarterly-reports`, void 0, { query });
-      return await resp.json();
-    }
-    async updateCustomItem(id, itemId, params) {
-      const resp = await this.baseClient.callTypedAPI("PUT", `/quarterly-reports/${encodeURIComponent(id)}/custom-items/${encodeURIComponent(itemId)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async updateItem(id, itemId, params) {
-      const resp = await this.baseClient.callTypedAPI("PUT", `/quarterly-reports/${encodeURIComponent(id)}/items/${encodeURIComponent(itemId)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async updateReport(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PUT", `/quarterly-reports/${encodeURIComponent(id)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-  }
-  quarterly_report2.ServiceClient = ServiceClient;
-})(quarterly_report || (quarterly_report = {}));
-var references;
-((references2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.listReferences = this.listReferences.bind(this);
-      this.saveReference = this.saveReference.bind(this);
-      this.saveReferenceCards = this.saveReferenceCards.bind(this);
-    }
-    /** Set a reference's monthly / quarterly / annual cards (WC/CC). No checks = switched off. */
-    async saveReferenceCards(ref, params) {
-      const resp = await this.baseClient.callTypedAPI("PUT", `/station-references/${encodeURIComponent(ref)}/cards`, JSON.stringify(params));
-      return await resp.json();
-    }
-    /** Every station reference's title and duties (0 = all watches). */
-    async listReferences() {
-      const resp = await this.baseClient.callTypedAPI("GET", `/station-references`);
-      return await resp.json();
-    }
-    /** Set a reference's title and duties (WC/CC). */
-    async saveReference(ref, params) {
-      const resp = await this.baseClient.callTypedAPI("PUT", `/station-references/${encodeURIComponent(ref)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-  }
-  references2.ServiceClient = ServiceClient;
-})(references || (references = {}));
-var report;
-((report2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.exportCsv = this.exportCsv.bind(this);
-      this.importStaffCsv = this.importStaffCsv.bind(this);
-    }
-    async exportCsv(table, params) {
-      const query = makeRecord({
-        "user_id": params["user_id"]
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/reports/export/${encodeURIComponent(table)}`, void 0, { query });
-      return await resp.json();
-    }
-    async importStaffCsv(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/reports/import-staff`, JSON.stringify(params));
-      return await resp.json();
-    }
-  }
-  report2.ServiceClient = ServiceClient;
-})(report || (report = {}));
-var schedule;
-((schedule2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.list = this.list.bind(this);
-    }
-    async list(params) {
-      const qs = [];
-      if (params == null ? void 0 : params.from) qs.push(`from=${encodeURIComponent(params.from)}`);
-      if (params == null ? void 0 : params.to) qs.push(`to=${encodeURIComponent(params.to)}`);
-      const q = qs.length ? `?${qs.join("&")}` : "";
-      const resp = await this.baseClient.callTypedAPI("GET", `/schedule${q}`);
-      return await resp.json();
-    }
-  }
-  schedule2.ServiceClient = ServiceClient;
-})(schedule || (schedule = {}));
-var settings;
-((settings2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.get = this.get.bind(this);
-      this.updateAbsenceThresholds = this.updateAbsenceThresholds.bind(this);
-      this.updateBranding = this.updateBranding.bind(this);
-      this.updateFeatureFlags = this.updateFeatureFlags.bind(this);
-      this.updateSkillsCerts = this.updateSkillsCerts.bind(this);
-      this.updateTriggerThresholds = this.updateTriggerThresholds.bind(this);
-    }
-    async get() {
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/settings`);
-      return await resp.json();
-    }
-    async updateAbsenceThresholds(params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/settings/absence-thresholds`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async updateBranding(params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/settings/branding`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async updateFeatureFlags(params) {
-      const resp = await this.baseClient.callTypedAPI("PUT", `/settings/feature-flags`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async updateSkillsCerts(params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/settings/skills-certs`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async updateTriggerThresholds(params) {
-      const resp = await this.baseClient.callTypedAPI("PUT", `/settings/trigger-thresholds`, JSON.stringify(params));
-      return await resp.json();
-    }
-  }
-  settings2.ServiceClient = ServiceClient;
-})(settings || (settings = {}));
-var shift_adjustments;
-((shift_adjustments2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.create = this.create.bind(this);
-      this.deleteAdjustment = this.deleteAdjustment.bind(this);
-      this.list = this.list.bind(this);
-      this.update = this.update.bind(this);
-      this.previewRequest = this.previewRequest.bind(this);
-      this.createRequest = this.createRequest.bind(this);
-      this.getRequest = this.getRequest.bind(this);
-      this.confirmCover = this.confirmCover.bind(this);
-      this.decideRequest = this.decideRequest.bind(this);
-      this.recordOutcome = this.recordOutcome.bind(this);
-      this.withdrawRequest = this.withdrawRequest.bind(this);
-      this.addPayback = this.addPayback.bind(this);
-      this.decidePayback = this.decidePayback.bind(this);
-      this.listRequests = this.listRequests.bind(this);
-      this.requestsNeedingMe = this.requestsNeedingMe.bind(this);
-      this.listReviewers = this.listReviewers.bind(this);
-      this.flexiBalances = this.flexiBalances.bind(this);
-      this.setFlexiOpening = this.setFlexiOpening.bind(this);
-      this.setFlexiLimits = this.setFlexiLimits.bind(this);
-    }
-    async previewRequest(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests/preview`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async createRequest(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async getRequest(id) {
-      const resp = await this.baseClient.callTypedAPI("GET", `/shift-requests/record/${encodeURIComponent(id)}`);
-      return await resp.json();
-    }
-    async confirmCover(id, params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests/${encodeURIComponent(id)}/confirm-cover`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async decideRequest(id, params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests/${encodeURIComponent(id)}/decide`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async recordOutcome(id, params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests/${encodeURIComponent(id)}/outcome`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async withdrawRequest(id, params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests/${encodeURIComponent(id)}/withdraw`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async addPayback(id, params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests/${encodeURIComponent(id)}/payback`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async decidePayback(id, params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests/${encodeURIComponent(id)}/payback-decision`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async listRequests(params) {
-      const query = makeRecord({
-        scope: params.scope,
-        year: params.year === void 0 ? void 0 : String(params.year)
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/shift-requests`, void 0, { query });
-      return await resp.json();
-    }
-    async requestsNeedingMe() {
-      const resp = await this.baseClient.callTypedAPI("GET", `/shift-requests/needs-me`);
-      return await resp.json();
-    }
-    async listReviewers() {
-      const resp = await this.baseClient.callTypedAPI("GET", `/shift-requests/reviewers`);
-      return await resp.json();
-    }
-    async flexiBalances(params) {
-      const query = makeRecord({
-        watch: params.watch,
-        year: params.year === void 0 ? void 0 : String(params.year)
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/shift-requests/balances`, void 0, { query });
-      return await resp.json();
-    }
-    async setFlexiOpening(params) {
-      const resp = await this.baseClient.callTypedAPI("PUT", `/shift-requests/balances`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async setFlexiLimits(params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/shift-requests/limits`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async create(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/shift-adjustments`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async deleteAdjustment(id) {
-      await this.baseClient.callTypedAPI("DELETE", `/shift-adjustments/${encodeURIComponent(id)}`);
-    }
-    async list(params) {
-      const query = makeRecord({
-        "covering_watch": params["covering_watch"],
-        "end_date": params["end_date"],
-        id: params.id === void 0 ? void 0 : String(params.id),
-        "involving_user_id": params["involving_user_id"],
-        "start_date": params["start_date"],
-        "user_id": params["user_id"],
-        "watch_unit": params["watch_unit"]
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/shift-adjustments`, void 0, { query });
-      return await resp.json();
-    }
-    async update(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/shift-adjustments/${encodeURIComponent(id)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-  }
-  shift_adjustments2.ServiceClient = ServiceClient;
-})(shift_adjustments || (shift_adjustments = {}));
-var skill;
-((skill2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.create = this.create.bind(this);
-      this.deleteSkillRenewal = this.deleteSkillRenewal.bind(this);
-      this.list = this.list.bind(this);
-      this.listExpiring = this.listExpiring.bind(this);
-      this.update = this.update.bind(this);
-    }
-    async create(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/skills/renewals`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async deleteSkillRenewal(id) {
-      const resp = await this.baseClient.callTypedAPI("DELETE", `/skills/renewals/${encodeURIComponent(id)}`);
-      return await resp.json();
-    }
-    async list(params) {
-      const query = makeRecord({
-        "profile_id": String(params["profile_id"])
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/skills/renewals`, void 0, { query });
-      return await resp.json();
-    }
-    async listExpiring() {
-      const resp = await this.baseClient.callTypedAPI("GET", `/skills/renewals/expiring`);
-      return await resp.json();
-    }
-    async update(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/skills/renewals/${encodeURIComponent(id)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-  }
-  skill2.ServiceClient = ServiceClient;
-})(skill || (skill = {}));
-var targets;
-((targets2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.create = this.create.bind(this);
-      this.list = this.list.bind(this);
-      this.update = this.update.bind(this);
-    }
-    async create(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/api/targets`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async list(params) {
-      const query = makeRecord({
-        limit: params.limit === void 0 ? void 0 : String(params.limit),
-        metric: params.metric === void 0 ? void 0 : String(params.metric),
-        offset: params.offset === void 0 ? void 0 : String(params.offset),
-        "period_end": params["period_end"],
-        "period_start": params["period_start"],
-        status: params.status === void 0 ? void 0 : String(params.status)
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/targets`, void 0, { query });
-      return await resp.json();
-    }
-    async update(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/api/targets/${encodeURIComponent(id)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-  }
-  targets2.ServiceClient = ServiceClient;
-})(targets || (targets = {}));
-var task;
-((task2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.create = this.create.bind(this);
-      this.createColumn = this.createColumn.bind(this);
-      this.createTemplate = this.createTemplate.bind(this);
-      this.deleteColumn = this.deleteColumn.bind(this);
-      this.deleteTask = this.deleteTask.bind(this);
-      this.deleteTemplate = this.deleteTemplate.bind(this);
-      this.list = this.list.bind(this);
-      this.listColumns = this.listColumns.bind(this);
-      this.shiftBoard = this.shiftBoard.bind(this);
-      this.missedChecks = this.missedChecks.bind(this);
-      this.listTemplates = this.listTemplates.bind(this);
-      this.reorderColumns = this.reorderColumns.bind(this);
-      this.update = this.update.bind(this);
-      this.updateColumn = this.updateColumn.bind(this);
-      this.updateTemplate = this.updateTemplate.bind(this);
-      this.saveRoutine = this.saveRoutine.bind(this);
-    }
-    /** Set one weekly-routine slot's cards ('every', 'MO-day', 'MO-night'…). Cards left out are removed. */
-    async saveRoutine(slot, params) {
-      const resp = await this.baseClient.callTypedAPI("PUT", `/task-templates/routine/${encodeURIComponent(slot)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async create(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/api/tasks`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async createColumn(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/task-columns`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async createTemplate(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/task-templates`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async deleteColumn(id) {
-      await this.baseClient.callTypedAPI("DELETE", `/task-columns/${encodeURIComponent(id)}`);
-    }
-    async deleteTask(id) {
-      await this.baseClient.callTypedAPI("DELETE", `/api/tasks/${encodeURIComponent(id)}`);
-    }
-    async deleteTemplate(id) {
-      await this.baseClient.callTypedAPI("DELETE", `/task-templates/${encodeURIComponent(id)}`);
-    }
-    async list(params) {
-      const query = makeRecord({
-        "assigned_by": params["assigned_by"],
-        "assigned_to": params["assigned_to"],
-        limit: params.limit === void 0 ? void 0 : String(params.limit),
-        offset: params.offset === void 0 ? void 0 : String(params.offset),
-        priority: params.priority === void 0 ? void 0 : String(params.priority),
-        status: params.status === void 0 ? void 0 : String(params.status),
-        "watch_unit": params["watch_unit"]
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/tasks`, void 0, { query });
-      return await resp.json();
-    }
-    async missedChecks(params) {
-      const query = makeRecord({ days: params.days === void 0 ? void 0 : String(params.days) });
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/tasks/missed-checks`, void 0, { query });
-      return await resp.json();
-    }
-    async shiftBoard(params) {
-      const query = makeRecord({ watch: params.watch });
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/tasks/shift`, void 0, { query });
-      return await resp.json();
-    }
-    async listColumns() {
-      const resp = await this.baseClient.callTypedAPI("GET", `/task-columns`);
-      return await resp.json();
-    }
-    async listTemplates() {
-      const resp = await this.baseClient.callTypedAPI("GET", `/task-templates`);
-      return await resp.json();
-    }
-    async reorderColumns(params) {
-      await this.baseClient.callTypedAPI("POST", `/task-columns/reorder`, JSON.stringify(params));
-    }
-    async update(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/api/tasks/${encodeURIComponent(id)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async updateColumn(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/task-columns/${encodeURIComponent(id)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async updateTemplate(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/task-templates/${encodeURIComponent(id)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-  }
-  task2.ServiceClient = ServiceClient;
-})(task || (task = {}));
-var toil;
-((toil2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.approve = this.approve.bind(this);
-      this.balance = this.balance.bind(this);
-      this.earn = this.earn.bind(this);
-      this.list = this.list.bind(this);
-      this.update = this.update.bind(this);
-      this.deleteEntry = this.deleteEntry.bind(this);
-    }
-    /**
-     * PATCH /toil/:id/approve — WC/CC approves or rejects a pending TOIL entry
-     */
-    async approve(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/toil/${encodeURIComponent(id)}/approve`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async update(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/toil/${encodeURIComponent(id)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async deleteEntry(id) {
-      const resp = await this.baseClient.callTypedAPI("DELETE", `/toil/${encodeURIComponent(id)}`);
-      return await resp.json();
-    }
-    /**
-     * GET /toil/balance — Get TOIL balances for user(s)
-     */
-    async balance(params) {
-      const query = makeRecord({
-        "user_id": params["user_id"],
-        "watch_unit": params["watch_unit"],
-        year: params.year === void 0 ? void 0 : String(params.year)
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/toil/balance`, void 0, { query });
-      return await resp.json();
-    }
-    /**
-     * POST /toil/earn — Log TOIL hours earned (pending WC/CC approval)
-     */
-    async earn(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/toil/earn`, JSON.stringify(params));
-      return await resp.json();
-    }
-    /**
-     * GET /toil — List TOIL entries with optional filters
-     */
-    async list(params) {
-      const query = makeRecord({
-        "financial_year": params["financial_year"] === void 0 ? void 0 : String(params["financial_year"]),
-        status: params.status,
-        type: params.type,
-        "user_id": params["user_id"],
-        "watch_unit": params["watch_unit"]
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/toil`, void 0, { query });
-      return await resp.json();
-    }
-  }
-  toil2.ServiceClient = ServiceClient;
-})(toil || (toil = {}));
-var training;
-((training2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.addAttendance = this.addAttendance.bind(this);
-      this.create = this.create.bind(this);
-      this.get = this.get.bind(this);
-      this.list = this.list.bind(this);
-      this.removeAttendance = this.removeAttendance.bind(this);
-      this.update = this.update.bind(this);
-    }
-    async addAttendance(id, params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/api/training/${encodeURIComponent(id)}/attendance`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async create(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/api/training`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async get(id) {
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/training/${encodeURIComponent(id)}`);
-      return await resp.json();
-    }
-    async list(params) {
-      const query = makeRecord({
-        "end_date": params["end_date"],
-        limit: params.limit === void 0 ? void 0 : String(params.limit),
-        offset: params.offset === void 0 ? void 0 : String(params.offset),
-        "start_date": params["start_date"],
-        status: params.status,
-        watch: params.watch
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/api/training`, void 0, { query });
-      return await resp.json();
-    }
-    async removeAttendance(id, userId) {
-      const resp = await this.baseClient.callTypedAPI("DELETE", `/api/training/${encodeURIComponent(id)}/attendance/${encodeURIComponent(userId)}`);
-      return await resp.json();
-    }
-    async update(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PUT", `/api/training/${encodeURIComponent(id)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-  }
-  training2.ServiceClient = ServiceClient;
-})(training || (training = {}));
-var user;
-((user2) => {
-  class ServiceClient {
-    constructor(baseClient) {
-      this.baseClient = baseClient;
-      this.create = this.create.bind(this);
-      this.deleteUser = this.deleteUser.bind(this);
-      this.get = this.get.bind(this);
-      this.list = this.list.bind(this);
-      this.listBasic = this.listBasic.bind(this);
-      this.update = this.update.bind(this);
-    }
-    async create(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/users`, JSON.stringify(params));
-      return await resp.json();
-    }
-    async deleteUser(id) {
-      await this.baseClient.callTypedAPI("DELETE", `/users/${encodeURIComponent(id)}`);
-    }
-    async get(id) {
-      const resp = await this.baseClient.callTypedAPI("GET", `/users/${encodeURIComponent(id)}`);
-      return await resp.json();
-    }
-    async list(params) {
-      const query = makeRecord({
-        limit: params.limit === void 0 ? void 0 : String(params.limit),
-        offset: params.offset === void 0 ? void 0 : String(params.offset),
-        role: params.role === void 0 ? void 0 : String(params.role)
-      });
-      const resp = await this.baseClient.callTypedAPI("GET", `/users`, void 0, { query });
-      return await resp.json();
-    }
-    async listBasic() {
-      const resp = await this.baseClient.callTypedAPI("GET", `/users/basic`);
-      return await resp.json();
-    }
-    async update(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/users/${encodeURIComponent(id)}`, JSON.stringify(params));
-      return await resp.json();
-    }
-  }
-  user2.ServiceClient = ServiceClient;
-})(user || (user = {}));
-function encodeQuery(parts) {
-  const pairs = [];
-  for (const key2 in parts) {
-    const val = Array.isArray(parts[key2]) ? parts[key2] : [parts[key2]];
-    for (const v of val) {
-      pairs.push(`${key2}=${encodeURIComponent(v)}`);
-    }
-  }
-  return pairs.join("&");
-}
-function makeRecord(record) {
-  for (const key2 in record) {
-    if (record[key2] === void 0) {
-      delete record[key2];
-    }
-  }
-  return record;
-}
-function encodeWebSocketHeaders(headers) {
-  const base64encoded = btoa(JSON.stringify(headers)).replaceAll("=", "").replaceAll("+", "-").replaceAll("/", "_");
-  return "encore.dev.headers." + base64encoded;
-}
-class WebSocketConnection {
-  constructor(url, headers) {
-    this.hasUpdateHandlers = [];
-    let protocols = ["encore-ws"];
-    if (headers) {
-      protocols.push(encodeWebSocketHeaders(headers));
-    }
-    this.ws = new WebSocket(url, protocols);
-    this.on("error", () => {
-      this.resolveHasUpdateHandlers();
-    });
-    this.on("close", () => {
-      this.resolveHasUpdateHandlers();
-    });
-  }
-  resolveHasUpdateHandlers() {
-    const handlers = this.hasUpdateHandlers;
-    this.hasUpdateHandlers = [];
-    for (const handler of handlers) {
-      handler();
-    }
-  }
-  async hasUpdate() {
-    await new Promise((resolve) => {
-      this.hasUpdateHandlers.push(() => resolve(null));
-    });
-  }
-  on(type, handler) {
-    this.ws.addEventListener(type, handler);
-  }
-  off(type, handler) {
-    this.ws.removeEventListener(type, handler);
-  }
-  close() {
-    this.ws.close();
-  }
-}
-class StreamInOut {
-  constructor(url, headers) {
-    this.buffer = [];
-    this.socket = new WebSocketConnection(url, headers);
-    this.socket.on("message", (event) => {
-      this.buffer.push(JSON.parse(event.data));
-      this.socket.resolveHasUpdateHandlers();
-    });
-  }
-  close() {
-    this.socket.close();
-  }
-  async send(msg) {
-    if (this.socket.ws.readyState === WebSocket.CONNECTING) {
-      await new Promise((resolve) => {
-        this.socket.ws.addEventListener("open", resolve, { once: true });
-      });
-    }
-    return this.socket.ws.send(JSON.stringify(msg));
-  }
-  async next() {
-    for await (const next of this) return next;
-    return void 0;
-  }
-  async *[Symbol.asyncIterator]() {
-    while (true) {
-      if (this.buffer.length > 0) {
-        yield this.buffer.shift();
-      } else {
-        if (this.socket.ws.readyState === WebSocket.CLOSED) return;
-        await this.socket.hasUpdate();
-      }
-    }
-  }
-}
-class StreamIn {
-  constructor(url, headers) {
-    this.buffer = [];
-    this.socket = new WebSocketConnection(url, headers);
-    this.socket.on("message", (event) => {
-      this.buffer.push(JSON.parse(event.data));
-      this.socket.resolveHasUpdateHandlers();
-    });
-  }
-  close() {
-    this.socket.close();
-  }
-  async next() {
-    for await (const next of this) return next;
-    return void 0;
-  }
-  async *[Symbol.asyncIterator]() {
-    while (true) {
-      if (this.buffer.length > 0) {
-        yield this.buffer.shift();
-      } else {
-        if (this.socket.ws.readyState === WebSocket.CLOSED) return;
-        await this.socket.hasUpdate();
-      }
-    }
-  }
-}
-class StreamOut {
-  constructor(url, headers) {
-    let responseResolver;
-    this.responseValue = new Promise((resolve) => responseResolver = resolve);
-    this.socket = new WebSocketConnection(url, headers);
-    this.socket.on("message", (event) => {
-      responseResolver(JSON.parse(event.data));
-    });
-  }
-  async response() {
-    return this.responseValue;
-  }
-  close() {
-    this.socket.close();
-  }
-  async send(msg) {
-    if (this.socket.ws.readyState === WebSocket.CONNECTING) {
-      await new Promise((resolve) => {
-        this.socket.ws.addEventListener("open", resolve, { once: true });
-      });
-    }
-    return this.socket.ws.send(JSON.stringify(msg));
-  }
-}
-const boundFetch = fetch.bind(void 0);
-class BaseClient {
-  constructor(baseURL2, options) {
-    this.baseURL = baseURL2;
-    this.headers = {};
-    if (!BROWSER) {
-      this.headers["User-Agent"] = "watch-commander-ops-hub-8spi-Generated-TS-Client (Encore/v1.54.0)";
-    }
-    this.requestInit = options.requestInit ?? {};
-    if (options.fetcher !== void 0) {
-      this.fetcher = options.fetcher;
-    } else {
-      this.fetcher = boundFetch;
-    }
-    if (options.auth !== void 0) {
-      const auth = options.auth;
-      if (typeof auth === "function") {
-        this.authGenerator = auth;
-      } else {
-        this.authGenerator = () => auth;
-      }
-    }
-  }
-  async getAuthData() {
-    let authData;
-    if (this.authGenerator) {
-      const mayBePromise = this.authGenerator();
-      if (mayBePromise instanceof Promise) {
-        authData = await mayBePromise;
-      } else {
-        authData = mayBePromise;
-      }
-    }
-    if (authData) {
-      const data = {};
-      data.headers = makeRecord({
-        authorization: authData.authorization
-      });
-      return data;
-    }
-    return void 0;
-  }
-  // createStreamInOut sets up a stream to a streaming API endpoint.
-  async createStreamInOut(path, params) {
-    let { query, headers } = params ?? {};
-    const authData = await this.getAuthData();
-    if (authData) {
-      if (authData.query) {
-        query = { ...query, ...authData.query };
-      }
-      if (authData.headers) {
-        headers = { ...headers, ...authData.headers };
-      }
-    }
-    const queryString = query ? "?" + encodeQuery(query) : "";
-    return new StreamInOut(this.baseURL + path + queryString, headers);
-  }
-  // createStreamIn sets up a stream to a streaming API endpoint.
-  async createStreamIn(path, params) {
-    let { query, headers } = params ?? {};
-    const authData = await this.getAuthData();
-    if (authData) {
-      if (authData.query) {
-        query = { ...query, ...authData.query };
-      }
-      if (authData.headers) {
-        headers = { ...headers, ...authData.headers };
-      }
-    }
-    const queryString = query ? "?" + encodeQuery(query) : "";
-    return new StreamIn(this.baseURL + path + queryString, headers);
-  }
-  // createStreamOut sets up a stream to a streaming API endpoint.
-  async createStreamOut(path, params) {
-    let { query, headers } = params ?? {};
-    const authData = await this.getAuthData();
-    if (authData) {
-      if (authData.query) {
-        query = { ...query, ...authData.query };
-      }
-      if (authData.headers) {
-        headers = { ...headers, ...authData.headers };
-      }
-    }
-    const queryString = query ? "?" + encodeQuery(query) : "";
-    return new StreamOut(this.baseURL + path + queryString, headers);
-  }
-  // callTypedAPI makes an API call, defaulting content type to "application/json"
-  async callTypedAPI(method, path, body, params) {
-    return this.callAPI(method, path, body, {
-      ...params,
-      headers: { "Content-Type": "application/json", ...params == null ? void 0 : params.headers }
-    });
-  }
-  // callAPI is used by each generated API method to actually make the request
-  async callAPI(method, path, body, params) {
-    let { query, headers, ...rest } = params ?? {};
-    const init = {
-      ...this.requestInit,
-      ...rest,
-      method,
-      body: body ?? null
-    };
-    init.headers = { ...this.headers, ...init.headers, ...headers };
-    const authData = await this.getAuthData();
-    if (authData) {
-      if (authData.query) {
-        query = { ...query, ...authData.query };
-      }
-      if (authData.headers) {
-        init.headers = { ...init.headers, ...authData.headers };
-      }
-    }
-    const queryString = query ? "?" + encodeQuery(query) : "";
-    const response = await this.fetcher(this.baseURL + path + queryString, init);
-    if (!response.ok) {
-      let body2 = { code: "unknown", message: `request failed: status ${response.status}` };
-      try {
-        const text2 = await response.text();
-        try {
-          const jsonBody = JSON.parse(text2);
-          if (isAPIErrorResponse(jsonBody)) {
-            body2 = jsonBody;
-          } else {
-            body2.message += ": " + JSON.stringify(jsonBody);
-          }
-        } catch {
-          body2.message += ": " + text2;
-        }
-      } catch (e) {
-        body2.message += ": " + String(e);
-      }
-      throw new APIError(response.status, body2);
-    }
-    return response;
-  }
-}
-function isAPIErrorResponse(err2) {
-  return err2 !== void 0 && err2 !== null && isErrCode(err2.code) && typeof err2.message === "string" && (err2.details === void 0 || err2.details === null || typeof err2.details === "object");
-}
-function isErrCode(code) {
-  return code !== void 0 && Object.values(ErrCode).includes(code);
-}
-class APIError extends Error {
-  constructor(status, response) {
-    super(response.message);
-    Object.defineProperty(this, "name", {
-      value: "APIError",
-      enumerable: false,
-      configurable: true
-    });
-    if (Object.setPrototypeOf == void 0) {
-      this.__proto__ = APIError.prototype;
-    } else {
-      Object.setPrototypeOf(this, APIError.prototype);
-    }
-    if (Error.captureStackTrace !== void 0) {
-      Error.captureStackTrace(this, this.constructor);
-    }
-    this.status = status;
-    this.code = response.code;
-    this.details = response.details;
-  }
-}
-var ErrCode = /* @__PURE__ */ ((ErrCode2) => {
-  ErrCode2["OK"] = "ok";
-  ErrCode2["Canceled"] = "canceled";
-  ErrCode2["Unknown"] = "unknown";
-  ErrCode2["InvalidArgument"] = "invalid_argument";
-  ErrCode2["DeadlineExceeded"] = "deadline_exceeded";
-  ErrCode2["NotFound"] = "not_found";
-  ErrCode2["AlreadyExists"] = "already_exists";
-  ErrCode2["PermissionDenied"] = "permission_denied";
-  ErrCode2["ResourceExhausted"] = "resource_exhausted";
-  ErrCode2["FailedPrecondition"] = "failed_precondition";
-  ErrCode2["Aborted"] = "aborted";
-  ErrCode2["OutOfRange"] = "out_of_range";
-  ErrCode2["Unimplemented"] = "unimplemented";
-  ErrCode2["Internal"] = "internal";
-  ErrCode2["Unavailable"] = "unavailable";
-  ErrCode2["DataLoss"] = "data_loss";
-  ErrCode2["Unauthenticated"] = "unauthenticated";
-  return ErrCode2;
-})(ErrCode || {});
-const authGenerator = () => {
-  const token = localStorage.getItem("auth_token");
-  if (token) {
-    return { authorization: `Bearer ${token}` };
-  }
-  return void 0;
-};
-const baseURL = typeof window !== "undefined" && window.location.hostname !== "localhost" ? "" : Local;
-const backendClient = new Client(baseURL, { auth: authGenerator });
-function useBackend$1() {
-  return backendClient;
-}
-const DEFAULT_FLAGS = {
-  dashboard: true,
-  people: true,
-  calendar: true,
-  tasks: true,
-  targets: true,
-  detachments: true,
-  equipment: true,
-  handover: true,
-  policies: true,
-  resources: true,
-  reports: true,
-  inspections: true
-};
-const FeatureFlagContext = reactExports.createContext({
-  flags: DEFAULT_FLAGS,
-  isLoaded: false,
-  refetch: () => {
-  }
-});
-function FeatureFlagProvider({ children }) {
-  const { user: user2 } = useAuth();
-  const [flags, setFlags] = reactExports.useState(DEFAULT_FLAGS);
-  const [isLoaded, setIsLoaded] = reactExports.useState(false);
-  const fetchFlags = async () => {
-    try {
-      const settings2 = await backendClient.settings.get();
-      if (settings2.feature_flags) {
-        setFlags(settings2.feature_flags);
-      }
-    } catch (err2) {
-      console.error("Failed to load feature flags:", err2);
-    } finally {
-      setIsLoaded(true);
-    }
-  };
-  reactExports.useEffect(() => {
-    if (user2) {
-      fetchFlags();
-    }
-  }, [user2 == null ? void 0 : user2.id]);
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(FeatureFlagContext.Provider, { value: { flags, isLoaded, refetch: fetchFlags }, children });
-}
-function useFeatureFlags() {
-  return reactExports.useContext(FeatureFlagContext);
-}
-const NAV_GROUPS = [
-  {
-    label: "Today",
-    items: [
-      { name: "Home", path: "/", icon: House, featureKey: "dashboard", shortcut: "D", keywords: "dashboard needs you" },
-      { name: "Shift", path: "/handover", icon: ClipboardList, featureKey: "handover", shortcut: "H", keywords: "handover crewing board riding" },
-      { name: "Tasks", path: "/tasks", icon: SquareCheckBig, featureKey: "tasks", shortcut: "T", badge: "tasks", keywords: "shift board checks to do" },
-      { name: "Calendar", path: "/calendar", icon: Calendar, featureKey: "calendar", keywords: "events leave rota" }
-    ]
-  },
-  {
-    label: "Crew",
-    items: [
-      { name: "People", path: "/people", icon: Users, featureKey: "people", shortcut: "P", badge: "people", keywords: "crew staff firefighters profiles" },
-      { name: "Requests", path: "/requests", icon: FileCheck, badge: "requests", keywords: "flexi day head for head h4h swap annual leave move kronos authorise decline records" },
-      { name: "Bulletins", path: "/bulletins", icon: Megaphone, badge: "bulletins", keywords: "news announcements messages" },
-      { name: "Training", path: "/training", icon: GraduationCap, keywords: "courses skills certificates" },
-      { name: "Detachments", path: "/detachments", icon: Navigation, featureKey: "detachments", keywords: "detached duty rota" }
-    ]
-  },
-  {
-    label: "Station",
-    items: [
-      { name: "Targets", path: "/targets", icon: Target, featureKey: "targets", shortcut: "G", keywords: "hfsv community multi-story performance" },
-      { name: "Reports", path: "/reports", icon: ChartNoAxesColumn, featureKey: "reports", keywords: "quarterly report export csv" },
-      { name: "Hydrants", path: "/hydrants", icon: Flame, keywords: "hydrant routes faults" },
-      { name: "J4 Checks", path: "/equipment", icon: Truck, featureKey: "equipment", keywords: "equipment appliance defects" },
-      { name: "References", path: "/references", icon: BookMarked, keywords: "watch references monthly" },
-      { name: "Docs", path: "/policies", icon: FileText, featureKey: "policies", keywords: "policies guidance documents resources processes links" }
-    ]
-  }
-];
-const ACCOUNT_ITEMS = [
-  { name: "My profile", path: "/profile", icon: CircleUser, keywords: "me account skills toil" },
-  { name: "Settings", path: "/settings", icon: Settings$1, keywords: "appearance accent colour density dark mode theme" },
-  { name: "Admin", path: "/admin", icon: ShieldCheck, managersOrAdmin: true, keywords: "station setup skills certs dictionaries absence triggers thresholds inspection plans multi-storey care homes branding activity log users feature switches" }
-];
-const TASK = { label: "Task for this shift", hint: "A card on the shift board", to: "/tasks?new=1", Icon: SquareKanban, tint: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300" };
-const MANAGER_ACTIONS$1 = [
-  TASK,
-  { label: "Handover note", hint: "For the next watch", to: "/handover?tab=handover&new=1", Icon: NotebookPen, tint: "bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300" },
-  { label: "Calendar event", hint: "Station, watch or personal", to: "/calendar?new=1", Icon: CalendarPlus, tint: "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300" },
-  { label: "Crewing", hint: "Who's riding what", to: "/handover", Icon: Truck, tint: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300" }
-];
-const CREW_ACTIONS$1 = [
-  TASK,
-  { label: "Calendar event", hint: "On your personal calendar", to: "/calendar?new=1", Icon: CalendarPlus, tint: "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300" },
-  { label: "Sick line", hint: "Attach your sick line", to: "/?tab=absence", Icon: FileHeart, tint: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300" }
-];
-function useNav() {
-  const { user: user2 } = useAuth();
-  const { flags } = useFeatureFlags();
-  const isWCOrAdmin = (user2 == null ? void 0 : user2.role) === "WC" || (user2 == null ? void 0 : user2.is_admin) === true;
-  const isManager = (user2 == null ? void 0 : user2.role) === "WC" || (user2 == null ? void 0 : user2.role) === "CC";
-  const allowed = (item) => {
-    if (item.managersOrAdmin && !isManager && !(user2 == null ? void 0 : user2.is_admin)) return false;
-    if (item.managersOnly && !isManager) return false;
-    if (item.featureKey && !isWCOrAdmin && !flags[item.featureKey]) return false;
-    return true;
-  };
-  return {
-    isManager,
-    groups: NAV_GROUPS.map((g) => ({ ...g, items: g.items.filter(allowed) })).filter((g) => g.items.length > 0),
-    account: ACCOUNT_ITEMS.filter(allowed),
-    actions: isManager ? MANAGER_ACTIONS$1 : CREW_ACTIONS$1
-  };
-}
-const ALL_PAGES = [...NAV_GROUPS.flatMap((g) => g.items), ...ACCOUNT_ITEMS];
-function pageFor(pathname) {
-  if (pathname === "/") return ALL_PAGES[0];
-  return ALL_PAGES.filter((p) => p.path !== "/" && (pathname === p.path || pathname.startsWith(p.path + "/"))).sort((a, b) => b.path.length - a.path.length)[0];
-}
-function isActivePath(pathname, path) {
-  return path === "/" ? pathname === "/" : pathname === path || pathname.startsWith(path + "/");
-}
 const quiet = { staleTime: 6e4, retry: false, refetchOnWindowFocus: true };
 function useNavBadges() {
   const { user: user2 } = useAuth();
@@ -34642,6 +34661,23 @@ function ShortcutsHelpModal({ open, onClose }) {
     /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px] text-muted-foreground mt-2", children: "Shortcuts are disabled while typing in any input field." })
   ] }) });
 }
+function PageGate() {
+  var _a3;
+  const { pathname } = useLocation();
+  const { user: user2 } = useAuth();
+  const { isLoaded } = useFeatureFlags();
+  const canOpen = useCanOpen();
+  const seesAll = (user2 == null ? void 0 : user2.role) === "WC" || (user2 == null ? void 0 : user2.role) === "CC" || (user2 == null ? void 0 : user2.is_admin);
+  if (!seesAll && !isLoaded) return null;
+  if (canOpen(pathname)) return /* @__PURE__ */ jsxRuntimeExports.jsx(Outlet, {});
+  const name = (_a3 = pageFor(pathname)) == null ? void 0 : _a3.name;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mx-auto mt-10 flex max-w-sm flex-col items-center gap-3 rounded-2xl border border-dashed border-border p-8 text-center", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "grid h-11 w-11 place-items-center rounded-full bg-muted text-muted-foreground", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Lock, { className: "h-5 w-5" }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-lg font-semibold", children: name ? `${name} isn't switched on yet` : "Not switched on yet" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "Your Watch Commander is bringing the app in a bit at a time. This part will appear in your menu when it's ready." }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Link$1, { to: "/", className: "mt-1 rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-brand-foreground", children: "Back to Home" })
+  ] });
+}
 function Layout() {
   const [sidebarExpanded, setSidebarExpanded] = reactExports.useState(() => {
     try {
@@ -34682,7 +34718,7 @@ function Layout() {
     ),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(PageContainer, { sidebarExpanded, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(TopBar, { onSearch: openSearch }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Outlet, {})
+      /* @__PURE__ */ jsxRuntimeExports.jsx(PageGate, {})
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(MobileBottomNav, { onSearch: openSearch, onChangePassword: changePassword }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(QuickAddButton, {}),
@@ -35125,6 +35161,7 @@ function ShiftHero() {
   const now = useNow();
   const watch = (user2 == null ? void 0 : user2.watch_unit) ?? "";
   const isManager = (user2 == null ? void 0 : user2.role) === "WC" || (user2 == null ? void 0 : user2.role) === "CC";
+  const canOpen = useCanOpen();
   const status = watch ? getWatchShiftStatus(watch, now) : null;
   const crewShift = crewingShiftFor(watch, now);
   const crewingQ = useQuery({
@@ -35161,7 +35198,7 @@ function ShiftHero() {
   } else if (status == null ? void 0 : status.next) {
     countdown = `starts in ${formatSpan(shiftBounds(status.next).start.getTime() - now.getTime())}`;
   }
-  const actions = isManager ? MANAGER_ACTIONS : CREW_ACTIONS;
+  const actions = (isManager ? MANAGER_ACTIONS : CREW_ACTIONS).filter((a) => canOpen(a.to));
   const bounds = shown ? shiftBounds(shown) : null;
   const shiftWord = state === "on" ? "this shift" : "next shift";
   const dateLabel = now.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
@@ -35275,7 +35312,7 @@ function ShiftHero() {
                     ROLE_LABEL[mine.crew_role] ?? mine.crew_role
                   ] })
                 ] }) : entries.length === 0 ? "Crewing not set for this shift" : `${entries.length} crew assigned` }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Link$1, { to: "/handover", className: "shrink-0 font-medium text-white hover:underline", children: isManager ? entries.length ? "Edit crewing →" : "Set crewing →" : "Crewing →" })
+                canOpen("/handover") && /* @__PURE__ */ jsxRuntimeExports.jsx(Link$1, { to: "/handover", className: "shrink-0 font-medium text-white hover:underline", children: isManager ? entries.length ? "Edit crewing →" : "Set crewing →" : "Crewing →" })
               ] })
             ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-6 flex flex-col items-start gap-2 text-sm text-white/60", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(StateIcon, { className: "h-6 w-6", style: { color: accent } }),
@@ -38265,6 +38302,8 @@ function ShiftRunningOrder() {
   var _a3, _b3, _c2, _d2;
   const { user: user2 } = useAuth();
   const watch = user2 == null ? void 0 : user2.watch_unit;
+  const canOpen = useCanOpen();
+  const isManager = (user2 == null ? void 0 : user2.role) === "WC" || (user2 == null ? void 0 : user2.role) === "CC";
   const boardQ = useQuery({
     queryKey: ["tasks", "shift", "mine", watch],
     queryFn: () => backendClient.task.shiftBoard({ watch }),
@@ -38305,10 +38344,10 @@ function ShiftRunningOrder() {
       time: hhmm$4(shift2.start),
       Icon: Flag,
       title: "Parade",
-      body: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+      body: canOpen("/handover") ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
         "Riding positions and duties — ",
         /* @__PURE__ */ jsxRuntimeExports.jsx(Link$1, { to: "/handover", className: "font-medium text-foreground hover:underline", children: "crewing board" })
-      ] })
+      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Riding positions and duties" })
     });
     const checks = tasks.filter((t) => t.kind === "check");
     for (const t of checks) {
@@ -38432,16 +38471,21 @@ function ShiftRunningOrder() {
       Icon: ArrowRightLeft,
       tone: due ? "warn" : void 0,
       title: next ? `Handover to ${next} Watch` : "Shift ends",
-      body: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+      body: isManager ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
         due && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-semibold text-amber-700 dark:text-amber-400", children: [
           "In ",
           minsLeft,
           "m — "
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Link$1, { to: "/handover?tab=handover&new=1", className: "font-medium text-foreground hover:underline", children: "Write the handover" })
-      ] })
+      ] }) : due ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-semibold text-amber-700 dark:text-amber-400", children: [
+        "In ",
+        minsLeft,
+        "m"
+      ] }) : void 0
     });
   }
+  for (const r2 of rows) if (r2.to && !canOpen(r2.to)) r2.to = void 0;
   rows.sort((a, b) => a.at - b.at);
   const nowIndex = (shift2 == null ? void 0 : shift2.on_duty) ? rows.findIndex((r2) => r2.time && r2.at > now) : -1;
   const left = shift2 ? Math.max(0, end - now) : 0;
@@ -38457,7 +38501,7 @@ function ShiftRunningOrder() {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
         tasks.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(Bar, { done: doneCount, total: tasks.length }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Link$1, { to: "/tasks", className: "text-xs font-medium text-brand hover:underline", children: "Shift board →" })
+        canOpen("/tasks") && /* @__PURE__ */ jsxRuntimeExports.jsx(Link$1, { to: "/tasks", className: "text-xs font-medium text-brand hover:underline", children: "Shift board →" })
       ] })
     ] }),
     boardQ.isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2 p-4 sm:p-5", children: [0, 1, 2, 3].map((i) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-11 animate-pulse rounded-lg bg-muted/60" }, i)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ol", { className: "relative px-2 py-2 sm:px-3", children: rows.map((r2, i) => {
@@ -38640,7 +38684,8 @@ function OurReference() {
   const year = (/* @__PURE__ */ new Date()).getFullYear();
   const mine = watch ? watchReferences(watch, year) : null;
   const { data } = useReferences();
-  if (!mine) return null;
+  const canOpen = useCanOpen();
+  if (!mine || !canOpen("/references")) return null;
   const title = (ref) => {
     var _a3;
     return (_a3 = data == null ? void 0 : data.find((r2) => r2.ref === ref)) == null ? void 0 : _a3.title;
@@ -65143,17 +65188,20 @@ function BrandingSettings() {
   ] });
 }
 const FEATURE_CONFIG = [
-  { key: "dashboard", label: "Dashboard", description: "Main dashboard with operational overview", icon: LayoutDashboard, phase: "Phase 1" },
-  { key: "people", label: "People", description: "Staff directory and profile management", icon: Users, phase: "Phase 1" },
-  { key: "calendar", label: "Calendar", description: "Watch calendar and event management", icon: Calendar, phase: "Phase 1" },
-  { key: "detachments", label: "Detachments", description: "Detachment rota and planning", icon: Navigation, phase: "Phase 1" },
-  { key: "tasks", label: "Tasks", description: "Task board and assignment tracking", icon: SquareCheckBig, phase: "Phase 2" },
-  { key: "handover", label: "Shift / Handover", description: "Shift management and handover notes", icon: ClipboardList, phase: "Phase 2" },
-  { key: "equipment", label: "J4 Checks", description: "Equipment checks and defect tracking", icon: Truck, phase: "Phase 3" },
-  { key: "inspections", label: "Inspections", description: "HFSV and multi-storey inspections", icon: ClipboardCheck, phase: "Phase 3" },
-  { key: "targets", label: "Targets", description: "Performance targets and tracking", icon: Target, phase: "Phase 4" },
-  { key: "policies", label: "Docs", description: "Policy documents and useful links", icon: FileText, phase: "Phase 4" },
-  { key: "reports", label: "Reports", description: "Quarterly reports and analytics", icon: ChartColumn, phase: "Phase 4" }
+  { key: "calendar", label: "Calendar", description: "Their own calendar first, then the watch's; log TOIL and orange days, ask for a flexi or H4H", icon: Calendar, phase: "Phase 1 · first release" },
+  { key: "handover", label: "Shift", description: "Crewing board (to look at), handover notes to read, the rotas", icon: ClipboardList, phase: "Phase 1 · first release" },
+  { key: "tasks", label: "Tasks", description: "Today's shift board: tick checks, add a job", icon: SquareCheckBig, phase: "Phase 1 · first release" },
+  { key: "requests", label: "Requests", description: "Their own flexi and H4H requests, and recording the Kronos answer", icon: FileCheck, phase: "Phase 1 · first release" },
+  { key: "detachments", label: "Detachments", description: "The detachment rota and history", icon: Navigation, phase: "Phase 1 · first release" },
+  { key: "equipment", label: "J4 Checks", description: "Appliance checks and reporting defects", icon: Truck, phase: "Phase 1 · first release" },
+  { key: "bulletins", label: "Bulletins", description: "News and announcements", icon: Megaphone, phase: "Phase 2 · information" },
+  { key: "training", label: "Training", description: "Training sessions and records", icon: GraduationCap, phase: "Phase 2 · information" },
+  { key: "policies", label: "Docs", description: "Policies, guidance and the policy question box", icon: FileText, phase: "Phase 2 · information" },
+  { key: "hydrants", label: "Hydrants", description: "Hydrant routes and faults", icon: Flame, phase: "Phase 3 · station work" },
+  { key: "references", label: "References", description: "The watch's station references (and Our reference on Home)", icon: BookMarked, phase: "Phase 3 · station work" },
+  { key: "targets", label: "Targets", description: "HFSV, community and multi-storey targets", icon: Target, phase: "Phase 3 · station work" },
+  { key: "people", label: "People", description: "Everyone's profiles", icon: Users, phase: "WC/CC tools" },
+  { key: "reports", label: "Reports", description: "Quarterly reports", icon: ChartColumn, phase: "WC/CC tools" }
 ];
 const PLANS_TAB = { value: "inspection-plans", label: "Inspection plans" };
 const STATION_TABS = [
@@ -65219,7 +65267,7 @@ function FeatureManagementTab() {
       setHasChanges(false);
       toast2({
         title: "Features updated",
-        description: "Feature visibility has been saved. Changes take effect immediately for all users."
+        description: "Saved. Firefighters see the change the next time they open the app."
       });
     } catch (error) {
       toast2({
@@ -65242,19 +65290,21 @@ function FeatureManagementTab() {
     });
   };
   const handleEnableAll = () => {
-    const allOn = {};
-    FEATURE_CONFIG.forEach((f) => {
-      allOn[f.key] = true;
+    setLocalFlags((prev) => {
+      const allOn = { ...prev };
+      FEATURE_CONFIG.forEach((f) => {
+        allOn[f.key] = true;
+      });
+      return allOn;
     });
-    setLocalFlags(allOn);
     setHasChanges(true);
   };
   const phases = [...new Set(FEATURE_CONFIG.map((f) => f.phase))];
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-6", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(CardHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { children: "Feature Visibility" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { className: "mt-1", children: "Control which sections are visible to CC, FF, and RO users. WC and Admin users always see all sections regardless of these settings." })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { children: "What firefighters see" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { className: "mt-1", children: "Which pages firefighters (FF and RO) can open. A page that's off is gone from their menu, their Home shortcuts and search, and won't open from a link. Home, My profile and Settings are always on. WC and CC always see everything." })
       ] }),
       hasChanges && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { onClick: handleSave, disabled: !isLoaded, className: "bg-indigo-600 hover:bg-indigo-700", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { className: "h-4 w-4 mr-2" }),
@@ -65271,19 +65321,19 @@ function FeatureManagementTab() {
             onClick: () => handleEnablePhase(phase),
             className: "text-xs",
             children: [
-              "Enable ",
-              phase
+              "Turn on ",
+              phase.split(" · ")[0]
             ]
           },
           phase
         )),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline", onClick: handleEnableAll, className: "text-xs", children: "Enable All" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline", onClick: handleEnableAll, className: "text-xs", children: "Turn everything on" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-6", children: phases.map((phase) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-sm font-semibold text-muted-foreground mb-3 uppercase tracking-wider", children: phase }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid gap-3", children: FEATURE_CONFIG.filter((f) => f.phase === phase).map((feature) => {
           const Icon2 = feature.icon;
-          const isOn = localFlags[feature.key] ?? true;
+          const isOn = localFlags[feature.key] ?? false;
           return /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "div",
             {
@@ -65297,7 +65347,7 @@ function FeatureManagementTab() {
                   ] })
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: isOn ? "default" : "secondary", className: `text-xs ${isOn ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : ""}`, children: isOn ? "Visible" : "Hidden" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: isOn ? "default" : "secondary", className: `text-xs ${isOn ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : ""}`, children: isOn ? "On" : "Off" }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx(
                     Switch$1,
                     {

@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/App";
 import backend from "@/lib/backend";
+import { useCanOpen } from "@/lib/navigation";
 import type { task } from "@/client";
 import { cn } from "@/lib/utils";
 import { getShiftForDate } from "@/lib/shiftRota";
@@ -67,6 +68,10 @@ function Bar({ done, total }: { done: number; total: number }) {
 export function ShiftRunningOrder() {
   const { user } = useAuth();
   const watch = user?.watch_unit;
+  // Links only to pages this person can open (firefighters' pages are
+  // switched on in phases); the handover is written by a WC/CC.
+  const canOpen = useCanOpen();
+  const isManager = user?.role === "WC" || user?.role === "CC";
 
   const boardQ = useQuery({
     queryKey: ["tasks", "shift", "mine", watch],
@@ -108,7 +113,9 @@ export function ShiftRunningOrder() {
     rows.push({
       key: "parade", at: start, time: hhmm(shift.start), Icon: Flag,
       title: "Parade",
-      body: <span>Riding positions and duties — <Link to="/handover" className="font-medium text-foreground hover:underline">crewing board</Link></span>,
+      body: canOpen("/handover")
+        ? <span>Riding positions and duties — <Link to="/handover" className="font-medium text-foreground hover:underline">crewing board</Link></span>
+        : <span>Riding positions and duties</span>,
     });
 
     // ── Station checks: the cards on the board (a routine card stays with its
@@ -208,14 +215,17 @@ export function ShiftRunningOrder() {
     rows.push({
       key: "handover-out", at: end, time: hhmm(shift.end), Icon: ArrowRightLeft, tone: due ? "warn" : undefined,
       title: next ? `Handover to ${next} Watch` : "Shift ends",
-      body: (
+      body: isManager ? (
         <span>
           {due && <span className="font-semibold text-amber-700 dark:text-amber-400">In {minsLeft}m — </span>}
           <Link to="/handover?tab=handover&new=1" className="font-medium text-foreground hover:underline">Write the handover</Link>
         </span>
-      ),
+      ) : due ? (
+        <span className="font-semibold text-amber-700 dark:text-amber-400">In {minsLeft}m</span>
+      ) : undefined,
     });
   }
+  for (const r of rows) if (r.to && !canOpen(r.to)) r.to = undefined;
   rows.sort((a, b) => a.at - b.at);
 
   const nowIndex = shift?.on_duty ? rows.findIndex((r) => r.time && r.at > now) : -1;
@@ -238,7 +248,7 @@ export function ShiftRunningOrder() {
         </div>
         <div className="flex items-center gap-3">
           {tasks.length > 0 && <Bar done={doneCount} total={tasks.length} />}
-          <Link to="/tasks" className="text-xs font-medium text-brand hover:underline">Shift board →</Link>
+          {canOpen("/tasks") && <Link to="/tasks" className="text-xs font-medium text-brand hover:underline">Shift board →</Link>}
         </div>
       </header>
 

@@ -4348,6 +4348,11 @@ export namespace settings {
         resources: boolean
         reports: boolean
         inspections: boolean
+        requests?: boolean
+        bulletins?: boolean
+        training?: boolean
+        hydrants?: boolean
+        references?: boolean
     }
 
     export interface SystemSettings {

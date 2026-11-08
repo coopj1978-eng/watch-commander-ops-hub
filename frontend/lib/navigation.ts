@@ -61,7 +61,7 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     label: "Today",
     items: [
-      { name: "Home",     path: "/",         icon: House,         featureKey: "dashboard", shortcut: "D", keywords: "dashboard needs you" },
+      { name: "Home",     path: "/",         icon: House,         shortcut: "D", keywords: "dashboard needs you" },
       { name: "Shift",    path: "/handover", icon: ClipboardList, featureKey: "handover",  shortcut: "H", keywords: "handover crewing board riding" },
       { name: "Tasks",    path: "/tasks",    icon: CheckSquare,   featureKey: "tasks",     shortcut: "T", badge: "tasks", keywords: "shift board checks to do" },
       { name: "Calendar", path: "/calendar", icon: Calendar,      featureKey: "calendar",  keywords: "events leave rota" },
@@ -71,9 +71,9 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "Crew",
     items: [
       { name: "People",      path: "/people",      icon: Users,         featureKey: "people", shortcut: "P", badge: "people", keywords: "crew staff firefighters profiles" },
-      { name: "Requests",    path: "/requests",    icon: FileCheck,     badge: "requests", keywords: "flexi day head for head h4h swap annual leave move kronos authorise decline records" },
-      { name: "Bulletins",   path: "/bulletins",   icon: Megaphone,     badge: "bulletins", keywords: "news announcements messages" },
-      { name: "Training",    path: "/training",    icon: GraduationCap, keywords: "courses skills certificates" },
+      { name: "Requests",    path: "/requests",    icon: FileCheck,     featureKey: "requests", badge: "requests", keywords: "flexi day head for head h4h swap annual leave move kronos authorise decline records" },
+      { name: "Bulletins",   path: "/bulletins",   icon: Megaphone,     featureKey: "bulletins", badge: "bulletins", keywords: "news announcements messages" },
+      { name: "Training",    path: "/training",    icon: GraduationCap, featureKey: "training", keywords: "courses skills certificates" },
       { name: "Detachments", path: "/detachments", icon: Navigation,    featureKey: "detachments", keywords: "detached duty rota" },
     ],
   },
@@ -82,9 +82,9 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { name: "Targets",    path: "/targets",    icon: Target,     featureKey: "targets", shortcut: "G", keywords: "hfsv community multi-story performance" },
       { name: "Reports",    path: "/reports",    icon: BarChart2,  featureKey: "reports", keywords: "quarterly report export csv" },
-      { name: "Hydrants",   path: "/hydrants",   icon: Flame,      keywords: "hydrant routes faults" },
+      { name: "Hydrants",   path: "/hydrants",   icon: Flame,      featureKey: "hydrants", keywords: "hydrant routes faults" },
       { name: "J4 Checks",  path: "/equipment",  icon: Truck,      featureKey: "equipment", keywords: "equipment appliance defects" },
-      { name: "References", path: "/references", icon: BookMarked, keywords: "watch references monthly" },
+      { name: "References", path: "/references", icon: BookMarked, featureKey: "references", keywords: "watch references monthly" },
       { name: "Docs",       path: "/policies",   icon: FileText,   featureKey: "policies", keywords: "policies guidance documents resources processes links" },
     ],
   },
@@ -124,18 +124,41 @@ export const CREW_ACTIONS: QuickAction[] = [
 
 // ── Who sees what ────────────────────────────────────────────────────────────
 
-/** The menu as the signed-in person sees it. */
-export function useNav() {
+/**
+ * Whether the signed-in person may open a menu item. The feature switches
+ * (Admin → Feature management) only apply to firefighters (FF and RO): a WC,
+ * CC or the admin always sees everything (Nov 2026 — John: phase the app in
+ * for firefighters, a switch per page).
+ */
+function useAllowed() {
   const { user } = useAuth();
   const { flags } = useFeatureFlags();
-  const isWCOrAdmin = user?.role === "WC" || user?.is_admin === true;
   const isManager = user?.role === "WC" || user?.role === "CC";
+  const seesAll = isManager || user?.is_admin === true;
 
   const allowed = (item: NavItem) => {
     if (item.managersOrAdmin && !isManager && !user?.is_admin) return false;
     if (item.managersOnly && !isManager) return false;
-    if (item.featureKey && !isWCOrAdmin && !flags[item.featureKey]) return false;
+    if (item.featureKey && !seesAll && !flags[item.featureKey]) return false;
     return true;
+  };
+  return { allowed, isManager };
+}
+
+/**
+ * Can this person open the page at `path`? For links on other screens (Home's
+ * shortcuts, "Crewing →"…), so a page that's switched off isn't offered.
+ */
+export function useCanOpen() {
+  return useNav().opens;
+}
+
+/** The menu as the signed-in person sees it. */
+export function useNav() {
+  const { allowed, isManager } = useAllowed();
+  const opens = (to: string) => {
+    const page = pageFor(to.split(/[?#]/)[0]);
+    return !page || allowed(page);
   };
 
   return {
@@ -144,7 +167,9 @@ export function useNav() {
       .map((g) => ({ ...g, items: g.items.filter(allowed) }))
       .filter((g) => g.items.length > 0),
     account: ACCOUNT_ITEMS.filter(allowed),
-    actions: isManager ? MANAGER_ACTIONS : CREW_ACTIONS,
+    // Quick-add only offers pages this person can open.
+    actions: (isManager ? MANAGER_ACTIONS : CREW_ACTIONS).filter((a) => opens(a.to)),
+    opens,
   };
 }
 

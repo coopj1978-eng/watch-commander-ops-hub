@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
+import { Lock } from "lucide-react";
+import { useAuth } from "@/App";
+import { useFeatureFlags } from "@/lib/feature-flags";
+import { pageFor, useCanOpen } from "@/lib/navigation";
 import SidebarNav from "./SidebarNav";
 import TopBar from "./TopBar";
 import PageContainer from "./PageContainer";
@@ -56,6 +60,34 @@ function ShortcutsHelpModal({ open, onClose }: { open: boolean; onClose: () => v
   );
 }
 
+// ── Pages that aren't switched on ─────────────────────────────────────────────
+// The feature switches phase the app in for firefighters (Nov 2026). A page
+// that's off isn't just missing from the menu: following a link or typing its
+// address lands here too. WC/CC always see everything.
+function PageGate() {
+  const { pathname } = useLocation();
+  const { user } = useAuth();
+  const { isLoaded } = useFeatureFlags();
+  const canOpen = useCanOpen();
+  const seesAll = user?.role === "WC" || user?.role === "CC" || user?.is_admin;
+
+  // Wait for the switches before showing a firefighter a page that may be off.
+  if (!seesAll && !isLoaded) return null;
+  if (canOpen(pathname)) return <Outlet />;
+
+  const name = pageFor(pathname)?.name;
+  return (
+    <div className="mx-auto mt-10 flex max-w-sm flex-col items-center gap-3 rounded-2xl border border-dashed border-border p-8 text-center">
+      <span className="grid h-11 w-11 place-items-center rounded-full bg-muted text-muted-foreground">
+        <Lock className="h-5 w-5" />
+      </span>
+      <h1 className="text-lg font-semibold">{name ? `${name} isn't switched on yet` : "Not switched on yet"}</h1>
+      <p className="text-sm text-muted-foreground">Your Watch Commander is bringing the app in a bit at a time. This part will appear in your menu when it's ready.</p>
+      <Link to="/" className="mt-1 rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-brand-foreground">Back to Home</Link>
+    </div>
+  );
+}
+
 // ── Layout ────────────────────────────────────────────────────────────────────
 
 export default function Layout() {
@@ -104,7 +136,7 @@ export default function Layout() {
 
       <PageContainer sidebarExpanded={sidebarExpanded}>
         <TopBar onSearch={openSearch} />
-        <Outlet />
+        <PageGate />
       </PageContainer>
 
       <MobileBottomNav onSearch={openSearch} onChangePassword={changePassword} />

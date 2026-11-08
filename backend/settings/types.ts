@@ -11,6 +11,13 @@ export interface FeatureFlags {
   resources: boolean;
   reports: boolean;
   inspections: boolean;
+  // Pages that had no switch until Nov 2026 (missing on older settings rows
+  // = off for firefighters until switched on).
+  requests?: boolean;
+  bulletins?: boolean;
+  training?: boolean;
+  hydrants?: boolean;
+  references?: boolean;
 }
 
 export interface SystemSettings {

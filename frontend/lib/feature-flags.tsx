@@ -2,6 +2,9 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 import backend from "@/lib/backend";
 import { useAuth } from "@/App";
 
+// Which pages firefighters (FF and RO) can open — one switch per page, set by
+// the admin in Admin → Feature management. WC and CC always see everything.
+// (dashboard / resources / inspections are kept for older settings rows.)
 export interface FeatureFlags {
   dashboard: boolean;
   people: boolean;
@@ -15,6 +18,11 @@ export interface FeatureFlags {
   resources: boolean;
   reports: boolean;
   inspections: boolean;
+  requests: boolean;
+  bulletins: boolean;
+  training: boolean;
+  hydrants: boolean;
+  references: boolean;
 }
 
 const DEFAULT_FLAGS: FeatureFlags = {
@@ -30,7 +38,15 @@ const DEFAULT_FLAGS: FeatureFlags = {
   resources: true,
   reports: true,
   inspections: true,
+  requests: true,
+  bulletins: true,
+  training: true,
+  hydrants: true,
+  references: true,
 };
+
+/** A switch missing from the saved settings (added after they were saved) is off. */
+const ALL_OFF = Object.fromEntries(Object.keys(DEFAULT_FLAGS).map((k) => [k, false])) as unknown as FeatureFlags;
 
 interface FeatureFlagContextType {
   flags: FeatureFlags;
@@ -53,7 +69,7 @@ export function FeatureFlagProvider({ children }: { children: ReactNode }) {
     try {
       const settings = await backend.settings.get();
       if (settings.feature_flags) {
-        setFlags(settings.feature_flags as unknown as FeatureFlags);
+        setFlags({ ...ALL_OFF, ...(settings.feature_flags as Partial<FeatureFlags>) });
       }
     } catch (err) {
       console.error("Failed to load feature flags:", err);
@@ -82,16 +98,15 @@ export function useFeatureFlags() {
 
 /**
  * Check if a feature is visible to the current user.
- * WC and admin users always see all features regardless of flags.
+ * WC, CC and the admin always see everything regardless of the switches.
  */
 export function useIsFeatureEnabled(feature: keyof FeatureFlags): boolean {
   const { user } = useAuth();
   const { flags } = useFeatureFlags();
 
-  // WC and admin users always see everything
-  if (user?.role === "WC" || user?.is_admin) {
+  if (user?.role === "WC" || user?.role === "CC" || user?.is_admin) {
     return true;
   }
 
-  return flags[feature] ?? true;
+  return flags[feature] ?? false;
 }

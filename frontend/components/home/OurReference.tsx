@@ -3,6 +3,7 @@ import { BookMarked } from "lucide-react";
 import { useAuth } from "@/App";
 import { nextChangeYear, periodLabel, referenceHolders, watchReferences } from "@/lib/referenceRota";
 import { useReferences } from "@/lib/references";
+import { useCanOpen } from "@/lib/navigation";
 
 // "Our reference" on the home screens (Nov 2026): the station reference this
 // watch holds for the two-year block, the one it's secondary on (covering it
@@ -14,7 +15,9 @@ export function OurReference() {
   const year = new Date().getFullYear();
   const mine = watch ? watchReferences(watch, year) : null;
   const { data } = useReferences();
-  if (!mine) return null;
+  // It belongs with the References page: off for firefighters until that is.
+  const canOpen = useCanOpen();
+  if (!mine || !canOpen("/references")) return null;
   const title = (ref: number) => data?.find((r) => r.ref === ref)?.title;
   const coverFor = referenceHolders(mine.secondary, year).main;
 

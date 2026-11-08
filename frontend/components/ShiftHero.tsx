@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/App";
 import backend from "@/lib/backend";
+import { useCanOpen } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { crewingShiftFor, getWatchShiftStatus, type ShiftDay } from "@/lib/shiftRota";
 import { latestAbsencePerPerson, useTodaysAbsences } from "@/lib/absences";
@@ -210,6 +211,7 @@ export function ShiftHero() {
   const now = useNow();
   const watch = user?.watch_unit ?? "";
   const isManager = user?.role === "WC" || user?.role === "CC";
+  const canOpen = useCanOpen();
 
   const status = watch ? getWatchShiftStatus(watch, now) : null;
   const crewShift = crewingShiftFor(watch, now);
@@ -265,7 +267,8 @@ export function ShiftHero() {
     countdown = `starts in ${formatSpan(shiftBounds(status.next).start.getTime() - now.getTime())}`;
   }
 
-  const actions = isManager ? MANAGER_ACTIONS : CREW_ACTIONS;
+  // Only pages this person can open (firefighters' pages come on in phases).
+  const actions = (isManager ? MANAGER_ACTIONS : CREW_ACTIONS).filter((a) => canOpen(a.to));
   const bounds = shown ? shiftBounds(shown) : null;
   const shiftWord = state === "on" ? "this shift" : "next shift";
   const dateLabel = now.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
@@ -382,9 +385,11 @@ export function ShiftHero() {
                     ? "Crewing not set for this shift"
                     : `${entries.length} crew assigned`}
                 </span>
-                <Link to="/handover" className="shrink-0 font-medium text-white hover:underline">
-                  {isManager ? (entries.length ? "Edit crewing →" : "Set crewing →") : "Crewing →"}
-                </Link>
+                {canOpen("/handover") && (
+                  <Link to="/handover" className="shrink-0 font-medium text-white hover:underline">
+                    {isManager ? (entries.length ? "Edit crewing →" : "Set crewing →") : "Crewing →"}
+                  </Link>
+                )}
               </div>
             </>
           ) : (
