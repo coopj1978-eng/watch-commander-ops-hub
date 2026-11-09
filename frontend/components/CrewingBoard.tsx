@@ -1028,7 +1028,7 @@ function ApplianceSlotsCard({
     : "border-border";
 
   return (
-    <Card className={`transition-colors ${borderCls}`}>
+    <Card className={`gap-0 py-0 hover:translate-y-0 transition-colors ${borderCls}`}>
       <CardHeader className="pt-4 pb-2 px-4">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
@@ -1145,7 +1145,7 @@ function DetachedCard({
 
   return (
     <div ref={setNodeRef}>
-    <Card className={`border-dashed transition-all duration-150 ${
+    <Card className={`gap-0 py-0 hover:translate-y-0 border-dashed transition-all duration-150 ${
       isHighlighted ? "border-amber-400 bg-amber-50/50 dark:bg-amber-900/10 shadow-md"
       : isDropTarget ? "border-muted-foreground/50 bg-muted/20"
       : "border-muted-foreground/30"
@@ -1265,7 +1265,7 @@ function RosterPanel({
   const adjusted   = roster.filter(m => adjustmentByUserId.has(m.id));
 
   return (
-    <Card className="xl:sticky xl:top-4">
+    <Card className="gap-0 py-0 hover:translate-y-0 xl:sticky xl:top-4">
       <CardHeader className="pt-4 pb-3 px-4">
         <CardTitle className="text-sm font-semibold flex items-center gap-2">
           <Users className="h-4 w-4 text-indigo-500" />
@@ -2485,9 +2485,9 @@ export default function CrewingBoard({ onOpenCanteenRota }: { onOpenCanteenRota?
         {crewingLoading ? (
           <div className="grid gap-4 md:grid-cols-2">
             {[...Array(2)].map((_, i) => (
-              <Card key={i}>
-                <CardHeader className="pb-2"><Skeleton className="h-5 w-40" /></CardHeader>
-                <CardContent className="space-y-3 px-4">
+              <Card key={i} className="gap-0 py-0">
+                <CardHeader className="px-4 pt-4 pb-2"><Skeleton className="h-5 w-40" /></CardHeader>
+                <CardContent className="space-y-3 px-4 pb-4">
                   {[...Array(5)].map((_, j) => <Skeleton key={j} className="h-9 w-full" />)}
                 </CardContent>
               </Card>

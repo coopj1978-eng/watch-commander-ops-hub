@@ -72435,7 +72435,7 @@ function ApplianceSlotsCard({
   const missingLabels = canEdit ? slots.map((s, i) => !slotEntries[i] && s.required ? s.label : null).filter(Boolean) : [];
   const part = canEdit && reqFilled > 0;
   const borderCls = full ? "border-green-400 dark:border-green-700" : part ? "border-amber-400 dark:border-amber-700" : "border-border";
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { className: `transition-colors ${borderCls}`, children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { className: `gap-0 py-0 hover:translate-y-0 transition-colors ${borderCls}`, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(CardHeader, { className: "pt-4 pb-2 px-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
@@ -72521,7 +72521,7 @@ function DetachedCard({
   if (!canEdit && entries.length === 0) return null;
   const isHighlighted = isDragActive && isOver;
   const isDropTarget = isDragActive && !isOver;
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { ref: setNodeRef, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { className: `border-dashed transition-all duration-150 ${isHighlighted ? "border-amber-400 bg-amber-50/50 dark:bg-amber-900/10 shadow-md" : isDropTarget ? "border-muted-foreground/50 bg-muted/20" : "border-muted-foreground/30"}`, children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { ref: setNodeRef, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { className: `gap-0 py-0 hover:translate-y-0 border-dashed transition-all duration-150 ${isHighlighted ? "border-amber-400 bg-amber-50/50 dark:bg-amber-900/10 shadow-md" : isDropTarget ? "border-muted-foreground/50 bg-muted/20" : "border-muted-foreground/30"}`, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(CardHeader, { className: "pt-4 pb-2 px-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-2", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(CardTitle, { className: "text-sm font-medium text-muted-foreground flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(MapPin, { className: `h-4 w-4 ${isHighlighted ? "text-amber-500" : ""}` }),
@@ -72593,7 +72593,7 @@ function RosterPanel({
   const assigned = roster.filter((m) => assignedByUserId.has(m.id) || pendingAssignIds.has(m.id));
   const absent = roster.filter((m) => absentIds.has(m.id));
   const adjusted = roster.filter((m) => adjustmentByUserId.has(m.id));
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { className: "xl:sticky xl:top-4", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { className: "gap-0 py-0 hover:translate-y-0 xl:sticky xl:top-4", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(CardHeader, { className: "pt-4 pb-3 px-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(CardTitle, { className: "text-sm font-semibold flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { className: "h-4 w-4 text-indigo-500" }),
@@ -73597,9 +73597,9 @@ function CrewingBoard({ onOpenCanteenRota } = {}) {
           ] })
         ] });
       })(),
-      crewingLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid gap-4 md:grid-cols-2", children: [...Array(2)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(CardHeader, { className: "pb-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-5 w-40" }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { className: "space-y-3 px-4", children: [...Array(5)].map((_2, j) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-9 w-full" }, j)) })
+      crewingLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid gap-4 md:grid-cols-2", children: [...Array(2)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { className: "gap-0 py-0", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(CardHeader, { className: "px-4 pt-4 pb-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-5 w-40" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { className: "space-y-3 px-4 pb-4", children: [...Array(5)].map((_2, j) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-9 w-full" }, j)) })
       ] }, i)) }) : (
         /* ── Main grid: Appliances | Roster (the roster is for crewing —
               managers only; a firefighter's "Available" would be wrong, as
