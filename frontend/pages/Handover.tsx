@@ -517,10 +517,12 @@ export default function Handover() {
               New Handover
             </Button>
           )}
-          <Button variant="outline" onClick={() => window.print()} title="Print handover">
-            <Printer className="h-4 w-4 mr-2" />
-            Print
-          </Button>
+          {canWrite && (
+            <Button variant="outline" onClick={() => window.print()} title="Print handover">
+              <Printer className="h-4 w-4 mr-2" />
+              Print
+            </Button>
+          )}
         </div>
       </div>
 

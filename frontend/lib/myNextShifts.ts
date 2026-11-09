@@ -55,13 +55,18 @@ export function timeLeft(ms: number): string {
   return h > 0 ? `${h}h ${String(mins % 60).padStart(2, "0")}m` : `${mins}m`;
 }
 
+/** Why you're off, in a word or two: "Flexi day", "Sick", "H4H". */
+export function offReason(s: MyShift): string {
+  return OFF[s.why ?? ""] ?? s.why ?? "Booked off";
+}
+
 /** The pill text alone (also the shift panel's "You: …" when you're not riding). */
 export function shiftTag(s: MyShift): string {
   switch (s.state) {
     case "on":
       return s.seat ? `${s.seat.appliance.toUpperCase()} · ${ROLE[s.seat.role] ?? s.seat.role}` : "On";
     case "off":
-      return s.why === "Sick" ? "Off sick" : `Off · ${OFF[s.why ?? ""] ?? s.why ?? "booked"}`;
+      return s.why === "Sick" ? "Off sick" : `Off · ${s.why ? offReason(s) : "booked"}`;
     case "detached":
       return s.detached_to ? `Detached · ${s.detached_to}` : "Detached";
     case "extra":

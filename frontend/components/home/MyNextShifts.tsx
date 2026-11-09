@@ -14,13 +14,13 @@ import { leaveLine, localDay, shiftLine, type ShiftLine } from "@/lib/myNextShif
 // on and where you ride, off (and why), detached, or in for an extra. Under
 // the calendar's key, so booking changes refresh it with the calendar.
 
-/** Your own shifts — shared by this card and the shift panel's "You: …". */
-export function useMyShifts() {
+/** Your own shifts — shared by this card, the shift panel's "You: …" and the crewing board's "your seat". */
+export function useMyShifts(enabled = true) {
   const { user } = useAuth();
   return useQuery({
     queryKey: [CALENDAR_EVENTS_KEY, "my-shifts", user?.id],
     queryFn: () => backend.crewing.myShiftsApi({ days: 21 }),
-    enabled: !!user?.id,
+    enabled: enabled && !!user?.id,
     staleTime: 60_000,
     refetchInterval: 5 * 60_000,
   });
@@ -36,6 +36,8 @@ function useMinute() {
 }
 
 const FIRST = 5;
+/** Shift types the crewing board can open on ("Day"/"Night" alone can't). */
+const BOARD_SHIFTS = ["1st Day", "2nd Day", "1st Night", "2nd Night"];
 
 const PILL: Record<ShiftLine["tone"], string> = {
   on: "bg-muted text-foreground",
@@ -71,6 +73,14 @@ export function MyNextShifts() {
   const today = localDay(now);
   const shown = all ? shifts : shifts.slice(0, FIRST);
   const calendar = canOpen("/calendar");
+  const board = canOpen("/handover");
+  // Where a row goes: an extra shift opens that watch's crewing board (a
+  // firefighter can't switch watch there, so it's the only way to see where
+  // they ride); the rest open the calendar on that day.
+  const rowLink = (s: (typeof shifts)[number]) =>
+    board && s.state === "extra" && BOARD_SHIFTS.includes(s.shift_type)
+      ? `/handover?tab=crewing&date=${s.date}&shift=${encodeURIComponent(s.shift_type)}&watch=${encodeURIComponent(s.watch)}`
+      : calendar ? `/calendar?date=${s.date}` : null;
   // The leave block sits in date order among the shifts (first, if it's on
   // now) — at the end only when no hidden shift comes before it.
   let leaveAt = -1;
@@ -81,11 +91,11 @@ export function MyNextShifts() {
   }
   const leaveRow = leave && leaveAt >= 0 ? leaveLine(leave, today) : null;
 
-  const rows: ({ kind: "shift"; key: string; line: ShiftLine; date: string } | { kind: "leave" })[] = shown.map((s) => ({
+  const rows: ({ kind: "shift"; key: string; line: ShiftLine; to: string | null } | { kind: "leave" })[] = shown.map((s) => ({
     kind: "shift" as const,
     key: `${s.date}-${s.shift_type}-${s.watch}`,
     line: shiftLine(s, now),
-    date: s.date,
+    to: rowLink(s),
   }));
   if (leaveRow) rows.splice(leaveAt, 0, { kind: "leave" });
 
@@ -162,9 +172,9 @@ export function MyNextShifts() {
             );
             return (
               <li key={r.key}>
-                {calendar ? (
+                {r.to ? (
                   <Link
-                    to={`/calendar?date=${r.date}`}
+                    to={r.to}
                     className="-mx-2 flex min-h-[3.25rem] items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     {body}

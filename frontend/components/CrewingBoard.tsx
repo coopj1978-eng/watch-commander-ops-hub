@@ -42,6 +42,9 @@ import { PersonPicker } from "@/components/crewing/PersonPicker";
 import { ShiftNavigator } from "@/components/crewing/ShiftNavigator";
 import { AutoCrewDialog } from "@/components/crewing/AutoCrewDialog";
 import { CanteenCard, CanteenContext, CanteenToggle, useCanteen } from "@/components/crewing/CanteenCard";
+import { MySeatStrip } from "@/components/crewing/MySeatStrip";
+import { useMyShifts } from "@/components/home/MyNextShifts";
+import { mySeatLine, type BoardSeat } from "@/lib/mySeat";
 import type { crewing } from "@/client";
 import { useAuth } from "@/App";
 import { useSearchParams } from "react-router-dom";
@@ -443,7 +446,9 @@ function DraggableTile({
       {...(disabled ? {} : listeners)}
       {...(disabled ? {} : attributes)}
       onClick={handleClick}
-      className={`${disabled ? "cursor-default" : "cursor-grab active:cursor-grabbing"} touch-none rounded-xl transition-all ${
+      // touch-none only on tiles that can be dragged — elsewhere it stops a
+      // finger scrolling the page.
+      className={`${disabled ? "cursor-default" : "cursor-grab active:cursor-grabbing touch-none"} rounded-xl transition-all ${
         isTapSelected ? "ring-2 ring-indigo-500 ring-offset-2 ring-offset-background" : ""
       }`}
     >
@@ -598,13 +603,9 @@ function SlotDropZone({
           </span>
         </button>
       ) : (
-        <div className={`flex items-center gap-1.5 py-2 px-3 rounded-lg text-xs ${
-          slot.required
-            ? "text-amber-600/70 dark:text-amber-400/60"
-            : "text-muted-foreground/40"
-        }`}>
-          {slot.required && <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-400/70 shrink-0" />}
-          <span className="italic">{slot.required ? "Not assigned" : "Not assigned (optional)"}</span>
+        // Read-only (firefighters): no warning colour — filling it isn't theirs to do.
+        <div className="flex items-center py-2 px-3 text-xs text-muted-foreground/60">
+          <span>{slot.required ? "Not set" : "Not set (optional)"}</span>
         </div>
       )}
     </div>
@@ -644,16 +645,20 @@ function DraggableFilledSlot({
   canEdit,
   onRemove,
   qualWarning,
+  mine,
 }: {
   entry: CrewingEntry;
   slot: ApplianceSlot;
   canEdit: boolean;
   onRemove: (id: number) => void;
   qualWarning?: string | null;
+  /** This seat is the viewer's own. */
+  mine?: boolean;
 }) {
   const name = entry.user_name ?? entry.external_name ?? "Unknown";
   const sickIds = useContext(SickIdsContext);
-  const isSick = !!entry.user_id && sickIds.has(entry.user_id);
+  // A manager's cue only — a firefighter's board never says who's sick.
+  const isSick = canEdit && !!entry.user_id && sickIds.has(entry.user_id);
 
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `placed-${entry.id}`,
@@ -670,17 +675,20 @@ function DraggableFilledSlot({
       {...(canEdit ? listeners : {})}
       {...(canEdit ? attributes : {})}
       className={`
-        flex-1 flex items-center gap-2 min-w-0 bg-muted/40 rounded-lg px-2 py-1.5
-        ${canEdit ? "cursor-grab active:cursor-grabbing" : ""}
+        flex-1 flex items-center gap-2 min-w-0 rounded-lg px-2 py-1.5
+        ${mine ? "bg-brand/10 ring-1 ring-inset ring-brand/40" : "bg-muted/40"}
+        ${canEdit ? "cursor-grab active:cursor-grabbing touch-none" : ""}
         ${isDragging ? "opacity-40 ring-2 ring-indigo-300" : ""}
-        touch-none
       `}
     >
       <div className="h-6 w-6 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-[9px] font-bold shrink-0">
         {initials(name)}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium truncate leading-tight">{name}</p>
+        <p className="flex items-center gap-1.5 text-sm font-medium leading-tight">
+          <span className="truncate">{name}</span>
+          {mine && <span className="shrink-0 rounded bg-brand px-1.5 py-px text-[10px] font-semibold text-brand-foreground">You</span>}
+        </p>
         {entry.is_change_of_shift && (
           <span className="text-[9px] font-semibold text-amber-600 dark:text-amber-400">External / CoS</span>
         )}
@@ -865,9 +873,12 @@ function SlotRow({
   dragQualifies,
   suggestion,
   onQuickAssign,
+  me,
 }: {
   suggestion?: RosterMember;
   onQuickAssign?: () => void;
+  /** The viewer's user id — their own seat is highlighted. */
+  me?: string;
   slotId: string;
   slot: ApplianceSlot;
   entry: CrewingEntry | undefined;
@@ -904,6 +915,7 @@ function SlotRow({
           canEdit={canEdit}
           onRemove={onRemove}
           qualWarning={qualWarning}
+          mine={!!me && entry.user_id === me}
         />
       </div>
     );
@@ -946,7 +958,10 @@ function ApplianceSlotsCard({
   onSlotAssign,
   onRemove,
   planBySlot,
+  me,
 }: {
+  /** The viewer's user id — their own seat is highlighted. */
+  me?: string;
   /** Auto-crew's pick for each empty seat, by slot id. */
   planBySlot: Map<string, RosterMember>;
   appliance: "b10p1" | "b10p2";
@@ -970,9 +985,10 @@ function ApplianceSlotsCard({
 
   // Per-slot qualification warnings — returns a warning string (tooltip) or null.
   // Driver slot needs driver_lgv; OIC slot needs oic; BA slots need ba.
+  // Managers only: a firefighter's board doesn't comment on colleagues.
   const qualWarnings = slots.map((slot, idx) => {
     const entry = slotEntries[idx];
-    if (!entry || !entry.user_id) return null;
+    if (!canEdit || !entry || !entry.user_id) return null;
     const member = roster.find(m => m.id === entry.user_id);
     if (!member) return null;
     if (slot.role === "driver" && !member.driver_lgv) return "Not driver qualified (LGV)";
@@ -990,8 +1006,8 @@ function ApplianceSlotsCard({
   const hasMassDeconCover    = crewedMembers.some(m => m.mass_decon);
   const hasHookliftCover     = crewedMembers.some(m => m.hooklift_operator);
   const specialismWarnings: string[] = [];
-  if (hasAnyCrewed && !hasMassDeconCover) specialismWarnings.push("No Mass Decon operator");
-  if (hasAnyCrewed && !hasHookliftCover)  specialismWarnings.push("No Hooklift operator");
+  if (canEdit && hasAnyCrewed && !hasMassDeconCover) specialismWarnings.push("No Mass Decon operator");
+  if (canEdit && hasAnyCrewed && !hasHookliftCover)  specialismWarnings.push("No Hooklift operator");
 
   const assignedInAppliance = new Set(entries.filter(e => e.user_id).map(e => e.user_id!));
 
@@ -999,13 +1015,15 @@ function ApplianceSlotsCard({
   const reqFilled = slotEntries.filter((e, i) => e && slots[i].required).length;
   const full      = reqFilled >= reqCount;
 
-  const missingLabels = slots
-    .map((s, i) => !slotEntries[i] && s.required ? s.label : null)
-    .filter(Boolean) as string[];
+  const missingLabels = canEdit
+    ? slots.map((s, i) => !slotEntries[i] && s.required ? s.label : null).filter(Boolean) as string[]
+    : [];
 
+  // Amber "part crewed" is a cue for whoever crews it; read-only stays neutral.
+  const part = canEdit && reqFilled > 0;
   const borderCls = full
     ? "border-green-400 dark:border-green-700"
-    : reqFilled > 0
+    : part
     ? "border-amber-400 dark:border-amber-700"
     : "border-border";
 
@@ -1021,7 +1039,7 @@ function ApplianceSlotsCard({
             variant="secondary"
             className={`text-xs tabular-nums shrink-0 ${
               full ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400"
-                   : reqFilled > 0 ? "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400" : ""
+                   : part ? "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400" : ""
             }`}
           >
             {slotEntries.filter(Boolean).length} / {reqCount}
@@ -1070,6 +1088,7 @@ function ApplianceSlotsCard({
               qualWarning={qualWarnings[idx]}
               dragQualifies={dragQualifies}
               suggestion={planBySlot.get(slotId)}
+              me={me}
               onQuickAssign={() => {
                 const m = planBySlot.get(slotId);
                 if (m) onSlotAssign(slotId, m.id, undefined, slot.role);
@@ -1098,7 +1117,10 @@ function DetachedCard({
   onHidePicker,
   onAssign,
   onRemove,
+  me,
 }: {
+  /** The viewer's user id — their own line is highlighted. */
+  me?: string;
   entries: CrewingEntry[];
   roster: RosterMember[];
   canEdit: boolean;
@@ -1148,12 +1170,16 @@ function DetachedCard({
         )}
         {entries.map(e => {
           const name = e.user_name ?? e.external_name ?? "Unknown";
+          const mine = !!me && e.user_id === me;
           return (
-            <div key={e.id} className="flex items-center gap-2 py-1 px-2 bg-muted/30 rounded-lg group">
+            <div key={e.id} className={`flex items-center gap-2 py-1 px-2 rounded-lg group ${mine ? "bg-brand/10 ring-1 ring-inset ring-brand/40" : "bg-muted/30"}`}>
               <div className="h-6 w-6 rounded-full bg-gradient-to-br from-slate-400 to-slate-600 flex items-center justify-center text-white text-[9px] font-bold shrink-0">
                 {initials(name)}
               </div>
-              <span className="text-sm flex-1 truncate">{name}</span>
+              <span className="text-sm flex-1 min-w-0 flex items-center gap-1.5">
+                <span className="truncate">{name}</span>
+                {mine && <span className="shrink-0 rounded bg-brand px-1.5 py-px text-[10px] font-semibold text-brand-foreground">You</span>}
+              </span>
               {e.is_change_of_shift && (
                 <Badge variant="outline" className="text-[9px] py-0 px-1 border-amber-400 text-amber-600 shrink-0">CoS</Badge>
               )}
@@ -1748,6 +1774,7 @@ export default function CrewingBoard({ onOpenCanteenRota }: { onOpenCanteenRota?
   const { toast } = useToast();
   const qc        = useQueryClient();
   const canEdit   = user?.role === "WC" || user?.role === "CC";
+  const me        = user?.id;
 
   const userWatch     = user?.watch_unit ?? "Red";
   const smartDefaults = getSmartDefaults(userWatch);
@@ -1833,6 +1860,10 @@ export default function CrewingBoard({ onOpenCanteenRota }: { onOpenCanteenRota?
     enabled: !!watch,
     retry: false,
   });
+
+  // A firefighter's own shifts — why they're off, where they're detached to,
+  // an extra they're in for — for the "your seat" line. Same cache as Home.
+  const myShifts = useMyShifts(!canEdit);
 
   // The board, plus the dashboard's riding panel and crew-gap alert, which
   // read the same crewing under their own key.
@@ -1985,6 +2016,27 @@ export default function CrewingBoard({ onOpenCanteenRota }: { onOpenCanteenRota?
     });
     return map;
   }, [entries]);
+
+  // "Your seat" — read-only viewers (firefighters) only; managers are
+  // building the board, not reading it.
+  const seatLine = useMemo(() => {
+    if (canEdit || !me || crewingLoading) return null;
+    let seat: BoardSeat = null;
+    for (const appl of ["b10p1", "b10p2"] as const) {
+      const slots = APPLIANCE_SLOTS[appl];
+      const i = matchSlots(entries.filter(e => e.appliance === appl), slots).findIndex(e => e?.user_id === me);
+      if (i >= 0) { seat = { kind: "pump", appliance: appl, label: slots[i].label.replace(" (Optional)", "") }; break; }
+    }
+    if (!seat && entries.some(e => e.appliance === "detached" && e.user_id === me)) seat = { kind: "detached" };
+    const mine = myShifts.data?.shifts.find(s =>
+      s.date === shiftDate && s.shift_type === shiftType && s.watch.toLowerCase() === watch.toLowerCase());
+    return mySeatLine({
+      seat,
+      boardSet: entries.length > 0,
+      mine,
+      ownWatch: watch.toLowerCase() === (user?.watch_unit ?? "").toLowerCase(),
+    });
+  }, [canEdit, me, crewingLoading, entries, myShifts.data, shiftDate, shiftType, watch, user?.watch_unit]);
 
   const { data: sickOn } = useSickOn(shiftDate);
   const sickIds = sickOn?.ids;
@@ -2337,7 +2389,7 @@ export default function CrewingBoard({ onOpenCanteenRota }: { onOpenCanteenRota?
           on mobile.  Sticks to the top of the viewport so the WC can scroll
           to the appliance card and tap a slot to drop them in.  Tapping
           Cancel clears the selection. */}
-      {tapSelectedMember && (
+      {canEdit && tapSelectedMember && (
         <div className="sticky top-16 z-20 md:top-20 mx-auto max-w-sm mb-3">
           <div className="flex items-center gap-3 rounded-full bg-indigo-600 text-white shadow-lg px-4 py-2.5">
             <div className="h-7 w-7 rounded-full bg-white/20 flex items-center justify-center text-[11px] font-bold shrink-0">
@@ -2380,6 +2432,9 @@ export default function CrewingBoard({ onOpenCanteenRota }: { onOpenCanteenRota?
           openSeats={plan.picks.length}
         />
 
+        {/* ── Your seat (firefighters) ─────────────────────────────────────── */}
+        {seatLine && <MySeatStrip line={seatLine} />}
+
         {/* ── Ready to ride? ───────────────────────────────────────────────── */}
         {!crewingLoading && (() => {
           const pumps = (["b10p1", "b10p2"] as const).map(a => {
@@ -2399,7 +2454,7 @@ export default function CrewingBoard({ onOpenCanteenRota }: { onOpenCanteenRota?
                     key={p.a}
                     className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium ${
                       done ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"
-                      : p.filled > 0 ? "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300"
+                      : canEdit && p.filled > 0 ? "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300"
                       : "bg-muted text-muted-foreground"
                     }`}
                   >
@@ -2409,11 +2464,15 @@ export default function CrewingBoard({ onOpenCanteenRota }: { onOpenCanteenRota?
                   </span>
                 );
               })}
-              <span className="text-muted-foreground">
-                {toFill === 0 ? "Both pumps crewed" : `${toFill} seat${toFill === 1 ? "" : "s"} to fill`}
-                {plan.unfilled.some(u => u.required) && toFill > 0 && " · not enough qualified crew free — use External / CoS"}
-              </span>
-              {sickOnBoard > 0 && (
+              {canEdit ? (
+                <span className="text-muted-foreground">
+                  {toFill === 0 ? "Both pumps crewed" : `${toFill} seat${toFill === 1 ? "" : "s"} to fill`}
+                  {plan.unfilled.some(u => u.required) && toFill > 0 && " · not enough qualified crew free — use External / CoS"}
+                </span>
+              ) : toFill === 0 && (
+                <span className="text-muted-foreground">Both pumps crewed</span>
+              )}
+              {canEdit && sickOnBoard > 0 && (
                 <span className="inline-flex items-center gap-1 font-medium text-red-600 dark:text-red-400">
                   <AlertTriangle className="h-3.5 w-3.5" /> {sickOnBoard} on the board off sick
                 </span>
@@ -2435,8 +2494,10 @@ export default function CrewingBoard({ onOpenCanteenRota }: { onOpenCanteenRota?
             ))}
           </div>
         ) : (
-          /* ── Main grid: Appliances | Roster ─────────────────────────────── */
-          <div className="grid xl:grid-cols-[1fr_300px] gap-5">
+          /* ── Main grid: Appliances | Roster (the roster is for crewing —
+                managers only; a firefighter's "Available" would be wrong, as
+                they can't see who else is off) ──────────────────────────── */
+          <div className={canEdit ? "grid xl:grid-cols-[1fr_300px] gap-5" : ""}>
 
             {/* Left column: appliance cards */}
             <div className="space-y-4">
@@ -2454,6 +2515,7 @@ export default function CrewingBoard({ onOpenCanteenRota }: { onOpenCanteenRota?
                 onSlotAssign={handleSlotAssign}
                 onRemove={id => removeMut.mutate(id)}
                 planBySlot={planBySlot}
+                me={me}
               />
               <ApplianceSlotsCard
                 appliance="b10p2"
@@ -2469,6 +2531,7 @@ export default function CrewingBoard({ onOpenCanteenRota }: { onOpenCanteenRota?
                 onSlotAssign={handleSlotAssign}
                 onRemove={id => removeMut.mutate(id)}
                 planBySlot={planBySlot}
+                me={me}
               />
               <CanteenCard canteen={canteen} offDuty={offDuty} canEdit={canEdit} onOpenRota={onOpenCanteenRota} />
               <DetachedCard
@@ -2483,11 +2546,12 @@ export default function CrewingBoard({ onOpenCanteenRota }: { onOpenCanteenRota?
                 onHidePicker={() => setShowDetached(false)}
                 onAssign={(uid, ext) => addMut.mutate({ watch, shift_date: shiftDate, shift_type: shiftType, appliance: "detached", crew_role: "detached", user_id: uid, external_name: ext, is_change_of_shift: !!ext })}
                 onRemove={id => removeMut.mutate(id)}
+                me={me}
               />
             </div>
 
             {/* Right column: roster tiles (sticky on xl) */}
-            <div>
+            {canEdit && <div>
               <RosterPanel
                 roster={roster}
                 assignedByUserId={assignedByUserId}
@@ -2505,7 +2569,7 @@ export default function CrewingBoard({ onOpenCanteenRota }: { onOpenCanteenRota?
                 tapSelectedId={tapSelectedId}
                 onTapMember={setTapSelectedId}
               />
-            </div>
+            </div>}
           </div>
         )}
       </div>
