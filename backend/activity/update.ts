@@ -1,6 +1,6 @@
 import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
-import { requireRole } from "../auth/rbac";
+import { canLogActivity } from "../lib/activityAccess";
 import db, { type SQLPrimitive } from "../db";
 import type { ActivityRecord, UpdateActivityRequest } from "./types";
 
@@ -9,9 +9,16 @@ import type { ActivityRecord, UpdateActivityRequest } from "./types";
 export const update = api<{ id: number } & UpdateActivityRequest, ActivityRecord>(
   { auth: true, expose: true, method: "PATCH", path: "/activities/:id" },
   async (req) => {
-    // Only WCs and CCs log targets (John, Nov 2026); the UI matches.
-    requireRole(getAuthData()!, "WC", "CC");
     const { id, ...fields } = req;
+    // WCs and CCs log targets; anyone fills in their own watch's HFSV visits.
+    const current = await db.rawQueryRow<{ type: string; watch: string }>(
+      `SELECT type, watch FROM activity_records WHERE id = $1`,
+      id
+    );
+    if (!current) throw APIError.notFound("activity record not found");
+    if (!canLogActivity(getAuthData()!, current)) {
+      throw APIError.permissionDenied("Only a WC or CC can change this. You can fill in your own watch's home fire safety visits.");
+    }
 
     const setClauses: string[] = [];
     const values: SQLPrimitive[] = [];

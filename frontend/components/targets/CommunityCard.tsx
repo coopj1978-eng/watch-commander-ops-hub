@@ -4,12 +4,12 @@ import { Check, Plus, Users } from "lucide-react";
 import backend from "@/lib/backend";
 import { cn } from "@/lib/utils";
 import { invalidateTargetViews } from "@/lib/targetsCache";
-import { COMMUNITY_TAP_MIN, COMMUNITY_TARGET_Q } from "@/lib/targets";
+import { COMMUNITY_TAP_MIN, COMMUNITY_TARGET_Q, thisMonth } from "@/lib/targets";
 import { pace as paceOf, quarterTime, type FyQuarter } from "@/lib/quarters";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { ActivityDrawer } from "./ActivityDrawer";
-import { PaceLines, PacePill, TargetCard, TargetRing } from "./TargetParts";
+import { MonthLine, PaceLines, PacePill, TargetCard, TargetRing } from "./TargetParts";
 
 // Community engagement: 6 a quarter, at least 3 of them TAP. The card lists
 // the quarter's engagements with a one-tap "done" tick; details (name, date,
@@ -86,6 +86,12 @@ export function CommunityCard({ watch, fq, canEdit }: { watch: string; fq: FyQua
           ))}
           <span className="font-mono tabular-nums text-muted-foreground">{tap}/{COMMUNITY_TAP_MIN}</span>
         </div>
+        {time.phase === "now" && (
+          <MonthLine
+            {...thisMonth(items.filter((i) => i.completed).map((i) => i.engagement_date ?? i.completed_at), COMMUNITY_TARGET_Q)}
+            noun={["engagement", "engagements"]}
+          />
+        )}
         <PaceLines pace={p} noun="engagements" shifts={null} watch={watch} />
         {items.length > 0 && (
           <ul className="mt-4 space-y-1 border-t border-border/60 pt-3">

@@ -33,6 +33,8 @@ export default function Targets() {
   const watch = isManager && wParam && (STATION_WATCHES as readonly string[]).includes(wParam) ? wParam : ownWatch;
   const otherWatch = watch.toLowerCase() !== ownWatch.toLowerCase();
   const canEdit = isManager && !otherWatch;
+  // Home fire safety visits: anyone fills in their own watch's (John, 9 Nov 2026).
+  const canLogHfsv = !otherWatch && !!ownWatch;
   const fy = Number(params.get("fy")) || now.fy;
   const qParam = Number(params.get("q"));
   const q = (qParam >= 1 && qParam <= 4 ? qParam : fy === now.fy ? now.q : 1) as QuarterNo;
@@ -113,7 +115,7 @@ export default function Targets() {
         <>
           {/* ── This quarter's targets ─────────────────────────────────── */}
           <div className="grid gap-4 lg:grid-cols-2">
-            <HfsvCard watch={watch} fq={fq} canEdit={canEdit} />
+            <HfsvCard watch={watch} fq={fq} canEdit={canLogHfsv} />
             <CommunityCard watch={watch} fq={fq} canEdit={canEdit} />
             <MultiStoryCard watch={watch} fq={fq} canEdit={canEdit} />
             <HydrantCard watch={watch} fq={fq} />

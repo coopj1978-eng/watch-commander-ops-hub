@@ -7367,6 +7367,10 @@
       height: calc(var(--spacing) * 3);
     }
 
+    .sm\:h-7 {
+      height: calc(var(--spacing) * 7);
+    }
+
     .sm\:h-9 {
       height: calc(var(--spacing) * 9);
     }
@@ -7666,6 +7670,11 @@
     .sm\:text-sm {
       font-size: var(--text-sm);
       line-height: var(--tw-leading, var(--text-sm--line-height));
+    }
+
+    .sm\:text-xs {
+      font-size: var(--text-xs);
+      line-height: var(--tw-leading, var(--text-xs--line-height));
     }
 
     .sm\:opacity-0 {

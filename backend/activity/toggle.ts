@@ -1,6 +1,6 @@
 import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
-import { requireRole } from "../auth/rbac";
+import { canLogActivity } from "../lib/activityAccess";
 import db from "../db";
 import type { ActivityRecord } from "./types";
 
@@ -9,14 +9,16 @@ import type { ActivityRecord } from "./types";
 export const toggle = api<{ id: number }, ActivityRecord>(
   { auth: true, expose: true, method: "PATCH", path: "/activities/:id/toggle" },
   async (req) => {
-    // Only WCs and CCs log targets (John, Nov 2026); the UI matches.
-    requireRole(getAuthData()!, "WC", "CC");
     // Fetch current state first
     const current = await db.rawQueryRow<ActivityRecord>(
       `SELECT * FROM activity_records WHERE id = $1`,
       req.id
     );
     if (!current) throw APIError.notFound("activity record not found");
+    // WCs and CCs log targets; anyone fills in their own watch's HFSV visits.
+    if (!canLogActivity(getAuthData()!, current)) {
+      throw APIError.permissionDenied("Only a WC or CC can log this. You can fill in your own watch's home fire safety visits.");
+    }
 
     const nowCompleted = !current.completed;
 

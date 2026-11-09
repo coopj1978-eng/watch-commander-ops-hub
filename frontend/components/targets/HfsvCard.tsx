@@ -3,18 +3,19 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Home, Loader2, Plus } from "lucide-react";
 import backend from "@/lib/backend";
 import { invalidateTargetViews } from "@/lib/targetsCache";
-import { HFSV_TARGET_Q } from "@/lib/targets";
+import { HFSV_TARGET_Q, thisMonth } from "@/lib/targets";
 import { pace as paceOf, quarterTime, shiftsLeft, type FyQuarter } from "@/lib/quarters";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ActivityDrawer } from "./ActivityDrawer";
-import { PaceLines, PacePill, TargetCard, TargetRing } from "./TargetParts";
+import { MonthLine, PaceLines, PacePill, TargetCard, TargetRing } from "./TargetParts";
 
 // Home fire safety visits: 36 a quarter, kept as numbered slots. "Log a
 // visit" ticks the next open slot (with an optional address) in one go, so
-// nobody scrolls a list of 36 to find it; Undo puts it back.
+// nobody scrolls a list of 36 to find it; Undo puts it back. Anyone on the
+// watch can log their own watch's visits (John, 9 Nov 2026).
 
 export function HfsvCard({ watch, fq, canEdit }: { watch: string; fq: FyQuarter; canEdit: boolean }) {
   const qc = useQueryClient();
@@ -137,6 +138,9 @@ export function HfsvCard({ watch, fq, canEdit }: { watch: string; fq: FyQuarter;
           </>
         }
       >
+        {time.phase === "now" && (
+          <MonthLine {...thisMonth(items.filter((i) => i.completed).map((i) => i.completed_at), HFSV_TARGET_Q)} noun={["visit", "visits"]} />
+        )}
         <PaceLines pace={p} noun="visits" shifts={shifts} watch={watch} />
         {recent.length > 0 && (
           <ul className="mt-4 space-y-1.5 border-t border-border/60 pt-3">
@@ -155,7 +159,7 @@ export function HfsvCard({ watch, fq, canEdit }: { watch: string; fq: FyQuarter;
         )}
       </TargetCard>
       {drawer && (
-        <ActivityDrawer type="hfsv" watch={watch} financial_year={fq.fy} quarter={fq.q} open={drawer} onClose={() => setDrawer(false)} />
+        <ActivityDrawer type="hfsv" watch={watch} financial_year={fq.fy} quarter={fq.q} open={drawer} onClose={() => setDrawer(false)} canEdit={canEdit} />
       )}
     </>
   );

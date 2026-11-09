@@ -153,3 +153,14 @@ export function PaceLines({
     </div>
   );
 }
+
+/** "November so far: 5 visits · 12 a month keeps pace" — shown while the quarter is running. */
+export function MonthLine({ month, count, pace, noun }: { month: string; count: number; pace: number; noun: [string, string] }) {
+  return (
+    <p className="mb-2 text-sm text-muted-foreground">
+      <span className="font-medium text-foreground">{month} so far:</span>{" "}
+      <span className="font-mono tabular-nums text-foreground">{count}</span> {count === 1 ? noun[0] : noun[1]}
+      {" · "}{pace} a month keeps pace
+    </p>
+  );
+}

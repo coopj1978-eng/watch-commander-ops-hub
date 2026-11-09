@@ -1,6 +1,6 @@
-import { api } from "encore.dev/api";
+import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
-import { requireRole } from "../auth/rbac";
+import { canLogActivity } from "../lib/activityAccess";
 import db from "../db";
 import type { SeedHfsvRequest, SeedHfsvResponse } from "./types";
 
@@ -11,8 +11,10 @@ export const seedHfsv = api<SeedHfsvRequest, SeedHfsvResponse>(
   { auth: true, expose: true, method: "POST", path: "/activities/seed-hfsv" },
   async (req) => {
     const auth = getAuthData()!;
-    // Only WCs and CCs log targets (John, Nov 2026); the UI matches.
-    requireRole(auth, "WC", "CC");
+    // WCs and CCs; anyone can set up their own watch's visit slots.
+    if (!canLogActivity(auth, { type: "hfsv", watch: req.watch })) {
+      throw APIError.permissionDenied("You can only set up your own watch's home fire safety visits.");
+    }
     let created = 0;
     let skipped = 0;
 

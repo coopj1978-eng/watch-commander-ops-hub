@@ -38007,6 +38007,20 @@ function routineRuleFires(rule, dateIso) {
 const HFSV_TARGET_Q = 36;
 const COMMUNITY_TARGET_Q = 6;
 const COMMUNITY_TAP_MIN = 3;
+function thisMonth(dates, quarterTarget, now = /* @__PURE__ */ new Date()) {
+  const y = now.getFullYear();
+  const m = now.getMonth();
+  const count2 = dates.filter((d) => {
+    if (!d) return false;
+    const t = new Date(d);
+    return t.getFullYear() === y && t.getMonth() === m;
+  }).length;
+  return {
+    month: now.toLocaleDateString("en-GB", { month: "long" }),
+    count: count2,
+    pace: Math.round(quarterTarget / 3)
+  };
+}
 const MONTHS = ["Apr–Jun", "Jul–Sep", "Oct–Dec", "Jan–Mar"];
 const fyLabel = (fy) => `${fy}/${String(fy + 1).slice(2)}`;
 function fyQuarter(fy, q) {
@@ -38359,6 +38373,21 @@ function PaceLines({
         ] })
       ] })
     ] })
+  ] });
+}
+function MonthLine({ month, count: count2, pace: pace2, noun }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "mb-2 text-sm text-muted-foreground", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-medium text-foreground", children: [
+      month,
+      " so far:"
+    ] }),
+    " ",
+    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono tabular-nums text-foreground", children: count2 }),
+    " ",
+    count2 === 1 ? noun[0] : noun[1],
+    " · ",
+    pace2,
+    " a month keeps pace"
   ] });
 }
 const STATION_WATCHES = ["Red", "White", "Green", "Blue", "Amber"];
@@ -58177,13 +58206,15 @@ function ActivityDrawer({
   financial_year,
   quarter,
   open,
-  onClose
+  onClose,
+  canEdit
 }) {
   var _a3, _b3;
   const qc = useQueryClient();
   const { toast: toast2 } = useToast();
   const auth = useAuth();
   const isWCOrCC = ((_a3 = auth.user) == null ? void 0 : _a3.role) === "WC" || ((_b3 = auth.user) == null ? void 0 : _b3.role) === "CC";
+  const canLogHfsv = canEdit ?? isWCOrCC;
   const actKey = ["activities", type, watch, financial_year, quarter];
   const { data, isLoading } = useQuery({
     queryKey: actKey,
@@ -58260,12 +58291,12 @@ function ActivityDrawer({
     ] }),
     type === "hfsv" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto pr-1 space-y-1", children: isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center py-8", children: /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "h-5 w-5 animate-spin text-muted-foreground" }) }) : items.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-10", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground mb-4", children: "No HFSV records for this quarter yet." }),
-      isWCOrCC && quarter && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { size: "sm", onClick: () => seedMut.mutate(), disabled: seedMut.isPending, className: "bg-indigo-600 hover:bg-indigo-700", children: [
+      canLogHfsv && quarter && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { size: "sm", onClick: () => seedMut.mutate(), disabled: seedMut.isPending, className: "bg-indigo-600 hover:bg-indigo-700", children: [
         seedMut.isPending && /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "h-3.5 w-3.5 mr-2 animate-spin" }),
         "Set Up 36 HFSV Records"
       ] })
     ] }) : items.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 py-1.5 border-b border-border last:border-0", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Checkbox, { checked: item.completed, disabled: toggleMut.isPending || !isWCOrCC, onCheckedChange: () => toggleMut.mutate(item.id) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Checkbox, { checked: item.completed, disabled: toggleMut.isPending || !canLogHfsv, onCheckedChange: () => toggleMut.mutate(item.id) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: `text-sm font-medium w-14 shrink-0 ${item.completed ? "line-through text-muted-foreground" : ""}`, children: [
         "HFSV #",
         item.item_number
@@ -58274,9 +58305,9 @@ function ActivityDrawer({
         Input,
         {
           placeholder: "Address (optional)",
-          className: "h-7 text-xs",
+          className: "h-9 text-base sm:h-7 sm:text-xs",
           defaultValue: item.address ?? "",
-          disabled: !isWCOrCC,
+          disabled: !canLogHfsv,
           onBlur: (e) => {
             if (e.target.value !== (item.address ?? "")) updateMut.mutate({ id: item.id, address: e.target.value });
           }
@@ -58490,6 +58521,7 @@ function HfsvCard({ watch, fq, canEdit }) {
           ] })
         ] }),
         children: [
+          time2.phase === "now" && /* @__PURE__ */ jsxRuntimeExports.jsx(MonthLine, { ...thisMonth(items.filter((i) => i.completed).map((i) => i.completed_at), HFSV_TARGET_Q), noun: ["visit", "visits"] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(PaceLines, { pace: p, noun: "visits", shifts, watch }),
           recent.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "mt-4 space-y-1.5 border-t border-border/60 pt-3", children: recent.map((r2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-center gap-2 text-xs", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono text-muted-foreground", children: [
@@ -58502,7 +58534,7 @@ function HfsvCard({ watch, fq, canEdit }) {
         ]
       }
     ),
-    drawer && /* @__PURE__ */ jsxRuntimeExports.jsx(ActivityDrawer, { type: "hfsv", watch, financial_year: fq.fy, quarter: fq.q, open: drawer, onClose: () => setDrawer(false) })
+    drawer && /* @__PURE__ */ jsxRuntimeExports.jsx(ActivityDrawer, { type: "hfsv", watch, financial_year: fq.fy, quarter: fq.q, open: drawer, onClose: () => setDrawer(false), canEdit })
   ] });
 }
 function CommunityCard({ watch, fq, canEdit }) {
@@ -58574,6 +58606,13 @@ function CommunityCard({ watch, fq, canEdit }) {
               COMMUNITY_TAP_MIN
             ] })
           ] }),
+          time2.phase === "now" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+            MonthLine,
+            {
+              ...thisMonth(items.filter((i) => i.completed).map((i) => i.engagement_date ?? i.completed_at), COMMUNITY_TARGET_Q),
+              noun: ["engagement", "engagements"]
+            }
+          ),
           /* @__PURE__ */ jsxRuntimeExports.jsx(PaceLines, { pace: p, noun: "engagements", shifts: null, watch }),
           items.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "mt-4 space-y-1 border-t border-border/60 pt-3", children: items.slice(0, 6).map((it) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-center gap-2.5 text-sm", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -58725,6 +58764,7 @@ function Targets() {
   const watch = isManager && wParam && STATION_WATCHES.includes(wParam) ? wParam : ownWatch;
   const otherWatch = watch.toLowerCase() !== ownWatch.toLowerCase();
   const canEdit = isManager && !otherWatch;
+  const canLogHfsv = !otherWatch && !!ownWatch;
   const fy = Number(params.get("fy")) || now.fy;
   const qParam = Number(params.get("q"));
   const q = qParam >= 1 && qParam <= 4 ? qParam : fy === now.fy ? now.q : 1;
@@ -58825,7 +58865,7 @@ function Targets() {
       /* @__PURE__ */ jsxRuntimeExports.jsx(StationComparison, { fq, ownWatch, onPick: (w) => select({ view: null, w }) })
     ) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid gap-4 lg:grid-cols-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(HfsvCard, { watch, fq, canEdit }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(HfsvCard, { watch, fq, canEdit: canLogHfsv }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(CommunityCard, { watch, fq, canEdit }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(MultiStoryCard, { watch, fq, canEdit }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(HydrantCard, { watch, fq })
@@ -64640,15 +64680,17 @@ const FEATURE_CONFIG = [
   { key: "calendar", label: "Calendar", description: "Their own calendar first, then the watch's; log TOIL and orange days, ask for a flexi or H4H", icon: Calendar, phase: "Phase 1 · first release" },
   { key: "handover", label: "Shift", description: "Crewing board (to look at), handover notes to read, the rotas", icon: ClipboardList, phase: "Phase 1 · first release" },
   { key: "tasks", label: "Tasks", description: "Today's shift board: tick checks, add a job", icon: SquareCheckBig, phase: "Phase 1 · first release" },
-  { key: "requests", label: "Requests", description: "Their own flexi and H4H requests, and recording the Kronos answer", icon: FileCheck, phase: "Phase 1 · first release" },
+  { key: "requests", label: "Requests", description: "Their own flexi and H4H, kept as a record (they go straight on the calendar)", icon: FileCheck, phase: "Phase 1 · first release" },
   { key: "detachments", label: "Detachments", description: "The detachment rota and history", icon: Navigation, phase: "Phase 1 · first release" },
+  // Targets moved up from Phase 3 (John, 9 Nov 2026): see this month's and
+  // quarter's progress, and fill in their own watch's HFSV visits.
+  { key: "targets", label: "Targets", description: "The watch's progress this month and quarter; fill in HFSV visits", icon: Target, phase: "Phase 1 · first release" },
   { key: "equipment", label: "J4 Checks", description: "Appliance checks and reporting defects", icon: Truck, phase: "Phase 1 · first release" },
   { key: "bulletins", label: "Bulletins", description: "News and announcements", icon: Megaphone, phase: "Phase 2 · information" },
   { key: "training", label: "Training", description: "Training sessions and records", icon: GraduationCap, phase: "Phase 2 · information" },
   { key: "policies", label: "Docs", description: "Policies, guidance and the policy question box", icon: FileText, phase: "Phase 2 · information" },
   { key: "hydrants", label: "Hydrants", description: "Hydrant routes and faults", icon: Flame, phase: "Phase 3 · station work" },
   { key: "references", label: "References", description: "The watch's station references (and Our reference on Home)", icon: BookMarked, phase: "Phase 3 · station work" },
-  { key: "targets", label: "Targets", description: "HFSV, community and multi-storey targets", icon: Target, phase: "Phase 3 · station work" },
   { key: "people", label: "People", description: "Everyone's profiles", icon: Users, phase: "WC/CC tools" },
   { key: "reports", label: "Reports", description: "Quarterly reports", icon: ChartColumn, phase: "WC/CC tools" }
 ];

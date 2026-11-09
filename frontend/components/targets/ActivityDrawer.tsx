@@ -14,22 +14,26 @@ import { useToast } from "@/components/ui/use-toast";
 import { COMMUNITY_TAP_MIN } from "@/lib/targets";
 
 // Every HFSV slot / community engagement for one watch and quarter, editable
-// by WCs and CCs. Opened from the Targets page cards ("All 36 visits",
+// by WCs and CCs — and HFSV by anyone on that watch (John, 9 Nov 2026; the
+// card passes canEdit). Opened from the Targets page cards ("All 36 visits",
 // "Manage"). Shares its query with the cards, so edits show everywhere.
 
 type ActivityRecord = activity.ActivityRecord;
 type ActivityType = activity.ActivityType;
 
 export function ActivityDrawer({
-  type, watch, financial_year, quarter, open, onClose,
+  type, watch, financial_year, quarter, open, onClose, canEdit,
 }: {
   type: ActivityType; watch: string; financial_year: number;
   quarter: number | null; open: boolean; onClose: () => void;
+  /** HFSV: anyone on the watch fills these in. Defaults to WC/CC. */
+  canEdit?: boolean;
 }) {
   const qc = useQueryClient();
   const { toast } = useToast();
   const auth = useAuth();
   const isWCOrCC = auth.user?.role === "WC" || auth.user?.role === "CC";
+  const canLogHfsv = canEdit ?? isWCOrCC;
 
   const actKey = ["activities", type, watch, financial_year, quarter];
 
@@ -126,7 +130,7 @@ export function ActivityDrawer({
                 <p className="text-sm text-muted-foreground mb-4">
                   No HFSV records for this quarter yet.
                 </p>
-                {isWCOrCC && quarter && (
+                {canLogHfsv && quarter && (
                   <Button size="sm" onClick={() => seedMut.mutate()} disabled={seedMut.isPending} className="bg-indigo-600 hover:bg-indigo-700">
                     {seedMut.isPending && <Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" />}
                     Set Up 36 HFSV Records
@@ -136,12 +140,12 @@ export function ActivityDrawer({
             ) : (
               items.map(item => (
                 <div key={item.id} className="flex items-center gap-3 py-1.5 border-b border-border last:border-0">
-                  <Checkbox checked={item.completed} disabled={toggleMut.isPending || !isWCOrCC} onCheckedChange={() => toggleMut.mutate(item.id)} />
+                  <Checkbox checked={item.completed} disabled={toggleMut.isPending || !canLogHfsv} onCheckedChange={() => toggleMut.mutate(item.id)} />
                   <span className={`text-sm font-medium w-14 shrink-0 ${item.completed ? "line-through text-muted-foreground" : ""}`}>
                     HFSV #{item.item_number}
                   </span>
                   <Input
-                    placeholder="Address (optional)" className="h-7 text-xs" defaultValue={item.address ?? ""} disabled={!isWCOrCC}
+                    placeholder="Address (optional)" className="h-9 text-base sm:h-7 sm:text-xs" defaultValue={item.address ?? ""} disabled={!canLogHfsv}
                     onBlur={e => { if (e.target.value !== (item.address ?? "")) updateMut.mutate({ id: item.id, address: e.target.value }); }}
                   />
                 </div>
