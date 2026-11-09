@@ -72,6 +72,11 @@ function Empty({ title, body }: { title: string; body: string }) {
 
 const Loading = () => <div className="space-y-2"><Skeleton className="h-16 w-full" /><Skeleton className="h-16 w-full" /></div>;
 
+/** The flags on a booking, short, for its row ("Flexi balance, Timing"). */
+const flagsOf = (r: Req) => (r.checks ?? []).filter((c) => c.state === "fail" || c.state === "warn");
+
+// What your watch has booked (since 9 Nov 2026 they go straight on, so this
+// is the paper trail: flagged ones first), plus anything older still waiting.
 function ReviewTab({ onOpen }: { onOpen: (id: number) => void }) {
   const { data, isLoading } = useQuery({
     queryKey: ["shift-requests", "review"],
@@ -79,13 +84,18 @@ function ReviewTab({ onOpen }: { onOpen: (id: number) => void }) {
   });
   if (isLoading) return <Loading />;
   const rows = data?.requests ?? [];
+  const booked = rows.filter((r) => r.status === "approved" && r.payback_status !== "with_wc");
+  const flagged = booked.filter((r) => flagsOf(r).length > 0);
   const toSign = rows.filter((r) => r.status === "with_wc" || r.payback_status === "with_wc");
   const cover = rows.filter((r) => r.status === "with_cover");
   const kronos = rows.filter((r) => r.status === "authorised" || r.status === "referred");
-  if (rows.length === 0) return <Empty title="Nothing to review" body="Requests from your watch come here, and you'll get a notification." />;
+  if (rows.length === 0) return <Empty title="Nothing booked coming up" body="When someone on your watch puts a Flexi Day or Head for Head on, it shows here and you get a notification." />;
+  const flagText = (r: Req) => `Flagged: ${flagsOf(r).map((c) => c.label).join(", ")}`;
   return (
     <div className="space-y-5">
-      <Group title="To sign" rows={toSign} onOpen={onOpen} />
+      <Group title="Flagged" rows={flagged} onOpen={onOpen} extra={flagText} />
+      <Group title="Booked, coming up" rows={booked.filter((r) => flagsOf(r).length === 0)} onOpen={onOpen} />
+      <Group title="To sign (made before 9 Nov)" rows={toSign} onOpen={onOpen} />
       <Group title="Waiting for the cover to agree" rows={cover} onOpen={onOpen} />
       <Group title="Waiting on Kronos" rows={kronos} onOpen={onOpen} />
     </div>
@@ -103,11 +113,11 @@ function MineTab({ onOpen }: { onOpen: (id: number) => void }) {
   const needsMe = (r: Req) =>
     (r.status === "with_cover" && r.cover_user_id === user?.id) ||
     ((r.status === "authorised" || r.status === "referred") && r.user_id === user?.id);
-  if (rows.length === 0) return <Empty title="No requests yet" body="Ask for a Flexi Day or a Head for Head with New request." />;
+  if (rows.length === 0) return <Empty title="Nothing yet" body="Put a Flexi Day or a Head for Head on with Flexi / H4H." />;
   return (
     <div className="space-y-5">
       <Group title="Needs you" rows={rows.filter(needsMe)} onOpen={onOpen} />
-      <Group title="Your requests" rows={rows.filter((r) => !needsMe(r))} onOpen={onOpen} />
+      <Group title="Yours" rows={rows.filter((r) => !needsMe(r))} onOpen={onOpen} />
     </div>
   );
 }
@@ -291,8 +301,8 @@ export default function Requests() {
   const [params, setParams] = useSearchParams();
 
   const tabs: { key: Tab; label: string }[] = isManager
-    ? [{ key: "review", label: "To review" }, { key: "mine", label: "My requests" }, { key: "records", label: "Records" }, { key: "balances", label: "Flexi balances" }]
-    : [{ key: "mine", label: "My requests" }];
+    ? [{ key: "review", label: "Booked" }, { key: "mine", label: "Mine" }, { key: "records", label: "Records" }, { key: "balances", label: "Flexi balances" }]
+    : [{ key: "mine", label: "Mine" }];
   const asked = params.get("tab") as Tab | null;
   const tab: Tab = tabs.some((t) => t.key === asked) ? asked! : tabs[0].key;
 
@@ -321,9 +331,9 @@ export default function Requests() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight text-foreground">Requests</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Flexi Days and Head for Heads, reviewed here before they go on Kronos.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Flexi Days and Head for Heads. They go straight on the calendar; each one is kept here as a record.</p>
         </div>
-        <Button onClick={() => setNewOpen(true)}><Plus className="mr-2 h-4 w-4" />New request</Button>
+        <Button onClick={() => setNewOpen(true)}><Plus className="mr-2 h-4 w-4" />Flexi / H4H</Button>
       </div>
 
       {tabs.length > 1 && (

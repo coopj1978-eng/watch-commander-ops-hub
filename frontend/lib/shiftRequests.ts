@@ -18,7 +18,7 @@ export const STATUS_LABEL: Record<shift_adjustments.RequestStatus, string> = {
   authorised: "Authorised: submit on Kronos",
   referred: "Referred: submit on Kronos",
   declined: "Declined by WC",
-  approved: "Approved",
+  approved: "Booked",
   not_approved: "Declined on Kronos",
   withdrawn: "Withdrawn",
   cancelled: "Cancelled",

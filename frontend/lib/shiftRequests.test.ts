@@ -26,7 +26,7 @@ describe("the records download", () => {
     } as never]);
     const [head, row] = csv.split("\r\n");
     expect(head.startsWith("Ref,Type,Name")).toBe(true);
-    expect(row.startsWith("7,Flexi Day,Alex Morgan,FF,123,B10,Blue,2026-11-20,1st Day,2026-11-05,Approved")).toBe(true);
+    expect(row.startsWith("7,Flexi Day,Alex Morgan,FF,123,B10,Blue,2026-11-20,1st Day,2026-11-05,Booked")).toBe(true);
     expect(row).toContain("J Cooper (WC)");
   });
 });

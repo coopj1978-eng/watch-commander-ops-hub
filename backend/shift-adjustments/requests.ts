@@ -5,7 +5,7 @@ import { logActivity } from "../logging/logger";
 import { createNotification, notifyWatchManagers } from "../notification/helpers";
 import { addDaysIso, shiftSlot, ukParts, watchForSlot } from "../lib/shiftRota";
 import {
-  canDecide, canRecordOutcome, canViewRequest, dayLabel, flexiChecks, h4hChecks, kronosDeadline, recommendedH4H, rotaFor,
+  canDecide, canRecordOutcome, canViewRequest, dayLabel, flagLines, flexiChecks, h4hChecks, kronosDeadline, recommendedH4H, rotaFor,
   type Commitment, type DayNight, type FlexiLimits, type Quals, type RequestCheck, type RequestType, type RequestViewer,
 } from "../lib/shiftRequests";
 import { RIDE_BOTH, RIDE_ONE, ridersOf, shiftStrength } from "../lib/strength";
@@ -13,11 +13,14 @@ import { describeShort, seatCheck } from "../lib/ridingSeats";
 import { loadStrengthData } from "../lib/strengthData";
 import { bookAdjustment } from "./book";
 
-// Flexi Day and Head for Head requests (Nov 2026), paperless: the person asks,
-// the WC reviews on a card that has done the checks, the person submits on
-// Kronos, and the result is recorded. Only then does it reach the calendar,
-// crewing board and riding count. The request stays as the record (with its
-// timeline in shift_request_events); nothing here deletes one.
+// Flexi Day and Head for Head (Nov 2026). Since 9 Nov 2026 (John: "less
+// resistance" for firefighters) they go straight on: putting one through
+// books it on the calendar, crewing board and riding count at once, and the
+// watch's WC and CC get an alert with any flags (over 4 a year, short notice,
+// a clash) as the paper trail. Only "no shift that day" stops one. Each stays
+// as a record (timeline in shift_request_events); nothing here deletes one.
+// The older sign-off steps (cover confirms, WC decides, Kronos result) are
+// kept for any request made before then.
 
 export type RequestStatus =
   | "with_cover" | "cover_declined" | "with_wc" | "authorised" | "referred"
@@ -523,60 +526,92 @@ export const createRequest = api<CreateBody, RequestDetail>(
     const d = await buildDraft(body, viewer);
     if (d.type === "h4h" && !d.coverName) throw APIError.invalidArgument("Say who's covering the shift.");
 
-    const blocked = (await runChecks(d)).find((c) => c.blocks);
+    // Only "there's no shift that day" stops it. Everything else (over 4 a
+    // year, short notice, a clash, crew numbers) is kept as a flag on the
+    // record and in the WC's alert (John, 9 Nov 2026).
+    const checks = await runChecks(d);
+    const blocked = checks.find((c) => c.blocks);
     if (blocked) throw APIError.failedPrecondition(`${blocked.label}: ${blocked.detail}.`);
-
-    let reviewer: Person | null = null;
-    if (d.user.role === "WC") {
-      if (!body.reviewer_user_id) throw APIError.invalidArgument("Choose another WC to review this.");
-      reviewer = await loadPerson(body.reviewer_user_id);
-      if (!reviewer || reviewer.role !== "WC" || reviewer.id === d.user.id) {
-        throw APIError.invalidArgument("Choose another WC to review this.");
-      }
-    }
+    if (!d.user.id) throw APIError.failedPrecondition("That person isn't on the system.");
 
     const clash = await db.rawQueryRow<{ id: number }>(
       `SELECT id::int AS id FROM shift_requests
        WHERE user_id = $1 AND type = $2 AND shift_date = $3::date AND status = ANY($4::text[]) LIMIT 1`,
       d.user.id, d.type, d.date, [...OPEN, "approved"]
     );
-    if (clash) throw APIError.alreadyExists(`There's already a ${TYPE_LABEL[d.type]} request for that date (#${clash.id}).`);
+    if (clash) throw APIError.alreadyExists(`There's already a ${TYPE_LABEL[d.type]} for that date (#${clash.id}).`);
 
-    // A named person agrees first; someone not in the app goes straight to the WC.
-    const status: RequestStatus = d.type === "h4h" && d.cover ? "with_cover" : "with_wc";
+    // Straight on: the record is made already booked ("approved"), with the
+    // checks as they stood kept on it. No sign-off and no Kronos step.
     const shiftType = d.shiftType === "Annual Leave" ? `Annual Leave (${d.dayNight})` : d.shiftType;
+    const paybackWatch = d.payback && d.cover?.watch ? d.cover.watch : null;
     const row = await db.rawQueryRow<{ id: number }>(
       `INSERT INTO shift_requests (
          type, status, user_id, user_name, user_role, payroll_number, station, watch,
-         shift_date, shift_type, day_night, notes, reviewer_user_id, reviewer_name,
+         shift_date, shift_type, day_night, notes,
          cover_user_id, cover_name, cover_payroll, cover_station, cover_watch,
-         payback_date, payback_day_night, created_by, created_by_name
+         payback_date, payback_day_night, payback_watch, payback_status, created_by, created_by_name, checks
        ) VALUES (
-         $1, $2, $3, $4, $5, $6, $7, $8, $9::date, $10, $11, $12, $13, $14,
-         $15, $16, $17, $18, $19, $20::date, $21, $22, $23
+         $1, 'approved', $2, $3, $4, $5, $6, $7, $8::date, $9, $10, $11,
+         $12, $13, $14, $15, $16, $17::date, $18, $19, $20, $21, $22, $23::text::jsonb
        ) RETURNING id::int AS id`,
-      d.type, status, d.user.id, d.user.name, d.user.role, d.user.service_number, d.user.station, d.user.watch,
-      d.date, shiftType, d.dayNight, body.notes?.trim() || null, reviewer?.id ?? null, reviewer?.name ?? null,
+      d.type, d.user.id, d.user.name, d.user.role, d.user.service_number, d.user.station, d.user.watch,
+      d.date, shiftType, d.dayNight, body.notes?.trim() || null,
       d.cover?.id ?? null, d.coverName || null,
       d.cover?.service_number ?? (body.cover_payroll?.trim() || null),
       d.cover?.station ?? (body.cover_station?.trim() || null),
       d.cover?.watch ?? (body.cover_watch?.trim() || null),
-      d.payback?.date ?? null, d.payback?.dayNight ?? null, viewer.id, viewer.name
+      d.payback?.date ?? null, d.payback?.dayNight ?? null, paybackWatch, d.payback ? "authorised" : null,
+      viewer.id, viewer.name, JSON.stringify(checks)
     );
-    if (!row) throw APIError.internal("Couldn't save the request.");
+    if (!row) throw APIError.internal("Couldn't save it.");
+
+    const adjustmentId = await bookAdjustment({
+      type: d.type, userId: d.user.id, date: d.date, dayNight: d.dayNight,
+      coveringUserId: d.cover?.id ?? null, coveringName: d.coverName || null,
+      notes: `Request #${row.id}`, createdBy: viewer.id,
+    });
+    // An H4H payback agreed up front: the person covering gets their shift back then.
+    const paybackId = d.payback && d.cover
+      ? await bookAdjustment({
+          type: "h4h", userId: d.cover.id, date: d.payback.date, dayNight: d.payback.dayNight,
+          coveringUserId: d.user.id, coveringName: d.user.name, notes: `Request #${row.id} payback`, createdBy: viewer.id,
+        })
+      : null;
+    await db.rawExec(
+      `UPDATE shift_requests SET shift_adjustment_id = $2, payback_adjustment_id = $3, updated_at = NOW() WHERE id = $1`,
+      row.id, adjustmentId, paybackId
+    );
 
     const r = await loadRequest(row.id);
-    await addEvent(r.id, viewer, viewer.id === d.user.id ? "Requested" : `Raised for ${d.user.name}`, body.notes?.trim());
-    if (status === "with_cover") {
-      await tell(r.cover_user_id, viewer.id, linkNote(r, "Head for Head: please confirm",
-        `${r.user_name} has put you down to cover ${dayLabel(r.shift_date)} (${r.shift_type}, ${r.watch} Watch). Confirm you've agreed.`));
-    } else {
-      await tellSigners(r, viewer.id, linkNote(r, `${TYPE_LABEL[r.type]} request to review`,
-        `${r.user_name} (${r.watch} Watch) is asking for ${describe(r)}.`));
+    const flags = flagLines(checks);
+    const payback = r.payback_date ? ` Payback: ${dayLabel(r.payback_date)} (${r.payback_day_night}).` : "";
+    await addEvent(r.id, viewer,
+      viewer.id === d.user.id ? "Booked on the calendar" : `Booked for ${d.user.name}`,
+      [body.notes?.trim(), flags.length ? `Flagged: ${flags.join("; ")}` : null, payback.trim() || null].filter(Boolean).join(" ") || null);
+
+    // The paper trail: the watch's WC and CC hear about it, with any flags.
+    const who = viewer.id === d.user.id ? r.user_name : `${viewer.name} for ${r.user_name}`;
+    await notifyWatchManagers(r.watch, [d.user.id, viewer.id], linkNote(r,
+      `${TYPE_LABEL[r.type]} booked${flags.length ? " · flagged" : ""}: ${r.user_name}`,
+      `${who} (${r.watch} Watch) put ${describe(r)} on the calendar${r.cover_name ? `, ${r.cover_name} covering` : ""}.${payback}`
+        + (flags.length ? ` Flagged: ${flags.join("; ")}.` : "")));
+    // Head for Head: the person covering is told it's on their calendar.
+    if (r.cover_user_id) {
+      await tell(r.cover_user_id, viewer.id, linkNote(r, "Head for Head: you're covering",
+        `${r.user_name} has put you down to cover ${dayLabel(r.shift_date)} (${r.shift_type}, ${r.watch} Watch). It's on your calendar.`
+          + (r.payback_date ? ` They pay it back on ${dayLabel(r.payback_date)} (${r.payback_day_night}).` : "")
+          + " If you didn't agree to this, tell them or your WC."));
     }
+    // Raised by a WC/CC for someone: that person is told too.
+    if (viewer.id !== d.user.id) {
+      await tell(d.user.id, viewer.id, linkNote(r, `${TYPE_LABEL[r.type]} booked for you`,
+        `${viewer.name} put ${describe(r)} on your calendar.`));
+    }
+
     await logActivity({
-      user_id: viewer.id, action: "create_shift_request", entity_type: "shift_request", entity_id: String(r.id),
-      details: { type: r.type, shift_date: r.shift_date },
+      user_id: viewer.id, action: "book_shift_request", entity_type: "shift_request", entity_id: String(r.id),
+      details: { type: r.type, shift_date: r.shift_date, shift_adjustment_id: adjustmentId, flags: flags.length },
     });
     return detailFor(r.id, viewer);
   }
@@ -824,16 +859,29 @@ export const addPayback = api<{ id: number; payback_date: string; payback_day_ni
     }
     if (!ISO.test(payback_date)) throw APIError.invalidArgument("Pick a payback date.");
 
-    // Before approval it goes in front of the WC with the swap itself.
-    const waiting = r.status === "approved";
+    // Already booked: the payback goes straight on too (John, 9 Nov 2026),
+    // and the WC/CC are told. An older request still being decided carries it
+    // in front of the WC with the swap itself.
+    const booked = r.status === "approved";
+    let paybackId: number | null = null;
+    if (booked && r.cover_user_id && r.user_id) {
+      paybackId = await bookAdjustment({
+        type: "h4h", userId: r.cover_user_id, date: payback_date, dayNight: payback_day_night,
+        coveringUserId: r.user_id, coveringName: r.user_name, notes: `Request #${r.id} payback`, createdBy: viewer.id,
+      });
+    }
     await db.rawExec(
-      `UPDATE shift_requests SET payback_date = $2::date, payback_day_night = $3, payback_status = $4, updated_at = NOW() WHERE id = $1`,
-      id, payback_date, payback_day_night, waiting ? "with_wc" : null
+      `UPDATE shift_requests SET payback_date = $2::date, payback_day_night = $3, payback_status = $4,
+              payback_adjustment_id = COALESCE($5, payback_adjustment_id), updated_at = NOW() WHERE id = $1`,
+      id, payback_date, payback_day_night, booked ? "authorised" : null, paybackId
     );
-    await addEvent(id, viewer, "Payback date added", `${dayLabel(payback_date)} (${payback_day_night})`);
-    if (waiting) {
-      await tellSigners(r, viewer.id, linkNote(r, "Head for Head payback to review",
-        `${r.user_name} and ${r.cover_name} have agreed a payback on ${dayLabel(payback_date)} (${payback_day_night}).`));
+    await addEvent(id, viewer, booked ? "Payback booked" : "Payback date added", `${dayLabel(payback_date)} (${payback_day_night})`);
+    if (booked) {
+      const note = linkNote(r, "Head for Head payback booked",
+        `${r.user_name} pays back ${r.cover_name ?? "their cover"} on ${dayLabel(payback_date)} (${payback_day_night}). It's on the calendar.`);
+      await notifyWatchManagers(r.watch, [viewer.id, r.user_id, r.cover_user_id].filter((x): x is string => !!x), note);
+      await tell(r.user_id, viewer.id, note);
+      await tell(r.cover_user_id, viewer.id, note);
     }
     return detailFor(id, viewer);
   }
@@ -902,13 +950,21 @@ export const listRequests = api<ListRequest, { requests: ShiftRequest[] }>(
     }
     if (!isManager(viewer)) throw APIError.permissionDenied("Only a WC or CC can see this list.");
     if (scope === "review") {
+      // Anything older still waiting on a step, plus what's been booked
+      // straight on from yesterday onwards, with its flags (the WC's view).
       const rows = await db.rawQueryAll<ShiftRequest>(
         `SELECT ${COLUMNS} FROM shift_requests
          WHERE status = ANY($1::text[]) OR payback_status = 'with_wc'
+            OR (status = 'approved' AND shift_date >= $2::date)
          ORDER BY shift_date, id`,
-        OPEN
+        OPEN, addDaysIso(ukParts().date, -1)
       );
-      return { requests: rows.filter((r) => canDecide(me, r)).map((r) => ({ ...r, checks: null })) };
+      return {
+        requests: rows.filter((r) => canDecide(me, r)).map((r) => {
+          const stored = (typeof r.checks === "string" ? JSON.parse(r.checks) : r.checks) as RequestCheck[] | null;
+          return { ...r, checks: r.status === "approved" && stored ? stored : null };
+        }),
+      };
     }
     if (scope === "records") {
       const rows = await db.rawQueryAll<ShiftRequest>(

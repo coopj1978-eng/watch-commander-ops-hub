@@ -230,7 +230,7 @@ function AddPayback({ d, act, busy }: { d: Detail; act: (f: () => Promise<Detail
   const [shift, setShift] = useState<DayNight>("Day");
   return (
     <Section title="Payback">
-      <p className="text-sm text-muted-foreground">Add the date once it's agreed. It goes to the WC to check first.</p>
+      <p className="text-sm text-muted-foreground">{d.request.status === "approved" ? "Add the date once it's agreed. It goes straight on both calendars, and the WC is told." : "Add the date once it's agreed. It goes to the WC to check first."}</p>
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-2">
         <div>
           <Label htmlFor="h4h-payback" className="text-sm">Payback date</Label>
@@ -330,7 +330,7 @@ export function RequestCard({ id, onClose }: { id: number | null; onClose: () =>
               {d.can.confirm_cover && <CoverAnswer d={d} act={act} busy={busy} />}
 
               {d.checks.length > 0 && (
-                <Section title={r.status === "with_cover" || r.status === "with_wc" || r.payback_status === "with_wc" ? "Checks" : "Checks when signed"}>
+                <Section title={r.status === "with_cover" || r.status === "with_wc" || r.payback_status === "with_wc" ? "Checks" : r.decided_by_name ? "Checks when signed" : "Checks when booked"}>
                   <CheckList checks={d.checks} />
                 </Section>
               )}

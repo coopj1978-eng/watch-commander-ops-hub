@@ -16,7 +16,7 @@ export interface RequestCheck {
   label: string;
   state: CheckState;
   detail: string;
-  /** Can't be sent at all like this (the WC would have to decline it). */
+  /** Can't be booked at all: there's no shift on the rota that day. */
   blocks?: boolean;
   /** Crew numbers come from sickness and leave, so only a WC/CC sees them. */
   managersOnly?: boolean;
@@ -151,6 +151,17 @@ export function missingSkills(applicant: Quals, cover: Quals): string[] {
     .map((k) => QUAL_LABEL[k]);
 }
 
+/**
+ * The checks worth a WC's attention, one short line each, for the alert that
+ * a Flexi or Head for Head has gone on (John, 9 Nov 2026: it goes straight
+ * on; the WC gets a paper trail and raises anything in person).
+ */
+export function flagLines(checks: RequestCheck[]): string[] {
+  return checks
+    .filter((c) => c.state === "fail" || c.state === "warn")
+    .map((c) => `${c.label}: ${c.detail.split(". ")[0]}`);
+}
+
 // ─── Flexi Day ────────────────────────────────────────────────────────────────
 export function flexiChecks(i: {
   watch: string;
@@ -177,12 +188,14 @@ export function flexiChecks(i: {
   const deadline = kronosDeadline(i.date, i.dayNight, i.limits.notice_hours);
   const ahead = dayNumber(i.date) - dayNumber(ukParts(i.now).date);
   const by = deadline.toLocaleString("en-GB", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" });
+  // Timing is a flag, never a block (John, 9 Nov 2026): a flexi goes straight
+  // on, even after the day, so people can keep their own record.
   if (start.getTime() <= i.now.getTime()) {
-    checks.push({ key: "timing", label: "Timing", state: "fail", blocks: true, detail: "That shift has already started" });
+    checks.push({ key: "timing", label: "Timing", state: "fail", detail: "That shift has already started" });
   } else if (ahead > i.limits.days_ahead) {
-    checks.push({ key: "timing", label: "Timing", state: "fail", blocks: true, detail: `${ahead} days ahead. The limit is ${i.limits.days_ahead} days` });
+    checks.push({ key: "timing", label: "Timing", state: "fail", detail: `${ahead} days ahead. The limit is ${i.limits.days_ahead} days` });
   } else if (deadline.getTime() <= i.now.getTime()) {
-    checks.push({ key: "timing", label: "Timing", state: "fail", blocks: true, detail: `Too late. Kronos needs ${i.limits.notice_hours} hours' notice before the shift` });
+    checks.push({ key: "timing", label: "Timing", state: "fail", detail: `Short notice. Kronos needs ${i.limits.notice_hours} hours' notice before the shift` });
   } else if (deadline.getTime() - i.now.getTime() < 24 * 3_600_000) {
     checks.push({ key: "timing", label: "Timing", state: "warn", detail: `Tight: on Kronos by ${by}` });
   } else {
@@ -194,17 +207,17 @@ export function flexiChecks(i: {
   checks.push(
     would <= i.limits.per_year
       ? { key: "balance", label: "Flexi balance", state: "ok", detail: `This would be ${would} of ${i.limits.per_year} in ${year}` }
-      : { key: "balance", label: "Flexi balance", state: "fail", detail: `This would be ${would} in ${year}, over the limit of ${i.limits.per_year}. Needs WC agreement and SC endorsement` }
+      : { key: "balance", label: "Flexi balance", state: "fail", detail: `This would be ${would} in ${year}, over the limit of ${i.limits.per_year}. It still goes through; the WC is told` }
   );
 
   if (i.crew) {
     const { available, total, rideOne, rideBoth } = i.crew;
     checks.push(
       available >= rideBoth
-        ? { key: "crew", label: "Crew", state: "ok", managersOnly: true, detail: `${available} of ${total} if authorised, enough for both pumps` }
+        ? { key: "crew", label: "Crew", state: "ok", managersOnly: true, detail: `${available} of ${total} on the watch without them, enough for both pumps` }
         : available >= rideOne
-        ? { key: "crew", label: "Crew", state: "warn", managersOnly: true, detail: `${available} of ${total} if authorised, ${rideBoth - available} short to ride both pumps` }
-        : { key: "crew", label: "Crew", state: "fail", managersOnly: true, detail: `${available} of ${total} if authorised, not enough to ride a pump` }
+        ? { key: "crew", label: "Crew", state: "warn", managersOnly: true, detail: `${available} of ${total} on the watch without them, ${rideBoth - available} short to ride both pumps` }
+        : { key: "crew", label: "Crew", state: "fail", managersOnly: true, detail: `${available} of ${total} on the watch without them, not enough to ride a pump` }
     );
   }
   if (i.skillsLeft) {

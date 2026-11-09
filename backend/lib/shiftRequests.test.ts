@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
-  canDecide, canRecordOutcome, canViewRequest, findClashes, flexiChecks, h4hChecks, kronosDeadline, missingSkills,
+  canDecide, canRecordOutcome, canViewRequest, findClashes, flagLines, flexiChecks, h4hChecks, kronosDeadline, missingSkills,
   recommendedH4H, rotaFor, type Quals,
 } from "./shiftRequests";
 
@@ -115,15 +115,17 @@ describe("flexi checks", () => {
     expect(c.blocks).toBe(true);
   });
 
-  it("blocks more than 30 days ahead", () => {
+  it("flags more than 30 days ahead, without blocking", () => {
     const c = of(flexiChecks({ ...base, date: "2026-11-20" }), "timing");
-    expect(c.blocks).toBe(true);
+    expect(c.state).toBe("fail");
+    expect(c.blocks).toBeUndefined();
     expect(c.detail).toContain("limit");
   });
 
-  it("blocks under 48 hours' notice", () => {
+  it("flags under 48 hours' notice, without blocking", () => {
     const c = of(flexiChecks({ ...base, now: new Date("2026-10-20T12:00:00Z") }), "timing");
-    expect(c.blocks).toBe(true);
+    expect(c.state).toBe("fail");
+    expect(c.blocks).toBeUndefined();
     expect(c.detail).toContain("48");
   });
 
@@ -135,7 +137,7 @@ describe("flexi checks", () => {
     const c = of(flexiChecks({ ...base, used: 4 }), "balance");
     expect(c.state).toBe("fail");
     expect(c.blocks).toBeUndefined();
-    expect(c.detail).toContain("SC endorsement");
+    expect(c.detail).toContain("over the limit of 4");
   });
 
   it("marks crew numbers as managers only and grades them", () => {
@@ -291,3 +293,15 @@ describe("who signs", () => {
     expect(canRecordOutcome({ id: "z", role: "FF", watch: "Blue" }, ff)).toBe(false);
   });
 });
+
+describe("flag lines for the WC's alert", () => {
+  it("keeps only flags and warnings, first sentence each", () => {
+    expect(flagLines([
+      { key: "timing", label: "Timing", state: "ok", detail: "12 days ahead. On Kronos by Mon" },
+      { key: "balance", label: "Flexi balance", state: "fail", detail: "This would be 5 in 2026, over the limit of 4. It still goes through; the WC is told" },
+      { key: "events", label: "Events that shift", state: "warn", detail: "Open day. Your call if it matters" },
+      { key: "payback", label: "Payback", state: "info", detail: "Not agreed yet. Can be added later" },
+    ])).toEqual(["Flexi balance: This would be 5 in 2026, over the limit of 4", "Events that shift: Open day"]);
+  });
+});
+

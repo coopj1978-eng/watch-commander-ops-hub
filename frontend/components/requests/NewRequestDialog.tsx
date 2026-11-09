@@ -12,12 +12,14 @@ import { useAuth } from "@/App";
 import backend from "@/lib/backend";
 import { cn } from "@/lib/utils";
 import { REQUEST_LABEL } from "@/lib/shiftRequests";
-import { CALENDAR_EVENTS_KEY } from "@/lib/calendarQueries";
+import { refreshCalendar } from "@/lib/calendarQueries";
 import type { shift_adjustments } from "@/client";
 import { CheckList } from "./CheckList";
 
-// Asking for a Flexi Day or a Head for Head. The checks run as you fill it in,
-// so you can see a problem before it reaches the WC.
+// Putting a Flexi Day or a Head for Head on the calendar. Since 9 Nov 2026
+// it goes straight on (John: less resistance for firefighters); the watch's
+// WC and CC get an alert with any flags. The checks run as you fill it in,
+// as things worth knowing; only "no shift that day" stops it.
 
 type ReqType = shift_adjustments.RequestType;
 type DayNight = shift_adjustments.DayNight;
@@ -101,7 +103,6 @@ export function NewRequestDialog({ open, onClose, initialType = "flexi", default
   const [forOther, setForOther] = useState(false);
   const [forWatch, setForWatch] = useState("");
   const [forId, setForId] = useState("");
-  const [reviewer, setReviewer] = useState("");
   const [coverMode, setCoverMode] = useState<"app" | "other">("app");
   const [coverWatch, setCoverWatch] = useState("");
   const [coverId, setCoverId] = useState("");
@@ -124,7 +125,6 @@ export function NewRequestDialog({ open, onClose, initialType = "flexi", default
     setForOther(false);
     setForWatch("");
     setForId("");
-    setReviewer("");
     setCoverMode("app");
     setCoverWatch("");
     setCoverId("");
@@ -144,15 +144,7 @@ export function NewRequestDialog({ open, onClose, initialType = "flexi", default
     queryFn: () => backend.crewing.roster({ watch: forWatch }),
     enabled: forOther && !!forWatch,
   });
-  const applicantRole = forOther ? forRoster?.members.find((m) => m.id === forId)?.system_role : user?.role;
-  const needsReviewer = applicantRole === "WC";
-
-  const { data: reviewerData } = useQuery({
-    queryKey: ["shift-requests", "reviewers"],
-    queryFn: () => backend.shift_adjustments.listReviewers(),
-    enabled: open && needsReviewer,
-  });
-  const reviewers = (reviewerData?.reviewers ?? []).filter((r) => r.id !== applicantId);
+  const forName = forOther ? forRoster?.members.find((m) => m.id === forId)?.name : undefined;
 
   const coverReady = type === "flexi" || (coverMode === "app" ? !!coverId : !!coverName.trim());
   const applicantReady = !forOther || !!forId;
@@ -177,29 +169,34 @@ export function NewRequestDialog({ open, onClose, initialType = "flexi", default
     retry: false,
   });
 
+  // Only "there's no shift that day" blocks; the rest are flags.
   const blocked = preview?.checks.some((c) => c.blocks);
-  const canSend = !!date && applicantReady && coverReady && paybackReady && !blocked && (!needsReviewer || !!reviewer);
+  const canSend = !!date && applicantReady && coverReady && paybackReady && !blocked;
 
   const create = useMutation({
     mutationFn: () => backend.shift_adjustments.createRequest({
       ...draft,
       notes: notes.trim() || undefined,
-      reviewer_user_id: needsReviewer ? reviewer : undefined,
       cover_payroll: coverMode === "other" ? coverPayroll.trim() || undefined : undefined,
       cover_station: coverMode === "other" ? coverStation.trim() || undefined : undefined,
       cover_watch: coverMode === "other" ? coverOtherWatch || undefined : undefined,
     }),
     onSuccess: (d) => {
       qc.invalidateQueries({ queryKey: ["shift-requests"] });
-      // Home's "My next shifts" shows it as waiting.
-      qc.invalidateQueries({ queryKey: [CALENDAR_EVENTS_KEY, "my-shifts"] });
+      // It's booked: the calendar, Home's "My next shifts", the crewing board
+      // and riding counts all change.
+      refreshCalendar(qc);
+      for (const key of ["shift-adjustments", "shift-adjustments-mine", "shift-adjustments-for-profile", "shift-adjustments-inbound"]) {
+        qc.invalidateQueries({ queryKey: [key] });
+      }
+      const r = d.request;
       toast({
-        title: "Request sent",
-        description: d.request.status === "with_cover"
-          ? `${d.request.cover_name} has been asked to confirm. It goes to the WC after that.`
-          : forOther
-          ? "It's with the WC to review. They'll get a notification with the decision."
-          : "It's with the WC to review. You'll get a notification with the decision.",
+        title: forOther ? `On ${r.user_name}'s calendar` : "On your calendar",
+        description: [
+          r.cover_user_id ? `${r.cover_name} has been told.` : null,
+          forOther ? "They've been told." : "Your WC has been told.",
+          "Remember Kronos too.",
+        ].filter(Boolean).join(" "),
       });
       onCreated?.(d.request.id);
       onClose();
@@ -211,9 +208,9 @@ export function NewRequestDialog({ open, onClose, initialType = "flexi", default
     <Dialog open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
       <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-lg">
         <DialogHeader className="border-b border-border px-5 pb-3 pt-5 text-left">
-          <DialogTitle className="text-base">New request</DialogTitle>
+          <DialogTitle className="text-base">Flexi Day or Head for Head</DialogTitle>
           <DialogDescription>
-            The WC reviews it here first. If it's authorised, you then submit it on Kronos.
+            It goes straight on the calendar and the crewing board, and your WC is told. Put it on Kronos as usual too.
           </DialogDescription>
         </DialogHeader>
 
@@ -226,8 +223,8 @@ export function NewRequestDialog({ open, onClose, initialType = "flexi", default
           {isManager && (
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-sm">
-                <Checkbox checked={forOther} onCheckedChange={(v) => { setForOther(!!v); setForId(""); setReviewer(""); }} />
-                Raise this for someone else
+                <Checkbox checked={forOther} onCheckedChange={(v) => { setForOther(!!v); setForId(""); }} />
+                Put this on for someone else
               </label>
               {forOther && <WatchPerson label="Who it's for" watch={forWatch} onWatch={setForWatch} person={forId} onPerson={setForId} />}
             </div>
@@ -285,36 +282,26 @@ export function NewRequestDialog({ open, onClose, initialType = "flexi", default
             </div>
           )}
 
-          {needsReviewer && (
-            <div className="space-y-1.5">
-              <Label className="text-sm">Which WC should review this?</Label>
-              <Select value={reviewer} onValueChange={setReviewer}>
-                <SelectTrigger aria-label="Which WC should review this" className="w-full"><SelectValue placeholder="Choose a WC" /></SelectTrigger>
-                <SelectContent>
-                  {reviewers.map((r) => <SelectItem key={r.id} value={r.id}>{r.name}{r.watch ? ` (${r.watch})` : ""}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
           <div>
-            <Label htmlFor="req-notes" className="text-sm">Note for the WC (optional)</Label>
+            <Label htmlFor="req-notes" className="text-sm">Note (optional)</Label>
             <Textarea id="req-notes" rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
           </div>
 
           {previewError && <p role="alert" className="text-sm text-red-700 dark:text-red-300">{(previewError as Error).message}</p>}
           {preview && applicantReady && coverReady && (
             <div className="space-y-2">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Checks so far</h3>
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Worth knowing</h3>
               <CheckList checks={preview.checks} />
-              {type === "flexi" && <p className="text-xs text-muted-foreground">The WC also checks the pinch point on Kronos.</p>}
+              {!blocked && preview.checks.some((c) => c.state === "fail" || c.state === "warn") && (
+                <p className="text-xs text-muted-foreground">These don't stop it. Your WC sees them with the note that it's on.</p>
+              )}
             </div>
           )}
 
           <div className="flex justify-end gap-2 pt-1">
             <Button variant="outline" onClick={onClose}>Cancel</Button>
             <Button disabled={!canSend || create.isPending} onClick={() => create.mutate()}>
-              {type === "h4h" && coverMode === "app" ? "Send to cover" : "Send to WC"}
+              {forOther ? `Put it on ${forName ? `${forName.split(" ")[0]}'s` : "their"} calendar` : "Put it on my calendar"}
             </Button>
           </div>
         </div>

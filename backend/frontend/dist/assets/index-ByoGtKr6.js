@@ -45031,7 +45031,7 @@ const STATUS_LABEL = {
   authorised: "Authorised: submit on Kronos",
   referred: "Referred: submit on Kronos",
   declined: "Declined by WC",
-  approved: "Approved",
+  approved: "Booked",
   not_approved: "Declined on Kronos",
   withdrawn: "Withdrawn",
   cancelled: "Cancelled"
@@ -45159,7 +45159,6 @@ function NewRequestDialog({ open, onClose, initialType = "flexi", defaultDate, o
   const [forOther, setForOther] = reactExports.useState(false);
   const [forWatch, setForWatch] = reactExports.useState("");
   const [forId, setForId] = reactExports.useState("");
-  const [reviewer, setReviewer] = reactExports.useState("");
   const [coverMode, setCoverMode] = reactExports.useState("app");
   const [coverWatch, setCoverWatch] = reactExports.useState("");
   const [coverId, setCoverId] = reactExports.useState("");
@@ -45179,7 +45178,6 @@ function NewRequestDialog({ open, onClose, initialType = "flexi", defaultDate, o
     setForOther(false);
     setForWatch("");
     setForId("");
-    setReviewer("");
     setCoverMode("app");
     setCoverWatch("");
     setCoverId("");
@@ -45198,14 +45196,7 @@ function NewRequestDialog({ open, onClose, initialType = "flexi", defaultDate, o
     queryFn: () => backendClient.crewing.roster({ watch: forWatch }),
     enabled: forOther && !!forWatch
   });
-  const applicantRole = forOther ? (_a3 = forRoster == null ? void 0 : forRoster.members.find((m) => m.id === forId)) == null ? void 0 : _a3.system_role : user2 == null ? void 0 : user2.role;
-  const needsReviewer = applicantRole === "WC";
-  const { data: reviewerData } = useQuery({
-    queryKey: ["shift-requests", "reviewers"],
-    queryFn: () => backendClient.shift_adjustments.listReviewers(),
-    enabled: open && needsReviewer
-  });
-  const reviewers = ((reviewerData == null ? void 0 : reviewerData.reviewers) ?? []).filter((r2) => r2.id !== applicantId);
+  const forName = forOther ? (_a3 = forRoster == null ? void 0 : forRoster.members.find((m) => m.id === forId)) == null ? void 0 : _a3.name : void 0;
   const coverReady = type === "flexi" || (coverMode === "app" ? !!coverId : !!coverName.trim());
   const applicantReady = !forOther || !!forId;
   const paybackReady = !(type === "h4h" && hasPayback) || !!paybackDate;
@@ -45227,22 +45218,29 @@ function NewRequestDialog({ open, onClose, initialType = "flexi", defaultDate, o
     retry: false
   });
   const blocked = preview == null ? void 0 : preview.checks.some((c) => c.blocks);
-  const canSend = !!date2 && applicantReady && coverReady && paybackReady && !blocked && (!needsReviewer || !!reviewer);
+  const canSend = !!date2 && applicantReady && coverReady && paybackReady && !blocked;
   const create = useMutation({
     mutationFn: () => backendClient.shift_adjustments.createRequest({
       ...draft,
       notes: notes.trim() || void 0,
-      reviewer_user_id: needsReviewer ? reviewer : void 0,
       cover_payroll: coverMode === "other" ? coverPayroll.trim() || void 0 : void 0,
       cover_station: coverMode === "other" ? coverStation.trim() || void 0 : void 0,
       cover_watch: coverMode === "other" ? coverOtherWatch || void 0 : void 0
     }),
     onSuccess: (d) => {
       qc.invalidateQueries({ queryKey: ["shift-requests"] });
-      qc.invalidateQueries({ queryKey: [CALENDAR_EVENTS_KEY, "my-shifts"] });
+      refreshCalendar(qc);
+      for (const key2 of ["shift-adjustments", "shift-adjustments-mine", "shift-adjustments-for-profile", "shift-adjustments-inbound"]) {
+        qc.invalidateQueries({ queryKey: [key2] });
+      }
+      const r2 = d.request;
       toast2({
-        title: "Request sent",
-        description: d.request.status === "with_cover" ? `${d.request.cover_name} has been asked to confirm. It goes to the WC after that.` : forOther ? "It's with the WC to review. They'll get a notification with the decision." : "It's with the WC to review. You'll get a notification with the decision."
+        title: forOther ? `On ${r2.user_name}'s calendar` : "On your calendar",
+        description: [
+          r2.cover_user_id ? `${r2.cover_name} has been told.` : null,
+          forOther ? "They've been told." : "Your WC has been told.",
+          "Remember Kronos too."
+        ].filter(Boolean).join(" ")
       });
       onCreated == null ? void 0 : onCreated(d.request.id);
       onClose();
@@ -45253,8 +45251,8 @@ function NewRequestDialog({ open, onClose, initialType = "flexi", defaultDate, o
     if (!o) onClose();
   }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "gap-0 overflow-hidden p-0 sm:max-w-lg", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { className: "border-b border-border px-5 pb-3 pt-5 text-left", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { className: "text-base", children: "New request" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: "The WC reviews it here first. If it's authorised, you then submit it on Kronos." })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { className: "text-base", children: "Flexi Day or Head for Head" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: "It goes straight on the calendar and the crewing board, and your WC is told. Put it on Kronos as usual too." })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-h-[75vh] space-y-4 overflow-y-auto px-5 py-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Toggle, { label: "Type of request", value: type, onChange: setType, options: [
@@ -45266,9 +45264,8 @@ function NewRequestDialog({ open, onClose, initialType = "flexi", defaultDate, o
           /* @__PURE__ */ jsxRuntimeExports.jsx(Checkbox, { checked: forOther, onCheckedChange: (v) => {
             setForOther(!!v);
             setForId("");
-            setReviewer("");
           } }),
-          "Raise this for someone else"
+          "Put this on for someone else"
         ] }),
         forOther && /* @__PURE__ */ jsxRuntimeExports.jsx(WatchPerson, { label: "Who it's for", watch: forWatch, onWatch: setForWatch, person: forId, onPerson: setForId })
       ] }),
@@ -45313,29 +45310,19 @@ function NewRequestDialog({ open, onClose, initialType = "flexi", defaultDate, o
           ] })
         ] })
       ] }),
-      needsReviewer && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-sm", children: "Which WC should review this?" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: reviewer, onValueChange: setReviewer, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { "aria-label": "Which WC should review this", className: "w-full", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Choose a WC" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: reviewers.map((r2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: r2.id, children: [
-            r2.name,
-            r2.watch ? ` (${r2.watch})` : ""
-          ] }, r2.id)) })
-        ] })
-      ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "req-notes", className: "text-sm", children: "Note for the WC (optional)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "req-notes", className: "text-sm", children: "Note (optional)" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Textarea, { id: "req-notes", rows: 2, value: notes, onChange: (e) => setNotes(e.target.value) })
       ] }),
       previewError && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { role: "alert", className: "text-sm text-red-700 dark:text-red-300", children: previewError.message }),
       preview && applicantReady && coverReady && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-xs font-semibold uppercase tracking-wide text-muted-foreground", children: "Checks so far" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-xs font-semibold uppercase tracking-wide text-muted-foreground", children: "Worth knowing" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(CheckList, { checks: preview.checks }),
-        type === "flexi" && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "The WC also checks the pinch point on Kronos." })
+        !blocked && preview.checks.some((c) => c.state === "fail" || c.state === "warn") && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "These don't stop it. Your WC sees them with the note that it's on." })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end gap-2 pt-1", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", onClick: onClose, children: "Cancel" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { disabled: !canSend || create.isPending, onClick: () => create.mutate(), children: type === "h4h" && coverMode === "app" ? "Send to cover" : "Send to WC" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { disabled: !canSend || create.isPending, onClick: () => create.mutate(), children: forOther ? `Put it on ${forName ? `${forName.split(" ")[0]}'s` : "their"} calendar` : "Put it on my calendar" })
       ] })
     ] })
   ] }) });
@@ -45672,8 +45659,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
                     `,
                 children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "h-5 w-5" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold leading-tight", children: cfg.label }),
-                  (key2 === "flexi" || key2 === "h4h") && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px] leading-tight", children: "Request to the WC" })
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold leading-tight", children: cfg.label })
                 ]
               },
               key2
@@ -61320,7 +61306,7 @@ function AddPayback({ d, act, busy }) {
   const [date2, setDate] = reactExports.useState("");
   const [shift2, setShift] = reactExports.useState("Day");
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Section$1, { title: "Payback", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "Add the date once it's agreed. It goes to the WC to check first." }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: d.request.status === "approved" ? "Add the date once it's agreed. It goes straight on both calendars, and the WC is told." : "Add the date once it's agreed. It goes to the WC to check first." }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-[minmax(0,1fr)_auto] items-end gap-2", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "h4h-payback", className: "text-sm", children: "Payback date" }),
@@ -61411,7 +61397,7 @@ function RequestCard({ id, onClose }) {
       error && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: error.message }),
       d && r2 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
         d.can.confirm_cover && /* @__PURE__ */ jsxRuntimeExports.jsx(CoverAnswer, { d, act, busy }),
-        d.checks.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(Section$1, { title: r2.status === "with_cover" || r2.status === "with_wc" || r2.payback_status === "with_wc" ? "Checks" : "Checks when signed", children: /* @__PURE__ */ jsxRuntimeExports.jsx(CheckList, { checks: d.checks }) }),
+        d.checks.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(Section$1, { title: r2.status === "with_cover" || r2.status === "with_wc" || r2.payback_status === "with_wc" ? "Checks" : r2.decided_by_name ? "Checks when signed" : "Checks when booked", children: /* @__PURE__ */ jsxRuntimeExports.jsx(CheckList, { checks: d.checks }) }),
         d.can.decide && /* @__PURE__ */ jsxRuntimeExports.jsx(Decision, { d, act, busy }, r2.id),
         d.can.record_outcome && /* @__PURE__ */ jsxRuntimeExports.jsx(KronosResult, { d, act, busy }, `k${r2.id}`),
         d.can.decide_payback && /* @__PURE__ */ jsxRuntimeExports.jsx(PaybackDecision, { d, act, busy }, `p${r2.id}`),
@@ -61513,6 +61499,7 @@ const Loading = () => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className:
   /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-16 w-full" }),
   /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-16 w-full" })
 ] });
+const flagsOf = (r2) => (r2.checks ?? []).filter((c) => c.state === "fail" || c.state === "warn");
 function ReviewTab({ onOpen }) {
   const { data, isLoading } = useQuery({
     queryKey: ["shift-requests", "review"],
@@ -61520,12 +61507,17 @@ function ReviewTab({ onOpen }) {
   });
   if (isLoading) return /* @__PURE__ */ jsxRuntimeExports.jsx(Loading, {});
   const rows = (data == null ? void 0 : data.requests) ?? [];
+  const booked = rows.filter((r2) => r2.status === "approved" && r2.payback_status !== "with_wc");
+  const flagged = booked.filter((r2) => flagsOf(r2).length > 0);
   const toSign = rows.filter((r2) => r2.status === "with_wc" || r2.payback_status === "with_wc");
   const cover = rows.filter((r2) => r2.status === "with_cover");
   const kronos = rows.filter((r2) => r2.status === "authorised" || r2.status === "referred");
-  if (rows.length === 0) return /* @__PURE__ */ jsxRuntimeExports.jsx(Empty, { title: "Nothing to review", body: "Requests from your watch come here, and you'll get a notification." });
+  if (rows.length === 0) return /* @__PURE__ */ jsxRuntimeExports.jsx(Empty, { title: "Nothing booked coming up", body: "When someone on your watch puts a Flexi Day or Head for Head on, it shows here and you get a notification." });
+  const flagText = (r2) => `Flagged: ${flagsOf(r2).map((c) => c.label).join(", ")}`;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Group, { title: "To sign", rows: toSign, onOpen }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Group, { title: "Flagged", rows: flagged, onOpen, extra: flagText }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Group, { title: "Booked, coming up", rows: booked.filter((r2) => flagsOf(r2).length === 0), onOpen }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Group, { title: "To sign (made before 9 Nov)", rows: toSign, onOpen }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Group, { title: "Waiting for the cover to agree", rows: cover, onOpen }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Group, { title: "Waiting on Kronos", rows: kronos, onOpen })
   ] });
@@ -61539,10 +61531,10 @@ function MineTab({ onOpen }) {
   if (isLoading) return /* @__PURE__ */ jsxRuntimeExports.jsx(Loading, {});
   const rows = (data == null ? void 0 : data.requests) ?? [];
   const needsMe = (r2) => r2.status === "with_cover" && r2.cover_user_id === (user2 == null ? void 0 : user2.id) || (r2.status === "authorised" || r2.status === "referred") && r2.user_id === (user2 == null ? void 0 : user2.id);
-  if (rows.length === 0) return /* @__PURE__ */ jsxRuntimeExports.jsx(Empty, { title: "No requests yet", body: "Ask for a Flexi Day or a Head for Head with New request." });
+  if (rows.length === 0) return /* @__PURE__ */ jsxRuntimeExports.jsx(Empty, { title: "Nothing yet", body: "Put a Flexi Day or a Head for Head on with Flexi / H4H." });
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(Group, { title: "Needs you", rows: rows.filter(needsMe), onOpen }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Group, { title: "Your requests", rows: rows.filter((r2) => !needsMe(r2)), onOpen })
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Group, { title: "Yours", rows: rows.filter((r2) => !needsMe(r2)), onOpen })
   ] });
 }
 function RecordsTab({ onOpen }) {
@@ -61708,7 +61700,7 @@ function Requests() {
   const { user: user2 } = useAuth();
   const isManager = (user2 == null ? void 0 : user2.role) === "WC" || (user2 == null ? void 0 : user2.role) === "CC";
   const [params, setParams] = useSearchParams();
-  const tabs = isManager ? [{ key: "review", label: "To review" }, { key: "mine", label: "My requests" }, { key: "records", label: "Records" }, { key: "balances", label: "Flexi balances" }] : [{ key: "mine", label: "My requests" }];
+  const tabs = isManager ? [{ key: "review", label: "Booked" }, { key: "mine", label: "Mine" }, { key: "records", label: "Records" }, { key: "balances", label: "Flexi balances" }] : [{ key: "mine", label: "Mine" }];
   const asked = params.get("tab");
   const tab = tabs.some((t) => t.key === asked) ? asked : tabs[0].key;
   const openParam = params.get("open");
@@ -61733,11 +61725,11 @@ function Requests() {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-3xl font-semibold tracking-tight text-foreground", children: "Requests" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1 text-sm text-muted-foreground", children: "Flexi Days and Head for Heads, reviewed here before they go on Kronos." })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1 text-sm text-muted-foreground", children: "Flexi Days and Head for Heads. They go straight on the calendar; each one is kept here as a record." })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { onClick: () => setNewOpen(true), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "mr-2 h-4 w-4" }),
-        "New request"
+        "Flexi / H4H"
       ] })
     ] }),
     tabs.length > 1 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "-mx-4 flex gap-1 overflow-x-auto border-b border-border px-4 sm:mx-0 sm:px-0 [scrollbar-width:none]", children: tabs.map((t) => /* @__PURE__ */ jsxRuntimeExports.jsxs(

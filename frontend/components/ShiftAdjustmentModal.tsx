@@ -105,7 +105,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
     : new Date().toISOString().split("T")[0];
 
   const [type, setType] = useState<AdjType | null>(null);
-  // Flexi and Head for Head are requests the WC reviews, not just logged.
+  // Flexi and Head for Head have their own form (it keeps a record and tells the WC).
   const [requestType, setRequestType] = useState<"flexi" | "h4h" | null>(null);
   const [startDate, setStartDate] = useState(today);
   const [endDate, setEndDate] = useState(today);
@@ -433,7 +433,6 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
                   >
                     <Icon className="h-5 w-5" />
                     <span className="text-xs font-semibold leading-tight">{cfg.label}</span>
-                    {(key === "flexi" || key === "h4h") && <span className="text-[11px] leading-tight">Request to the WC</span>}
                   </button>
                 );
               })}
