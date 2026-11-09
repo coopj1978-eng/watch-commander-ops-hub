@@ -8,6 +8,8 @@ import { cn } from "@/lib/utils";
 import { crewingShiftFor, getWatchShiftStatus, type ShiftDay } from "@/lib/shiftRota";
 import { latestAbsencePerPerson, useTodaysAbsences } from "@/lib/absences";
 import { ShiftWeather } from "@/components/home/ShiftWeather";
+import { useMyShifts } from "@/components/home/MyNextShifts";
+import { shiftTag } from "@/lib/myNextShifts";
 import {
   CalendarDays,
   ClipboardList,
@@ -253,6 +255,12 @@ export function ShiftHero() {
 
   const entries = crewingQ.data?.entries ?? [];
   const mine = entries.find((e) => e.user_id && e.user_id === user?.id);
+  // Not on the board: your own booking for this shift, if any ("You: Off · Flexi day").
+  const myShiftsQ = useMyShifts();
+  const myThisShift = crewShift
+    ? myShiftsQ.data?.shifts.find((s) => s.date === crewShift.shiftDate && s.shift_type === crewShift.shiftType && s.watch.toLowerCase() === watch.toLowerCase())
+    : undefined;
+  const myBooking = myThisShift && myThisShift.state !== "on" ? shiftTag(myThisShift) : null;
 
   const StateIcon = state === "leave" ? Palmtree : state === "rest" ? BedDouble : isNight ? Moon : Sun;
   const title =
@@ -381,6 +389,8 @@ export function ShiftHero() {
                 <span className="truncate text-white/70">
                   {mine
                     ? <>You: <span className="font-semibold text-white">{mine.appliance.toUpperCase()} · {ROLE_LABEL[mine.crew_role] ?? mine.crew_role}</span></>
+                    : myBooking
+                    ? <>You: <span className="font-semibold text-white">{myBooking}</span></>
                     : entries.length === 0
                     ? "Crewing not set for this shift"
                     : `${entries.length} crew assigned`}

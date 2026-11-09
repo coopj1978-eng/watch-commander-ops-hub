@@ -1,10 +1,7 @@
 import { useState } from "react";
 
 import { useUserRole } from "@/lib/rbac";
-import { useAuth } from "@/App";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Users, ClipboardCheck, FileText, RotateCcw, SlidersHorizontal } from "lucide-react";
+import { RotateCcw, SlidersHorizontal } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 
@@ -24,11 +21,7 @@ import { WCSkillsExpiryWidget }   from "@/components/WCSkillsExpiryWidget";
 // CC widgets
 import { CCDashboard } from "@/components/CCDashboardWidgets";
 
-// FF widgets
-import PersonalDashboard from "@/components/PersonalDashboard";
-import { FFCertificationsWidget } from "@/components/FFCertificationsWidget";
-import FFSickReportWidget from "@/components/FFSickReportWidget";
-import FFShiftAdjustmentWidget from "@/components/FFShiftAdjustmentWidget";
+// Your own balances
 import ToilWidget from "@/components/ToilWidget";
 import FFH4HBalanceWidget from "@/components/FFH4HBalanceWidget";
 
@@ -40,10 +33,10 @@ const WCH4HWidget = FFH4HBalanceWidget;
 export default function RoleDashboard() {
   const role = useUserRole();
 
+  // Only WCs land here (App.tsx gives CCs and firefighters their own homes).
   if (role === "WC") return <WatchCommanderDashboard />;
   if (role === "CC") return <CCDashboard />;
-  if (role === "FF") return <FirefighterDashboard />;
-  return <ReadOnlyDashboard />;
+  return null;
 }
 
 // ── Watch Commander home (Nov 2026 rebuild) ────────────────────────────────────
@@ -192,74 +185,3 @@ function WatchCommanderDashboard() {
   );
 }
 
-// ── Firefighter dashboard ─────────────────────────────────────────────────────
-
-function FirefighterDashboard() {
-  const { user } = useAuth();
-
-  return (
-    <div className="p-8 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">
-          Welcome back, {user?.name?.split(" ")[0] || "Firefighter"}
-        </h1>
-        <p className="text-muted-foreground mt-1">Your personal overview</p>
-      </div>
-
-      <PersonalDashboard />
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <FFCertificationsWidget />
-        <FFSickReportWidget />
-        <FFShiftAdjustmentWidget />
-        <ToilWidget />
-        <FFH4HBalanceWidget />
-      </div>
-    </div>
-  );
-}
-
-// ── Read-only dashboard ───────────────────────────────────────────────────────
-
-function ReadOnlyDashboard() {
-  return (
-    <div className="p-8 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Overview Dashboard</h1>
-        <p className="text-muted-foreground mt-1">Read-only access</p>
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-3">
-        <Card className="border-t-2 border-t-brand">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Staff</CardTitle>
-            <Users className="h-5 w-5 text-brand" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-foreground">—</div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-t-2 border-t-brand">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Active Tasks</CardTitle>
-            <ClipboardCheck className="h-5 w-5 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-foreground">—</div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-t-2 border-t-brand">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Reports Available</CardTitle>
-            <FileText className="h-5 w-5 text-purple-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-foreground">—</div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-}

@@ -12,6 +12,7 @@ import { useAuth } from "@/App";
 import backend from "@/lib/backend";
 import { cn } from "@/lib/utils";
 import { REQUEST_LABEL } from "@/lib/shiftRequests";
+import { CALENDAR_EVENTS_KEY } from "@/lib/calendarQueries";
 import type { shift_adjustments } from "@/client";
 import { CheckList } from "./CheckList";
 
@@ -190,6 +191,8 @@ export function NewRequestDialog({ open, onClose, initialType = "flexi", default
     }),
     onSuccess: (d) => {
       qc.invalidateQueries({ queryKey: ["shift-requests"] });
+      // Home's "My next shifts" shows it as waiting.
+      qc.invalidateQueries({ queryKey: [CALENDAR_EVENTS_KEY, "my-shifts"] });
       toast({
         title: "Request sent",
         description: d.request.status === "with_cover"

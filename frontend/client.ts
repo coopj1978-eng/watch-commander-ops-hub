@@ -1641,6 +1641,48 @@ export namespace crewing {
         shifts: ShiftStrength[]
     }
 
+    /** One of your own next shifts (backend lib/myShifts.ts). */
+    export interface MyShift {
+        /** YYYY-MM-DD the shift starts (a night runs to 08:00 the next day). */
+        date: string
+        /** "1st Day"…"2nd Night" on the watch you're working, or "Day"/"Night" when that watch's rota doesn't say. */
+        "shift_type": string
+        /** Whose shift it is: your own watch, or the one you're covering. */
+        watch: string
+        /** ISO instants. */
+        start: string
+        end: string
+        /**
+         * on — you're working your own watch's shift;
+         * off — you're not (why says Sick, Leave, Flexi, Training, H4H or TOIL);
+         * detached — you're working it at another station;
+         * extra — an extra shift on another watch (why says H4H cover, TOIL cover, Flexi payback or Orange day).
+         */
+        state: "on" | "off" | "detached" | "extra"
+        why?: "Sick" | "Leave" | "Flexi" | "Training" | "H4H" | "TOIL" | "H4H cover" | "TOIL cover" | "Flexi payback" | "Orange day"
+        /** H4H/TOIL: who covers you (off), or whom you cover (extra). */
+        "with_name"?: string
+        /** Where you ride, once the crewing board is set. */
+        seat?: { appliance: string, role: string }
+        "detached_to"?: string
+        /** Your Flexi/H4H request for this shift is still waiting. */
+        waiting?: "Flexi" | "H4H"
+    }
+
+    /** The watch's annual-leave block, with the first shift back. */
+    export interface MyLeave {
+        start: string
+        end: string
+        back: string | null
+    }
+
+    export interface MyShiftsResponse {
+        watch: string | null
+        shifts: MyShift[]
+        /** The watch's annual-leave block, when it's on now or starts in the window. */
+        leave: MyLeave | null
+    }
+
     export class ServiceClient {
         private baseClient: BaseClient
 
@@ -1652,6 +1694,7 @@ export namespace crewing {
             this.remove = this.remove.bind(this)
             this.roster = this.roster.bind(this)
             this.strength = this.strength.bind(this)
+            this.myShiftsApi = this.myShiftsApi.bind(this)
             this.listCanteen = this.listCanteen.bind(this)
             this.addCanteen = this.addCanteen.bind(this)
             this.removeCanteen = this.removeCanteen.bind(this)
@@ -1785,6 +1828,18 @@ export namespace crewing {
 
             const resp = await this.baseClient.callTypedAPI("GET", `/crewing/strength`, undefined, {query})
             return await resp.json() as StrengthResponse
+        }
+
+        /**
+         * GET /crewing/my-shifts — the caller's own next shifts for Home: the watch's
+         * rota, with their own bookings, absences, seat and detachments applied.
+         */
+        public async myShiftsApi(params: { days?: number } = {}): Promise<MyShiftsResponse> {
+            const query = makeRecord<string, string | string[]>({
+                days: params.days === undefined ? undefined : String(params.days),
+            })
+            const resp = await this.baseClient.callTypedAPI("GET", `/crewing/my-shifts`, undefined, {query})
+            return await resp.json() as MyShiftsResponse
         }
     }
 }
