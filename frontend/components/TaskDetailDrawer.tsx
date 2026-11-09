@@ -597,7 +597,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
       <div className="fixed inset-0 z-40" style={{ background: "rgba(10,12,24,.45)" }} onClick={onClose} aria-hidden="true" />
 
       {/* Panel — centred on desktop, a bottom sheet on phones (v2 design). */}
-      <div className="cal-ui fixed inset-0 z-50 flex items-end sm:items-start justify-center overflow-y-auto sm:py-10 sm:px-4" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="cal-ui vv-fit fixed inset-0 z-50 flex items-end sm:items-start justify-center overflow-y-auto sm:py-10 sm:px-4" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
         <div
           role="dialog"
           aria-modal="true"

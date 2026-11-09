@@ -24739,7 +24739,7 @@ const ToastViewport = reactExports.forwardRef(({ className, ...props }, ref) => 
   {
     ref,
     className: cn(
-      "fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]",
+      "fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse p-4 pt-[calc(1rem+env(safe-area-inset-top))] sm:pt-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]",
       className
     ),
     ...props
@@ -32946,7 +32946,7 @@ function DialogContent({
       {
         "data-slot": "dialog-content",
         className: cn(
-          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 outline-none sm:max-w-lg",
+          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[calc(var(--vvt,0px)+var(--vvh,100dvh)/2)] left-[50%] z-50 grid max-h-[calc(var(--vvh,100dvh)-2rem-env(safe-area-inset-top))] w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 overflow-y-auto overscroll-contain rounded-lg border p-6 shadow-lg duration-200 outline-none sm:max-w-lg",
           className
         ),
         ...props,
@@ -32956,7 +32956,7 @@ function DialogContent({
             Close,
             {
               "data-slot": "dialog-close",
-              className: "ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+              className: "ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-2 right-2 rounded-xs p-2 opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
               children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(X, {}),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sr-only", children: "Close" })
@@ -33276,6 +33276,20 @@ function handoverShiftFor(watch, now = /* @__PURE__ */ new Date()) {
   }
   return null;
 }
+function rotaDayNight(watch, isoDate2) {
+  if (!watch || !/^\d{4}-\d{2}-\d{2}$/.test(isoDate2)) return null;
+  const [y, m, d] = isoDate2.split("-").map(Number);
+  const s = getShiftForDate(watch, new Date(y, m - 1, d));
+  if (!(s == null ? void 0 : s.isWorking)) return null;
+  return s.shiftType.includes("Night") ? "Night" : "Day";
+}
+function currentDayNight(watch, now = /* @__PURE__ */ new Date()) {
+  var _a3;
+  if (!watch) return null;
+  const live = crewingShiftFor(watch, now);
+  if (live) return live.shiftType.includes("Night") ? "Night" : "Day";
+  return ((_a3 = handoverShiftFor(watch, now)) == null ? void 0 : _a3.type) ?? null;
+}
 function NotificationIcon({ type }) {
   switch (type) {
     case "sick_booking":
@@ -33502,7 +33516,7 @@ function TopBar({ onSearch }) {
   );
   const page = pageFor(location.pathname);
   const isDashboard = location.pathname === "/";
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "sticky top-0 z-30 flex items-center gap-3 px-4 md:px-6 py-2.5 bg-background/80 backdrop-blur-md border-b border-border print:hidden", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "sticky top-0 z-30 flex items-center gap-3 px-4 md:px-6 py-2.5 pt-[calc(0.625rem+env(safe-area-inset-top))] bg-background/80 backdrop-blur-md border-b border-border print:hidden", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2.5 min-w-0 shrink-0 max-w-[50%]", children: [
       page && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-muted/70 text-foreground/80 md:hidden", "aria-hidden": true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(page.icon, { className: "h-4 w-4" }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold text-foreground truncate text-base md:text-sm", children: (page == null ? void 0 : page.name) ?? "Ops" })
@@ -33552,7 +33566,7 @@ function TopBar({ onSearch }) {
           DialogContent,
           {
             showCloseButton: false,
-            className: "fixed top-0 right-0 left-auto translate-x-0 translate-y-0 h-[100dvh] w-full max-w-[calc(100%-2rem)] sm:max-w-sm rounded-none border-0 border-l p-0 gap-0 flex flex-col data-[state=open]:slide-in-from-right data-[state=closed]:slide-out-to-right",
+            className: "fixed top-0 right-0 left-auto translate-x-0 translate-y-0 h-[100dvh] max-h-none overflow-hidden pt-[env(safe-area-inset-top)] w-full max-w-[calc(100%-2rem)] sm:max-w-sm rounded-none border-0 border-l p-0 gap-0 flex flex-col data-[state=open]:slide-in-from-right data-[state=closed]:slide-out-to-right",
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { className: "sr-only", children: "Notifications" }),
               renderNotificationPanel(() => setMobileOpen(false))
@@ -45633,6 +45647,17 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
   const userWatch = (editingAdj == null ? void 0 : editingAdj.watch_unit) ?? (user2 == null ? void 0 : user2.watch_unit) ?? "";
   const subjectName = (editingAdj == null ? void 0 : editingAdj.user_name) ?? (user2 == null ? void 0 : user2.name);
   const otherWatches = WATCHES$e.filter((w) => w !== userWatch);
+  const subjectWatch = forAnother && forWatch ? forWatch : userWatch;
+  reactExports.useEffect(() => {
+    if (!open || editingId || editAdjustment) return;
+    const dn = rotaDayNight(subjectWatch, startDate);
+    if (dn) setOutboundShift(dn);
+  }, [open, startDate, subjectWatch, editingId, editAdjustment]);
+  reactExports.useEffect(() => {
+    if (!open || editingId || editAdjustment) return;
+    const dn = rotaDayNight(inboundWatch, startDate);
+    if (dn) setInboundShift(dn);
+  }, [open, startDate, inboundWatch, editingId, editAdjustment]);
   const fmt2 = (d) => (/* @__PURE__ */ new Date(d + "T12:00:00")).toLocaleDateString("en-GB", {
     day: "numeric",
     month: "short",
@@ -45650,7 +45675,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
     ),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: open && !requestType, onOpenChange: (o) => {
       if (!o) onClose();
-    }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-md p-0 overflow-hidden", children: [
+    }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "flex flex-col gap-0 sm:max-w-md p-0 overflow-hidden", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { className: "px-5 pt-5 pb-3 border-b border-border", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { className: "flex items-center gap-2 text-base", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarDays, { className: "h-4 w-4 text-indigo-500" }),
@@ -45662,7 +45687,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
           subjectName
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "px-5 py-4 space-y-5 max-h-[75vh] overflow-y-auto", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-h-0 flex-1 px-5 py-4 space-y-5 overflow-y-auto", children: [
         editingId && type ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `flex items-center gap-2 rounded-xl border-2 px-3 py-2 ${TYPE_CONFIG[type].border} ${TYPE_CONFIG[type].bg}`, children: [
           (() => {
             const Icon2 = TYPE_CONFIG[type].icon;
@@ -45732,7 +45757,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
                     setStartDate(e.target.value);
                     if (e.target.value > endDate) setEndDate(e.target.value);
                   },
-                  className: "w-full h-8 rounded-lg border border-border px-2 text-sm bg-background outline-none focus:border-indigo-400"
+                  className: "w-full h-10 rounded-lg border border-border px-2 text-sm bg-background outline-none focus:border-indigo-400"
                 }
               )
             ] }),
@@ -45745,7 +45770,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
                   value: endDate,
                   min: startDate,
                   onChange: (e) => setEndDate(e.target.value),
-                  className: "w-full h-8 rounded-lg border border-border px-2 text-sm bg-background outline-none focus:border-indigo-400"
+                  className: "w-full h-10 rounded-lg border border-border px-2 text-sm bg-background outline-none focus:border-indigo-400"
                 }
               )
             ] })
@@ -45760,7 +45785,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
               {
                 type: "button",
                 onClick: () => setOutboundShift(s),
-                className: `flex-1 text-xs py-1.5 rounded-lg border transition-all ${outboundShift === s ? "border-blue-400 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 font-semibold" : "border-border text-muted-foreground"}`,
+                className: `flex-1 h-11 text-sm rounded-lg border transition-all ${outboundShift === s ? "border-blue-400 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 font-semibold" : "border-border text-muted-foreground"}`,
                 children: [
                   s,
                   " Shift"
@@ -45780,7 +45805,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
                 {
                   type: "button",
                   onClick: () => setCoverMode("roster"),
-                  className: `flex-1 text-xs py-1.5 rounded-lg border transition-all ${coverMode === "roster" ? "border-purple-400 bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 font-semibold" : "border-border text-muted-foreground"}`,
+                  className: `flex-1 h-11 text-sm rounded-lg border transition-all ${coverMode === "roster" ? "border-purple-400 bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 font-semibold" : "border-border text-muted-foreground"}`,
                   children: "From roster"
                 }
               ),
@@ -45789,7 +45814,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
                 {
                   type: "button",
                   onClick: () => setCoverMode("freetext"),
-                  className: `flex-1 text-xs py-1.5 rounded-lg border transition-all ${coverMode === "freetext" ? "border-purple-400 bg-purple-100 text-purple-700 font-semibold" : "border-border text-muted-foreground"}`,
+                  className: `flex-1 h-11 text-sm rounded-lg border transition-all ${coverMode === "freetext" ? "border-purple-400 bg-purple-100 text-purple-700 font-semibold" : "border-border text-muted-foreground"}`,
                   children: "Type name"
                 }
               )
@@ -45799,14 +45824,14 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
                 setCoverWatch(v);
                 setCoverUserId("");
               }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select their watch…" }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-10 w-full text-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select their watch…" }) }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: otherWatches.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
                   w,
                   " Watch"
                 ] }, w)) })
               ] }),
               coverWatch && /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: coverUserId, onValueChange: setCoverUserId, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select person…" }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-10 w-full text-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select person…" }) }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
                   coverRoster.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "_none", disabled: true, children: "No roster found" }),
                   coverRoster.map((m) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: m.id, children: [
@@ -45822,7 +45847,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
                 placeholder: "e.g. FF Smith (Red Watch)",
                 value: coverName,
                 onChange: (e) => setCoverName(e.target.value),
-                className: "h-8 text-xs"
+                className: "h-10"
               }
             )
           ] }),
@@ -45832,7 +45857,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
               /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-sm font-medium text-teal-700 dark:text-teal-300", children: "Which watch are you covering?" })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: inboundWatch, onValueChange: setInboundWatch, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select watch…" }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-10 w-full text-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select watch…" }) }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: otherWatches.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
                 w,
                 " Watch"
@@ -45845,7 +45870,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
                 {
                   type: "button",
                   onClick: () => setInboundShift(s),
-                  className: `flex-1 text-xs py-1.5 rounded-lg border transition-all ${inboundShift === s ? "border-teal-400 bg-teal-100 dark:bg-teal-900/50 text-teal-700 dark:text-teal-300 font-semibold" : "border-border text-muted-foreground"}`,
+                  className: `flex-1 h-11 text-sm rounded-lg border transition-all ${inboundShift === s ? "border-teal-400 bg-teal-100 dark:bg-teal-900/50 text-teal-700 dark:text-teal-300 font-semibold" : "border-border text-muted-foreground"}`,
                   children: [
                     s,
                     " Shift"
@@ -45865,7 +45890,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
               {
                 type: "button",
                 onClick: () => setOrangeShift(s),
-                className: `flex-1 text-xs py-1.5 rounded-lg border transition-all ${orangeShift === s ? "border-orange-400 bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300 font-semibold" : "border-border text-muted-foreground"}`,
+                className: `flex-1 h-11 text-sm rounded-lg border transition-all ${orangeShift === s ? "border-orange-400 bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300 font-semibold" : "border-border text-muted-foreground"}`,
                 children: [
                   s,
                   " Shift"
@@ -45921,14 +45946,14 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
                 setForWatch(v);
                 setForUserId("");
               }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select their watch…" }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-10 w-full text-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select their watch…" }) }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$e.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
                   w,
                   " Watch"
                 ] }, w)) })
               ] }),
               forWatch && /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: forUserId, onValueChange: setForUserId, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select person…" }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-10 w-full text-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select person…" }) }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
                   forRoster.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "_none", disabled: true, children: "No members found" }),
                   forRoster.map((m) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: m.id, children: [
@@ -45948,7 +45973,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
                 placeholder: "e.g. Course at Training Centre",
                 value: notes,
                 onChange: (e) => setNotes(e.target.value),
-                className: "h-8 text-xs"
+                className: "h-10"
               }
             )
           ] }),
@@ -51754,7 +51779,8 @@ This cancels the whole booking (TOIL/H4H/Flexi): any TOIL hours are refunded and
       }
     ),
     formOpen && reactDomExports.createPortal(
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "fixed", inset: 0, zIndex: 60 }, children: [
+      // vv-fit: on a phone the sheet sits on top of the keyboard (index.css).
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "vv-fit", style: { position: "fixed", inset: 0, zIndex: 60 }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "div",
           {
@@ -54635,7 +54661,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
     /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("style", { children: CSS$2 }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-40", style: { background: "rgba(10,12,24,.45)" }, onClick: onClose, "aria-hidden": "true" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cal-ui fixed inset-0 z-50 flex items-end sm:items-start justify-center overflow-y-auto sm:py-10 sm:px-4", onClick: (e) => {
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cal-ui vv-fit fixed inset-0 z-50 flex items-end sm:items-start justify-center overflow-y-auto sm:py-10 sm:px-4", onClick: (e) => {
         if (e.target === e.currentTarget) onClose();
       }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "div",
@@ -61420,7 +61446,7 @@ function RequestCard({ id, onClose }) {
   const r2 = d == null ? void 0 : d.request;
   return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: id !== null, onOpenChange: (o) => {
     if (!o) onClose();
-  }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "gap-0 overflow-hidden p-0 sm:max-w-lg", children: [
+  }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "flex flex-col gap-0 overflow-hidden p-0 sm:max-w-lg", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { className: "border-b border-border px-5 pb-3 pt-5 text-left", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { className: "pr-6 text-base", children: r2 ? `${REQUEST_LABEL[r2.type]}: ${r2.user_name}` : "Request" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: r2 ? `${dayText(r2.shift_date)} · ${r2.shift_type} · ${r2.watch} Watch` : "Loading" }),
@@ -61433,7 +61459,7 @@ function RequestCard({ id, onClose }) {
         ] })
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-h-[75vh] space-y-5 overflow-y-auto px-5 py-4", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-h-0 flex-1 space-y-5 overflow-y-auto px-5 py-4", children: [
       isLoading && /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-48 w-full" }),
       error && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: error.message }),
       d && r2 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
@@ -65383,8 +65409,7 @@ function ApplianceCard({
         Button,
         {
           onClick: onStartCheck,
-          className: "flex-1 bg-indigo-600 hover:bg-indigo-700",
-          size: "sm",
+          className: "h-11 flex-1 bg-indigo-600 hover:bg-indigo-700 sm:h-9",
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(ClipboardCheck, { className: "h-4 w-4 mr-2" }),
             "Start J4 Check"
@@ -65396,12 +65421,22 @@ function ApplianceCard({
         {
           onClick: onManageEquipment,
           variant: "outline",
-          size: "sm",
+          className: "h-11 w-11 sm:h-9 sm:w-9",
+          "aria-label": "Manage equipment",
           children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings2, { className: "h-4 w-4" })
         }
       )
     ] })
   ] });
+}
+const STATUS_BUTTONS = [
+  { value: "OK", label: "OK", Icon: CircleCheck, on: "border-green-600 bg-green-600 text-white" },
+  { value: "Defective", label: "Defect", Icon: TriangleAlert, on: "border-amber-600 bg-amber-600 text-white" },
+  { value: "Missing", label: "Missing", Icon: CircleX, on: "border-red-600 bg-red-600 text-white" }
+];
+function shiftNow(watch) {
+  const h = (/* @__PURE__ */ new Date()).getHours();
+  return currentDayNight(watch) ?? (h >= 8 && h < 18 ? "Day" : "Night");
 }
 function CheckForm({
   open,
@@ -65410,8 +65445,12 @@ function CheckForm({
   applianceName
 }) {
   const { toast: toast2 } = useToast();
+  const { user: user2 } = useAuth();
   const queryClient2 = useQueryClient();
-  const [watch, setWatch] = reactExports.useState("Day");
+  const [watch, setWatch] = reactExports.useState(() => shiftNow(user2 == null ? void 0 : user2.watch_unit));
+  reactExports.useEffect(() => {
+    if (open) setWatch(shiftNow(user2 == null ? void 0 : user2.watch_unit));
+  }, [open, user2 == null ? void 0 : user2.watch_unit]);
   const [notes, setNotes] = reactExports.useState("");
   const [checkItems, setCheckItems] = reactExports.useState([]);
   const [initialized, setInitialized] = reactExports.useState(false);
@@ -65445,7 +65484,6 @@ function CheckForm({
       setInitialized(false);
       setCheckItems([]);
       setNotes("");
-      setWatch("Day");
     }
     onOpenChange(isOpen);
   };
@@ -65519,40 +65557,46 @@ function CheckForm({
   const defectiveCount = checkItems.filter(
     (i) => i.status === "Defective" || i.status === "Missing"
   ).length;
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: handleOpenChange, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-3xl max-h-[90vh] overflow-y-auto", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { className: "flex items-center gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(ClipboardCheck, { className: "h-5 w-5 text-red-600" }),
-        "J4 Equipment Check — ",
-        applianceName
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: handleOpenChange, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-3xl pb-0", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { className: "pr-8 text-left", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { className: "flex items-start gap-2 leading-snug", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(ClipboardCheck, { className: "mt-0.5 h-5 w-5 shrink-0 text-red-600" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "min-w-0 break-words", children: [
+          "J4 check · ",
+          applianceName
+        ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: "Check each item and mark its status. Defective or missing items will be automatically logged as defects." })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6 py-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 sm:grid-cols-2 gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "watch", children: "Watch / Shift *" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            Select,
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { id: "j4-shift", children: "Shift" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { role: "radiogroup", "aria-labelledby": "j4-shift", className: "mt-1.5 flex gap-2", children: ["Day", "Night"].map((s) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
             {
-              value: watch,
-              onValueChange: (v) => setWatch(v),
+              type: "button",
+              role: "radio",
+              "aria-checked": watch === s,
+              onClick: () => setWatch(s),
+              className: cn(
+                "h-11 flex-1 rounded-lg border text-sm font-medium transition-colors",
+                watch === s ? "border-foreground bg-foreground text-background" : "border-border hover:bg-muted"
+              ),
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "watch", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "Day", children: "Day Shift" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "Night", children: "Night Shift" })
-                ] })
+                s,
+                " shift"
               ]
-            }
-          )
+            },
+            s
+          )) })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-end", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
           Button,
           {
             variant: "outline",
             onClick: markAllOK,
-            className: "w-full",
+            className: "h-11 w-full",
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-4 w-4 mr-2 text-green-600" }),
               "Mark All OK"
@@ -65569,75 +65613,62 @@ function CheckForm({
             {
               className: `rounded-lg border p-3 transition-colors ${item.status === "Defective" ? "border-amber-300 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800" : item.status === "Missing" ? "border-red-300 bg-red-50 dark:bg-red-950/20 dark:border-red-800" : "border-border"}`,
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 min-w-0", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-wrap", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: item.name }),
-                    item.serial_number && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-xs", children: [
-                      "S/N: ",
-                      item.serial_number
-                    ] })
-                  ] }) }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-3 sm:gap-4", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground whitespace-nowrap", children: "Qty" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 flex-1 items-center justify-between gap-3", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 flex-wrap items-center gap-2", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: item.name }),
+                      item.serial_number && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-xs", children: [
+                        "S/N: ",
+                        item.serial_number
+                      ] })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex shrink-0 items-center gap-2", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: `qty-${item.equipment_item_id}`, className: "text-xs text-muted-foreground whitespace-nowrap", children: "Qty" }),
                       /* @__PURE__ */ jsxRuntimeExports.jsx(
                         Input,
                         {
+                          id: `qty-${item.equipment_item_id}`,
                           type: "number",
+                          inputMode: "numeric",
                           min: 0,
                           value: item.quantity_checked,
                           onChange: (e) => updateItem(globalIdx, {
                             quantity_checked: parseInt(e.target.value) || 0
                           }),
-                          className: "w-16 h-8 text-center"
+                          className: "h-10 w-16 text-center"
                         }
                       ),
                       /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-muted-foreground", children: [
                         "/ ",
                         item.expected_quantity
                       ] })
-                    ] }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1", children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        Button,
-                        {
-                          size: "sm",
-                          variant: item.status === "OK" ? "default" : "outline",
-                          className: item.status === "OK" ? "bg-green-600 hover:bg-green-700 h-8 px-2" : "h-8 px-2",
-                          onClick: () => updateItem(globalIdx, { status: "OK" }),
-                          children: /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-4 w-4" })
-                        }
-                      ),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        Button,
-                        {
-                          size: "sm",
-                          variant: item.status === "Defective" ? "default" : "outline",
-                          className: item.status === "Defective" ? "bg-amber-600 hover:bg-amber-700 h-8 px-2" : "h-8 px-2",
-                          onClick: () => updateItem(globalIdx, { status: "Defective" }),
-                          children: /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "h-4 w-4" })
-                        }
-                      ),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        Button,
-                        {
-                          size: "sm",
-                          variant: item.status === "Missing" ? "default" : "outline",
-                          className: item.status === "Missing" ? "bg-red-600 hover:bg-red-700 h-8 px-2" : "h-8 px-2",
-                          onClick: () => updateItem(globalIdx, { status: "Missing" }),
-                          children: /* @__PURE__ */ jsxRuntimeExports.jsx(CircleX, { className: "h-4 w-4" })
-                        }
-                      )
                     ] })
-                  ] })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { role: "radiogroup", "aria-label": `${item.name}: status`, className: "grid grid-cols-3 gap-1.5 sm:flex sm:w-auto", children: STATUS_BUTTONS.map(({ value, label: label2, Icon: Icon2, on }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "button",
+                    {
+                      type: "button",
+                      role: "radio",
+                      "aria-checked": item.status === value,
+                      onClick: () => updateItem(globalIdx, { status: value }),
+                      className: cn(
+                        "flex h-11 items-center justify-center gap-1.5 rounded-lg border px-3 text-sm font-medium transition-colors",
+                        item.status === value ? on : "border-border text-foreground hover:bg-muted"
+                      ),
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "h-4 w-4 shrink-0", "aria-hidden": true }),
+                        label2
+                      ]
+                    },
+                    value
+                  )) })
                 ] }),
                 (item.status === "Defective" || item.status === "Missing") && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
                   Input,
                   {
                     placeholder: `Describe the ${item.status === "Defective" ? "defect" : "issue"}...`,
                     value: item.notes,
-                    onChange: (e) => updateItem(globalIdx, { notes: e.target.value }),
-                    className: "text-sm"
+                    onChange: (e) => updateItem(globalIdx, { notes: e.target.value })
                   }
                 ) })
               ]
@@ -65660,8 +65691,8 @@ function CheckForm({
         )
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogFooter, { className: "flex items-center justify-between", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: defectiveCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "destructive", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogFooter, { className: "sticky bottom-0 -mx-6 flex-row items-center justify-between sm:justify-between gap-2 border-t bg-background px-6 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-w-0", children: defectiveCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "destructive", children: [
         defectiveCount,
         " issue",
         defectiveCount !== 1 ? "s" : "",
@@ -65675,7 +65706,7 @@ function CheckForm({
             onClick: () => submitMutation.mutate(),
             disabled: submitMutation.isPending || checkItems.length === 0,
             className: "bg-indigo-600 hover:bg-indigo-700",
-            children: submitMutation.isPending ? "Submitting..." : "Complete J4 Check"
+            children: submitMutation.isPending ? "Submitting…" : "Complete check"
           }
         )
       ] })
@@ -66734,11 +66765,11 @@ function EquipmentChecks() {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-baseline justify-between gap-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline flex-wrap gap-x-4 gap-y-1", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-3xl font-bold flex items-center gap-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Truck, { className: "h-7 w-7 text-brand shrink-0" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-2xl sm:text-3xl font-bold flex items-center gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Truck, { className: "h-6 w-6 sm:h-7 sm:w-7 text-brand shrink-0" }),
           "J4 Equipment Checks"
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "eyebrow whitespace-nowrap", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "eyebrow min-w-0 break-words", children: [
           "B10 Springburn",
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "crumb-sep", children: "·" }),
           "Appliance & Equipment Management"
@@ -66761,8 +66792,8 @@ function EquipmentChecks() {
             className: "border-amber-200 text-amber-700 hover:bg-amber-50 dark:border-amber-900 dark:text-amber-400 dark:hover:bg-amber-950/20",
             "aria-label": "Report Defect",
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Wrench, { className: "h-4 w-4 sm:mr-2" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Report Defect" })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Wrench, { className: "h-4 w-4 mr-2" }),
+              "Report defect"
             ]
           }
         ),
@@ -76838,7 +76869,28 @@ function AppRoutes() {
     /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/reports/quarterly/:id/print", element: /* @__PURE__ */ jsxRuntimeExports.jsx(QuarterlyReportPrint, {}) })
   ] });
 }
+function watchVisualViewport() {
+  const vv = window.visualViewport;
+  if (!vv) return;
+  const root = document.documentElement;
+  const update = () => {
+    root.style.setProperty("--vvh", `${vv.height}px`);
+    root.style.setProperty("--vvt", `${vv.offsetTop}px`);
+    root.toggleAttribute("data-keyboard", window.innerHeight - vv.height > 120);
+  };
+  update();
+  vv.addEventListener("resize", update);
+  vv.addEventListener("scroll", update);
+  document.addEventListener("focusin", (e) => {
+    var _a3;
+    const el = e.target;
+    if (!((_a3 = el == null ? void 0 : el.matches) == null ? void 0 : _a3.call(el, "input, textarea, select, [contenteditable='true']"))) return;
+    if (!el.closest("[role='dialog'], .vv-fit")) return;
+    setTimeout(() => el.scrollIntoView({ block: "nearest" }), 350);
+  });
+}
 bootstrapUIPreferences();
+watchVisualViewport();
 ReactDOM$1.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(React.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
 );

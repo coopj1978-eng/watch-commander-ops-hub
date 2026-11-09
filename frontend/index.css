@@ -737,3 +737,32 @@ table.plain tbody tr:last-child td { border-bottom: none; }
 @media (hover: none) { .rp-item .rp-del { opacity: 1; } }
 /* .cal-btn sets display, so Tailwind's md:hidden can't hide it — use this. */
 @media (min-width: 768px) { .cal-phone-only { display: none; } }
+
+/* ── Phone polish (Nov 2026, council condition 9) ───────────────────────── */
+/* iOS zooms the page into any text box under 16px when it's tapped. On a
+   touch screen every text box is at least 16px, whatever its own size says. */
+@media (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+/* While a phone keyboard is up (lib/visualViewport.ts sets data-keyboard),
+   no dialog is taller than the part of the screen still visible. */
+:root[data-keyboard] [data-slot="dialog-content"] {
+  max-height: calc(var(--vvh) - 1rem) !important;
+}
+/* A full-screen overlay (fixed, inset 0) that should cover only the part of
+   the screen still visible, so a bottom sheet in it sits on top of a phone's
+   keyboard rather than under it. Same as inset 0 when there's no keyboard. */
+.vv-fit {
+  top: var(--vvt, 0px) !important;
+  bottom: auto !important;
+  height: var(--vvh, 100dvh) !important;
+}
+:root[data-keyboard] .vv-fit [role="dialog"],
+:root[data-keyboard] .vv-fit .cal-panel {
+  max-height: calc(var(--vvh) - 0.5rem) !important;
+}
+

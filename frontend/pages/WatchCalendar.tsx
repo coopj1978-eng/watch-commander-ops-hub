@@ -531,7 +531,8 @@ export default function UnifiedCalendar() {
       {/* ── Add / edit event panel ────────────────────────────────────────── */}
       {/* Portalled to <body> above the phone bottom bar, so its buttons aren't hidden behind it */}
       {formOpen && createPortal(
-        <div style={{ position: "fixed", inset: 0, zIndex: 60 }}>
+        // vv-fit: on a phone the sheet sits on top of the keyboard (index.css).
+        <div className="vv-fit" style={{ position: "fixed", inset: 0, zIndex: 60 }}>
           <div
             onClick={closeForm}
             style={{ position: "absolute", inset: 0, background: isPhone || !formAnchor ? "rgba(0,0,0,.4)" : "rgba(17,20,39,.06)" }}

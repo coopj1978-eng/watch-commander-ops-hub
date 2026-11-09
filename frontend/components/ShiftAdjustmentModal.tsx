@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import type { shift_adjustments } from "@/client";
 import { CALENDAR_EVENTS_KEY } from "@/lib/calendarQueries";
+import { rotaDayNight } from "@/lib/shiftRota";
 import { NewRequestDialog } from "@/components/requests/NewRequestDialog";
 
 type AdjType = shift_adjustments.ShiftAdjustmentType;
@@ -379,6 +380,22 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
   const subjectName = editingAdj?.user_name ?? user?.name;
   const otherWatches = WATCHES.filter(w => w !== userWatch);
 
+  // Day or Night from the rota (council phone polish, Nov 2026), not always
+  // "Day": the shift you're off follows your own watch's rota for that date,
+  // a flexi payback the rota of the watch you're covering. Still changeable,
+  // and an existing booking being edited keeps what it has.
+  const subjectWatch = forAnother && forWatch ? forWatch : userWatch;
+  useEffect(() => {
+    if (!open || editingId || editAdjustment) return;
+    const dn = rotaDayNight(subjectWatch, startDate);
+    if (dn) setOutboundShift(dn);
+  }, [open, startDate, subjectWatch, editingId, editAdjustment]);
+  useEffect(() => {
+    if (!open || editingId || editAdjustment) return;
+    const dn = rotaDayNight(inboundWatch, startDate);
+    if (dn) setInboundShift(dn);
+  }, [open, startDate, inboundWatch, editingId, editAdjustment]);
+
   const fmt = (d: string) => new Date(d + "T12:00:00").toLocaleDateString("en-GB", {
     day: "numeric", month: "short", year: "numeric",
   });
@@ -392,7 +409,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
       onClose={onClose}
     />
     <Dialog open={open && !requestType} onOpenChange={(o) => { if (!o) onClose(); }}>
-      <DialogContent className="sm:max-w-md p-0 overflow-hidden">
+      <DialogContent className="flex flex-col gap-0 sm:max-w-md p-0 overflow-hidden">
         <DialogHeader className="px-5 pt-5 pb-3 border-b border-border">
           <DialogTitle className="flex items-center gap-2 text-base">
             <CalendarDays className="h-4 w-4 text-indigo-500" />
@@ -403,7 +420,8 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
           )}
         </DialogHeader>
 
-        <div className="px-5 py-4 space-y-5 max-h-[75vh] overflow-y-auto">
+        {/* Fills what the dialog has room for (less while a phone keyboard is up). */}
+        <div className="min-h-0 flex-1 px-5 py-4 space-y-5 overflow-y-auto">
 
           {/* ── Type selector (hidden in edit mode) ── */}
           {editingId && type ? (
@@ -479,7 +497,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
                     type="date"
                     value={startDate}
                     onChange={e => { setStartDate(e.target.value); if (e.target.value > endDate) setEndDate(e.target.value); }}
-                    className="w-full h-8 rounded-lg border border-border px-2 text-sm bg-background outline-none focus:border-indigo-400"
+                    className="w-full h-10 rounded-lg border border-border px-2 text-sm bg-background outline-none focus:border-indigo-400"
                   />
                 </div>
                 <div>
@@ -489,7 +507,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
                     value={endDate}
                     min={startDate}
                     onChange={e => setEndDate(e.target.value)}
-                    className="w-full h-8 rounded-lg border border-border px-2 text-sm bg-background outline-none focus:border-indigo-400"
+                    className="w-full h-10 rounded-lg border border-border px-2 text-sm bg-background outline-none focus:border-indigo-400"
                   />
                 </div>
               </div>
@@ -511,7 +529,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
                         key={s}
                         type="button"
                         onClick={() => setOutboundShift(s)}
-                        className={`flex-1 text-xs py-1.5 rounded-lg border transition-all ${outboundShift === s ? "border-blue-400 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 font-semibold" : "border-border text-muted-foreground"}`}
+                        className={`flex-1 h-11 text-sm rounded-lg border transition-all ${outboundShift === s ? "border-blue-400 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 font-semibold" : "border-border text-muted-foreground"}`}
                       >
                         {s} Shift
                       </button>
@@ -532,14 +550,14 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
                     <button
                       type="button"
                       onClick={() => setCoverMode("roster")}
-                      className={`flex-1 text-xs py-1.5 rounded-lg border transition-all ${coverMode === "roster" ? "border-purple-400 bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 font-semibold" : "border-border text-muted-foreground"}`}
+                      className={`flex-1 h-11 text-sm rounded-lg border transition-all ${coverMode === "roster" ? "border-purple-400 bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 font-semibold" : "border-border text-muted-foreground"}`}
                     >
                       From roster
                     </button>
                     <button
                       type="button"
                       onClick={() => setCoverMode("freetext")}
-                      className={`flex-1 text-xs py-1.5 rounded-lg border transition-all ${coverMode === "freetext" ? "border-purple-400 bg-purple-100 text-purple-700 font-semibold" : "border-border text-muted-foreground"}`}
+                      className={`flex-1 h-11 text-sm rounded-lg border transition-all ${coverMode === "freetext" ? "border-purple-400 bg-purple-100 text-purple-700 font-semibold" : "border-border text-muted-foreground"}`}
                     >
                       Type name
                     </button>
@@ -548,7 +566,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
                   {coverMode === "roster" ? (
                     <div className="space-y-2">
                       <Select value={coverWatch} onValueChange={v => { setCoverWatch(v); setCoverUserId(""); }}>
-                        <SelectTrigger className="h-8 text-xs">
+                        <SelectTrigger className="h-10 w-full text-sm">
                           <SelectValue placeholder="Select their watch…" />
                         </SelectTrigger>
                         <SelectContent>
@@ -560,7 +578,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
 
                       {coverWatch && (
                         <Select value={coverUserId} onValueChange={setCoverUserId}>
-                          <SelectTrigger className="h-8 text-xs">
+                          <SelectTrigger className="h-10 w-full text-sm">
                             <SelectValue placeholder="Select person…" />
                           </SelectTrigger>
                           <SelectContent>
@@ -581,7 +599,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
                       placeholder="e.g. FF Smith (Red Watch)"
                       value={coverName}
                       onChange={e => setCoverName(e.target.value)}
-                      className="h-8 text-xs"
+                      className="h-10"
                     />
                   )}
                 </div>
@@ -596,7 +614,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
                   </div>
 
                   <Select value={inboundWatch} onValueChange={setInboundWatch}>
-                    <SelectTrigger className="h-8 text-xs">
+                    <SelectTrigger className="h-10 w-full text-sm">
                       <SelectValue placeholder="Select watch…" />
                     </SelectTrigger>
                     <SelectContent>
@@ -614,7 +632,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
                           key={s}
                           type="button"
                           onClick={() => setInboundShift(s)}
-                          className={`flex-1 text-xs py-1.5 rounded-lg border transition-all ${inboundShift === s ? "border-teal-400 bg-teal-100 dark:bg-teal-900/50 text-teal-700 dark:text-teal-300 font-semibold" : "border-border text-muted-foreground"}`}
+                          className={`flex-1 h-11 text-sm rounded-lg border transition-all ${inboundShift === s ? "border-teal-400 bg-teal-100 dark:bg-teal-900/50 text-teal-700 dark:text-teal-300 font-semibold" : "border-border text-muted-foreground"}`}
                         >
                           {s} Shift
                         </button>
@@ -637,7 +655,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
                         key={s}
                         type="button"
                         onClick={() => setOrangeShift(s)}
-                        className={`flex-1 text-xs py-1.5 rounded-lg border transition-all ${orangeShift === s ? "border-orange-400 bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300 font-semibold" : "border-border text-muted-foreground"}`}
+                        className={`flex-1 h-11 text-sm rounded-lg border transition-all ${orangeShift === s ? "border-orange-400 bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300 font-semibold" : "border-border text-muted-foreground"}`}
                       >
                         {s} Shift
                       </button>
@@ -685,7 +703,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
                   {forAnother && (
                     <div className="space-y-2 rounded-xl border border-indigo-200 dark:border-indigo-800 bg-indigo-50/40 dark:bg-indigo-950/30 p-3">
                       <Select value={forWatch} onValueChange={v => { setForWatch(v); setForUserId(""); }}>
-                        <SelectTrigger className="h-8 text-xs">
+                        <SelectTrigger className="h-10 w-full text-sm">
                           <SelectValue placeholder="Select their watch…" />
                         </SelectTrigger>
                         <SelectContent>
@@ -697,7 +715,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
 
                       {forWatch && (
                         <Select value={forUserId} onValueChange={setForUserId}>
-                          <SelectTrigger className="h-8 text-xs">
+                          <SelectTrigger className="h-10 w-full text-sm">
                             <SelectValue placeholder="Select person…" />
                           </SelectTrigger>
                           <SelectContent>
@@ -724,7 +742,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
                   placeholder="e.g. Course at Training Centre"
                   value={notes}
                   onChange={e => setNotes(e.target.value)}
-                  className="h-8 text-xs"
+                  className="h-10"
                 />
               </div>
 

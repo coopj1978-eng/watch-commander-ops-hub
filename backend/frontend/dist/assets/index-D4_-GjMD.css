@@ -722,6 +722,10 @@
     top: 50%;
   }
 
+  .top-\[calc\(var\(--vvt\,0px\)\+var\(--vvh\,100dvh\)\/2\)\] {
+    top: calc(var(--vvt, 0px)  + var(--vvh, 100dvh) / 2);
+  }
+
   .-right-1 {
     right: calc(var(--spacing) * -1);
   }
@@ -965,6 +969,10 @@
 
   .-mx-4 {
     margin-inline: calc(var(--spacing) * -4);
+  }
+
+  .-mx-6 {
+    margin-inline: calc(var(--spacing) * -6);
   }
 
   .-mx-\[18px\] {
@@ -1428,10 +1436,6 @@
     max-height: 60vh;
   }
 
-  .max-h-\[75vh\] {
-    max-height: 75vh;
-  }
-
   .max-h-\[80vh\] {
     max-height: 80vh;
   }
@@ -1456,8 +1460,16 @@
     max-height: calc(100dvh - 52px);
   }
 
+  .max-h-\[calc\(var\(--vvh\,100dvh\)-2rem-env\(safe-area-inset-top\)\)\] {
+    max-height: calc(var(--vvh, 100dvh)  - 2rem - env(safe-area-inset-top));
+  }
+
   .max-h-\[min\(62vh\,440px\)\] {
     max-height: min(62vh, 440px);
+  }
+
+  .max-h-none {
+    max-height: none;
   }
 
   .max-h-screen {
@@ -2626,6 +2638,10 @@
     .border-amber-500\/40 {
       border-color: color-mix(in oklab, var(--color-amber-500) 40%, transparent);
     }
+  }
+
+  .border-amber-600 {
+    border-color: var(--color-amber-600);
   }
 
   .border-blue-200 {
@@ -4495,6 +4511,18 @@
     padding-top: calc(var(--spacing) * 6);
   }
 
+  .pt-\[calc\(0\.625rem\+env\(safe-area-inset-top\)\)\] {
+    padding-top: calc(.625rem + env(safe-area-inset-top));
+  }
+
+  .pt-\[calc\(1rem\+env\(safe-area-inset-top\)\)\] {
+    padding-top: calc(1rem + env(safe-area-inset-top));
+  }
+
+  .pt-\[env\(safe-area-inset-top\)\] {
+    padding-top: env(safe-area-inset-top);
+  }
+
   .pr-1 {
     padding-right: calc(var(--spacing) * 1);
   }
@@ -4573,6 +4601,10 @@
 
   .pb-\[env\(safe-area-inset-bottom\)\] {
     padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .pb-\[max\(0\.75rem\,env\(safe-area-inset-bottom\)\)\] {
+    padding-bottom: max(.75rem, env(safe-area-inset-bottom));
   }
 
   .pb-\[max\(20px\,env\(safe-area-inset-bottom\)\)\] {
@@ -7403,6 +7435,10 @@
       width: calc(var(--spacing) * 3);
     }
 
+    .sm\:w-7 {
+      width: calc(var(--spacing) * 7);
+    }
+
     .sm\:w-9 {
       width: calc(var(--spacing) * 9);
     }
@@ -7437,6 +7473,10 @@
 
     .sm\:w-\[340px\] {
       width: 340px;
+    }
+
+    .sm\:w-auto {
+      width: auto;
     }
 
     .sm\:max-w-\[860px\] {
@@ -7637,6 +7677,10 @@
 
     .sm\:py-10 {
       padding-block: calc(var(--spacing) * 10);
+    }
+
+    .sm\:pt-4 {
+      padding-top: calc(var(--spacing) * 4);
     }
 
     .sm\:pt-5 {
@@ -10453,6 +10497,26 @@ table.plain tbody tr:last-child td {
   .cal-phone-only {
     display: none;
   }
+}
+
+@media (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]), textarea, select {
+    font-size: 16px !important;
+  }
+}
+
+:root[data-keyboard] [data-slot="dialog-content"] {
+  max-height: calc(var(--vvh)  - 1rem) !important;
+}
+
+.vv-fit {
+  top: var(--vvt, 0px) !important;
+  height: var(--vvh, 100dvh) !important;
+  bottom: auto !important;
+}
+
+:root[data-keyboard] .vv-fit [role="dialog"], :root[data-keyboard] .vv-fit .cal-panel {
+  max-height: calc(var(--vvh)  - .5rem) !important;
 }
 
 @property --tw-translate-x {

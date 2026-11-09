@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   CheckCircle2,
@@ -19,15 +19,11 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/App";
 import backend from "@/lib/backend";
+import { cn } from "@/lib/utils";
+import { currentDayNight } from "@/lib/shiftRota";
 
 interface CheckItemState {
   equipment_item_id: number;
@@ -38,6 +34,22 @@ interface CheckItemState {
   status: "OK" | "Defective" | "Missing";
   quantity_checked: number;
   notes: string;
+}
+
+type ItemStatus = CheckItemState["status"];
+
+// The three answers for each item: labelled, 44px tall (Nov 2026, council
+// phone polish — they were bare 32px icons).
+const STATUS_BUTTONS: { value: ItemStatus; label: string; Icon: typeof CheckCircle2; on: string }[] = [
+  { value: "OK", label: "OK", Icon: CheckCircle2, on: "border-green-600 bg-green-600 text-white" },
+  { value: "Defective", label: "Defect", Icon: AlertTriangle, on: "border-amber-600 bg-amber-600 text-white" },
+  { value: "Missing", label: "Missing", Icon: XCircle, on: "border-red-600 bg-red-600 text-white" },
+];
+
+/** The shift this check is for, from the watch's rota (the clock if there's no rota). */
+function shiftNow(watch: string | undefined): "Day" | "Night" {
+  const h = new Date().getHours();
+  return currentDayNight(watch) ?? (h >= 8 && h < 18 ? "Day" : "Night");
 }
 
 interface CheckFormProps {
@@ -54,8 +66,12 @@ export default function CheckForm({
   applianceName,
 }: CheckFormProps) {
   const { toast } = useToast();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [watch, setWatch] = useState<"Day" | "Night">("Day");
+  const [watch, setWatch] = useState<"Day" | "Night">(() => shiftNow(user?.watch_unit));
+  useEffect(() => {
+    if (open) setWatch(shiftNow(user?.watch_unit));
+  }, [open, user?.watch_unit]);
   const [notes, setNotes] = useState("");
   const [checkItems, setCheckItems] = useState<CheckItemState[]>([]);
   const [initialized, setInitialized] = useState(false);
@@ -94,7 +110,6 @@ export default function CheckForm({
       setInitialized(false);
       setCheckItems([]);
       setNotes("");
-      setWatch("Day");
     }
     onOpenChange(isOpen);
   };
@@ -178,11 +193,11 @@ export default function CheckForm({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <ClipboardCheck className="h-5 w-5 text-red-600" />
-            J4 Equipment Check — {applianceName}
+      <DialogContent className="max-w-3xl pb-0">
+        <DialogHeader className="pr-8 text-left">
+          <DialogTitle className="flex items-start gap-2 leading-snug">
+            <ClipboardCheck className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
+            <span className="min-w-0 break-words">J4 check · {applianceName}</span>
           </DialogTitle>
           <DialogDescription>
             Check each item and mark its status. Defective or missing items will
@@ -191,28 +206,33 @@ export default function CheckForm({
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {/* Watch selection */}
+          {/* Shift — from the rota, changeable */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="watch">Watch / Shift *</Label>
-              <Select
-                value={watch}
-                onValueChange={(v) => setWatch(v as "Day" | "Night")}
-              >
-                <SelectTrigger id="watch">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Day">Day Shift</SelectItem>
-                  <SelectItem value="Night">Night Shift</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label id="j4-shift">Shift</Label>
+              <div role="radiogroup" aria-labelledby="j4-shift" className="mt-1.5 flex gap-2">
+                {(["Day", "Night"] as const).map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    role="radio"
+                    aria-checked={watch === s}
+                    onClick={() => setWatch(s)}
+                    className={cn(
+                      "h-11 flex-1 rounded-lg border text-sm font-medium transition-colors",
+                      watch === s ? "border-foreground bg-foreground text-background" : "border-border hover:bg-muted",
+                    )}
+                  >
+                    {s} shift
+                  </button>
+                ))}
+              </div>
             </div>
             <div className="flex items-end">
               <Button
                 variant="outline"
                 onClick={markAllOK}
-                className="w-full"
+                className="h-11 w-full"
               >
                 <CheckCircle2 className="h-4 w-4 mr-2 text-green-600" />
                 Mark All OK
@@ -244,13 +264,11 @@ export default function CheckForm({
                           : "border-border"
                       }`}
                     >
-                      {/* Row stacks vertically on mobile so the name, Qty
-                          field, and status buttons each get full-width
-                          breathing room instead of fighting for the same
-                          horizontal track. */}
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
+                      {/* Name and quantity on one line; the three answers
+                          underneath on a phone, beside them on a wider screen. */}
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                        <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
+                          <div className="flex min-w-0 flex-wrap items-center gap-2">
                             <span className="font-medium">{item.name}</span>
                             {item.serial_number && (
                               <Badge variant="outline" className="text-xs">
@@ -258,16 +276,14 @@ export default function CheckForm({
                               </Badge>
                             )}
                           </div>
-                        </div>
-
-                        <div className="flex items-center justify-between gap-3 sm:gap-4">
-                          {/* Quantity */}
-                          <div className="flex items-center gap-2">
-                            <Label className="text-xs text-muted-foreground whitespace-nowrap">
+                          <div className="flex shrink-0 items-center gap-2">
+                            <Label htmlFor={`qty-${item.equipment_item_id}`} className="text-xs text-muted-foreground whitespace-nowrap">
                               Qty
                             </Label>
                             <Input
+                              id={`qty-${item.equipment_item_id}`}
                               type="number"
+                              inputMode="numeric"
                               min={0}
                               value={item.quantity_checked}
                               onChange={(e) =>
@@ -275,62 +291,31 @@ export default function CheckForm({
                                   quantity_checked: parseInt(e.target.value) || 0,
                                 })
                               }
-                              className="w-16 h-8 text-center"
+                              className="h-10 w-16 text-center"
                             />
                             <span className="text-xs text-muted-foreground">
                               / {item.expected_quantity}
                             </span>
                           </div>
+                        </div>
 
-                          {/* Status buttons */}
-                          <div className="flex gap-1">
-                          <Button
-                            size="sm"
-                            variant={item.status === "OK" ? "default" : "outline"}
-                            className={
-                              item.status === "OK"
-                                ? "bg-green-600 hover:bg-green-700 h-8 px-2"
-                                : "h-8 px-2"
-                            }
-                            onClick={() =>
-                              updateItem(globalIdx, { status: "OK" })
-                            }
-                          >
-                            <CheckCircle2 className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant={
-                              item.status === "Defective" ? "default" : "outline"
-                            }
-                            className={
-                              item.status === "Defective"
-                                ? "bg-amber-600 hover:bg-amber-700 h-8 px-2"
-                                : "h-8 px-2"
-                            }
-                            onClick={() =>
-                              updateItem(globalIdx, { status: "Defective" })
-                            }
-                          >
-                            <AlertTriangle className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant={
-                              item.status === "Missing" ? "default" : "outline"
-                            }
-                            className={
-                              item.status === "Missing"
-                                ? "bg-red-600 hover:bg-red-700 h-8 px-2"
-                                : "h-8 px-2"
-                            }
-                            onClick={() =>
-                              updateItem(globalIdx, { status: "Missing" })
-                            }
-                          >
-                            <XCircle className="h-4 w-4" />
-                          </Button>
-                          </div>
+                        <div role="radiogroup" aria-label={`${item.name}: status`} className="grid grid-cols-3 gap-1.5 sm:flex sm:w-auto">
+                          {STATUS_BUTTONS.map(({ value, label, Icon, on }) => (
+                            <button
+                              key={value}
+                              type="button"
+                              role="radio"
+                              aria-checked={item.status === value}
+                              onClick={() => updateItem(globalIdx, { status: value })}
+                              className={cn(
+                                "flex h-11 items-center justify-center gap-1.5 rounded-lg border px-3 text-sm font-medium transition-colors",
+                                item.status === value ? on : "border-border text-foreground hover:bg-muted",
+                              )}
+                            >
+                              <Icon className="h-4 w-4 shrink-0" aria-hidden />
+                              {label}
+                            </button>
+                          ))}
                         </div>
                       </div>
 
@@ -344,7 +329,6 @@ export default function CheckForm({
                             onChange={(e) =>
                               updateItem(globalIdx, { notes: e.target.value })
                             }
-                            className="text-sm"
                           />
                         </div>
                       )}
@@ -368,8 +352,9 @@ export default function CheckForm({
           </div>
         </div>
 
-        <DialogFooter className="flex items-center justify-between">
-          <div>
+        {/* Pinned to the bottom of the scrolling form, so it's always in reach. */}
+        <DialogFooter className="sticky bottom-0 -mx-6 flex-row items-center justify-between sm:justify-between gap-2 border-t bg-background px-6 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+          <div className="min-w-0">
             {defectiveCount > 0 && (
               <Badge variant="destructive">
                 {defectiveCount} issue{defectiveCount !== 1 ? "s" : ""} found
@@ -385,7 +370,7 @@ export default function CheckForm({
               disabled={submitMutation.isPending || checkItems.length === 0}
               className="bg-indigo-600 hover:bg-indigo-700"
             >
-              {submitMutation.isPending ? "Submitting..." : "Complete J4 Check"}
+              {submitMutation.isPending ? "Submitting…" : "Complete check"}
             </Button>
           </div>
         </DialogFooter>

@@ -341,7 +341,7 @@ export default function TopBar({ onSearch }: TopBarProps) {
   // bar's More sheet (phones), so the bar keeps to where you are, search and
   // notifications.
   return (
-    <header className="sticky top-0 z-30 flex items-center gap-3 px-4 md:px-6 py-2.5 bg-background/80 backdrop-blur-md border-b border-border print:hidden">
+    <header className="sticky top-0 z-30 flex items-center gap-3 px-4 md:px-6 py-2.5 pt-[calc(0.625rem+env(safe-area-inset-top))] bg-background/80 backdrop-blur-md border-b border-border print:hidden">
       {/* ── Left: the page you're on ───────────────────────────────────── */}
       <div className="flex items-center gap-2.5 min-w-0 shrink-0 max-w-[50%]">
         {page && (
@@ -406,7 +406,7 @@ export default function TopBar({ onSearch }: TopBarProps) {
           <Dialog open={mobileOpen} onOpenChange={setMobileOpen}>
             <DialogContent
               showCloseButton={false}
-              className="fixed top-0 right-0 left-auto translate-x-0 translate-y-0 h-[100dvh] w-full max-w-[calc(100%-2rem)] sm:max-w-sm rounded-none border-0 border-l p-0 gap-0 flex flex-col data-[state=open]:slide-in-from-right data-[state=closed]:slide-out-to-right"
+              className="fixed top-0 right-0 left-auto translate-x-0 translate-y-0 h-[100dvh] max-h-none overflow-hidden pt-[env(safe-area-inset-top)] w-full max-w-[calc(100%-2rem)] sm:max-w-sm rounded-none border-0 border-l p-0 gap-0 flex flex-col data-[state=open]:slide-in-from-right data-[state=closed]:slide-out-to-right"
             >
               {/* Visually-hidden title for Radix a11y — the shared panel
                   header already renders a visible "Notifications" heading,

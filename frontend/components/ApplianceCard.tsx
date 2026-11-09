@@ -150,8 +150,7 @@ export default function ApplianceCard({
       <CardFooter className="gap-2 pt-3 border-t">
         <Button
           onClick={onStartCheck}
-          className="flex-1 bg-indigo-600 hover:bg-indigo-700"
-          size="sm"
+          className="h-11 flex-1 bg-indigo-600 hover:bg-indigo-700 sm:h-9"
         >
           <ClipboardCheck className="h-4 w-4 mr-2" />
           Start J4 Check
@@ -160,7 +159,8 @@ export default function ApplianceCard({
           <Button
             onClick={onManageEquipment}
             variant="outline"
-            size="sm"
+            className="h-11 w-11 sm:h-9 sm:w-9"
+            aria-label="Manage equipment"
           >
             <Settings2 className="h-4 w-4" />
           </Button>

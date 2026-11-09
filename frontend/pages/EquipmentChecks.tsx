@@ -93,11 +93,12 @@ export default function EquipmentChecks() {
       {/* Visual-refresh page header: h1 + eyebrow + action buttons. */}
       <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-3">
         <div className="flex items-baseline flex-wrap gap-x-4 gap-y-1">
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <Truck className="h-7 w-7 text-brand shrink-0" />
+          <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-3">
+            <Truck className="h-6 w-6 sm:h-7 sm:w-7 text-brand shrink-0" />
             J4 Equipment Checks
           </h1>
-          <span className="eyebrow whitespace-nowrap">
+          {/* Wraps on a phone rather than running off the side (council, Nov 2026). */}
+          <span className="eyebrow min-w-0 break-words">
             B10 Springburn
             <span className="crumb-sep">·</span>
             Appliance & Equipment Management
@@ -117,8 +118,8 @@ export default function EquipmentChecks() {
             className="border-amber-200 text-amber-700 hover:bg-amber-50 dark:border-amber-900 dark:text-amber-400 dark:hover:bg-amber-950/20"
             aria-label="Report Defect"
           >
-            <Wrench className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">Report Defect</span>
+            <Wrench className="h-4 w-4 mr-2" />
+            Report defect
           </Button>
           {isWC && (
             <Button onClick={() => setAddApplianceOpen(true)} variant="outline" aria-label="Add Appliance">

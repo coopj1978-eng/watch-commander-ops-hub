@@ -305,7 +305,7 @@ export function RequestCard({ id, onClose }: { id: number | null; onClose: () =>
   const r = d?.request;
   return (
     <Dialog open={id !== null} onOpenChange={(o) => { if (!o) onClose(); }}>
-      <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-lg">
+      <DialogContent className="flex flex-col gap-0 overflow-hidden p-0 sm:max-w-lg">
         <DialogHeader className="border-b border-border px-5 pb-3 pt-5 text-left">
           <DialogTitle className="pr-6 text-base">
             {r ? `${REQUEST_LABEL[r.type]}: ${r.user_name}` : "Request"}
@@ -322,7 +322,7 @@ export function RequestCard({ id, onClose }: { id: number | null; onClose: () =>
           )}
         </DialogHeader>
 
-        <div className="max-h-[75vh] space-y-5 overflow-y-auto px-5 py-4">
+        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-5 py-4">
           {isLoading && <Skeleton className="h-48 w-full" />}
           {error && <p className="text-sm text-muted-foreground">{(error as Error).message}</p>}
           {d && r && (

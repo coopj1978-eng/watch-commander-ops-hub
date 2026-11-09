@@ -322,3 +322,27 @@ export function handoverShiftFor(watch: string, now: Date = new Date()): { date:
   }
   return null;
 }
+
+/**
+ * Day or Night for a watch's rostered shift on a date (YYYY-MM-DD) — so a
+ * form can pick the shift from the rota instead of defaulting to Day (Nov
+ * 2026, council phone polish). Null on rest days, leave, or with no rota.
+ */
+export function rotaDayNight(watch: string | undefined, isoDate: string): "Day" | "Night" | null {
+  if (!watch || !/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) return null;
+  const [y, m, d] = isoDate.split("-").map(Number);
+  const s = getShiftForDate(watch, new Date(y, m - 1, d));
+  if (!s?.isWorking) return null;
+  return s.shiftType.includes("Night") ? "Night" : "Day";
+}
+
+/**
+ * The shift a check done now belongs to (a J4 check): the one running, or the
+ * next one today, else the last one worked. Null with no rota.
+ */
+export function currentDayNight(watch: string | undefined, now: Date = new Date()): "Day" | "Night" | null {
+  if (!watch) return null;
+  const live = crewingShiftFor(watch, now);
+  if (live) return live.shiftType.includes("Night") ? "Night" : "Day";
+  return handoverShiftFor(watch, now)?.type ?? null;
+}
