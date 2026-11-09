@@ -482,7 +482,7 @@ export default function Reports() {
                 />
               </div>
               <p className="text-xs text-muted-foreground">
-                Required columns: id, email, name, role (WC, CC, FF, or RO)
+                Required columns: id, email, name, role (WC, CC or FF)
               </p>
               <Button
                 onClick={() => importMutation.mutate(csvData)}

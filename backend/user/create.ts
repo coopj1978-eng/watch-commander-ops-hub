@@ -12,7 +12,11 @@ export const create = api<CreateUserRequest, User>(
 
     // Only Watch Commanders can create user accounts
     requireAdmin(auth);
-    
+    // Read Only isn't given out any more (John, 9 Nov 2026).
+    if (req.role === "RO") {
+      throw APIError.invalidArgument("Read Only isn't used any more. Pick WC, CC or FF.");
+    }
+
     const existingUser = await db.queryRow<User>`
       SELECT * FROM users WHERE LOWER(email) = LOWER(${req.email})
     `;

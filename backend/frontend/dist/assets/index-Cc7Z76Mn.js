@@ -62668,7 +62668,7 @@ function Reports() {
               }
             )
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "Required columns: id, email, name, role (WC, CC, FF, or RO)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "Required columns: id, email, name, role (WC, CC or FF)" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             Button,
             {
@@ -63977,7 +63977,7 @@ function AdminUsers() {
                   /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "WC", children: "WC" }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "CC", children: "CC" }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "FF", children: "FF" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "RO", children: "RO" })
+                  user2.role === "RO" && /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "RO", children: "RO" })
                 ] })
               ]
             }

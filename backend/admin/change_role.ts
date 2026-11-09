@@ -15,6 +15,11 @@ export const changeRole = api(
   async ({ userId, newRole }: ChangeRoleRequest): Promise<void> => {
     const auth = getAuthData()!;
     requireAdmin(auth);
+    // "RO" (Read Only) came with the original template and isn't a fire
+    // service role — nobody can be given it any more (John, 9 Nov 2026).
+    if (newRole === "RO") {
+      throw APIError.invalidArgument("Read Only isn't used any more. Pick WC, CC or FF.");
+    }
 
     const userRow = await db.rawQueryRow<{ id: string; role: string; is_active: boolean }>(
       `SELECT id, role, is_active FROM users WHERE id = $1`,

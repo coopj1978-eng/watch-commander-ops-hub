@@ -61,7 +61,8 @@ export const importStaffCsv = api<ImportStaffCsvRequest, ImportStaffCsvResponse>
           continue;
         }
 
-        if (!["WC", "CC", "FF", "RO"].includes(role)) {
+        // Read Only isn't given out any more (John, 9 Nov 2026).
+        if (!["WC", "CC", "FF"].includes(role)) {
           errors.push(`Row ${i + 1}: invalid role "${role}"`);
           continue;
         }

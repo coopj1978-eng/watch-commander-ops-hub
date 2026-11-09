@@ -179,7 +179,6 @@ export default function PeopleGrid({ data, isLoading }: PeopleGridProps) {
                     <SelectItem value="WC">Watch Commander</SelectItem>
                     <SelectItem value="CC">Crew Commander</SelectItem>
                     <SelectItem value="FF">Firefighter</SelectItem>
-                    <SelectItem value="RO">Read Only</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

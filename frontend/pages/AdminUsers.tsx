@@ -174,7 +174,8 @@ export function AdminUsers() {
                           <SelectItem value="WC">WC</SelectItem>
                           <SelectItem value="CC">CC</SelectItem>
                           <SelectItem value="FF">FF</SelectItem>
-                          <SelectItem value="RO">RO</SelectItem>
+                          {/* Read Only isn't given out any more (9 Nov 2026) — only listed for an old account that still has it. */}
+                          {user.role === "RO" && <SelectItem value="RO">RO</SelectItem>}
                         </SelectContent>
                       </Select>
                     ) : (
