@@ -74,13 +74,13 @@ export const forgotPassword = api<ForgotPasswordRequest, ForgotPasswordResponse>
 
     const resend = new Resend(resendKey);
     const { data, error } = await resend.emails.send({
-      from: "Watch Commander Ops Hub <onboarding@resend.dev>",
+      from: "The Station Hub <onboarding@resend.dev>",
       to: [user.email],
-      subject: "Reset your password — Watch Commander Ops Hub",
+      subject: "Reset your password — The Station Hub",
       html: `
         <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 24px;">
           <div style="background: linear-gradient(135deg, #4f46e5, #7c3aed); border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 24px;">
-            <h1 style="color: white; margin: 0; font-size: 20px;">Watch Commander Ops Hub</h1>
+            <h1 style="color: white; margin: 0; font-size: 20px;">The Station Hub</h1>
           </div>
           <p style="font-size: 16px; color: #111;">Hi ${user.name},</p>
           <p style="color: #444;">We received a request to reset your password. Click the button below to set a new one. This link expires in <strong>1 hour</strong>.</p>
@@ -92,7 +92,7 @@ export const forgotPassword = api<ForgotPasswordRequest, ForgotPasswordResponse>
           </div>
           <p style="color: #888; font-size: 13px;">If you didn't request this, you can safely ignore this email — your password won't change.</p>
           <p style="color: #bbb; font-size: 12px; border-top: 1px solid #eee; padding-top: 16px; margin-top: 24px;">
-            Watch Commander Ops Hub · Sent to ${user.email}
+            The Station Hub · Sent to ${user.email}
           </p>
         </div>
       `,

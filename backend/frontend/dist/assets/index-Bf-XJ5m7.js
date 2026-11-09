@@ -39349,7 +39349,7 @@ function LogSickDialog({ open, onOpenChange, person }) {
         type: "sickness",
         start_date: dateToIso(startDate),
         end_date: dateToIso(endDate),
-        reason: reason || "Sick booking logged via Watch Commander Ops Hub",
+        reason: reason || "Sick booking logged via The Station Hub",
         evidence_urls: []
       });
     },
@@ -76239,7 +76239,7 @@ function BrandPanel() {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid h-10 w-10 place-items-center rounded bg-brand-bright font-mono text-sm font-semibold tracking-wide text-neutral-900", children: "WC" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold", children: "Watch Commander Ops Hub" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold", children: "The Station Hub" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono text-[10.5px] uppercase tracking-[0.14em] text-white/50", children: "B10 Springburn" })
         ] })
       ] }),
@@ -76516,7 +76516,7 @@ function SignUp() {
     /* @__PURE__ */ jsxRuntimeExports.jsxs(CardHeader, { className: "space-y-1 text-center pb-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center mb-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-16 w-16 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-700 flex items-center justify-center shadow-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { className: "h-9 w-9 text-white" }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { className: "text-2xl font-bold", children: isInviteFlow ? "Set up your account" : "Create Account" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { children: isInviteFlow ? "You've been invited to Watch Commander Ops Hub. Set a password to get started." : "Sign up to access the Operations Hub" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { children: isInviteFlow ? "You've been invited to The Station Hub. Set a password to get started." : "Sign up to access the Operations Hub" })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSignUp, className: "space-y-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [

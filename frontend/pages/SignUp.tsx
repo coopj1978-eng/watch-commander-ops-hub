@@ -79,7 +79,7 @@ export default function SignUp() {
           </CardTitle>
           <CardDescription>
             {isInviteFlow
-              ? "You've been invited to Watch Commander Ops Hub. Set a password to get started."
+              ? "You've been invited to The Station Hub. Set a password to get started."
               : "Sign up to access the Operations Hub"}
           </CardDescription>
         </CardHeader>

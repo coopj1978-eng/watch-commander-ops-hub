@@ -36,7 +36,7 @@ function BrandPanel() {
         <div className="flex items-center gap-3">
           <div className="grid h-10 w-10 place-items-center rounded bg-brand-bright font-mono text-sm font-semibold tracking-wide text-neutral-900">WC</div>
           <div>
-            <div className="text-sm font-semibold">Watch Commander Ops Hub</div>
+            <div className="text-sm font-semibold">The Station Hub</div>
             <div className="font-mono text-[10.5px] uppercase tracking-[0.14em] text-white/50">B10 Springburn</div>
           </div>
         </div>

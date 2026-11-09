@@ -1,7 +1,7 @@
 {
-  "name": "Watch Commander Ops Hub",
-  "short_name": "WC Ops Hub",
-  "description": "Fire station operations management for Watch Commanders",
+  "name": "The Station Hub",
+  "short_name": "The Station Hub",
+  "description": "Your shifts, crewing and the watch, on your phone",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

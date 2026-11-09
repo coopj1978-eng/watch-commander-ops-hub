@@ -78,7 +78,7 @@ export function LogSickDialog({ open, onOpenChange, person }: LogSickDialogProps
         type: "sickness",
         start_date: dateToIso(startDate),
         end_date: dateToIso(endDate),
-        reason: reason || "Sick booking logged via Watch Commander Ops Hub",
+        reason: reason || "Sick booking logged via The Station Hub",
         evidence_urls: [],
       });
     },
