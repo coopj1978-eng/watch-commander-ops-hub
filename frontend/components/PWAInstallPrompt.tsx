@@ -148,7 +148,7 @@ export default function PWAInstallPrompt() {
             <Smartphone className="h-5 w-5" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold leading-tight">Install Watch Commander</h3>
+            <h3 className="font-semibold leading-tight">Install The Station Hub</h3>
             <p className="text-xs text-muted-foreground mt-0.5">
               {variant === "ios"
                 ? "Add to your home screen for one-tap access and a full-screen app experience."

@@ -91,7 +91,8 @@ export const refresh = api<void, RefreshResponse>(
           : `${skill.user_name}'s ${skill.skill_name} certification expires in ${daysLeft} day${daysLeft !== 1 ? "s" : ""}.`,
         entity_type: "skill_renewal",
         entity_id: String(skill.id),
-        link: `/people`,
+        // Your own goes to your profile (People is a WC/CC page).
+        link: skill.user_id === userId ? `/profile` : `/people`,
       });
     }
 
