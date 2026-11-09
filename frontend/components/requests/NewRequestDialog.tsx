@@ -206,7 +206,8 @@ export function NewRequestDialog({ open, onClose, initialType = "flexi", default
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
-      <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-lg">
+      {/* Buttons pinned under the scrolling part, so they're always in reach on a phone. */}
+      <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-lg">
         <DialogHeader className="border-b border-border px-5 pb-3 pt-5 text-left">
           <DialogTitle className="text-base">Flexi Day or Head for Head</DialogTitle>
           <DialogDescription>
@@ -214,7 +215,7 @@ export function NewRequestDialog({ open, onClose, initialType = "flexi", default
           </DialogDescription>
         </DialogHeader>
 
-        <div className="max-h-[75vh] space-y-4 overflow-y-auto px-5 py-4">
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-5 py-4">
           <Toggle label="Type of request" value={type} onChange={setType} options={[
             { value: "flexi", label: REQUEST_LABEL.flexi },
             { value: "h4h", label: REQUEST_LABEL.h4h },
@@ -291,19 +292,19 @@ export function NewRequestDialog({ open, onClose, initialType = "flexi", default
           {preview && applicantReady && coverReady && (
             <div className="space-y-2">
               <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Worth knowing</h3>
-              <CheckList checks={preview.checks} />
+              <CheckList checks={preview.checks} soft />
               {!blocked && preview.checks.some((c) => c.state === "fail" || c.state === "warn") && (
                 <p className="text-xs text-muted-foreground">These don't stop it. Your WC sees them with the note that it's on.</p>
               )}
             </div>
           )}
 
-          <div className="flex justify-end gap-2 pt-1">
-            <Button variant="outline" onClick={onClose}>Cancel</Button>
-            <Button disabled={!canSend || create.isPending} onClick={() => create.mutate()}>
-              {forOther ? `Put it on ${forName ? `${forName.split(" ")[0]}'s` : "their"} calendar` : "Put it on my calendar"}
-            </Button>
-          </div>
+        </div>
+        <div className="flex shrink-0 justify-end gap-2 border-t border-border px-5 py-3">
+          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button disabled={!canSend || create.isPending} onClick={() => create.mutate()}>
+            {forOther ? `Put it on ${forName ? `${forName.split(" ")[0]}'s` : "their"} calendar` : "Put it on my calendar"}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

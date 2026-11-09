@@ -45122,14 +45122,15 @@ const LOOK = {
   warn: { Icon: TriangleAlert, tone: "text-amber-600 dark:text-amber-400" },
   fail: { Icon: CircleX, tone: "text-red-600 dark:text-red-400" }
 };
-function CheckList({ checks }) {
+function CheckList({ checks, soft = false }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "divide-y divide-border rounded-xl border border-border", children: checks.map((c) => {
-    const { Icon: Icon2, tone } = LOOK[c.state];
+    const state = soft && c.state === "fail" && !c.blocks ? "warn" : c.state;
+    const { Icon: Icon2, tone } = LOOK[state];
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex gap-2.5 px-3 py-2.5 text-sm", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: cn("mt-0.5 h-4 w-4 shrink-0", tone), "aria-hidden": true }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium text-foreground", children: c.label }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: cn("text-[13px] leading-snug", c.state === "fail" ? "text-red-700 dark:text-red-300" : "text-muted-foreground"), children: c.detail })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: cn("text-[13px] leading-snug", state === "fail" ? "text-red-700 dark:text-red-300" : state === "warn" ? "text-amber-800 dark:text-amber-300" : "text-muted-foreground"), children: c.detail })
       ] })
     ] }, c.key);
   }) });
@@ -45278,12 +45279,12 @@ function NewRequestDialog({ open, onClose, initialType = "flexi", defaultDate, o
   });
   return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: (o) => {
     if (!o) onClose();
-  }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "gap-0 overflow-hidden p-0 sm:max-w-lg", children: [
+  }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "flex max-h-[calc(100dvh-2rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-lg", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { className: "border-b border-border px-5 pb-3 pt-5 text-left", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { className: "text-base", children: "Flexi Day or Head for Head" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: "It goes straight on the calendar and the crewing board, and your WC is told. Put it on Kronos as usual too." })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-h-[75vh] space-y-4 overflow-y-auto px-5 py-4", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-h-0 flex-1 space-y-4 overflow-y-auto px-5 py-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Toggle, { label: "Type of request", value: type, onChange: setType, options: [
         { value: "flexi", label: REQUEST_LABEL.flexi },
         { value: "h4h", label: REQUEST_LABEL.h4h }
@@ -45346,13 +45347,13 @@ function NewRequestDialog({ open, onClose, initialType = "flexi", defaultDate, o
       previewError && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { role: "alert", className: "text-sm text-red-700 dark:text-red-300", children: previewError.message }),
       preview && applicantReady && coverReady && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-xs font-semibold uppercase tracking-wide text-muted-foreground", children: "Worth knowing" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(CheckList, { checks: preview.checks }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(CheckList, { checks: preview.checks, soft: true }),
         !blocked && preview.checks.some((c) => c.state === "fail" || c.state === "warn") && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "These don't stop it. Your WC sees them with the note that it's on." })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end gap-2 pt-1", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", onClick: onClose, children: "Cancel" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { disabled: !canSend || create.isPending, onClick: () => create.mutate(), children: forOther ? `Put it on ${forName ? `${forName.split(" ")[0]}'s` : "their"} calendar` : "Put it on my calendar" })
       ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex shrink-0 justify-end gap-2 border-t border-border px-5 py-3", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", onClick: onClose, children: "Cancel" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { disabled: !canSend || create.isPending, onClick: () => create.mutate(), children: forOther ? `Put it on ${forName ? `${forName.split(" ")[0]}'s` : "their"} calendar` : "Put it on my calendar" })
     ] })
   ] }) });
 }
