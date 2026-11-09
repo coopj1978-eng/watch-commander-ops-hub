@@ -45,6 +45,8 @@ const addDays = (iso: string, n: number) => {
 const short = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString("en-GB", { weekday: "short", day: "numeric" });
 /** "Thu 26 Nov". */
 const shortMonth = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+/** "26 Nov". */
+const dayMonth = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 const hhmm = (d: Date) => d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
 
 export function timeLeft(ms: number): string {
@@ -110,6 +112,6 @@ export function leaveLine(l: MyLeave, today: string): { title: string; detail: s
   }
   return {
     title: "Annual leave",
-    detail: `${shortMonth(l.start)} – ${shortMonth(l.end)}${l.back ? ` · back ${shortMonth(l.back)}` : ""}`,
+    detail: `${dayMonth(l.start)} – ${dayMonth(l.end)}${l.back ? ` · back ${shortMonth(l.back)}` : ""}`,
   };
 }

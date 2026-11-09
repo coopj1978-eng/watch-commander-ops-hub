@@ -52,7 +52,7 @@ describe("my next shifts wording", () => {
 describe("leave row", () => {
   const l = { start: "2026-11-26", end: "2026-12-13", back: "2026-12-14" };
   it("coming up", () => {
-    expect(leaveLine(l, "2026-11-20")).toEqual({ title: "Annual leave", detail: "Thu 26 Nov – Sun 13 Dec · back Mon 14 Dec" });
+    expect(leaveLine(l, "2026-11-20")).toEqual({ title: "Annual leave", detail: "26 Nov – 13 Dec · back Mon 14 Dec" });
   });
   it("on it now", () => {
     expect(leaveLine(l, "2026-12-01")).toEqual({ title: "On annual leave", detail: "Back Mon 14 Dec" });

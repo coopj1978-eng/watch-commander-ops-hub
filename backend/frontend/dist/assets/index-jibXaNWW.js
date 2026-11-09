@@ -34958,6 +34958,7 @@ const addDays$2 = (iso2, n) => {
 };
 const short$1 = (iso2) => (/* @__PURE__ */ new Date(`${iso2}T12:00:00`)).toLocaleDateString("en-GB", { weekday: "short", day: "numeric" });
 const shortMonth = (iso2) => (/* @__PURE__ */ new Date(`${iso2}T12:00:00`)).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+const dayMonth$2 = (iso2) => (/* @__PURE__ */ new Date(`${iso2}T12:00:00`)).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 const hhmm$6 = (d) => d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
 function timeLeft$1(ms) {
   const mins = Math.max(0, Math.round(ms / 6e4));
@@ -35020,7 +35021,7 @@ function leaveLine(l, today) {
   }
   return {
     title: "Annual leave",
-    detail: `${shortMonth(l.start)} – ${shortMonth(l.end)}${l.back ? ` · back ${shortMonth(l.back)}` : ""}`
+    detail: `${dayMonth$2(l.start)} – ${dayMonth$2(l.end)}${l.back ? ` · back ${shortMonth(l.back)}` : ""}`
   };
 }
 function useMyShifts() {
@@ -35097,7 +35098,7 @@ function MyNextShifts() {
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex w-[4.75rem] shrink-0 items-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(TreePalm, { "aria-hidden": true, className: "h-4 w-4 text-emerald-600 dark:text-emerald-400" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0 flex-1", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-medium", children: leaveRow.title }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "truncate text-xs text-muted-foreground", children: leaveRow.detail })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-muted-foreground", children: leaveRow.detail })
           ] })
         ] }, "leave");
       }
@@ -66989,7 +66990,12 @@ function SickLine() {
   const offSick = (((_a3 = q.data) == null ? void 0 : _a3.absences) ?? []).some((a) => a.type === "sickness" && !a.returned_to_work_at);
   const show = asked || offSick;
   reactExports.useEffect(() => {
-    if (asked && ref.current) ref.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (!asked) return;
+    const id = setTimeout(() => {
+      var _a4;
+      return (_a4 = ref.current) == null ? void 0 : _a4.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 600);
+    return () => clearTimeout(id);
   }, [asked]);
   if (!show) return null;
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { ref, className: "scroll-mt-20", children: /* @__PURE__ */ jsxRuntimeExports.jsx(FFSickLineUpload, {}) });

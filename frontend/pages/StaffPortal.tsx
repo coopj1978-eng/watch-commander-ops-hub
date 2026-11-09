@@ -43,8 +43,11 @@ function SickLine() {
   const offSick = (q.data?.absences ?? []).some((a) => a.type === "sickness" && !a.returned_to_work_at);
   const show = asked || offSick;
 
+  // After the cards above have loaded and taken their height.
   useEffect(() => {
-    if (asked && ref.current) ref.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (!asked) return;
+    const id = setTimeout(() => ref.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 600);
+    return () => clearTimeout(id);
   }, [asked]);
 
   if (!show) return null;
