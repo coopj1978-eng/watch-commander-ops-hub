@@ -260,9 +260,9 @@ export default function SignIn() {
                   </>
                 ) : (
                   <>
-                    <p className="text-sm text-foreground font-medium">Contact your Watch Commander</p>
+                    <p className="text-sm text-foreground font-medium">Ask for a reset link</p>
                     <p className="text-sm text-muted-foreground">
-                      Email notifications are not yet configured. Please ask your Watch Commander to reset your password from the Admin panel.
+                      We couldn't email you a link. Ask whoever looks after The Station Hub at your station to send you a reset link.
                     </p>
                   </>
                 )}

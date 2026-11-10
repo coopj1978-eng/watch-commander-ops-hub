@@ -30,7 +30,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
-import { CheckCircle2, Heart, MessageSquare, Pencil, Trash2 } from "lucide-react";
+import { CheckCircle2, FileImage, Heart, MessageSquare, Pencil, Trash2 } from "lucide-react";
 import type { AbsenceType } from "~backend/absence/types";
 import { invalidateAbsenceViews, localTodayIso } from "@/lib/absences";
 import { countDays, rollingSickness } from "~backend/lib/sicknessMath";
@@ -162,6 +162,11 @@ export function AbsenceHistorySection({
     [absences, isDutyDay]
   );
 
+  // ── Sick line photo ───────────────────────────────────────────────────────
+  // The firefighter uploads it from their Home; this is where it's looked at.
+  // Opened on request only, so it isn't left showing on a shared screen.
+  const [sickLine, setSickLine] = useState<null | { src: string; label: string }>(null);
+
   // ── Edit dialog state ─────────────────────────────────────────────────────
   const [editing, setEditing] = useState<null | {
     id: number;
@@ -281,6 +286,28 @@ export function AbsenceHistorySection({
                             </Badge>
                           )}
                         </div>
+                        {absence.type === "sickness" && (
+                          absence.sick_line_document ? (
+                            <button
+                              type="button"
+                              className="mt-1 flex min-h-7 items-center gap-1 rounded text-xs font-medium text-brand underline-offset-2 hover:underline"
+                              onClick={() =>
+                                setSickLine({
+                                  src: absence.sick_line_document!,
+                                  label: `${new Date(absence.start_date).toLocaleDateString("en-GB")} to ${new Date(absence.end_date).toLocaleDateString("en-GB")}`,
+                                })
+                              }
+                            >
+                              <FileImage className="h-3.5 w-3.5" />
+                              View sick line
+                            </button>
+                          ) : (
+                            <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                              <FileImage className="h-3.5 w-3.5 opacity-60" />
+                              No sick line uploaded
+                            </div>
+                          )
+                        )}
                         {interview && (
                           interview.done_at ? (
                             <div className="mt-1 flex items-center gap-1 text-xs text-green-700 dark:text-green-400">
@@ -389,6 +416,25 @@ export function AbsenceHistorySection({
           </Table>
         </div>
       </CardContent>
+
+      {/* Sick line photo */}
+      <Dialog open={!!sickLine} onOpenChange={(open) => !open && setSickLine(null)}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Sick line</DialogTitle>
+            <DialogDescription>Sickness {sickLine?.label}</DialogDescription>
+          </DialogHeader>
+          {sickLine && (
+            <div className="min-h-0 overflow-auto">
+              <img
+                src={sickLine.src}
+                alt="Sick line"
+                className="mx-auto max-h-[70vh] w-auto rounded border bg-background object-contain"
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Edit dialog — date-only edit. The reason field is left untouched
           because the existing updateAbsence endpoint doesn't accept it,

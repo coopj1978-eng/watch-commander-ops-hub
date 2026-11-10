@@ -64,7 +64,7 @@ export const selfReport = api<SelfReportRequest, Absence>(
             message: `${person.name} has self-reported sick from ${new Date(req.start_date).toLocaleDateString("en-GB")}. ${req.sick_line_document ? "Sick line uploaded." : "No sick line attached yet."}`,
             entity_type: "absence",
             entity_id: absence.id.toString(),
-            link: `/people`,
+            link: `/people/${encodeURIComponent(auth.userID)}?tab=absences`,
           });
         }
 
@@ -85,7 +85,7 @@ export const selfReport = api<SelfReportRequest, Absence>(
             message: `${person.name} has self-reported sick from ${new Date(req.start_date).toLocaleDateString("en-GB")}.`,
             entity_type: "absence",
             entity_id: absence.id.toString(),
-            link: `/people`,
+            link: `/people/${encodeURIComponent(auth.userID)}?tab=absences`,
           });
         }
       }
@@ -188,7 +188,8 @@ export const updateAbsence = api<UpdateAbsenceDatesRequest, Absence>(
               message: `${person.name} has uploaded a sick line for their ${startDateStr} absence.`,
               entity_type: "absence",
               entity_id: updated.id.toString(),
-              link: `/people`,
+              // Straight to the record, where the photo can be opened.
+              link: `/people/${encodeURIComponent(auth.userID)}?tab=absences`,
             });
           }
         }

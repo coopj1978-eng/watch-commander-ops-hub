@@ -7,7 +7,8 @@ import { ArrowLeftRight, CheckCircle2, Clock, Users } from "lucide-react";
 
 interface Props {
   userId: string;
-  canSettle?: boolean; // true when viewing own profile or as WC
+  /** Own profile only — a swap is settled by one of the two people in it. */
+  canSettle?: boolean;
 }
 
 const fmt = (d: string) =>

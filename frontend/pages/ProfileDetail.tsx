@@ -648,7 +648,7 @@ export default function ProfileDetail() {
           {hoursActive === "toil" && <ProfileToilSection profileUserId={userId} profileName={user?.name} />}
           {hoursActive === "h4h" && (
             <section className="rounded-2xl border border-border/70 bg-card p-4 sm:p-5">
-              <H4HLedgerSection userId={userId} canSettle={isViewingOwnProfile || isWC} />
+              <H4HLedgerSection userId={userId} canSettle={isViewingOwnProfile} />
             </section>
           )}
           {hoursActive === "adjustments" && <ProfileShiftAdjustmentsSection profileUserId={userId} />}

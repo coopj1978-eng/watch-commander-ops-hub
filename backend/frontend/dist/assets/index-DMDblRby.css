@@ -662,8 +662,8 @@
     top: calc(var(--spacing) * -1);
   }
 
-  .-top-1\.5 {
-    top: calc(var(--spacing) * -1.5);
+  .-top-2 {
+    top: calc(var(--spacing) * -2);
   }
 
   .-top-32 {
@@ -732,6 +732,10 @@
 
   .-right-1\.5 {
     right: calc(var(--spacing) * -1.5);
+  }
+
+  .-right-2 {
+    right: calc(var(--spacing) * -2);
   }
 
   .-right-24 {
@@ -1436,6 +1440,10 @@
     max-height: 60vh;
   }
 
+  .max-h-\[70vh\] {
+    max-height: 70vh;
+  }
+
   .max-h-\[80vh\] {
     max-height: 80vh;
   }
@@ -1482,6 +1490,10 @@
 
   .min-h-4 {
     min-height: calc(var(--spacing) * 4);
+  }
+
+  .min-h-7 {
+    min-height: calc(var(--spacing) * 7);
   }
 
   .min-h-11 {
@@ -7479,6 +7491,10 @@
       width: auto;
     }
 
+    .sm\:max-w-2xl {
+      max-width: var(--container-2xl);
+    }
+
     .sm\:max-w-\[860px\] {
       max-width: 860px;
     }
@@ -9206,6 +9222,16 @@
       }
     }
 
+    .dark\:hover\:bg-red-900\/30:is(.dark *):hover {
+      background-color: #82181a4d;
+    }
+
+    @supports (color: color-mix(in lab, red, red)) {
+      .dark\:hover\:bg-red-900\/30:is(.dark *):hover {
+        background-color: color-mix(in oklab, var(--color-red-900) 30%, transparent);
+      }
+    }
+
     .dark\:hover\:bg-red-950\/20:is(.dark *):hover {
       background-color: #46080933;
     }
@@ -9411,6 +9437,16 @@
   .\[\&\>tr\]\:last\:border-b-0 > tr:last-child {
     border-bottom-style: var(--tw-border-style);
     border-bottom-width: 0;
+  }
+
+  @media (pointer: coarse) {
+    .\[\@media\(pointer\:coarse\)\]\:h-9 {
+      height: calc(var(--spacing) * 9);
+    }
+
+    .\[\@media\(pointer\:coarse\)\]\:w-9 {
+      width: calc(var(--spacing) * 9);
+    }
   }
 
   @media (hover: hover) {

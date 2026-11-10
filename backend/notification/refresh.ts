@@ -1,6 +1,7 @@
 import { api } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
+import { slotForWatch } from "../lib/shiftRota";
 
 interface RefreshResponse {
   generated: number;
@@ -132,34 +133,24 @@ export const refresh = api<void, RefreshResponse>(
       });
     }
 
-    // ── 3. Crewing gaps — current + next shift (WC only) ───────────────────────
+    // ── 3. Crewing gaps — the watch's current + next shift (WC only) ───────────
     // For each appliance that has at least one entry on a shift, check that the
-    // critical crew roles (OIC + driver) are filled. Checks both the current
-    // active shift AND the next upcoming shift so the WC has time to arrange cover.
+    // critical crew roles (OIC + driver) are filled. Checks the watch's shift now
+    // (or its next one) AND the one after, so the WC has time to arrange cover.
     if (userRow?.role === "WC" && userRow.watch_unit) {
-      const today = new Date().toISOString().split("T")[0];
-      const hour = new Date().getHours();
-
-      // Current shift from time-of-day (same logic as WCAlertBanner / TopBar)
-      const currentShift =
-        hour < 9  ? "1st Day" :
-        hour < 19 ? "2nd Day" :
-        hour < 21 ? "1st Night" : "2nd Night";
-
-      // Next shift in the sequence. 2nd Night → 1st Day rolls to next calendar day.
-      const SHIFT_ORDER = ["1st Day", "2nd Day", "1st Night", "2nd Night"] as const;
-      const currentIdx = SHIFT_ORDER.indexOf(currentShift as typeof SHIFT_ORDER[number]);
-      const nextIdx = (currentIdx + 1) % SHIFT_ORDER.length;
-      const nextShift = SHIFT_ORDER[nextIdx];
-      const nextDate = nextIdx === 0
-        ? new Date(new Date(today).getTime() + 86400000).toISOString().split("T")[0]
-        : today;
-
-      // Check both shifts
-      const shiftsToCheck = [
-        { date: today,    shiftType: currentShift, label: "today's" },
-        { date: nextDate, shiftType: nextShift,    label: "upcoming" },
-      ];
+      // The watch's own shifts from the rota — the one it's on now (or its
+      // next one) and the one after — not a guess from the time of day.
+      const first = slotForWatch(userRow.watch_unit);
+      const second = first ? slotForWatch(userRow.watch_unit, first.end) : null;
+      const dayOf = (iso: string) =>
+        new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+      const shiftsToCheck = [first, second]
+        .filter((x): x is NonNullable<typeof x> => !!x)
+        .map((x) => ({
+          date: x.date,
+          shiftType: x.label as string,
+          label: x.onDuty ? "this shift" : dayOf(x.date),
+        }));
 
       for (const { date, shiftType, label } of shiftsToCheck) {
         // Count filled critical roles (oic, driver) per appliance
@@ -199,10 +190,11 @@ export const refresh = api<void, RefreshResponse>(
             await maybeInsert({
               type: "crewing_gap",
               title: `${prettyRole} gap on ${appliance.toUpperCase()}`,
-              message: `No ${prettyRole} assigned to ${appliance.toUpperCase()} for ${label} ${shiftType}.`,
+              message: `No ${prettyRole} on ${appliance.toUpperCase()} for ${shiftType} (${label}).`,
               entity_type: "shift_crewing",
               entity_id: `${date}|${shiftType}|${appliance}|${role}`,
-              link: `/handover`,
+              // Opens that shift's board.
+              link: `/handover?tab=crewing&date=${date}&shift=${encodeURIComponent(shiftType)}`,
             });
           }
         }

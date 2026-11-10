@@ -19,6 +19,10 @@ import CrewingBoard from "@/components/CrewingBoard";
 import { handoverShiftFor, shiftDisplay } from "@/lib/shiftRota";
 import HandoverItemsEditor, { KindBadge, tagLabel } from "@/components/HandoverItemsEditor";
 import type { handover as handoverApi } from "@/client";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
+  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const WATCHES = ["Red", "White", "Green", "Blue", "Amber"] as const;
 type WatchName = typeof WATCHES[number];
@@ -429,6 +433,8 @@ export default function Handover() {
     },
   });
 
+  // The handover waiting on "Delete it?".
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => backend.handover.deleteHandover(id),
     onSuccess: () => {
@@ -494,6 +500,25 @@ export default function Handover() {
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
+      <AlertDialog open={deletingId !== null} onOpenChange={(open) => !open && setDeletingId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this handover?</AlertDialogTitle>
+            <AlertDialogDescription>
+              It's removed for everyone, including the watch it was written for. This can't be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep it</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 text-white hover:bg-red-700"
+              onClick={() => { if (deletingId !== null) deleteMutation.mutate(deletingId); setDeletingId(null); }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       {/* Visual-refresh page header: h1 + eyebrow + brand-coloured action buttons. */}
       <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-3">
         <div className="flex items-baseline flex-wrap gap-x-4 gap-y-1">
@@ -795,7 +820,8 @@ export default function Handover() {
                               size="icon"
                               variant="ghost"
                               className="h-7 w-7 text-muted-foreground hover:text-red-500"
-                              onClick={(e) => { e.stopPropagation(); deleteMutation.mutate(h.id); }}
+                              aria-label="Delete this handover"
+                              onClick={(e) => { e.stopPropagation(); setDeletingId(h.id); }}
                             >
                               <Trash2 className="h-3.5 w-3.5" />
                             </Button>

@@ -1,6 +1,7 @@
 import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
+import { requireRole } from "../auth/rbac";
 import { logActivity } from "../logging/logger";
 import { loadHandovers, nextShiftFor, saveHandoverItems } from "./items";
 import type { CreateHandoverRequest, Handover } from "./types";
@@ -9,6 +10,8 @@ export const create = api<CreateHandoverRequest, Handover>(
   { auth: true, expose: true, method: "POST", path: "/handovers" },
   async (req) => {
     const auth = getAuthData()!;
+    // Handovers are written by Watch and Crew Commanders; the screen matches.
+    requireRole(auth, "WC", "CC");
 
     if (!req.watch) {
       throw APIError.invalidArgument("watch is required");

@@ -65,6 +65,10 @@ import {
   MapPin, Plus, Truck, Users, X,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
+  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -491,9 +495,10 @@ function ExternalRosterTile({
       <button
         onPointerDown={e => e.stopPropagation()}
         onClick={() => onDismiss(pending.tempId)}
-        className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-muted border border-border flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+        aria-label={`Take ${pending.name} off the list`}
+        className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-muted border border-border flex items-center justify-center hover:bg-red-50 dark:hover:bg-red-900/30"
       >
-        <X className="h-2.5 w-2.5 text-muted-foreground" />
+        <X className="h-3 w-3 text-muted-foreground" />
       </button>
       <div className="flex items-center gap-1.5 mb-1">
         <div className="h-6 w-6 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white text-[9px] font-bold shrink-0">
@@ -635,6 +640,12 @@ function SlotDragOverlay({ entry }: { entry: CrewingEntry }) {
   );
 }
 
+// The ✕ that takes someone off a seat. Always showing — a phone has no hover —
+// and a full finger-sized target on touch screens.
+const REMOVE_BTN =
+  "h-7 w-7 [@media(pointer:coarse)]:h-9 [@media(pointer:coarse)]:w-9 rounded-md flex items-center justify-center shrink-0 " +
+  "text-muted-foreground/70 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors";
+
 // ─────────────────────────────────────────────────────────────────────────────
 // DraggableFilledSlot — a placed crew member that can be re-dragged to a new slot
 // ─────────────────────────────────────────────────────────────────────────────
@@ -717,10 +728,11 @@ function DraggableFilledSlot({
         <button
           onPointerDown={e => e.stopPropagation()} // prevent drag starting on remove button
           onClick={() => onRemove(entry.id)}
-          className="opacity-0 group-hover:opacity-100 transition-opacity h-5 w-5 rounded flex items-center justify-center text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 shrink-0"
+          className={REMOVE_BTN}
           title="Remove"
+          aria-label={`Take ${name} off ${slot.label}`}
         >
-          <X className="h-3 w-3" />
+          <X className="h-3.5 w-3.5" />
         </button>
       )}
     </div>
@@ -1186,9 +1198,11 @@ function DetachedCard({
               {canEdit && (
                 <button
                   onClick={() => onRemove(e.id)}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity h-5 w-5 rounded flex items-center justify-center text-muted-foreground hover:text-red-500"
+                  className={REMOVE_BTN}
+                  title="Remove"
+                  aria-label={`Take ${name} off the detached list`}
                 >
-                  <X className="h-3 w-3" />
+                  <X className="h-3.5 w-3.5" />
                 </button>
               )}
             </div>
@@ -1805,6 +1819,8 @@ export default function CrewingBoard({ onOpenCanteenRota }: { onOpenCanteenRota?
 
   // Detachment modal — opened when a tile is dropped onto the detached zone
   const [pendingDetach,  setPendingDetach]  = useState<{ member?: RosterMember; entry?: CrewingEntry } | null>(null);
+  // "Copy last" replaces the whole board, so it asks first when there's anyone on it.
+  const [copyAsk,        setCopyAsk]        = useState(false);
 
   // Pending external tiles waiting to be dragged onto a slot
   const [pendingExternal, setPendingExternal] = useState<PendingExternal[]>([]);
@@ -2426,7 +2442,7 @@ export default function CrewingBoard({ onOpenCanteenRota }: { onOpenCanteenRota?
           isNow={(() => { const d = getSmartDefaults(watch); return d.shiftDate === shiftDate && d.shiftType === shiftType; })()}
           onNow={() => { const d = getSmartDefaults(watch); setShiftDate(d.shiftDate); setShiftType(d.shiftType); }}
           canEdit={canEdit}
-          onCopy={() => copyMut.mutate()}
+          onCopy={() => (entries.length > 0 ? setCopyAsk(true) : copyMut.mutate())}
           copyPending={copyMut.isPending}
           onAutoCrew={() => setAutoOpen(true)}
           openSeats={plan.picks.length}
@@ -2544,7 +2560,13 @@ export default function CrewingBoard({ onOpenCanteenRota }: { onOpenCanteenRota?
                 allAssignedIds={allAssignedIds}
                 onShowPicker={() => { setShowDetached(true); setActiveSlotId(null); }}
                 onHidePicker={() => setShowDetached(false)}
-                onAssign={(uid, ext) => addMut.mutate({ watch, shift_date: shiftDate, shift_type: shiftType, appliance: "detached", crew_role: "detached", user_id: uid, external_name: ext, is_change_of_shift: !!ext })}
+                onAssign={(uid, ext) => {
+                  // Someone from the watch: ask where they're going, so the
+                  // detachment is recorded (as dragging them here does).
+                  const member = uid ? roster.find(m => m.id === uid) : undefined;
+                  if (member) { setShowDetached(false); setPendingDetach({ member }); return; }
+                  addMut.mutate({ watch, shift_date: shiftDate, shift_type: shiftType, appliance: "detached", crew_role: "detached", user_id: uid, external_name: ext, is_change_of_shift: !!ext });
+                }}
                 onRemove={id => removeMut.mutate(id)}
                 me={me}
               />
@@ -2618,7 +2640,24 @@ export default function CrewingBoard({ onOpenCanteenRota }: { onOpenCanteenRota?
         currentWatch={watch}
       />
 
-      {/* ── Detachment modal — shown when tile is dropped onto detached zone ── */}
+      {/* ── Copy last: confirm before replacing a board with people on it ── */}
+      <AlertDialog open={copyAsk} onOpenChange={setCopyAsk}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Replace this board?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This takes off the {entries.length === 1 ? "1 person" : `${entries.length} people`} on
+              this board and puts in the crew from the last {shiftType} shift.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep this board</AlertDialogCancel>
+            <AlertDialogAction onClick={() => copyMut.mutate()}>Replace it</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* ── Detachment modal — a tile dropped on the detached zone, or a name picked from "Add" ── */}
       <DetachmentModal
         open={!!pendingDetach}
         name={

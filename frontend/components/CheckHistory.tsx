@@ -102,13 +102,13 @@ export default function CheckHistory({ appliances }: CheckHistoryProps) {
           </Select>
         </div>
         <div>
-          <Label className="text-xs text-muted-foreground">Watch</Label>
+          <Label className="text-xs text-muted-foreground">Shift</Label>
           <Select value={filterWatch} onValueChange={setFilterWatch}>
             <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="All watches" />
+              <SelectValue placeholder="All shifts" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Watches</SelectItem>
+              <SelectItem value="all">All shifts</SelectItem>
               <SelectItem value="Day">Day Shift</SelectItem>
               <SelectItem value="Night">Night Shift</SelectItem>
             </SelectContent>
@@ -137,7 +137,7 @@ export default function CheckHistory({ appliances }: CheckHistoryProps) {
               <TableRow>
                 <TableHead>Date & Time</TableHead>
                 <TableHead>Appliance</TableHead>
-                <TableHead>Watch</TableHead>
+                <TableHead>Shift</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Notes</TableHead>
                 <TableHead className="w-[80px]"></TableHead>
@@ -222,7 +222,7 @@ export default function CheckHistory({ appliances }: CheckHistoryProps) {
                   </p>
                 </div>
                 <div>
-                  <span className="text-muted-foreground">Watch</span>
+                  <span className="text-muted-foreground">Shift</span>
                   <p className="mt-1">
                     <Badge variant="secondary">
                       {checkDetail.check.watch} Shift

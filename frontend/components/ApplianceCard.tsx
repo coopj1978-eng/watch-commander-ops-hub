@@ -126,10 +126,10 @@ export default function ApplianceCard({
           )}
         </div>
 
-        {/* Watch info */}
+        {/* Which shift did it (Day / Night) */}
         {latestCheck && (
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Watch</span>
+            <span className="text-muted-foreground">Checked by</span>
             <Badge variant="secondary" className="text-xs">
               {latestCheck.watch} Shift
             </Badge>

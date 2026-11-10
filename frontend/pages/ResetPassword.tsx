@@ -45,7 +45,7 @@ export default function ResetPassword() {
       const msg = err?.message || "Failed to reset password";
       if (msg.toLowerCase().includes("expired")) {
         setError(isInvite
-          ? "This invite has expired. Ask your Watch Commander for a new one, or use 'Forgot password' on the sign-in page."
+          ? "This invite has expired. Ask whoever sent it for a new one, or use 'Forgot password' on the sign-in page."
           : "This reset link has expired. Please go back and request a new one.");
       } else if (msg.toLowerCase().includes("invalid")) {
         setError(isInvite

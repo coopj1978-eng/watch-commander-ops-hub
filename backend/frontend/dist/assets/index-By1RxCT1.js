@@ -46419,6 +46419,7 @@ function AbsenceHistorySection({
     ),
     [absences, isDutyDay]
   );
+  const [sickLine, setSickLine] = reactExports.useState(null);
   const [editing, setEditing] = reactExports.useState(null);
   const updateMutation = useMutation({
     mutationFn: async (vars) => {
@@ -46514,6 +46515,24 @@ function AbsenceHistorySection({
               /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", children: absenceTypeLabels[absence2.type] }),
               isOpenSickness && /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: "bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900", children: "Open" })
             ] }),
+            absence2.type === "sickness" && (absence2.sick_line_document ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                className: "mt-1 flex min-h-7 items-center gap-1 rounded text-xs font-medium text-brand underline-offset-2 hover:underline",
+                onClick: () => setSickLine({
+                  src: absence2.sick_line_document,
+                  label: `${new Date(absence2.start_date).toLocaleDateString("en-GB")} to ${new Date(absence2.end_date).toLocaleDateString("en-GB")}`
+                }),
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(FileImage, { className: "h-3.5 w-3.5" }),
+                  "View sick line"
+                ]
+              }
+            ) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-1 flex items-center gap-1 text-xs text-muted-foreground", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(FileImage, { className: "h-3.5 w-3.5 opacity-60" }),
+              "No sick line uploaded"
+            ] })),
             interview && (interview.done_at ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-1 flex items-center gap-1 text-xs text-green-700 dark:text-green-400", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-3 w-3" }),
               "Back to work interview done ",
@@ -46597,6 +46616,23 @@ function AbsenceHistorySection({
         ] }, absence2.id);
       }) : /* @__PURE__ */ jsxRuntimeExports.jsx(TableRow, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { colSpan: canManage ? 7 : 6, className: "text-center py-8 text-muted-foreground", children: "No absences recorded" }) }) })
     ] }) }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: !!sickLine, onOpenChange: (open) => !open && setSickLine(null), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-2xl", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Sick line" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogDescription, { children: [
+          "Sickness ",
+          sickLine == null ? void 0 : sickLine.label
+        ] })
+      ] }),
+      sickLine && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-0 overflow-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "img",
+        {
+          src: sickLine.src,
+          alt: "Sick line",
+          className: "mx-auto max-h-[70vh] w-auto rounded border bg-background object-contain"
+        }
+      ) })
+    ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: !!editing, onOpenChange: (open) => !open && setEditing(null), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-md", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Edit absence dates" }),
@@ -47662,7 +47698,7 @@ function ProfileDetail() {
   const userId = paramUserId ?? (currentUser == null ? void 0 : currentUser.id);
   const backend = useBackend();
   const canEdit = useCanEditProfiles();
-  const isWC = useIsWC();
+  useIsWC();
   const userRole = useUserRole();
   const isViewingOwnProfile = (currentUser == null ? void 0 : currentUser.id) === userId;
   const isManager = userRole === "WC" || userRole === "CC";
@@ -48176,7 +48212,7 @@ function ProfileDetail() {
         o.key
       )) }),
       hoursActive === "toil" && /* @__PURE__ */ jsxRuntimeExports.jsx(ProfileToilSection, { profileUserId: userId, profileName: user2 == null ? void 0 : user2.name }),
-      hoursActive === "h4h" && /* @__PURE__ */ jsxRuntimeExports.jsx("section", { className: "rounded-2xl border border-border/70 bg-card p-4 sm:p-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(H4HLedgerSection, { userId, canSettle: isViewingOwnProfile || isWC }) }),
+      hoursActive === "h4h" && /* @__PURE__ */ jsxRuntimeExports.jsx("section", { className: "rounded-2xl border border-border/70 bg-card p-4 sm:p-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(H4HLedgerSection, { userId, canSettle: isViewingOwnProfile }) }),
       hoursActive === "adjustments" && /* @__PURE__ */ jsxRuntimeExports.jsx(ProfileShiftAdjustmentsSection, { profileUserId: userId })
     ] }),
     tab === "history" && isManager && profile2 && /* @__PURE__ */ jsxRuntimeExports.jsx(RecordHistory, { profileId: profile2.id }),
@@ -65393,7 +65429,7 @@ function ApplianceCard({
         ] })
       ] }),
       latestCheck && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between text-sm", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "Watch" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "Checked by" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "secondary", className: "text-xs", children: [
           latestCheck.watch,
           " Shift"
@@ -65760,11 +65796,11 @@ function CheckHistory({ appliances }) {
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground", children: "Watch" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground", children: "Shift" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: filterWatch, onValueChange: setFilterWatch, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "w-[140px]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "All watches" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "w-[140px]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "All shifts" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "all", children: "All Watches" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "all", children: "All shifts" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "Day", children: "Day Shift" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "Night", children: "Night Shift" })
           ] })
@@ -65779,7 +65815,7 @@ function CheckHistory({ appliances }) {
       /* @__PURE__ */ jsxRuntimeExports.jsx(TableHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Date & Time" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Appliance" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Watch" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Shift" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Status" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Notes" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "w-[80px]" })
@@ -65833,7 +65869,7 @@ function CheckHistory({ appliances }) {
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium mt-1", children: getApplianceCallSign(checkDetail.check.appliance_id) })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "Watch" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "Shift" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "secondary", children: [
               checkDetail.check.watch,
               " Shift"
@@ -72164,8 +72200,9 @@ function ExternalRosterTile({
           {
             onPointerDown: (e) => e.stopPropagation(),
             onClick: () => onDismiss(pending.tempId),
-            className: "absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-muted border border-border flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity",
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-2.5 w-2.5 text-muted-foreground" })
+            "aria-label": `Take ${pending.name} off the list`,
+            className: "absolute -top-2 -right-2 h-6 w-6 rounded-full bg-muted border border-border flex items-center justify-center hover:bg-red-50 dark:hover:bg-red-900/30",
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3 w-3 text-muted-foreground" })
           }
         ),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5 mb-1", children: [
@@ -72237,6 +72274,7 @@ function SlotDragOverlay({ entry }) {
     ] })
   ] }) });
 }
+const REMOVE_BTN = "h-7 w-7 [@media(pointer:coarse)]:h-9 [@media(pointer:coarse)]:w-9 rounded-md flex items-center justify-center shrink-0 text-muted-foreground/70 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors";
 function DraggableFilledSlot({
   entry,
   slot,
@@ -72291,9 +72329,10 @@ function DraggableFilledSlot({
           {
             onPointerDown: (e) => e.stopPropagation(),
             onClick: () => onRemove(entry.id),
-            className: "opacity-0 group-hover:opacity-100 transition-opacity h-5 w-5 rounded flex items-center justify-center text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 shrink-0",
+            className: REMOVE_BTN,
             title: "Remove",
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3 w-3" })
+            "aria-label": `Take ${name} off ${slot.label}`,
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" })
           }
         )
       ]
@@ -72612,8 +72651,10 @@ function DetachedCard({
             "button",
             {
               onClick: () => onRemove(e.id),
-              className: "opacity-0 group-hover:opacity-100 transition-opacity h-5 w-5 rounded flex items-center justify-center text-muted-foreground hover:text-red-500",
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3 w-3" })
+              className: REMOVE_BTN,
+              title: "Remove",
+              "aria-label": `Take ${name} off the detached list`,
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" })
             }
           )
         ] }, e.id);
@@ -73096,6 +73137,7 @@ function CrewingBoard({ onOpenCanteenRota } = {}) {
   const [pendingAssignIds, setPendingAssignIds] = reactExports.useState(/* @__PURE__ */ new Set());
   const [tapSelectedId, setTapSelectedId] = reactExports.useState(null);
   const [pendingDetach, setPendingDetach] = reactExports.useState(null);
+  const [copyAsk, setCopyAsk] = reactExports.useState(false);
   const [pendingExternal, setPendingExternal] = reactExports.useState([]);
   const [draggingMember, setDraggingMember] = reactExports.useState(null);
   const [draggingEntry, setDraggingEntry] = reactExports.useState(null);
@@ -73615,7 +73657,7 @@ function CrewingBoard({ onOpenCanteenRota } = {}) {
             setShiftType(d.shiftType);
           },
           canEdit,
-          onCopy: () => copyMut.mutate(),
+          onCopy: () => entries.length > 0 ? setCopyAsk(true) : copyMut.mutate(),
           copyPending: copyMut.isPending,
           onAutoCrew: () => setAutoOpen(true),
           openSeats: plan.picks.length
@@ -73726,7 +73768,15 @@ function CrewingBoard({ onOpenCanteenRota } = {}) {
                   setActiveSlotId(null);
                 },
                 onHidePicker: () => setShowDetached(false),
-                onAssign: (uid, ext) => addMut.mutate({ watch, shift_date: shiftDate, shift_type: shiftType, appliance: "detached", crew_role: "detached", user_id: uid, external_name: ext, is_change_of_shift: !!ext }),
+                onAssign: (uid, ext) => {
+                  const member = uid ? roster.find((m) => m.id === uid) : void 0;
+                  if (member) {
+                    setShowDetached(false);
+                    setPendingDetach({ member });
+                    return;
+                  }
+                  addMut.mutate({ watch, shift_date: shiftDate, shift_type: shiftType, appliance: "detached", crew_role: "detached", user_id: uid, external_name: ext, is_change_of_shift: !!ext });
+                },
                 onRemove: (id) => removeMut.mutate(id),
                 me
               }
@@ -73799,6 +73849,22 @@ function CrewingBoard({ onOpenCanteenRota } = {}) {
         currentWatch: watch
       }
     ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialog, { open: copyAsk, onOpenChange: setCopyAsk, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogContent, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogHeader, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogTitle, { children: "Replace this board?" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogDescription, { children: [
+          "This takes off the ",
+          entries.length === 1 ? "1 person" : `${entries.length} people`,
+          " on this board and puts in the crew from the last ",
+          shiftType,
+          " shift."
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogFooter, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogCancel, { children: "Keep this board" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogAction, { onClick: () => copyMut.mutate(), children: "Replace it" })
+      ] })
+    ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       DetachmentModal,
       {
@@ -74282,6 +74348,7 @@ function Handover() {
       toast2({ title: "Error", description: "Failed to save handover. Please try again.", variant: "destructive" });
     }
   });
+  const [deletingId, setDeletingId] = reactExports.useState(null);
   const deleteMutation = useMutation({
     mutationFn: async (id) => backendClient.handover.deleteHandover(id),
     onSuccess: () => {
@@ -74341,6 +74408,26 @@ function Handover() {
     handleNewHandover();
   }, [wantsNewHandover]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6 max-w-6xl mx-auto", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialog, { open: deletingId !== null, onOpenChange: (open) => !open && setDeletingId(null), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogContent, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogHeader, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogTitle, { children: "Delete this handover?" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogDescription, { children: "It's removed for everyone, including the watch it was written for. This can't be undone." })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogFooter, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogCancel, { children: "Keep it" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          AlertDialogAction,
+          {
+            className: "bg-red-600 text-white hover:bg-red-700",
+            onClick: () => {
+              if (deletingId !== null) deleteMutation.mutate(deletingId);
+              setDeletingId(null);
+            },
+            children: "Delete"
+          }
+        )
+      ] })
+    ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-baseline justify-between gap-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline flex-wrap gap-x-4 gap-y-1", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-3xl font-bold text-foreground flex items-center gap-3", children: [
@@ -74614,9 +74701,10 @@ function Handover() {
                         size: "icon",
                         variant: "ghost",
                         className: "h-7 w-7 text-muted-foreground hover:text-red-500",
+                        "aria-label": "Delete this handover",
                         onClick: (e) => {
                           e.stopPropagation();
-                          deleteMutation.mutate(h.id);
+                          setDeletingId(h.id);
                         },
                         children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-3.5 w-3.5" })
                       }
@@ -76443,8 +76531,8 @@ function SignIn() {
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "The link expires in 1 hour." })
           ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-foreground font-medium", children: "Contact your Watch Commander" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "Email notifications are not yet configured. Please ask your Watch Commander to reset your password from the Admin panel." })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-foreground font-medium", children: "Ask for a reset link" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "We couldn't email you a link. Ask whoever looks after The Station Hub at your station to send you a reset link." })
           ] }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "button",
@@ -76644,7 +76732,7 @@ function ResetPassword() {
     } catch (err2) {
       const msg = (err2 == null ? void 0 : err2.message) || "Failed to reset password";
       if (msg.toLowerCase().includes("expired")) {
-        setError(isInvite ? "This invite has expired. Ask your Watch Commander for a new one, or use 'Forgot password' on the sign-in page." : "This reset link has expired. Please go back and request a new one.");
+        setError(isInvite ? "This invite has expired. Ask whoever sent it for a new one, or use 'Forgot password' on the sign-in page." : "This reset link has expired. Please go back and request a new one.");
       } else if (msg.toLowerCase().includes("invalid")) {
         setError(isInvite ? "This invite is invalid or has already been used. If you've set your password, just sign in." : "This reset link is invalid or has already been used.");
       } else {
