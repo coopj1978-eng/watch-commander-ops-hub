@@ -25,7 +25,15 @@ export const updateDefect = api<UpdateDefectRequest, EquipmentDefect>(
         setClauses.push(`resolved_at = NOW()`);
         setClauses.push(`resolved_by = $${paramIndex++}`);
         params.push(auth.userID);
+      } else {
+        // Back on the board (cleared by mistake).
+        setClauses.push(`resolved_at = NULL`);
+        setClauses.push(`resolved_by = NULL`);
       }
+    }
+    if (updates.j7_raised !== undefined) {
+      setClauses.push(`j7_raised = $${paramIndex++}`);
+      params.push(updates.j7_raised);
     }
     if (updates.description !== undefined) {
       setClauses.push(`description = $${paramIndex++}`);

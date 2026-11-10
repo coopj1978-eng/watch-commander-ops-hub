@@ -33249,14 +33249,14 @@ function shiftDisplay(watch, now = /* @__PURE__ */ new Date()) {
 }
 function getNextShiftDate(watch) {
   var _a3;
-  const todayIso = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
-  if (!watch || !hasRotaConfig(watch)) return todayIso;
+  const todayIso2 = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
+  if (!watch || !hasRotaConfig(watch)) return todayIso2;
   const now = /* @__PURE__ */ new Date();
   const from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const to = new Date(from);
   to.setDate(to.getDate() + 14);
   const shifts = getShiftsForDateRange(watch, from, to);
-  return ((_a3 = shifts.find((s) => s.isWorking)) == null ? void 0 : _a3.date) ?? todayIso;
+  return ((_a3 = shifts.find((s) => s.isWorking)) == null ? void 0 : _a3.date) ?? todayIso2;
 }
 function handoverShiftFor(watch, now = /* @__PURE__ */ new Date()) {
   var _a3;
@@ -41826,7 +41826,7 @@ function SelectScrollDownButton({
     }
   );
 }
-const WATCHES$g = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$h = ["Red", "White", "Green", "Blue", "Amber"];
 function ToilWidget() {
   var _a3;
   const { user: user2 } = useAuth();
@@ -42123,7 +42123,7 @@ function ToilWidget() {
               setEarnForUserId("");
             }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select watch…" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$g.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$h.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
                 w,
                 " Watch"
               ] }, w)) })
@@ -45149,7 +45149,7 @@ function CheckList({ checks, soft = false }) {
     ] }, c.key);
   }) });
 }
-const WATCHES$f = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$g = ["Red", "White", "Green", "Blue", "Amber"];
 const pad$2 = (n) => String(n).padStart(2, "0");
 const ymd = (d) => `${d.getFullYear()}-${pad$2(d.getMonth() + 1)}-${pad$2(d.getDate())}`;
 function Toggle({ value, options, onChange, label: label2 }) {
@@ -45183,7 +45183,7 @@ function WatchPerson({ watch, onWatch, person, onPerson, exclude, label: label2 
       onPerson("");
     }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { "aria-label": `${label2}: watch`, className: "w-full", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Watch" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$f.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$g.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: person, onValueChange: onPerson, disabled: !watch, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { "aria-label": label2, className: "w-full", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Person" }) }),
@@ -45340,7 +45340,7 @@ function NewRequestDialog({ open, onClose, initialType = "flexi", defaultDate, o
           /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { "aria-label": "Station", placeholder: "Station", value: coverStation, onChange: (e) => setCoverStation(e.target.value) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: coverOtherWatch, onValueChange: setCoverOtherWatch, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { "aria-label": "Their watch", className: "w-full", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Watch" }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$f.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$g.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
@@ -45421,7 +45421,7 @@ const TYPE_CONFIG = {
     description: "Use your banked TOIL hours for a shift off. Someone covers for you and receives payment (min 4hrs)."
   }
 };
-const WATCHES$e = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$f = ["Red", "White", "Green", "Blue", "Amber"];
 function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
   const { user: user2 } = useAuth();
   const userRole = useUserRole();
@@ -45646,7 +45646,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
   })();
   const userWatch = (editingAdj == null ? void 0 : editingAdj.watch_unit) ?? (user2 == null ? void 0 : user2.watch_unit) ?? "";
   const subjectName = (editingAdj == null ? void 0 : editingAdj.user_name) ?? (user2 == null ? void 0 : user2.name);
-  const otherWatches = WATCHES$e.filter((w) => w !== userWatch);
+  const otherWatches = WATCHES$f.filter((w) => w !== userWatch);
   const subjectWatch = forAnother && forWatch ? forWatch : userWatch;
   reactExports.useEffect(() => {
     if (!open || editingId || editAdjustment) return;
@@ -45947,7 +45947,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
                 setForUserId("");
               }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-10 w-full text-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select their watch…" }) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$e.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$f.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
                   w,
                   " Watch"
                 ] }, w)) })
@@ -46318,9 +46318,9 @@ function countDays(startIso, endIso, isDutyDay) {
   for (let d = start; d <= end; d++) if (isDutyDay(dayToIso(d))) n++;
   return n;
 }
-function rollingSickness(rows, todayIso = ukTodayIso(), isDutyDay) {
-  const today = isoToDay(todayIso);
-  const windowStartDate = /* @__PURE__ */ new Date(todayIso + "T00:00:00.000Z");
+function rollingSickness(rows, todayIso2 = ukTodayIso(), isDutyDay) {
+  const today = isoToDay(todayIso2);
+  const windowStartDate = /* @__PURE__ */ new Date(todayIso2 + "T00:00:00.000Z");
   windowStartDate.setUTCMonth(windowStartDate.getUTCMonth() - 6);
   const windowStart = windowStartDate.getTime() / DAY_MS;
   const intervals = rows.map((r2) => {
@@ -47685,7 +47685,7 @@ function ProfileNotes({ profileId, firstName, notes, canWrite }) {
   ] });
 }
 const RANKS$1 = ["Watch Commander", "Crew Commander", "Leading Firefighter", "Firefighter"];
-const WATCHES$d = ["Green", "Red", "White", "Blue", "Amber"];
+const WATCHES$e = ["Green", "Red", "White", "Blue", "Amber"];
 const shortDate$2 = (d) => d ? new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "";
 const dayMonth = (d) => new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 const selectCls = "h-9 w-full max-w-[220px] rounded-lg border border-border bg-background px-2 text-sm font-normal";
@@ -48117,7 +48117,7 @@ function ProfileDetail() {
           ] })) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Field$2, { label: "Watch", children: editableValue("details", "watch", watchValue ? `${watchValue} Watch` : "—", /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: selectCls, value: watchValue || "_none", onChange: (e) => set({ watch: e.target.value }), children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "_none", children: "No watch" }),
-            WATCHES$d.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: w, children: w }, w))
+            WATCHES$e.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: w, children: w }, w))
           ] })) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Field$2, { label: "Station", children: editableValue("details", "station", profile2.station || "—", /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: selectCls, value: getDisplayValue("station") || "", onChange: (e) => set({ station: e.target.value }), children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", disabled: true, children: "Choose a station or area" }),
@@ -49942,7 +49942,7 @@ function CalendarWidget({
     ] })
   ] }) }) });
 }
-const WATCHES$c = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$d = ["Red", "White", "Green", "Blue", "Amber"];
 const CALENDAR_LAYERS = [
   { key: "personal", label: "My calendar", sub: "Only you, plus your shifts and bookings", dot: "var(--cal-personal-dot)" },
   { key: "watch", label: "Watch calendar", sub: "", dot: "var(--cal-watch-dot)" },
@@ -50028,7 +50028,7 @@ function CalendarFilters({
       isManager && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuSeparator, {}),
         /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuLabel, { className: "text-xs font-semibold uppercase tracking-wide text-muted-foreground", children: "Whose watch calendar" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuRadioGroup, { value: watchShown, onValueChange: onWatchChange, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-5 gap-1 px-1 pb-1", children: WATCHES$c.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuRadioGroup, { value: watchShown, onValueChange: onWatchChange, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-5 gap-1 px-1 pb-1", children: WATCHES$d.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(
           DropdownMenuRadioItem,
           {
             value: w,
@@ -54248,7 +54248,7 @@ function parseRRuleLabel(rrule) {
   const p = RRULE_PRESETS.find((p2) => p2.value === rrule && p2.value !== "__custom__" && p2.value !== "__none__");
   return p ? p.label : "Custom";
 }
-const WATCHES$b = ["Amber", "Green", "Blue", "Red", "White"];
+const WATCHES$c = ["Amber", "Green", "Blue", "Red", "White"];
 const ITEM_CLS = "rounded-[10px] py-2 pl-3 text-sm focus:bg-[var(--cal-surface-2)] focus:text-[var(--cal-ink)]";
 const CSS$2 = `
 .tdd-lbl{font-size:12px;font-weight:600;color:var(--cal-muted);letter-spacing:.06em;text-transform:uppercase}
@@ -54619,7 +54619,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
     /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id, className: "tdd-field cal-focus", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Assign watch…" }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { className: "cal-menu", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "__none__", className: ITEM_CLS, children: "— None —" }),
-      WATCHES$b.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, className: ITEM_CLS, children: [
+      WATCHES$c.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, className: ITEM_CLS, children: [
         w,
         " Watch"
       ] }, w))
@@ -61553,7 +61553,7 @@ function RequestCard({ id, onClose }) {
     ] })
   ] }) });
 }
-const WATCHES$a = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$b = ["Red", "White", "Green", "Blue", "Amber"];
 function RequestRow({ r: r2, onOpen, extra }) {
   const Icon2 = r2.type === "flexi" ? CalendarDays : ArrowLeftRight;
   return /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: onOpen, className: "flex w-full items-center gap-3 px-3 py-3 text-left transition-colors hover:bg-muted/60 sm:px-4", children: [
@@ -61759,7 +61759,7 @@ function BalancesTab() {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watch, onValueChange: setWatch, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { "aria-label": "Watch", className: "w-28", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$a.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$b.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: String(year), onValueChange: (v) => setYear(Number(v)), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { "aria-label": "Year", className: "w-24", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
@@ -61873,7 +61873,7 @@ function quarterLabel$2(q, fy) {
   const periods = ["Apr–Jun", "Jul–Sep", "Oct–Dec", "Jan–Mar"];
   return `Q${q} ${periods[q - 1]} ${fy}/${String(fy + 1).slice(2)}`;
 }
-const WATCHES$9 = ["Blue", "Red", "Green", "Amber", "White"];
+const WATCHES$a = ["Blue", "Red", "Green", "Amber", "White"];
 const EXPORT_TABLES = [
   { value: "users", label: "Users" },
   { value: "firefighter_profiles", label: "Firefighter Profiles" },
@@ -61926,7 +61926,7 @@ function NewReportDialog({
         /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Watch" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watch, onValueChange: setWatch, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$9.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$a.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
             w,
             " Watch"
           ] }, w)) })
@@ -63293,7 +63293,7 @@ function OffboardingWizard({ user: user2, open, onClose, onComplete }) {
     ] })
   ] }) });
 }
-const WATCHES$8 = ["Red", "White", "Blue", "Green", "Amber"];
+const WATCHES$9 = ["Red", "White", "Blue", "Green", "Amber"];
 const RANKS = ["Firefighter", "Leading Firefighter", "Crew Commander", "Watch Commander"];
 function InviteUserDialog({ open, onClose, onSuccess }) {
   const [name, setName] = reactExports.useState("");
@@ -63404,7 +63404,7 @@ function InviteUserDialog({ open, onClose, onSuccess }) {
           /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Watch" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watchUnit, onValueChange: setWatchUnit, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Choose…" }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$8.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$9.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
           ] })
         ] })
       ] }),
@@ -64002,7 +64002,7 @@ function watchInYear(planWatch, year) {
 function watchInPlan(yearWatch, year) {
   return moveAlong(yearWatch, PLAN_YEAR - year);
 }
-const WATCHES$7 = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$8 = ["Red", "White", "Green", "Blue", "Amber"];
 const watchBadgeClass = {
   Red: "bg-red-500/10 text-red-600 border-red-400/30",
   White: "bg-gray-100 text-gray-700 border-gray-300 dark:bg-gray-700/40 dark:text-gray-200 dark:border-gray-500",
@@ -64028,7 +64028,7 @@ function WatchSelect({
         /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs w-[110px]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "__none__", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "None" }) }),
-          WATCHES$7.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: w }) }, w))
+          WATCHES$8.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: w }) }, w))
         ] })
       ]
     }
@@ -65361,13 +65361,263 @@ function Settings() {
     /* @__PURE__ */ jsxRuntimeExports.jsx(AppearanceSettings, {})
   ] });
 }
+const clean = (s) => (s ?? "").trim();
+function boardLine(d) {
+  const title = clean(d.title);
+  const detail = clean(d.description);
+  let item;
+  let remarks;
+  if (d.defect_type === "equipment") {
+    item = clean(d.equipment_name) || title || "Equipment";
+    remarks = [title && title !== item ? title : "", detail].filter(Boolean).join(". ");
+  } else if (d.defect_type === "station") {
+    const where = clean(d.location);
+    item = title || where || "Station";
+    remarks = [where && where !== item ? where : "", detail].filter(Boolean).join(". ");
+  } else {
+    item = title || "Appliance";
+    remarks = detail;
+  }
+  return {
+    id: d.id,
+    item,
+    remarks,
+    status: d.status === "Ordered" ? "Ordered" : d.status === "Resolved" ? "Resolved" : "Open",
+    j7: !!d.j7_raised,
+    watch: clean(d.watch) || null,
+    date: d.reported_at,
+    reportedBy: d.reported_by_name,
+    overdue: d.overdue
+  };
+}
+const outstanding = (d) => d.status !== "Resolved";
+function boardGroups(appliances, defects) {
+  const byDate = (a, b) => a.reported_at.localeCompare(b.reported_at) || a.id - b.id;
+  const groups = appliances.slice().sort((a, b) => a.call_sign.localeCompare(b.call_sign)).map((a) => ({
+    key: String(a.id),
+    heading: a.call_sign,
+    sub: a.name,
+    lines: defects.filter((d) => d.appliance_id === a.id).sort(byDate).map(boardLine)
+  }));
+  const known = new Set(appliances.map((a) => a.id));
+  const orphans = defects.filter((d) => d.appliance_id !== null && !known.has(d.appliance_id));
+  for (const callSign of [...new Set(orphans.map((d) => d.appliance_call_sign || "Other"))].sort()) {
+    groups.push({
+      key: `old-${callSign}`,
+      heading: callSign,
+      sub: "No longer listed",
+      lines: orphans.filter((d) => (d.appliance_call_sign || "Other") === callSign).sort(byDate).map(boardLine)
+    });
+  }
+  const station = defects.filter((d) => d.appliance_id === null).sort(byDate).map(boardLine);
+  if (station.length) groups.push({ key: "station", heading: "Station", sub: "Building and bays", lines: station });
+  return groups;
+}
+function boardSummary(groups) {
+  return groups.filter((g) => g.lines.length > 0).map((g) => `${g.lines.length} on ${g.heading === "Station" ? "the station" : g.heading}`).join(" · ");
+}
+function useBoardDefects() {
+  return useQuery({
+    queryKey: ["defects", "board"],
+    queryFn: async () => (await backendClient.appliance.listDefects({})).defects
+  });
+}
+function J4Board({ onAdd }) {
+  const { toast: toast2 } = useToast();
+  const queryClient2 = useQueryClient();
+  const canManage = useIsCrewCommander();
+  const [view, setView] = reactExports.useState("board");
+  const { data: appliancesData, isLoading: loadingAppliances } = useQuery({
+    queryKey: ["appliances"],
+    queryFn: () => backendClient.appliance.listAppliances({})
+  });
+  const { data: defects = [], isLoading: loadingDefects } = useBoardDefects();
+  const onBoard = defects.filter(outstanding);
+  const cleared = defects.filter((d) => !outstanding(d));
+  const groups = reactExports.useMemo(
+    () => boardGroups((appliancesData == null ? void 0 : appliancesData.appliances) ?? [], view === "board" ? onBoard : cleared),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [appliancesData, defects, view]
+  );
+  const shown = view === "board" ? groups : groups.filter((g) => g.lines.length > 0);
+  const update = useMutation({
+    mutationFn: ({ id, ...patch }) => backendClient.appliance.updateDefect(id, patch),
+    onSuccess: (_d2, vars) => {
+      queryClient2.invalidateQueries({ queryKey: ["defects"] });
+      toast2({
+        title: vars.status === "Resolved" ? "Cleared off the board" : vars.status === "Ordered" ? "Marked as ordered" : vars.status === "Open" ? "Back on the board" : vars.j7_raised ? "J7 ticked" : "J7 tick removed"
+      });
+    },
+    onError: (e) => toast2({ title: "Couldn't update the board", description: e == null ? void 0 : e.message, variant: "destructive" })
+  });
+  if (loadingAppliances || loadingDefects) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3", children: [...Array(3)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-28 w-full rounded-xl" }, i)) });
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-3", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { role: "tablist", "aria-label": "Which lines", className: "inline-flex rounded-lg border bg-muted/40 p-0.5", children: [["board", `On the board${onBoard.length ? ` · ${onBoard.length}` : ""}`], ["cleared", "Cleared"]].map(([key2, label2]) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          type: "button",
+          role: "tab",
+          "aria-selected": view === key2,
+          onClick: () => setView(key2),
+          className: cn(
+            "min-h-9 rounded-md px-3 text-sm font-medium transition-colors",
+            view === key2 ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+          ),
+          children: label2
+        },
+        key2
+      )) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { onClick: onAdd, className: "h-11 gap-2 bg-brand text-brand-foreground hover:bg-brand/90 sm:h-9", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4" }),
+        "Add to the board"
+      ] })
+    ] }),
+    view === "cleared" && shown.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "rounded-xl border border-dashed py-12 text-center text-sm text-muted-foreground", children: "Nothing has been cleared off the board yet." }),
+    shown.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { "aria-label": `${g.heading} board`, className: "overflow-hidden rounded-xl border bg-card", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "flex items-baseline justify-between gap-3 border-b bg-muted/30 px-4 py-2.5", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "min-w-0 truncate text-sm font-semibold", children: [
+          g.heading,
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-2 font-normal text-muted-foreground", children: g.sub })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "shrink-0 text-xs text-muted-foreground", children: g.lines.length === 0 ? "Nothing outstanding" : `${g.lines.length} ${g.lines.length === 1 ? "line" : "lines"}` })
+      ] }),
+      g.lines.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "flex items-center gap-2 px-4 py-4 text-sm text-muted-foreground", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-4 w-4 text-green-600/70" }),
+        "All kit accounted for."
+      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden grid-cols-[6.5rem_minmax(0,1fr)_6rem_4rem_auto] gap-3 border-b px-4 py-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground md:grid", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Date" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Item and remarks" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Watch" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "J7" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "min-w-[11rem] text-right", children: canManage ? "Update" : "Status" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "divide-y", children: g.lines.map((line) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Line,
+          {
+            line,
+            canManage,
+            busy: update.isPending,
+            onUpdate: (patch) => update.mutate({ id: line.id, ...patch })
+          },
+          line.id
+        )) })
+      ] })
+    ] }, g.key)),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "Anyone can add a line. A Watch or Crew Commander ticks the J7, marks it ordered and clears it when the kit is back." })
+  ] });
+}
+function Line({
+  line,
+  canManage,
+  busy,
+  onUpdate
+}) {
+  const date2 = new Date(line.date);
+  const days = differenceInDays(/* @__PURE__ */ new Date(), date2);
+  const isCleared = line.status === "Resolved";
+  const status = /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "span",
+    {
+      className: cn(
+        "inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium",
+        line.status === "Open" && "bg-amber-100 text-amber-900 dark:bg-amber-950/40 dark:text-amber-300",
+        line.status === "Ordered" && "bg-muted text-foreground",
+        isCleared && "bg-muted text-muted-foreground"
+      ),
+      children: [
+        line.status === "Ordered" && /* @__PURE__ */ jsxRuntimeExports.jsx(Package, { className: "h-3 w-3" }),
+        isCleared && /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-3 w-3" }),
+        line.status === "Open" ? "Outstanding" : line.status === "Ordered" ? "Ordered" : "Cleared"
+      ]
+    }
+  );
+  const j7 = canManage && !isCleared ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "button",
+    {
+      type: "button",
+      role: "switch",
+      "aria-checked": line.j7,
+      "aria-label": `J7 for ${line.item}`,
+      disabled: busy,
+      onClick: () => onUpdate({ j7_raised: !line.j7 }),
+      className: cn(
+        "inline-flex h-9 items-center gap-1.5 rounded-md border px-2.5 text-xs font-medium transition-colors md:h-8",
+        line.j7 ? "border-transparent bg-foreground text-background" : "border-dashed text-muted-foreground hover:border-solid hover:text-foreground"
+      ),
+      children: [
+        line.j7 && /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-3.5 w-3.5" }),
+        "J7"
+      ]
+    }
+  ) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn("inline-flex items-center gap-1 text-xs", line.j7 ? "font-medium text-foreground" : "text-muted-foreground"), children: line.j7 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-3.5 w-3.5" }),
+    " J7 in"
+  ] }) : "No J7" });
+  const watch = line.watch ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1.5 text-xs text-foreground", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(WatchDot, { watch: line.watch, size: "sm" }),
+    line.watch
+  ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-muted-foreground", children: "—" });
+  const actions = canManage && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-1.5 md:justify-end", children: [
+    line.status === "Open" && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { size: "sm", variant: "outline", className: "h-9 gap-1 text-xs md:h-8", disabled: busy, onClick: () => onUpdate({ status: "Ordered" }), children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Package, { className: "h-3.5 w-3.5" }),
+      " Ordered"
+    ] }),
+    !isCleared && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { size: "sm", variant: "outline", className: "h-9 gap-1 text-xs md:h-8", disabled: busy, onClick: () => onUpdate({ status: "Resolved" }), children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-3.5 w-3.5" }),
+      " Clear"
+    ] }),
+    isCleared && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { size: "sm", variant: "ghost", className: "h-9 gap-1 text-xs text-muted-foreground md:h-8", disabled: busy, onClick: () => onUpdate({ status: "Open" }), children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(RotateCcw, { className: "h-3.5 w-3.5" }),
+      " Put back"
+    ] })
+  ] });
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "px-4 py-3 md:grid md:grid-cols-[6.5rem_minmax(0,1fr)_6rem_4rem_auto] md:items-center md:gap-3", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden text-sm tabular-nums md:block", children: [
+      format(date2, "d MMM yy"),
+      line.overdue && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "block text-xs font-medium text-red-600 dark:text-red-400", children: [
+        days,
+        " days"
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start justify-between gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: cn("min-w-0 break-words text-sm font-semibold", isCleared && "text-muted-foreground line-through"), children: line.item }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "shrink-0 md:hidden", children: status })
+      ] }),
+      line.remarks && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-0.5 break-words text-sm text-muted-foreground", children: line.remarks }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 md:hidden", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs tabular-nums text-muted-foreground", children: [
+          format(date2, "d MMM yy"),
+          line.overdue && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ml-1 font-medium text-red-600 dark:text-red-400", children: [
+            "· ",
+            days,
+            " days"
+          ] })
+        ] }),
+        watch,
+        j7
+      ] }),
+      actions && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2 md:hidden", children: actions })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hidden md:block", children: watch }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hidden md:block", children: j7 }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden min-w-[11rem] items-center justify-end gap-2 md:flex", children: [
+      status,
+      actions
+    ] })
+  ] });
+}
 function ApplianceCard({
   appliance: appliance2,
   onStartCheck,
   onManageEquipment,
   canManage
 }) {
-  var _a3, _b3, _c2;
+  var _a3, _b3;
   const { data: equipmentData } = useQuery({
     queryKey: ["equipment", appliance2.id],
     queryFn: async () => {
@@ -65387,19 +65637,10 @@ function ApplianceCard({
       return result;
     }
   });
-  const { data: defectsData } = useQuery({
-    queryKey: ["defects", appliance2.id, "open"],
-    queryFn: async () => {
-      const result = await backendClient.appliance.listDefects({
-        appliance_id: appliance2.id,
-        status: "Open"
-      });
-      return result;
-    }
-  });
+  const { data: boardDefects = [] } = useBoardDefects();
   const equipmentCount = ((_a3 = equipmentData == null ? void 0 : equipmentData.items) == null ? void 0 : _a3.length) || 0;
   const latestCheck = (_b3 = checksData == null ? void 0 : checksData.checks) == null ? void 0 : _b3[0];
-  const openDefects = ((_c2 = defectsData == null ? void 0 : defectsData.defects) == null ? void 0 : _c2.length) || 0;
+  const openDefects = boardDefects.filter((d) => d.appliance_id === appliance2.id && outstanding(d)).length;
   const typeIcon = appliance2.type === "Decon" ? Shield : Truck;
   const TypeIcon = typeIcon;
   const typeColor = appliance2.type === "Rescue" ? "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400" : appliance2.type === "Decon" ? "bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400" : "bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400";
@@ -65437,7 +65678,7 @@ function ApplianceCard({
         ] })
       ] }),
       openDefects > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between text-sm", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "Open Defects" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "On the J4 board" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "destructive", className: "text-xs", children: openDefects })
       ] })
     ] }),
@@ -65923,177 +66164,6 @@ function CheckHistory({ appliances }) {
     ] }) })
   ] });
 }
-function DefectsList() {
-  const { toast: toast2 } = useToast();
-  const queryClient2 = useQueryClient();
-  const isCC = useIsCrewCommander();
-  const [filterStatus, setFilterStatus] = reactExports.useState("Open");
-  const { data: defectsData, isLoading } = useQuery({
-    queryKey: ["defects", filterStatus === "all" ? void 0 : filterStatus],
-    queryFn: async () => {
-      const params = {};
-      if (filterStatus !== "all") params.status = filterStatus;
-      const result = await backendClient.appliance.listDefects(params);
-      return result;
-    }
-  });
-  const updateMutation = useMutation({
-    mutationFn: async ({
-      id,
-      status
-    }) => {
-      return await backendClient.appliance.updateDefect(id, { status });
-    },
-    onSuccess: () => {
-      queryClient2.invalidateQueries({ queryKey: ["defects"] });
-      toast2({ title: "Defect updated" });
-    },
-    onError: () => {
-      toast2({ title: "Failed to update defect", variant: "destructive" });
-    }
-  });
-  const defects = (defectsData == null ? void 0 : defectsData.defects) || [];
-  const statusIcon = (status) => {
-    switch (status) {
-      case "Open":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "h-4 w-4 text-amber-600" });
-      case "Ordered":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx(Package, { className: "h-4 w-4 text-blue-600" });
-      case "Resolved":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-4 w-4 text-green-600" });
-      default:
-        return null;
-    }
-  };
-  const statusColor = (status) => {
-    switch (status) {
-      case "Open":
-        return "bg-amber-100 text-amber-800 dark:bg-amber-950/30 dark:text-amber-400";
-      case "Ordered":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-950/30 dark:text-blue-400";
-      case "Resolved":
-        return "bg-green-100 text-green-800 dark:bg-green-950/30 dark:text-green-400";
-      default:
-        return "";
-    }
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground", children: "Status" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: filterStatus, onValueChange: setFilterStatus, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "w-[160px]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "all", children: "All Statuses" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "Open", children: "Open" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "Ordered", children: "Ordered" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "Resolved", children: "Resolved" })
-        ] })
-      ] })
-    ] }) }),
-    isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: [...Array(5)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-12 w-full" }, i)) }) : defects.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg border border-dashed py-16 text-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-10 w-10 mx-auto mb-3 text-green-500/60" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium text-foreground", children: filterStatus === "Open" ? "No open defects" : "No defects found" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground mt-1", children: filterStatus === "Open" ? "All equipment is operational." : "No defects match the current filter." })
-    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "rounded-md border", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TableHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Type" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "What" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Where" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Details" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Reported By" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Reported" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Status" }),
-        isCC && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "w-[120px]", children: "Actions" })
-      ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TableBody, { children: defects.map((defect) => {
-        const daysOpen = defect.status !== "Resolved" ? differenceInDays(/* @__PURE__ */ new Date(), new Date(defect.reported_at)) : null;
-        const type = defect.defect_type ?? "equipment";
-        const typeInfo = (() => {
-          if (type === "appliance") return { label: "Appliance", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Truck, { className: "h-3 w-3" }), cls: "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300" };
-          if (type === "station") return { label: "Station", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Building2, { className: "h-3 w-3" }), cls: "bg-purple-100 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300" };
-          return { label: "Equipment", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Wrench, { className: "h-3 w-3" }), cls: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300" };
-        })();
-        const whatLabel = type === "equipment" ? defect.equipment_name : defect.title || "—";
-        const whereLabel = type === "station" ? defect.location || "—" : defect.appliance_call_sign;
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { className: `text-xs flex items-center gap-1 w-fit ${typeInfo.cls}`, children: [
-            typeInfo.icon,
-            typeInfo.label
-          ] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "font-medium", children: whatLabel }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: whereLabel ? /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", children: whereLabel }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground text-sm", children: "—" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(TableCell, { className: "max-w-[250px] text-sm", children: [
-            type !== "equipment" && defect.title && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium block", children: defect.title }),
-            defect.description
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "text-sm", children: defect.reported_by_name }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", children: format(
-              new Date(defect.reported_at),
-              "dd MMM yyyy"
-            ) }),
-            defect.overdue && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              Badge,
-              {
-                variant: "destructive",
-                className: "text-xs flex items-center gap-1",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldAlert, { className: "h-3 w-3" }),
-                  daysOpen,
-                  "d — Reorder"
-                ]
-              }
-            ),
-            !defect.overdue && daysOpen !== null && daysOpen > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-muted-foreground", children: [
-              "(",
-              daysOpen,
-              "d ago)"
-            ] })
-          ] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: statusColor(defect.status), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center gap-1", children: [
-            statusIcon(defect.status),
-            defect.status
-          ] }) }) }),
-          isCC && /* @__PURE__ */ jsxRuntimeExports.jsxs(TableCell, { children: [
-            defect.status === "Open" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-1", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              Button,
-              {
-                size: "sm",
-                variant: "outline",
-                className: "h-7 text-xs",
-                onClick: () => updateMutation.mutate({
-                  id: defect.id,
-                  status: "Ordered"
-                }),
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Package, { className: "h-3 w-3 mr-1" }),
-                  "Ordered"
-                ]
-              }
-            ) }),
-            defect.status === "Ordered" && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              Button,
-              {
-                size: "sm",
-                variant: "outline",
-                className: "h-7 text-xs",
-                onClick: () => updateMutation.mutate({
-                  id: defect.id,
-                  status: "Resolved"
-                }),
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-3 w-3 mr-1" }),
-                  "Resolved"
-                ]
-              }
-            ),
-            defect.status === "Resolved" && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-muted-foreground", children: "—" })
-          ] })
-        ] }, defect.id);
-      }) })
-    ] }) }) })
-  ] });
-}
 const CATEGORIES$1 = [
   { value: "BA", label: "Breathing Apparatus" },
   { value: "Ladders", label: "Ladders" },
@@ -66530,6 +66600,11 @@ function AddApplianceModal({
     ] })
   ] }) });
 }
+const WATCHES$7 = ["Red", "White", "Green", "Blue", "Amber"];
+const todayIso = () => {
+  const d = /* @__PURE__ */ new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
 function ReportDefectDialog({
   open,
   onOpenChange,
@@ -66539,7 +66614,14 @@ function ReportDefectDialog({
   var _a3, _b3;
   const { toast: toast2 } = useToast();
   const queryClient2 = useQueryClient();
-  const [defectType, setDefectType] = reactExports.useState("equipment");
+  const { user: user2 } = useAuth();
+  const canBackfill = (user2 == null ? void 0 : user2.role) === "WC" || (user2 == null ? void 0 : user2.role) === "CC";
+  const ownWatch = WATCHES$7.find((w) => w.toLowerCase() === ((user2 == null ? void 0 : user2.watch_unit) ?? "").toLowerCase()) ?? "";
+  const [j7, setJ7] = reactExports.useState(false);
+  const [reportedOn, setReportedOn] = reactExports.useState(todayIso());
+  const [watch, setWatch] = reactExports.useState(ownWatch);
+  const [ordered, setOrdered] = reactExports.useState(false);
+  const [defectType, setDefectType] = reactExports.useState("appliance");
   const [applianceId, setApplianceId] = reactExports.useState("");
   const [equipmentId, setEquipmentId] = reactExports.useState("");
   const [location, setLocation] = reactExports.useState("");
@@ -66547,14 +66629,18 @@ function ReportDefectDialog({
   const [description, setDescription] = reactExports.useState("");
   reactExports.useEffect(() => {
     if (open) {
-      setDefectType("equipment");
+      setDefectType("appliance");
+      setJ7(false);
+      setReportedOn(todayIso());
+      setWatch(ownWatch);
+      setOrdered(false);
       setApplianceId(defaultApplianceId ? String(defaultApplianceId) : "");
       setEquipmentId("");
       setLocation("");
       setTitle("");
       setDescription("");
     }
-  }, [open, defaultApplianceId]);
+  }, [open, defaultApplianceId, ownWatch]);
   const appliancesQuery = useQuery({
     queryKey: ["appliances"],
     queryFn: async () => backendClient.appliance.listAppliances({}),
@@ -66568,8 +66654,9 @@ function ReportDefectDialog({
   });
   const equipmentItems = ((_b3 = equipmentQuery.data) == null ? void 0 : _b3.items) ?? [];
   const valid = reactExports.useMemo(() => {
-    if (!title.trim() || !description.trim()) return false;
+    if (!title.trim()) return false;
     if (defectType === "equipment") return !!applianceId && !!equipmentId;
+    if (!description.trim()) return false;
     if (defectType === "appliance") return !!applianceId;
     return true;
   }, [defectType, applianceId, equipmentId, title, description]);
@@ -66580,12 +66667,18 @@ function ReportDefectDialog({
       equipment_item_id: defectType === "equipment" ? Number(equipmentId) : void 0,
       location: defectType === "station" ? location.trim() || void 0 : void 0,
       title: title.trim(),
-      description: description.trim()
+      description: description.trim(),
+      j7_raised: j7,
+      ...canBackfill ? {
+        watch: watch || void 0,
+        reported_on: reportedOn && reportedOn !== todayIso() ? reportedOn : void 0,
+        status: ordered ? "Ordered" : void 0
+      } : {}
     }),
     onSuccess: () => {
       toast2({
-        title: "Defect reported",
-        description: "Added to the open defects list."
+        title: "Added to the J4 board",
+        description: "Everyone on station can see it."
       });
       queryClient2.invalidateQueries({ queryKey: ["defects"] });
       onReported == null ? void 0 : onReported();
@@ -66593,7 +66686,7 @@ function ReportDefectDialog({
     },
     onError: (e) => {
       toast2({
-        title: "Could not report defect",
+        title: "Couldn't add it to the board",
         description: (e == null ? void 0 : e.message) ?? "Please try again.",
         variant: "destructive"
       });
@@ -66601,32 +66694,29 @@ function ReportDefectDialog({
   });
   return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-lg", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { className: "flex items-center gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "h-5 w-5 text-amber-500" }),
-        "Report Defect"
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: "Log a fault outside of the J4 check flow — equipment, appliance, or station infrastructure." })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Add to the J4 board" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: "Missing or defective kit, a fault on an appliance, or something in the station. Everyone can see the board." })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 pt-2", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Defect Type *" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "What is it?" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-3 gap-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             TypePill,
             {
-              active: defectType === "equipment",
-              label: "Equipment",
-              icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Wrench, { className: "h-4 w-4" }),
-              onClick: () => setDefectType("equipment")
+              active: defectType === "appliance",
+              label: "On an appliance",
+              icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Truck, { className: "h-4 w-4" }),
+              onClick: () => setDefectType("appliance")
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             TypePill,
             {
-              active: defectType === "appliance",
-              label: "Appliance",
-              icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Truck, { className: "h-4 w-4" }),
-              onClick: () => setDefectType("appliance")
+              active: defectType === "equipment",
+              label: "Kit from the list",
+              icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Wrench, { className: "h-4 w-4" }),
+              onClick: () => setDefectType("equipment")
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -66692,11 +66782,11 @@ function ReportDefectDialog({
         )
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Short Summary *" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: defectType === "equipment" ? "What's wrong *" : "Item *" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Input,
           {
-            placeholder: defectType === "equipment" ? "e.g. Low-pressure warning" : defectType === "appliance" ? "e.g. Engine warning light" : "e.g. Bay door stuck open",
+            placeholder: defectType === "equipment" ? "e.g. Missing, test expired" : defectType === "appliance" ? "e.g. Tool box, pager, warning light" : "e.g. Bay door",
             value: title,
             onChange: (e) => setTitle(e.target.value),
             maxLength: 120
@@ -66704,31 +66794,55 @@ function ReportDefectDialog({
         )
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Details *" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: defectType === "equipment" ? "Remarks" : "Remarks *" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Textarea,
           {
-            rows: 4,
-            placeholder: "Describe the fault — what's happening, when it started, any error messages or visible damage…",
+            rows: 3,
+            placeholder: "e.g. Missing, test expired, away for repair, replacement ordered",
             value: description,
             onChange: (e) => setDescription(e.target.value)
           }
         )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border px-3 py-2 text-sm", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Checkbox, { checked: j7, onCheckedChange: (v) => setJ7(v === true) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "A J7 has gone in for this" })
+      ] }),
+      canBackfill && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 rounded-lg border border-dashed p-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "Copying a line from the office board? Set when it went up and which watch found it." }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "defect-date", children: "Date" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "defect-date", type: "date", max: todayIso(), value: reportedOn, onChange: (e) => setReportedOn(e.target.value) })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Watch" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watch, onValueChange: setWatch, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Watch" }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$7.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
+            ] })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex min-h-9 cursor-pointer items-center gap-3 text-sm", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Checkbox, { checked: ordered, onCheckedChange: (v) => setOrdered(v === true) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "A replacement or repair is already ordered" })
+        ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end gap-3 pt-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", onClick: () => onOpenChange(false), children: "Cancel" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Button,
           {
-            className: "bg-amber-600 hover:bg-amber-700",
+            className: "bg-brand text-brand-foreground hover:bg-brand/90",
             disabled: !valid || mutation.isPending,
             onClick: () => mutation.mutate(),
             children: mutation.isPending ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "h-4 w-4 mr-2 animate-spin" }),
-              "Reporting…"
+              "Adding…"
             ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "h-4 w-4 mr-2" }),
-              "Report Defect"
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4 mr-2" }),
+              "Add to the board"
             ] })
           }
         )
@@ -66747,10 +66861,10 @@ function TypePill({
     {
       type: "button",
       onClick,
-      className: `flex flex-col items-center justify-center gap-1 py-3 rounded-lg border-2 transition-colors ${active ? "bg-amber-50 border-amber-500 text-amber-700 dark:bg-amber-950/30 dark:text-amber-300" : "bg-muted/30 border-border text-muted-foreground hover:border-muted-foreground/40"}`,
+      className: `flex flex-col items-center justify-center gap-1 py-3 rounded-lg border-2 transition-colors ${active ? "bg-brand/10 border-brand text-brand" : "bg-muted/30 border-border text-muted-foreground hover:border-muted-foreground/40"}`,
       children: [
         icon,
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", children: label2 })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-center text-xs font-semibold leading-tight", children: label2 })
       ]
     }
   );
@@ -66772,16 +66886,11 @@ function EquipmentChecks() {
       return result;
     }
   });
-  const { data: defectsData } = useQuery({
-    queryKey: ["defects", "Open"],
-    queryFn: async () => {
-      const result = await backendClient.appliance.listDefects({ status: "Open" });
-      return result;
-    }
-  });
+  const { data: boardDefects = [] } = useBoardDefects();
   const appliances = (appliancesData == null ? void 0 : appliancesData.appliances) || [];
-  const openDefects = (defectsData == null ? void 0 : defectsData.defects) || [];
-  const overdueDefects = openDefects.filter((d) => d.overdue);
+  const onBoard = boardDefects.filter(outstanding);
+  const overdueDefects = onBoard.filter((d) => d.overdue);
+  const summary = boardSummary(boardGroups(appliances, onBoard));
   const handleStartCheck = (applianceId) => {
     setSelectedApplianceId(applianceId);
     setCheckFormOpen(true);
@@ -66821,25 +66930,32 @@ function EquipmentChecks() {
           overdueDefects.length !== 1 ? "s" : "",
           " (30+ days)"
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Button,
-          {
-            onClick: () => setReportDefectOpen(true),
-            variant: "outline",
-            className: "border-amber-200 text-amber-700 hover:bg-amber-50 dark:border-amber-900 dark:text-amber-400 dark:hover:bg-amber-950/20",
-            "aria-label": "Report Defect",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Wrench, { className: "h-4 w-4 mr-2" }),
-              "Report defect"
-            ]
-          }
-        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { onClick: () => setReportDefectOpen(true), variant: "outline", className: "h-11 sm:h-9", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4 mr-2" }),
+          "Add to the board"
+        ] }),
         isWC && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { onClick: () => setAddApplianceOpen(true), variant: "outline", "aria-label": "Add Appliance", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4 sm:mr-2" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Add Appliance" })
         ] })
       ] })
     ] }),
+    activeTab !== "defects" && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "button",
+      {
+        type: "button",
+        onClick: () => setActiveTab("defects"),
+        className: `flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left transition-colors hover:bg-muted/40 ${onBoard.length > 0 ? "border-amber-300 bg-amber-50/60 dark:border-amber-900 dark:bg-amber-950/20" : "bg-card"}`,
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ClipboardList, { className: `h-5 w-5 shrink-0 ${onBoard.length > 0 ? "text-amber-700 dark:text-amber-400" : "text-muted-foreground"}` }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "min-w-0 flex-1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block text-sm font-semibold", children: onBoard.length === 0 ? "J4 board: nothing missing or defective" : `J4 board: ${onBoard.length} ${onBoard.length === 1 ? "item" : "items"} missing or defective` }),
+            summary && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block truncate text-xs text-muted-foreground", children: summary })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-4 w-4 shrink-0 text-muted-foreground" })
+        ]
+      }
+    ),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Tabs, { value: activeTab, onValueChange: setActiveTab, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(TabsList, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(TabsTrigger, { value: "appliances", className: "gap-2", children: [
@@ -66847,9 +66963,9 @@ function EquipmentChecks() {
           "Appliances"
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(TabsTrigger, { value: "defects", className: "gap-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "h-4 w-4" }),
-          "Defects",
-          openDefects.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "destructive", className: "ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs", children: openDefects.length })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ClipboardList, { className: "h-4 w-4" }),
+          "J4 board",
+          onBoard.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "destructive", className: "ml-1 h-5 min-w-5 px-1 flex items-center justify-center text-xs", children: onBoard.length })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(TabsTrigger, { value: "history", className: "gap-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(History, { className: "h-4 w-4" }),
@@ -66870,7 +66986,7 @@ function EquipmentChecks() {
         },
         appliance2.id
       )) }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "defects", className: "mt-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(DefectsList, {}) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "defects", className: "mt-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(J4Board, { onAdd: () => setReportDefectOpen(true) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "history", className: "mt-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(CheckHistory, { appliances }) })
     ] }),
     selectedApplianceId && /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -74389,13 +74505,13 @@ function Handover() {
     const watch = (user2 == null ? void 0 : user2.watch_unit) || "";
     const shift2 = watch ? handoverShiftFor(watch) : null;
     const now = /* @__PURE__ */ new Date();
-    const todayIso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    const todayIso2 = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
     setForm({
       ...emptyForm,
       items: [],
       watch,
       shift_type: (shift2 == null ? void 0 : shift2.type) ?? (now.getHours() >= 8 && now.getHours() < 18 ? "Day" : "Night"),
-      shift_date: (shift2 == null ? void 0 : shift2.date) ?? todayIso
+      shift_date: (shift2 == null ? void 0 : shift2.date) ?? todayIso2
     });
     setShowForm(true);
   };

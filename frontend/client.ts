@@ -880,6 +880,8 @@ export namespace appliance {
         "reported_by": string
         description: string
         status: DefectStatus
+        "j7_raised": boolean
+        watch: string | null
         "reported_at": string
         "resolved_at": string | null
         "resolved_by": string | null
@@ -943,6 +945,8 @@ export namespace appliance {
             "reported_by": string
             description: string
             status: DefectStatus
+            "j7_raised": boolean
+            watch: string | null
             "reported_at": string
             "resolved_at": string | null
             "resolved_by": string | null
@@ -971,6 +975,10 @@ export namespace appliance {
         location?: string
         title: string
         description: string
+        "j7_raised"?: boolean
+        watch?: string
+        "reported_on"?: string
+        status?: DefectStatus
     }
 
     export interface StartCheckRequest {
@@ -996,6 +1004,7 @@ export namespace appliance {
     export interface UpdateDefectRequest {
         status?: DefectStatus
         description?: string
+        "j7_raised"?: boolean
     }
 
     export interface UpdateEquipmentRequest {

@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/card";
 import backend from "@/lib/backend";
 import { format } from "date-fns";
+import { useBoardDefects } from "@/components/J4Board";
+import { outstanding } from "@/lib/j4Board";
 
 interface ApplianceCardProps {
   appliance: {
@@ -59,20 +61,12 @@ export default function ApplianceCard({
     },
   });
 
-  const { data: defectsData } = useQuery({
-    queryKey: ["defects", appliance.id, "open"],
-    queryFn: async () => {
-      const result = await backend.appliance.listDefects({
-        appliance_id: appliance.id,
-        status: "Open",
-      });
-      return result;
-    },
-  });
+  // On the J4 board for this appliance: everything not yet cleared.
+  const { data: boardDefects = [] } = useBoardDefects();
 
   const equipmentCount = equipmentData?.items?.length || 0;
   const latestCheck = checksData?.checks?.[0];
-  const openDefects = defectsData?.defects?.length || 0;
+  const openDefects = boardDefects.filter((d) => d.appliance_id === appliance.id && outstanding(d)).length;
 
   const typeIcon = appliance.type === "Decon" ? Shield : Truck;
   const TypeIcon = typeIcon;
@@ -139,7 +133,7 @@ export default function ApplianceCard({
         {/* Open defects */}
         {openDefects > 0 && (
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Open Defects</span>
+            <span className="text-muted-foreground">On the J4 board</span>
             <Badge variant="destructive" className="text-xs">
               {openDefects}
             </Badge>

@@ -47,8 +47,8 @@ export const startCheck = api<StartCheckRequest, StartCheckResponse>(
         if (item.status === "Defective" || item.status === "Missing") {
           const description = item.notes || `Item marked as ${item.status} during J4 check`;
           await db.exec`
-            INSERT INTO equipment_defects (check_item_id, equipment_item_id, appliance_id, reported_by, description, status)
-            VALUES (${checkItem.id}, ${item.equipment_item_id}, ${req.appliance_id}, ${auth.userID}, ${description}, 'Open')
+            INSERT INTO equipment_defects (check_item_id, equipment_item_id, appliance_id, reported_by, description, status, watch)
+            VALUES (${checkItem.id}, ${item.equipment_item_id}, ${req.appliance_id}, ${auth.userID}, ${description}, 'Open', ${auth.watchUnit || null})
           `;
           defectsCreated++;
         }

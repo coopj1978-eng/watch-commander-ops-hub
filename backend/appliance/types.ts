@@ -69,6 +69,10 @@ export interface EquipmentDefect {
   reported_by: string;
   description: string;
   status: DefectStatus;
+  /** A J7 has gone in for it (the tick on the office board). */
+  j7_raised: boolean;
+  /** The watch that put it on the board. */
+  watch: string | null;
   reported_at: Date;
   resolved_at: Date | null;
   resolved_by: string | null;
@@ -83,6 +87,11 @@ export interface ReportDefectRequest {
   location?: string;              // used when type is 'station'
   title: string;                  // short summary
   description: string;            // full detail
+  j7_raised?: boolean;            // a J7 has gone in
+  // WC/CC only — for copying up a line that's already on the office board:
+  watch?: string;                 // the watch that found it (default: your own)
+  reported_on?: string;           // YYYY-MM-DD it went on the board (default: today)
+  status?: DefectStatus;          // "Ordered" when a replacement is already on its way
 }
 
 // Request/Response types
@@ -144,6 +153,7 @@ export interface UpdateDefectRequest {
   id: number;
   status?: DefectStatus;
   description?: string;
+  j7_raised?: boolean;
 }
 
 export interface ListAppliancesResponse {

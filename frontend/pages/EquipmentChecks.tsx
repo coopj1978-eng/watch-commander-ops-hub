@@ -3,12 +3,11 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Truck,
-  ClipboardCheck,
   AlertTriangle,
+  ChevronRight,
+  ClipboardList,
   History,
   Plus,
-  Settings2,
-  Wrench,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,7 +24,8 @@ import { useIsWatchCommander, useIsCrewCommander } from "@/lib/rbac";
 import ApplianceCard from "@/components/ApplianceCard";
 import CheckForm from "@/components/CheckForm";
 import CheckHistory from "@/components/CheckHistory";
-import DefectsList from "@/components/DefectsList";
+import J4Board, { useBoardDefects } from "@/components/J4Board";
+import { boardGroups, boardSummary, outstanding } from "@/lib/j4Board";
 import EquipmentManager from "@/components/EquipmentManager";
 import AddApplianceModal from "@/components/AddApplianceModal";
 import ReportDefectDialog from "@/components/ReportDefectDialog";
@@ -48,17 +48,13 @@ export default function EquipmentChecks() {
     },
   });
 
-  const { data: defectsData } = useQuery({
-    queryKey: ["defects", "Open"],
-    queryFn: async () => {
-      const result = await backend.appliance.listDefects({ status: "Open" });
-      return result;
-    },
-  });
+  const { data: boardDefects = [] } = useBoardDefects();
 
   const appliances = appliancesData?.appliances || [];
-  const openDefects = defectsData?.defects || [];
-  const overdueDefects = openDefects.filter((d) => d.overdue);
+  // On the board = not cleared (outstanding or ordered).
+  const onBoard = boardDefects.filter(outstanding);
+  const overdueDefects = onBoard.filter((d) => d.overdue);
+  const summary = boardSummary(boardGroups(appliances, onBoard));
 
   const handleStartCheck = (applianceId: number) => {
     setSelectedApplianceId(applianceId);
@@ -112,14 +108,9 @@ export default function EquipmentChecks() {
               {overdueDefects.length} overdue defect{overdueDefects.length !== 1 ? "s" : ""} (30+ days)
             </Badge>
           )}
-          <Button
-            onClick={() => setReportDefectOpen(true)}
-            variant="outline"
-            className="border-amber-200 text-amber-700 hover:bg-amber-50 dark:border-amber-900 dark:text-amber-400 dark:hover:bg-amber-950/20"
-            aria-label="Report Defect"
-          >
-            <Wrench className="h-4 w-4 mr-2" />
-            Report defect
+          <Button onClick={() => setReportDefectOpen(true)} variant="outline" className="h-11 sm:h-9">
+            <Plus className="h-4 w-4 mr-2" />
+            Add to the board
           </Button>
           {isWC && (
             <Button onClick={() => setAddApplianceOpen(true)} variant="outline" aria-label="Add Appliance">
@@ -130,6 +121,28 @@ export default function EquipmentChecks() {
         </div>
       </div>
 
+      {/* What's on the J4 board, at a glance — one tap opens it. */}
+      {activeTab !== "defects" && (
+        <button
+          type="button"
+          onClick={() => setActiveTab("defects")}
+          className={`flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left transition-colors hover:bg-muted/40 ${
+            onBoard.length > 0 ? "border-amber-300 bg-amber-50/60 dark:border-amber-900 dark:bg-amber-950/20" : "bg-card"
+          }`}
+        >
+          <ClipboardList className={`h-5 w-5 shrink-0 ${onBoard.length > 0 ? "text-amber-700 dark:text-amber-400" : "text-muted-foreground"}`} />
+          <span className="min-w-0 flex-1">
+            <span className="block text-sm font-semibold">
+              {onBoard.length === 0
+                ? "J4 board: nothing missing or defective"
+                : `J4 board: ${onBoard.length} ${onBoard.length === 1 ? "item" : "items"} missing or defective`}
+            </span>
+            {summary && <span className="block truncate text-xs text-muted-foreground">{summary}</span>}
+          </span>
+          <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+        </button>
+      )}
+
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
@@ -138,11 +151,11 @@ export default function EquipmentChecks() {
             Appliances
           </TabsTrigger>
           <TabsTrigger value="defects" className="gap-2">
-            <AlertTriangle className="h-4 w-4" />
-            Defects
-            {openDefects.length > 0 && (
-              <Badge variant="destructive" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
-                {openDefects.length}
+            <ClipboardList className="h-4 w-4" />
+            J4 board
+            {onBoard.length > 0 && (
+              <Badge variant="destructive" className="ml-1 h-5 min-w-5 px-1 flex items-center justify-center text-xs">
+                {onBoard.length}
               </Badge>
             )}
           </TabsTrigger>
@@ -183,7 +196,7 @@ export default function EquipmentChecks() {
 
         {/* Defects Tab */}
         <TabsContent value="defects" className="mt-6">
-          <DefectsList />
+          <J4Board onAdd={() => setReportDefectOpen(true)} />
         </TabsContent>
 
         {/* History Tab */}
@@ -218,7 +231,7 @@ export default function EquipmentChecks() {
         onOpenChange={setAddApplianceOpen}
       />
 
-      {/* Report Defect Modal — standalone (not tied to a J4 check) */}
+      {/* Add to the J4 board (not tied to a J4 check) */}
       <ReportDefectDialog
         open={reportDefectOpen}
         onOpenChange={setReportDefectOpen}
