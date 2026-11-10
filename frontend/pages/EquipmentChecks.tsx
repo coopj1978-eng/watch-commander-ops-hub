@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Truck,
-  AlertTriangle,
   ChevronRight,
   ClipboardList,
   History,
@@ -102,12 +101,6 @@ export default function EquipmentChecks() {
           <ReferenceHolder refNo={4} />
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          {overdueDefects.length > 0 && (
-            <Badge variant="destructive" className="text-sm px-3 py-1">
-              <AlertTriangle className="h-4 w-4 mr-1" />
-              {overdueDefects.length} overdue defect{overdueDefects.length !== 1 ? "s" : ""} (30+ days)
-            </Badge>
-          )}
           <Button onClick={() => setReportDefectOpen(true)} variant="outline" className="h-11 sm:h-9">
             <Plus className="h-4 w-4 mr-2" />
             Add to the board
@@ -137,7 +130,14 @@ export default function EquipmentChecks() {
                 ? "J4 board: nothing missing or defective"
                 : `J4 board: ${onBoard.length} ${onBoard.length === 1 ? "item" : "items"} missing or defective`}
             </span>
-            {summary && <span className="block truncate text-xs text-muted-foreground">{summary}</span>}
+            {summary && (
+              <span className="block text-xs text-muted-foreground">
+                {summary}
+                {overdueDefects.length > 0 && (
+                  <span className="font-medium text-red-700 dark:text-red-400"> · {overdueDefects.length} over 30 days</span>
+                )}
+              </span>
+            )}
           </span>
           <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
         </button>

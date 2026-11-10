@@ -65488,12 +65488,12 @@ function J4Board({ onAdd }) {
         /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-4 w-4 text-green-600/70" }),
         "All kit accounted for."
       ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden grid-cols-[6.5rem_minmax(0,1fr)_6rem_4rem_auto] gap-3 border-b px-4 py-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground md:grid", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden grid-cols-[6.5rem_minmax(0,1fr)_5.5rem_4rem_17rem] gap-3 border-b px-4 py-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground md:grid", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Date" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Item and remarks" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Watch" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "J7" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "min-w-[11rem] text-right", children: canManage ? "Update" : "Status" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-right", children: canManage ? "Update" : "Status" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "divide-y", children: g.lines.map((line) => /* @__PURE__ */ jsxRuntimeExports.jsx(
           Line,
@@ -65575,7 +65575,7 @@ function Line({
       " Put back"
     ] })
   ] });
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "px-4 py-3 md:grid md:grid-cols-[6.5rem_minmax(0,1fr)_6rem_4rem_auto] md:items-center md:gap-3", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "px-4 py-3 md:grid md:grid-cols-[6.5rem_minmax(0,1fr)_5.5rem_4rem_17rem] md:items-center md:gap-3", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden text-sm tabular-nums md:block", children: [
       format(date2, "d MMM yy"),
       line.overdue && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "block text-xs font-medium text-red-600 dark:text-red-400", children: [
@@ -65605,7 +65605,7 @@ function Line({
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hidden md:block", children: watch }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hidden md:block", children: j7 }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden min-w-[11rem] items-center justify-end gap-2 md:flex", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden items-center justify-end gap-2 md:flex", children: [
       status,
       actions
     ] })
@@ -66923,13 +66923,6 @@ function EquipmentChecks() {
         /* @__PURE__ */ jsxRuntimeExports.jsx(ReferenceHolder, { refNo: 4 })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-3", children: [
-        overdueDefects.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "destructive", className: "text-sm px-3 py-1", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "h-4 w-4 mr-1" }),
-          overdueDefects.length,
-          " overdue defect",
-          overdueDefects.length !== 1 ? "s" : "",
-          " (30+ days)"
-        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { onClick: () => setReportDefectOpen(true), variant: "outline", className: "h-11 sm:h-9", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4 mr-2" }),
           "Add to the board"
@@ -66950,7 +66943,14 @@ function EquipmentChecks() {
           /* @__PURE__ */ jsxRuntimeExports.jsx(ClipboardList, { className: `h-5 w-5 shrink-0 ${onBoard.length > 0 ? "text-amber-700 dark:text-amber-400" : "text-muted-foreground"}` }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "min-w-0 flex-1", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block text-sm font-semibold", children: onBoard.length === 0 ? "J4 board: nothing missing or defective" : `J4 board: ${onBoard.length} ${onBoard.length === 1 ? "item" : "items"} missing or defective` }),
-            summary && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block truncate text-xs text-muted-foreground", children: summary })
+            summary && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "block text-xs text-muted-foreground", children: [
+              summary,
+              overdueDefects.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-medium text-red-700 dark:text-red-400", children: [
+                " · ",
+                overdueDefects.length,
+                " over 30 days"
+              ] })
+            ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-4 w-4 shrink-0 text-muted-foreground" })
         ]

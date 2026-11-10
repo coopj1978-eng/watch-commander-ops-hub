@@ -126,12 +126,12 @@ export default function J4Board({ onAdd }: { onAdd: () => void }) {
           ) : (
             <>
               {/* Column heads, as on the wall (wide screens only). */}
-              <div className="hidden grid-cols-[6.5rem_minmax(0,1fr)_6rem_4rem_auto] gap-3 border-b px-4 py-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground md:grid">
+              <div className="hidden grid-cols-[6.5rem_minmax(0,1fr)_5.5rem_4rem_17rem] gap-3 border-b px-4 py-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground md:grid">
                 <span>Date</span>
                 <span>Item and remarks</span>
                 <span>Watch</span>
                 <span>J7</span>
-                <span className="min-w-[11rem] text-right">{canManage ? "Update" : "Status"}</span>
+                <span className="text-right">{canManage ? "Update" : "Status"}</span>
               </div>
               <ul className="divide-y">
                 {g.lines.map((line) => (
@@ -235,7 +235,7 @@ function Line({
   );
 
   return (
-    <li className="px-4 py-3 md:grid md:grid-cols-[6.5rem_minmax(0,1fr)_6rem_4rem_auto] md:items-center md:gap-3">
+    <li className="px-4 py-3 md:grid md:grid-cols-[6.5rem_minmax(0,1fr)_5.5rem_4rem_17rem] md:items-center md:gap-3">
       {/* Date */}
       <div className="hidden text-sm tabular-nums md:block">
         {format(date, "d MMM yy")}
@@ -263,7 +263,7 @@ function Line({
 
       <div className="hidden md:block">{watch}</div>
       <div className="hidden md:block">{j7}</div>
-      <div className="hidden min-w-[11rem] items-center justify-end gap-2 md:flex">
+      <div className="hidden items-center justify-end gap-2 md:flex">
         {status}
         {actions}
       </div>
