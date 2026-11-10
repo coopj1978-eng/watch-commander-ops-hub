@@ -46522,7 +46522,8 @@ function AbsenceHistorySection({
                 className: "mt-1 flex min-h-7 items-center gap-1 rounded text-xs font-medium text-brand underline-offset-2 hover:underline",
                 onClick: () => setSickLine({
                   src: absence2.sick_line_document,
-                  label: `${new Date(absence2.start_date).toLocaleDateString("en-GB")} to ${new Date(absence2.end_date).toLocaleDateString("en-GB")}`
+                  // Still off: the end date is only a guess, so don't quote it.
+                  label: isOpenSickness ? `from ${new Date(absence2.start_date).toLocaleDateString("en-GB")}` : `${new Date(absence2.start_date).toLocaleDateString("en-GB")} to ${new Date(absence2.end_date).toLocaleDateString("en-GB")}`
                 }),
                 children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(FileImage, { className: "h-3.5 w-3.5" }),
@@ -76406,8 +76407,8 @@ function SignIn() {
     /* @__PURE__ */ jsxRuntimeExports.jsx(BrandPanel, {}),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-start justify-center px-6 py-10 sm:items-center sm:px-10", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full max-w-sm", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-8 space-y-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-2xl font-semibold tracking-tight", children: view === "signin" ? "Sign in" : view === "forgot" ? "Reset your password" : "Check your email" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: view === "signin" ? "Use the email your Watch Commander set up for you." : view === "forgot" ? "Enter your email and we'll send you a reset link." : `We've sent a reset link to ${forgotEmail}` })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-2xl font-semibold tracking-tight", children: view === "signin" ? "Sign in" : view === "forgot" ? "Reset your password" : emailActuallySent ? "Check your email" : "No link was sent" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: view === "signin" ? "Use the email your Watch Commander set up for you." : view === "forgot" ? "Enter your email and we'll send you a reset link." : emailActuallySent ? `We've sent a reset link to ${forgotEmail}` : "We couldn't email a reset link." })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         view === "signin" && /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSignIn, className: "space-y-4", children: [
@@ -76532,7 +76533,7 @@ function SignIn() {
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "The link expires in 1 hour." })
           ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-foreground font-medium", children: "Ask for a reset link" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "We couldn't email you a link. Ask whoever looks after The Station Hub at your station to send you a reset link." })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "Ask whoever looks after The Station Hub at your station to send you one. It lasts 24 hours." })
           ] }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "button",

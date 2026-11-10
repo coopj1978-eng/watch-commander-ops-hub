@@ -294,7 +294,10 @@ export function AbsenceHistorySection({
                               onClick={() =>
                                 setSickLine({
                                   src: absence.sick_line_document!,
-                                  label: `${new Date(absence.start_date).toLocaleDateString("en-GB")} to ${new Date(absence.end_date).toLocaleDateString("en-GB")}`,
+                                  // Still off: the end date is only a guess, so don't quote it.
+                                  label: isOpenSickness
+                                    ? `from ${new Date(absence.start_date).toLocaleDateString("en-GB")}`
+                                    : `${new Date(absence.start_date).toLocaleDateString("en-GB")} to ${new Date(absence.end_date).toLocaleDateString("en-GB")}`,
                                 })
                               }
                             >

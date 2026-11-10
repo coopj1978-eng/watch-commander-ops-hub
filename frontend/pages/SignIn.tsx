@@ -134,12 +134,12 @@ export default function SignIn() {
         <div className="w-full max-w-sm">
           <div className="mb-8 space-y-1.5">
             <h1 className="text-2xl font-semibold tracking-tight">
-              {view === "signin" ? "Sign in" : view === "forgot" ? "Reset your password" : "Check your email"}
+              {view === "signin" ? "Sign in" : view === "forgot" ? "Reset your password" : emailActuallySent ? "Check your email" : "No link was sent"}
             </h1>
             <p className="text-sm text-muted-foreground">
               {view === "signin" ? "Use the email your Watch Commander set up for you."
                 : view === "forgot" ? "Enter your email and we'll send you a reset link."
-                : `We've sent a reset link to ${forgotEmail}`}
+                : emailActuallySent ? `We've sent a reset link to ${forgotEmail}` : "We couldn't email a reset link."}
             </p>
           </div>
 
@@ -262,7 +262,7 @@ export default function SignIn() {
                   <>
                     <p className="text-sm text-foreground font-medium">Ask for a reset link</p>
                     <p className="text-sm text-muted-foreground">
-                      We couldn't email you a link. Ask whoever looks after The Station Hub at your station to send you a reset link.
+                      Ask whoever looks after The Station Hub at your station to send you one. It lasts 24 hours.
                     </p>
                   </>
                 )}
