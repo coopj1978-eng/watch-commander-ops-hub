@@ -101,7 +101,7 @@ export default function EquipmentChecks() {
           <ReferenceHolder refNo={4} />
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <Button onClick={() => setReportDefectOpen(true)} variant="outline" className="h-11 sm:h-9">
+          <Button onClick={() => setReportDefectOpen(true)} className="h-11 bg-brand text-brand-foreground hover:bg-brand/90 sm:h-9">
             <Plus className="h-4 w-4 mr-2" />
             Add to the board
           </Button>
@@ -161,7 +161,7 @@ export default function EquipmentChecks() {
           </TabsTrigger>
           <TabsTrigger value="history" className="gap-2">
             <History className="h-4 w-4" />
-            Check History
+            History
           </TabsTrigger>
         </TabsList>
 
@@ -196,7 +196,7 @@ export default function EquipmentChecks() {
 
         {/* Defects Tab */}
         <TabsContent value="defects" className="mt-6">
-          <J4Board onAdd={() => setReportDefectOpen(true)} />
+          <J4Board />
         </TabsContent>
 
         {/* History Tab */}

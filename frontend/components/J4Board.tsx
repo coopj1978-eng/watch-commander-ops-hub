@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { differenceInDays, format } from "date-fns";
-import { Check, CheckCircle2, Package, Plus, RotateCcw } from "lucide-react";
+import { Check, CheckCircle2, Package, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
@@ -28,7 +28,7 @@ export function useBoardDefects() {
   });
 }
 
-export default function J4Board({ onAdd }: { onAdd: () => void }) {
+export default function J4Board() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const canManage = useIsCrewCommander(); // WC or CC
@@ -94,10 +94,6 @@ export default function J4Board({ onAdd }: { onAdd: () => void }) {
             </button>
           ))}
         </div>
-        <Button onClick={onAdd} className="h-11 gap-2 bg-brand text-brand-foreground hover:bg-brand/90 sm:h-9">
-          <Plus className="h-4 w-4" />
-          Add to the board
-        </Button>
       </div>
 
       {view === "cleared" && shown.length === 0 && (
@@ -150,7 +146,7 @@ export default function J4Board({ onAdd }: { onAdd: () => void }) {
       ))}
 
       <p className="text-xs text-muted-foreground">
-        Anyone can add a line. A Watch or Crew Commander ticks the J7, marks it ordered and clears it when the kit is back.
+        Anyone can add a line with "Add to the board". A Watch or Crew Commander ticks the J7, marks it ordered and clears it when the kit is back.
       </p>
     </div>
   );

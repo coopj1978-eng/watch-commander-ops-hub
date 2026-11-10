@@ -65422,7 +65422,7 @@ function useBoardDefects() {
     queryFn: async () => (await backendClient.appliance.listDefects({})).defects
   });
 }
-function J4Board({ onAdd }) {
+function J4Board() {
   const { toast: toast2 } = useToast();
   const queryClient2 = useQueryClient();
   const canManage = useIsCrewCommander();
@@ -65454,27 +65454,21 @@ function J4Board({ onAdd }) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3", children: [...Array(3)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-28 w-full rounded-xl" }, i)) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { role: "tablist", "aria-label": "Which lines", className: "inline-flex rounded-lg border bg-muted/40 p-0.5", children: [["board", `On the board${onBoard.length ? ` · ${onBoard.length}` : ""}`], ["cleared", "Cleared"]].map(([key2, label2]) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          type: "button",
-          role: "tab",
-          "aria-selected": view === key2,
-          onClick: () => setView(key2),
-          className: cn(
-            "min-h-9 rounded-md px-3 text-sm font-medium transition-colors",
-            view === key2 ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-          ),
-          children: label2
-        },
-        key2
-      )) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { onClick: onAdd, className: "h-11 gap-2 bg-brand text-brand-foreground hover:bg-brand/90 sm:h-9", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4" }),
-        "Add to the board"
-      ] })
-    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap items-center justify-between gap-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { role: "tablist", "aria-label": "Which lines", className: "inline-flex rounded-lg border bg-muted/40 p-0.5", children: [["board", `On the board${onBoard.length ? ` · ${onBoard.length}` : ""}`], ["cleared", "Cleared"]].map(([key2, label2]) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "button",
+      {
+        type: "button",
+        role: "tab",
+        "aria-selected": view === key2,
+        onClick: () => setView(key2),
+        className: cn(
+          "min-h-9 rounded-md px-3 text-sm font-medium transition-colors",
+          view === key2 ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+        ),
+        children: label2
+      },
+      key2
+    )) }) }),
     view === "cleared" && shown.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "rounded-xl border border-dashed py-12 text-center text-sm text-muted-foreground", children: "Nothing has been cleared off the board yet." }),
     shown.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { "aria-label": `${g.heading} board`, className: "overflow-hidden rounded-xl border bg-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "flex items-baseline justify-between gap-3 border-b bg-muted/30 px-4 py-2.5", children: [
@@ -65507,7 +65501,7 @@ function J4Board({ onAdd }) {
         )) })
       ] })
     ] }, g.key)),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "Anyone can add a line. A Watch or Crew Commander ticks the J7, marks it ordered and clears it when the kit is back." })
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: 'Anyone can add a line with "Add to the board". A Watch or Crew Commander ticks the J7, marks it ordered and clears it when the kit is back.' })
   ] });
 }
 function Line({
@@ -66923,7 +66917,7 @@ function EquipmentChecks() {
         /* @__PURE__ */ jsxRuntimeExports.jsx(ReferenceHolder, { refNo: 4 })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { onClick: () => setReportDefectOpen(true), variant: "outline", className: "h-11 sm:h-9", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { onClick: () => setReportDefectOpen(true), className: "h-11 bg-brand text-brand-foreground hover:bg-brand/90 sm:h-9", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4 mr-2" }),
           "Add to the board"
         ] }),
@@ -66969,7 +66963,7 @@ function EquipmentChecks() {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(TabsTrigger, { value: "history", className: "gap-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(History, { className: "h-4 w-4" }),
-          "Check History"
+          "History"
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "appliances", className: "mt-6", children: appliances.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { className: "border-dashed", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "py-16 text-center", children: [
@@ -66986,7 +66980,7 @@ function EquipmentChecks() {
         },
         appliance2.id
       )) }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "defects", className: "mt-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(J4Board, { onAdd: () => setReportDefectOpen(true) }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "defects", className: "mt-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(J4Board, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "history", className: "mt-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(CheckHistory, { appliances }) })
     ] }),
     selectedApplianceId && /* @__PURE__ */ jsxRuntimeExports.jsx(
