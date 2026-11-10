@@ -9,6 +9,9 @@ import { canReadContacts, cleanContact, type ContactInput } from "../lib/contact
 // whiteboard — Control, staffing, the other stations — in one page. Everyone
 // on station reads it (firefighters once its switch is on); a Watch or Crew
 // Commander keeps it up to date. The numbers live in the database only.
+//
+// The paths start /api because the page itself is at /contacts: a GET on the
+// same address would answer a refresh or a shared link with JSON, not the app.
 
 export interface StationContact {
   id: number;
@@ -37,9 +40,9 @@ async function assertCanRead(): Promise<void> {
   }
 }
 
-// GET /contacts — the whole list, in page order.
+// GET /api/contacts — the whole list, in page order.
 export const list = api<void, ListContactsResponse>(
-  { auth: true, expose: true, method: "GET", path: "/contacts" },
+  { auth: true, expose: true, method: "GET", path: "/api/contacts" },
   async () => {
     await assertCanRead();
     const contacts = await db.rawQueryAll<StationContact>(
@@ -55,9 +58,9 @@ function cleaned(input: ContactInput) {
   return r.contact;
 }
 
-// POST /contacts — add a line (WC/CC). It goes at the end of its section.
+// POST /api/contacts — add a line (WC/CC). It goes at the end of its section.
 export const create = api<ContactInput, StationContact>(
-  { auth: true, expose: true, method: "POST", path: "/contacts" },
+  { auth: true, expose: true, method: "POST", path: "/api/contacts" },
   async (req) => {
     const auth = getAuthData()!;
     requireRole(auth, "WC", "CC");
@@ -104,10 +107,10 @@ interface AddManyResponse {
   added: number;
 }
 
-// POST /contacts/bulk — add a whole list in one go (WC/CC), e.g. every
+// POST /api/contacts/bulk — add a whole list in one go (WC/CC), e.g. every
 // station's direct line. All or nothing: one bad line and none are saved.
 export const addMany = api<AddManyRequest, AddManyResponse>(
-  { auth: true, expose: true, method: "POST", path: "/contacts/bulk" },
+  { auth: true, expose: true, method: "POST", path: "/api/contacts/bulk" },
   async (req) => {
     const auth = getAuthData()!;
     requireRole(auth, "WC", "CC");
@@ -128,9 +131,9 @@ interface UpdateContactRequest extends ContactInput {
   id: number;
 }
 
-// PATCH /contacts/:id — change a line (WC/CC).
+// PATCH /api/contacts/:id — change a line (WC/CC).
 export const update = api<UpdateContactRequest, StationContact>(
-  { auth: true, expose: true, method: "PATCH", path: "/contacts/:id" },
+  { auth: true, expose: true, method: "PATCH", path: "/api/contacts/:id" },
   async (req) => {
     const auth = getAuthData()!;
     requireRole(auth, "WC", "CC");
@@ -148,9 +151,9 @@ export const update = api<UpdateContactRequest, StationContact>(
   },
 );
 
-// DELETE /contacts/:id — take a line off (WC/CC).
+// DELETE /api/contacts/:id — take a line off (WC/CC).
 export const remove = api<{ id: number }, void>(
-  { auth: true, expose: true, method: "DELETE", path: "/contacts/:id" },
+  { auth: true, expose: true, method: "DELETE", path: "/api/contacts/:id" },
   async (req) => {
     const auth = getAuthData()!;
     requireRole(auth, "WC", "CC");

@@ -25609,22 +25609,22 @@ var contacts;
       this.update = this.update.bind(this);
     }
     async addMany(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/contacts/bulk`, JSON.stringify(params));
+      const resp = await this.baseClient.callTypedAPI("POST", `/api/contacts/bulk`, JSON.stringify(params));
       return await resp.json();
     }
     async create(params) {
-      const resp = await this.baseClient.callTypedAPI("POST", `/contacts`, JSON.stringify(params));
+      const resp = await this.baseClient.callTypedAPI("POST", `/api/contacts`, JSON.stringify(params));
       return await resp.json();
     }
     async list() {
-      const resp = await this.baseClient.callTypedAPI("GET", `/contacts`);
+      const resp = await this.baseClient.callTypedAPI("GET", `/api/contacts`);
       return await resp.json();
     }
     async remove(id) {
-      await this.baseClient.callTypedAPI("DELETE", `/contacts/${encodeURIComponent(id)}`);
+      await this.baseClient.callTypedAPI("DELETE", `/api/contacts/${encodeURIComponent(id)}`);
     }
     async update(id, params) {
-      const resp = await this.baseClient.callTypedAPI("PATCH", `/contacts/${encodeURIComponent(id)}`, JSON.stringify(params));
+      const resp = await this.baseClient.callTypedAPI("PATCH", `/api/contacts/${encodeURIComponent(id)}`, JSON.stringify(params));
       return await resp.json();
     }
   }

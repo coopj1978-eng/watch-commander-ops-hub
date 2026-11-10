@@ -2111,26 +2111,26 @@ export namespace contacts {
         }
 
         public async addMany(params: AddManyRequest): Promise<AddManyResponse> {
-            const resp = await this.baseClient.callTypedAPI("POST", `/contacts/bulk`, JSON.stringify(params))
+            const resp = await this.baseClient.callTypedAPI("POST", `/api/contacts/bulk`, JSON.stringify(params))
             return await resp.json() as AddManyResponse
         }
 
         public async create(params: ContactInput): Promise<StationContact> {
-            const resp = await this.baseClient.callTypedAPI("POST", `/contacts`, JSON.stringify(params))
+            const resp = await this.baseClient.callTypedAPI("POST", `/api/contacts`, JSON.stringify(params))
             return await resp.json() as StationContact
         }
 
         public async list(): Promise<ListContactsResponse> {
-            const resp = await this.baseClient.callTypedAPI("GET", `/contacts`)
+            const resp = await this.baseClient.callTypedAPI("GET", `/api/contacts`)
             return await resp.json() as ListContactsResponse
         }
 
         public async remove(id: number): Promise<void> {
-            await this.baseClient.callTypedAPI("DELETE", `/contacts/${encodeURIComponent(id)}`)
+            await this.baseClient.callTypedAPI("DELETE", `/api/contacts/${encodeURIComponent(id)}`)
         }
 
         public async update(id: number, params: ContactInput): Promise<StationContact> {
-            const resp = await this.baseClient.callTypedAPI("PATCH", `/contacts/${encodeURIComponent(id)}`, JSON.stringify(params))
+            const resp = await this.baseClient.callTypedAPI("PATCH", `/api/contacts/${encodeURIComponent(id)}`, JSON.stringify(params))
             return await resp.json() as StationContact
         }
     }
