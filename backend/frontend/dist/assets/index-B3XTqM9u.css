@@ -4553,6 +4553,10 @@
     padding-right: calc(var(--spacing) * 1);
   }
 
+  .pr-1\.5 {
+    padding-right: calc(var(--spacing) * 1.5);
+  }
+
   .pr-2 {
     padding-right: calc(var(--spacing) * 2);
   }
@@ -7440,6 +7444,10 @@
       height: calc(var(--spacing) * 7);
     }
 
+    .sm\:h-8 {
+      height: calc(var(--spacing) * 8);
+    }
+
     .sm\:h-9 {
       height: calc(var(--spacing) * 9);
     }
@@ -7474,6 +7482,10 @@
 
     .sm\:w-7 {
       width: calc(var(--spacing) * 7);
+    }
+
+    .sm\:w-8 {
+      width: calc(var(--spacing) * 8);
     }
 
     .sm\:w-9 {

@@ -162,3 +162,58 @@ export const remove = api<{ id: number }, void>(
     await logActivity({ user_id: auth.userID, action: "delete_contact", entity_type: "station_contact", entity_id: String(req.id), details: { name: row.name } });
   },
 );
+
+// ── Sections ─────────────────────────────────────────────────────────────────
+// A section is just the heading its lines share, so there's no section to add
+// on its own: the first line under a new heading makes it.
+
+interface RenameSectionRequest {
+  from: string;
+  to: string;
+}
+
+interface SectionChangeResponse {
+  /** Lines the change touched. */
+  lines: number;
+}
+
+// POST /api/contacts/sections/rename — give a section a new heading (WC/CC).
+// Renaming to a heading that's already there joins the two.
+export const renameSection = api<RenameSectionRequest, SectionChangeResponse>(
+  { auth: true, expose: true, method: "POST", path: "/api/contacts/sections/rename" },
+  async (req) => {
+    const auth = getAuthData()!;
+    requireRole(auth, "WC", "CC");
+    const from = (req.from ?? "").trim();
+    const to = (req.to ?? "").replace(/\s+/g, " ").trim().slice(0, 60);
+    if (!from) throw APIError.invalidArgument("Which section?");
+    if (!to) throw APIError.invalidArgument("Give the section a heading.");
+    const rows = await db.rawQueryAll<{ id: number }>(
+      `UPDATE station_contacts SET section = $1, updated_by = $2, updated_at = NOW()
+        WHERE LOWER(section) = LOWER($3) RETURNING id`,
+      to, auth.userID, from,
+    );
+    if (rows.length === 0) throw APIError.notFound("That section isn't there any more.");
+    await logActivity({ user_id: auth.userID, action: "rename_contact_section", entity_type: "station_contact", entity_id: "section", details: { from, to, lines: rows.length } });
+    return { lines: rows.length };
+  },
+);
+
+// POST /api/contacts/sections/remove — take a whole section off, with every
+// line in it (WC/CC).
+export const removeSection = api<{ section: string }, SectionChangeResponse>(
+  { auth: true, expose: true, method: "POST", path: "/api/contacts/sections/remove" },
+  async (req) => {
+    const auth = getAuthData()!;
+    requireRole(auth, "WC", "CC");
+    const section = (req.section ?? "").trim();
+    if (!section) throw APIError.invalidArgument("Which section?");
+    const rows = await db.rawQueryAll<{ id: number }>(
+      `DELETE FROM station_contacts WHERE LOWER(section) = LOWER($1) RETURNING id`,
+      section,
+    );
+    if (rows.length === 0) throw APIError.notFound("That section isn't there any more.");
+    await logActivity({ user_id: auth.userID, action: "delete_contact_section", entity_type: "station_contact", entity_id: "section", details: { section, lines: rows.length } });
+    return { lines: rows.length };
+  },
+);

@@ -2107,7 +2107,19 @@ export namespace contacts {
             this.create = this.create.bind(this)
             this.list = this.list.bind(this)
             this.remove = this.remove.bind(this)
+            this.removeSection = this.removeSection.bind(this)
+            this.renameSection = this.renameSection.bind(this)
             this.update = this.update.bind(this)
+        }
+
+        public async removeSection(params: { section: string }): Promise<{ lines: number }> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/api/contacts/sections/remove`, JSON.stringify(params))
+            return await resp.json() as { lines: number }
+        }
+
+        public async renameSection(params: { from: string, to: string }): Promise<{ lines: number }> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/api/contacts/sections/rename`, JSON.stringify(params))
+            return await resp.json() as { lines: number }
         }
 
         public async addMany(params: AddManyRequest): Promise<AddManyResponse> {
