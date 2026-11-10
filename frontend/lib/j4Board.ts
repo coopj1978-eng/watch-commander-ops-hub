@@ -7,6 +7,7 @@ export interface BoardDefect {
   id: number;
   defect_type: string;
   appliance_id: number | null;
+  equipment_item_id: number | null;
   appliance_call_sign: string;
   equipment_name: string;
   title: string | null;

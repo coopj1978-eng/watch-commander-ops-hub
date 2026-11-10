@@ -10,6 +10,7 @@ import UnifiedCalendar from "./pages/WatchCalendar";
 import Tasks from "./pages/Tasks";
 import Targets from "./pages/Targets";
 import Hydrants from "./pages/Hydrants";
+import Contacts from "./pages/Contacts";
 import References from "./pages/References";
 import Policies from "./pages/Policies";
 import Requests from "./pages/Requests";
@@ -205,6 +206,7 @@ function AppRoutes() {
         <Route path="/equipment" element={<EquipmentChecks />} />
         <Route path="/targets" element={<Targets />} />
         <Route path="/hydrants" element={<Hydrants />} />
+        <Route path="/contacts" element={<Contacts />} />
         <Route path="/references" element={<References />} />
         <Route path="/requests" element={<Requests />} />
         <Route path="/policies" element={<Policies />} />

@@ -18,6 +18,7 @@ export interface FeatureFlags {
   training?: boolean;
   hydrants?: boolean;
   references?: boolean;
+  contacts?: boolean;
 }
 
 export interface SystemSettings {

@@ -23,6 +23,7 @@ export interface FeatureFlags {
   training: boolean;
   hydrants: boolean;
   references: boolean;
+  contacts: boolean;
 }
 
 const DEFAULT_FLAGS: FeatureFlags = {
@@ -43,6 +44,7 @@ const DEFAULT_FLAGS: FeatureFlags = {
   training: true,
   hydrants: true,
   references: true,
+  contacts: true,
 };
 
 /** A switch missing from the saved settings (added after they were saved) is off. */

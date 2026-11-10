@@ -5,6 +5,7 @@ const base: BoardDefect = {
   id: 1,
   defect_type: "appliance",
   appliance_id: 1,
+  equipment_item_id: null,
   appliance_call_sign: "B10P1",
   equipment_name: "",
   title: "Tool box",

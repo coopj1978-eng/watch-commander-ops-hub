@@ -43,6 +43,7 @@ export default class Client {
     public readonly detachments: detachments.ServiceClient
     public readonly dictionary: dictionary.ServiceClient
     public readonly frontend: frontend.ServiceClient
+    public readonly contacts: contacts.ServiceClient
     public readonly h4h: h4h.ServiceClient
     public readonly handover: handover.ServiceClient
     public readonly hydrants: hydrants.ServiceClient
@@ -91,6 +92,7 @@ export default class Client {
         this.detachments = new detachments.ServiceClient(base)
         this.dictionary = new dictionary.ServiceClient(base)
         this.frontend = new frontend.ServiceClient(base)
+        this.contacts = new contacts.ServiceClient(base)
         this.h4h = new h4h.ServiceClient(base)
         this.handover = new handover.ServiceClient(base)
         this.hydrants = new hydrants.ServiceClient(base)
@@ -992,6 +994,8 @@ export namespace appliance {
         check: EquipmentCheck
         items: EquipmentCheckItem[]
         "defects_created": number
+        "already_on_board": number
+        "task_lines_ticked": string[]
     }
 
     export interface UpdateApplianceRequest {
@@ -2058,6 +2062,76 @@ export namespace frontend {
          */
         public async assets(path: string[]): Promise<void> {
             await this.baseClient.callTypedAPI("HEAD", `/${path.map(encodeURIComponent).join("/")}`)
+        }
+    }
+}
+
+export namespace contacts {
+    export interface StationContact {
+        id: number
+        section: string
+        name: string
+        detail: string | null
+        numbers: string
+        note: string | null
+        position: number
+        "updated_at": string
+    }
+
+    export interface ContactInput {
+        section: string
+        name: string
+        detail?: string | null
+        numbers: string
+        note?: string | null
+    }
+
+    export interface ListContactsResponse {
+        contacts: StationContact[]
+    }
+
+    export interface AddManyRequest {
+        contacts: ContactInput[]
+    }
+
+    export interface AddManyResponse {
+        added: number
+    }
+
+    export class ServiceClient {
+        private baseClient: BaseClient
+
+        constructor(baseClient: BaseClient) {
+            this.baseClient = baseClient
+            this.addMany = this.addMany.bind(this)
+            this.create = this.create.bind(this)
+            this.list = this.list.bind(this)
+            this.remove = this.remove.bind(this)
+            this.update = this.update.bind(this)
+        }
+
+        public async addMany(params: AddManyRequest): Promise<AddManyResponse> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/contacts/bulk`, JSON.stringify(params))
+            return await resp.json() as AddManyResponse
+        }
+
+        public async create(params: ContactInput): Promise<StationContact> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/contacts`, JSON.stringify(params))
+            return await resp.json() as StationContact
+        }
+
+        public async list(): Promise<ListContactsResponse> {
+            const resp = await this.baseClient.callTypedAPI("GET", `/contacts`)
+            return await resp.json() as ListContactsResponse
+        }
+
+        public async remove(id: number): Promise<void> {
+            await this.baseClient.callTypedAPI("DELETE", `/contacts/${encodeURIComponent(id)}`)
+        }
+
+        public async update(id: number, params: ContactInput): Promise<StationContact> {
+            const resp = await this.baseClient.callTypedAPI("PATCH", `/contacts/${encodeURIComponent(id)}`, JSON.stringify(params))
+            return await resp.json() as StationContact
         }
     }
 }
@@ -4417,6 +4491,7 @@ export namespace settings {
         training?: boolean
         hydrants?: boolean
         references?: boolean
+        contacts?: boolean
     }
 
     export interface SystemSettings {

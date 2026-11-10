@@ -2,12 +2,19 @@ import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { logActivity } from "../logging/logger";
-import type { StartCheckRequest, EquipmentCheck, EquipmentCheckItem, CheckItemInput } from "./types";
+import { slotAt } from "../lib/shiftRota";
+import { statusAfterTick, tickJ4Lines, type TickItem } from "../lib/j4Tick";
+import type { StartCheckRequest, EquipmentCheck, EquipmentCheckItem } from "./types";
 
 interface StartCheckResponse {
   check: EquipmentCheck;
   items: EquipmentCheckItem[];
+  /** Lines this check added to the J4 board. */
   defects_created: number;
+  /** Missing or defective items that were on the board already (no second line). */
+  already_on_board: number;
+  /** J4 lines this check ticked on the shift's task cards. */
+  task_lines_ticked: string[];
 }
 
 export const startCheck = api<StartCheckRequest, StartCheckResponse>(
@@ -32,6 +39,7 @@ export const startCheck = api<StartCheckRequest, StartCheckResponse>(
     // Insert all check items
     const checkItems: EquipmentCheckItem[] = [];
     let defectsCreated = 0;
+    let alreadyOnBoard = 0;
 
     for (const item of req.items) {
       const checkItem = await db.queryRow<EquipmentCheckItem>`
@@ -43,16 +51,34 @@ export const startCheck = api<StartCheckRequest, StartCheckResponse>(
       if (checkItem) {
         checkItems.push(checkItem);
 
-        // Auto-create defect for defective/missing items
+        // Missing or defective: onto the J4 board — once. The same item is
+        // found missing every shift until it's back, and that's still one line.
         if (item.status === "Defective" || item.status === "Missing") {
-          const description = item.notes || `Item marked as ${item.status} during J4 check`;
-          await db.exec`
-            INSERT INTO equipment_defects (check_item_id, equipment_item_id, appliance_id, reported_by, description, status, watch)
-            VALUES (${checkItem.id}, ${item.equipment_item_id}, ${req.appliance_id}, ${auth.userID}, ${description}, 'Open', ${auth.watchUnit || null})
+          const onBoard = await db.queryRow<{ id: number }>`
+            SELECT id FROM equipment_defects
+            WHERE equipment_item_id = ${item.equipment_item_id} AND status <> 'Resolved'
+            LIMIT 1
           `;
-          defectsCreated++;
+          if (onBoard) {
+            alreadyOnBoard++;
+          } else {
+            await db.exec`
+              INSERT INTO equipment_defects (check_item_id, equipment_item_id, appliance_id, reported_by, title, description, status, watch)
+              VALUES (${checkItem.id}, ${item.equipment_item_id}, ${req.appliance_id}, ${auth.userID},
+                      ${item.status === "Missing" ? "Missing" : "Defective"}, ${(item.notes ?? "").trim()}, 'Open', ${auth.watchUnit || null})
+            `;
+            defectsCreated++;
+          }
         }
       }
+    }
+
+    // Tick the J4 line on this shift's cards. Never fails the check itself.
+    let ticked: string[] = [];
+    try {
+      ticked = await tickShiftCards(auth.userID);
+    } catch (err) {
+      console.error("J4 check: couldn't tick the shift card:", err);
     }
 
     await logActivity({
@@ -65,6 +91,8 @@ export const startCheck = api<StartCheckRequest, StartCheckResponse>(
         watch: req.watch,
         total_items: req.items.length,
         defects_found: defectsCreated,
+        already_on_board: alreadyOnBoard,
+        task_lines_ticked: ticked,
       },
     });
 
@@ -72,6 +100,69 @@ export const startCheck = api<StartCheckRequest, StartCheckResponse>(
       check: { ...check, status: "Complete" as const, completed_at: new Date() },
       items: checkItems,
       defects_created: defectsCreated,
+      already_on_board: alreadyOnBoard,
+      task_lines_ticked: ticked,
     };
   }
 );
+
+/**
+ * The station's routine cards for the shift on now carry a line per J4 check
+ * ("J4 check – B10P1"). Tick the ones whose appliances have been checked this
+ * shift, and move the card on as a tick by hand would.
+ */
+async function tickShiftCards(userId: string): Promise<string[]> {
+  const slot = slotAt(new Date());
+
+  const appliances = await db.queryAll<{ call_sign: string; has_kit: boolean; checked: boolean }>`
+    SELECT a.call_sign,
+           EXISTS (SELECT 1 FROM equipment_items e WHERE e.appliance_id = a.id AND e.active) AS has_kit,
+           EXISTS (SELECT 1 FROM equipment_checks c
+                    WHERE c.appliance_id = a.id AND c.status = 'Complete' AND c.completed_at >= ${slot.start}) AS checked
+    FROM appliances a
+    WHERE a.active
+  `;
+  const who = await db.queryRow<{ name: string | null }>`SELECT name FROM users WHERE id = ${userId}`;
+
+  // This shift's routine cards still open: due by the end of the shift.
+  const cards = await db.queryAll<{ id: number; status: string; checklist: unknown }>`
+    SELECT id, status, checklist FROM tasks
+    WHERE source_type = 'template'
+      AND status NOT IN ('Done', 'Missed')
+      AND due_at > NOW() AND due_at <= ${slot.end}
+      AND checklist::text ILIKE '%J4 check%'
+  `;
+
+  const ticked: string[] = [];
+  for (const card of cards) {
+    const raw = typeof card.checklist === "string" ? JSON.parse(card.checklist) : card.checklist;
+    if (!Array.isArray(raw)) continue;
+    const result = tickJ4Lines(raw as TickItem[], {
+      callSigns: appliances.map((a) => a.call_sign),
+      withKit: appliances.filter((a) => a.has_kit).map((a) => a.call_sign),
+      checked: appliances.filter((a) => a.checked).map((a) => a.call_sign),
+      who: { id: userId, name: who?.name ?? null },
+    });
+    if (result.ticked.length === 0) continue;
+
+    const next = statusAfterTick(card.status, result.checklist);
+    if (next === "Done") {
+      await db.rawQueryRow(
+        `UPDATE tasks SET checklist = $1, status = 'Done', completed_at = NOW(), completed_by = $2, updated_at = NOW() WHERE id = $3 RETURNING id`,
+        JSON.stringify(result.checklist), userId, card.id,
+      );
+    } else if (next === "InProgress") {
+      await db.rawQueryRow(
+        `UPDATE tasks SET checklist = $1, status = 'InProgress', updated_at = NOW() WHERE id = $2 RETURNING id`,
+        JSON.stringify(result.checklist), card.id,
+      );
+    } else {
+      await db.rawQueryRow(
+        `UPDATE tasks SET checklist = $1, updated_at = NOW() WHERE id = $2 RETURNING id`,
+        JSON.stringify(result.checklist), card.id,
+      );
+    }
+    ticked.push(...result.ticked);
+  }
+  return ticked;
+}

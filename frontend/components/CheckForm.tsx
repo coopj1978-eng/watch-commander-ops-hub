@@ -24,6 +24,9 @@ import { useAuth } from "@/App";
 import backend from "@/lib/backend";
 import { cn } from "@/lib/utils";
 import { currentDayNight } from "@/lib/shiftRota";
+import { useBoardDefects } from "@/components/J4Board";
+import { outstanding } from "@/lib/j4Board";
+import { format } from "date-fns";
 
 interface CheckItemState {
   equipment_item_id: number;
@@ -34,6 +37,8 @@ interface CheckItemState {
   status: "OK" | "Defective" | "Missing";
   quantity_checked: number;
   notes: string;
+  /** Already on the J4 board (since this date) — it starts as missing or defective, not OK. */
+  onBoardSince?: string;
 }
 
 type ItemStatus = CheckItemState["status"];
@@ -87,19 +92,33 @@ export default function CheckForm({
     enabled: open,
   });
 
+  // What's already on the J4 board for this appliance's kit: those items
+  // start as missing or defective, so the check agrees with the board.
+  const { data: boardDefects, isLoading: boardLoading } = useBoardDefects();
+
   // Initialize check items when equipment data loads
-  if (equipmentData?.items && !initialized) {
+  if (equipmentData?.items && boardDefects && !initialized) {
+    const onBoard = new Map(
+      boardDefects
+        .filter((d) => outstanding(d) && d.defect_type === "equipment" && d.appliance_id === applianceId)
+        .map((d) => [d.equipment_item_id, d] as const),
+    );
     setCheckItems(
-      equipmentData.items.map((item) => ({
-        equipment_item_id: item.id,
-        name: item.name,
-        category: item.category,
-        serial_number: item.serial_number,
-        expected_quantity: item.quantity,
-        status: "OK" as const,
-        quantity_checked: item.quantity,
-        notes: "",
-      }))
+      equipmentData.items.map((item) => {
+        const line = onBoard.get(item.id);
+        const missing = !!line && /missing/i.test(`${line.title ?? ""} ${line.description}`);
+        return {
+          equipment_item_id: item.id,
+          name: item.name,
+          category: item.category,
+          serial_number: item.serial_number,
+          expected_quantity: item.quantity,
+          status: line ? (missing ? ("Missing" as const) : ("Defective" as const)) : ("OK" as const),
+          quantity_checked: line && missing ? 0 : item.quantity,
+          notes: "",
+          onBoardSince: line?.reported_at,
+        };
+      })
     );
     setInitialized(true);
   }
@@ -131,10 +150,17 @@ export default function CheckForm({
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["checks"] });
       queryClient.invalidateQueries({ queryKey: ["defects"] });
-      const defects = data.defects_created;
+      // The check ticks its line on this shift's task card.
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      const added = data.defects_created;
+      const ticked = (data.task_lines_ticked ?? []).length > 0;
       toast({
-        title: "J4 Check Complete",
-        description: `${applianceName} check submitted. ${checkItems.length} items checked${defects > 0 ? `, ${defects} defect(s) logged` : ""}.`,
+        title: `J4 check complete · ${applianceName}`,
+        description: [
+          `${checkItems.length} items checked.`,
+          added > 0 ? `${added} ${added === 1 ? "item" : "items"} added to the J4 board.` : "",
+          ticked ? "Ticked on this shift's task card." : "",
+        ].filter(Boolean).join(" "),
       });
       handleOpenChange(false);
     },
@@ -155,14 +181,15 @@ export default function CheckForm({
     });
   };
 
+  // Everything OK — except what's on the J4 board, which stays as it is
+  // until someone looks at it and says it's back.
   const markAllOK = () => {
     setCheckItems((prev) =>
-      prev.map((item) => ({
-        ...item,
-        status: "OK" as const,
-        quantity_checked: item.expected_quantity,
-        notes: "",
-      }))
+      prev.map((item) =>
+        item.onBoardSince
+          ? item
+          : { ...item, status: "OK" as const, quantity_checked: item.expected_quantity, notes: "" }
+      )
     );
   };
 
@@ -200,8 +227,7 @@ export default function CheckForm({
             <span className="min-w-0 break-words">J4 check · {applianceName}</span>
           </DialogTitle>
           <DialogDescription>
-            Check each item and mark its status. Defective or missing items will
-            be automatically logged as defects.
+            Mark each item. Anything defective or missing goes on the J4 board, and finishing the check ticks it off on this shift's task card.
           </DialogDescription>
         </DialogHeader>
 
@@ -241,7 +267,7 @@ export default function CheckForm({
           </div>
 
           {/* Equipment items by category */}
-          {isLoading ? (
+          {isLoading || boardLoading ? (
             <p className="text-muted-foreground text-center py-8">
               Loading equipment...
             </p>
@@ -318,6 +344,14 @@ export default function CheckForm({
                           ))}
                         </div>
                       </div>
+
+                      {item.onBoardSince && (
+                        <p className="mt-2 text-xs text-muted-foreground">
+                          {item.status === "OK"
+                            ? "This is on the J4 board. If it's back, tell your Watch or Crew Commander so they can clear it."
+                            : `On the J4 board since ${format(new Date(item.onBoardSince), "d MMM")}. It won't be added again.`}
+                        </p>
+                      )}
 
                       {/* Notes field for defective/missing items */}
                       {(item.status === "Defective" ||

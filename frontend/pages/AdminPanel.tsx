@@ -39,6 +39,7 @@ import {
   Target,
   Navigation,
   Truck,
+  Phone,
   ClipboardList,
   FileText,
   BarChart3,
@@ -67,7 +68,8 @@ const FEATURE_CONFIG: {
   // Targets moved up from Phase 3 (John, 9 Nov 2026): see this month's and
   // quarter's progress, and fill in their own watch's HFSV visits.
   { key: "targets",      label: "Targets",        description: "The watch's progress this month and quarter; fill in HFSV visits",  icon: Target,        phase: "Phase 1 · first release" },
-  { key: "equipment",    label: "J4 Checks",      description: "Appliance checks and reporting defects",                              icon: Truck,         phase: "Phase 1 · first release" },
+  { key: "equipment",    label: "J4 Checks",      description: "Appliance checks and the J4 board of missing and defective kit",      icon: Truck,         phase: "Phase 1 · first release" },
+  { key: "contacts",     label: "Contacts",       description: "The station's regular phone numbers: Control, staffing, other stations", icon: Phone,      phase: "Phase 1 · first release" },
   { key: "bulletins",    label: "Bulletins",      description: "News and announcements",                                              icon: Megaphone,     phase: "Phase 2 · information" },
   { key: "training",     label: "Training",       description: "Training sessions and records",                                       icon: GraduationCap, phase: "Phase 2 · information" },
   { key: "policies",     label: "Docs",           description: "Policies, guidance and the policy question box",                      icon: FileText,      phase: "Phase 2 · information" },
