@@ -11,7 +11,9 @@ export function useCountUp(target: number, ms = 650): number {
 
   useEffect(() => {
     const reduce = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    if (reduce || !Number.isFinite(target) || target === from.current) {
+    // A hidden tab doesn't run animation frames: show the value, don't sit at zero.
+    const hidden = typeof document !== "undefined" && document.hidden;
+    if (reduce || hidden || !Number.isFinite(target) || target === from.current) {
       from.current = target;
       setShown(target);
       return;

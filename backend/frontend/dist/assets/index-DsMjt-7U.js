@@ -39374,7 +39374,8 @@ function useCountUp(target, ms = 650) {
   reactExports.useEffect(() => {
     var _a3;
     const reduce = typeof window !== "undefined" && ((_a3 = window.matchMedia) == null ? void 0 : _a3.call(window, "(prefers-reduced-motion: reduce)").matches);
-    if (reduce || !Number.isFinite(target) || target === from.current) {
+    const hidden = typeof document !== "undefined" && document.hidden;
+    if (reduce || hidden || !Number.isFinite(target) || target === from.current) {
       from.current = target;
       setShown(target);
       return;
@@ -39596,7 +39597,7 @@ function BoardTile({ index: index2 }) {
       unit: p.total === 0 ? void 0 : `of ${p.total} cards done`,
       loading: q.isLoading,
       tone: "quiet",
-      note: q.isLoading ? "Loading the board…" : p.total === 0 ? "Cards arrive when your shift starts" : left === 0 ? "Every card done" : `${left} to go${p.started ? ` · ${p.started} started` : ""}`,
+      note: q.isLoading ? "Loading the board…" : p.total === 0 ? "Starts with your shift" : left === 0 ? "Every card done" : `${left} to go${p.started ? ` · ${p.started} started` : ""}`,
       children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-1", role: "img", "aria-label": `${p.done} of ${p.total} cards done`, children: p.total === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "h-2 flex-1 rounded-full bg-muted" }) : tasks.slice(0, 24).map((t, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
         "span",
         {
@@ -39632,12 +39633,12 @@ function HfsvTile({ index: index2 }) {
     {
       index: index2,
       to: "/targets",
-      label: "Home fire safety visits",
+      label: "HFSV visits",
       value: q.isLoading ? null : done,
       unit: `of ${HFSV_TARGET_Q} this quarter`,
       loading: q.isLoading,
       tone: behind ? "warn" : "ok",
-      note: q.isLoading ? "Loading the quarter…" : p.state === "done" ? "Target met" : behind ? `${p.behindBy} behind where we should be` : `${p.remaining} to go · on pace`,
+      note: q.isLoading ? "Loading the quarter…" : p.state === "done" ? "Target met" : behind ? `${p.behindBy} behind pace` : `On pace · ${p.remaining} to go`,
       children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative h-2 overflow-hidden rounded-full bg-muted", role: "img", "aria-label": `${done} of ${HFSV_TARGET_Q} visits`, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "span",

@@ -266,7 +266,7 @@ function BoardTile({ index }: { index: number }) {
       unit={p.total === 0 ? undefined : `of ${p.total} cards done`}
       loading={q.isLoading}
       tone="quiet"
-      note={q.isLoading ? "Loading the board…" : p.total === 0 ? "Cards arrive when your shift starts" : left === 0 ? "Every card done" : `${left} to go${p.started ? ` · ${p.started} started` : ""}`}
+      note={q.isLoading ? "Loading the board…" : p.total === 0 ? "Starts with your shift" : left === 0 ? "Every card done" : `${left} to go${p.started ? ` · ${p.started} started` : ""}`}
     >
       <div className="flex gap-1" role="img" aria-label={`${p.done} of ${p.total} cards done`}>
         {p.total === 0 ? (
@@ -310,12 +310,12 @@ function HfsvTile({ index }: { index: number }) {
     <Tile
       index={index}
       to="/targets"
-      label="Home fire safety visits"
+      label="HFSV visits"
       value={q.isLoading ? null : done}
       unit={`of ${HFSV_TARGET_Q} this quarter`}
       loading={q.isLoading}
       tone={behind ? "warn" : "ok"}
-      note={q.isLoading ? "Loading the quarter…" : p.state === "done" ? "Target met" : behind ? `${p.behindBy} behind where we should be` : `${p.remaining} to go · on pace`}
+      note={q.isLoading ? "Loading the quarter…" : p.state === "done" ? "Target met" : behind ? `${p.behindBy} behind pace` : `On pace · ${p.remaining} to go`}
     >
       <div className="relative h-2 overflow-hidden rounded-full bg-muted" role="img" aria-label={`${done} of ${HFSV_TARGET_Q} visits`}>
         <span
