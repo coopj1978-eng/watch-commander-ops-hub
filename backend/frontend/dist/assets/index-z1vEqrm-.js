@@ -39612,13 +39612,91 @@ function BoardTile({ index: index2 }) {
     }
   );
 }
-function PulseTiles() {
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { "aria-label": "At a glance", className: "grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(CrewTile, { index: 0 }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(ChecksTile, { index: 1 }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(J4Tile, { index: 2 }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(BoardTile, { index: 3 })
-  ] });
+function HfsvTile({ index: index2 }) {
+  var _a3;
+  const { user: user2 } = useAuth();
+  const watch = (user2 == null ? void 0 : user2.watch_unit) ?? "";
+  const fq = currentFyQuarter();
+  const t = quarterTime(fq);
+  const q = useQuery({
+    queryKey: ["activities", "hfsv", watch, fq.fy, fq.q],
+    queryFn: () => backendClient.activity.list({ type: "hfsv", watch, financial_year: fq.fy, quarter: fq.q }),
+    enabled: !!watch
+  });
+  const done = ((_a3 = q.data) == null ? void 0 : _a3.total_completed) ?? 0;
+  const p = pace(done, HFSV_TARGET_Q, t.elapsed, t.phase);
+  const behind = p.state === "behind" || p.state === "late" || p.state === "missed";
+  const share = Math.min(1, done / HFSV_TARGET_Q);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    Tile,
+    {
+      index: index2,
+      to: "/targets",
+      label: "Home fire safety visits",
+      value: q.isLoading ? null : done,
+      unit: `of ${HFSV_TARGET_Q} this quarter`,
+      loading: q.isLoading,
+      tone: behind ? "warn" : "ok",
+      note: q.isLoading ? "Loading the quarter…" : p.state === "done" ? "Target met" : behind ? `${p.behindBy} behind where we should be` : `${p.remaining} to go · on pace`,
+      children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative h-2 overflow-hidden rounded-full bg-muted", role: "img", "aria-label": `${done} of ${HFSV_TARGET_Q} visits`, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "span",
+          {
+            style: { "--i": 0, width: `${share * 100}%` },
+            className: cn("viz-seg block h-full rounded-full", behind ? "bg-amber-500" : "bg-foreground/80")
+          }
+        ),
+        t.phase === "now" && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "aria-hidden": true, className: "absolute inset-y-0 w-0.5 bg-foreground/50", style: { left: `${Math.min(1, t.elapsed) * 100}%` } })
+      ] })
+    }
+  );
+}
+function ToilTile({ index: index2 }) {
+  var _a3, _b3;
+  const { user: user2 } = useAuth();
+  const year = (/* @__PURE__ */ new Date()).getFullYear();
+  const q = useQuery({
+    queryKey: ["toil-balance", user2 == null ? void 0 : user2.id, year],
+    queryFn: () => backendClient.toil.balance({ user_id: user2.id, year }),
+    enabled: !!(user2 == null ? void 0 : user2.id)
+  });
+  const mine = (_b3 = (_a3 = q.data) == null ? void 0 : _a3.balances) == null ? void 0 : _b3[0];
+  const balance = (mine == null ? void 0 : mine.balance) ?? 0;
+  const earned = (mine == null ? void 0 : mine.total_earned) ?? 0;
+  const pending = (mine == null ? void 0 : mine.pending_earned) ?? 0;
+  const share = earned > 0 ? Math.min(1, Math.max(0, balance / earned)) : 0;
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    Tile,
+    {
+      index: index2,
+      to: "/profile?tab=hours",
+      label: "My TOIL",
+      value: q.isLoading ? null : balance,
+      unit: "hours to take",
+      loading: q.isLoading,
+      tone: "quiet",
+      note: q.isLoading ? "Loading your hours…" : pending > 0 ? `${pending}h waiting to be approved` : earned > 0 ? `${earned}h earned in ${year}` : "Nothing banked yet",
+      children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-2 overflow-hidden rounded-full bg-muted", role: "img", "aria-label": `${balance} of ${earned} hours left`, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { "--i": 0, width: `${share * 100}%` }, className: "viz-seg block h-full rounded-full bg-foreground/80" }) })
+    }
+  );
+}
+function PulseTiles({ audience = "managers" }) {
+  const canOpen = useCanOpen();
+  if (audience === "managers") {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { "aria-label": "At a glance", className: "grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(CrewTile, { index: 0 }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(ChecksTile, { index: 1 }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(J4Tile, { index: 2 }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(BoardTile, { index: 3 })
+    ] });
+  }
+  const tiles = [
+    ...canOpen("/tasks") ? [{ key: "board", Tile: BoardTile }] : [],
+    ...canOpen("/equipment") ? [{ key: "j4", Tile: J4Tile }] : [],
+    ...canOpen("/targets") ? [{ key: "hfsv", Tile: HfsvTile }] : [],
+    { key: "toil", Tile: ToilTile }
+  ];
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("section", { "aria-label": "At a glance", className: "grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4", children: tiles.map(({ key: key2, Tile: T }, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(T, { index: i }, key2)) });
 }
 function splitNumbers(numbers) {
   return numbers.split(/\s*[/,;]\s*/).map((n) => n.trim()).filter(Boolean).map((text2) => {
@@ -67807,6 +67885,7 @@ function StaffPortal() {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", style: { gap: "var(--gap-section)" }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftHero, {}),
     /* @__PURE__ */ jsxRuntimeExports.jsx(MyNextShifts, {}),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(PulseTiles, { audience: "crew" }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(SickLine, {}),
     /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftRunningOrder, {}),
     /* @__PURE__ */ jsxRuntimeExports.jsx(OurReference, {})
@@ -68439,6 +68518,7 @@ function CrewOneToOnes() {
 function CrewCommanderHome() {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", style: { gap: "var(--gap-section)" }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftHero, {}),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(PulseTiles, {}),
     /* @__PURE__ */ jsxRuntimeExports.jsx(MyNextShifts, {}),
     /* @__PURE__ */ jsxRuntimeExports.jsx(WCAlertBanner, {}),
     /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftRunningOrder, {}),

@@ -6,6 +6,7 @@ import backend from "@/lib/backend";
 import FFSickLineUpload from "@/components/FFSickLineUpload";
 import { ShiftHero } from "@/components/ShiftHero";
 import { MyNextShifts } from "@/components/home/MyNextShifts";
+import { PulseTiles } from "@/components/home/PulseTiles";
 import { ShiftRunningOrder } from "@/components/home/ShiftRunningOrder";
 import { OurReference } from "@/components/home/OurReference";
 
@@ -18,6 +19,8 @@ export default function StaffPortal() {
     <div className="flex flex-col" style={{ gap: "var(--gap-section)" }}>
       <ShiftHero />
       <MyNextShifts />
+      {/* Your own shifts come first; then the watch at a glance. */}
+      <PulseTiles audience="crew" />
       <SickLine />
       <ShiftRunningOrder />
       <OurReference />

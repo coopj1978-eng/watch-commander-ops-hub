@@ -10,6 +10,9 @@ import { useBoardDefects } from "@/components/J4Board";
 import { boardGroups, outstanding } from "@/lib/j4Board";
 import { barHeight, boardProgress, missedByDay, shortName } from "@/lib/pulse";
 import { useCountUp } from "@/lib/useCountUp";
+import { useCanOpen } from "@/lib/navigation";
+import { HFSV_TARGET_Q } from "@/lib/targets";
+import { currentFyQuarter, pace, quarterTime } from "@/lib/quarters";
 
 // ──────────────────────────────────────────────────────────────────────────────
 // PulseTiles — four "at a glance" tiles under the shift panel (Nov 2026).
@@ -20,6 +23,11 @@ import { useCountUp } from "@/lib/useCountUp";
 //
 // Every tile reads a query another card on Home already makes (same keys), so
 // they cost no extra requests.
+//
+// Watch and Crew Commanders get crew, missed checks, the J4 board and the
+// shift board. Firefighters get the shift board, the J4 board, the watch's
+// home fire safety visits and their own TOIL — never who's off or what was
+// missed, which are a manager's to see — and only for pages switched on.
 // ──────────────────────────────────────────────────────────────────────────────
 
 type Tone = "ok" | "warn" | "bad" | "quiet";
@@ -281,13 +289,107 @@ function BoardTile({ index }: { index: number }) {
   );
 }
 
-export function PulseTiles() {
+// ── Home fire safety visits: the watch's quarter so far (firefighters) ───────
+
+function HfsvTile({ index }: { index: number }) {
+  const { user } = useAuth();
+  const watch = user?.watch_unit ?? "";
+  const fq = currentFyQuarter();
+  const t = quarterTime(fq);
+  const q = useQuery({
+    queryKey: ["activities", "hfsv", watch, fq.fy, fq.q],
+    queryFn: () => backend.activity.list({ type: "hfsv", watch, financial_year: fq.fy, quarter: fq.q }),
+    enabled: !!watch,
+  });
+  const done = q.data?.total_completed ?? 0;
+  const p = pace(done, HFSV_TARGET_Q, t.elapsed, t.phase);
+  const behind = p.state === "behind" || p.state === "late" || p.state === "missed";
+  const share = Math.min(1, done / HFSV_TARGET_Q);
+
+  return (
+    <Tile
+      index={index}
+      to="/targets"
+      label="Home fire safety visits"
+      value={q.isLoading ? null : done}
+      unit={`of ${HFSV_TARGET_Q} this quarter`}
+      loading={q.isLoading}
+      tone={behind ? "warn" : "ok"}
+      note={q.isLoading ? "Loading the quarter…" : p.state === "done" ? "Target met" : behind ? `${p.behindBy} behind where we should be` : `${p.remaining} to go · on pace`}
+    >
+      <div className="relative h-2 overflow-hidden rounded-full bg-muted" role="img" aria-label={`${done} of ${HFSV_TARGET_Q} visits`}>
+        <span
+          style={{ "--i": 0, width: `${share * 100}%` } as CSSProperties}
+          className={cn("viz-seg block h-full rounded-full", behind ? "bg-amber-500" : "bg-foreground/80")}
+        />
+        {/* Where the count should be by today. */}
+        {t.phase === "now" && (
+          <span aria-hidden className="absolute inset-y-0 w-0.5 bg-foreground/50" style={{ left: `${Math.min(1, t.elapsed) * 100}%` }} />
+        )}
+      </div>
+    </Tile>
+  );
+}
+
+// ── Your own TOIL (firefighters) ─────────────────────────────────────────────
+
+function ToilTile({ index }: { index: number }) {
+  const { user } = useAuth();
+  const year = new Date().getFullYear();
+  const q = useQuery({
+    queryKey: ["toil-balance", user?.id, year],
+    queryFn: () => backend.toil.balance({ user_id: user!.id, year }),
+    enabled: !!user?.id,
+  });
+  const mine = q.data?.balances?.[0];
+  const balance = mine?.balance ?? 0;
+  const earned = mine?.total_earned ?? 0;
+  const pending = mine?.pending_earned ?? 0;
+  const share = earned > 0 ? Math.min(1, Math.max(0, balance / earned)) : 0;
+
+  return (
+    <Tile
+      index={index}
+      to="/profile?tab=hours"
+      label="My TOIL"
+      value={q.isLoading ? null : balance}
+      unit="hours to take"
+      loading={q.isLoading}
+      tone="quiet"
+      note={q.isLoading ? "Loading your hours…" : pending > 0 ? `${pending}h waiting to be approved` : earned > 0 ? `${earned}h earned in ${year}` : "Nothing banked yet"}
+    >
+      <div className="h-2 overflow-hidden rounded-full bg-muted" role="img" aria-label={`${balance} of ${earned} hours left`}>
+        <span style={{ "--i": 0, width: `${share * 100}%` } as CSSProperties} className="viz-seg block h-full rounded-full bg-foreground/80" />
+      </div>
+    </Tile>
+  );
+}
+
+export function PulseTiles({ audience = "managers" }: { audience?: "managers" | "crew" }) {
+  const canOpen = useCanOpen();
+
+  if (audience === "managers") {
+    return (
+      <section aria-label="At a glance" className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+        <CrewTile index={0} />
+        <ChecksTile index={1} />
+        <J4Tile index={2} />
+        <BoardTile index={3} />
+      </section>
+    );
+  }
+
+  // Firefighters: only the tiles whose page is switched on for them.
+  const tiles: { key: string; Tile: (p: { index: number }) => ReactNode }[] = [
+    ...(canOpen("/tasks") ? [{ key: "board", Tile: BoardTile }] : []),
+    ...(canOpen("/equipment") ? [{ key: "j4", Tile: J4Tile }] : []),
+    ...(canOpen("/targets") ? [{ key: "hfsv", Tile: HfsvTile }] : []),
+    { key: "toil", Tile: ToilTile },
+  ];
+
   return (
     <section aria-label="At a glance" className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-      <CrewTile index={0} />
-      <ChecksTile index={1} />
-      <J4Tile index={2} />
-      <BoardTile index={3} />
+      {tiles.map(({ key, Tile: T }, i) => <T key={key} index={i} />)}
     </section>
   );
 }

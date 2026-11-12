@@ -3566,6 +3566,16 @@
     }
   }
 
+  .bg-foreground\/50 {
+    background-color: var(--foreground);
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .bg-foreground\/50 {
+      background-color: color-mix(in oklab, var(--foreground) 50%, transparent);
+    }
+  }
+
   .bg-foreground\/70 {
     background-color: var(--foreground);
   }
