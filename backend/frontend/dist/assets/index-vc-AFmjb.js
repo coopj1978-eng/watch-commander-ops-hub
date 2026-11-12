@@ -39405,6 +39405,7 @@ function Tile({
   to,
   label: label2,
   value,
+  word,
   unit,
   note: note2,
   tone = "quiet",
@@ -39432,7 +39433,7 @@ function Tile({
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "mt-1 flex items-baseline gap-1.5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn("text-[2.5rem] font-semibold leading-none tracking-tight tabular-nums", loading && "text-muted-foreground/40"), children: loading ? "–" : shown }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn("text-[2.5rem] font-semibold leading-none tracking-tight tabular-nums", loading && "text-muted-foreground/40"), children: loading ? "–" : word ?? shown }),
           unit && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-muted-foreground", children: unit })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-auto pt-3", children }),
@@ -39496,11 +39497,15 @@ function CrewTile({ index: index2 }) {
 }
 function ChecksTile({ index: index2 }) {
   var _a3;
+  const { user: user2 } = useAuth();
+  const watch = ((user2 == null ? void 0 : user2.watch_unit) ?? "").toLowerCase();
   const q = useQuery({
     queryKey: ["missed-checks"],
     queryFn: () => backendClient.task.missedChecks({ days: 7 })
   });
-  const missed = ((_a3 = q.data) == null ? void 0 : _a3.checks) ?? [];
+  const missed = (((_a3 = q.data) == null ? void 0 : _a3.checks) ?? []).filter(
+    (c) => c.watches.length === 0 || c.watches.some((w) => w.toLowerCase() === watch)
+  );
   const bars = missedByDay(missed, localTodayIso());
   const max2 = Math.max(0, ...bars.map((b) => b.missed));
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -39587,10 +39592,11 @@ function BoardTile({ index: index2 }) {
       to: "/tasks",
       label: "Shift board",
       value: q.isLoading ? null : p.done,
-      unit: `of ${p.total} cards done`,
+      word: !q.isLoading && p.total === 0 ? "Clear" : void 0,
+      unit: p.total === 0 ? void 0 : `of ${p.total} cards done`,
       loading: q.isLoading,
       tone: "quiet",
-      note: q.isLoading ? "Loading the board…" : p.total === 0 ? "Nothing on the board yet" : left === 0 ? "Board clear" : `${left} to go${p.started ? ` · ${p.started} started` : ""}`,
+      note: q.isLoading ? "Loading the board…" : p.total === 0 ? "Cards arrive when your shift starts" : left === 0 ? "Every card done" : `${left} to go${p.started ? ` · ${p.started} started` : ""}`,
       children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-1", role: "img", "aria-label": `${p.done} of ${p.total} cards done`, children: p.total === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "h-2 flex-1 rounded-full bg-muted" }) : tasks.slice(0, 24).map((t, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
         "span",
         {
@@ -42770,18 +42776,20 @@ function WatchCommanderDashboard() {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 flex-col gap-4 max-lg:contents lg:gap-5", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Cell, { i: 5, order: "max-lg:order-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftRunningOrder, {}) }),
-        show("comingup") && /* @__PURE__ */ jsxRuntimeExports.jsx(Cell, { i: 8, order: "max-lg:order-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ComingUp, {}) })
+        show("comingup") && /* @__PURE__ */ jsxRuntimeExports.jsx(Cell, { i: 8, order: "max-lg:order-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ComingUp, {}) }),
+        (show("h4h") || show("toil")) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid items-start gap-4 max-lg:contents sm:grid-cols-2 lg:gap-5", children: [
+          show("h4h") && /* @__PURE__ */ jsxRuntimeExports.jsx(Cell, { i: 11, order: "max-lg:order-8", children: /* @__PURE__ */ jsxRuntimeExports.jsx(WCH4HWidget, {}) }),
+          show("toil") && /* @__PURE__ */ jsxRuntimeExports.jsx(Cell, { i: 12, order: "max-lg:order-9", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ToilWidget, {}) })
+        ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "aside",
         {
-          "aria-label": "Targets, contacts and your balances",
-          className: "grid min-w-0 items-start gap-4 max-lg:contents lg:col-span-2 lg:grid-cols-3 lg:gap-5 xl:col-span-1 xl:flex xl:flex-col",
+          "aria-label": "Targets and contacts",
+          className: "grid min-w-0 items-start gap-4 max-lg:contents lg:col-span-2 lg:grid-cols-2 lg:gap-5 xl:col-span-1 xl:flex xl:flex-col xl:items-stretch",
           children: [
             show("targets") && /* @__PURE__ */ jsxRuntimeExports.jsx(Cell, { i: 6, order: "max-lg:order-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(TargetRings, {}) }),
             show("contacts") && /* @__PURE__ */ jsxRuntimeExports.jsx(Cell, { i: 10, order: "max-lg:order-7", children: /* @__PURE__ */ jsxRuntimeExports.jsx(QuickDial, {}) }),
-            show("h4h") && /* @__PURE__ */ jsxRuntimeExports.jsx(Cell, { i: 11, order: "max-lg:order-8", children: /* @__PURE__ */ jsxRuntimeExports.jsx(WCH4HWidget, {}) }),
-            show("toil") && /* @__PURE__ */ jsxRuntimeExports.jsx(Cell, { i: 12, order: "max-lg:order-9", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ToilWidget, {}) }),
             show("skills") && /* @__PURE__ */ jsxRuntimeExports.jsx(Cell, { i: 13, order: "max-lg:order-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(WCSkillsExpiryWidget, {}) })
           ]
         }

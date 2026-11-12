@@ -32,12 +32,14 @@ const TONE_TEXT: Record<Tone, string> = {
 };
 
 function Tile({
-  to, label, value, unit, note, tone = "quiet", loading, children, index,
+  to, label, value, word, unit, note, tone = "quiet", loading, children, index,
 }: {
   to: string;
   label: string;
   /** The big number; null while loading. */
   value: number | null;
+  /** A word in place of the number, when a number would say nothing ("Clear"). */
+  word?: string;
   /** What follows it: "/10", "missed". */
   unit?: string;
   note: string;
@@ -65,7 +67,7 @@ function Tile({
 
       <p className="mt-1 flex items-baseline gap-1.5">
         <span className={cn("text-[2.5rem] font-semibold leading-none tracking-tight tabular-nums", loading && "text-muted-foreground/40")}>
-          {loading ? "–" : shown}
+          {loading ? "–" : word ?? shown}
         </span>
         {unit && <span className="text-sm text-muted-foreground">{unit}</span>}
       </p>
@@ -141,11 +143,17 @@ function CrewTile({ index }: { index: number }) {
 // ── Station checks: missed, day by day, for the last week ────────────────────
 
 function ChecksTile({ index }: { index: number }) {
+  const { user } = useAuth();
+  const watch = (user?.watch_unit ?? "").toLowerCase();
   const q = useQuery({
     queryKey: ["missed-checks"],
     queryFn: () => backend.task.missedChecks({ days: 7 }),
   });
-  const missed = q.data?.checks ?? [];
+  // The same count as Needs you: checks missed on this watch's shifts, plus
+  // the station's weekly-and-longer ones (whoever was on).
+  const missed = (q.data?.checks ?? []).filter(
+    (c) => c.watches.length === 0 || c.watches.some((w) => w.toLowerCase() === watch),
+  );
   const bars = missedByDay(missed, localTodayIso());
   const max = Math.max(0, ...bars.map((b) => b.missed));
 
@@ -246,10 +254,11 @@ function BoardTile({ index }: { index: number }) {
       to="/tasks"
       label="Shift board"
       value={q.isLoading ? null : p.done}
-      unit={`of ${p.total} cards done`}
+      word={!q.isLoading && p.total === 0 ? "Clear" : undefined}
+      unit={p.total === 0 ? undefined : `of ${p.total} cards done`}
       loading={q.isLoading}
       tone="quiet"
-      note={q.isLoading ? "Loading the board…" : p.total === 0 ? "Nothing on the board yet" : left === 0 ? "Board clear" : `${left} to go${p.started ? ` · ${p.started} started` : ""}`}
+      note={q.isLoading ? "Loading the board…" : p.total === 0 ? "Cards arrive when your shift starts" : left === 0 ? "Every card done" : `${left} to go${p.started ? ` · ${p.started} started` : ""}`}
     >
       <div className="flex gap-1" role="img" aria-label={`${p.done} of ${p.total} cards done`}>
         {p.total === 0 ? (

@@ -8254,6 +8254,10 @@
     .xl\:flex-col {
       flex-direction: column;
     }
+
+    .xl\:items-stretch {
+      align-items: stretch;
+    }
   }
 
   @media (min-width: 96rem) {

@@ -48,8 +48,8 @@ export default function RoleDashboard() {
 //      shift board;
 //   3. three columns that fill the width of a desktop screen:
 //        Needs you (every alert, ranked) · the crew · our reference
-//        the shift's running order · the week ahead
-//        targets · contacts · your own balances.
+//        the shift's running order · the week ahead · your own balances
+//        targets · contacts.
 //      John (12 Nov 2026): the old two-column page was stretched, with half
 //      the screen empty under a short left column.
 //   On a phone it is one column: alerts, running order, then the rest.
@@ -177,16 +177,21 @@ function WatchCommanderDashboard() {
         <div className="flex min-w-0 flex-col gap-4 max-lg:contents lg:gap-5">
           <Cell i={5} order="max-lg:order-2"><ShiftRunningOrder /></Cell>
           {show("comingup") && <Cell i={8} order="max-lg:order-5"><ComingUp /></Cell>}
+          {/* Your own balances, side by side under the week ahead. */}
+          {(show("h4h") || show("toil")) && (
+            <div className="grid items-start gap-4 max-lg:contents sm:grid-cols-2 lg:gap-5">
+              {show("h4h") && <Cell i={11} order="max-lg:order-8"><WCH4HWidget /></Cell>}
+              {show("toil") && <Cell i={12} order="max-lg:order-9"><ToilWidget /></Cell>}
+            </div>
+          )}
         </div>
 
         <aside
-          aria-label="Targets, contacts and your balances"
-          className="grid min-w-0 items-start gap-4 max-lg:contents lg:col-span-2 lg:grid-cols-3 lg:gap-5 xl:col-span-1 xl:flex xl:flex-col"
+          aria-label="Targets and contacts"
+          className="grid min-w-0 items-start gap-4 max-lg:contents lg:col-span-2 lg:grid-cols-2 lg:gap-5 xl:col-span-1 xl:flex xl:flex-col xl:items-stretch"
         >
           {show("targets") && <Cell i={6} order="max-lg:order-3"><TargetRings /></Cell>}
           {show("contacts") && <Cell i={10} order="max-lg:order-7"><QuickDial /></Cell>}
-          {show("h4h") && <Cell i={11} order="max-lg:order-8"><WCH4HWidget /></Cell>}
-          {show("toil") && <Cell i={12} order="max-lg:order-9"><ToilWidget /></Cell>}
           {show("skills") && <Cell i={13} order="max-lg:order-10"><WCSkillsExpiryWidget /></Cell>}
         </aside>
       </div>
