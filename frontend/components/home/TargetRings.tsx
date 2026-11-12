@@ -75,14 +75,15 @@ export function TargetRings() {
   const hyMine = (hy.data as hydrants.HydrantSummaryResponse | undefined)?.watches.find((w) => w.watch.toLowerCase() === watch.toLowerCase());
 
   return (
-    <section aria-label="Targets" className="rounded-2xl border border-border/70 bg-card p-4">
+    <section aria-label="Targets" className="@container rounded-2xl border border-border/70 bg-card p-4">
       <div className="flex items-baseline justify-between gap-2">
         <h2 className="text-sm font-semibold">Targets</h2>
         <Link to="/targets" className="text-xs text-muted-foreground hover:text-foreground">
           {fq.label} · day {t.dayOf} of {t.totalDays} →
         </Link>
       </div>
-      <div className="mt-3 grid grid-cols-4">
+      {/* Four across when the card is wide enough, two by two in a narrow column. */}
+      <div className="mt-3 grid grid-cols-2 gap-y-3 @[19rem]:grid-cols-4">
         <Ring label="HFSV" done={hfDone} target={HFSV_TARGET_Q} p={pace(hfDone, HFSV_TARGET_Q, t.elapsed, t.phase)} to="/targets" />
         <Ring
           label="Community" done={cmDone} target={COMMUNITY_TARGET_Q} to="/targets"

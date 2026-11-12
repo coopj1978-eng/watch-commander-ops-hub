@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
 
 import { useUserRole } from "@/lib/rbac";
 import { RotateCcw, SlidersHorizontal } from "lucide-react";
@@ -14,8 +14,9 @@ import { ShiftRunningOrder }      from "@/components/home/ShiftRunningOrder";
 import { ComingUp }               from "@/components/home/ComingUp";
 import { TargetRings }            from "@/components/home/TargetRings";
 import { OurReference }           from "@/components/home/OurReference";
+import { PulseTiles }             from "@/components/home/PulseTiles";
+import { QuickDial }              from "@/components/home/QuickDial";
 import { CrewOnWatchTable }       from "@/components/CrewOnWatchTable";
-import { WCContactsWidget }       from "@/components/WCContactsWidget";
 import { WCSkillsExpiryWidget }   from "@/components/WCSkillsExpiryWidget";
 
 // CC widgets
@@ -39,25 +40,31 @@ export default function RoleDashboard() {
   return null;
 }
 
-// ── Watch Commander home (Nov 2026 rebuild) ────────────────────────────────────
+// ── Watch Commander home (Nov 2026 rebuild; bento layout 12 Nov 2026) ─────────
 //
 // One screen, in the order a WC reads it at the start of a shift:
 //   1. the shift now (ShiftHero: clock, countdown, who's riding);
-//   2. Needs you — every alert in one ranked list (the only place alerts live);
-//   3. the shift's running order, then the week ahead;
-//   4. a side rail: targets as rings, the crew (who's off first), contacts
-//      and your own balances. The weather is in the shift panel.
+//   2. four "at a glance" tiles: crew, missed checks, the J4 board, the
+//      shift board;
+//   3. three columns that fill the width of a desktop screen:
+//        Needs you (every alert, ranked) · the crew · our reference
+//        the shift's running order · the week ahead
+//        targets · contacts · your own balances.
+//      John (12 Nov 2026): the old two-column page was stretched, with half
+//      the screen empty under a short left column.
+//   On a phone it is one column: alerts, running order, then the rest.
 // Before this, ~17 cards repeated each other: absence triggers showed three
 // times, sickness three times, the handover and HFSV twice each, and the
 // 14-day inspections, staffing and KPI tiles duplicated the panels above.
 // Cards in the rail and the week ahead can be switched off (per device).
 
 const RAIL_CARDS: { id: string; label: string }[] = [
+  { id: "pulse",    label: "At a glance — crew, checks, J4 board, shift board" },
   { id: "comingup", label: "Coming up — next 7 days" },
   { id: "targets",  label: "Targets" },
   { id: "reference", label: "Our reference" },
   { id: "crew",     label: "Crew" },
-  { id: "contacts", label: "Duty contacts" },
+  { id: "contacts", label: "Contacts — the top of the Contacts page" },
   { id: "h4h",      label: "My H4H balance" },
   { id: "toil",     label: "My TOIL" },
   { id: "skills",   label: "Skills & renewals (expiring soon is also in Needs you)" },
@@ -130,6 +137,18 @@ function CustomiseDialog({
   );
 }
 
+/**
+ * One card's place in the grid. `i` is its turn in the arrival (the cards
+ * settle in reading order as the page opens); `order` is its place on a phone.
+ */
+function Cell({ i, order, children }: { i: number; order: string; children: ReactNode }) {
+  return (
+    <div className={`bento-item flex min-w-0 flex-col gap-4 ${order}`} style={{ "--i": i } as CSSProperties}>
+      {children}
+    </div>
+  );
+}
+
 function WatchCommanderDashboard() {
   const { hidden, toggle, reset, changed } = useHiddenCards();
   const [customising, setCustomising] = useState(false);
@@ -138,25 +157,37 @@ function WatchCommanderDashboard() {
   return (
     <div className="flex flex-col" style={{ gap: "var(--gap-section)" }}>
       <ShiftHero />
-      <WCAlertBanner />
+      {show("pulse") && <PulseTiles />}
 
-      {/* Unread bulletins / unacknowledged policies — only when there's something to chase. */}
-      <BulletinsTile />
-      <PolicyAcksTile />
-
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[minmax(0,1fr)_380px]">
-        <div className="flex min-w-0 flex-col gap-6">
-          <ShiftRunningOrder />
-          {show("comingup") && <ComingUp />}
+      {/* Three columns on a desktop, two on a small laptop, one on a phone.
+          Below lg the columns dissolve (display: contents) and each card
+          takes its phone position from its order. */}
+      <div className="grid items-start gap-4 lg:grid-cols-2 lg:gap-5 xl:grid-cols-[minmax(0,4fr)_minmax(0,5fr)_minmax(0,3fr)]">
+        <div className="flex min-w-0 flex-col gap-4 max-lg:contents lg:gap-5">
+          <Cell i={4} order="max-lg:order-1">
+            <WCAlertBanner />
+            {/* Unread bulletins / unacknowledged policies — only when there's something to chase. */}
+            <BulletinsTile />
+            <PolicyAcksTile />
+          </Cell>
+          {show("crew") && <Cell i={7} order="max-lg:order-4"><CrewOnWatchTable compact /></Cell>}
+          {show("reference") && <Cell i={9} order="max-lg:order-6"><OurReference /></Cell>}
         </div>
-        <aside aria-label="At a glance" className="flex min-w-0 flex-col gap-4">
-          {show("targets") && <TargetRings />}
-          {show("reference") && <OurReference />}
-          {show("crew") && <CrewOnWatchTable compact />}
-          {show("contacts") && <WCContactsWidget />}
-          {show("h4h") && <WCH4HWidget />}
-          {show("toil") && <ToilWidget />}
-          {show("skills") && <WCSkillsExpiryWidget />}
+
+        <div className="flex min-w-0 flex-col gap-4 max-lg:contents lg:gap-5">
+          <Cell i={5} order="max-lg:order-2"><ShiftRunningOrder /></Cell>
+          {show("comingup") && <Cell i={8} order="max-lg:order-5"><ComingUp /></Cell>}
+        </div>
+
+        <aside
+          aria-label="Targets, contacts and your balances"
+          className="grid min-w-0 items-start gap-4 max-lg:contents lg:col-span-2 lg:grid-cols-3 lg:gap-5 xl:col-span-1 xl:flex xl:flex-col"
+        >
+          {show("targets") && <Cell i={6} order="max-lg:order-3"><TargetRings /></Cell>}
+          {show("contacts") && <Cell i={10} order="max-lg:order-7"><QuickDial /></Cell>}
+          {show("h4h") && <Cell i={11} order="max-lg:order-8"><WCH4HWidget /></Cell>}
+          {show("toil") && <Cell i={12} order="max-lg:order-9"><ToilWidget /></Cell>}
+          {show("skills") && <Cell i={13} order="max-lg:order-10"><WCSkillsExpiryWidget /></Cell>}
         </aside>
       </div>
 
