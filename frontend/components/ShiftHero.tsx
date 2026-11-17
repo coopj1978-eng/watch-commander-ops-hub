@@ -396,7 +396,11 @@ export function ShiftHero() {
                     : `${entries.length} crew assigned`}
                 </span>
                 {canOpen("/handover") && (
-                  <Link to="/handover" className="shrink-0 font-medium text-white hover:underline">
+                  <Link
+                    // This shift's board by name: after midnight the Crewing page opens on the next shift.
+                    to={crewShift ? `/handover?tab=crewing&date=${crewShift.shiftDate}&shift=${encodeURIComponent(crewShift.shiftType)}` : "/handover"}
+                    className="shrink-0 font-medium text-white hover:underline"
+                  >
                     {isManager ? (entries.length ? "Edit crewing →" : "Set crewing →") : "Crewing →"}
                   </Link>
                 )}

@@ -36,7 +36,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
 import backend from "@/lib/backend";
 import { useSickOn } from "@/lib/absences";
-import { getTodayShift, getShiftsForDateRange, hasRotaConfig, crewingShiftFor } from "@/lib/shiftRota";
+import { getTodayShift, getShiftsForDateRange, hasRotaConfig, crewingBoardShiftFor, crewingShiftFor } from "@/lib/shiftRota";
 import { canTakeCharge, suggestCrew, type Seat, type SeatRole } from "@/lib/autoCrew";
 import { PersonPicker } from "@/components/crewing/PersonPicker";
 import { ShiftNavigator } from "@/components/crewing/ShiftNavigator";
@@ -169,8 +169,10 @@ function currentShiftDate(): string {
  * When before 08:00, the operative date is yesterday (night shift runs 18:00–08:00).
  */
 function getSmartDefaults(watchName: string): { shiftDate: string; shiftType: ShiftType } {
-  // The shift running now, or the next one today (same rule as the dashboard).
-  const live = crewingShiftFor(watchName);
+  // The shift running now, or the next one today — and from midnight on a
+  // night shift, the next shift, so its board can be made up before the
+  // night finishes (lib/shiftRota crewingBoardShiftFor).
+  const live = crewingBoardShiftFor(watchName);
   if (live) return { shiftDate: live.shiftDate, shiftType: live.shiftType };
 
   const shiftDate = currentShiftDate();
@@ -203,6 +205,12 @@ function getSmartDefaults(watchName: string): { shiftDate: string; shiftType: Sh
 
   // Fallback: no rota config — clock determines day/night, default to "2nd"
   return { shiftDate, shiftType: clockFallback };
+}
+
+/** The board for "Now": the shift on duty if there is one, else the board's usual opening shift. */
+function getNowShift(watchName: string): { shiftDate: string; shiftType: ShiftType } {
+  const live = crewingShiftFor(watchName);
+  return live && !live.upcoming ? { shiftDate: live.shiftDate, shiftType: live.shiftType } : getSmartDefaults(watchName);
 }
 
 function initials(name: string) {
@@ -2439,14 +2447,33 @@ export default function CrewingBoard({ onOpenCanteenRota }: { onOpenCanteenRota?
           date={shiftDate}
           type={shiftType}
           onChange={(d, t) => { setShiftDate(d); setShiftType(t); setActiveSlotId(null); setTapSelectedId(null); }}
-          isNow={(() => { const d = getSmartDefaults(watch); return d.shiftDate === shiftDate && d.shiftType === shiftType; })()}
-          onNow={() => { const d = getSmartDefaults(watch); setShiftDate(d.shiftDate); setShiftType(d.shiftType); }}
+          isNow={(() => { const d = getNowShift(watch); return d.shiftDate === shiftDate && d.shiftType === shiftType; })()}
+          onNow={() => { const d = getNowShift(watch); setShiftDate(d.shiftDate); setShiftType(d.shiftType); }}
           canEdit={canEdit}
           onCopy={() => (entries.length > 0 ? setCopyAsk(true) : copyMut.mutate())}
           copyPending={copyMut.isPending}
           onAutoCrew={() => setAutoOpen(true)}
           openSeats={plan.picks.length}
         />
+
+        {/* From midnight on a night shift the page opens on the NEXT shift's
+            board. Say so, and keep the running shift one tap away. */}
+        {(() => {
+          const opening = crewingBoardShiftFor(watch);
+          const running = opening?.running;
+          if (!running || opening.shiftDate !== shiftDate || opening.shiftType !== shiftType) return null;
+          return (
+            <div role="status" className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-border bg-muted/50 px-3.5 py-2.5 text-sm print:hidden">
+              <span className="min-w-0 flex-1">
+                <span className="font-semibold">This is your next shift's board.</span>{" "}
+                <span className="text-muted-foreground">Tonight's {running.shiftType} is still on duty.</span>
+              </span>
+              <Button variant="outline" size="sm" className="h-9" onClick={() => { setShiftDate(running.shiftDate); setShiftType(running.shiftType); setActiveSlotId(null); }}>
+                Tonight's board
+              </Button>
+            </div>
+          );
+        })()}
 
         {/* ── Your seat (firefighters) ─────────────────────────────────────── */}
         {seatLine && <MySeatStrip line={seatLine} />}

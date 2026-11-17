@@ -264,6 +264,34 @@ export function crewingShiftFor(
   };
 }
 
+type BoardShiftType = "1st Day" | "2nd Day" | "1st Night" | "2nd Night";
+
+/**
+ * The board the Crewing page opens on. The same as crewingShiftFor, except
+ * that once a night shift is past midnight it opens on the watch's NEXT
+ * shift (John, 17 Nov 2026): the WC or CC makes up the next board in the
+ * morning, before the night finishes. `running` is then the shift still on
+ * duty, so the page can say so and offer its board. Everything about "now" —
+ * riding now on Home, the crew-gap alert — still uses crewingShiftFor.
+ */
+export function crewingBoardShiftFor(
+  watch: string | undefined,
+  now: Date = new Date()
+): { shiftDate: string; shiftType: BoardShiftType; upcoming: boolean; running?: { shiftDate: string; shiftType: BoardShiftType } } | null {
+  const live = crewingShiftFor(watch, now);
+  if (!live || live.upcoming || !watch) return live;
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  const pastMidnight = live.shiftType.includes("Night") && live.shiftDate < today;
+  const next = getWatchShiftStatus(watch, now)?.next;
+  if (!pastMidnight || !next) return live;
+  return {
+    shiftDate: next.date,
+    shiftType: next.shiftType as BoardShiftType,
+    upcoming: true,
+    running: { shiftDate: live.shiftDate, shiftType: live.shiftType },
+  };
+}
+
 /**
  * Two-part shift text for headers and status strips, from the watch's rota:
  *   on    → "2nd Night"    · "18:00–08:00"

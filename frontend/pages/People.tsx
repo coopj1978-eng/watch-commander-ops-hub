@@ -1,3 +1,4 @@
+import { openingFilters, peopleFiltersKey } from "@/lib/peopleFilters";
 import { useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -83,33 +84,29 @@ export default function People() {
 
   const [searchParams, setSearchParams] = useSearchParams();
   
+  // Opens on the filters this person last left it on (kept on this device);
+  // a link that carries its own filters wins. See lib/peopleFilters.
+  const { user: authUser } = useAuth();
+  const filtersKey = peopleFiltersKey(authUser?.id);
+  const [opening] = useState(() => {
+    let saved: string | null = null;
+    try { saved = localStorage.getItem(filtersKey); } catch { /* private window */ }
+    return openingFilters(searchParams, saved);
+  });
+
   const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "");
   const [debouncedSearch, setDebouncedSearch] = useState(searchTerm);
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">(
-    (searchParams.get("status") as any) || "all"
-  );
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">(opening.status);
   // Station / rank / skills / driver filters fold away; the watch chips and
   // status switch stay in view.
   const [showFilterPanel, setShowFilterPanel] = useState(false);
-  const [watchFilters, setWatchFilters] = useState<string[]>(
-    searchParams.get("watch")?.split(",").filter(Boolean) || []
-  );
-  const [rankFilters, setRankFilters] = useState<string[]>(
-    searchParams.get("rank")?.split(",").filter(Boolean) || []
-  );
-  const [skillFilters, setSkillFilters] = useState<string[]>(
-    searchParams.get("skills")?.split(",").filter(Boolean) || []
-  );
-  const [driverPathwayFilter, setDriverPathwayFilter] = useState(
-    searchParams.get("driverPathway") || ""
-  );
-  const [stationFilter, setStationFilter] = useState<string>(searchParams.get("station") || "");
-  const [sortField, setSortField] = useState<SortField>(
-    (searchParams.get("sortBy") as SortField) || "watch"
-  );
-  const [sortDirection, setSortDirection] = useState<SortDirection>(
-    (searchParams.get("sortDir") as SortDirection) || "asc"
-  );
+  const [watchFilters, setWatchFilters] = useState<string[]>(opening.watch);
+  const [rankFilters, setRankFilters] = useState<string[]>(opening.rank);
+  const [skillFilters, setSkillFilters] = useState<string[]>(opening.skills);
+  const [driverPathwayFilter, setDriverPathwayFilter] = useState(opening.driverPathway);
+  const [stationFilter, setStationFilter] = useState<string>(opening.station);
+  const [sortField, setSortField] = useState<SortField>((opening.sortBy as SortField) || "watch");
+  const [sortDirection, setSortDirection] = useState<SortDirection>(opening.sortDir);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showColumnsDrawer, setShowColumnsDrawer] = useState(false);
   const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>({
@@ -125,8 +122,6 @@ export default function People() {
     absence: true,
     lastConversation: true,
   });
-
-  const { user: authUser } = useAuth();
 
   const [logSickOpen, setLogSickOpen] = useState(false);
   const [logSickPerson, setLogSickPerson] = useState<{ id: string; name: string } | null>(null);
@@ -162,8 +157,14 @@ export default function People() {
     if (sortField !== "watch") params.sortBy = sortField;
     if (sortDirection !== "asc") params.sortDir = sortDirection;
 
-    setSearchParams(params);
-  }, [debouncedSearch, statusFilter, watchFilters, rankFilters, skillFilters, driverPathwayFilter, stationFilter, sortField, sortDirection, setSearchParams]);
+    setSearchParams(params, { replace: true });
+    try {
+      localStorage.setItem(filtersKey, JSON.stringify({
+        status: statusFilter, watch: watchFilters, rank: rankFilters, skills: skillFilters,
+        driverPathway: driverPathwayFilter, station: stationFilter, sortBy: sortField, sortDir: sortDirection,
+      }));
+    } catch { /* private window: it just won't be remembered */ }
+  }, [filtersKey, debouncedSearch, statusFilter, watchFilters, rankFilters, skillFilters, driverPathwayFilter, stationFilter, sortField, sortDirection, setSearchParams]);
 
   const { data: peopleData, isLoading } = useQuery({
     queryKey: ["people", statusFilter],

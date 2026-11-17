@@ -3090,34 +3090,34 @@ function requireReactDomClient_production() {
     var fiber = workInProgress2.child;
     null !== fiber && (fiber.return = workInProgress2);
     for (; null !== fiber; ) {
-      var list = fiber.dependencies;
-      if (null !== list) {
+      var list2 = fiber.dependencies;
+      if (null !== list2) {
         var nextFiber = fiber.child;
-        list = list.firstContext;
-        a: for (; null !== list; ) {
-          var dependency = list;
-          list = fiber;
+        list2 = list2.firstContext;
+        a: for (; null !== list2; ) {
+          var dependency = list2;
+          list2 = fiber;
           for (var i = 0; i < contexts.length; i++)
             if (dependency.context === contexts[i]) {
-              list.lanes |= renderLanes2;
-              dependency = list.alternate;
+              list2.lanes |= renderLanes2;
+              dependency = list2.alternate;
               null !== dependency && (dependency.lanes |= renderLanes2);
               scheduleContextWorkOnParentPath(
-                list.return,
+                list2.return,
                 renderLanes2,
                 workInProgress2
               );
               forcePropagateEntireTree || (nextFiber = null);
               break a;
             }
-          list = dependency.next;
+          list2 = dependency.next;
         }
       } else if (18 === fiber.tag) {
         nextFiber = fiber.return;
         if (null === nextFiber) throw Error(formatProdErrorMessage(341));
         nextFiber.lanes |= renderLanes2;
-        list = nextFiber.alternate;
-        null !== list && (list.lanes |= renderLanes2);
+        list2 = nextFiber.alternate;
+        null !== list2 && (list2.lanes |= renderLanes2);
         scheduleContextWorkOnParentPath(nextFiber, renderLanes2, workInProgress2);
         nextFiber = null;
       } else nextFiber = fiber.child;
@@ -27698,14 +27698,14 @@ function getSideList(side, isStart, rtl) {
 }
 function getOppositeAxisPlacements(placement, flipAlignment, direction, rtl) {
   const alignment = getAlignment(placement);
-  let list = getSideList(getSide(placement), direction === "start", rtl);
+  let list2 = getSideList(getSide(placement), direction === "start", rtl);
   if (alignment) {
-    list = list.map((side) => side + "-" + alignment);
+    list2 = list2.map((side) => side + "-" + alignment);
     if (flipAlignment) {
-      list = list.concat(list.map(getOppositeAlignmentPlacement));
+      list2 = list2.concat(list2.map(getOppositeAlignmentPlacement));
     }
   }
-  return list;
+  return list2;
 }
 function getOppositePlacement(placement) {
   return placement.replace(/left|right|bottom|top/g, (side) => oppositeSideMap[side]);
@@ -28590,10 +28590,10 @@ function getNearestOverflowAncestor(node) {
   }
   return getNearestOverflowAncestor(parentNode);
 }
-function getOverflowAncestors(node, list, traverseIframes) {
+function getOverflowAncestors(node, list2, traverseIframes) {
   var _node$ownerDocument2;
-  if (list === void 0) {
-    list = [];
+  if (list2 === void 0) {
+    list2 = [];
   }
   if (traverseIframes === void 0) {
     traverseIframes = true;
@@ -28603,9 +28603,9 @@ function getOverflowAncestors(node, list, traverseIframes) {
   const win = getWindow$1(scrollableAncestor);
   if (isBody) {
     const frameElement = getFrameElement(win);
-    return list.concat(win, win.visualViewport || [], isOverflowElement(scrollableAncestor) ? scrollableAncestor : [], frameElement && traverseIframes ? getOverflowAncestors(frameElement) : []);
+    return list2.concat(win, win.visualViewport || [], isOverflowElement(scrollableAncestor) ? scrollableAncestor : [], frameElement && traverseIframes ? getOverflowAncestors(frameElement) : []);
   }
-  return list.concat(scrollableAncestor, getOverflowAncestors(scrollableAncestor, [], traverseIframes));
+  return list2.concat(scrollableAncestor, getOverflowAncestors(scrollableAncestor, [], traverseIframes));
 }
 function getFrameElement(win) {
   return win.parent && Object.getPrototypeOf(win.parent) ? win.frameElement : null;
@@ -33249,6 +33249,21 @@ function crewingShiftFor(watch, now = /* @__PURE__ */ new Date()) {
     upcoming: !(s == null ? void 0 : s.current)
   };
 }
+function crewingBoardShiftFor(watch, now = /* @__PURE__ */ new Date()) {
+  var _a3;
+  const live = crewingShiftFor(watch, now);
+  if (!live || live.upcoming || !watch) return live;
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  const pastMidnight = live.shiftType.includes("Night") && live.shiftDate < today;
+  const next = (_a3 = getWatchShiftStatus(watch, now)) == null ? void 0 : _a3.next;
+  if (!pastMidnight || !next) return live;
+  return {
+    shiftDate: next.date,
+    shiftType: next.shiftType,
+    upcoming: true,
+    running: { shiftDate: live.shiftDate, shiftType: live.shiftType }
+  };
+}
 function shiftDisplay(watch, now = /* @__PURE__ */ new Date()) {
   const s = watch ? getWatchShiftStatus(watch, now) : null;
   if (!s) return null;
@@ -34212,8 +34227,8 @@ function rememberPage(pathname) {
   const page = pageFor(pathname);
   if (!page) return;
   try {
-    const list = JSON.parse(localStorage.getItem(RECENT_KEY) ?? "[]");
-    const next = [page.path, ...list.filter((p) => p !== page.path)].slice(0, 8);
+    const list2 = JSON.parse(localStorage.getItem(RECENT_KEY) ?? "[]");
+    const next = [page.path, ...list2.filter((p) => p !== page.path)].slice(0, 8);
     localStorage.setItem(RECENT_KEY, JSON.stringify(next));
   } catch {
   }
@@ -34334,7 +34349,7 @@ function CommandPalette({ open, onOpenChange, onShowShortcuts }) {
       const recent = recentPaths().map((path) => pages.find((p) => p.id === `page:${path}`)).filter((p) => !!p).slice(0, MAX_RECENT).map((p) => ({ ...p, id: `recent:${p.id}`, group: "Recent" }));
       return [...recent, ...adds, ...pages, ...dos];
     }
-    const rank2 = (list, limit = 50) => list.map((e) => ({ e, s: score(e, q) })).filter((x) => x.s >= 0).sort((a, b) => a.s - b.s).slice(0, limit).map((x) => x.e);
+    const rank2 = (list2, limit = 50) => list2.map((e) => ({ e, s: score(e, q) })).filter((x) => x.s >= 0).sort((a, b) => a.s - b.s).slice(0, limit).map((x) => x.e);
     return [...rank2(pages), ...rank2(crew2, 8), ...rank2(adds), ...rank2(dos)];
   }, [query, groups, account, actions, people, badges, isDark]);
   reactExports.useEffect(() => setActive(0), [query]);
@@ -35527,7 +35542,14 @@ function ShiftHero() {
                   "You: ",
                   /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold text-white", children: myBooking })
                 ] }) : entries.length === 0 ? "Crewing not set for this shift" : `${entries.length} crew assigned` }),
-                canOpen("/handover") && /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: "/handover", className: "shrink-0 font-medium text-white hover:underline", children: isManager ? entries.length ? "Edit crewing →" : "Set crewing →" : "Crewing →" })
+                canOpen("/handover") && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  Link,
+                  {
+                    to: crewShift ? `/handover?tab=crewing&date=${crewShift.shiftDate}&shift=${encodeURIComponent(crewShift.shiftType)}` : "/handover",
+                    className: "shrink-0 font-medium text-white hover:underline",
+                    children: isManager ? entries.length ? "Edit crewing →" : "Set crewing →" : "Crewing →"
+                  }
+                )
               ] })
             ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-6 flex flex-col items-start gap-2 text-sm text-white/60", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(StateIcon, { className: "h-6 w-6", style: { color: accent } }),
@@ -38662,8 +38684,8 @@ function ShiftRunningOrder() {
     });
     const checks = tasks.filter((t) => t.kind === "check");
     for (const t of checks) {
-      const list = checklistOf(t.checklist);
-      const d = list.filter((i) => i.done).length;
+      const list2 = checklistOf(t.checklist);
+      const d = list2.filter((i) => i.done).length;
       const carried = t.routine_slot && t.routine_slot !== "every" && t.status !== "Done" && new Date(t.created_at).getTime() < start;
       rows.push({
         key: `check-${t.id}`,
@@ -38674,7 +38696,7 @@ function ShiftRunningOrder() {
         tone: t.status === "Done" ? "done" : carried ? "warn" : void 0,
         title: t.title,
         body: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex flex-wrap items-center gap-2", children: [
-          list.length ? /* @__PURE__ */ jsxRuntimeExports.jsx(Bar, { done: d, total: list.length }) : t.status === "Done" ? "Done" : t.check_freq,
+          list2.length ? /* @__PURE__ */ jsxRuntimeExports.jsx(Bar, { done: d, total: list2.length }) : t.status === "Done" ? "Done" : t.check_freq,
           carried && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-semibold text-amber-700 dark:text-amber-400", children: [
             "Carried from ",
             new Date(t.created_at).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })
@@ -42929,6 +42951,57 @@ function WatchCommanderDashboard() {
 function Dashboard() {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(RoleDashboard, {});
 }
+const DEFAULT_PEOPLE_FILTERS = {
+  status: "all",
+  watch: [],
+  rank: [],
+  skills: [],
+  driverPathway: "",
+  station: "",
+  sortBy: "watch",
+  sortDir: "asc"
+};
+const FILTER_PARAMS = ["status", "watch", "rank", "skills", "driverPathway", "station", "sortBy", "sortDir"];
+const list = (v) => Array.isArray(v) ? v.filter((x) => typeof x === "string" && x !== "") : [];
+const text$1 = (v) => typeof v === "string" ? v : "";
+const peopleFiltersKey = (userId) => `people-filters:${userId ?? "anon"}`;
+function parseSavedFilters(raw) {
+  if (!raw) return null;
+  try {
+    const o = JSON.parse(raw);
+    if (!o || typeof o !== "object") return null;
+    return {
+      status: o.status === "active" || o.status === "inactive" ? o.status : "all",
+      watch: list(o.watch),
+      rank: list(o.rank),
+      skills: list(o.skills),
+      driverPathway: text$1(o.driverPathway),
+      station: text$1(o.station),
+      sortBy: text$1(o.sortBy) || "watch",
+      sortDir: o.sortDir === "desc" ? "desc" : "asc"
+    };
+  } catch {
+    return null;
+  }
+}
+function filtersFromUrl(params) {
+  if (!FILTER_PARAMS.some((k) => params.has(k))) return null;
+  const many = (k) => (params.get(k) ?? "").split(",").filter(Boolean);
+  const status = params.get("status");
+  return {
+    status: status === "active" || status === "inactive" ? status : "all",
+    watch: many("watch"),
+    rank: many("rank"),
+    skills: many("skills"),
+    driverPathway: params.get("driverPathway") ?? "",
+    station: params.get("station") ?? "",
+    sortBy: params.get("sortBy") || "watch",
+    sortDir: params.get("sortDir") === "desc" ? "desc" : "asc"
+  };
+}
+function openingFilters(params, saved) {
+  return filtersFromUrl(params) ?? parseSavedFilters(saved) ?? DEFAULT_PEOPLE_FILTERS;
+}
 const STATION_OPTIONS = [
   { value: "B01 Cowcaddens", label: "B01 Cowcaddens" },
   { value: "B02 Calton", label: "B02 Calton" },
@@ -43576,7 +43649,6 @@ const DRIVER_PATHWAY_COLORS = {
   passed: "bg-emerald-500/10 text-emerald-500"
 };
 function People() {
-  var _a3, _b3, _c2;
   const backend = useBackend();
   const navigate = useNavigate();
   const canView = useCanViewPeople();
@@ -43586,31 +43658,27 @@ function People() {
   const queryClient2 = useQueryClient();
   const { toast: toast2 } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { user: authUser } = useAuth();
+  const filtersKey = peopleFiltersKey(authUser == null ? void 0 : authUser.id);
+  const [opening] = reactExports.useState(() => {
+    let saved = null;
+    try {
+      saved = localStorage.getItem(filtersKey);
+    } catch {
+    }
+    return openingFilters(searchParams, saved);
+  });
   const [searchTerm, setSearchTerm] = reactExports.useState(searchParams.get("search") || "");
   const [debouncedSearch, setDebouncedSearch] = reactExports.useState(searchTerm);
-  const [statusFilter, setStatusFilter] = reactExports.useState(
-    searchParams.get("status") || "all"
-  );
+  const [statusFilter, setStatusFilter] = reactExports.useState(opening.status);
   const [showFilterPanel, setShowFilterPanel] = reactExports.useState(false);
-  const [watchFilters, setWatchFilters] = reactExports.useState(
-    ((_a3 = searchParams.get("watch")) == null ? void 0 : _a3.split(",").filter(Boolean)) || []
-  );
-  const [rankFilters, setRankFilters] = reactExports.useState(
-    ((_b3 = searchParams.get("rank")) == null ? void 0 : _b3.split(",").filter(Boolean)) || []
-  );
-  const [skillFilters, setSkillFilters] = reactExports.useState(
-    ((_c2 = searchParams.get("skills")) == null ? void 0 : _c2.split(",").filter(Boolean)) || []
-  );
-  const [driverPathwayFilter, setDriverPathwayFilter] = reactExports.useState(
-    searchParams.get("driverPathway") || ""
-  );
-  const [stationFilter, setStationFilter] = reactExports.useState(searchParams.get("station") || "");
-  const [sortField, setSortField] = reactExports.useState(
-    searchParams.get("sortBy") || "watch"
-  );
-  const [sortDirection, setSortDirection] = reactExports.useState(
-    searchParams.get("sortDir") || "asc"
-  );
+  const [watchFilters, setWatchFilters] = reactExports.useState(opening.watch);
+  const [rankFilters, setRankFilters] = reactExports.useState(opening.rank);
+  const [skillFilters, setSkillFilters] = reactExports.useState(opening.skills);
+  const [driverPathwayFilter, setDriverPathwayFilter] = reactExports.useState(opening.driverPathway);
+  const [stationFilter, setStationFilter] = reactExports.useState(opening.station);
+  const [sortField, setSortField] = reactExports.useState(opening.sortBy || "watch");
+  const [sortDirection, setSortDirection] = reactExports.useState(opening.sortDir);
   const [showAddModal, setShowAddModal] = reactExports.useState(false);
   const [showColumnsDrawer, setShowColumnsDrawer] = reactExports.useState(false);
   const [visibleColumns, setVisibleColumns] = reactExports.useState({
@@ -43626,7 +43694,6 @@ function People() {
     absence: true,
     lastConversation: true
   });
-  const { user: authUser } = useAuth();
   const [logSickOpen, setLogSickOpen] = reactExports.useState(false);
   const [logSickPerson, setLogSickPerson] = reactExports.useState(null);
   if (!canView) {
@@ -43653,8 +43720,21 @@ function People() {
     if (stationFilter) params.station = stationFilter;
     if (sortField !== "watch") params.sortBy = sortField;
     if (sortDirection !== "asc") params.sortDir = sortDirection;
-    setSearchParams(params);
-  }, [debouncedSearch, statusFilter, watchFilters, rankFilters, skillFilters, driverPathwayFilter, stationFilter, sortField, sortDirection, setSearchParams]);
+    setSearchParams(params, { replace: true });
+    try {
+      localStorage.setItem(filtersKey, JSON.stringify({
+        status: statusFilter,
+        watch: watchFilters,
+        rank: rankFilters,
+        skills: skillFilters,
+        driverPathway: driverPathwayFilter,
+        station: stationFilter,
+        sortBy: sortField,
+        sortDir: sortDirection
+      }));
+    } catch {
+    }
+  }, [filtersKey, debouncedSearch, statusFilter, watchFilters, rankFilters, skillFilters, driverPathwayFilter, stationFilter, sortField, sortDirection, setSearchParams]);
   const { data: peopleData, isLoading } = useQuery({
     queryKey: ["people", statusFilter],
     queryFn: async () => {
@@ -43685,10 +43765,10 @@ function People() {
   });
   const people = (peopleData == null ? void 0 : peopleData.people) || [];
   reactExports.useEffect(() => {
-    var _a4, _b4;
+    var _a3, _b3;
     if (peopleData && authUser && !stationFilter && !searchParams.get("station")) {
-      const myProfile = (_a4 = peopleData.people) == null ? void 0 : _a4.find((p) => p.user.id === authUser.id);
-      if ((_b4 = myProfile == null ? void 0 : myProfile.profile) == null ? void 0 : _b4.station) {
+      const myProfile = (_a3 = peopleData.people) == null ? void 0 : _a3.find((p) => p.user.id === authUser.id);
+      if ((_b3 = myProfile == null ? void 0 : myProfile.profile) == null ? void 0 : _b3.station) {
         setStationFilter(myProfile.profile.station);
       }
     }
@@ -43701,11 +43781,11 @@ function People() {
   }, [skillsData]);
   const filteredAndSortedPeople = reactExports.useMemo(() => {
     let filtered = people.filter((person) => {
-      var _a4, _b4, _c3;
+      var _a3, _b3, _c2;
       const { user: user2, profile: profile2 } = person;
       if (debouncedSearch) {
         const search = debouncedSearch.toLowerCase();
-        const matchesSearch = user2.name.toLowerCase().includes(search) || user2.email.toLowerCase().includes(search) || ((_a4 = profile2 == null ? void 0 : profile2.service_number) == null ? void 0 : _a4.toLowerCase().includes(search)) || ((_b4 = profile2 == null ? void 0 : profile2.skills) == null ? void 0 : _b4.some((s) => s.toLowerCase().includes(search)));
+        const matchesSearch = user2.name.toLowerCase().includes(search) || user2.email.toLowerCase().includes(search) || ((_a3 = profile2 == null ? void 0 : profile2.service_number) == null ? void 0 : _a3.toLowerCase().includes(search)) || ((_b3 = profile2 == null ? void 0 : profile2.skills) == null ? void 0 : _b3.some((s) => s.toLowerCase().includes(search)));
         if (!matchesSearch) return false;
       }
       const effectiveWatch = user2.watch_unit || (profile2 == null ? void 0 : profile2.watch) || "";
@@ -43714,21 +43794,21 @@ function People() {
       if (stationFilter && stationFilter.trim() && effectiveStation !== stationFilter) return false;
       if (rankFilters.length && !rankFilters.includes((profile2 == null ? void 0 : profile2.rank) || "")) return false;
       if (skillFilters.length && !skillFilters.some((sf) => {
-        var _a5;
-        return (_a5 = profile2 == null ? void 0 : profile2.skills) == null ? void 0 : _a5.includes(sf);
+        var _a4;
+        return (_a4 = profile2 == null ? void 0 : profile2.skills) == null ? void 0 : _a4.includes(sf);
       })) return false;
-      if (driverPathwayFilter && ((_c3 = profile2 == null ? void 0 : profile2.driverPathway) == null ? void 0 : _c3.status) !== driverPathwayFilter) return false;
+      if (driverPathwayFilter && ((_c2 = profile2 == null ? void 0 : profile2.driverPathway) == null ? void 0 : _c2.status) !== driverPathwayFilter) return false;
       return true;
     });
     filtered.sort((a, b) => {
-      var _a4, _b4, _c3, _d2, _e2, _f2, _g2, _h2, _i2, _j2, _k2, _l2, _m, _n;
+      var _a3, _b3, _c2, _d2, _e2, _f2, _g2, _h2, _i2, _j2, _k2, _l2, _m, _n;
       let comparison = 0;
       if (sortField === "watch") {
-        const watchA = a.user.watch_unit || ((_a4 = a.profile) == null ? void 0 : _a4.watch) || "";
-        const watchB = b.user.watch_unit || ((_b4 = b.profile) == null ? void 0 : _b4.watch) || "";
+        const watchA = a.user.watch_unit || ((_a3 = a.profile) == null ? void 0 : _a3.watch) || "";
+        const watchB = b.user.watch_unit || ((_b3 = b.profile) == null ? void 0 : _b3.watch) || "";
         comparison = watchA.localeCompare(watchB);
         if (comparison === 0) {
-          const rankA = RANK_ORDER[(_c3 = a.profile) == null ? void 0 : _c3.rank] || 999;
+          const rankA = RANK_ORDER[(_c2 = a.profile) == null ? void 0 : _c2.rank] || 999;
           const rankB = RANK_ORDER[(_d2 = b.profile) == null ? void 0 : _d2.rank] || 999;
           comparison = rankA - rankB;
           if (comparison === 0) {
@@ -43984,10 +44064,10 @@ function People() {
     ] }),
     isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: [...Array(5)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-16 w-full" }, i)) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "md:hidden space-y-2", children: filteredAndSortedPeople.map((person) => {
-        var _a4;
+        var _a3;
         const { user: user2, profile: profile2 } = person;
         const watch = user2.watch_unit || (profile2 == null ? void 0 : profile2.watch);
-        const initials2 = ((_a4 = user2.name) == null ? void 0 : _a4.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase()) ?? "?";
+        const initials2 = ((_a3 = user2.name) == null ? void 0 : _a3.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase()) ?? "?";
         return /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
@@ -44052,7 +44132,7 @@ function People() {
           canLogSick && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "w-28", children: "Actions" })
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableBody, { children: filteredAndSortedPeople.map((person) => {
-          var _a4;
+          var _a3;
           const { user: user2, profile: profile2 } = person;
           return /* @__PURE__ */ jsxRuntimeExports.jsxs(
             TableRow,
@@ -44073,7 +44153,7 @@ function People() {
                 visibleColumns.email && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "text-sm", children: user2.email }),
                 visibleColumns.rank && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: (profile2 == null ? void 0 : profile2.rank) || "-" }),
                 visibleColumns.staffNumber && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "font-mono text-xs tabular-nums text-muted-foreground", children: (profile2 == null ? void 0 : profile2.service_number) || "—" }),
-                visibleColumns.niNumber && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: ((_a4 = profile2 == null ? void 0 : profile2.customFields) == null ? void 0 : _a4.niNumber) || "-" }),
+                visibleColumns.niNumber && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: ((_a3 = profile2 == null ? void 0 : profile2.customFields) == null ? void 0 : _a3.niNumber) || "-" }),
                 visibleColumns.skills && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1 max-w-xs", children: (profile2 == null ? void 0 : profile2.skills) && profile2.skills.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                   profile2.skills.slice(0, 3).map((skill2, idx) => /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-xs", children: skill2 }, idx)),
                   profile2.skills.length > 3 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-muted-foreground", children: [
@@ -47388,9 +47468,9 @@ function RecordHistory({ profileId }) {
     isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "py-8 text-center text-sm text-muted-foreground", children: "Loading…" }) : error ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "py-8 text-center text-sm text-muted-foreground", children: "Couldn't load the history." }) : !entries.length ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center gap-2 py-10 text-center text-sm text-muted-foreground", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(History, { className: "h-5 w-5" }),
       " No changes recorded yet."
-    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-4 flex flex-col gap-5", children: days.map(([day2, list]) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-4 flex flex-col gap-5", children: days.map(([day2, list2]) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground", children: day2 }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("ol", { className: "relative ml-1.5 border-l border-border/70", children: list.map((e) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "relative pb-3 pl-4 last:pb-0", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ol", { className: "relative ml-1.5 border-l border-border/70", children: list2.map((e) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "relative pb-3 pl-4 last:pb-0", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "aria-hidden": true, className: "absolute -left-[4.5px] top-1.5 h-2 w-2 rounded-full bg-foreground/70" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: e.by ?? "The system" }),
@@ -49999,7 +50079,7 @@ function Toolbar({
     ] })
   ] });
 }
-function PhoneHeader({ date: date2, onPrev, onNext, onToday, filters, list, onListChange }) {
+function PhoneHeader({ date: date2, onPrev, onNext, onToday, filters, list: list2, onListChange }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 10 }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { style: { margin: 0, fontSize: 26, lineHeight: 1.1, fontWeight: 650, letterSpacing: "-.02em" }, children: [
@@ -50021,7 +50101,7 @@ function PhoneHeader({ date: date2, onPrev, onNext, onToday, filters, list, onLi
         "button",
         {
           type: "button",
-          "aria-pressed": list === l,
+          "aria-pressed": list2 === l,
           onClick: () => onListChange(l),
           className: "cal-focus",
           style: {
@@ -50032,7 +50112,7 @@ function PhoneHeader({ date: date2, onPrev, onNext, onToday, filters, list, onLi
             font: "inherit",
             fontSize: 13,
             cursor: "pointer",
-            ...list === l ? { background: "var(--cal-surface)", color: "var(--cal-ink)", fontWeight: 600, boxShadow: "var(--cal-shadow)" } : { background: "transparent", color: "var(--cal-ink-2)", fontWeight: 500 }
+            ...list2 === l ? { background: "var(--cal-surface)", color: "var(--cal-ink)", fontWeight: 600, boxShadow: "var(--cal-shadow)" } : { background: "transparent", color: "var(--cal-ink-2)", fontWeight: 500 }
           },
           children: l ? "List" : "Month"
         },
@@ -56495,8 +56575,8 @@ function RoutinePlanner({ open, onClose, canManage, onOpenOtherChecks }) {
     const m = /* @__PURE__ */ new Map();
     const sorted = [...templates].filter((t) => t.routine_slot).sort((a, b) => (a.routine_position ?? 0) - (b.routine_position ?? 0) || a.id - b.id);
     for (const t of sorted) {
-      const list = m.get(t.routine_slot) ?? [];
-      list.push({
+      const list2 = m.get(t.routine_slot) ?? [];
+      list2.push({
         key: String(t.id),
         id: t.id,
         name: t.name,
@@ -56504,7 +56584,7 @@ function RoutinePlanner({ open, onClose, canManage, onOpenOtherChecks }) {
         cover: t.cover ?? null,
         items: (t.checklist ?? []).map((i) => i.label)
       });
-      m.set(t.routine_slot, list);
+      m.set(t.routine_slot, list2);
     }
     return m;
   }, [templates]);
@@ -59839,10 +59919,10 @@ function Hydrants() {
   const fileInput = reactExports.useRef(null);
   const importBooks = useMutation({
     mutationFn: async (files) => {
-      const list = await readHydrantWorkbooks(files);
-      if (list.length === 0) throw new Error("No route sheets found — pick the 'COG Hydrant Records' workbooks.");
-      const res = await backendClient.hydrants.importHydrants({ hydrants: list });
-      return { ...res, routes: new Set(list.map((h) => h.route)).size };
+      const list2 = await readHydrantWorkbooks(files);
+      if (list2.length === 0) throw new Error("No route sheets found — pick the 'COG Hydrant Records' workbooks.");
+      const res = await backendClient.hydrants.importHydrants({ hydrants: list2 });
+      return { ...res, routes: new Set(list2.map((h) => h.route)).size };
     },
     onSuccess: (r2) => toast2({ title: `Loaded ${r2.created + r2.updated} hydrants on ${r2.routes} routes`, description: r2.updated ? `${r2.created} new, ${r2.updated} updated. Ticks already made are kept.` : void 0 }),
     onError: (err2) => toast2({ title: "Couldn't load the workbooks", description: err2 instanceof Error ? err2.message : void 0, variant: "destructive" }),
@@ -72855,7 +72935,7 @@ function currentShiftDate() {
   return now.toISOString().split("T")[0];
 }
 function getSmartDefaults(watchName) {
-  const live = crewingShiftFor(watchName);
+  const live = crewingBoardShiftFor(watchName);
   if (live) return { shiftDate: live.shiftDate, shiftType: live.shiftType };
   const shiftDate = currentShiftDate();
   const h = (/* @__PURE__ */ new Date()).getHours();
@@ -72878,6 +72958,10 @@ function getSmartDefaults(watchName) {
     }
   }
   return { shiftDate, shiftType: clockFallback };
+}
+function getNowShift(watchName) {
+  const live = crewingShiftFor(watchName);
+  return live && !live.upcoming ? { shiftDate: live.shiftDate, shiftType: live.shiftType } : getSmartDefaults(watchName);
 }
 function initials(name) {
   return name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
@@ -74486,11 +74570,11 @@ function CrewingBoard({ onOpenCanteenRota } = {}) {
             setTapSelectedId(null);
           },
           isNow: (() => {
-            const d = getSmartDefaults(watch);
+            const d = getNowShift(watch);
             return d.shiftDate === shiftDate && d.shiftType === shiftType;
           })(),
           onNow: () => {
-            const d = getSmartDefaults(watch);
+            const d = getNowShift(watch);
             setShiftDate(d.shiftDate);
             setShiftType(d.shiftType);
           },
@@ -74501,6 +74585,27 @@ function CrewingBoard({ onOpenCanteenRota } = {}) {
           openSeats: plan.picks.length
         }
       ),
+      (() => {
+        const opening = crewingBoardShiftFor(watch);
+        const running = opening == null ? void 0 : opening.running;
+        if (!running || opening.shiftDate !== shiftDate || opening.shiftType !== shiftType) return null;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { role: "status", className: "flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-border bg-muted/50 px-3.5 py-2.5 text-sm print:hidden", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "min-w-0 flex-1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold", children: "This is your next shift's board." }),
+            " ",
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-muted-foreground", children: [
+              "Tonight's ",
+              running.shiftType,
+              " is still on duty."
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", size: "sm", className: "h-9", onClick: () => {
+            setShiftDate(running.shiftDate);
+            setShiftType(running.shiftType);
+            setActiveSlotId(null);
+          }, children: "Tonight's board" })
+        ] });
+      })(),
       seatLine && /* @__PURE__ */ jsxRuntimeExports.jsx(MySeatStrip, { line: seatLine }),
       !crewingLoading && (() => {
         const pumps = ["b10p1", "b10p2"].map((a) => {
