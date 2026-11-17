@@ -1,3 +1,4 @@
+import { isTaskOverdue } from "@/lib/taskDue";
 import { useRef, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { invalidateTargetViews } from "@/lib/targetsCache";
@@ -326,7 +327,7 @@ export default function TaskBoard({
     if (filters.search && !t.title.toLowerCase().includes(filters.search.toLowerCase())) return false;
     if (filters.labels.length > 0 && !filters.labels.some((l) => (t.tags ?? []).includes(l))) return false;
     if (filters.overdueOnly) {
-      if (!t.due_at || new Date(t.due_at) > new Date() || t.status === "Done") return false;
+      if (t.status === "Done" || !isTaskOverdue(t.due_at)) return false;
     }
     if (filters.assignee && t.assigned_to_user_id !== filters.assignee) return false;
     if (filters.dueOn) {

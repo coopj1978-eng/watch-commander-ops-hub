@@ -112,8 +112,8 @@ export const NAV_GROUPS: NavGroup[] = [
 /** Under your name: the sidebar's account menu, and the phone's "More" sheet. */
 export const ACCOUNT_ITEMS: NavItem[] = [
   { name: "My profile", path: "/profile",  icon: UserCircle, keywords: "me account skills toil" },
-  { name: "Settings",   path: "/settings", icon: Settings,   keywords: "appearance accent colour density dark mode theme" },
-  { name: "Admin",      path: "/admin",    icon: ShieldCheck, managersOrAdmin: true, keywords: "station setup skills certs dictionaries absence triggers thresholds inspection plans multi-storey care homes branding activity log users feature switches" },
+  { name: "Settings",   path: "/settings", icon: Settings,   keywords: "appearance dark mode theme" },
+  { name: "Admin",      path: "/admin",    icon: ShieldCheck, managersOrAdmin: true, keywords: "station setup skills certs dictionaries absence triggers thresholds inspection plans multi-storey care homes activity log users feature switches" },
 ];
 
 // ── Quick add — the phone "+" and the ⌘K "Add" group ─────────────────────────

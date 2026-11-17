@@ -16,28 +16,6 @@ export function getLabelById(id: string) {
   return TASK_LABELS.find((l) => l.id === id);
 }
 
-// Board background options
-export const BOARD_BACKGROUNDS = [
-  { id: "default",  name: "Default",     dark: false, style: "background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 60%, #f5f3ff 100%)" },
-  { id: "ocean",    name: "Ocean",       dark: true,  style: "background: linear-gradient(135deg, #1e3a5f 0%, #1d4ed8 50%, #0891b2 100%)" },
-  { id: "night",    name: "Night Shift", dark: true,  style: "background: linear-gradient(135deg, #111827 0%, #312e81 50%, #4c1d95 100%)" },
-  { id: "fire",     name: "Fire",        dark: true,  style: "background: linear-gradient(135deg, #7f1d1d 0%, #c2410c 50%, #ca8a04 100%)" },
-  { id: "forest",   name: "Forest",      dark: true,  style: "background: linear-gradient(135deg, #14532d 0%, #065f46 50%, #0f766e 100%)" },
-  { id: "storm",    name: "Storm",       dark: true,  style: "background: linear-gradient(135deg, #1e293b 0%, #475569 50%, #64748b 100%)" },
-  { id: "dawn",     name: "Dawn",        dark: false, style: "background: linear-gradient(135deg, #fbbf24 0%, #f472b6 50%, #a78bfa 100%)" },
-  { id: "arctic",   name: "Arctic",      dark: false, style: "background: linear-gradient(135deg, #e0f2fe 0%, #bfdbfe 50%, #ddd6fe 100%)" },
-  { id: "crimson",  name: "Crimson",     dark: true,  style: "background: linear-gradient(135deg, #450a0a 0%, #991b1b 50%, #be123c 100%)" },
-  { id: "indigo",   name: "Indigo",      dark: true,  style: "background: linear-gradient(135deg, #1e1b4b 0%, #3730a3 50%, #6d28d9 100%)" },
-  { id: "teal",     name: "Teal",        dark: true,  style: "background: linear-gradient(135deg, #042f2e 0%, #0f766e 50%, #059669 100%)" },
-  { id: "rose",     name: "Rose",        dark: false, style: "background: linear-gradient(135deg, #fff1f2 0%, #fce7f3 50%, #ede9fe 100%)" },
-] as const;
-
-export type BackgroundId = typeof BOARD_BACKGROUNDS[number]["id"];
-
-export function getBackground(id: string) {
-  return BOARD_BACKGROUNDS.find((b) => b.id === id) ?? BOARD_BACKGROUNDS[0];
-}
-
 // Card cover colours (solid + gradient swatches)
 export const CARD_COVERS = [
   // No cover

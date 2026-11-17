@@ -27,7 +27,6 @@ import { useSearchParams } from "react-router-dom";
 import { DictionariesManager } from "@/components/DictionaryManager";
 import { AbsenceThresholds } from "@/components/AbsenceThresholds";
 import { InspectionPlans } from "@/components/InspectionPlans";
-import { BrandingSettings } from "@/components/BrandingSettings";
 import { useCanAccessAdmin, useIsAdmin } from "@/lib/rbac";
 import { useFeatureFlags, type FeatureFlags } from "@/lib/feature-flags";
 import { useToast } from "@/components/ui/use-toast";
@@ -74,7 +73,7 @@ const FEATURE_CONFIG: {
   { key: "guides",       label: "Library · Guides",         description: "How-to guides for station processes (written for WC and CC so far)",  icon: ListChecks,    phase: "Phase 2 · information" },
   { key: "bulletins",    label: "Bulletins",      description: "News and announcements",                                              icon: Megaphone,     phase: "Phase 2 · information" },
   { key: "training",     label: "Training",       description: "Training sessions and records",                                       icon: GraduationCap, phase: "Phase 2 · information" },
-  { key: "policies",     label: "Library · Documents",           description: "Policies, guidance and the policy question box",                      icon: FileText,      phase: "Phase 2 · information" },
+  { key: "policies",     label: "Library · Documents",           description: "Policy and guidance documents",                      icon: FileText,      phase: "Phase 2 · information" },
   { key: "hydrants",     label: "Hydrants",       description: "Hydrant routes and faults",                                           icon: Flame,         phase: "Phase 3 · station work" },
   { key: "references",   label: "Watch references", description: "The watch's station references (and Our reference on Home)",         icon: BookMarked,    phase: "Phase 3 · station work" },
   { key: "people",       label: "People",         description: "Everyone's profiles",                                                 icon: Users,         phase: "WC/CC tools" },
@@ -90,7 +89,6 @@ const STATION_TABS = [
   { value: "skills", label: "Skills & certs" },
   { value: "absence", label: "Absence triggers" },
   PLANS_TAB,
-  { value: "branding", label: "Branding" },
   { value: "activity", label: "Activity log" },
 ];
 const ADMIN_TABS = [
@@ -139,10 +137,6 @@ export default function AdminPanel() {
 
         <TabsContent value="inspection-plans" className="mt-6 space-y-6">
           <InspectionPlans />
-        </TabsContent>
-
-        <TabsContent value="branding" className="mt-6 space-y-6">
-          <BrandingSettings />
         </TabsContent>
 
         <TabsContent value="activity" className="mt-6">

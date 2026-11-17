@@ -1,3 +1,4 @@
+import { dueDayDiff } from "@/lib/taskDue";
 import type { Task } from "~backend/task/types";
 import { getLabelById } from "./taskLabels";
 
@@ -33,7 +34,7 @@ export function buildUpcoming(tasks: Task[], events: CalEvent[], now: Date = new
   for (const t of tasks) {
     if (!t.due_at || t.status === "Done") continue;
     const due = new Date(t.due_at);
-    const diff = daysFromToday(due, now);
+    const diff = dueDayDiff(due, now);
     const label = (t.tags ?? []).map(getLabelById).find(Boolean)?.name ?? (t.category && t.category !== "Other" ? t.category : "Task");
     const rel = diff < 0 ? `Overdue ${-diff}d` : diff === 0 ? "Today" : diff <= 3 ? `In ${diff}d` : "";
     items.push({

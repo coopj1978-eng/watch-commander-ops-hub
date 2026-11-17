@@ -1,3 +1,4 @@
+import { daysOverdue, overdueSql } from "../lib/taskDue";
 import { api } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
@@ -109,7 +110,7 @@ export const refresh = api<void, RefreshResponse>(
        FROM tasks t
        WHERE t.status NOT IN ('Done', 'Missed')
          AND t.due_at IS NOT NULL
-         AND t.due_at < NOW()
+         AND ${overdueSql("t.due_at")}
          -- A routine card whose time is up goes down as missed, not overdue.
          AND NOT (t.source_type = 'template' AND 'routine' = ANY(COALESCE(t.tags, '{}')))
          AND (
@@ -122,11 +123,11 @@ export const refresh = api<void, RefreshResponse>(
     );
 
     for await (const task of overdueTasks) {
-      const daysOverdue = Math.floor((Date.now() - new Date(task.due_at).getTime()) / 86400000);
+      const days = daysOverdue(task.due_at);
       await maybeInsert({
         type: "task_overdue",
         title: `Task overdue: ${task.title}`,
-        message: `"${task.title}" was due ${daysOverdue} day${daysOverdue !== 1 ? "s" : ""} ago.`,
+        message: `"${task.title}" was due ${days} day${days !== 1 ? "s" : ""} ago.`,
         entity_type: "task",
         entity_id: String(task.id),
         link: `/tasks`,

@@ -1,3 +1,4 @@
+import { dueDayDiff } from "@/lib/taskDue";
 import { useState } from "react";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -49,11 +50,7 @@ const statusTone = (status: string): Tone =>
 function dueInfo(task: Task): (Tone & { text: string; mono?: boolean }) | null {
   if (!task.due_at) return null;
   const due = new Date(task.due_at);
-  const now = new Date();
-  const diff = Math.round(
-    (new Date(due.getFullYear(), due.getMonth(), due.getDate()).getTime() -
-      new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()) / 86400000
-  );
+  const diff = dueDayDiff(due);
   if (task.status === "Done") return { text: "Completed", bg: "var(--cal-leave-bg)", fg: "var(--cal-leave-fg)" };
   if (diff < 0) return { text: `Overdue ${Math.abs(diff)}d`, bg: "var(--cal-danger-bg)", fg: "var(--cal-danger-fg)" };
   if (diff === 0) return { text: "Due today", bg: "var(--cal-day-bg)", fg: "var(--cal-day-fg)" };
@@ -174,11 +171,7 @@ export default function TaskList({ tasks, isLoading, onTaskClick }: TaskListProp
 
 
     if (dueFilter !== "all" && task.due_at) {
-      const dueDate = new Date(task.due_at);
-      const now = new Date();
-      const dueDay = new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate());
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const diffDays = Math.round((dueDay.getTime() - today.getTime()) / 86400000);
+      const diffDays = dueDayDiff(new Date(task.due_at));
 
       if (dueFilter === "overdue" && diffDays >= 0) return false;
       if (dueFilter === "today" && diffDays !== 0) return false;

@@ -1,3 +1,4 @@
+import { isOverdue } from "../lib/taskDue";
 import { api } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
@@ -67,7 +68,7 @@ export const getStats = api<void, CrewStats>(
     const completed_tasks = tasks.filter((t) => t.status === "Done").length;
     const overdue_tasks = tasks.filter((t) => {
       if (!t.due_at || t.status === "Done") return false;
-      return new Date(t.due_at) < new Date();
+      return isOverdue(t.due_at);
     }).length;
 
     const inspections = await db.rawQueryAll<{ id: number }>(

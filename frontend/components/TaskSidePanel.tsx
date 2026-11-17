@@ -1,3 +1,4 @@
+import { isTaskOverdue } from "@/lib/taskDue";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
@@ -172,7 +173,7 @@ const UPCOMING_COLOURS: Record<UpcomingItem["kind"], React.CSSProperties> = {
 /** Phone: a tappable card with any overdue count; opens missed checks and Upcoming. */
 export function TaskUpcomingCard({ watch, tasks, onOpenTask }: PanelProps) {
   const [open, setOpen] = useState(false);
-  const overdue = tasks.filter((t) => t.due_at && t.status !== "Done" && daysFromToday(new Date(t.due_at)) < 0).length;
+  const overdue = tasks.filter((t) => t.status !== "Done" && isTaskOverdue(t.due_at)).length;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>

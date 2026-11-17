@@ -1,3 +1,4 @@
+import { dueDayDiff } from "@/lib/taskDue";
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -376,10 +377,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
   const checklistPct = checklist.length > 0 ? Math.round((completedCount / checklist.length) * 100) : 0;
 
   const dueDateObj = dueDate ? new Date(dueDate + "T12:00:00") : null;
-  const today0 = new Date(); today0.setHours(0, 0, 0, 0);
-  const diffDays = dueDateObj
-    ? Math.round((new Date(dueDateObj.getFullYear(), dueDateObj.getMonth(), dueDateObj.getDate()).getTime() - today0.getTime()) / 86400000)
-    : null;
+  const diffDays = dueDateObj ? dueDayDiff(dueDateObj) : null;
   const isOverdue = diffDays !== null && diffDays < 0 && !isDoneStatus(status);
   const isDueToday = diffDays === 0;
 

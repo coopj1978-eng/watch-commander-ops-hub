@@ -1,3 +1,4 @@
+import { dueDayDiff } from "@/lib/taskDue";
 import { useEffect, useState } from "react";
 import { AlertCircle, Calendar, CheckCircle2, Clock, Repeat } from "lucide-react";
 import type { Task } from "~backend/task/types";
@@ -37,11 +38,7 @@ export function Chip({
 export function DueChip({ task }: { task: Task }) {
   if (!task.due_at) return null;
   const due = new Date(task.due_at);
-  const now = new Date();
-  const diff = Math.round(
-    (new Date(due.getFullYear(), due.getMonth(), due.getDate()).getTime() -
-      new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()) / 86400000
-  );
+  const diff = dueDayDiff(due);
   const ic = "h-3 w-3";
   if (task.status === "Done") return <Chip k="leave" icon={<CheckCircle2 className={ic} />}>Completed</Chip>;
   if (diff < 0) return <Chip k="station" icon={<AlertCircle className={ic} />}>Overdue {Math.abs(diff)}d</Chip>;

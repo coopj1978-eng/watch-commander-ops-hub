@@ -1,19 +1,17 @@
 import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { ArrowRight, Moon, Settings as SettingsIcon, ShieldCheck, Sun } from "lucide-react";
-import { AppearanceSettings } from "@/components/AppearanceSettings";
 import { useThemeMode } from "@/components/ThemeSwitcher";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { useCanAccessAdmin } from "@/lib/rbac";
 
-// Your own preferences (Nov 2026). Station setup — skills lists, absence
-// triggers, inspection plans, branding — moved to Admin; the CSV export is
-// on Reports.
+// Your own preferences (Nov 2026): dark mode. Station setup — skills lists,
+// absence triggers, inspection plans — is in Admin; the CSV export is on
+// Reports. (Accent colours and density went in the Nov 2026 audit.)
 const MOVED_TO_ADMIN: Record<string, string> = {
   dictionaries: "skills",
   absence: "absence",
   "inspection-plans": "inspection-plans",
-  branding: "branding",
 };
 
 export default function Settings() {
@@ -47,7 +45,7 @@ export default function Settings() {
             <ShieldCheck className="h-4 w-4" />
           </span>
           <span className="flex-1 text-muted-foreground">
-            Skills lists, absence triggers, inspection plans and branding are in <span className="font-medium text-foreground">Admin</span> now.
+            Skills lists, absence triggers and inspection plans are in <span className="font-medium text-foreground">Admin</span>.
           </span>
           <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
         </Link>
@@ -69,7 +67,6 @@ export default function Settings() {
         </CardContent>
       </Card>
 
-      <AppearanceSettings />
     </div>
   );
 }

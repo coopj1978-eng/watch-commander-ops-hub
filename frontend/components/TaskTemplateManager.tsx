@@ -117,8 +117,9 @@ function fromTemplate(t: TaskTemplate): TemplateFormState {
     : freq === "MONTHLY" ? (interval === 3 ? "QUARTERLY" : "MONTHLY")
     : freq === "DAILY" ? "DAILY" : "WEEKLY";
   return {
-    name: t.name,
-    title_template: t.title_template,
+    // One name (Nov 2026): what the card is called on the board.
+    name: t.title_template || t.name,
+    title_template: t.title_template || t.name,
     task_description: t.task_description ?? "",
     category: t.category,
     priority: t.priority,
@@ -253,8 +254,8 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
   const createMutation = useMutation({
     mutationFn: async (f: TemplateFormState) => {
       const created = await backend.task.createTemplate({
-        name: f.name,
-        title_template: f.title_template,
+        name: f.name.trim(),
+        title_template: f.name.trim(),
         task_description: f.task_description || undefined,
         category: f.category,
         priority: f.priority,
@@ -277,8 +278,8 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
   const updateMutation = useMutation({
     mutationFn: async ({ id, f }: { id: number; f: TemplateFormState }) =>
       backend.task.updateTemplate(id, {
-        name: f.name,
-        title_template: f.title_template,
+        name: f.name.trim(),
+        title_template: f.name.trim(),
         task_description: f.task_description || undefined,
         category: f.category,
         priority: f.priority,
@@ -389,8 +390,8 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
   };
 
   const handleSave = () => {
-    if (!form.name.trim() || !form.title_template.trim()) {
-      toast({ title: "Validation", description: "Name and title are required", variant: "destructive" });
+    if (!form.name.trim()) {
+      toast({ title: "Give the check a name", variant: "destructive" });
       return;
     }
     if (form.freq === "WEEKLY" && form.selectedDays.length === 0) {
@@ -440,7 +441,7 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
   const firstColName = columns[0]?.name ?? "To Do";
   const generatedColName = columns.find((c) => c.status_key === "NotStarted")?.name ?? firstColName;
   const phrase = schedulePhrase(form);
-  const cardTitle = form.title_template.trim();
+  const cardTitle = form.name.trim();
   const intervalUnit = form.freq === "DAILY" ? "days" : form.freq === "MONTHLY" ? "months" : "weeks";
   const watch = user?.watch_unit;
 
@@ -510,8 +511,7 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
                     <div className="ttm-card-top">
                       <span className="ttm-icon"><Repeat size={18} strokeWidth={2} aria-hidden="true" /></span>
                       <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 4 }}>
-                        <span className="ttm-name">{t.name}</span>
-                        <span className="ttm-cardtitle">Card title: {t.title_template}</span>
+                        <span className="ttm-name">{t.title_template || t.name}</span>
                       </div>
                       {canManage && <Switch checked={active} onChange={(v) => setActive(t, v)} label={`${t.name} active`} />}
                     </div>
@@ -587,29 +587,18 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
                     />
                   </div>
 
-                  <div className="ttm-grid2">
-                    <label className="ttm-label">
-                      Template name
-                      <input
-                        className="ttm-input"
-                        placeholder="e.g. Weekly Station Check"
-                        value={form.name}
-                        onChange={(e) => setF({ name: e.target.value })}
-                      />
-                    </label>
-                    <label className="ttm-label">
-                      Card title
-                      <input
-                        className="ttm-input"
-                        placeholder="e.g. Station Equipment Check — {date}"
-                        value={form.title_template}
-                        onChange={(e) => setF({ title_template: e.target.value })}
-                      />
-                      <span style={{ fontSize: 11, fontWeight: 400, color: "var(--cal-muted)" }}>
-                        {"{date}"} becomes the day, e.g. Mon 2 Nov; {"{shift}"} becomes Day or Night.
-                      </span>
-                    </label>
-                  </div>
+                  <label className="ttm-label">
+                    Name
+                    <input
+                      className="ttm-input"
+                      placeholder="e.g. Fortnightly ladder check"
+                      value={form.name}
+                      onChange={(e) => setF({ name: e.target.value })}
+                    />
+                    <span style={{ fontSize: 11, fontWeight: 400, color: "var(--cal-muted)" }}>
+                      This is what the card is called on the board.
+                    </span>
+                  </label>
 
                   <label className="ttm-label">
                     Description
@@ -857,7 +846,6 @@ const TTM_CSS = `
 .ttm-icon{flex:none;width:40px;height:40px;border-radius:12px;background:var(--cal-brand-soft);color:var(--cal-brand-text);display:grid;place-items:center}
 .ttm-card[data-paused] .ttm-icon{background:var(--cal-surface-2);color:var(--cal-muted)}
 .ttm-name{font-size:15px;font-weight:600;color:var(--cal-ink);overflow-wrap:anywhere}
-.ttm-cardtitle{font-size:13px;color:var(--cal-ink-2);overflow-wrap:anywhere}
 .ttm-row{display:flex;flex-wrap:wrap;gap:6px;padding-left:52px}
 .ttm-actions{display:flex;flex-wrap:wrap;gap:8px;padding-left:52px}
 .ttm-tag{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 9px;border-radius:8px;font-size:12px;white-space:nowrap}

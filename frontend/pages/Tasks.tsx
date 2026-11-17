@@ -4,7 +4,7 @@ import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/App";
 import backend from "@/lib/backend";
-import { ArrowRightLeft, CalendarRange, Check, Filter, LayoutGrid, List, PanelRightClose, PanelRightOpen, Plus, Search, Palette, X as XIcon } from "lucide-react";
+import { ArrowRightLeft, CalendarRange, Check, Filter, LayoutGrid, List, PanelRightClose, PanelRightOpen, Plus, Search, X as XIcon } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { useUserRole } from "@/lib/rbac";
@@ -16,7 +16,7 @@ import TaskSidePanel, { TaskUpcomingCard } from "@/components/TaskSidePanel";
 import RoutinePlanner from "@/components/tasks/RoutinePlanner";
 import ShiftProgress from "@/components/tasks/ShiftProgress";
 import { autoStatusFor, personTint, useIsPhone } from "@/lib/taskUi";
-import { TASK_LABELS, BOARD_BACKGROUNDS, getBackground } from "@/lib/taskLabels";
+import { TASK_LABELS } from "@/lib/taskLabels";
 import type { Task, ChecklistItem, TaskTemplate, TaskColumn } from "~backend/task/types";
 
 export default function Tasks() {
@@ -38,10 +38,6 @@ export default function Tasks() {
   const [isNewTask, setIsNewTask] = useState(false);
 
   // ── Background ───────────────────────────────────────────────────────────
-  const [bgId, setBgId] = useState<string>(() => localStorage.getItem("task-board-bg") ?? "default");
-  const [showBgPicker, setShowBgPicker] = useState(false);
-  const bg = getBackground(bgId);
-  const isDark = bg.dark;
 
   // ── Filters ──────────────────────────────────────────────────────────────
   const [filterSearch, setFilterSearch] = useState("");
@@ -271,12 +267,6 @@ export default function Tasks() {
     toast({ title: "Task created", description: `"${template.title_template}" added to board` });
   };
 
-  const handleBgChange = (id: string) => {
-    setBgId(id);
-    localStorage.setItem("task-board-bg", id);
-    setShowBgPicker(false);
-  };
-
   const syncedSelectedTask = selectedTask ? (filteredTasks.find((t) => t.id === selectedTask.id) ?? selectedTask) : null;
   const boardFilters = { search: filterSearch, labels: filterLabels, overdueOnly: filterOverdue, assignee: filterAssignee };
   const activeFilterCount = [filterSearch, filterLabels.length, filterOverdue, filterAssignee].filter(Boolean).length;
@@ -285,43 +275,7 @@ export default function Tasks() {
     : "";
   const toggleLabel = (id: string) => setFilterLabels(filterLabels.includes(id) ? filterLabels.filter((l) => l !== id) : [...filterLabels, id]);
 
-  // On a dark board background the page header text turns white; the
-  // cards and columns keep their own surfaces either way.
-  const headerInk = isDark ? "#fff" : "var(--cal-ink)";
-  const headerMuted = isDark ? "rgba(255,255,255,.75)" : "var(--cal-muted)";
-
   const iconBtn: React.CSSProperties = { width: 44, height: 44, padding: 0, position: "relative" };
-
-  const bgPicker = showBgPicker && (
-    <div role="dialog" aria-label="Board background" className="cal-card" style={{ position: "absolute", right: 0, top: 52, zIndex: 50, width: 340, maxWidth: "calc(100vw - 32px)", padding: 16, boxShadow: "var(--cal-pop)" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-        <span style={{ fontSize: 14, fontWeight: 600 }}>Board background</span>
-        <button type="button" aria-label="Close" onClick={() => setShowBgPicker(false)} className="cal-btn" style={{ width: 32, height: 32, padding: 0, borderRadius: 10 }}>
-          <XIcon className="h-4 w-4" />
-        </button>
-      </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 10 }}>
-        {BOARD_BACKGROUNDS.map((b) => (
-          <button
-            key={b.id}
-            type="button"
-            onClick={() => handleBgChange(b.id)}
-            aria-pressed={bgId === b.id}
-            className="cal-focus"
-            style={{ border: "none", background: "transparent", padding: 0, font: "inherit", display: "flex", flexDirection: "column", gap: 4, cursor: "pointer", borderRadius: 12 }}
-          >
-            <span
-              style={{
-                display: "block", height: 44, borderRadius: 12, background: b.style.replace("background: ", ""),
-                boxShadow: bgId === b.id ? "0 0 0 2px var(--cal-surface), 0 0 0 4px var(--cal-brand)" : "inset 0 0 0 1px rgba(0,0,0,.06)",
-              }}
-            />
-            <span style={{ fontSize: 11, color: "var(--cal-ink-2)", textAlign: "center", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{b.name}</span>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
 
   const personButton = (p: { id: string; name: string; initials: string }, size: number) => {
     const on = filterAssignee === p.id;
@@ -429,8 +383,7 @@ export default function Tasks() {
 
   return (
     <div
-      className="cal-ui min-h-screen -m-4 md:-m-8 p-4 md:p-6 transition-all duration-500"
-      style={bgId !== "default" ? { background: bg.style.replace("background: ", "") } : undefined}
+      className="cal-ui min-h-screen -m-4 md:-m-8 p-4 md:p-6"
     >
       <div style={{ display: "flex", flexWrap: "wrap", gap: 24, alignItems: "flex-start" }}>
         {/* ════════════════ Main ════════════════ */}
@@ -438,12 +391,12 @@ export default function Tasks() {
           {/* ── Header ─────────────────────────────────────────────────────── */}
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              <span className="cal-mono" style={{ fontSize: isPhone ? 11 : 12, letterSpacing: ".12em", textTransform: "uppercase", color: headerMuted }}>
+              <span className="cal-mono" style={{ fontSize: isPhone ? 11 : 12, letterSpacing: ".12em", textTransform: "uppercase", color: "var(--cal-muted)" }}>
                 {viewMode === "board" && shift
                   ? <>{boardWatch} Watch · {shiftWhen}</>
                   : <>{watchName} Watch · {tasks.length}{isPhone ? "" : " total"}</>}
               </span>
-              <h1 style={{ margin: 0, fontSize: isPhone ? 28 : 36, lineHeight: 1.05, fontWeight: 600, letterSpacing: "-.02em", color: headerInk }}>
+              <h1 style={{ margin: 0, fontSize: isPhone ? 28 : 36, lineHeight: 1.05, fontWeight: 600, letterSpacing: "-.02em", color: "var(--cal-ink)" }}>
                 {viewMode === "board" ? "Shift board" : "All tasks"}
               </h1>
             </div>
@@ -461,13 +414,9 @@ export default function Tasks() {
                 <button type="button" onClick={() => setViewMode(viewMode === "board" ? "list" : "board")} aria-label={viewMode === "board" ? "Switch to list" : "Switch to board"} className="cal-btn" style={iconBtn}>
                   {viewMode === "board" ? <List className="h-[18px] w-[18px]" /> : <LayoutGrid className="h-[18px] w-[18px]" />}
                 </button>
-                <button type="button" onClick={() => setShowBgPicker(!showBgPicker)} aria-label="Board background" aria-expanded={showBgPicker} className="cal-btn" style={iconBtn}>
-                  <Palette className="h-[18px] w-[18px]" />
-                </button>
                 <button type="button" onClick={() => setShowRoutines(true)} aria-label="Weekly routine" className="cal-btn" style={iconBtn}>
                   <CalendarRange className="h-[18px] w-[18px]" />
                 </button>
-                {bgPicker}
               </div>
             ) : (
               <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
@@ -498,21 +447,6 @@ export default function Tasks() {
                   <CalendarRange className="h-[17px] w-[17px]" />
                   Weekly routine
                 </button>
-
-                <div style={{ position: "relative" }}>
-                  <button
-                    type="button"
-                    onClick={() => setShowBgPicker(!showBgPicker)}
-                    aria-label="Board background"
-                    aria-expanded={showBgPicker}
-                    title="Board background"
-                    className="cal-btn"
-                    style={{ ...iconBtn, ...(showBgPicker ? { borderColor: "var(--cal-brand)", color: "var(--cal-brand)" } : {}) }}
-                  >
-                    <Palette className="h-[18px] w-[18px]" />
-                  </button>
-                  {bgPicker}
-                </div>
 
                 {watchName !== "Watch" && (
                   <button
@@ -661,7 +595,7 @@ export default function Tasks() {
             <section
               aria-label="Board"
               style={isPhone ? undefined : {
-                background: bgId === "default" ? "var(--cal-board)" : isDark ? "rgba(255,255,255,.08)" : "rgba(255,255,255,.35)",
+                background: "var(--cal-board)",
                 borderRadius: 24, padding: 16, overflowX: "auto",
               }}
             >
@@ -677,7 +611,6 @@ export default function Tasks() {
                 canEdit={canEditStatus}
                 canManageColumns={canAssignTasks}
                 filters={boardFilters}
-                isDark={isDark}
                 userMap={userMap}
               />
             </section>
