@@ -73,27 +73,56 @@ export function cleanRoutineItems(labels: string[]): ChecklistItem[] {
   return items;
 }
 
+const norm = (s: string) => s.trim().toLowerCase();
+
+/**
+ * A line reworded in place: the list is the same length, the old wording at
+ * that position is gone and the new wording wasn't there before. Its tick
+ * (and who ticked it) belongs to the new wording.
+ */
+function rewordedFrom(before: ChecklistItem[], afterLabels: string[], idx: number): ChecklistItem | undefined {
+  const old = before[idx];
+  if (!old || before.length !== afterLabels.length) return undefined;
+  if (afterLabels.some((l) => norm(l) === norm(old.label))) return undefined;
+  if (before.some((b) => norm(b.label) === norm(afterLabels[idx]))) return undefined;
+  return old;
+}
+
 /**
  * A template's new checklist applied to a card that's already on the board:
- * items keep their ticks (and who ticked them) by label, new items arrive
- * unticked, and items taken off the template go — unless already ticked, so
- * nobody's work disappears.
+ * items keep their ticks (and who ticked them) by label, a reworded item
+ * keeps its tick, new items arrive unticked, and items taken off the
+ * template go — unless already ticked, so nobody's work disappears.
  */
 export function mergeChecklist(card: ChecklistItem[], template: ChecklistItem[]): ChecklistItem[] {
-  const byLabel = new Map(card.map((i) => [i.label.trim().toLowerCase(), i]));
-  const merged: ChecklistItem[] = template.map((t) => {
-    const had = byLabel.get(t.label.trim().toLowerCase());
+  const byLabel = new Map(card.map((i) => [norm(i.label), i]));
+  const labels = template.map((t) => t.label);
+  const used = new Set<ChecklistItem>();
+  const merged: ChecklistItem[] = template.map((t, idx) => {
+    const had = byLabel.get(norm(t.label)) ?? rewordedFrom(card, labels, idx);
+    if (had) used.add(had);
     return had ? { ...had, label: t.label } : { label: t.label, done: false };
   });
-  const kept = new Set(template.map((t) => t.label.trim().toLowerCase()));
-  for (const i of card) if (i.done && !kept.has(i.label.trim().toLowerCase())) merged.push(i);
+  const kept = new Set(template.map((t) => norm(t.label)));
+  for (const i of card) if (i.done && !used.has(i) && !kept.has(norm(i.label))) merged.push(i);
   return merged;
+}
+
+/**
+ * For someone who may tick a card but not change it: the card's own lines,
+ * with only their ticks applied. Lines they added, removed or reworded are
+ * ignored, so an out-of-date screen can't undo someone else's edit.
+ */
+export function ticksOnly(before: ChecklistItem[], after: ChecklistItem[]): ChecklistItem[] {
+  const want = new Map(after.map((i) => [i.label, !!i.done]));
+  return before.map((i) => (want.has(i.label) ? { ...i, done: want.get(i.label)! } : i));
 }
 
 /**
  * Who ticked what: items newly ticked get the person and time, items that
  * stay ticked keep what the server already had (never the client's copy),
- * and unticked items lose them. Matched by label, then by position.
+ * and unticked items lose them. Matched by label; a line reworded in place
+ * keeps the tick it had.
  */
 export function stampChecklist(
   before: ChecklistItem[],
@@ -102,10 +131,11 @@ export function stampChecklist(
   now: Date = new Date(),
 ): ChecklistItem[] {
   const byLabel = new Map(before.map((i) => [i.label, i]));
+  const labels = after.map((i) => i.label);
   return after.map((item, idx) => {
     const { done_by, done_by_name, done_at, ...plain } = item;
     if (!item.done) return { ...plain, done: false };
-    const old = byLabel.get(item.label) ?? (before[idx]?.label === item.label ? before[idx] : undefined);
+    const old = byLabel.get(item.label) ?? rewordedFrom(before, labels, idx);
     if (old?.done && old.done_by) {
       return { ...plain, done: true, done_by: old.done_by, done_by_name: old.done_by_name, done_at: old.done_at };
     }

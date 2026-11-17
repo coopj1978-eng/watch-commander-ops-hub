@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { autoStatusFor } from "./taskUi";
+import { autoStatusFor, rewordLine } from "./taskUi";
 
 const cols = ["NotStarted", "InProgress", "Done", "Notes_1"];
 const items = (...done: boolean[]) => done.map((d, i) => ({ label: `i${i}`, done: d }));
@@ -23,5 +23,21 @@ describe("autoStatusFor", () => {
   });
   it("puts a card back in To Do when everything is unticked", () => {
     expect(autoStatusFor("InProgress", items(false, false), cols)).toBe("NotStarted");
+  });
+});
+
+describe("rewordLine", () => {
+  const lines = ["Pump test", "BA sets", "Radios"];
+  it("changes just that line, tidied", () => {
+    expect(rewordLine(lines, 1, "  BA sets  1029 and 1032 ")).toEqual({ labels: ["Pump test", "BA sets 1029 and 1032", "Radios"] });
+  });
+  it("leaves it alone when blank or unchanged", () => {
+    expect(rewordLine(lines, 1, "   ")).toEqual({ skip: "same" });
+    expect(rewordLine(lines, 1, "BA sets")).toEqual({ skip: "same" });
+    expect(rewordLine(lines, 9, "x")).toEqual({ skip: "same" });
+  });
+  it("lets a line change its capitals but not copy another line", () => {
+    expect(rewordLine(lines, 1, "BA Sets")).toEqual({ labels: ["Pump test", "BA Sets", "Radios"] });
+    expect(rewordLine(lines, 1, "radios")).toEqual({ skip: "duplicate" });
   });
 });

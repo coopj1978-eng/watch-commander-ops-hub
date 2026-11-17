@@ -6,11 +6,12 @@ import { ArrowRight, Check, Copy, GripVertical, ImagePlus, Moon, MoreHorizontal,
 import backend from "@/lib/backend";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
-import { useIsPhone } from "@/lib/taskUi";
+import { rewordLine, useIsPhone } from "@/lib/taskUi";
 import { CARD_COVERS } from "@/lib/taskLabels";
 import { DAY_NAMES, RULE_OPTIONS, ruleLabel } from "@/lib/routineRules";
 import { RoutineHeader } from "@/components/tasks/RoutineHeader";
 import type { TaskTemplate } from "~backend/task/types";
+import LineEditInput from "./LineEditInput";
 
 // The weekly routine (Nov 2026). A station's routine changes every day but
 // repeats each week, as on the Blue Watch Trello board: each day has its own
@@ -194,6 +195,16 @@ export default function RoutinePlanner({ open, onClose, canManage, onOpenOtherCh
     }
     patchCard(slot, key, { items: [...card.items, label] });
   };
+  const renameItem = (slot: string, key: string, idx: number, label: string) => {
+    const card = cardsOf(slot).find((c) => c.key === key);
+    if (!card) return;
+    const res = rewordLine(card.items, idx, label);
+    if ("skip" in res) {
+      if (res.skip === "duplicate") toast({ title: "Already there", description: "Another check on this card says the same." });
+      return;
+    }
+    patchCard(slot, key, { items: res.labels });
+  };
   const removeItem = (slot: string, key: string, idx: number) => {
     const card = cardsOf(slot).find((c) => c.key === key);
     if (card) patchCard(slot, key, { items: card.items.filter((_, i) => i !== idx) });
@@ -262,6 +273,7 @@ export default function RoutinePlanner({ open, onClose, canManage, onOpenOtherCh
       onRemoveCard={(key) => removeCard(slot, key)}
       onCopyCard={(key, to) => copyCard(slot, key, to)}
       onAddItem={(key, label) => addItem(slot, key, label)}
+      onRenameItem={(key, idx, label) => renameItem(slot, key, idx, label)}
       onRemoveItem={(key, idx) => removeItem(slot, key, idx)}
       onUploadError={(msg) => toast({ title: msg, variant: "destructive" })}
       drag={drag}
@@ -419,6 +431,7 @@ interface CellProps {
   onRemoveCard: (key: string) => void;
   onCopyCard: (key: string, toSlot: string) => void;
   onAddItem: (key: string, label: string) => void;
+  onRenameItem: (key: string, idx: number, label: string) => void;
   onRemoveItem: (key: string, idx: number) => void;
   onUploadError: (msg: string) => void;
   drag: DragState;
@@ -474,11 +487,12 @@ function SlotCell(p: CellProps) {
 }
 
 /** A routine card: header, name, ⋯ (how often, header, copy, delete), and its items. */
-function CardEditor({ slot, card, canManage, onPatch, onRemoveCard, onCopyCard, onAddItem, onRemoveItem, onUploadError, drag, over, onDragStart, onDragEnd, onDragOver, onDrop }: CellProps & { card: PlanCard }) {
+function CardEditor({ slot, card, canManage, onPatch, onRemoveCard, onCopyCard, onAddItem, onRenameItem, onRemoveItem, onUploadError, drag, over, onDragStart, onDragEnd, onDragOver, onDrop }: CellProps & { card: PlanCard }) {
   const isPhone = useIsPhone();
   const [adding, setAdding] = useState(false);
   const [text, setText] = useState("");
   const [renaming, setRenaming] = useState(false);
+  const [editingIdx, setEditingIdx] = useState<number | null>(null);
   const [name, setName] = useState(card.name);
   const fileRef = useRef<HTMLInputElement>(null);
   useEffect(() => { if (!renaming) setName(card.name); }, [card.name, renaming]);
@@ -612,7 +626,7 @@ function CardEditor({ slot, card, canManage, onPatch, onRemoveCard, onCopyCard, 
             <li
               key={`${idx}-${label}`}
               className="rp-item"
-              draggable={canManage && !isPhone}
+              draggable={canManage && !isPhone && editingIdx !== idx}
               onDragStart={(e) => { e.dataTransfer.effectAllowed = "move"; onDragStart(card.key, idx); }}
               onDragEnd={onDragEnd}
               onDragOver={(e) => { if (!drag) return; e.preventDefault(); e.stopPropagation(); onDragOver(card.key, idx); }}
@@ -625,8 +639,29 @@ function CardEditor({ slot, card, canManage, onPatch, onRemoveCard, onCopyCard, 
               {canManage && !isPhone
                 ? <GripVertical aria-hidden className="h-3.5 w-3.5" style={{ color: "var(--cal-line-2)", flex: "none" }} />
                 : <span aria-hidden style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--cal-ink-2)", margin: "0 5px", flex: "none" }} />}
-              <span style={{ flex: 1, minWidth: 0, fontSize: 12.5, lineHeight: 1.3, overflowWrap: "anywhere", padding: "3px 0" }}>{label}</span>
-              {canManage && (
+              {editingIdx === idx ? (
+                <LineEditInput
+                  value={label}
+                  ariaLabel="Reword this check"
+                  onCommit={(next) => { setEditingIdx(null); onRenameItem(card.key, idx, next); }}
+                  onCancel={() => setEditingIdx(null)}
+                  className="cal-field"
+                  style={{ flex: 1, minWidth: 0, height: isPhone ? 34 : 26, fontSize: 12.5 }}
+                />
+              ) : canManage ? (
+                <button
+                  type="button"
+                  onClick={() => setEditingIdx(idx)}
+                  title="Reword"
+                  className="cal-focus"
+                  style={{ flex: 1, minWidth: 0, textAlign: "left", border: "none", background: "transparent", borderRadius: 6, font: "inherit", color: "inherit", fontSize: 12.5, lineHeight: 1.3, overflowWrap: "anywhere", padding: "3px 0", cursor: "text" }}
+                >
+                  {label}
+                </button>
+              ) : (
+                <span style={{ flex: 1, minWidth: 0, fontSize: 12.5, lineHeight: 1.3, overflowWrap: "anywhere", padding: "3px 0" }}>{label}</span>
+              )}
+              {canManage && editingIdx !== idx && (
                 <button
                   type="button"
                   aria-label={`Remove "${label}"`}

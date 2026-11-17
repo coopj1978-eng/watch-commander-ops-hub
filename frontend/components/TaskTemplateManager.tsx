@@ -4,7 +4,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import backend from "@/lib/backend";
 import { useAuth } from "@/App";
 import { useToast } from "@/components/ui/use-toast";
-import { priorityKey, priorityLabel } from "@/lib/taskUi";
+import { priorityKey, priorityLabel, rewordLine } from "@/lib/taskUi";
+import LineEditInput from "@/components/tasks/LineEditInput";
 import {
   X, Plus, Trash2, Repeat, Play, ChevronDown, ChevronLeft, GripVertical, Check, Minus,
 } from "lucide-react";
@@ -227,6 +228,7 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
   const [form, setForm] = useState<TemplateFormState>(emptyForm());
   const [addingItem, setAddingItem] = useState(false);
   const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [editingIdx, setEditingIdx] = useState<number | null>(null);
   const [overIdx, setOverIdx] = useState<number | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
@@ -369,6 +371,16 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
   const removeChecklistItem = (idx: number) =>
     setF({ checklist: form.checklist.filter((_, i) => i !== idx) });
 
+  const renameChecklistItem = (idx: number, next: string) => {
+    setEditingIdx(null);
+    const res = rewordLine(form.checklist.map((i) => i.label), idx, next);
+    if ("skip" in res) {
+      if (res.skip === "duplicate") toast({ title: "Already there", description: "Another item on this list says the same." });
+      return;
+    }
+    setF({ checklist: form.checklist.map((item, i) => (i === idx ? { ...item, label: res.labels[idx] } : item)) });
+  };
+
   const moveChecklistItem = (from: number, to: number) => {
     if (from === to) return;
     const next = [...form.checklist];
@@ -393,6 +405,7 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
   const scrollFormTop = () => formRef.current?.scrollTo({ top: 0 });
 
   const handleNew = () => {
+    setEditingIdx(null);
     setForm(emptyForm());
     setAddingItem(false);
     setMode("create");
@@ -401,6 +414,7 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
 
   const handleEdit = (t: TaskTemplate) => {
     setEditingId(t.id);
+    setEditingIdx(null);
     setForm(fromTemplate(t));
     setAddingItem(false);
     setMode("edit");
@@ -646,7 +660,7 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
                         <div
                           key={idx}
                           className="ttm-cl-item"
-                          draggable
+                          draggable={editingIdx !== idx}
                           data-dragging={dragIdx === idx ? "" : undefined}
                           data-over={overIdx === idx && dragIdx !== null && dragIdx !== idx ? "" : undefined}
                           onDragStart={(e) => {
@@ -668,15 +682,29 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
                           onDragEnd={() => { setDragIdx(null); setOverIdx(null); }}
                         >
                           <GripVertical size={14} aria-hidden="true" className="ttm-grip" />
-                          <span className="ttm-cl-label">{item.label}</span>
-                          <button
-                            type="button"
-                            className="ttm-icon-btn cal-focus"
-                            aria-label={`Remove ${item.label}`}
-                            onClick={() => removeChecklistItem(idx)}
-                          >
-                            <X size={13} strokeWidth={2} aria-hidden="true" />
-                          </button>
+                          {editingIdx === idx ? (
+                            <LineEditInput
+                              value={item.label}
+                              ariaLabel="Reword this item"
+                              onCommit={(next) => renameChecklistItem(idx, next)}
+                              onCancel={() => setEditingIdx(null)}
+                              className="ttm-cl-edit"
+                            />
+                          ) : (
+                            <>
+                              <button type="button" className="ttm-cl-label ttm-cl-btn cal-focus" title="Reword" onClick={() => setEditingIdx(idx)}>
+                                {item.label}
+                              </button>
+                              <button
+                                type="button"
+                                className="ttm-icon-btn cal-focus"
+                                aria-label={`Remove ${item.label}`}
+                                onClick={() => removeChecklistItem(idx)}
+                              >
+                                <X size={13} strokeWidth={2} aria-hidden="true" />
+                              </button>
+                            </>
+                          )}
                         </div>
                       ))}
                       {addingItem ? (
@@ -901,6 +929,8 @@ select.ttm-input{appearance:none;-webkit-appearance:none;padding-right:36px;curs
 .ttm-cl-item[data-over]{box-shadow:inset 0 0 0 2px var(--cal-brand)}
 .ttm-grip{flex:none;color:var(--cal-muted);cursor:grab}
 .ttm-cl-label{flex:1;min-width:0;padding:8px 0;line-height:1.3;overflow-wrap:anywhere}
+.ttm-cl-btn{border:none;background:transparent;font:inherit;color:inherit;text-align:left;cursor:text;border-radius:6px}
+.ttm-cl-edit{flex:1;min-width:0;height:30px;margin-right:6px;padding:0 8px;border-radius:8px;border:1.5px solid var(--cal-brand);background:var(--cal-surface);color:var(--cal-ink);font:inherit;outline:none}
 .ttm-icon-btn{flex:none;width:28px;height:28px;border-radius:8px;border:none;background:transparent;color:var(--cal-muted);display:grid;place-items:center;cursor:pointer}
 .ttm-icon-btn:hover:not(:disabled){background:var(--cal-surface-3);color:var(--cal-ink)}
 .ttm-icon-btn:disabled{opacity:.4;cursor:default}

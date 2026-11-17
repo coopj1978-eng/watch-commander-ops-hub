@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cleanRoutineItems, mergeChecklist, routineSlotSpec, stampChecklist, routineRuleFires } from "./routine";
+import { cleanRoutineItems, mergeChecklist, routineSlotSpec, stampChecklist, routineRuleFires, ticksOnly } from "./routine";
 
 describe("routineSlotSpec", () => {
   it("makes a weekday's day and night routines", () => {
@@ -50,6 +50,41 @@ describe("stampChecklist", () => {
   it("clears the stamp when unticked, and won't take a client's stamp on a new tick", () => {
     expect(stampChecklist([{ label: "J4", done: true, done_by: "u1" }], [{ label: "J4", done: false, done_by: "u1" }], who, now)[0]).toEqual({ label: "J4", done: false });
     expect(stampChecklist([], [{ label: "New", done: true, done_by: "fake" }], who, now)[0].done_by).toBe("u2");
+  });
+});
+
+describe("a line reworded in place", () => {
+  const who = { id: "u2", name: "Iain" };
+  const now = new Date("2026-11-17T10:00:00Z");
+  const andy = { done: true, done_by: "u1", done_by_name: "Andy", done_at: "2026-11-17T09:00:00Z" };
+  it("keeps who ticked it, under the new wording", () => {
+    const before = [{ label: "Pump test", done: false }, { label: "BA sets", ...andy }];
+    const out = stampChecklist(before, [{ label: "Pump test", done: false }, { label: "BA sets 1029 and 1032", done: true }], who, now);
+    expect(out[1]).toEqual({ label: "BA sets 1029 and 1032", ...andy });
+  });
+  it("a new line added ticked is still stamped with whoever added it", () => {
+    const before = [{ label: "BA sets", ...andy }];
+    const out = stampChecklist(before, [{ label: "BA sets", done: true }, { label: "Radios", done: true }], who, now);
+    expect(out[1].done_by).toBe("u2");
+  });
+  it("a line swapped for one that was already there is not a rewording", () => {
+    const before = [{ label: "A", ...andy }, { label: "B", done: false }];
+    // A removed, B now first and ticked, C added: B's tick is new, not Andy's.
+    const out = stampChecklist(before, [{ label: "B", done: true }, { label: "C", done: false }], who, now);
+    expect(out[0].done_by).toBe("u2");
+  });
+  it("reaches a routine card on the board without losing or doubling the tick", () => {
+    const card = [{ label: "J4 check - pump 1", ...andy }, { label: "Hydrants", done: false }];
+    const out = mergeChecklist(card, [{ label: "J4 check - B10P1", done: false }, { label: "Hydrants", done: false }]);
+    expect(out).toEqual([{ label: "J4 check - B10P1", ...andy }, { label: "Hydrants", done: false }]);
+  });
+});
+
+describe("ticksOnly", () => {
+  it("applies ticks to the card's own lines and ignores any other change", () => {
+    const before = [{ label: "A", done: false }, { label: "B", done: true, done_by: "u1" }, { label: "C", done: false }];
+    const sent = [{ label: "A", done: true }, { label: "B reworded", done: false }, { label: "Extra", done: true }];
+    expect(ticksOnly(before, sent)).toEqual([{ label: "A", done: true }, { label: "B", done: true, done_by: "u1" }, { label: "C", done: false }]);
   });
 });
 

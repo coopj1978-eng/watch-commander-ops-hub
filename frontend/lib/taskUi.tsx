@@ -152,6 +152,18 @@ export function Initials({ userId, initials, size = 26 }: { userId: string; init
 }
 
 /**
+ * Rewording one line of a checklist. Returns the new list of wordings, or why
+ * nothing changes: "same" (blank or unchanged) or "duplicate" (another line
+ * already says that — ticks are matched by wording, so two can't be alike).
+ */
+export function rewordLine(labels: string[], idx: number, next: string): { labels: string[] } | { skip: "same" | "duplicate" } {
+  const label = next.replace(/\s+/g, " ").trim();
+  if (!label || label === labels[idx] || idx < 0 || idx >= labels.length) return { skip: "same" };
+  if (labels.some((l, i) => i !== idx && l.trim().toLowerCase() === label.toLowerCase())) return { skip: "duplicate" };
+  return { labels: labels.map((l, i) => (i === idx ? label : l)) };
+}
+
+/**
  * Whether someone may change a task's details (title, due date, labels,
  * priority, repeat, delete…) — the same rule as the server's
  * task/permissions.ts: the person who set it, the person it's assigned to, or

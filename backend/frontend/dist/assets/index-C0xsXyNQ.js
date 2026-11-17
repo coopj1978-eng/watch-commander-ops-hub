@@ -52967,6 +52967,12 @@ function Initials({ userId, initials: initials2, size: size2 = 26 }) {
     }
   );
 }
+function rewordLine(labels, idx, next) {
+  const label2 = next.replace(/\s+/g, " ").trim();
+  if (!label2 || label2 === labels[idx] || idx < 0 || idx >= labels.length) return { skip: "same" };
+  if (labels.some((l, i) => i !== idx && l.trim().toLowerCase() === label2.toLowerCase())) return { skip: "duplicate" };
+  return { labels: labels.map((l, i) => i === idx ? label2 : l) };
+}
 function canEditTaskDetails(task2, user2, role) {
   if (!task2 || !(user2 == null ? void 0 : user2.id)) return false;
   if (task2.assigned_by === user2.id || task2.assigned_to_user_id === user2.id) return true;
@@ -54870,6 +54876,47 @@ function TaskList({ tasks, isLoading, onTaskClick }) {
     )
   ] });
 }
+function LineEditInput({ value, onCommit, onCancel, ariaLabel = "Reword this line", className, style }) {
+  const [text2, setText] = reactExports.useState(value);
+  const ref = reactExports.useRef(null);
+  const done = reactExports.useRef(false);
+  reactExports.useEffect(() => {
+    var _a3, _b3;
+    (_a3 = ref.current) == null ? void 0 : _a3.focus();
+    (_b3 = ref.current) == null ? void 0 : _b3.select();
+  }, []);
+  const finish = (save) => {
+    if (done.current) return;
+    done.current = true;
+    if (save) onCommit(text2.replace(/\s+/g, " ").trim());
+    else onCancel();
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "input",
+    {
+      ref,
+      "aria-label": ariaLabel,
+      value: text2,
+      maxLength: 200,
+      enterKeyHint: "done",
+      onChange: (e) => setText(e.target.value),
+      onBlur: () => finish(true),
+      onKeyDown: (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          finish(true);
+        }
+        if (e.key === "Escape") {
+          e.preventDefault();
+          e.stopPropagation();
+          finish(false);
+        }
+      },
+      className,
+      style
+    }
+  );
+}
 const PRIORITY_OPTIONS$1 = [
   { value: "High", label: "High" },
   { value: "Med", label: "Medium" },
@@ -54970,6 +55017,7 @@ const CSS$2 = `
 .tdd-box[data-on]{border:none;background:var(--cal-brand)}
 .tdd-del{flex:none;width:30px;height:30px;border-radius:8px;border:none;background:transparent;color:var(--cal-muted);cursor:pointer;transition:opacity .12s}
 .tdd-del:hover{color:var(--cal-danger-fg);background:var(--cal-danger-bg)}
+.tdd-edit:hover{color:var(--cal-ink);background:var(--cal-surface-3)}
 @media (hover:hover){.tdd-row:hover{background:var(--cal-surface-2)}}
 @media (hover:hover) and (min-width:640px){.tdd-del{opacity:0}.tdd-row:hover .tdd-del,.tdd-del:focus-visible{opacity:1}}
 .tdd-noscroll{scrollbar-width:none}
@@ -55010,6 +55058,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
   const [checklist, setChecklist] = reactExports.useState([]);
   const [newChecklistItem, setNewChecklistItem] = reactExports.useState("");
   const [addingItem, setAddingItem] = reactExports.useState(false);
+  const [editingIdx, setEditingIdx] = reactExports.useState(null);
   const [saving, setSaving] = reactExports.useState(false);
   const [tags, setTags] = reactExports.useState([]);
   const [coverColour, setCoverColour] = reactExports.useState("");
@@ -55021,6 +55070,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
   const pickerRef = reactExports.useRef(null);
   const focusedNewRef = reactExports.useRef(null);
   const resetFields = () => {
+    setEditingIdx(null);
     if (!task2) return;
     setTitle(task2.title);
     setDescription(task2.description ?? "");
@@ -55187,6 +55237,17 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
   };
   const handleChecklistDelete = (idx) => {
     const updated2 = checklist.filter((_, i) => i !== idx);
+    setChecklist(updated2);
+    save({ checklist: updated2 });
+  };
+  const handleChecklistReword = (idx, next) => {
+    setEditingIdx(null);
+    const res = rewordLine(checklist.map((i) => i.label), idx, next);
+    if ("skip" in res) {
+      if (res.skip === "duplicate") toast2({ title: "Already there", description: "Another line on this card says the same." });
+      return;
+    }
+    const updated2 = checklist.map((item, i) => i === idx ? { ...item, label: res.labels[idx] } : item);
     setChecklist(updated2);
     save({ checklist: updated2 });
   };
@@ -55537,7 +55598,19 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
                       ] })
                     ] }),
                     checklist.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(ProgressBar, { pct: checklistPct, className: "hidden sm:block" }),
-                    checklist.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-col", children: checklist.map((item, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tdd-row flex items-center gap-1", children: [
+                    checklist.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-col", children: checklist.map((item, idx) => editingIdx === idx ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 min-h-11 sm:min-h-10 px-1 sm:px-2", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tdd-box grid place-items-center h-6 w-6 sm:h-[22px] sm:w-[22px]", "data-on": item.done ? "" : void 0, "aria-hidden": "true", children: item.done && /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-[13px] w-[13px]", strokeWidth: 3.4, color: "#ffffff" }) }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        LineEditInput,
+                        {
+                          value: item.label,
+                          onCommit: (next) => handleChecklistReword(idx, next),
+                          onCancel: () => setEditingIdx(null),
+                          className: "cal-field flex-1 min-w-0",
+                          style: { height: 36, fontSize: 14, borderRadius: 10, background: "var(--cal-surface)" }
+                        }
+                      )
+                    ] }, idx) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tdd-row flex items-center gap-1", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsxs(
                         "button",
                         {
@@ -55566,7 +55639,10 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
                           ]
                         }
                       ),
-                      canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": `Delete "${item.label}"`, className: "tdd-del cal-focus grid place-items-center mr-1", onClick: () => handleChecklistDelete(idx), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" }) })
+                      canEdit && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": `Reword "${item.label}"`, title: "Reword", className: "tdd-del tdd-edit cal-focus grid place-items-center", onClick: () => setEditingIdx(idx), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "h-3.5 w-3.5" }) }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": `Delete "${item.label}"`, title: "Delete", className: "tdd-del cal-focus grid place-items-center mr-1", onClick: () => handleChecklistDelete(idx), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" }) })
+                      ] })
                     ] }, idx)) }),
                     canEdit && (addingItem ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -56027,6 +56103,7 @@ function TaskTemplateManager({ isOpen, onClose, onUseTemplate, canManage }) {
   const [form, setForm] = reactExports.useState(emptyForm$1());
   const [addingItem, setAddingItem] = reactExports.useState(false);
   const [dragIdx, setDragIdx] = reactExports.useState(null);
+  const [editingIdx, setEditingIdx] = reactExports.useState(null);
   const [overIdx, setOverIdx] = reactExports.useState(null);
   const dialogRef = reactExports.useRef(null);
   const formRef = reactExports.useRef(null);
@@ -56148,6 +56225,15 @@ function TaskTemplateManager({ isOpen, onClose, onUseTemplate, canManage }) {
     setF({ checklist: [...form.checklist, { label: form.newItem.trim(), done: false }], newItem: "" });
   };
   const removeChecklistItem = (idx) => setF({ checklist: form.checklist.filter((_, i) => i !== idx) });
+  const renameChecklistItem = (idx, next) => {
+    setEditingIdx(null);
+    const res = rewordLine(form.checklist.map((i) => i.label), idx, next);
+    if ("skip" in res) {
+      if (res.skip === "duplicate") toast2({ title: "Already there", description: "Another item on this list says the same." });
+      return;
+    }
+    setF({ checklist: form.checklist.map((item, i) => i === idx ? { ...item, label: res.labels[idx] } : item) });
+  };
   const moveChecklistItem = (from, to) => {
     if (from === to) return;
     const next = [...form.checklist];
@@ -56172,6 +56258,7 @@ function TaskTemplateManager({ isOpen, onClose, onUseTemplate, canManage }) {
     return (_a4 = formRef.current) == null ? void 0 : _a4.scrollTo({ top: 0 });
   };
   const handleNew = () => {
+    setEditingIdx(null);
     setForm(emptyForm$1());
     setAddingItem(false);
     setMode("create");
@@ -56179,6 +56266,7 @@ function TaskTemplateManager({ isOpen, onClose, onUseTemplate, canManage }) {
   };
   const handleEdit = (t) => {
     setEditingId(t.id);
+    setEditingIdx(null);
     setForm(fromTemplate(t));
     setAddingItem(false);
     setMode("edit");
@@ -56418,7 +56506,7 @@ function TaskTemplateManager({ isOpen, onClose, onUseTemplate, canManage }) {
                       "div",
                       {
                         className: "ttm-cl-item",
-                        draggable: true,
+                        draggable: editingIdx !== idx,
                         "data-dragging": dragIdx === idx ? "" : void 0,
                         "data-over": overIdx === idx && dragIdx !== null && dragIdx !== idx ? "" : void 0,
                         onDragStart: (e) => {
@@ -56443,17 +56531,28 @@ function TaskTemplateManager({ isOpen, onClose, onUseTemplate, canManage }) {
                         },
                         children: [
                           /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { size: 14, "aria-hidden": "true", className: "ttm-grip" }),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ttm-cl-label", children: item.label }),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(
-                            "button",
+                          editingIdx === idx ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            LineEditInput,
                             {
-                              type: "button",
-                              className: "ttm-icon-btn cal-focus",
-                              "aria-label": `Remove ${item.label}`,
-                              onClick: () => removeChecklistItem(idx),
-                              children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 13, strokeWidth: 2, "aria-hidden": "true" })
+                              value: item.label,
+                              ariaLabel: "Reword this item",
+                              onCommit: (next) => renameChecklistItem(idx, next),
+                              onCancel: () => setEditingIdx(null),
+                              className: "ttm-cl-edit"
                             }
-                          )
+                          ) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "ttm-cl-label ttm-cl-btn cal-focus", title: "Reword", onClick: () => setEditingIdx(idx), children: item.label }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              "button",
+                              {
+                                type: "button",
+                                className: "ttm-icon-btn cal-focus",
+                                "aria-label": `Remove ${item.label}`,
+                                onClick: () => removeChecklistItem(idx),
+                                children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 13, strokeWidth: 2, "aria-hidden": "true" })
+                              }
+                            )
+                          ] })
                         ]
                       },
                       idx
@@ -56685,6 +56784,8 @@ select.ttm-input{appearance:none;-webkit-appearance:none;padding-right:36px;curs
 .ttm-cl-item[data-over]{box-shadow:inset 0 0 0 2px var(--cal-brand)}
 .ttm-grip{flex:none;color:var(--cal-muted);cursor:grab}
 .ttm-cl-label{flex:1;min-width:0;padding:8px 0;line-height:1.3;overflow-wrap:anywhere}
+.ttm-cl-btn{border:none;background:transparent;font:inherit;color:inherit;text-align:left;cursor:text;border-radius:6px}
+.ttm-cl-edit{flex:1;min-width:0;height:30px;margin-right:6px;padding:0 8px;border-radius:8px;border:1.5px solid var(--cal-brand);background:var(--cal-surface);color:var(--cal-ink);font:inherit;outline:none}
 .ttm-icon-btn{flex:none;width:28px;height:28px;border-radius:8px;border:none;background:transparent;color:var(--cal-muted);display:grid;place-items:center;cursor:pointer}
 .ttm-icon-btn:hover:not(:disabled){background:var(--cal-surface-3);color:var(--cal-ink)}
 .ttm-icon-btn:disabled{opacity:.4;cursor:default}
@@ -57107,6 +57208,16 @@ function RoutinePlanner({ open, onClose, canManage, onOpenOtherChecks }) {
     }
     patchCard(slot, key2, { items: [...card.items, label2] });
   };
+  const renameItem = (slot, key2, idx, label2) => {
+    const card = cardsOf(slot).find((c) => c.key === key2);
+    if (!card) return;
+    const res = rewordLine(card.items, idx, label2);
+    if ("skip" in res) {
+      if (res.skip === "duplicate") toast2({ title: "Already there", description: "Another check on this card says the same." });
+      return;
+    }
+    patchCard(slot, key2, { items: res.labels });
+  };
   const removeItem = (slot, key2, idx) => {
     const card = cardsOf(slot).find((c) => c.key === key2);
     if (card) patchCard(slot, key2, { items: card.items.filter((_, i) => i !== idx) });
@@ -57176,6 +57287,7 @@ function RoutinePlanner({ open, onClose, canManage, onOpenOtherChecks }) {
       onRemoveCard: (key2) => removeCard(slot, key2),
       onCopyCard: (key2, to) => copyCard(slot, key2, to),
       onAddItem: (key2, label2) => addItem(slot, key2, label2),
+      onRenameItem: (key2, idx, label2) => renameItem(slot, key2, idx, label2),
       onRemoveItem: (key2, idx) => removeItem(slot, key2, idx),
       onUploadError: (msg) => toast2({ title: msg, variant: "destructive" }),
       drag,
@@ -57372,11 +57484,12 @@ function SlotCell(p) {
     }
   );
 }
-function CardEditor({ slot, card, canManage, onPatch, onRemoveCard, onCopyCard, onAddItem, onRemoveItem, onUploadError, drag, over, onDragStart, onDragEnd, onDragOver, onDrop }) {
+function CardEditor({ slot, card, canManage, onPatch, onRemoveCard, onCopyCard, onAddItem, onRenameItem, onRemoveItem, onUploadError, drag, over, onDragStart, onDragEnd, onDragOver, onDrop }) {
   const isPhone = useIsPhone();
   const [adding, setAdding] = reactExports.useState(false);
   const [text2, setText] = reactExports.useState("");
   const [renaming, setRenaming] = reactExports.useState(false);
+  const [editingIdx, setEditingIdx] = reactExports.useState(null);
   const [name, setName] = reactExports.useState(card.name);
   const fileRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
@@ -57524,7 +57637,7 @@ function CardEditor({ slot, card, canManage, onPatch, onRemoveCard, onCopyCard, 
               "li",
               {
                 className: "rp-item",
-                draggable: canManage && !isPhone,
+                draggable: canManage && !isPhone && editingIdx !== idx,
                 onDragStart: (e) => {
                   e.dataTransfer.effectAllowed = "move";
                   onDragStart(card.key, idx);
@@ -57549,8 +57662,31 @@ function CardEditor({ slot, card, canManage, onPatch, onRemoveCard, onCopyCard, 
                 },
                 children: [
                   canManage && !isPhone ? /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { "aria-hidden": true, className: "h-3.5 w-3.5", style: { color: "var(--cal-line-2)", flex: "none" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "aria-hidden": true, style: { width: 5, height: 5, borderRadius: "50%", background: "var(--cal-ink-2)", margin: "0 5px", flex: "none" } }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { flex: 1, minWidth: 0, fontSize: 12.5, lineHeight: 1.3, overflowWrap: "anywhere", padding: "3px 0" }, children: label2 }),
-                  canManage && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  editingIdx === idx ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    LineEditInput,
+                    {
+                      value: label2,
+                      ariaLabel: "Reword this check",
+                      onCommit: (next) => {
+                        setEditingIdx(null);
+                        onRenameItem(card.key, idx, next);
+                      },
+                      onCancel: () => setEditingIdx(null),
+                      className: "cal-field",
+                      style: { flex: 1, minWidth: 0, height: isPhone ? 34 : 26, fontSize: 12.5 }
+                    }
+                  ) : canManage ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: () => setEditingIdx(idx),
+                      title: "Reword",
+                      className: "cal-focus",
+                      style: { flex: 1, minWidth: 0, textAlign: "left", border: "none", background: "transparent", borderRadius: 6, font: "inherit", color: "inherit", fontSize: 12.5, lineHeight: 1.3, overflowWrap: "anywhere", padding: "3px 0", cursor: "text" },
+                      children: label2
+                    }
+                  ) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { flex: 1, minWidth: 0, fontSize: 12.5, lineHeight: 1.3, overflowWrap: "anywhere", padding: "3px 0" }, children: label2 }),
+                  canManage && editingIdx !== idx && /* @__PURE__ */ jsxRuntimeExports.jsx(
                     "button",
                     {
                       type: "button",

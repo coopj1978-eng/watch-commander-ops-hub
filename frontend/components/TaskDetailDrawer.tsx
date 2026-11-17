@@ -8,10 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import backend from "@/lib/backend";
 import { useToast } from "@/components/ui/use-toast";
 import {
-  X, Trash2, Repeat, Plus, Clock, User, ImageIcon, Upload, Check, ChevronDown, Loader2,
+  X, Trash2, Repeat, Plus, Clock, User, ImageIcon, Upload, Check, ChevronDown, Loader2, Pencil,
 } from "lucide-react";
 import { TASK_LABELS, CARD_COVERS, getCoverStyle } from "@/lib/taskLabels";
-import { autoStatusFor, canEditTaskDetails, describeRRule, priorityKey, tickTime } from "@/lib/taskUi";
+import { autoStatusFor, canEditTaskDetails, describeRRule, priorityKey, rewordLine, tickTime } from "@/lib/taskUi";
+import LineEditInput from "@/components/tasks/LineEditInput";
 import type { Task, TaskColumn, ChecklistItem, TaskCategory, TaskPriority } from "~backend/task/types";
 
 interface TaskDetailDrawerProps {
@@ -138,6 +139,7 @@ const CSS = `
 .tdd-box[data-on]{border:none;background:var(--cal-brand)}
 .tdd-del{flex:none;width:30px;height:30px;border-radius:8px;border:none;background:transparent;color:var(--cal-muted);cursor:pointer;transition:opacity .12s}
 .tdd-del:hover{color:var(--cal-danger-fg);background:var(--cal-danger-bg)}
+.tdd-edit:hover{color:var(--cal-ink);background:var(--cal-surface-3)}
 @media (hover:hover){.tdd-row:hover{background:var(--cal-surface-2)}}
 @media (hover:hover) and (min-width:640px){.tdd-del{opacity:0}.tdd-row:hover .tdd-del,.tdd-del:focus-visible{opacity:1}}
 .tdd-noscroll{scrollbar-width:none}
@@ -192,6 +194,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
   const [newChecklistItem, setNewChecklistItem] = useState("");
   const [addingItem, setAddingItem] = useState(false);
+  const [editingIdx, setEditingIdx] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
   const [coverColour, setCoverColour] = useState<string>("");
@@ -204,6 +207,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
   const focusedNewRef = useRef<number | null>(null);
 
   const resetFields = () => {
+    setEditingIdx(null);
     if (!task) return;
     setTitle(task.title);
     setDescription(task.description ?? "");
@@ -380,6 +384,19 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
 
   const handleChecklistDelete = (idx: number) => {
     const updated = checklist.filter((_, i) => i !== idx);
+    setChecklist(updated);
+    save({ checklist: updated });
+  };
+
+  const handleChecklistReword = (idx: number, next: string) => {
+    setEditingIdx(null);
+    const res = rewordLine(checklist.map((i) => i.label), idx, next);
+    if ("skip" in res) {
+      if (res.skip === "duplicate") toast({ title: "Already there", description: "Another line on this card says the same." });
+      return;
+    }
+    // The tick, and who ticked it, stay with the line.
+    const updated = checklist.map((item, i) => (i === idx ? { ...item, label: res.labels[idx] } : item));
     setChecklist(updated);
     save({ checklist: updated });
   };
@@ -803,7 +820,20 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
 
                         {checklist.length > 0 && (
                           <div className="flex flex-col">
-                            {checklist.map((item, idx) => (
+                            {checklist.map((item, idx) => editingIdx === idx ? (
+                              <div key={idx} className="flex items-center gap-3 min-h-11 sm:min-h-10 px-1 sm:px-2">
+                                <span className="tdd-box grid place-items-center h-6 w-6 sm:h-[22px] sm:w-[22px]" data-on={item.done ? "" : undefined} aria-hidden="true">
+                                  {item.done && <Check className="h-[13px] w-[13px]" strokeWidth={3.4} color="#ffffff" />}
+                                </span>
+                                <LineEditInput
+                                  value={item.label}
+                                  onCommit={(next) => handleChecklistReword(idx, next)}
+                                  onCancel={() => setEditingIdx(null)}
+                                  className="cal-field flex-1 min-w-0"
+                                  style={{ height: 36, fontSize: 14, borderRadius: 10, background: "var(--cal-surface)" }}
+                                />
+                              </div>
+                            ) : (
                               <div key={idx} className="tdd-row flex items-center gap-1">
                                 <button
                                   type="button"
@@ -830,9 +860,14 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                                   )}
                                 </button>
                                 {canEdit && (
-                                  <button type="button" aria-label={`Delete "${item.label}"`} className="tdd-del cal-focus grid place-items-center mr-1" onClick={() => handleChecklistDelete(idx)}>
-                                    <X className="h-3.5 w-3.5" />
-                                  </button>
+                                  <>
+                                    <button type="button" aria-label={`Reword "${item.label}"`} title="Reword" className="tdd-del tdd-edit cal-focus grid place-items-center" onClick={() => setEditingIdx(idx)}>
+                                      <Pencil className="h-3.5 w-3.5" />
+                                    </button>
+                                    <button type="button" aria-label={`Delete "${item.label}"`} title="Delete" className="tdd-del cal-focus grid place-items-center mr-1" onClick={() => handleChecklistDelete(idx)}>
+                                      <X className="h-3.5 w-3.5" />
+                                    </button>
+                                  </>
                                 )}
                               </div>
                             ))}
