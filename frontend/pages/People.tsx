@@ -1,4 +1,4 @@
-import { openingFilters, peopleFiltersKey } from "@/lib/peopleFilters";
+import { filtersFromUrl, openingFilters, peopleFiltersKey } from "@/lib/peopleFilters";
 import { useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -88,10 +88,11 @@ export default function People() {
   // a link that carries its own filters wins. See lib/peopleFilters.
   const { user: authUser } = useAuth();
   const filtersKey = peopleFiltersKey(authUser?.id);
-  const [opening] = useState(() => {
+  const [{ opening, firstVisit }] = useState(() => {
     let saved: string | null = null;
     try { saved = localStorage.getItem(filtersKey); } catch { /* private window */ }
-    return openingFilters(searchParams, saved);
+    // First visit on this device (nothing saved, nothing in the link): start on your own station.
+    return { opening: openingFilters(searchParams, saved), firstVisit: !saved && !filtersFromUrl(searchParams) };
   });
 
   const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "");
@@ -206,9 +207,10 @@ export default function People() {
 
   const people = peopleData?.people || [];
 
-  // Default station filter to user's station
+  // The first time only, start on your own station. After that it's whatever
+  // you last left — including "all stations".
   useEffect(() => {
-    if (peopleData && authUser && !stationFilter && !searchParams.get("station")) {
+    if (firstVisit && peopleData && authUser && !stationFilter && !searchParams.get("station")) {
       const myProfile = peopleData.people?.find((p: any) => p.user.id === authUser.id);
       if (myProfile?.profile?.station) {
         setStationFilter(myProfile.profile.station);

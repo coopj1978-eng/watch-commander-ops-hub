@@ -43660,13 +43660,13 @@ function People() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { user: authUser } = useAuth();
   const filtersKey = peopleFiltersKey(authUser == null ? void 0 : authUser.id);
-  const [opening] = reactExports.useState(() => {
+  const [{ opening, firstVisit }] = reactExports.useState(() => {
     let saved = null;
     try {
       saved = localStorage.getItem(filtersKey);
     } catch {
     }
-    return openingFilters(searchParams, saved);
+    return { opening: openingFilters(searchParams, saved), firstVisit: !saved && !filtersFromUrl(searchParams) };
   });
   const [searchTerm, setSearchTerm] = reactExports.useState(searchParams.get("search") || "");
   const [debouncedSearch, setDebouncedSearch] = reactExports.useState(searchTerm);
@@ -43766,7 +43766,7 @@ function People() {
   const people = (peopleData == null ? void 0 : peopleData.people) || [];
   reactExports.useEffect(() => {
     var _a3, _b3;
-    if (peopleData && authUser && !stationFilter && !searchParams.get("station")) {
+    if (firstVisit && peopleData && authUser && !stationFilter && !searchParams.get("station")) {
       const myProfile = (_a3 = peopleData.people) == null ? void 0 : _a3.find((p) => p.user.id === authUser.id);
       if ((_b3 = myProfile == null ? void 0 : myProfile.profile) == null ? void 0 : _b3.station) {
         setStationFilter(myProfile.profile.station);
