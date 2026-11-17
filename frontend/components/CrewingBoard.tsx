@@ -169,9 +169,9 @@ function currentShiftDate(): string {
  * When before 08:00, the operative date is yesterday (night shift runs 18:00–08:00).
  */
 function getSmartDefaults(watchName: string): { shiftDate: string; shiftType: ShiftType } {
-  // The shift running now, or the next one today — and from midnight on a
-  // night shift, the next shift, so its board can be made up before the
-  // night finishes (lib/shiftRota crewingBoardShiftFor).
+  // The shift running now, or the next one today — and towards the end of a
+  // shift (midnight on nights, 16:00 on days) the next shift, so its board
+  // can be made up before going off (lib/shiftRota crewingBoardShiftFor).
   const live = crewingBoardShiftFor(watchName);
   if (live) return { shiftDate: live.shiftDate, shiftType: live.shiftType };
 
@@ -2456,8 +2456,9 @@ export default function CrewingBoard({ onOpenCanteenRota }: { onOpenCanteenRota?
           openSeats={plan.picks.length}
         />
 
-        {/* From midnight on a night shift the page opens on the NEXT shift's
-            board. Say so, and keep the running shift one tap away. */}
+        {/* Towards the end of a shift (midnight on nights, 16:00 on days) the
+            page opens on the NEXT shift's board. Say so, and keep the shift
+            on duty one tap away. */}
         {(() => {
           const opening = crewingBoardShiftFor(watch);
           const running = opening?.running;
@@ -2466,10 +2467,10 @@ export default function CrewingBoard({ onOpenCanteenRota }: { onOpenCanteenRota?
             <div role="status" className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-border bg-muted/50 px-3.5 py-2.5 text-sm print:hidden">
               <span className="min-w-0 flex-1">
                 <span className="font-semibold">This is your next shift's board.</span>{" "}
-                <span className="text-muted-foreground">Tonight's {running.shiftType} is still on duty.</span>
+                <span className="text-muted-foreground">{running.shiftType.includes("Night") ? "Tonight's" : "Today's"} {running.shiftType} is still on duty.</span>
               </span>
               <Button variant="outline" size="sm" className="h-9" onClick={() => { setShiftDate(running.shiftDate); setShiftType(running.shiftType); setActiveSlotId(null); }}>
-                Tonight's board
+                {running.shiftType.includes("Night") ? "Tonight's board" : "Today's board"}
               </Button>
             </div>
           );

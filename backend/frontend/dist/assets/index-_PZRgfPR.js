@@ -27287,7 +27287,7 @@ const NAV_GROUPS = [
     label: "Crew",
     items: [
       { name: "People", path: "/people", icon: Users, featureKey: "people", shortcut: "P", badge: "people", keywords: "crew staff firefighters profiles" },
-      { name: "Requests", path: "/requests", icon: FileCheck, featureKey: "requests", badge: "requests", keywords: "flexi day head for head h4h swap annual leave move kronos authorise decline records" },
+      { name: "Flexi & H4H", path: "/requests", icon: FileCheck, featureKey: "requests", badge: "requests", keywords: "requests flexi day head for head h4h swap annual leave move kronos records balances" },
       { name: "Bulletins", path: "/bulletins", icon: Megaphone, featureKey: "bulletins", badge: "bulletins", keywords: "news announcements messages" },
       { name: "Training", path: "/training", icon: GraduationCap, featureKey: "training", keywords: "courses skills certificates" }
     ]
@@ -33249,14 +33249,15 @@ function crewingShiftFor(watch, now = /* @__PURE__ */ new Date()) {
     upcoming: !(s == null ? void 0 : s.current)
   };
 }
+const DAY_BOARD_MOVES_ON_AT = 16;
 function crewingBoardShiftFor(watch, now = /* @__PURE__ */ new Date()) {
   var _a3;
   const live = crewingShiftFor(watch, now);
   if (!live || live.upcoming || !watch) return live;
   const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-  const pastMidnight = live.shiftType.includes("Night") && live.shiftDate < today;
+  const movesOn = live.shiftType.includes("Night") ? live.shiftDate < today : now.getHours() >= DAY_BOARD_MOVES_ON_AT;
   const next = (_a3 = getWatchShiftStatus(watch, now)) == null ? void 0 : _a3.next;
-  if (!pastMidnight || !next) return live;
+  if (!movesOn || !next) return live;
   return {
     shiftDate: next.date,
     shiftType: next.shiftType,
@@ -62800,7 +62801,7 @@ function RecordsTab({ onOpen }) {
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: type, onValueChange: setType, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { "aria-label": "Type", className: "w-40", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "all", children: "All requests" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "all", children: "Both kinds" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "flexi", children: REQUEST_LABEL.flexi }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "h4h", children: REQUEST_LABEL.h4h })
         ] })
@@ -62811,8 +62812,8 @@ function RecordsTab({ onOpen }) {
         "Download"
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "Kept for good, including anything declined, withdrawn or cancelled. Your watch's requests, and any you signed." }),
-    isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Loading, {}) : rows.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(Empty, { title: `No records for ${year}`, body: "Each request is saved here once it's made." }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "divide-y divide-border overflow-hidden rounded-xl border border-border bg-card", children: rows.map((r2) => /* @__PURE__ */ jsxRuntimeExports.jsx(RequestRow, { r: r2, onOpen: () => onOpen(r2.id), extra: r2.decided_by_name ? `signed by ${signedAs(r2)}` : void 0 }, r2.id)) })
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "Kept for good, including anything declined, withdrawn or cancelled. Your watch's, and any you signed." }),
+    isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Loading, {}) : rows.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(Empty, { title: `No records for ${year}`, body: "Each one is saved here once it's booked." }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "divide-y divide-border overflow-hidden rounded-xl border border-border bg-card", children: rows.map((r2) => /* @__PURE__ */ jsxRuntimeExports.jsx(RequestRow, { r: r2, onOpen: () => onOpen(r2.id), extra: r2.decided_by_name ? `signed by ${signedAs(r2)}` : void 0 }, r2.id)) })
   ] });
 }
 function OpeningInput({ person, year, disabled }) {
@@ -62895,7 +62896,7 @@ function BalancesTab() {
         /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: [thisYear2 + 1, thisYear2, thisYear2 - 1].map((y) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: String(y), children: y }, y)) })
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "Enter how many flexi days each person had already used this year. The app adds its own requests on top, once they've reached the WC." }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "Enter how many flexi days each person had already used this year. The app adds the ones booked here on top." }),
     isLoading || !data ? /* @__PURE__ */ jsxRuntimeExports.jsx(Loading, {}) : /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { className: "divide-y divide-border overflow-hidden rounded-xl border border-border bg-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "grid grid-cols-[minmax(0,1fr)_64px_44px_64px] items-center gap-2 px-3 py-2 text-xs text-muted-foreground sm:px-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Person" }),
@@ -62957,12 +62958,12 @@ function Requests() {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-3xl font-semibold tracking-tight text-foreground", children: "Requests" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-3xl font-semibold tracking-tight text-foreground", children: "Flexi & H4H" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1 text-sm text-muted-foreground", children: "Flexi Days and Head for Heads. They go straight on the calendar; each one is kept here as a record." })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { onClick: () => setNewOpen(true), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "mr-2 h-4 w-4" }),
-        "Flexi / H4H"
+        "Book a day"
       ] })
     ] }),
     tabs.length > 1 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "-mx-4 flex gap-1 overflow-x-auto border-b border-border px-4 sm:mx-0 sm:px-0 [scrollbar-width:none]", children: tabs.map((t) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -65982,7 +65983,7 @@ const FEATURE_CONFIG = [
   { key: "calendar", label: "Calendar", description: "Their own calendar first, then the watch's; log TOIL and orange days, ask for a flexi or H4H", icon: Calendar, phase: "Phase 1 · first release" },
   { key: "handover", label: "Shift", description: "Crewing board (to look at), handover notes to read, the detachment and canteen rotas", icon: ClipboardList, phase: "Phase 1 · first release" },
   { key: "tasks", label: "Tasks", description: "Today's shift board: tick checks, add a job", icon: SquareCheckBig, phase: "Phase 1 · first release" },
-  { key: "requests", label: "Requests", description: "Their own flexi and H4H, kept as a record (they go straight on the calendar)", icon: FileCheck, phase: "Phase 1 · first release" },
+  { key: "requests", label: "Flexi & H4H", description: "Their own flexi and H4H, kept as a record (they go straight on the calendar)", icon: FileCheck, phase: "Phase 1 · first release" },
   // Targets moved up from Phase 3 (John, 9 Nov 2026): see this month's and
   // quarter's progress, and fill in their own watch's HFSV visits.
   { key: "targets", label: "Targets", description: "The watch's progress this month and quarter; fill in HFSV visits", icon: Target, phase: "Phase 1 · first release" },
@@ -74594,7 +74595,8 @@ function CrewingBoard({ onOpenCanteenRota } = {}) {
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold", children: "This is your next shift's board." }),
             " ",
             /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-muted-foreground", children: [
-              "Tonight's ",
+              running.shiftType.includes("Night") ? "Tonight's" : "Today's",
+              " ",
               running.shiftType,
               " is still on duty."
             ] })
@@ -74603,7 +74605,7 @@ function CrewingBoard({ onOpenCanteenRota } = {}) {
             setShiftDate(running.shiftDate);
             setShiftType(running.shiftType);
             setActiveSlotId(null);
-          }, children: "Tonight's board" })
+          }, children: running.shiftType.includes("Night") ? "Tonight's board" : "Today's board" })
         ] });
       })(),
       seatLine && /* @__PURE__ */ jsxRuntimeExports.jsx(MySeatStrip, { line: seatLine }),

@@ -36,8 +36,15 @@ describe("the board the Crewing page opens on", () => {
   it("after the last night of a tour, the first day of the next", () => {
     expect(crewingBoardShiftFor("Blue", at(18, 6, 0))).toMatchObject({ shiftDate: "2026-11-22", shiftType: "1st Day", running: { shiftDate: "2026-11-17", shiftType: "2nd Night" } });
   });
-  it("a day shift keeps its own board until it ends, then the next shift's", () => {
-    expect(crewingBoardShiftFor("Blue", at(14, 17, 0))).toEqual({ shiftDate: "2026-11-14", shiftType: "1st Day", upcoming: false });
+  it("a day shift keeps its own board until 16:00, then the next shift's", () => {
+    expect(crewingBoardShiftFor("Blue", at(14, 15, 59))).toEqual({ shiftDate: "2026-11-14", shiftType: "1st Day", upcoming: false });
+    expect(crewingBoardShiftFor("Blue", at(14, 16, 0))).toEqual({
+      shiftDate: "2026-11-15", shiftType: "2nd Day", upcoming: true,
+      running: { shiftDate: "2026-11-14", shiftType: "1st Day" },
+    });
+    // After the 2nd Day, the next shift is that tour's 1st Night.
+    expect(crewingBoardShiftFor("Blue", at(15, 16, 30))).toMatchObject({ shiftDate: "2026-11-16", shiftType: "1st Night", running: { shiftType: "2nd Day" } });
+    // Once the day has finished there's nothing "still on duty".
     expect(crewingBoardShiftFor("Blue", at(14, 19, 0))).toEqual({ shiftDate: "2026-11-15", shiftType: "2nd Day", upcoming: true });
   });
   it("nothing on a rest day or with no rota", () => {

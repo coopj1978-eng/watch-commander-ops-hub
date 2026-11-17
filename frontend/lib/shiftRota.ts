@@ -266,13 +266,17 @@ export function crewingShiftFor(
 
 type BoardShiftType = "1st Day" | "2nd Day" | "1st Night" | "2nd Night";
 
+/** A day shift's board gives way to the next shift's from this hour (16:00). */
+export const DAY_BOARD_MOVES_ON_AT = 16;
+
 /**
  * The board the Crewing page opens on. The same as crewingShiftFor, except
- * that once a night shift is past midnight it opens on the watch's NEXT
- * shift (John, 17 Nov 2026): the WC or CC makes up the next board in the
- * morning, before the night finishes. `running` is then the shift still on
- * duty, so the page can say so and offer its board. Everything about "now" —
- * riding now on Home, the crew-gap alert — still uses crewingShiftFor.
+ * that towards the end of a shift it opens on the watch's NEXT shift (John,
+ * 17 Nov 2026), so the WC or CC can make up the next board before going off:
+ * from midnight on a night shift, from 16:00 on a day shift. `running` is
+ * then the shift still on duty, so the page can say so and offer its board.
+ * Everything about "now" — riding now on Home, the crew-gap alert — still
+ * uses crewingShiftFor.
  */
 export function crewingBoardShiftFor(
   watch: string | undefined,
@@ -281,9 +285,11 @@ export function crewingBoardShiftFor(
   const live = crewingShiftFor(watch, now);
   if (!live || live.upcoming || !watch) return live;
   const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-  const pastMidnight = live.shiftType.includes("Night") && live.shiftDate < today;
+  const movesOn = live.shiftType.includes("Night")
+    ? live.shiftDate < today                        // a night, past midnight
+    : now.getHours() >= DAY_BOARD_MOVES_ON_AT;      // a day, from 16:00
   const next = getWatchShiftStatus(watch, now)?.next;
-  if (!pastMidnight || !next) return live;
+  if (!movesOn || !next) return live;
   return {
     shiftDate: next.date,
     shiftType: next.shiftType as BoardShiftType,

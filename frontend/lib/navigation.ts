@@ -90,7 +90,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "Crew",
     items: [
       { name: "People",      path: "/people",      icon: Users,         featureKey: "people", shortcut: "P", badge: "people", keywords: "crew staff firefighters profiles" },
-      { name: "Requests",    path: "/requests",    icon: FileCheck,     featureKey: "requests", badge: "requests", keywords: "flexi day head for head h4h swap annual leave move kronos authorise decline records" },
+      { name: "Flexi & H4H", path: "/requests",    icon: FileCheck,     featureKey: "requests", badge: "requests", keywords: "requests flexi day head for head h4h swap annual leave move kronos records balances" },
       { name: "Bulletins",   path: "/bulletins",   icon: Megaphone,     featureKey: "bulletins", badge: "bulletins", keywords: "news announcements messages" },
       { name: "Training",    path: "/training",    icon: GraduationCap, featureKey: "training", keywords: "courses skills certificates" },
     ],

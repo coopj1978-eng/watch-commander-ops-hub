@@ -63,7 +63,7 @@ const FEATURE_CONFIG: {
   { key: "calendar",     label: "Calendar",       description: "Their own calendar first, then the watch's; log TOIL and orange days, ask for a flexi or H4H", icon: Calendar,      phase: "Phase 1 · first release" },
   { key: "handover",     label: "Shift",          description: "Crewing board (to look at), handover notes to read, the detachment and canteen rotas",       icon: ClipboardList, phase: "Phase 1 · first release" },
   { key: "tasks",        label: "Tasks",          description: "Today's shift board: tick checks, add a job",                         icon: CheckSquare,   phase: "Phase 1 · first release" },
-  { key: "requests",     label: "Requests",       description: "Their own flexi and H4H, kept as a record (they go straight on the calendar)", icon: FileCheck, phase: "Phase 1 · first release" },
+  { key: "requests",     label: "Flexi & H4H",    description: "Their own flexi and H4H, kept as a record (they go straight on the calendar)", icon: FileCheck, phase: "Phase 1 · first release" },
   // Targets moved up from Phase 3 (John, 9 Nov 2026): see this month's and
   // quarter's progress, and fill in their own watch's HFSV visits.
   { key: "targets",      label: "Targets",        description: "The watch's progress this month and quarter; fill in HFSV visits",  icon: Target,        phase: "Phase 1 · first release" },

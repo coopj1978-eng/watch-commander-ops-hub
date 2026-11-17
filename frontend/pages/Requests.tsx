@@ -156,7 +156,7 @@ function RecordsTab({ onOpen }: { onOpen: (id: number) => void }) {
         <Select value={type} onValueChange={setType}>
           <SelectTrigger aria-label="Type" className="w-40"><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All requests</SelectItem>
+            <SelectItem value="all">Both kinds</SelectItem>
             <SelectItem value="flexi">{REQUEST_LABEL.flexi}</SelectItem>
             <SelectItem value="h4h">{REQUEST_LABEL.h4h}</SelectItem>
           </SelectContent>
@@ -164,9 +164,9 @@ function RecordsTab({ onOpen }: { onOpen: (id: number) => void }) {
         <Input aria-label="Search by name or payroll number" placeholder="Name or payroll number" className="min-w-40 flex-1" value={search} onChange={(e) => setSearch(e.target.value)} />
         <Button variant="outline" disabled={rows.length === 0} onClick={download}><Download className="mr-2 h-4 w-4" />Download</Button>
       </div>
-      <p className="text-xs text-muted-foreground">Kept for good, including anything declined, withdrawn or cancelled. Your watch's requests, and any you signed.</p>
+      <p className="text-xs text-muted-foreground">Kept for good, including anything declined, withdrawn or cancelled. Your watch's, and any you signed.</p>
       {isLoading ? <Loading /> : rows.length === 0 ? (
-        <Empty title={`No records for ${year}`} body="Each request is saved here once it's made." />
+        <Empty title={`No records for ${year}`} body="Each one is saved here once it's booked." />
       ) : (
         <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
           {rows.map((r) => <RequestRow key={r.id} r={r} onOpen={() => onOpen(r.id)} extra={r.decided_by_name ? `signed by ${signedAs(r)}` : undefined} />)}
@@ -263,7 +263,7 @@ function BalancesTab() {
         </Select>
       </div>
       <p className="text-xs text-muted-foreground">
-        Enter how many flexi days each person had already used this year. The app adds its own requests on top, once they've reached the WC.
+        Enter how many flexi days each person had already used this year. The app adds the ones booked here on top.
       </p>
       {isLoading || !data ? <Loading /> : (
         <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
@@ -330,10 +330,10 @@ export default function Requests() {
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">Requests</h1>
+          <h1 className="text-3xl font-semibold tracking-tight text-foreground">Flexi &amp; H4H</h1>
           <p className="mt-1 text-sm text-muted-foreground">Flexi Days and Head for Heads. They go straight on the calendar; each one is kept here as a record.</p>
         </div>
-        <Button onClick={() => setNewOpen(true)}><Plus className="mr-2 h-4 w-4" />Flexi / H4H</Button>
+        <Button onClick={() => setNewOpen(true)}><Plus className="mr-2 h-4 w-4" />Book a day</Button>
       </div>
 
       {tabs.length > 1 && (
