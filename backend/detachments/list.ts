@@ -63,7 +63,7 @@ export const list = api<ListDetachmentsRequest, ListDetachmentsResponse>(
   },
 );
 
-// GET /detachments/rota — fairness rota: all watch members sorted by last detachment (oldest first = next in line)
+// GET /detachments/rota — fairness rota: the watch's firefighters sorted by last detachment (oldest first = next in line)
 export const getRota = api<GetRotaRequest, GetRotaResponse>(
   { auth: true, expose: true, method: "GET", path: "/detachments/rota" },
   async (req) => {
@@ -97,7 +97,9 @@ export const getRota = api<GetRotaRequest, GetRotaResponse>(
          LIMIT 1
        ) d ON true
        WHERE LOWER(u.watch_unit) = LOWER($1)
-         AND u.role IN ('WC', 'CC', 'FF')
+         -- Firefighters only (John, 17 Nov 2026): Watch and Crew Commanders
+         -- arrange their own detached duty, so they aren't in the running.
+         AND u.role = 'FF'
        ORDER BY d.last_detachment_date ASC NULLS FIRST, u.name ASC`,
       req.watch,
     );

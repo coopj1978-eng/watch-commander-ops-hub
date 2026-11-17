@@ -25514,6 +25514,14 @@ var detachments;
       this.create = this.create.bind(this);
       this.getRota = this.getRota.bind(this);
       this.list = this.list.bind(this);
+      this.remove = this.remove.bind(this);
+    }
+    /**
+     * DELETE /api/detachments/:id — take a detachment off the record (WC/CC)
+     */
+    async remove(id) {
+      const resp = await this.baseClient.callTypedAPI("DELETE", `/api/detachments/${encodeURIComponent(id)}`);
+      return await resp.json();
     }
     /**
      * POST /detachments — record a firefighter detachment event
@@ -72694,11 +72702,12 @@ function useCanteen(watch, shiftDate, shiftType) {
   return { duties, byUser, rota: ((_b3 = rotaQ.data) == null ? void 0 : _b3.members) ?? [], add: add2, remove, toggle, busy: add2.isPending || remove.isPending };
 }
 const CanteenContext = reactExports.createContext(null);
-function CanteenToggle({ userId }) {
+function CanteenToggle({ userId, role }) {
   const ctx = reactExports.useContext(CanteenContext);
   if (!ctx || !userId) return null;
   const on = ctx.byUser.has(userId);
   if (!ctx.canEdit && !on) return null;
+  if ((role === "WC" || role === "CC") && !on) return null;
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
     "button",
     {
@@ -73245,7 +73254,7 @@ function DraggableFilledSlot({
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate", children: qualWarning })
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(CanteenToggle, { userId: entry.user_id }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(CanteenToggle, { userId: entry.user_id, role: entry.user_system_role }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0 ${ROLE_BADGE[entry.crew_role]}`, children: slot.label }),
         canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
@@ -75005,6 +75014,20 @@ function DetachmentsTabPanel({ watch, initialSub = "rota" }) {
   var _a3, _b3, _c2, _d2;
   const [subTab, setSubTab] = reactExports.useState(initialSub);
   const [historyPage, setHistoryPage] = reactExports.useState(0);
+  const role = useUserRole();
+  const canRemove = role === "WC" || role === "CC";
+  const queryClient2 = useQueryClient();
+  const { toast: toast2 } = useToast();
+  const [removing, setRemoving] = reactExports.useState(null);
+  const removeMutation = useMutation({
+    mutationFn: (id) => backendClient.detachments.remove(id),
+    onSuccess: () => {
+      queryClient2.invalidateQueries({ queryKey: ["detachments-history"] });
+      queryClient2.invalidateQueries({ queryKey: ["detachments-rota"] });
+      toast2({ title: "Detachment removed" });
+    },
+    onError: (e) => toast2({ title: "Couldn't remove it", description: e.message, variant: "destructive" })
+  });
   const rotaQuery = useQuery({
     queryKey: ["detachments-rota", watch],
     queryFn: () => backendClient.detachments.getRota({ watch }),
@@ -75049,6 +75072,29 @@ function DetachmentsTabPanel({ watch, initialSub = "rota" }) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "py-12 text-center text-sm text-muted-foreground", children: "No watch assigned to your profile" });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialog, { open: !!removing, onOpenChange: (open) => !open && setRemoving(null), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogContent, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogHeader, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogTitle, { children: "Remove this detachment?" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogDescription, { children: [
+          removing == null ? void 0 : removing.label,
+          ". It comes off the history and no longer counts on the rota. This can't be undone."
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogFooter, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogCancel, { children: "Keep it" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          AlertDialogAction,
+          {
+            className: "bg-red-600 text-white hover:bg-red-700",
+            onClick: () => {
+              if (removing) removeMutation.mutate(removing.id);
+              setRemoving(null);
+            },
+            children: "Remove"
+          }
+        )
+      ] })
+    ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1 p-1 bg-muted rounded-lg w-fit", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "button",
@@ -75087,8 +75133,11 @@ function DetachmentsTabPanel({ watch, initialSub = "rota" }) {
     subTab === "rota" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground flex items-center gap-1.5", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { className: "h-3.5 w-3.5 shrink-0" }),
-        "Sorted by last detachment — ",
-        /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "top of the list = most overdue to go out next" })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+          "Sorted by last detachment — ",
+          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "top of the list = most overdue to go out next" }),
+          ". Firefighters only: Watch and Crew Commanders arrange their own."
+        ] })
       ] }),
       rotaQuery.isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: [...Array(6)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-14 w-full rounded-lg" }, i)) }) : members.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "py-10 text-center text-sm text-muted-foreground", children: [
         "No members found for ",
@@ -75134,9 +75183,11 @@ function DetachmentsTabPanel({ watch, initialSub = "rota" }) {
     subTab === "canteen" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground flex items-center gap-1.5", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { className: "h-3.5 w-3.5 shrink-0" }),
-        "Sorted by last canteen — ",
-        /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "top of the list = longest since (or never), next up" }),
-        ". Pick on the crewing board."
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+          "Sorted by last canteen — ",
+          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "top of the list = longest since (or never), next up" }),
+          ". Pick on the crewing board. Firefighters only: Watch and Crew Commanders don't do canteen."
+        ] })
       ] }),
       canteenQuery.isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: [...Array(6)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-14 w-full rounded-lg" }, i)) }) : canteenMembers.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "py-10 text-center text-sm text-muted-foreground", children: [
         "No members found for ",
@@ -75215,7 +75266,19 @@ function DetachmentsTabPanel({ watch, initialSub = "rota" }) {
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: format(parseISO(det.detachment_date), "dd MMM yyyy") })
           ] }),
           det.notes && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground/70 mt-0.5 italic", children: det.notes })
-        ] })
+        ] }),
+        canRemove && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Button,
+          {
+            variant: "ghost",
+            size: "icon",
+            className: "h-9 w-9 shrink-0 text-muted-foreground hover:text-red-600",
+            "aria-label": `Remove ${det.firefighter_name}'s detachment on ${format(parseISO(det.detachment_date), "d MMM yyyy")}`,
+            title: "Remove",
+            onClick: () => setRemoving({ id: det.id, label: `${det.firefighter_name}, ${det.to_station}, ${format(parseISO(det.detachment_date), "d MMM yyyy")}` }),
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-4 w-4" })
+          }
+        )
       ] }, det.id)) }),
       hasMore && /* @__PURE__ */ jsxRuntimeExports.jsxs(
         Button,

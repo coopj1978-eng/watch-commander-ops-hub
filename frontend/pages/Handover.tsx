@@ -74,6 +74,23 @@ function DetachmentsTabPanel({ watch, initialSub = "rota" }: { watch: string; in
   const [subTab, setSubTab] = useState<"rota" | "canteen" | "history">(initialSub);
   const [historyPage, setHistoryPage] = useState(0);
 
+  // A WC or CC can take a detachment off the record — one put on by mistake
+  // stays in the history and counts on the rota otherwise.
+  const role = useUserRole();
+  const canRemove = role === "WC" || role === "CC";
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const [removing, setRemoving] = useState<{ id: number; label: string } | null>(null);
+  const removeMutation = useMutation({
+    mutationFn: (id: number) => backend.detachments.remove(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["detachments-history"] });
+      queryClient.invalidateQueries({ queryKey: ["detachments-rota"] });
+      toast({ title: "Detachment removed" });
+    },
+    onError: (e: Error) => toast({ title: "Couldn't remove it", description: e.message, variant: "destructive" }),
+  });
+
   const rotaQuery = useQuery({
     queryKey: ["detachments-rota", watch],
     queryFn: () => backend.detachments.getRota({ watch }),
@@ -129,6 +146,25 @@ function DetachmentsTabPanel({ watch, initialSub = "rota" }: { watch: string; in
 
   return (
     <div className="space-y-4">
+      <AlertDialog open={!!removing} onOpenChange={(open) => !open && setRemoving(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove this detachment?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {removing?.label}. It comes off the history and no longer counts on the rota. This can't be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep it</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 text-white hover:bg-red-700"
+              onClick={() => { if (removing) removeMutation.mutate(removing.id); setRemoving(null); }}
+            >
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       {/* Sub-tab pills */}
       <div className="flex gap-1 p-1 bg-muted rounded-lg w-fit">
         <button
@@ -171,7 +207,7 @@ function DetachmentsTabPanel({ watch, initialSub = "rota" }: { watch: string; in
         <div className="space-y-3">
           <p className="text-xs text-muted-foreground flex items-center gap-1.5">
             <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-            Sorted by last detachment — <strong>top of the list = most overdue to go out next</strong>
+            <span>Sorted by last detachment — <strong>top of the list = most overdue to go out next</strong>. Firefighters only: Watch and Crew Commanders arrange their own.</span>
           </p>
 
           {rotaQuery.isLoading ? (
@@ -238,7 +274,7 @@ function DetachmentsTabPanel({ watch, initialSub = "rota" }: { watch: string; in
         <div className="space-y-3">
           <p className="text-xs text-muted-foreground flex items-center gap-1.5">
             <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-            Sorted by last canteen — <strong>top of the list = longest since (or never), next up</strong>. Pick on the crewing board.
+            <span>Sorted by last canteen — <strong>top of the list = longest since (or never), next up</strong>. Pick on the crewing board. Firefighters only: Watch and Crew Commanders don't do canteen.</span>
           </p>
           {canteenQuery.isLoading ? (
             <div className="space-y-2">
@@ -348,6 +384,18 @@ function DetachmentsTabPanel({ watch, initialSub = "rota" }: { watch: string; in
                       </div>
                       {det.notes && <p className="text-xs text-muted-foreground/70 mt-0.5 italic">{det.notes}</p>}
                     </div>
+                    {canRemove && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-9 w-9 shrink-0 text-muted-foreground hover:text-red-600"
+                        aria-label={`Remove ${det.firefighter_name}'s detachment on ${format(parseISO(det.detachment_date), "d MMM yyyy")}`}
+                        title="Remove"
+                        onClick={() => setRemoving({ id: det.id, label: `${det.firefighter_name}, ${det.to_station}, ${format(parseISO(det.detachment_date), "d MMM yyyy")}` })}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                 ))}
               </div>

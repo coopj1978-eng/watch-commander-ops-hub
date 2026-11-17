@@ -728,7 +728,7 @@ function DraggableFilledSlot({
           </p>
         )}
       </div>
-      <CanteenToggle userId={entry.user_id} />
+      <CanteenToggle userId={entry.user_id} role={entry.user_system_role} />
       <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0 ${ROLE_BADGE[entry.crew_role]}`}>
         {slot.label}
       </span>

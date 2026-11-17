@@ -66,12 +66,17 @@ export const listCanteen = api<CanteenShiftRequest, { duties: CanteenDuty[] }>(
   },
 );
 
-// POST /canteen — put someone on canteen for a shift (WC/CC, at most two)
+// POST /canteen — put a firefighter on canteen for a shift (done by a WC/CC, at most two)
 export const addCanteen = api<AddCanteenRequest, CanteenDuty>(
   { auth: true, expose: true, method: "POST", path: "/canteen" },
   async (req) => {
     const auth = getAuthData()!;
     requireRole(auth, "WC", "CC");
+
+    const who = await db.rawQueryRow<{ role: string }>(`SELECT role FROM users WHERE id = $1`, req.user_id);
+    if (who?.role === "WC" || who?.role === "CC") {
+      throw APIError.failedPrecondition("Watch and Crew Commanders don't do canteen");
+    }
 
     const count = await db.rawQueryRow<{ n: number }>(
       `SELECT COUNT(*)::int AS n FROM canteen_duties
@@ -109,7 +114,7 @@ export const removeCanteen = api<{ id: number }, { ok: boolean }>(
   },
 );
 
-// GET /canteen-rota — the watch, longest since canteen first (never = top)
+// GET /canteen-rota — the watch's firefighters, longest since canteen first (never = top)
 export const canteenRota = api<{ watch: string }, { members: CanteenRotaMember[] }>(
   { auth: true, expose: true, method: "GET", path: "/canteen-rota" },
   async (req) => {
@@ -129,7 +134,9 @@ export const canteenRota = api<{ watch: string }, { members: CanteenRotaMember[]
        ) recent ON true
        WHERE LOWER(COALESCE(u.watch_unit, fp.watch)) = LOWER($1)
          AND u.left_at IS NULL
-         AND u.role IN ('WC', 'CC', 'FF')
+         -- Firefighters only (John, 17 Nov 2026): Watch and Crew Commanders
+         -- never do canteen.
+         AND u.role = 'FF'
        ORDER BY last.shift_date ASC NULLS FIRST, recent.n ASC, u.name ASC`,
       req.watch,
     );

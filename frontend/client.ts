@@ -1918,6 +1918,15 @@ export namespace detachments {
             this.create = this.create.bind(this)
             this.getRota = this.getRota.bind(this)
             this.list = this.list.bind(this)
+            this.remove = this.remove.bind(this)
+        }
+
+        /**
+         * DELETE /api/detachments/:id — take a detachment off the record (WC/CC)
+         */
+        public async remove(id: number): Promise<{ ok: boolean }> {
+            const resp = await this.baseClient.callTypedAPI("DELETE", `/api/detachments/${encodeURIComponent(id)}`)
+            return await resp.json() as { ok: boolean }
         }
 
         /**

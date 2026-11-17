@@ -9,7 +9,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 // Canteen duty on the crewing board (John, Nov 2026): one or two people per
-// shift, anyone on the watch, and they still ride. Tick the chef's hat on a
+// shift, any firefighter on the watch (not a WC or CC), and they still ride. Tick the chef's hat on a
 // crewed name, or use this card — its suggestion is whoever has gone longest
 // without canteen (the same fairness idea as the detachment rota).
 
@@ -70,11 +70,14 @@ export function useCanteen(watch: string, shiftDate: string, shiftType: ShiftTyp
 /** Lets each crewed name on the board show / toggle its chef's hat. */
 export const CanteenContext = createContext<{ byUser: Map<string, number>; toggle: (userId: string) => void; canEdit: boolean } | null>(null);
 
-export function CanteenToggle({ userId }: { userId?: string | null }) {
+export function CanteenToggle({ userId, role }: { userId?: string | null; role?: string | null }) {
   const ctx = useContext(CanteenContext);
   if (!ctx || !userId) return null;
   const on = ctx.byUser.has(userId);
   if (!ctx.canEdit && !on) return null;
+  // Watch and Crew Commanders don't do canteen (John, 17 Nov 2026): no hat to
+  // tick — unless one is already on, so it can be taken off.
+  if ((role === "WC" || role === "CC") && !on) return null;
   return (
     <button
       type="button"
