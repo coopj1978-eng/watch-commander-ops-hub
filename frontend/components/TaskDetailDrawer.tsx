@@ -8,12 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import backend from "@/lib/backend";
 import { useToast } from "@/components/ui/use-toast";
 import {
-  X, Trash2, Repeat, Plus, Clock, User, ImageIcon, Upload, Check, ChevronDown, Loader2, Pencil,
+  X, Trash2, Plus, Clock, User, ImageIcon, Upload, Check, ChevronDown, Loader2, Pencil,
 } from "lucide-react";
 import { TASK_LABELS, CARD_COVERS, getCoverStyle } from "@/lib/taskLabels";
-import { autoStatusFor, canEditTaskDetails, describeRRule, priorityKey, rewordLine, tickTime } from "@/lib/taskUi";
+import { autoStatusFor, canEditTaskDetails, priorityKey, rewordLine, tickTime } from "@/lib/taskUi";
 import LineEditInput from "@/components/tasks/LineEditInput";
-import type { Task, TaskColumn, ChecklistItem, TaskCategory, TaskPriority } from "~backend/task/types";
+import type { Task, TaskColumn, ChecklistItem, TaskPriority } from "~backend/task/types";
 
 interface TaskDetailDrawerProps {
   task: Task | null;
@@ -33,45 +33,10 @@ const PRIORITY_OPTIONS: { value: TaskPriority; label: string }[] = [
   { value: "Low",  label: "Low" },
 ];
 
-const CATEGORY_OPTIONS: TaskCategory[] = ["Training", "Inspection", "HFSV", "Admin", "Other"];
-
-const RRULE_PRESETS = [
-  { label: "None",            value: "__none__" },
-  { label: "Daily",           value: "FREQ=DAILY;INTERVAL=1" },
-  { label: "Every Monday",    value: "FREQ=WEEKLY;BYDAY=MO" },
-  { label: "Every Tuesday",   value: "FREQ=WEEKLY;BYDAY=TU" },
-  { label: "Every Wednesday", value: "FREQ=WEEKLY;BYDAY=WE" },
-  { label: "Every Thursday",  value: "FREQ=WEEKLY;BYDAY=TH" },
-  { label: "Every Friday",    value: "FREQ=WEEKLY;BYDAY=FR" },
-  { label: "Every Saturday",  value: "FREQ=WEEKLY;BYDAY=SA" },
-  { label: "Every Sunday",    value: "FREQ=WEEKLY;BYDAY=SU" },
-  { label: "Mon–Fri",         value: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR" },
-  { label: "Weekly",          value: "FREQ=WEEKLY;INTERVAL=1" },
-  { label: "Fortnightly",     value: "FREQ=WEEKLY;INTERVAL=2" },
-  { label: "Monthly",         value: "FREQ=MONTHLY;INTERVAL=1" },
-  { label: "Custom…",         value: "__custom__" },
-];
-
-const WEEKDAYS = [
-  { code: "MO", short: "M", name: "Monday" },
-  { code: "TU", short: "T", name: "Tuesday" },
-  { code: "WE", short: "W", name: "Wednesday" },
-  { code: "TH", short: "T", name: "Thursday" },
-  { code: "FR", short: "F", name: "Friday" },
-  { code: "SA", short: "S", name: "Saturday" },
-  { code: "SU", short: "S", name: "Sunday" },
-];
-
 const COVER_TABS = [
   { id: "colours", label: "Colours" },
   { id: "upload", label: "Upload" },
 ] as const;
-
-function parseRRuleLabel(rrule?: string): string {
-  if (!rrule || rrule === "__none__") return "None";
-  const p = RRULE_PRESETS.find((p) => p.value === rrule && p.value !== "__custom__" && p.value !== "__none__");
-  return p ? p.label : "Custom";
-}
 
 const WATCHES = ["Amber", "Green", "Blue", "Red", "White"];
 
@@ -111,11 +76,6 @@ const CSS = `
 .tdd-seg-btn:hover:not(:disabled){color:var(--cal-ink)}
 .tdd-seg-btn:disabled{cursor:default}
 .tdd-seg-btn[aria-checked="true"],.tdd-seg-btn[aria-selected="true"]{background:var(--cal-surface);color:var(--cal-ink);font-weight:600;box-shadow:var(--cal-shadow)}
-.tdd-day{height:38px;padding:0;border-radius:10px;border:1px solid var(--cal-line-2);background:var(--cal-surface);color:var(--cal-ink-2);font-size:13px;font-weight:600;cursor:pointer}
-.tdd-day[aria-pressed="true"]{border-color:transparent;background:var(--cal-brand);color:#ffffff}
-.tdd-num{width:48px;height:28px;padding:0 4px;border-radius:6px;border:1px solid var(--cal-line-2);background:var(--cal-surface);color:var(--cal-ink);font-size:13px;text-align:center;outline:none}
-.tdd-num:focus{border-color:var(--cal-brand)}
-.dark .tdd-num{color-scheme:dark}
 .tdd-soft{border:none;background:var(--cal-surface-2);color:var(--cal-ink-2);cursor:pointer;transition:background-color .15s}
 .tdd-soft:hover{background:var(--cal-surface-3);color:var(--cal-ink)}
 .tdd-soft[aria-expanded="true"]{background:var(--cal-brand-soft);color:var(--cal-brand-text)}
@@ -185,11 +145,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("");
   const [priority, setPriority] = useState<TaskPriority>("Med");
-  const [category, setCategory] = useState<TaskCategory>("Other");
   const [dueDate, setDueDate] = useState("");
-  const [rrule, setRrule] = useState("");
-  const [customRrule, setCustomRrule] = useState("");
-  const [showCustomRrule, setShowCustomRrule] = useState(false);
   const [watchUnit, setWatchUnit] = useState("");
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
   const [newChecklistItem, setNewChecklistItem] = useState("");
@@ -213,15 +169,11 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
     setDescription(task.description ?? "");
     setStatus(task.status);
     setPriority(task.priority);
-    setCategory(task.category);
     setDueDate(
       task.due_at
         ? new Date(task.due_at).toISOString().split("T")[0]
         : isNewTask ? getNextShiftDate(user?.watch_unit) : ""
     );
-    setRrule(task.rrule ?? "__none__");
-    setCustomRrule(task.rrule ?? "");
-    setShowCustomRrule(!!task.rrule && !RRULE_PRESETS.some((p) => p.value === task.rrule && p.value !== "__custom__" && p.value !== "__none__"));
     setChecklist(task.checklist ? [...task.checklist] : []);
     setTags(task.tags ?? []);
     setWatchUnit((task as any).watch_unit ?? "");
@@ -314,17 +266,10 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
   };
 
   const handlePriorityChange = (v: string) => { setPriority(v as TaskPriority); save({ priority: v }); };
-  const handleCategoryChange = (v: string) => { setCategory(v as TaskCategory); save({ category: v }); };
 
   const handleDueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setDueDate(e.target.value);
     save({ due_date: e.target.value ? new Date(e.target.value) : undefined });
-  };
-
-  const handleRecurrenceChange = (val: string) => {
-    if (val === "__custom__") { setShowCustomRrule(true); setRrule("__custom__"); return; }
-    setShowCustomRrule(false); setRrule(val);
-    save({ rrule: val === "__none__" ? "" : val }); // "" clears it (undefined would be dropped from the request)
   };
 
   const handleWatchChange = (v: string) => {
@@ -416,17 +361,6 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
     if (confirm(`Delete "${task.title}"? This cannot be undone.`)) deleteMutation.mutate();
   };
 
-  // Custom repeat: weekday toggles + "every N weeks" build the same RRULE text
-  // that the rule box below them edits directly.
-  const customDays = customRrule.match(/BYDAY=([^;]+)/)?.[1]?.split(",").filter(Boolean) ?? [];
-  const customInterval = Math.max(1, parseInt(customRrule.match(/INTERVAL=(\d+)/)?.[1] ?? "1", 10) || 1);
-  const applyWeekly = (days: string[], interval: number) => {
-    const ordered = WEEKDAYS.map((d) => d.code).filter((c) => days.includes(c));
-    const rule = `FREQ=WEEKLY;INTERVAL=${interval}${ordered.length ? `;BYDAY=${ordered.join(",")}` : ""}`;
-    setCustomRrule(rule);
-    save({ rrule: rule });
-  };
-
   const onPriorityKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (!canEdit || !["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"].includes(e.key)) return;
     e.preventDefault();
@@ -466,9 +400,6 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
     : isOverdue ? `Overdue · ${shortDate(dueDateObj)}`
     : dueDateObj.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
 
-  const currentRruleVal = showCustomRrule ? "__custom__" : (rrule || "__none__");
-  const recurLabel = parseRRuleLabel(showCustomRrule ? customRrule : rrule);
-  const recurText = describeRRule(showCustomRrule ? task.rrule : rrule && rrule !== "__none__" ? rrule : null);
   // Station checks come from the routine / scheduled checks: their timing,
   // repeat and watch are set there, so those fields aren't shown on the card.
   const isCheck = (task as Task & { source_type?: string }).source_type === "template";
@@ -517,15 +448,6 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
     </SelectItem>
   ));
 
-  const categorySelect = (id: string) => (
-    <Select value={category} onValueChange={handleCategoryChange} disabled={!canEdit}>
-      <SelectTrigger id={id} className="tdd-field cal-focus"><SelectValue /></SelectTrigger>
-      <SelectContent className="cal-menu">
-        {CATEGORY_OPTIONS.map((c) => <SelectItem key={c} value={c} className={ITEM_CLS}>{c}</SelectItem>)}
-      </SelectContent>
-    </Select>
-  );
-
   const watchSelect = (id: string) => (
     <Select value={watchUnit || "__none__"} onValueChange={handleWatchChange} disabled={!canEdit}>
       <SelectTrigger id={id} className="tdd-field cal-focus"><SelectValue placeholder="Assign watch…" /></SelectTrigger>
@@ -534,73 +456,6 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
         {WATCHES.map((w) => <SelectItem key={w} value={w} className={ITEM_CLS}>{w} Watch</SelectItem>)}
       </SelectContent>
     </Select>
-  );
-
-  const recurrenceSelect = (id: string, look: "field" | "compact" | "tile") => (
-    <Select value={currentRruleVal} onValueChange={handleRecurrenceChange} disabled={!canEdit}>
-      <SelectTrigger
-        id={id}
-        className={`${look === "tile" ? "tdd-tile" : "tdd-field"} cal-focus`}
-        style={look === "compact" ? { width: "auto", height: 34, borderRadius: 10, fontSize: 13, fontWeight: 600, padding: "0 10px" } : undefined}
-      >
-        {look === "tile" && <span className="tdd-k">Repeats</span>}
-        <SelectValue>{look === "tile" ? <span className="tdd-v">{recurLabel}</span> : recurLabel}</SelectValue>
-      </SelectTrigger>
-      <SelectContent className="cal-menu">
-        {RRULE_PRESETS.map((p) => <SelectItem key={p.value} value={p.value} className={ITEM_CLS}>{p.label}</SelectItem>)}
-      </SelectContent>
-    </Select>
-  );
-
-  const customPanel = (header: React.ReactNode) => (
-    <div className="flex flex-col gap-2" style={{ padding: 14, borderRadius: 16, background: "var(--cal-surface-2)" }}>
-      {header}
-      <div role="group" aria-label="Repeat on" className="grid gap-1" style={{ gridTemplateColumns: "repeat(7, minmax(0, 1fr))" }}>
-        {WEEKDAYS.map((d) => {
-          const on = customDays.includes(d.code);
-          return (
-            <button
-              key={d.code}
-              type="button"
-              aria-pressed={on}
-              aria-label={d.name}
-              title={d.name}
-              className="tdd-day cal-mono cal-focus"
-              onClick={() => applyWeekly(on ? customDays.filter((c) => c !== d.code) : [...customDays, d.code], customInterval)}
-            >
-              {d.short}
-            </button>
-          );
-        })}
-      </div>
-      <div className="flex items-center gap-2" style={{ fontSize: 13, color: "var(--cal-ink-2)" }}>
-        Every
-        <input
-          type="number"
-          inputMode="numeric"
-          min={1}
-          max={52}
-          aria-label="Repeat every how many weeks"
-          className="tdd-num cal-mono"
-          value={customInterval}
-          onChange={(e) => { const n = parseInt(e.target.value, 10); if (n >= 1 && n <= 52) applyWeekly(customDays, n); }}
-        />
-        {customInterval === 1 ? "week" : "weeks"}
-      </div>
-      <div className="flex gap-1.5">
-        <input
-          className="cal-field cal-mono flex-1 min-w-0"
-          style={{ height: 34, fontSize: 12, background: "var(--cal-surface)" }}
-          aria-label="Custom repeat rule"
-          placeholder="FREQ=WEEKLY;BYDAY=TU"
-          value={customRrule}
-          onChange={(e) => setCustomRrule(e.target.value)}
-        />
-        <button type="button" className="tdd-primary cal-focus" style={{ height: 34, padding: "0 12px", borderRadius: 10, fontSize: 12 }} onClick={() => save({ rrule: customRrule.trim() })}>
-          Save
-        </button>
-      </div>
-    </div>
   );
 
   const closeButtonCls = `tdd-soft cal-focus grid place-items-center flex-none ml-auto sm:ml-0 h-10 w-10 rounded-[12px] sm:h-9 sm:w-9 sm:rounded-[10px]${coverStyle ? " sm:hidden" : ""}`;
@@ -668,12 +523,6 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 26, padding: "0 10px", borderRadius: 999, flex: "none", fontSize: 12, fontWeight: 600, whiteSpace: "nowrap", background: statusTone.bg, color: statusTone.fg }}>
                   <Dot color={statusCol.color} size={7} />
                   {statusCol.name}
-                </span>
-              )}
-              {recurText && !isCheck && (
-                <span className="hidden sm:inline-flex items-center gap-1 min-w-0" style={{ fontSize: 12, color: "var(--cal-brand-text)", whiteSpace: "nowrap" }}>
-                  <Repeat className="h-[13px] w-[13px] flex-none" strokeWidth={2.2} />
-                  Recurring · {recurText}
                 </span>
               )}
               {canEdit && (
@@ -749,7 +598,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                   </div>
                 )}
 
-                {/* Phones: Column / Priority / Due / Repeats tiles */}
+                {/* Phones: Column / Priority / Due tiles */}
                 <div className="order-2 sm:hidden flex flex-col gap-2">
                   <div className="grid grid-cols-2 gap-2">
                     <Select value={status} onValueChange={handleStatusChange} disabled={!canWork}>
@@ -766,7 +615,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                       </SelectTrigger>
                       <SelectContent className="cal-menu">{priorityItems}</SelectContent>
                     </Select>
-                    {!isCheck && <label className="tdd-tile tdd-due relative flex" style={{ ...dueBorder, cursor: canEdit ? "pointer" : "default" }}>
+                    {!isCheck && <label className="tdd-tile tdd-due relative col-span-2 flex" style={{ ...dueBorder, cursor: canEdit ? "pointer" : "default" }}>
                       <span className="tdd-k">Due</span>
                       <span className={`tdd-v${dueDateObj ? " cal-mono" : ""}`} style={{ color: dueTone && dueTone !== "night" ? `var(--cal-${dueTone}-fg)` : dueDateObj ? "var(--cal-ink)" : "var(--cal-muted)" }}>
                         {phoneDueText}
@@ -781,10 +630,8 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                         disabled={!canEdit}
                       />
                     </label>}
-                    {!isCheck && recurrenceSelect(`${uid}-rec-m`, "tile")}
                   </div>
                   {!isCheck && dueHint}
-                  {!isCheck && showCustomRrule && canEdit && customPanel(<span className="tdd-lbl">Custom repeat</span>)}
                   {checkNote}
                 </div>
 
@@ -922,7 +769,6 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
 
                 {/* Phones: the rest of the fields, further down the sheet */}
                 <div className="order-5 sm:hidden flex flex-col gap-3.5">
-                  {!isCheck && <Field label="Category" htmlFor={`${uid}-cat-m`}>{categorySelect(`${uid}-cat-m`)}</Field>}
                   {userRole === "WC" && !isCheck && <Field label="Move to watch" htmlFor={`${uid}-watch-m`}>{watchSelect(`${uid}-watch-m`)}</Field>}
                   {canEdit && (
                     <Field label="Cover" htmlFor={`${uid}-cover-m`}>
@@ -1094,8 +940,6 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                 </Field>
 
                 {isCheck ? checkNote : <>
-                <Field label="Category" htmlFor={`${uid}-cat`}>{categorySelect(`${uid}-cat`)}</Field>
-
                 <Field label="Due date" htmlFor={`${uid}-due`} hint={dueHint}>
                   <input
                     id={`${uid}-due`}
@@ -1107,15 +951,6 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                     disabled={!canEdit}
                   />
                 </Field>
-
-                {showCustomRrule && canEdit
-                  ? customPanel(
-                      <div className="flex items-center justify-between gap-2">
-                        <label htmlFor={`${uid}-rec`} className="tdd-lbl">Recurrence</label>
-                        {recurrenceSelect(`${uid}-rec`, "compact")}
-                      </div>
-                    )
-                  : <Field label="Recurrence" htmlFor={`${uid}-rec`}>{recurrenceSelect(`${uid}-rec`, "field")}</Field>}
 
                 {/* Move to Watch (WC only) */}
                 {userRole === "WC" && <Field label="Move to watch" htmlFor={`${uid}-watch`}>{watchSelect(`${uid}-watch`)}</Field>}

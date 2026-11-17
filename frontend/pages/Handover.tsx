@@ -524,10 +524,10 @@ export default function Handover() {
         <div className="flex items-baseline flex-wrap gap-x-4 gap-y-1">
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
             <ClipboardList className="h-7 w-7 text-brand shrink-0" />
-            Shift Management
+            Shift
           </h1>
           <span className="eyebrow">
-            Crewing board and handover notes
+            Crewing board, handover notes and rotas
           </span>
         </div>
 

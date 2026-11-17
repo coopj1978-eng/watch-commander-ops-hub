@@ -75,7 +75,7 @@ export function CommandPalette({ open, onOpenChange, onShowShortcuts }: {
   onShowShortcuts: () => void;
 }) {
   const navigate = useNavigate();
-  const { groups, account, actions, isManager } = useNav();
+  const { groups, account, actions, isManager, allowed } = useNav();
   const badges = useNavBadges();
   const { isDark, toggle } = useThemeMode();
   const [query, setQuery] = useState("");
@@ -122,7 +122,11 @@ export function CommandPalette({ open, onOpenChange, onShowShortcuts }: {
   };
 
   const entries = useMemo(() => {
-    const pages: Entry[] = [...groups.flatMap((g) => g.items.map((i) => ({ ...i, group: g.label }))), ...account.map((i) => ({ ...i, group: "You" }))]
+    // A menu entry with tabs (the Library) is searched by its tabs, so "links" finds Links.
+    const pages: Entry[] = [
+      ...groups.flatMap((g) => g.items.flatMap((i) => (i.tabs ? i.tabs.filter(allowed).map((t) => ({ ...t, group: i.name })) : [{ ...i, group: g.label }]))),
+      ...account.map((i) => ({ ...i, group: "You" })),
+    ]
       .map((p) => ({
         id: `page:${p.path}`,
         group: "Go to",

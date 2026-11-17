@@ -60,7 +60,7 @@ export default function References() {
     <div className="flex flex-col" style={{ gap: "var(--gap-section)" }}>
       <div>
         <div className="eyebrow">Station standards · {periodLabel(year)}</div>
-        <h1 className="mt-1 text-3xl font-semibold tracking-tight">References</h1>
+        <h1 className="mt-1 text-3xl font-semibold tracking-tight">Watch references</h1>
         <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
           Each watch holds a reference for two years and is secondary on the next one — the secondary watch covers it when the main watch is off.
           They move on together on <span className="font-medium text-foreground">1 January {nextChangeYear(year)}</span>.

@@ -1,3 +1,4 @@
+import LibraryTabs from "@/components/library/LibraryTabs";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useBackend } from "@/lib/backend";
@@ -29,19 +30,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
-import { Upload, Download, Trash2, FileText, Search, Filter, Grid3x3, Table as TableIcon, BookOpen, ExternalLink, Link as LinkIcon } from "lucide-react";
+import { Upload, Download, Trash2, FileText, Search, Filter, Grid3x3, Table as TableIcon, BookOpen } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PolicyAckControls } from "@/components/PolicyAckControls";
 import { useAuth } from "@/App";
 
 type ViewMode = "grid" | "table";
-
-// The how-to guides and regular links have their own pages now (Nov 2026):
-// they used to be one link out to a Notion page.
-const USEFUL_LINKS = [
-  { title: "Guides", description: "How we do things at the station, step by step", url: "/guides" },
-  { title: "Links", description: "The systems and sites the station uses", url: "/links" },
-];
 
 export default function Policies() {
   const backend = useBackend();
@@ -130,12 +124,13 @@ export default function Policies() {
 
   return (
     <div className="space-y-6">
+      <LibraryTabs />
       {/* Visual-refresh page header: h1 + eyebrow + view toggle. */}
       <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-3">
         <div className="flex items-baseline flex-wrap gap-x-4 gap-y-1">
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
             <BookOpen className="h-7 w-7 text-brand shrink-0" />
-            Policy &amp; Guidance
+            Documents
           </h1>
           <span className="eyebrow whitespace-nowrap">
             {filteredPolicies.length} document{filteredPolicies.length === 1 ? "" : "s"}
@@ -177,26 +172,6 @@ export default function Policies() {
             </Button>
           )}
         </div>
-      </div>
-
-      {/* Useful links — what was the separate Resources page (Nov 2026). */}
-      <div className="flex flex-wrap gap-2">
-        {USEFUL_LINKS.map((link) => (
-          <a
-            key={link.url}
-            href={link.url}
-            className="group inline-flex items-center gap-3 rounded-xl border border-border/70 bg-card px-3.5 py-2.5 transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/30"
-          >
-            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-muted text-foreground/80">
-              <LinkIcon className="h-4 w-4" />
-            </span>
-            <span className="min-w-0">
-              <span className="block text-sm font-medium text-foreground">{link.title}</span>
-              <span className="block text-xs text-muted-foreground">{link.description}</span>
-            </span>
-            <ExternalLink className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
-          </a>
-        ))}
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4">

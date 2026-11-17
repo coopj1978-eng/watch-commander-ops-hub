@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { barHeight, boardProgress, missedByDay, shortName } from "./pulse";
+import { awayText, barHeight, boardProgress, comingShifts, dayLabel, daysBetween, missedByDay, shortName, tightestShift } from "./pulse";
 
 describe("missedByDay", () => {
   const missed = [{ date: "2026-11-10" }, { date: "2026-11-10T08:00:00Z" }, { date: "2026-11-12" }, { date: "2026-10-01" }];
@@ -44,5 +44,38 @@ describe("shortName", () => {
     expect(shortName("Jordan Horner")).toBe("Jordan H");
     expect(shortName("  Mary Anne  Smith ")).toBe("Mary S");
     expect(shortName("Tony")).toBe("Tony");
+  });
+});
+
+describe("coming shifts", () => {
+  const shifts = [
+    { date: "2026-11-21", available: 9, pumps: 2 },
+    { date: "2026-11-16", available: 9, pumps: 2 },
+    { date: "2026-11-17", available: 8, pumps: 2 },
+    { date: "2026-11-20", available: 7, pumps: 1 },
+    { date: "2026-11-22", available: 6, pumps: 1 },
+    { date: "2026-11-26", available: 10, pumps: 2 },
+  ];
+  it("the next four from the next shift's date, soonest first", () => {
+    expect(comingShifts(shifts, "2026-11-17").map((s) => s.date)).toEqual(["2026-11-17", "2026-11-20", "2026-11-21", "2026-11-22"]);
+  });
+  it("the tightest is the one that rides fewest pumps, then has fewest people", () => {
+    expect(tightestShift(comingShifts(shifts, "2026-11-17"))?.date).toBe("2026-11-22");
+    expect(tightestShift([{ date: "a", available: 9, pumps: 2 }, { date: "b", available: 9, pumps: 2 }])?.date).toBe("a");
+    expect(tightestShift([])).toBeUndefined();
+  });
+  it("labels a day (17 Nov 2026 is a Tuesday)", () => {
+    expect(dayLabel("2026-11-17")).toBe("Tue 17");
+    expect(dayLabel("2026-12-01T00:00:00Z")).toBe("Tue 1");
+  });
+  it("says who's away and why, two names at most", () => {
+    expect(awayText([])).toBe("");
+    expect(awayText([{ name: "Andy James", why: "Flexi" }])).toBe("Andy J flexi");
+    expect(awayText([{ name: "Andy James", why: "Flexi" }, { name: "Jordan Horner", why: "Sick" }, { name: "Chris Wilson", why: "Leave" }])).toBe("Andy J flexi, Jordan H sick +1");
+    expect(awayText([{ why: "Leave" }, { why: "Leave" }])).toBe("2 away");
+  });
+  it("counts days since someone was last out", () => {
+    expect(daysBetween("2026-10-14", "2026-11-17")).toBe(34);
+    expect(daysBetween("2026-11-20", "2026-11-17")).toBe(0);
   });
 });

@@ -22,7 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import type { notification } from "@/client";
 import { latestAbsencePerPerson, useTodaysAbsences } from "@/lib/absences";
 import { shiftDisplay } from "@/lib/shiftRota";
-import { pageFor } from "@/lib/navigation";
+import { menuEntryFor } from "@/lib/navigation";
 
 interface TopBarProps {
   /** Opens ⌘K search. */
@@ -334,7 +334,7 @@ export default function TopBar({ onSearch }: TopBarProps) {
   );
 
   // ── Derived: page title + dashboard flag ──────────────────────────────────
-  const page = pageFor(location.pathname);
+  const page = menuEntryFor(location.pathname);
   const isDashboard = location.pathname === "/";
 
   // Navigation and your account live in the sidebar (desktop) and the tab

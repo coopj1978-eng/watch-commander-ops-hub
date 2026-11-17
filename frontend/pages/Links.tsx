@@ -1,3 +1,4 @@
+import LibraryTabs from "@/components/library/LibraryTabs";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowUpRight, FolderPlus, Link2, Pencil, Plus, Search, Trash2 } from "lucide-react";
@@ -79,6 +80,7 @@ export default function Links() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-5">
+      <LibraryTabs />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
           <h1 className="text-3xl font-semibold tracking-tight text-foreground">Links</h1>

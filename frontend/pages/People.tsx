@@ -5,10 +5,9 @@ import { useBackend, useCanViewPeople, useCanCreatePerson, useIsWatchCommander, 
 import { useAuth } from "@/App";
 import { STATION_OPTIONS } from "@/lib/constants";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ShieldAlert, Search, UserPlus, Settings2, ChevronDown, ChevronUp, BookOpen, Stethoscope, Users } from "lucide-react";
+import { ShieldAlert, Search, UserPlus, Settings2, ChevronDown, ChevronUp, Stethoscope, Users } from "lucide-react";
 import AddPersonModal from "@/components/AddPersonModal";
 import ColumnsDrawer from "@/components/ColumnsDrawer";
-import DictionaryManager from "@/components/DictionaryManager";
 import { LogSickDialog } from "@/components/LogSickDialog";
 import {
   Card,
@@ -113,7 +112,6 @@ export default function People() {
   );
   const [showAddModal, setShowAddModal] = useState(false);
   const [showColumnsDrawer, setShowColumnsDrawer] = useState(false);
-  const [showSkillsManager, setShowSkillsManager] = useState(false);
   const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>({
     name: true,
     watch: true,
@@ -353,12 +351,6 @@ export default function People() {
           </span>
         </div>
         <div className="flex flex-wrap gap-2">
-          {canCreate && (
-            <Button variant="outline" onClick={() => setShowSkillsManager(true)} aria-label="Manage Skills">
-              <BookOpen className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Manage Skills</span>
-            </Button>
-          )}
           <Button variant="outline" onClick={() => setShowColumnsDrawer(true)} aria-label="Columns">
             <Settings2 className="h-4 w-4 sm:mr-2" />
             <span className="hidden sm:inline">Columns</span>
@@ -844,13 +836,6 @@ export default function People() {
         setVisibleColumns={setVisibleColumns}
         canManageSchema={isWC}
       />
-      {showSkillsManager && (
-        <DictionaryManager
-          isOpen={showSkillsManager}
-          onClose={() => setShowSkillsManager(false)}
-          type="skill"
-        />
-      )}
 
       {/* Log Sick — shared with CrewOnWatchTable. One endpoint, one UX,
           one place to edit if policy changes. */}

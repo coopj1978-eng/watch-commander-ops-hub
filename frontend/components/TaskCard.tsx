@@ -5,7 +5,7 @@ import * as Menu from "@radix-ui/react-dropdown-menu";
 import { ArrowRightLeft, CalendarDays, Check, ChevronRight, ClipboardCheck, ExternalLink, History, MoreHorizontal, Repeat } from "lucide-react";
 import type { Task, TaskColumn, TaskPriority } from "~backend/task/types";
 import { getCoverStyle, getLabelById } from "@/lib/taskLabels";
-import { ChecklistBar, DueChip, Initials, LabelTag, PriorityChip, describeRRule, initialsOf, personTint, priorityKey, priorityLabel, tickTime, useIsPhone } from "@/lib/taskUi";
+import { ChecklistBar, DueChip, Initials, LabelTag, PriorityChip, initialsOf, personTint, priorityKey, priorityLabel, tickTime, useIsPhone } from "@/lib/taskUi";
 
 // Board card in the Claude Design Tasks layout: label tags + ⋯ menu on top,
 // priority dot and title, checklist bar, then due / priority / initials.
@@ -444,7 +444,6 @@ export default function TaskCard({ task, onTitleEdit, onClick, onChecklistToggle
   const coverStyle = routineHeader ? undefined : getCoverStyle(cover);
   const linkUrl = (task as Task & { link_url?: string }).link_url;
   const link = isCheck && linkUrl && /^https:\/\//i.test(linkUrl) ? linkUrl : null;
-  const recur = describeRRule(task.rrule);
   const assignee = task.assigned_to_user_id
     ? { id: task.assigned_to_user_id, initials: userMap?.[task.assigned_to_user_id]?.initials ?? task.assigned_to_user_id.slice(0, 2).toUpperCase() }
     : null;
@@ -461,7 +460,7 @@ export default function TaskCard({ task, onTitleEdit, onClick, onChecklistToggle
     : null;
   // On the shift board the tag says when it's for, so the due chip is only kept for plain watch tasks.
   const showDue = !!task.due_at && (!shiftTask.kind || (shiftTask.kind === "watch" && !(shiftStart && new Date(task.due_at) < new Date(shiftStart))));
-  const footer = (done && !!shiftTask.completed_by_name) || showDue || (!!recur && !shiftTask.kind) || task.priority !== "Med" || !!assignee;
+  const footer = (done && !!shiftTask.completed_by_name) || showDue || task.priority !== "Med" || !!assignee;
   const menu = onMove && columns && columns.length > 0
     ? <CardMenu task={task} columns={columns} columnCounts={columnCounts} onOpen={onClick} onMove={onMove} onSetPriority={onSetPriority} onDelete={onDelete} />
     : null;
@@ -529,11 +528,6 @@ export default function TaskCard({ task, onTitleEdit, onClick, onChecklistToggle
             {task.title}
           </h4>
         )}
-        {recur && shiftTask.kind !== "check" && (
-          <span role="img" aria-label={`Recurring: ${recur}`} title={recur} style={{ display: "inline-flex", flex: "none", marginTop: 2, color: "var(--cal-brand-text)" }}>
-            <Repeat className="h-[15px] w-[15px]" />
-          </span>
-        )}
         {labelIds.length === 0 && !tag && menu && <span style={{ marginTop: -4, display: "flex" }}>{menu}</span>}
       </div>
 
@@ -564,8 +558,6 @@ export default function TaskCard({ task, onTitleEdit, onClick, onChecklistToggle
           </span>
         ) : showDue ? (
           <DueChip task={task} />
-        ) : recur && !shiftTask.kind ? (
-          <span className="cal-mono" style={{ fontSize: 11, color: "var(--cal-muted)" }}>{recur}</span>
         ) : null}
         {/* Medium is the default, so only High and Low get a chip (the dot shows it anyway). */}
         {task.priority !== "Med" && <PriorityChip priority={task.priority} />}

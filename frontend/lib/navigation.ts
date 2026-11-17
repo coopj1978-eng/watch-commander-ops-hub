@@ -13,9 +13,9 @@ import {
   House,
   KanbanSquare,
   Link2,
+  Library,
   ListChecks,
   Megaphone,
-  Navigation,
   NotebookPen,
   Phone,
   Settings,
@@ -53,6 +53,12 @@ export interface NavItem {
   shortcut?: string;
   /** Live count shown next to it (see useNavBadges). */
   badge?: NavBadgeKey;
+  /**
+   * Pages that sit under this one menu entry as tabs (the Library). Each keeps
+   * its own address and its own firefighter switch; the entry shows while any
+   * of them is on.
+   */
+  tabs?: NavItem[];
 }
 
 export interface NavGroup {
@@ -60,12 +66,22 @@ export interface NavGroup {
   items: NavItem[];
 }
 
+/**
+ * The Library (Nov 2026): Guides, Links and Documents were three menu entries
+ * for one kind of thing — "where do I look that up" — so they share one.
+ */
+export const LIBRARY_TABS: NavItem[] = [
+  { name: "Guides",    path: "/guides",   icon: ListChecks, featureKey: "guides",   keywords: "how to process procedure steps defect report sickness overtime" },
+  { name: "Links",     path: "/links",    icon: Link2,      featureKey: "links",    keywords: "systems websites kronos itrent sharepoint intranet pdr hfsv" },
+  { name: "Documents", path: "/policies", icon: FileText,   featureKey: "policies", keywords: "docs policies guidance resources" },
+];
+
 export const NAV_GROUPS: NavGroup[] = [
   {
     label: "Today",
     items: [
       { name: "Home",     path: "/",         icon: House,         shortcut: "D", keywords: "dashboard needs you" },
-      { name: "Shift",    path: "/handover", icon: ClipboardList, featureKey: "handover",  shortcut: "H", keywords: "handover crewing board riding" },
+      { name: "Shift",    path: "/handover", icon: ClipboardList, featureKey: "handover",  shortcut: "H", keywords: "handover crewing board riding rotas detachments detached duty canteen" },
       { name: "Tasks",    path: "/tasks",    icon: CheckSquare,   featureKey: "tasks",     shortcut: "T", badge: "tasks", keywords: "shift board checks to do" },
       { name: "Calendar", path: "/calendar", icon: Calendar,      featureKey: "calendar",  keywords: "events leave rota" },
     ],
@@ -77,7 +93,6 @@ export const NAV_GROUPS: NavGroup[] = [
       { name: "Requests",    path: "/requests",    icon: FileCheck,     featureKey: "requests", badge: "requests", keywords: "flexi day head for head h4h swap annual leave move kronos authorise decline records" },
       { name: "Bulletins",   path: "/bulletins",   icon: Megaphone,     featureKey: "bulletins", badge: "bulletins", keywords: "news announcements messages" },
       { name: "Training",    path: "/training",    icon: GraduationCap, featureKey: "training", keywords: "courses skills certificates" },
-      { name: "Detachments", path: "/detachments", icon: Navigation,    featureKey: "detachments", keywords: "detached duty rota" },
     ],
   },
   {
@@ -88,10 +103,8 @@ export const NAV_GROUPS: NavGroup[] = [
       { name: "Hydrants",   path: "/hydrants",   icon: Flame,      featureKey: "hydrants", keywords: "hydrant routes faults" },
       { name: "J4 Checks",  path: "/equipment",  icon: Truck,      featureKey: "equipment", keywords: "equipment appliance defects j4 board missing" },
       { name: "Contacts",   path: "/contacts",   icon: Phone,      featureKey: "contacts", keywords: "phone numbers telephone control staffing stations call" },
-      { name: "Guides",     path: "/guides",     icon: ListChecks, featureKey: "guides", keywords: "how to process procedure steps defect report sickness overtime" },
-      { name: "Links",      path: "/links",      icon: Link2,      featureKey: "links", keywords: "systems websites kronos itrent sharepoint intranet pdr hfsv" },
-      { name: "References", path: "/references", icon: BookMarked, featureKey: "references", keywords: "watch references monthly" },
-      { name: "Docs",       path: "/policies",   icon: FileText,   featureKey: "policies", keywords: "policies guidance documents resources processes links" },
+      { name: "Library",    path: "/library",    icon: Library,    tabs: LIBRARY_TABS, keywords: "guides links documents docs look up" },
+      { name: "Watch references", path: "/references", icon: BookMarked, featureKey: "references", keywords: "references monthly quarterly annual reference holder" },
     ],
   },
 ];
@@ -142,7 +155,8 @@ function useAllowed() {
   const isManager = user?.role === "WC" || user?.role === "CC";
   const seesAll = isManager || user?.is_admin === true;
 
-  const allowed = (item: NavItem) => {
+  const allowed = (item: NavItem): boolean => {
+    if (item.tabs) return item.tabs.some(allowed);
     if (item.managersOrAdmin && !isManager && !user?.is_admin) return false;
     if (item.managersOnly && !isManager) return false;
     if (item.featureKey && !seesAll && !flags[item.featureKey]) return false;
@@ -169,6 +183,7 @@ export function useNav() {
 
   return {
     isManager,
+    allowed,
     groups: NAV_GROUPS
       .map((g) => ({ ...g, items: g.items.filter(allowed) }))
       .filter((g) => g.items.length > 0),
@@ -180,15 +195,32 @@ export function useNav() {
 }
 
 const ALL_PAGES: NavItem[] = [...NAV_GROUPS.flatMap((g) => g.items), ...ACCOUNT_ITEMS];
+/** Every address a person can land on, tabs included — each with its own switch. */
+const ALL_ADDRESSES: NavItem[] = ALL_PAGES.flatMap((p) => [p, ...(p.tabs ?? [])]);
 
-/** The page a path belongs to — "/people/123" is People. */
+const under = (pathname: string, path: string) => pathname === path || pathname.startsWith(path + "/");
+
+/**
+ * The page a path belongs to — "/people/123" is People, "/links" is Links
+ * (a tab of the Library). This is the one whose switch decides who may open it.
+ */
 export function pageFor(pathname: string): NavItem | undefined {
   if (pathname === "/") return ALL_PAGES[0];
-  return ALL_PAGES
-    .filter((p) => p.path !== "/" && (pathname === p.path || pathname.startsWith(p.path + "/")))
+  return ALL_ADDRESSES
+    .filter((p) => p.path !== "/" && under(pathname, p.path))
     .sort((a, b) => b.path.length - a.path.length)[0];
 }
 
+/** The menu entry a path sits under — "/links" is the Library. For the title bar. */
+export function menuEntryFor(pathname: string): NavItem | undefined {
+  const page = pageFor(pathname);
+  return ALL_PAGES.find((p) => p === page || p.tabs?.includes(page as NavItem)) ?? page;
+}
+
 export function isActivePath(pathname: string, path: string): boolean {
-  return path === "/" ? pathname === "/" : pathname === path || pathname.startsWith(path + "/");
+  if (path === "/") return pathname === "/";
+  if (under(pathname, path)) return true;
+  // A menu entry with tabs is lit on any of its tabs.
+  const tabs = ALL_PAGES.find((p) => p.path === path)?.tabs;
+  return !!tabs?.some((t) => under(pathname, t.path));
 }

@@ -5,10 +5,11 @@ import { ArrowUpRight } from "lucide-react";
 import backend from "@/lib/backend";
 import { useAuth } from "@/App";
 import { cn } from "@/lib/utils";
-import { latestAbsencePerPerson, localTodayIso, useTodaysAbsences } from "@/lib/absences";
+import { localTodayIso } from "@/lib/absences";
 import { useBoardDefects } from "@/components/J4Board";
 import { boardGroups, outstanding } from "@/lib/j4Board";
-import { barHeight, boardProgress, missedByDay, shortName } from "@/lib/pulse";
+import { awayText, barHeight, boardProgress, comingShifts, dayLabel, daysBetween, missedByDay, shortName, tightestShift } from "@/lib/pulse";
+import { getWatchShiftStatus } from "@/lib/shiftRota";
 import { useCountUp } from "@/lib/useCountUp";
 import { useCanOpen } from "@/lib/navigation";
 import { HFSV_TARGET_Q } from "@/lib/targets";
@@ -21,12 +22,14 @@ import { currentFyQuarter, pace, quarterTime } from "@/lib/quarters";
 // Commander checks at the start of a shift, a small drawing of what's behind
 // it, and a tap through to the page. Colour only when something's wrong.
 //
-// Every tile reads a query another card on Home already makes (same keys), so
-// they cost no extra requests.
+// Most tiles read a query another card on Home already makes (same keys).
 //
-// Watch and Crew Commanders get crew, missed checks, the J4 board and the
-// shift board. Firefighters get the shift board, the J4 board, the watch's
-// home fire safety visits and their own TOIL — never who's off or what was
+// Watch and Crew Commanders get how their coming shifts are crewed, missed
+// checks, the J4 board and who's next to be detached. (The first version had
+// "crew available" and "shift board" tiles; the shift panel, the crew card and
+// the running order already say both, so they went — John's audit, 17 Nov
+// 2026.) Firefighters get the shift board, the J4 board, the watch's home
+// fire safety visits and their own TOIL — never who's off or what was
 // missed, which are a manager's to see — and only for pages switched on.
 // ──────────────────────────────────────────────────────────────────────────────
 
@@ -74,10 +77,17 @@ function Tile({
       </div>
 
       <p className="mt-1 flex items-baseline gap-1.5">
-        <span className={cn("text-[2.5rem] font-semibold leading-none tracking-tight tabular-nums", loading && "text-muted-foreground/40")}>
+        <span
+          className={cn(
+            "min-w-0 truncate font-semibold tracking-tight tabular-nums",
+            // A name is longer than a number: smaller, on the same line height.
+            !loading && word && word.length > 6 ? "text-[1.75rem] leading-[2.5rem]" : "text-[2.5rem] leading-none",
+            loading && "text-muted-foreground/40",
+          )}
+        >
           {loading ? "–" : word ?? shown}
         </span>
-        {unit && <span className="text-sm text-muted-foreground">{unit}</span>}
+        {unit && <span className="shrink-0 text-sm text-muted-foreground">{unit}</span>}
       </p>
 
       <div className="mt-auto pt-3">{children}</div>
@@ -86,64 +96,101 @@ function Tile({
   );
 }
 
-// ── Crew: one dot per person on the watch ────────────────────────────────────
+// ── Coming shifts: how the watch's next four are crewed ──────────────────────
 
-function CrewTile({ index }: { index: number }) {
+function ComingShiftsTile({ index }: { index: number }) {
   const { user } = useAuth();
   const watch = user?.watch_unit ?? "";
-  const roster = useQuery({
-    queryKey: ["crewing-roster", watch],
-    queryFn: async () => backend.crewing.roster({ watch }),
+  const today = localTodayIso();
+  // From the next shift to start (tonight's, if we're between shifts), three weeks on.
+  const from = getWatchShiftStatus(watch)?.next?.date ?? today;
+  const [y, m, d] = today.split("-").map(Number);
+  const to = localTodayIso(new Date(y, m - 1, d + 21));
+  const q = useQuery({
+    queryKey: ["crewing-strength", watch, today, to],
+    queryFn: () => backend.crewing.strength({ watch, start_date: today, end_date: to }),
     enabled: !!watch,
+    staleTime: 5 * 60_000,
   });
-  const absences = useTodaysAbsences(true);
-
-  const members = roster.data?.members ?? [];
-  const ids = new Set(members.map((m) => m.id));
-  const off = new Map(
-    [...latestAbsencePerPerson(absences.data?.absences ?? []).values()]
-      .filter((a) => ids.has(a.firefighter_id))
-      .map((a) => [a.firefighter_id, a.type] as const),
-  );
-  const available = members.length - off.size;
-  const sick = [...off.values()].filter((t) => t === "sickness").length;
-  const offNames = members.filter((m) => off.has(m.id)).map((m) => shortName(m.name));
-  const loading = roster.isLoading || absences.isLoading;
+  const shifts = comingShifts(q.data?.shifts ?? [], from);
+  const tight = tightestShift(shifts);
+  const short = shifts.some((s) => s.pumps < 2);
 
   return (
     <Tile
       index={index}
-      to="/people"
-      label="Crew available"
-      value={loading ? null : available}
-      unit={`of ${members.length}`}
-      loading={loading}
-      tone={sick > 0 ? "bad" : off.size > 0 ? "warn" : "ok"}
+      to="/calendar"
+      label="Coming shifts"
+      value={q.isLoading || !tight ? null : tight.available}
+      word={!q.isLoading && !tight ? "–" : undefined}
+      unit={tight ? `of ${tight.total} at the lowest` : undefined}
+      loading={q.isLoading}
+      tone={shifts.some((s) => s.pumps === 0) ? "bad" : short ? "warn" : "ok"}
       note={
-        loading ? "Loading the watch…"
-          : off.size === 0 ? "Everyone's available"
-            : `${offNames.slice(0, 2).join(", ")}${offNames.length > 2 ? ` +${offNames.length - 2}` : ""} off${sick > 0 ? ` · ${sick} sick` : ""}`
+        q.isLoading ? "Loading your shifts…"
+          : !tight ? "No shifts in the next three weeks"
+            : tight.available === tight.total ? "Full crew on all of them"
+              : `${dayLabel(tight.date)}: ${awayText(tight.away) || `${tight.total - tight.available} away`}`
       }
     >
-      <div className="flex flex-wrap gap-1.5" role="img" aria-label={`${available} of ${members.length} available`}>
-        {members.map((m, i) => {
-          const type = off.get(m.id);
-          return (
-            <span
-              key={m.id}
-              title={`${m.name}${type ? (type === "sickness" ? " · off sick" : " · off") : ""}`}
-              style={{ "--i": i } as CSSProperties}
-              className={cn(
-                "viz-dot h-3.5 w-3.5 rounded-full",
-                !type && "bg-foreground/80",
-                type === "sickness" && "border-2 border-red-500 bg-red-500/15",
-                type && type !== "sickness" && "border-2 border-amber-500 bg-amber-500/15",
-              )}
-            />
-          );
-        })}
-        {loading && Array.from({ length: 10 }, (_, i) => <span key={i} className="h-3.5 w-3.5 rounded-full bg-muted" />)}
-      </div>
+      <ul className="space-y-1.5">
+        {shifts.map((s, i) => (
+          <li key={`${s.date}-${s.shift_type}`} className="flex items-center gap-2 text-[11px]" title={`${dayLabel(s.date)} · ${s.shift_type}: ${s.available} of ${s.total} available`}>
+            <span className="w-11 shrink-0 font-mono text-muted-foreground">{dayLabel(s.date)}</span>
+            <span className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-muted">
+              <span
+                style={{ "--i": i, width: `${s.total ? (s.available / s.total) * 100 : 0}%` } as CSSProperties}
+                className={cn("viz-seg block h-full rounded-full", s.pumps === 0 ? "bg-red-500" : s.pumps === 1 ? "bg-amber-500" : "bg-foreground/80")}
+              />
+            </span>
+            <span className="w-4 shrink-0 text-right font-mono tabular-nums">{s.available}</span>
+          </li>
+        ))}
+        {q.isLoading && Array.from({ length: 4 }, (_, i) => <li key={i} className="h-[15px] rounded-full bg-muted/60" />)}
+      </ul>
+    </Tile>
+  );
+}
+
+// ── Detachment rota: who's next out ──────────────────────────────────────────
+
+function DetachTile({ index }: { index: number }) {
+  const { user } = useAuth();
+  const watch = user?.watch_unit ?? "";
+  const q = useQuery({
+    queryKey: ["detachments-rota", watch],
+    queryFn: () => backend.detachments.getRota({ watch }),
+    enabled: !!watch,
+  });
+  const members = q.data?.members ?? [];
+  const next = members[0];
+  const today = localTodayIso();
+  const since = (iso: string | null) => (iso ? `${daysBetween(iso, today)}d` : "never");
+
+  return (
+    <Tile
+      index={index}
+      to="/handover?tab=detachments"
+      label="Next to detach"
+      value={null}
+      word={q.isLoading ? undefined : next ? shortName(next.firefighter_name) : "–"}
+      loading={q.isLoading}
+      tone="quiet"
+      note={
+        q.isLoading ? "Loading the rota…"
+          : !next ? "Nobody on the rota yet"
+            : next.last_detachment_date ? `Last out ${daysBetween(next.last_detachment_date, today)} days ago` : "Hasn't been out yet"
+      }
+    >
+      <ol className="space-y-1.5">
+        {members.slice(1, 4).map((m, i) => (
+          <li key={m.firefighter_id} className="flex items-center gap-2 text-[11px]">
+            <span className="w-4 shrink-0 font-mono text-muted-foreground">{i + 2}</span>
+            <span className="min-w-0 flex-1 truncate">{shortName(m.firefighter_name)}</span>
+            <span className="shrink-0 font-mono text-muted-foreground">{since(m.last_detachment_date)}</span>
+          </li>
+        ))}
+      </ol>
     </Tile>
   );
 }
@@ -371,10 +418,10 @@ export function PulseTiles({ audience = "managers" }: { audience?: "managers" | 
   if (audience === "managers") {
     return (
       <section aria-label="At a glance" className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-        <CrewTile index={0} />
+        <ComingShiftsTile index={0} />
         <ChecksTile index={1} />
         <J4Tile index={2} />
-        <BoardTile index={3} />
+        <DetachTile index={3} />
       </section>
     );
   }

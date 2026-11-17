@@ -37,7 +37,6 @@ import {
   Calendar,
   CheckSquare,
   Target,
-  Navigation,
   Truck,
   Phone,
   Link2,
@@ -63,22 +62,21 @@ const FEATURE_CONFIG: {
   phase: string;
 }[] = [
   { key: "calendar",     label: "Calendar",       description: "Their own calendar first, then the watch's; log TOIL and orange days, ask for a flexi or H4H", icon: Calendar,      phase: "Phase 1 · first release" },
-  { key: "handover",     label: "Shift",          description: "Crewing board (to look at), handover notes to read, the rotas",       icon: ClipboardList, phase: "Phase 1 · first release" },
+  { key: "handover",     label: "Shift",          description: "Crewing board (to look at), handover notes to read, the detachment and canteen rotas",       icon: ClipboardList, phase: "Phase 1 · first release" },
   { key: "tasks",        label: "Tasks",          description: "Today's shift board: tick checks, add a job",                         icon: CheckSquare,   phase: "Phase 1 · first release" },
   { key: "requests",     label: "Requests",       description: "Their own flexi and H4H, kept as a record (they go straight on the calendar)", icon: FileCheck, phase: "Phase 1 · first release" },
-  { key: "detachments",  label: "Detachments",    description: "The detachment rota and history",                                     icon: Navigation,    phase: "Phase 1 · first release" },
   // Targets moved up from Phase 3 (John, 9 Nov 2026): see this month's and
   // quarter's progress, and fill in their own watch's HFSV visits.
   { key: "targets",      label: "Targets",        description: "The watch's progress this month and quarter; fill in HFSV visits",  icon: Target,        phase: "Phase 1 · first release" },
   { key: "equipment",    label: "J4 Checks",      description: "Appliance checks and the J4 board of missing and defective kit",      icon: Truck,         phase: "Phase 1 · first release" },
   { key: "contacts",     label: "Contacts",       description: "The station's regular phone numbers: Control, staffing, other stations", icon: Phone,      phase: "Phase 1 · first release" },
-  { key: "links",        label: "Links",          description: "The systems and sites the station uses, one tap away",               icon: Link2,         phase: "Phase 1 · first release" },
-  { key: "guides",       label: "Guides",         description: "How-to guides for station processes (written for WC and CC so far)",  icon: ListChecks,    phase: "Phase 2 · information" },
+  { key: "links",        label: "Library · Links",          description: "The systems and sites the station uses, one tap away",               icon: Link2,         phase: "Phase 1 · first release" },
+  { key: "guides",       label: "Library · Guides",         description: "How-to guides for station processes (written for WC and CC so far)",  icon: ListChecks,    phase: "Phase 2 · information" },
   { key: "bulletins",    label: "Bulletins",      description: "News and announcements",                                              icon: Megaphone,     phase: "Phase 2 · information" },
   { key: "training",     label: "Training",       description: "Training sessions and records",                                       icon: GraduationCap, phase: "Phase 2 · information" },
-  { key: "policies",     label: "Docs",           description: "Policies, guidance and the policy question box",                      icon: FileText,      phase: "Phase 2 · information" },
+  { key: "policies",     label: "Library · Documents",           description: "Policies, guidance and the policy question box",                      icon: FileText,      phase: "Phase 2 · information" },
   { key: "hydrants",     label: "Hydrants",       description: "Hydrant routes and faults",                                           icon: Flame,         phase: "Phase 3 · station work" },
-  { key: "references",   label: "References",     description: "The watch's station references (and Our reference on Home)",         icon: BookMarked,    phase: "Phase 3 · station work" },
+  { key: "references",   label: "Watch references", description: "The watch's station references (and Our reference on Home)",         icon: BookMarked,    phase: "Phase 3 · station work" },
   { key: "people",       label: "People",         description: "Everyone's profiles",                                                 icon: Users,         phase: "WC/CC tools" },
   { key: "reports",      label: "Reports",        description: "Quarterly reports",                                                   icon: BarChart3,     phase: "WC/CC tools" },
 ];

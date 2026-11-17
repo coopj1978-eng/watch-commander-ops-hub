@@ -13,7 +13,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
 
-const CATEGORIES = ["Training", "Inspection", "HFSV", "Admin", "Other"];
 const PRIORITIES = ["Low", "Med", "High"];
 
 export function QuickAssignTasks() {
@@ -24,7 +23,7 @@ export function QuickAssignTasks() {
   const [formData, setFormData] = useState(() => ({
     title: "",
     description: "",
-    category: "Training",
+    category: "Other",
     priority: "Med",
     stagger_days: 1,
     start_date: getNextShiftDate(currentUser?.watch_unit),
@@ -67,7 +66,7 @@ export function QuickAssignTasks() {
       setFormData({
         title: "",
         description: "",
-        category: "Training",
+        category: "Other",
         priority: "Med",
         stagger_days: 1,
         start_date: getNextShiftDate(currentUser?.watch_unit),
@@ -143,25 +142,6 @@ export function QuickAssignTasks() {
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 placeholder="e.g., Complete Fire Safety Training"
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
-              <Select
-                value={formData.category}
-                onValueChange={(v) => setFormData({ ...formData, category: v })}
-              >
-                <SelectTrigger id="category">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {CATEGORIES.map((cat) => (
-                    <SelectItem key={cat} value={cat}>
-                      {cat}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
 
             <div className="space-y-2">
@@ -264,7 +244,7 @@ export function QuickAssignTasks() {
                 setFormData({
                   title: "",
                   description: "",
-                  category: "Training",
+                  category: "Other",
                   priority: "Med",
                   stagger_days: 1,
                   start_date: getNextShiftDate(currentUser?.watch_unit),

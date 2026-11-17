@@ -90,7 +90,7 @@ export default function EquipmentChecks() {
         <div className="flex items-baseline flex-wrap gap-x-4 gap-y-1">
           <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-3">
             <Truck className="h-6 w-6 sm:h-7 sm:w-7 text-brand shrink-0" />
-            J4 Equipment Checks
+            J4 Checks
           </h1>
           {/* Wraps on a phone rather than running off the side (council, Nov 2026). */}
           <span className="eyebrow min-w-0 break-words">

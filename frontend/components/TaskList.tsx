@@ -2,8 +2,8 @@ import { useState } from "react";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Check, ChevronDown, Repeat, Search } from "lucide-react";
-import { describeRRule, priorityKey, priorityLabel } from "@/lib/taskUi";
-import type { Task, TaskStatus, TaskPriority, TaskCategory } from "~backend/task/types";
+import { LabelTag, describeRRule, priorityKey, priorityLabel } from "@/lib/taskUi";
+import type { Task, TaskStatus, TaskPriority } from "~backend/task/types";
 
 interface TaskListProps {
   tasks: Task[];
@@ -26,13 +26,6 @@ const PRIORITY_OPTIONS = [
   { value: "High", label: "High" },
   { value: "Med", label: "Medium" },
   { value: "Low", label: "Low" },
-];
-const CATEGORY_OPTIONS = [
-  { value: "Training", label: "Training" },
-  { value: "Inspection", label: "Inspection" },
-  { value: "HFSV", label: "HFSV" },
-  { value: "Admin", label: "Admin" },
-  { value: "Other", label: "Other" },
 ];
 const DUE_OPTIONS = [
   { value: "overdue", label: "Overdue" },
@@ -164,7 +157,6 @@ export default function TaskList({ tasks, isLoading, onTaskClick }: TaskListProp
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all");
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | "all">("all");
-  const [categoryFilter, setCategoryFilter] = useState<TaskCategory | "all">("all");
   const [dueFilter, setDueFilter] = useState<DueFilter>("all");
 
   const filteredTasks = tasks.filter((task) => {
@@ -180,9 +172,6 @@ export default function TaskList({ tasks, isLoading, onTaskClick }: TaskListProp
       return false;
     }
 
-    if (categoryFilter !== "all" && task.category !== categoryFilter) {
-      return false;
-    }
 
     if (dueFilter !== "all" && task.due_at) {
       const dueDate = new Date(task.due_at);
@@ -208,14 +197,13 @@ export default function TaskList({ tasks, isLoading, onTaskClick }: TaskListProp
   };
 
   const hasActiveFilters = Boolean(
-    searchQuery || statusFilter !== "all" || priorityFilter !== "all" || categoryFilter !== "all" || dueFilter !== "all"
+    searchQuery || statusFilter !== "all" || priorityFilter !== "all" || dueFilter !== "all"
   );
 
   const clearFilters = () => {
     setSearchQuery("");
     setStatusFilter("all");
     setPriorityFilter("all");
-    setCategoryFilter("all");
     setDueFilter("all");
   };
 
@@ -260,10 +248,6 @@ export default function TaskList({ tasks, isLoading, onTaskClick }: TaskListProp
           <FilterSelect
             id="priority-filter" label="Priority" shortLabel="Priority" allLabel="All priorities"
             value={priorityFilter} onChange={(v) => setPriorityFilter(v as TaskPriority | "all")} options={PRIORITY_OPTIONS}
-          />
-          <FilterSelect
-            id="category-filter" label="Category" shortLabel="Category" allLabel="All categories"
-            value={categoryFilter} onChange={(v) => setCategoryFilter(v as TaskCategory | "all")} options={CATEGORY_OPTIONS}
           />
           <FilterSelect
             id="due-filter" label="Due date" shortLabel="Due" allLabel="All due dates"
@@ -326,7 +310,7 @@ export default function TaskList({ tasks, isLoading, onTaskClick }: TaskListProp
                   <PriorityDot priority={task.priority} />
                   <span className="sr-only">{priorityLabel(task.priority)} priority:</span>
                   <span style={{ flex: 1, minWidth: 0, fontSize: 15, fontWeight: 600, lineHeight: 1.3 }}>{task.title}</span>
-                  <RecurIcon rrule={task.rrule} />
+                  <RecurIcon rrule={(task as Task & { source_type?: string }).source_type === "template" ? task.rrule : undefined} />
                 </span>
                 {task.description && (
                   <span
@@ -341,7 +325,7 @@ export default function TaskList({ tasks, isLoading, onTaskClick }: TaskListProp
                 <span style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", width: "100%" }}>
                   <Pill tone={statusTone(task.status)} size="sm">{statusLabels[task.status] ?? task.status}</Pill>
                   {due && <Pill tone={due} size="sm" mono={due.mono}>{due.text}</Pill>}
-                  <span style={{ fontSize: 12, color: "var(--cal-muted)" }}>{task.category}</span>
+                  {(task.tags ?? []).slice(0, 2).map((id) => <LabelTag key={id} id={id} />)}
                   {check && (
                     <span className="cal-mono" style={{ marginLeft: "auto", fontSize: 12, color: "var(--cal-ink-2)" }}>
                       <span className="sr-only">Checklist </span>
@@ -373,7 +357,7 @@ export default function TaskList({ tasks, isLoading, onTaskClick }: TaskListProp
               <span role="columnheader">Title</span>
               <span role="columnheader">Status</span>
               <span role="columnheader">Priority</span>
-              <span role="columnheader">Category</span>
+              <span role="columnheader">Labels</span>
               <span role="columnheader">Due</span>
               <span role="columnheader">Checklist</span>
             </div>
@@ -430,7 +414,7 @@ export default function TaskList({ tasks, isLoading, onTaskClick }: TaskListProp
                         >
                           {task.title}
                         </span>
-                        <RecurIcon rrule={task.rrule} />
+                        <RecurIcon rrule={(task as Task & { source_type?: string }).source_type === "template" ? task.rrule : undefined} />
                       </span>
                       {task.description && (
                         <span
@@ -454,7 +438,9 @@ export default function TaskList({ tasks, isLoading, onTaskClick }: TaskListProp
                         {priorityLabel(task.priority)}
                       </Pill>
                     </span>
-                    <span role="cell" style={{ fontSize: 13, color: "var(--cal-ink-2)" }}>{task.category}</span>
+                    <span role="cell" style={{ display: "flex", flexWrap: "wrap", gap: 4, minWidth: 0 }}>
+                      {(task.tags ?? []).slice(0, 2).map((id) => <LabelTag key={id} id={id} />)}
+                    </span>
                     <span role="cell">
                       {due ? (
                         <Pill tone={due} size="lg" mono={due.mono}>{due.text}</Pill>

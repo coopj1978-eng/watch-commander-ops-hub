@@ -28,7 +28,6 @@ const DAYS_OF_WEEK = [
   { key: "SU", label: "Sun" },
 ];
 
-const CATEGORY_OPTIONS: TaskCategory[] = ["Training", "Inspection", "HFSV", "Admin", "Other"];
 const PRIORITY_OPTIONS: { value: TaskPriority; label: string }[] = [
   { value: "High", label: "High" },
   { value: "Med", label: "Medium" },
@@ -521,7 +520,6 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
                       <Tag bg={`var(--cal-${priorityKey(t.priority)}-bg)`} fg={`var(--cal-${priorityKey(t.priority)}-fg)`}>
                         {priorityLabel(t.priority)}
                       </Tag>
-                      <Tag bg="var(--cal-surface-2)" fg="var(--cal-ink-2)" weight={500}>{t.category}</Tag>
                       {!active && <Tag bg="var(--cal-surface-3)" fg="var(--cal-muted)">Paused</Tag>}
                       {count > 0 && (
                         <span className="ttm-count">· {count} checklist item{count === 1 ? "" : "s"}</span>
@@ -624,20 +622,7 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
                     />
                   </label>
 
-                  <div className="ttm-grid2">
-                    <label className="ttm-label">
-                      Category
-                      <span style={{ position: "relative" }}>
-                        <select
-                          className="ttm-input"
-                          value={form.category}
-                          onChange={(e) => setF({ category: e.target.value as TaskCategory })}
-                        >
-                          {CATEGORY_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>)}
-                        </select>
-                        <ChevronDown size={16} aria-hidden="true" className="ttm-select-chev" />
-                      </span>
-                    </label>
+                  <div>
                     <div className="ttm-label">
                       <span>Priority</span>
                       <Segmented

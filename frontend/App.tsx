@@ -26,7 +26,7 @@ import EquipmentChecks from "./pages/EquipmentChecks";
 import StaffPortal from "./pages/StaffPortal";
 import CrewCommanderHome from "./pages/CrewCommanderHome";
 import HandoverPage from "./pages/Handover";
-import DetachmentsPage from "./pages/Detachments";
+import { LibraryIndex } from "./components/library/LibraryTabs";
 import TrainingPage from "./pages/Training";
 import Bulletins from "./pages/Bulletins";
 import SignIn from "./pages/SignIn";
@@ -224,7 +224,9 @@ function AppRoutes() {
         <Route path="/resources" element={<Navigate to="/policies" replace />} />
         <Route path="/bulletins" element={<Bulletins />} />
         <Route path="/handover" element={<HandoverPage />} />
-        <Route path="/detachments" element={<DetachmentsPage />} />
+        {/* The detachment rota is the Rotas tab on Shift (it was built twice). */}
+        <Route path="/detachments" element={<Navigate to="/handover?tab=detachments" replace />} />
+        <Route path="/library" element={<LibraryIndex />} />
         <Route path="/training" element={<TrainingPage />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/reports/quarterly/:id" element={<QuarterlyReport />} />

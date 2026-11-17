@@ -1512,6 +1512,10 @@
     min-height: calc(var(--spacing) * 9);
   }
 
+  .min-h-10 {
+    min-height: calc(var(--spacing) * 10);
+  }
+
   .min-h-11 {
     min-height: calc(var(--spacing) * 11);
   }
@@ -4014,16 +4018,6 @@
     }
   }
 
-  .bg-red-500\/15 {
-    background-color: #fb2c3626;
-  }
-
-  @supports (color: color-mix(in lab, red, red)) {
-    .bg-red-500\/15 {
-      background-color: color-mix(in oklab, var(--color-red-500) 15%, transparent);
-    }
-  }
-
   .bg-red-500\/60 {
     background-color: #fb2c3699;
   }
@@ -4862,6 +4856,10 @@
     line-height: var(--tw-leading, var(--text-xs--line-height));
   }
 
+  .text-\[1\.75rem\] {
+    font-size: 1.75rem;
+  }
+
   .text-\[2\.5rem\] {
     font-size: 2.5rem;
   }
@@ -4901,6 +4899,11 @@
   .leading-3 {
     --tw-leading: calc(var(--spacing) * 3);
     line-height: calc(var(--spacing) * 3);
+  }
+
+  .leading-\[2\.5rem\] {
+    --tw-leading: 2.5rem;
+    line-height: 2.5rem;
   }
 
   .leading-none {
@@ -7015,6 +7018,16 @@
   @supports (color: color-mix(in lab, red, red)) {
     .focus-visible\:ring-brand\/30:focus-visible {
       --tw-ring-color: color-mix(in oklab, var(--brand) 30%, transparent);
+    }
+  }
+
+  .focus-visible\:ring-brand\/40:focus-visible {
+    --tw-ring-color: var(--brand);
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .focus-visible\:ring-brand\/40:focus-visible {
+      --tw-ring-color: color-mix(in oklab, var(--brand) 40%, transparent);
     }
   }
 
