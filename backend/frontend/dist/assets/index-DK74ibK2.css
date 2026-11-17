@@ -774,6 +774,10 @@
     bottom: calc(var(--spacing) * 0);
   }
 
+  .bottom-2 {
+    bottom: calc(var(--spacing) * 2);
+  }
+
   .bottom-\[-14px\] {
     bottom: -14px;
   }
@@ -1017,6 +1021,10 @@
 
   .mt-2 {
     margin-top: calc(var(--spacing) * 2);
+  }
+
+  .mt-2\.5 {
+    margin-top: calc(var(--spacing) * 2.5);
   }
 
   .mt-3 {
@@ -1460,6 +1468,10 @@
     max-height: 90vh;
   }
 
+  .max-h-\[92vh\] {
+    max-height: 92vh;
+  }
+
   .max-h-\[calc\(100dvh-2rem\)\] {
     max-height: calc(100dvh - 2rem);
   }
@@ -1520,8 +1532,20 @@
     min-height: 3.25rem;
   }
 
+  .min-h-\[4\.5rem\] {
+    min-height: 4.5rem;
+  }
+
+  .min-h-\[6\.5rem\] {
+    min-height: 6.5rem;
+  }
+
   .min-h-\[9\.5rem\] {
     min-height: 9.5rem;
+  }
+
+  .min-h-\[16rem\] {
+    min-height: 16rem;
   }
 
   .min-h-\[40px\] {
@@ -1562,6 +1586,10 @@
 
   .w-2\.5 {
     width: calc(var(--spacing) * 2.5);
+  }
+
+  .w-2\/3 {
+    width: 66.6667%;
   }
 
   .w-3 {
@@ -3758,6 +3786,16 @@
     }
   }
 
+  .bg-muted-foreground\/50 {
+    background-color: var(--muted-foreground);
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .bg-muted-foreground\/50 {
+      background-color: color-mix(in oklab, var(--muted-foreground) 50%, transparent);
+    }
+  }
+
   .bg-muted\/20 {
     background-color: var(--muted);
   }
@@ -4431,6 +4469,10 @@
     padding: calc(var(--spacing) * 3);
   }
 
+  .p-3\.5 {
+    padding: calc(var(--spacing) * 3.5);
+  }
+
   .p-4 {
     padding: calc(var(--spacing) * 4);
   }
@@ -4641,6 +4683,14 @@
 
   .pr-10 {
     padding-right: calc(var(--spacing) * 10);
+  }
+
+  .pr-11 {
+    padding-right: calc(var(--spacing) * 11);
+  }
+
+  .pr-12 {
+    padding-right: calc(var(--spacing) * 12);
   }
 
   .pb-0 {
@@ -5518,6 +5568,38 @@
     text-decoration-line: line-through;
   }
 
+  .underline {
+    text-decoration-line: underline;
+  }
+
+  .decoration-brand\/30 {
+    -webkit-text-decoration-color: var(--brand);
+    -webkit-text-decoration-color: var(--brand);
+    text-decoration-color: var(--brand);
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .decoration-brand\/30 {
+      -webkit-text-decoration-color: color-mix(in oklab, var(--brand) 30%, transparent);
+      -webkit-text-decoration-color: color-mix(in oklab, var(--brand) 30%, transparent);
+      text-decoration-color: color-mix(in oklab, var(--brand) 30%, transparent);
+    }
+  }
+
+  .decoration-muted-foreground\/40 {
+    -webkit-text-decoration-color: var(--muted-foreground);
+    -webkit-text-decoration-color: var(--muted-foreground);
+    text-decoration-color: var(--muted-foreground);
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .decoration-muted-foreground\/40 {
+      -webkit-text-decoration-color: color-mix(in oklab, var(--muted-foreground) 40%, transparent);
+      -webkit-text-decoration-color: color-mix(in oklab, var(--muted-foreground) 40%, transparent);
+      text-decoration-color: color-mix(in oklab, var(--muted-foreground) 40%, transparent);
+    }
+  }
+
   .decoration-muted-foreground\/50 {
     -webkit-text-decoration-color: var(--muted-foreground);
     -webkit-text-decoration-color: var(--muted-foreground);
@@ -6009,8 +6091,14 @@
       rotate: 45deg;
     }
 
-    .group-hover\:border-foreground:is(:where(.group):hover *) {
+    .group-hover\:border-foreground:is(:where(.group):hover *), .group-hover\:border-foreground\/40:is(:where(.group):hover *) {
       border-color: var(--foreground);
+    }
+
+    @supports (color: color-mix(in lab, red, red)) {
+      .group-hover\:border-foreground\/40:is(:where(.group):hover *) {
+        border-color: color-mix(in oklab, var(--foreground) 40%, transparent);
+      }
     }
 
     .group-hover\:bg-foreground:is(:where(.group):hover *) {
@@ -6183,6 +6271,10 @@
   .before\:bg-red-500:before {
     content: var(--tw-content);
     background-color: var(--color-red-500);
+  }
+
+  .first\:pt-0:first-child {
+    padding-top: calc(var(--spacing) * 0);
   }
 
   .first\:pt-1:first-child {
@@ -6726,6 +6818,12 @@
 
     .hover\:underline:hover {
       text-decoration-line: underline;
+    }
+
+    .hover\:decoration-brand:hover {
+      -webkit-text-decoration-color: var(--brand);
+      -webkit-text-decoration-color: var(--brand);
+      text-decoration-color: var(--brand);
     }
 
     .hover\:opacity-70:hover {

@@ -36,13 +36,11 @@ import { useAuth } from "@/App";
 
 type ViewMode = "grid" | "table";
 
-// Links that live outside the app. Add more here.
+// The how-to guides and regular links have their own pages now (Nov 2026):
+// they used to be one link out to a Notion page.
 const USEFUL_LINKS = [
-  {
-    title: "Processes & Files",
-    description: "How-to guides, useful links and reference documents",
-    url: "https://invincible-treatment-d06.notion.site/Processes-Files-a2ab8be387bc44c9859a7ac41d227606",
-  },
+  { title: "Guides", description: "How we do things at the station, step by step", url: "/guides" },
+  { title: "Links", description: "The systems and sites the station uses", url: "/links" },
 ];
 
 export default function Policies() {
@@ -187,8 +185,6 @@ export default function Policies() {
           <a
             key={link.url}
             href={link.url}
-            target="_blank"
-            rel="noopener noreferrer"
             className="group inline-flex items-center gap-3 rounded-xl border border-border/70 bg-card px-3.5 py-2.5 transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/30"
           >
             <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-muted text-foreground/80">

@@ -11,6 +11,8 @@ import Tasks from "./pages/Tasks";
 import Targets from "./pages/Targets";
 import Hydrants from "./pages/Hydrants";
 import Contacts from "./pages/Contacts";
+import Links from "./pages/Links";
+import Guides from "./pages/Guides";
 import References from "./pages/References";
 import Policies from "./pages/Policies";
 import Requests from "./pages/Requests";
@@ -207,6 +209,9 @@ function AppRoutes() {
         <Route path="/targets" element={<Targets />} />
         <Route path="/hydrants" element={<Hydrants />} />
         <Route path="/contacts" element={<Contacts />} />
+        <Route path="/links" element={<Links />} />
+        <Route path="/guides" element={<Guides />} />
+        <Route path="/guides/:guideId" element={<Guides />} />
         <Route path="/references" element={<References />} />
         <Route path="/requests" element={<Requests />} />
         <Route path="/policies" element={<Policies />} />

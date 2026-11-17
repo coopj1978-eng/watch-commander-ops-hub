@@ -45,6 +45,7 @@ export default class Client {
     public readonly frontend: frontend.ServiceClient
     public readonly contacts: contacts.ServiceClient
     public readonly h4h: h4h.ServiceClient
+    public readonly library: library.ServiceClient
     public readonly handover: handover.ServiceClient
     public readonly hydrants: hydrants.ServiceClient
     public readonly inspection: inspection.ServiceClient
@@ -94,6 +95,7 @@ export default class Client {
         this.frontend = new frontend.ServiceClient(base)
         this.contacts = new contacts.ServiceClient(base)
         this.h4h = new h4h.ServiceClient(base)
+        this.library = new library.ServiceClient(base)
         this.handover = new handover.ServiceClient(base)
         this.hydrants = new hydrants.ServiceClient(base)
         this.inspection = new inspection.ServiceClient(base)
@@ -2144,6 +2146,125 @@ export namespace contacts {
         public async update(id: number, params: ContactInput): Promise<StationContact> {
             const resp = await this.baseClient.callTypedAPI("PATCH", `/api/contacts/${encodeURIComponent(id)}`, JSON.stringify(params))
             return await resp.json() as StationContact
+        }
+    }
+}
+
+export namespace library {
+    export interface StationLink {
+        id: number
+        section: string
+        title: string
+        url: string
+        note: string | null
+        position: number
+    }
+
+    export interface LinkInput {
+        section: string
+        title: string
+        url: string
+        note?: string | null
+    }
+
+    export interface Guide {
+        id: number
+        section: string
+        title: string
+        summary: string | null
+        body: string
+        position: number
+        "updated_at": string
+    }
+
+    export interface GuideInput {
+        section: string
+        title: string
+        summary?: string | null
+        body: string
+    }
+
+    export interface SectionRequest {
+        kind: "guides" | "links"
+        section: string
+        to?: string
+    }
+
+    export class ServiceClient {
+        private baseClient: BaseClient
+
+        constructor(baseClient: BaseClient) {
+            this.baseClient = baseClient
+            this.addGuides = this.addGuides.bind(this)
+            this.addLinks = this.addLinks.bind(this)
+            this.createGuide = this.createGuide.bind(this)
+            this.createLink = this.createLink.bind(this)
+            this.listGuides = this.listGuides.bind(this)
+            this.listLinks = this.listLinks.bind(this)
+            this.removeGuide = this.removeGuide.bind(this)
+            this.removeLink = this.removeLink.bind(this)
+            this.removeSection = this.removeSection.bind(this)
+            this.renameSection = this.renameSection.bind(this)
+            this.updateGuide = this.updateGuide.bind(this)
+            this.updateLink = this.updateLink.bind(this)
+        }
+
+        public async listLinks(): Promise<{ links: StationLink[] }> {
+            const resp = await this.baseClient.callTypedAPI("GET", `/api/links`)
+            return await resp.json() as { links: StationLink[] }
+        }
+
+        public async createLink(params: LinkInput): Promise<StationLink> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/api/links`, JSON.stringify(params))
+            return await resp.json() as StationLink
+        }
+
+        public async addLinks(params: { links: LinkInput[] }): Promise<{ added: number }> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/api/links/bulk`, JSON.stringify(params))
+            return await resp.json() as { added: number }
+        }
+
+        public async updateLink(id: number, params: LinkInput): Promise<StationLink> {
+            const resp = await this.baseClient.callTypedAPI("PATCH", `/api/links/${encodeURIComponent(id)}`, JSON.stringify(params))
+            return await resp.json() as StationLink
+        }
+
+        public async removeLink(id: number): Promise<void> {
+            await this.baseClient.callTypedAPI("DELETE", `/api/links/${encodeURIComponent(id)}`)
+        }
+
+        public async listGuides(): Promise<{ guides: Guide[] }> {
+            const resp = await this.baseClient.callTypedAPI("GET", `/api/guides`)
+            return await resp.json() as { guides: Guide[] }
+        }
+
+        public async createGuide(params: GuideInput): Promise<Guide> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/api/guides`, JSON.stringify(params))
+            return await resp.json() as Guide
+        }
+
+        public async addGuides(params: { guides: GuideInput[] }): Promise<{ added: number }> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/api/guides/bulk`, JSON.stringify(params))
+            return await resp.json() as { added: number }
+        }
+
+        public async updateGuide(id: number, params: GuideInput): Promise<Guide> {
+            const resp = await this.baseClient.callTypedAPI("PATCH", `/api/guides/${encodeURIComponent(id)}`, JSON.stringify(params))
+            return await resp.json() as Guide
+        }
+
+        public async removeGuide(id: number): Promise<void> {
+            await this.baseClient.callTypedAPI("DELETE", `/api/guides/${encodeURIComponent(id)}`)
+        }
+
+        public async renameSection(params: SectionRequest): Promise<{ lines: number }> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/api/library/sections/rename`, JSON.stringify(params))
+            return await resp.json() as { lines: number }
+        }
+
+        public async removeSection(params: SectionRequest): Promise<{ lines: number }> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/api/library/sections/remove`, JSON.stringify(params))
+            return await resp.json() as { lines: number }
         }
     }
 }
@@ -4504,6 +4625,8 @@ export namespace settings {
         hydrants?: boolean
         references?: boolean
         contacts?: boolean
+        guides?: boolean
+        links?: boolean
     }
 
     export interface SystemSettings {

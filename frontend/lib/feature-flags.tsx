@@ -24,6 +24,8 @@ export interface FeatureFlags {
   hydrants: boolean;
   references: boolean;
   contacts: boolean;
+  guides: boolean;
+  links: boolean;
 }
 
 const DEFAULT_FLAGS: FeatureFlags = {
@@ -45,6 +47,8 @@ const DEFAULT_FLAGS: FeatureFlags = {
   hydrants: true,
   references: true,
   contacts: true,
+  guides: true,
+  links: true,
 };
 
 /** A switch missing from the saved settings (added after they were saved) is off. */

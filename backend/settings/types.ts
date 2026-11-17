@@ -19,6 +19,8 @@ export interface FeatureFlags {
   hydrants?: boolean;
   references?: boolean;
   contacts?: boolean;
+  guides?: boolean;
+  links?: boolean;
 }
 
 export interface SystemSettings {
