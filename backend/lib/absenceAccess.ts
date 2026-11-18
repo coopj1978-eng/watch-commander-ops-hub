@@ -2,7 +2,7 @@ import { APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db, { type SQLPrimitive } from "../db";
 import { notifyWatchManagers } from "../notification/helpers";
-import { HOME_STATION } from "./station";
+import { atHomeStationSql, HOME_STATION } from "./station";
 
 // Who may see and change absence (sickness) records.
 //
@@ -82,7 +82,8 @@ export async function visiblePersonIds(viewer: AbsenceViewer): Promise<Set<strin
     const rows = await db.rawQueryAll<{ id: string }>(
       `SELECT u.id FROM users u
        LEFT JOIN firefighter_profiles fp ON fp.user_id = u.id
-       WHERE LOWER(COALESCE(u.watch_unit, fp.watch)) = LOWER($1)`,
+       WHERE LOWER(COALESCE(u.watch_unit, fp.watch)) = LOWER($1)
+         AND ${atHomeStationSql("fp")}`,
       viewer.watch
     );
     for (const r of rows) ids.add(r.id);
