@@ -7455,6 +7455,10 @@
       order: 2;
     }
 
+    .sm\:order-3 {
+      order: 3;
+    }
+
     .sm\:order-4 {
       order: 4;
     }

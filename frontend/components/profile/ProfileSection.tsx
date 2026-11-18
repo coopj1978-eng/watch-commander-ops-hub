@@ -7,8 +7,9 @@ import { cn } from "@/lib/utils";
 // button that opened every field on the page at once.
 
 export function ProfileSection({
-  title, description, editable, editing, saving, onEdit, onCancel, onSave, className, children,
+  id, title, description, editable, editing, saving, onEdit, onCancel, onSave, className, children,
 }: {
+  id?: string;
   title: string;
   description?: ReactNode;
   editable?: boolean;
@@ -21,7 +22,7 @@ export function ProfileSection({
   children: ReactNode;
 }) {
   return (
-    <section className={cn("rounded-2xl border bg-card", editing ? "border-foreground/40 ring-1 ring-foreground/10" : "border-border/70", className)}>
+    <section id={id} className={cn("rounded-2xl border bg-card", editing ? "border-foreground/40 ring-1 ring-foreground/10" : "border-border/70", className)}>
       <header className="flex items-start gap-3 px-4 pb-2 pt-4 sm:px-5">
         <div className="min-w-0 flex-1">
           <h2 className="text-sm font-semibold">{title}</h2>
@@ -29,14 +30,14 @@ export function ProfileSection({
         </div>
         {editing ? (
           <div className="flex shrink-0 gap-1.5">
-            <button type="button" onClick={onCancel} className="h-8 rounded-lg border border-border px-2.5 text-xs font-medium hover:bg-muted">
+            <button type="button" onClick={onCancel} className="h-9 rounded-lg border border-border px-3 text-xs font-medium hover:bg-muted">
               Cancel
             </button>
             <button
               type="button"
               onClick={onSave}
               disabled={saving}
-              className="inline-flex h-8 items-center gap-1 rounded-lg bg-foreground px-2.5 text-xs font-medium text-background disabled:opacity-50"
+              className="inline-flex h-9 items-center gap-1 rounded-lg bg-foreground px-3 text-xs font-medium text-background disabled:opacity-50"
             >
               <Check className="h-3.5 w-3.5" /> {saving ? "Saving…" : "Save"}
             </button>
@@ -46,7 +47,7 @@ export function ProfileSection({
             type="button"
             onClick={onEdit}
             aria-label={`Edit ${title.toLowerCase()}`}
-            className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+            className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg border border-border px-3 text-xs font-semibold text-foreground hover:bg-muted"
           >
             <Pencil className="h-3.5 w-3.5" /> Edit
           </button>

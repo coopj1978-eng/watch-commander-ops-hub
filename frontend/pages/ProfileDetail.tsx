@@ -22,7 +22,10 @@ import {
   KeyRound,
   Lock,
   MoreHorizontal,
+  Pencil,
   Send,
+  UserCheck,
+  UserX,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
@@ -38,6 +41,7 @@ import { ProfileSection, Field } from "@/components/profile/ProfileSection";
 import { QualificationsPanel, type SkillLite } from "@/components/profile/QualificationsPanel";
 import { DriverPathway } from "@/components/profile/DriverPathway";
 import { RecordHistory } from "@/components/profile/RecordHistory";
+import { OffboardingWizard } from "@/components/OffboardingWizard";
 import { ProfileNotes } from "@/components/profile/ProfileNotes";
 import { QUALIFICATIONS, type QualificationKey } from "@/lib/qualifications";
 
@@ -86,6 +90,7 @@ export default function ProfileDetail() {
   const [inviteLink, setInviteLink] = useState("");
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [resetLink, setResetLink] = useState("");
+  const [showLeaving, setShowLeaving] = useState(false);
   const [hoursView, setHoursView] = useState<"toil" | "h4h" | "adjustments" | null>(null);
   // Inviting people and sending reset links is the admin's job.
   const isAdmin = useIsAdmin();
@@ -352,7 +357,16 @@ export default function ProfileDetail() {
       : []),
   ];
 
-  const adminMenu = isAdmin && user && !isViewingOwnProfile ? (
+  // Rank, watch and station are the WC's to change (a CC can't) — put it in
+  // the menu as well as the Details card, where it's easy to miss on a phone.
+  const canMove = userRole === "WC" && !!profile;
+  const editDetails = () => {
+    openTab("overview");
+    startEdit("details");
+    setTimeout(() => document.getElementById("profile-details")?.scrollIntoView({ behavior: "smooth", block: "center" }), 60);
+  };
+  const adminActions = isAdmin && !!user && !isViewingOwnProfile;
+  const adminMenu = user && (canMove || adminActions) ? (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button type="button" aria-label="More actions" className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-border hover:bg-muted">
@@ -360,7 +374,32 @@ export default function ProfileDetail() {
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        {!user.has_password ? (
+        {canMove && (
+          <DropdownMenuItem onSelect={editDetails}>
+            <Pencil className="mr-2 h-4 w-4" /> Change rank, watch or station
+          </DropdownMenuItem>
+        )}
+        {adminActions && (user.left_at ? (
+          <DropdownMenuItem
+            onSelect={async () => {
+              try {
+                await backend.admin.reactivateUser(user.id);
+                queryClient.invalidateQueries({ queryKey: ["user", userId] });
+                queryClient.invalidateQueries({ queryKey: ["people"] });
+                toast({ title: `${user.name} is back at the station` });
+              } catch (error: any) {
+                toast({ title: "That didn't save", description: error?.message || "Please try again.", variant: "destructive" });
+              }
+            }}
+          >
+            <UserCheck className="mr-2 h-4 w-4" /> Back at the station
+          </DropdownMenuItem>
+        ) : (
+          <DropdownMenuItem onSelect={() => setShowLeaving(true)}>
+            <UserX className="mr-2 h-4 w-4" /> Has left the station…
+          </DropdownMenuItem>
+        ))}
+        {!adminActions ? null : !user.has_password ? (
           <DropdownMenuItem
             onSelect={async () => {
               try {
@@ -518,7 +557,7 @@ export default function ProfileDetail() {
           </div>
 
           <div className="flex flex-col gap-4">
-            <ProfileSection title="Details" {...sectionProps("details", canEdit && ["rank", "station", "watch", "service_number"].some(canEditField))}>
+            <ProfileSection id="profile-details" title="Details" {...sectionProps("details", canEdit && ["rank", "station", "watch", "service_number"].some(canEditField))}>
               <Field label="Rank">
                 {editableValue("details", "rank", profile.rank || "—", (
                   <select className={selectCls} value={getDisplayValue("rank") || ""} onChange={(e) => set({ rank: e.target.value })}>
@@ -690,6 +729,20 @@ export default function ProfileDetail() {
       </Dialog>
 
       {/* ── Password reset link dialog ──────────────────────────────────── */}
+      {user && showLeaving && (
+        <OffboardingWizard
+          user={user as any}
+          open={showLeaving}
+          onClose={() => setShowLeaving(false)}
+          onComplete={() => {
+            setShowLeaving(false);
+            queryClient.invalidateQueries({ queryKey: ["user", userId] });
+            queryClient.invalidateQueries({ queryKey: ["people"] });
+            queryClient.invalidateQueries({ queryKey: ["crewing-roster"] });
+          }}
+        />
+      )}
+
       <Dialog open={showResetDialog} onOpenChange={setShowResetDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>

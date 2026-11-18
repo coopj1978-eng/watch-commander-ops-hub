@@ -9,11 +9,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import backend from "@/lib/backend";
 import { useToast } from "@/components/ui/use-toast";
 import {
-  X, Trash2, Plus, Clock, User, ImageIcon, Upload, Check, ChevronDown, Loader2, Pencil,
+  X, Trash2, Plus, Clock, User, ImageIcon, Upload, Check, ChevronDown, Loader2, Pencil, Link2, ExternalLink,
 } from "lucide-react";
 import { TASK_LABELS, CARD_COVERS, getCoverStyle } from "@/lib/taskLabels";
 import { autoStatusFor, canEditTaskDetails, priorityKey, rewordLine, tickTime } from "@/lib/taskUi";
 import LineEditInput from "@/components/tasks/LineEditInput";
+import { formatTaskLink, linkHost, taskLinks, tidyUrl } from "@/lib/taskLinks";
 import type { Task, TaskColumn, ChecklistItem, TaskPriority } from "~backend/task/types";
 
 interface TaskDetailDrawerProps {
@@ -51,7 +52,7 @@ const CSS = `
 .tdd-lbl{font-size:12px;font-weight:600;color:var(--cal-muted);letter-spacing:.06em;text-transform:uppercase}
 .tdd-k{font-size:11px;font-weight:600;color:var(--cal-muted);letter-spacing:.04em;text-transform:uppercase;line-height:1.2}
 .tdd-v{font-size:14px;font-weight:600;line-height:1.3}
-.tdd-title{width:100%;background:transparent;border:none;border-bottom:2px solid transparent;border-radius:0;padding:0 0 4px;outline:none;resize:none;overflow:hidden;font-size:24px;font-weight:600;letter-spacing:-.01em;line-height:1.25;color:var(--cal-ink);transition:border-color .15s}
+.tdd-title{flex:none;width:100%;background:transparent;border:none;border-bottom:2px solid transparent;border-radius:0;padding:0 0 4px;outline:none;resize:none;overflow:hidden;font-size:24px;font-weight:600;letter-spacing:-.01em;line-height:1.25;color:var(--cal-ink);transition:border-color .15s}
 .tdd-title:hover:not(:disabled){border-bottom-color:var(--cal-line-2)}
 .tdd-title:focus{border-bottom-color:var(--cal-brand)}
 @media (min-width:640px){.tdd-title{font-size:28px}}
@@ -152,6 +153,10 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
   const [newChecklistItem, setNewChecklistItem] = useState("");
   const [addingItem, setAddingItem] = useState(false);
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
+  const [attachments, setAttachments] = useState<string[]>([]);
+  const [addingLink, setAddingLink] = useState(false);
+  const [linkUrl, setLinkUrl] = useState("");
+  const [linkName, setLinkName] = useState("");
   const [saving, setSaving] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
   const [coverColour, setCoverColour] = useState<string>("");
@@ -168,6 +173,8 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
     if (!task) return;
     setTitle(task.title);
     setDescription(task.description ?? "");
+    setAttachments(task.attachments ?? []);
+    setAddingLink(false); setLinkUrl(""); setLinkName("");
     setStatus(task.status);
     setPriority(task.priority);
     setDueDate(
@@ -258,6 +265,29 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
   const handleTitleBlur = () => { if (title.trim() && title !== task.title) save({ title: title.trim() }); };
   const handleDescriptionBlur = () => { if (description !== (task.description ?? "")) save({ description }); };
 
+  // ── Links (Trello's "attach a link"): kept in the task's attachments ──
+  const links = taskLinks(attachments);
+  const handleLinkAdd = () => {
+    const url = tidyUrl(linkUrl);
+    if (!url) {
+      toast({ title: "That doesn't look like a link", description: "Paste the full web address, for example https://…" });
+      return;
+    }
+    if (links.some((l) => l.url === url)) {
+      toast({ title: "Already there", description: "That link is on this card." });
+      return;
+    }
+    const updated = [...attachments, formatTaskLink(url, linkName)];
+    setAttachments(updated);
+    setLinkUrl(""); setLinkName(""); setAddingLink(false);
+    save({ attachments: updated });
+  };
+  const handleLinkRemove = (index: number) => {
+    const updated = attachments.filter((_, i) => i !== index);
+    setAttachments(updated);
+    save({ attachments: updated });
+  };
+
   const handleStatusChange = (val: string) => {
     const wasDone = isDoneStatus(task.status);
     const nowDone = isDoneStatus(val);
@@ -319,7 +349,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
   const handleChecklistToggle = (idx: number) => {
     const updated = checklist.map((item, i) => i === idx ? { ...item, done: !item.done } : item);
     setChecklist(updated);
-    // The first tick starts the card, the last one finishes it (as on the board).
+    // The last tick finishes the card (as on the board); nothing else moves it.
     const next = autoStatusFor(status, updated, columns.map((c) => c.status_key));
     if (next) {
       setStatus(next);
@@ -750,8 +780,97 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                   </div>
                 )}
 
+                {/* Links */}
+                {(canEdit || links.length > 0) && (
+                  <div className="order-4 sm:order-3 flex flex-col gap-2">
+                    <span className="tdd-lbl">Links</span>
+                    {links.map((l) => (
+                      <div key={l.index} className="flex items-center gap-1.5 min-w-0">
+                        <a
+                          href={l.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="tdd-soft cal-focus flex min-w-0 flex-1 items-center gap-2.5"
+                          style={{ minHeight: 44, padding: "6px 12px", borderRadius: 12, textDecoration: "none" }}
+                        >
+                          <Link2 className="h-4 w-4 flex-none" style={{ color: "var(--cal-brand-text)" }} />
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate" style={{ fontSize: 14, fontWeight: 600, color: "var(--cal-ink)" }}>{l.label}</span>
+                            {l.named && <span className="block truncate" style={{ fontSize: 12, color: "var(--cal-muted)" }}>{linkHost(l.url)}</span>}
+                          </span>
+                          <ExternalLink className="h-3.5 w-3.5 flex-none" style={{ color: "var(--cal-muted)" }} aria-hidden="true" />
+                        </a>
+                        {canEdit && (
+                          <button
+                            type="button"
+                            aria-label={`Remove the link ${l.label}`}
+                            className="tdd-ghost cal-focus grid place-items-center flex-none"
+                            style={{ width: 40, height: 40, borderRadius: 10, color: "var(--cal-muted)" }}
+                            onClick={() => handleLinkRemove(l.index)}
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                    {canEdit && (addingLink ? (
+                      <div className="flex flex-col gap-2" style={{ padding: 12, borderRadius: 14, background: "var(--cal-surface-2)" }}>
+                        <input
+                          aria-label="Web address"
+                          className="cal-field"
+                          type="url"
+                          inputMode="url"
+                          autoCapitalize="off"
+                          autoCorrect="off"
+                          autoFocus
+                          placeholder="Paste a link"
+                          value={linkUrl}
+                          onChange={(e) => setLinkUrl(e.target.value)}
+                          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleLinkAdd(); } }}
+                        />
+                        <input
+                          aria-label="Name for the link (optional)"
+                          className="cal-field"
+                          placeholder="Name it (optional)"
+                          maxLength={80}
+                          value={linkName}
+                          onChange={(e) => setLinkName(e.target.value)}
+                          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleLinkAdd(); } }}
+                        />
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            className="cal-focus"
+                            style={{ height: 40, padding: "0 16px", borderRadius: 10, border: "none", background: "var(--cal-brand)", color: "#fff", font: "inherit", fontSize: 14, fontWeight: 600, cursor: "pointer" }}
+                            onClick={handleLinkAdd}
+                          >
+                            Add link
+                          </button>
+                          <button
+                            type="button"
+                            className="tdd-ghost cal-focus"
+                            style={{ height: 40, padding: "0 12px", borderRadius: 10, font: "inherit", fontSize: 14, color: "var(--cal-ink-2)" }}
+                            onClick={() => { setAddingLink(false); setLinkUrl(""); setLinkName(""); }}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        className="tdd-ghost cal-focus inline-flex items-center gap-2 self-start"
+                        style={{ height: 40, padding: "0 10px", borderRadius: 10, color: "var(--cal-ink-2)", fontSize: 14 }}
+                        onClick={() => setAddingLink(true)}
+                      >
+                        <Link2 className="h-4 w-4" strokeWidth={2.2} /> Add a link
+                      </button>
+                    ))}
+                  </div>
+                )}
+
                 {/* Description */}
-                <div className="order-4 sm:order-2 flex flex-col gap-2">
+                <div className="order-5 sm:order-2 flex flex-col gap-2">
                   <label htmlFor={`${uid}-desc`} className="tdd-lbl">Description</label>
                   <textarea
                     id={`${uid}-desc`}
@@ -766,7 +885,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                 </div>
 
                 {/* Phones: the rest of the fields, further down the sheet */}
-                <div className="order-5 sm:hidden flex flex-col gap-3.5">
+                <div className="order-6 sm:hidden flex flex-col gap-3.5">
                   {userRole === "WC" && !isCheck && <Field label="Move to watch" htmlFor={`${uid}-watch-m`}>{watchSelect(`${uid}-watch-m`)}</Field>}
                   {canEdit && (
                     <Field label="Cover" htmlFor={`${uid}-cover-m`}>

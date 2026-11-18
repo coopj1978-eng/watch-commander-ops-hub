@@ -179,10 +179,11 @@ export function canEditTaskDetails(
 }
 
 /**
- * Ticking moves the card for you (Nov 2026; Trello needs a Butler rule per
- * checklist for this): the first tick takes a To Do card to In Progress, the
- * last tick takes it to Done, unticking a Done card puts it back in
- * progress, and unticking everything puts it back in To Do. Cards in custom columns stay where they are until finished.
+ * What ticking does to a card's column. Ticking never starts a card for you
+ * (John, 18 Nov 2026: a card stays where it is until someone moves it — In
+ * Progress is set by hand). Only finishing counts: the last tick takes a To
+ * Do or In Progress card to Done, and unticking a Done card puts it back in
+ * To Do. Cards in custom columns stay where they are.
  * Returns the new column, or null to leave it.
  */
 export function autoStatusFor(
@@ -193,12 +194,8 @@ export function autoStatusFor(
   if (checklist.length === 0) return null;
   const has = (k: string) => columnKeys.includes(k);
   const all = checklist.every((i) => i.done);
-  const any = checklist.some((i) => i.done);
   if (all && (status === "NotStarted" || status === "InProgress") && has("Done")) return "Done";
-  if (!all && status === "Done" && has("InProgress")) return "InProgress";
-  if (any && !all && status === "NotStarted" && has("InProgress")) return "InProgress";
-  // Everything unticked again (say a mis-tap): back to To Do.
-  if (!any && status === "InProgress" && has("NotStarted")) return "NotStarted";
+  if (!all && status === "Done" && has("NotStarted")) return "NotStarted";
   return null;
 }
 

@@ -84,6 +84,12 @@ export const update = api(
       queryParams.push(JSON.stringify(stamped));
     }
     if (updates.attachments !== undefined) {
+      // A card's links: web addresses only, each optionally with a name on the line above.
+      const isLink = (a: string) =>
+        a.length <= 2200 && /^https?:\/\/\S+$/i.test((a.split("\n").pop() ?? "").trim());
+      if (updates.attachments.length > 20 || !updates.attachments.every(isLink)) {
+        throw APIError.invalidArgument("Links must be web addresses (https://…), up to 20 on a card");
+      }
       setClauses.push(`attachments = $${paramIndex++}`);
       queryParams.push(updates.attachments);
     }

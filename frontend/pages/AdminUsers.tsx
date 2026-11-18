@@ -103,8 +103,8 @@ export function AdminUsers() {
     try {
       await backend.admin.reactivateUser(userId);
       toast({
-        title: "Success",
-        description: "User reactivated successfully",
+        title: "Done",
+        description: "They're back at the station.",
       });
       await loadUsers();
     } catch (error) {
@@ -112,7 +112,7 @@ export function AdminUsers() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to reactivate user",
+        description: error instanceof Error ? error.message : "That didn't save. Please try again.",
       });
     }
   };
@@ -162,7 +162,7 @@ export function AdminUsers() {
                   <TableCell className="font-medium">{user.name}</TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
-                    {user.is_active ? (
+                    {!user.left_at ? (
                       <Select
                         value={user.role}
                         onValueChange={(value) => handleRoleChange(user.id, value as UserRole)}
@@ -183,23 +183,25 @@ export function AdminUsers() {
                     )}
                   </TableCell>
                   <TableCell>
-                    {user.is_active ? (
+                    {user.left_at ? (
+                      <Badge variant="outline">Left {new Date(user.left_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</Badge>
+                    ) : user.is_active ? (
                       <Badge className="bg-green-500">Active</Badge>
                     ) : (
-                      <Badge variant="destructive">Deactivated</Badge>
+                      <Badge variant="outline" className="border-amber-400 text-amber-700 dark:text-amber-400">Not signed up yet</Badge>
                     )}
                   </TableCell>
                   <TableCell>{formatDate(user.last_login_at)}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex gap-2 justify-end">
-                      {user.is_active ? (
+                      {!user.left_at ? (
                         <Button
                           size="sm"
-                          variant="destructive"
+                          variant="outline"
                           onClick={() => setOffboardingUser(user)}
                         >
                           <UserX className="w-4 h-4 mr-1" />
-                          Deactivate
+                          Has left
                         </Button>
                       ) : (
                         <Button
@@ -208,7 +210,7 @@ export function AdminUsers() {
                           onClick={() => handleReactivate(user.id)}
                         >
                           <UserCheck className="w-4 h-4 mr-1" />
-                          Reactivate
+                          Back at the station
                         </Button>
                       )}
                       <Button

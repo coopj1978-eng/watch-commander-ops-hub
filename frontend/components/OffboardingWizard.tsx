@@ -117,8 +117,8 @@ export function OffboardingWizard({ user, open, onClose, onComplete }: Offboardi
       });
 
       toast({
-        title: "Success",
-        description: `${user.name} has been deactivated successfully`,
+        title: "Done",
+        description: `${user.name} is marked as having left the station, and is off the crewing boards from that date.`,
       });
 
       onComplete();
@@ -127,7 +127,7 @@ export function OffboardingWizard({ user, open, onClose, onComplete }: Offboardi
       toast({
         variant: "destructive",
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to deactivate user",
+        description: error instanceof Error ? error.message : "That didn't save. Please try again.",
       });
     } finally {
       setLoading(false);
@@ -143,13 +143,13 @@ export function OffboardingWizard({ user, open, onClose, onComplete }: Offboardi
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Offboarding: {user.name}</DialogTitle>
+          <DialogTitle>{user.name} has left the station</DialogTitle>
         </DialogHeader>
 
         {step === 1 && (
           <div className="space-y-4">
             <div>
-              <Label htmlFor="deactivationDate">Deactivation Date</Label>
+              <Label htmlFor="deactivationDate">Last day at the station</Label>
               <Input
                 id="deactivationDate"
                 type="date"
@@ -267,7 +267,7 @@ export function OffboardingWizard({ user, open, onClose, onComplete }: Offboardi
         {step === 3 && (
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Please review the offboarding details before confirming:
+              Check the details before confirming:
             </p>
 
             <div className="bg-muted rounded-lg p-4 space-y-2 text-sm">
@@ -276,7 +276,7 @@ export function OffboardingWizard({ user, open, onClose, onComplete }: Offboardi
                 <span className="font-medium">{user.name}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Deactivation Date:</span>
+                <span className="text-muted-foreground">Last day at the station:</span>
                 <span className="font-medium">
                   {new Date(deactivationDate).toLocaleDateString()}
                 </span>
@@ -310,7 +310,7 @@ export function OffboardingWizard({ user, open, onClose, onComplete }: Offboardi
             <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 flex gap-3">
               <AlertCircle className="w-5 h-5 text-destructive mt-0.5" />
               <p className="text-sm">
-                This action will deactivate the user account and prevent them from signing in.
+                They come off the watch, the crewing boards and the rotas from that date, and can no longer sign in. Their records are kept. You can bring them back from Admin → Users.
               </p>
             </div>
           </div>
@@ -336,7 +336,7 @@ export function OffboardingWizard({ user, open, onClose, onComplete }: Offboardi
               </Button>
             ) : (
               <Button variant="destructive" onClick={handleConfirm} disabled={loading}>
-                {loading ? "Processing..." : "Confirm Deactivation"}
+                {loading ? "Saving…" : "Confirm they've left"}
               </Button>
             )}
           </div>

@@ -20,8 +20,8 @@ export const deactivateUser = api(
       throw APIError.invalidArgument("Cannot deactivate your own account");
     }
 
-    const userRow = await db.rawQueryRow<{ id: string; role: string; is_active: boolean }>(
-      `SELECT id, role, is_active FROM users WHERE id = $1`,
+    const userRow = await db.rawQueryRow<{ id: string; role: string; left_at: Date | null }>(
+      `SELECT id, role, left_at FROM users WHERE id = $1`,
       userId
     );
 
@@ -29,8 +29,10 @@ export const deactivateUser = api(
       throw APIError.notFound("User not found");
     }
 
-    if (!userRow.is_active) {
-      throw APIError.invalidArgument("User is already deactivated");
+    // "Left" is left_at. is_active only means they've signed up, so someone
+    // who never signed in can still move away and be taken off the station.
+    if (userRow.left_at) {
+      throw APIError.invalidArgument("They're already marked as having left the station");
     }
 
     if (userRow.role === "WC") {
@@ -50,6 +52,11 @@ export const deactivateUser = api(
       deactivationDate,
       userId
     );
+
+    // Off the crewing boards and the canteen rota from the day they go.
+    const day = new Date(deactivationDate).toISOString().slice(0, 10);
+    await db.rawExec(`DELETE FROM shift_crewing WHERE user_id = $1 AND shift_date >= $2::date`, userId, day);
+    await db.rawExec(`DELETE FROM canteen_duties WHERE user_id = $1 AND shift_date >= $2::date`, userId, day);
 
     await createActivityLog({
       actor_user_id: auth.userID,

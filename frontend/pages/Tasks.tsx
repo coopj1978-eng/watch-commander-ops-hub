@@ -220,7 +220,7 @@ export default function Tasks() {
     });
   };
 
-  // Ticking from the card: the first tick starts it, the last one moves it to Done (with Undo).
+  // Ticking from the card: the last tick moves it to Done (with Undo); nothing else moves it.
   const handleChecklistToggle = (taskId: number, itemLabel: string, done: boolean) => {
     const task = filteredTasks.find((t) => t.id === taskId);
     if (!task || !task.checklist) return;

@@ -521,6 +521,60 @@ function ExternalRosterTile({
   );
 }
 
+/** Tap-selection id for a cover who is only a typed name (not a person in the app). */
+const coverTapId = (name: string) => `cover:${name}`;
+
+/**
+ * An H4H / TOIL cover who was typed in as a name. They aren't a person in
+ * the app, but they are riding, so the tile goes on a seat like any other:
+ * drag it, or tap it and then tap the seat. Once on the board it greys out.
+ */
+function CoverNameTile({
+  name,
+  placed,
+  canEdit,
+  isTapSelected,
+  onTap,
+}: {
+  name: string;
+  placed: boolean;
+  canEdit: boolean;
+  isTapSelected: boolean;
+  onTap: () => void;
+}) {
+  const usable = canEdit && !placed;
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: `external-cover-${name}`,
+    data: { external: { tempId: coverTapId(name), name, isCoS: true } satisfies PendingExternal },
+    disabled: !usable,
+  });
+  const style = transform ? { transform: CSS.Translate.toString(transform) } : undefined;
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...(usable ? listeners : {})}
+      {...(usable ? attributes : {})}
+      onClick={usable ? onTap : undefined}
+      aria-label={placed ? `${name}, H4H cover, on the board` : `${name}, H4H cover. Tap, then tap a seat`}
+      className={`rounded-xl border w-[120px] p-2.5 space-y-1.5 select-none ${
+        placed
+          ? "border-border bg-muted/40 opacity-60"
+          : `border-purple-300 dark:border-purple-700 bg-purple-50 dark:bg-purple-950/40 ${usable ? "cursor-grab active:cursor-grabbing touch-none" : ""}`
+      } ${isTapSelected ? "ring-2 ring-indigo-500" : ""} ${isDragging ? "opacity-40" : ""}`}
+    >
+      <div className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-400 to-indigo-500 flex items-center justify-center text-white text-[10px] font-bold">
+        {name.split(" ").map((p: string) => p[0]).slice(0, 2).join("").toUpperCase()}
+      </div>
+      <p className="text-xs font-semibold leading-tight truncate">{name}</p>
+      <span className="block text-[9px] font-bold text-purple-600 uppercase tracking-wide">H4H Cover</span>
+      <p className="text-[9px] text-muted-foreground leading-tight">
+        {placed ? "On the board" : usable ? "Drag or tap, then pick a seat" : "Not in the app"}
+      </p>
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // SlotDropZone — the droppable empty state inside a slot row
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1260,6 +1314,7 @@ function RosterPanel({
   onExternalClick,
   tapSelectedId,
   onTapMember,
+  placedNames,
 }: {
   roster: RosterMember[];
   assignedByUserId: Map<string, CrewingEntry>;
@@ -1278,6 +1333,8 @@ function RosterPanel({
   tapSelectedId: string | null;
   /** Toggle tap-selection for this member. Null clears selection. */
   onTapMember: (id: string | null) => void;
+  /** Typed names already on this board (lower case) — a cover placed by name. */
+  placedNames: Set<string>;
 }) {
   const unassigned = roster.filter(m =>
     !assignedByUserId.has(m.id) && !pendingAssignIds.has(m.id) && !absentIds.has(m.id) && !adjustmentByUserId.has(m.id)
@@ -1419,19 +1476,16 @@ function RosterPanel({
                         </div>
                       );
                     }
-                    // Free-text name only — show static tile, WC can add via External/CoS
+                    // A typed name only — still goes on a seat (as a Change of Shift).
                     return (
-                      <div
+                      <CoverNameTile
                         key={i}
-                        className="rounded-xl border border-purple-300 dark:border-purple-700 bg-purple-50 dark:bg-purple-950/40 w-[120px] p-2.5 space-y-1.5"
-                      >
-                        <div className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-400 to-indigo-500 flex items-center justify-center text-white text-[10px] font-bold">
-                          {cover.name.split(" ").map((p: string) => p[0]).slice(0, 2).join("").toUpperCase()}
-                        </div>
-                        <p className="text-xs font-semibold leading-tight truncate">{cover.name}</p>
-                        <span className="text-[9px] font-bold text-purple-600 uppercase tracking-wide">H4H Cover</span>
-                        <p className="text-[9px] text-muted-foreground/70 leading-tight">Add via External / CoS ↓</p>
-                      </div>
+                        name={cover.name}
+                        placed={placedNames.has(cover.name.trim().toLowerCase())}
+                        canEdit={canEdit}
+                        isTapSelected={tapSelectedId === coverTapId(cover.name)}
+                        onTap={() => onTapMember(tapSelectedId === coverTapId(cover.name) ? null : coverTapId(cover.name))}
+                      />
                     );
                   })}
                 </div>
@@ -2348,6 +2402,12 @@ export default function CrewingBoard({ onOpenCanteenRota }: { onOpenCanteenRota?
     const meta = slotMetaRef.current.get(slotId);
     if (!meta) return;
 
+    if (tapSelectedId?.startsWith("cover:")) {
+      // A cover typed in as a name: on the seat as a Change of Shift.
+      handleSlotAssign(slotId, undefined, tapSelectedId.slice("cover:".length), meta.role);
+      setTapSelectedId(null);
+      return;
+    }
     if (tapSelectedId) {
       // Direct assign using the tap-selected member.
       const member = roster.find(m => m.id === tapSelectedId);
@@ -2402,7 +2462,13 @@ export default function CrewingBoard({ onOpenCanteenRota }: { onOpenCanteenRota?
     setShowExtDialog(false);
   };
 
-  const tapSelectedMember = tapSelectedId ? roster.find(m => m.id === tapSelectedId) : null;
+  const tapSelectedMember = tapSelectedId?.startsWith("cover:")
+    ? { name: tapSelectedId.slice("cover:".length) }
+    : tapSelectedId ? roster.find(m => m.id === tapSelectedId) : null;
+  const placedNames = useMemo(
+    () => new Set(entries.filter(e => !e.user_id && e.external_name).map(e => e.external_name!.trim().toLowerCase())),
+    [entries],
+  );
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -2635,6 +2701,7 @@ export default function CrewingBoard({ onOpenCanteenRota }: { onOpenCanteenRota?
                 onDismissPending={tempId => setPendingExternal(prev => prev.filter(p => p.tempId !== tempId))}
                 onExternalClick={() => setShowExtDialog(true)}
                 tapSelectedId={tapSelectedId}
+                placedNames={placedNames}
                 onTapMember={setTapSelectedId}
               />
             </div>}

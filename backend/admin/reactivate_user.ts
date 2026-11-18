@@ -14,8 +14,8 @@ export const reactivateUser = api(
     const auth = getAuthData()!;
     requireAdmin(auth);
 
-    const userRow = await db.rawQueryRow<{ id: string; is_active: boolean }>(
-      `SELECT id, is_active FROM users WHERE id = $1`,
+    const userRow = await db.rawQueryRow<{ id: string; left_at: Date | null }>(
+      `SELECT id, left_at FROM users WHERE id = $1`,
       userId
     );
 
@@ -23,12 +23,15 @@ export const reactivateUser = api(
       throw APIError.notFound("User not found");
     }
 
-    if (userRow.is_active) {
-      throw APIError.invalidArgument("User is already active");
+    // Only someone marked as left comes back. A person who simply hasn't
+    // signed up yet isn't "deactivated" — they use their invite link.
+    if (!userRow.left_at) {
+      throw APIError.invalidArgument("They haven't left the station");
     }
 
+    // Back at the station; they can sign in again only if they ever signed up.
     await db.rawExec(
-      `UPDATE users SET is_active = true, left_at = NULL, updated_at = NOW() WHERE id = $1`,
+      `UPDATE users SET is_active = (password_hash IS NOT NULL), left_at = NULL, updated_at = NOW() WHERE id = $1`,
       userId
     );
 

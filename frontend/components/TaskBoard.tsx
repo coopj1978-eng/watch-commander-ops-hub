@@ -1,5 +1,7 @@
 import { isTaskOverdue } from "@/lib/taskDue";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { DndContext, DragOverlay, MouseSensor, TouchSensor, useDraggable, useSensor, useSensors, type DragEndEvent, type DragMoveEvent, type DragStartEvent, type Modifier } from "@dnd-kit/core";
+import { getEventCoordinates } from "@dnd-kit/utilities";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { invalidateTargetViews } from "@/lib/targetsCache";
 import * as Menu from "@radix-ui/react-dropdown-menu";
@@ -190,6 +192,42 @@ function ColumnHeader({
   );
 }
 
+/**
+ * A card on the phone board: hold it for a moment to pick it up, then drag
+ * it to the edge of the screen to carry it into the next column (as in
+ * Trello). A quick tap or a swipe still opens the card or scrolls the page.
+ */
+function PhoneDraggable({ task, disabled, lifted, children }: { task: Task; disabled: boolean; lifted: boolean; children: React.ReactNode }) {
+  const { listeners, setNodeRef } = useDraggable({ id: `task-${task.id}`, data: { task }, disabled });
+  return (
+    <div
+      ref={setNodeRef}
+      {...listeners}
+      style={{
+        borderRadius: 16, transition: "opacity .15s",
+        touchAction: "manipulation", WebkitTouchCallout: "none", WebkitUserSelect: "none", userSelect: "none",
+        ...(lifted ? { opacity: 0.35 } : {}),
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/** Keeps the carried card's small copy centred under the finger, wherever on the card it was picked up. */
+const underFinger: Modifier = ({ activatorEvent, activeNodeRect, draggingNodeRect, transform }) => {
+  const at = activatorEvent ? getEventCoordinates(activatorEvent) : null;
+  if (!at || !activeNodeRect || !draggingNodeRect) return transform;
+  return {
+    ...transform,
+    x: transform.x + (at.x - activeNodeRect.left) - draggingNodeRect.width / 2,
+    y: transform.y + (at.y - activeNodeRect.top) - draggingNodeRect.height / 2,
+  };
+};
+
+/** How close to the screen edge (px) a carried card turns the page. */
+const EDGE = 44;
+
 export default function TaskBoard({
   tasks,
   isLoading,
@@ -227,7 +265,23 @@ export default function TaskBoard({
   const [quickAddCol, setQuickAddCol] = useState<string | null>(null);
   const isPhone = useIsPhone();
   const [phoneCol, setPhoneCol] = useState<string | null>(null);
-  const touchStart = useRef<{ x: number; y: number } | null>(null);
+  // Phone: the columns sit side by side in a pager you swipe; a card held
+  // for a moment can be carried across.
+  const pagerRef = useRef<HTMLDivElement>(null);
+  const [carried, setCarried] = useState<Task | null>(null);
+  const carry = useRef({ x: 0, startX: 0, edgeSince: 0, lastTurn: 0, timer: 0 as number | ReturnType<typeof setInterval> });
+  const justCarried = useRef(false);
+  const sensors = useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 280, tolerance: 8 } }),
+  );
+
+  // Turning to another column from far down a long one: bring the top of
+  // the board back into view, so a shorter column isn't an empty screen.
+  useEffect(() => {
+    const el = pagerRef.current;
+    if (isPhone && el && el.getBoundingClientRect().top < 0) el.scrollIntoView({ block: "start", behavior: "smooth" });
+  }, [phoneCol, isPhone]);
 
   // ── Collapse state ─────────────────────────────────────────────────────────
   const [collapsedCols, setCollapsedCols] = useState<Set<string>>(() => {
@@ -410,16 +464,33 @@ export default function TaskBoard({
       [...Array(2)].map((_, i) => <Skeleton key={i} className="h-24 w-full" style={{ borderRadius: 16 }} />)
     ) : (
       <>
-        {colTasks.map((task) => (
+        {colTasks.map((task) => isPhone ? (
+          <PhoneDraggable key={task.id} task={task} disabled={!canEdit} lifted={carried?.id === task.id}>
+            <TaskCard
+              task={task}
+              onClick={() => { if (!justCarried.current) onTaskClick?.(task); }}
+              onChecklistToggle={canEdit ? onChecklistToggle : undefined}
+              onTitleEdit={mayEditDetails(task) ? onTitleEdit : undefined}
+              isDark={isDark}
+              userMap={userMap}
+              columns={canEdit ? columns : undefined}
+              columnCounts={columnCounts}
+              onMove={canEdit ? (key) => moveTask(task, key) : undefined}
+              onSetPriority={mayEditDetails(task) ? (priority) => updateTaskMutation.mutate({ id: task.id, priority }) : undefined}
+              onDelete={mayEditDetails(task) ? () => handleDeleteTask(task) : undefined}
+              shiftStart={shiftStart}
+            />
+          </PhoneDraggable>
+        ) : (
           <div
             key={task.id}
-            draggable={canEdit && !isPhone}
+            draggable={canEdit}
             onDragStart={(e) => handleDragStart(e, task)}
             onDragEnd={handleDragEnd}
             onDragOver={(e) => handleTaskDragOver(e, task.id)}
             style={{
               borderRadius: 16,
-              cursor: canEdit && !isPhone ? "grab" : undefined,
+              cursor: canEdit ? "grab" : undefined,
               transition: "opacity .15s, box-shadow .15s",
               ...(draggedTask?.id === task.id ? { opacity: 0.45, boxShadow: "0 0 0 2px var(--cal-brand)" } : {}),
               ...(dragOverTaskId === task.id && draggedTask?.id !== task.id ? { boxShadow: "0 -4px 0 var(--cal-brand)" } : {}),
@@ -481,18 +552,80 @@ export default function TaskBoard({
     );
   }
 
-  // ── Phone: one column at a time, picked with tabs (or a sideways swipe) ──
+  // ── Phone: the columns side by side in a pager — swipe between them, or
+  //    hold a card and carry it to the edge to move it (as in Trello). ──
   if (isPhone) {
     const active = columns.find((c) => c.status_key === phoneCol) ?? columns[0];
     if (!active) return null;
     const activeIdx = columns.indexOf(active);
-    const colTasks = tasksByColumn[active.status_key] ?? [];
-    const go = (delta: number) => {
-      const next = columns[activeIdx + delta];
-      if (next) setPhoneCol(next.status_key);
-    };
     const fewTabs = columns.length <= 3;
+
+    const pageLeft = (i: number) => {
+      const page = pagerRef.current?.children[i] as HTMLElement | undefined;
+      return page ? page.offsetLeft - 16 : 0;
+    };
+    const showCol = (i: number) => {
+      const col = columns[i];
+      const el = pagerRef.current;
+      if (!col || !el) return;
+      setPhoneCol(col.status_key);
+      el.scrollTo({ left: pageLeft(i), behavior: "smooth" });
+    };
+    // Which column is showing follows the pager as it's swiped.
+    const onPagerScroll = () => {
+      const el = pagerRef.current;
+      if (!el) return;
+      let best = 0;
+      for (let i = 1; i < columns.length; i++) {
+        if (Math.abs(pageLeft(i) - el.scrollLeft) < Math.abs(pageLeft(best) - el.scrollLeft)) best = i;
+      }
+      const key = columns[best]?.status_key;
+      if (key && key !== active.status_key) setPhoneCol(key);
+    };
+
+    // ── Carrying a card ──
+    const stopCarry = () => {
+      clearInterval(carry.current.timer as number);
+      setCarried(null);
+      // The touch that ends a carry mustn't also open the card.
+      setTimeout(() => { justCarried.current = false; }, 120);
+    };
+    const onCarryStart = (e: DragStartEvent) => {
+      const task = e.active.data.current?.task as Task | undefined;
+      if (!task) return;
+      const ev = e.activatorEvent as MouseEvent | TouchEvent;
+      const x = "touches" in ev ? ev.touches[0]?.clientX ?? 0 : ev.clientX;
+      carry.current = { ...carry.current, x, startX: x, edgeSince: 0, lastTurn: 0 };
+      justCarried.current = true;
+      setCarried(task);
+      navigator.vibrate?.(8);
+      // Held at the edge of the screen, the board turns to the next column.
+      carry.current.timer = setInterval(() => {
+        const c = carry.current;
+        const dir = c.x < EDGE ? -1 : c.x > window.innerWidth - EDGE ? 1 : 0;
+        const now = Date.now();
+        if (!dir) { c.edgeSince = 0; return; }
+        if (!c.edgeSince) { c.edgeSince = now; return; }
+        if (now - c.edgeSince < 350 || now - c.lastTurn < 800) return;
+        const el = pagerRef.current;
+        if (!el) return;
+        let at = 0;
+        for (let i = 1; i < columns.length; i++) {
+          if (Math.abs(pageLeft(i) - el.scrollLeft) < Math.abs(pageLeft(at) - el.scrollLeft)) at = i;
+        }
+        if (columns[at + dir]) { c.lastTurn = now; showCol(at + dir); }
+      }, 100);
+    };
+    const onCarryMove = (e: DragMoveEvent) => { carry.current.x = carry.current.startX + e.delta.x; };
+    const onCarryEnd = (e: DragEndEvent) => {
+      const task = e.active.data.current?.task as Task | undefined;
+      // Dropped in whichever column is showing.
+      if (task && active.status_key !== task.status) moveTask(task, active.status_key);
+      stopCarry();
+    };
+
     return (
+      <DndContext sensors={sensors} autoScroll={false} onDragStart={onCarryStart} onDragMove={onCarryMove} onDragEnd={onCarryEnd} onDragCancel={stopCarry}>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         <div
           role="tablist"
@@ -514,7 +647,7 @@ export default function TaskBoard({
                 type="button"
                 role="tab"
                 aria-selected={on}
-                onClick={() => setPhoneCol(c.status_key)}
+                onClick={() => showCol(columns.indexOf(c))}
                 className="cal-focus"
                 style={{
                   height: 40, borderRadius: 10, border: "none", font: "inherit", fontSize: 13, cursor: "pointer",
@@ -540,28 +673,69 @@ export default function TaskBoard({
           })}
         </div>
 
-        <section
-          role="tabpanel"
-          aria-label={active.name}
-          style={{ display: "flex", flexDirection: "column", gap: 12, minHeight: 200 }}
-          onTouchStart={(e) => { touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }; }}
-          onTouchEnd={(e) => {
-            const start = touchStart.current;
-            touchStart.current = null;
-            if (!start) return;
-            const dx = e.changedTouches[0].clientX - start.x;
-            const dy = e.changedTouches[0].clientY - start.y;
-            if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1);
+
+        <div
+          ref={pagerRef}
+          onScroll={onPagerScroll}
+          className="[&::-webkit-scrollbar]:hidden"
+          style={{
+            position: "relative", display: "flex", alignItems: "flex-start", gap: 10,
+            margin: "0 -16px", padding: "0 16px", scrollPadding: "0 16px",
+            overflowX: "auto", overflowY: "hidden", scrollSnapType: "x mandatory", scrollbarWidth: "none",
+            overscrollBehaviorX: "contain", minHeight: 200, scrollMarginTop: 128,
           }}
         >
-          {wipLimits[active.status_key] !== undefined && colTasks.length > wipLimits[active.status_key] && (
-            <span style={{ fontSize: 12, fontWeight: 600, color: "var(--cal-station-fg)", padding: "0 6px" }}>
-              Over WIP limit · {(allTasksByColumn[active.status_key] ?? []).length} of {wipLimits[active.status_key]}
-            </span>
-          )}
-          {renderColumnBody(active, colTasks, false)}
-        </section>
+          {columns.map((col) => {
+            const colTasks = tasksByColumn[col.status_key] ?? [];
+            const on = col.status_key === active.status_key;
+            const dropHere = !!carried && on && carried.status !== col.status_key;
+            return (
+              <section
+                key={col.id}
+                role="tabpanel"
+                aria-label={col.name}
+                aria-hidden={!on}
+                style={{
+                  flex: columns.length > 1 ? "0 0 calc(100% - 22px)" : "0 0 100%", minWidth: 0,
+                  scrollSnapAlign: "start", scrollSnapStop: "always",
+                  display: "flex", flexDirection: "column", gap: 12,
+                }}
+              >
+                {wipLimits[col.status_key] !== undefined && colTasks.length > wipLimits[col.status_key] && (
+                  <span style={{ fontSize: 12, fontWeight: 600, color: "var(--cal-station-fg)", padding: "0 6px" }}>
+                    Over WIP limit · {(allTasksByColumn[col.status_key] ?? []).length} of {wipLimits[col.status_key]}
+                  </span>
+                )}
+                {dropHere && (
+                  <div style={{ textAlign: "center", padding: "16px 0", fontSize: 13, fontWeight: 600, color: "var(--cal-brand-text)", border: "2px dashed var(--cal-brand)", background: "var(--cal-brand-soft)", borderRadius: 16 }}>
+                    Let go to move it to {col.name}
+                  </div>
+                )}
+                {renderColumnBody(col, colTasks, false)}
+              </section>
+            );
+          })}
+        </div>
+        {canEdit && columns.length > 1 && (
+          <p style={{ margin: 0, textAlign: "center", fontSize: 12, color: "var(--cal-muted)" }}>
+            Swipe for the next column · hold a card to move it
+          </p>
+        )}
       </div>
+      <DragOverlay dropAnimation={null} modifiers={[underFinger]}>
+        {carried && (
+          <div
+            style={{
+              width: "min(300px, 78vw)", padding: "12px 14px", borderRadius: 16, background: "var(--cal-surface)", color: "var(--cal-ink)",
+              boxShadow: "0 18px 40px rgba(15,23,42,.28), 0 0 0 2px var(--cal-brand)", transform: "rotate(2deg)",
+              fontSize: 14, fontWeight: 600, lineHeight: 1.35,
+            }}
+          >
+            {carried.title}
+          </div>
+        )}
+      </DragOverlay>
+      </DndContext>
     );
   }
 

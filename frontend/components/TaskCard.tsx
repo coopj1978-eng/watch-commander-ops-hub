@@ -2,7 +2,8 @@ import { ReferenceHeader, RoutineHeader } from "@/components/tasks/RoutineHeader
 import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import * as Menu from "@radix-ui/react-dropdown-menu";
-import { ArrowRightLeft, CalendarDays, Check, ChevronRight, ClipboardCheck, ExternalLink, History, MoreHorizontal, Repeat } from "lucide-react";
+import { ArrowRightLeft, CalendarDays, Check, ChevronRight, ClipboardCheck, ExternalLink, History, Link2, MoreHorizontal, Repeat } from "lucide-react";
+import { taskLinks } from "@/lib/taskLinks";
 import type { Task, TaskColumn, TaskPriority } from "~backend/task/types";
 import { getCoverStyle, getLabelById } from "@/lib/taskLabels";
 import { ChecklistBar, DueChip, Initials, LabelTag, PriorityChip, initialsOf, personTint, priorityKey, priorityLabel, tickTime, useIsPhone } from "@/lib/taskUi";
@@ -444,6 +445,8 @@ export default function TaskCard({ task, onTitleEdit, onClick, onChecklistToggle
   const coverStyle = routineHeader ? undefined : getCoverStyle(cover);
   const linkUrl = (task as Task & { link_url?: string }).link_url;
   const link = isCheck && linkUrl && /^https:\/\//i.test(linkUrl) ? linkUrl : null;
+  // Links someone put on the card: the first two open straight from the board.
+  const ownLinks = taskLinks(task.attachments);
   const assignee = task.assigned_to_user_id
     ? { id: task.assigned_to_user_id, initials: userMap?.[task.assigned_to_user_id]?.initials ?? task.assigned_to_user_id.slice(0, 2).toUpperCase() }
     : null;
@@ -549,6 +552,31 @@ export default function TaskCard({ task, onTitleEdit, onClick, onChecklistToggle
         >
           <ExternalLink className="h-3.5 w-3.5" /> {/\.xlsx?\b|:x:|excel|spreadsheets/i.test(link) ? "Open spreadsheet" : "Open link"}
         </a>
+      )}
+
+      {ownLinks.length > 0 && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, minWidth: 0 }}>
+          {ownLinks.slice(0, 2).map((l) => (
+            <a
+              key={l.index}
+              href={l.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              title={l.url}
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 6, maxWidth: "100%", minHeight: 32, padding: "5px 10px", borderRadius: 9,
+                fontSize: 12.5, fontWeight: 600, color: "var(--cal-brand-text)", background: "var(--cal-brand-soft)", textDecoration: "none",
+              }}
+            >
+              <Link2 className="h-3.5 w-3.5" style={{ flex: "none" }} />
+              <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.label}</span>
+            </a>
+          ))}
+          {ownLinks.length > 2 && (
+            <span style={{ alignSelf: "center", fontSize: 12, fontWeight: 600, color: "var(--cal-ink-2)" }}>+{ownLinks.length - 2} more</span>
+          )}
+        </div>
       )}
 
       {footer && <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
