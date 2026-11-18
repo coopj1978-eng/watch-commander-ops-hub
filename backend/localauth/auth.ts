@@ -4,6 +4,7 @@ import * as bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import db from "../db";
 import type { User } from "../user/types";
+import { logSignIn } from "../auth/login_logger";
 import {
   rateLimit,
   resetRateLimit,
@@ -115,6 +116,11 @@ export const signUp = api<SignUpRequest, AuthResponse>(
         { expiresIn: "7d" }
       );
 
+      // Signing up puts an active account (the first-ever user) straight into
+      // the app, so that counts as a sign-in. Anyone else waits to be made
+      // active and has not signed in yet.
+      if (newUser.is_active) await logSignIn(newUser);
+
       return {
         user: { id: newUser.id, email: newUser.email, name: newUser.name, role: newUser.role },
         token,
@@ -177,6 +183,9 @@ export const signIn = api<SignInRequest, AuthResponse>(
         getJwtSecret(),
         { expiresIn: "7d" }
       );
+
+      // The one place a sign-in is logged (activity log + "Last login").
+      await logSignIn(user);
 
       return {
         user: {

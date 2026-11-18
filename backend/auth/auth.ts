@@ -2,7 +2,6 @@ import { Header, Cookie, APIError, Gateway } from "encore.dev/api";
 import { authHandler } from "encore.dev/auth";
 import { secret } from "encore.dev/config";
 import jwt from "jsonwebtoken";
-import { logSignIn } from "./login_logger";
 import { adminEmail } from "./secrets";
 import db from "../db";
 import type { User } from "../user/types";
@@ -101,8 +100,6 @@ export const auth = authHandler<AuthParams, AuthData>(async (data) => {
       watchUnit: dbUser.watch_unit || "",
       rank: dbUser.rank || "",
     };
-
-    await logSignIn(authData);
 
     return authData;
   } catch (err) {
