@@ -1,3 +1,6 @@
+/** The station this hub belongs to (the server's copy is backend/lib/station.ts). */
+export const HOME_STATION = "B10 Springburn";
+
 export const STATION_OPTIONS = [
   { value: "B01 Cowcaddens", label: "B01 Cowcaddens" },
   { value: "B02 Calton", label: "B02 Calton" },

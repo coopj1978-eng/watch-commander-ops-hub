@@ -3,6 +3,7 @@ import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { requireRole } from "../auth/rbac";
 import type { ShiftType } from "./types";
+import { atHomeStationSql } from "../lib/station";
 
 // Canteen duty — one or two people per shift, anyone on the watch, picked on
 // the crewing board by a WC or CC. They still ride (it's an extra duty), so
@@ -134,6 +135,7 @@ export const canteenRota = api<{ watch: string }, { members: CanteenRotaMember[]
        ) recent ON true
        WHERE LOWER(COALESCE(u.watch_unit, fp.watch)) = LOWER($1)
          AND u.left_at IS NULL
+         AND ${atHomeStationSql("fp")}
          -- Firefighters only (John, 17 Nov 2026): Watch and Crew Commanders
          -- never do canteen.
          AND u.role = 'FF'

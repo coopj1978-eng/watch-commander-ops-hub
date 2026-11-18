@@ -5,6 +5,7 @@ import { logActivity } from "../logging/logger";
 import { syncSkillsToDictionary } from "../dictionary/sync_skills";
 import { syncSkillsFromQualifications } from "../lib/qualifications";
 import type { UpdateProfileRequest, FirefighterProfile } from "./types";
+import { atHomeStation } from "../lib/station";
 
 interface UpdateProfileParams {
   id: number;
@@ -266,6 +267,13 @@ export const update = api(
       await db.exec`
         UPDATE users SET watch_unit = ${watchValue} WHERE id = ${dbProfile.user_id}
       `;
+    }
+
+    // Moved to another station: off this station's crewing boards and
+    // canteen rota from today (they're no longer on a watch here).
+    if (updates.station !== undefined && !atHomeStation(updates.station)) {
+      await db.exec`DELETE FROM shift_crewing WHERE user_id = ${dbProfile.user_id} AND shift_date >= CURRENT_DATE`;
+      await db.exec`DELETE FROM canteen_duties WHERE user_id = ${dbProfile.user_id} AND shift_date >= CURRENT_DATE`;
     }
 
     // Keep users.rank and users.role in sync with firefighter_profiles.rank.

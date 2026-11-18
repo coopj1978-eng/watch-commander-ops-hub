@@ -2,6 +2,7 @@ import { APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db, { type SQLPrimitive } from "../db";
 import { notifyWatchManagers } from "../notification/helpers";
+import { HOME_STATION } from "./station";
 
 // Who may see and change absence (sickness) records.
 //
@@ -22,8 +23,13 @@ export interface AbsenceViewer {
 }
 
 async function watchOf(userId: string): Promise<string | null> {
+  // Someone at another station isn't on a watch here: a WC/CC who has moved
+  // away manages nobody's absences, and theirs aren't this station's to see.
   const row = await db.queryRow<{ watch: string | null }>`
-    SELECT COALESCE(u.watch_unit, fp.watch) AS watch
+    SELECT CASE
+             WHEN COALESCE(NULLIF(TRIM(fp.station), ''), ${HOME_STATION}) = ${HOME_STATION}
+             THEN COALESCE(u.watch_unit, fp.watch)
+           END AS watch
     FROM users u
     LEFT JOIN firefighter_profiles fp ON fp.user_id = u.id
     WHERE u.id = ${userId}

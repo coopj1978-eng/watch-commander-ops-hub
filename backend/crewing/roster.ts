@@ -1,6 +1,7 @@
 import { api } from "encore.dev/api";
 import db from "../db";
 import type { RosterRequest, RosterResponse, RosterMember } from "./types";
+import { atHomeStationSql } from "../lib/station";
 
 // GET /crewing/roster
 // Returns all active WC/CC/FF members for a watch, checking BOTH
@@ -29,6 +30,9 @@ export const roster = api<RosterRequest, RosterResponse>(
        WHERE u.left_at IS NULL
          AND u.role IN ('WC', 'CC', 'FF')
          AND (LOWER(u.watch_unit) = LOWER($1) OR LOWER(p.watch) = LOWER($1))
+         -- At this station: someone who has moved to another one keeps
+         -- their record but isn't on the watch here.
+         AND ${atHomeStationSql("p")}
        ORDER BY
          CASE u.role
            WHEN 'WC' THEN 1

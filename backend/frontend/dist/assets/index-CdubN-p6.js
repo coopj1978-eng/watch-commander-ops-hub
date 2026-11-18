@@ -43031,6 +43031,7 @@ function filtersFromUrl(params) {
 function openingFilters(params, saved) {
   return filtersFromUrl(params) ?? parseSavedFilters(saved) ?? DEFAULT_PEOPLE_FILTERS;
 }
+const HOME_STATION = "B10 Springburn";
 const STATION_OPTIONS = [
   { value: "B01 Cowcaddens", label: "B01 Cowcaddens" },
   { value: "B02 Calton", label: "B02 Calton" },
@@ -48808,6 +48809,15 @@ function ProfileDetail() {
             /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", disabled: true, children: "Choose a station or area" }),
             STATION_OPTIONS.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: s.value, children: s.label }, s.value))
           ] })) }),
+          (() => {
+            const station = (getDisplayValue("station") || "").trim();
+            if (!station || station === HOME_STATION) return null;
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "rounded-lg bg-muted px-3 py-2 text-xs text-muted-foreground", children: [
+              "At another station, so not on a ",
+              HOME_STATION.replace(/^\S+\s/, ""),
+              " watch: off the crewing boards, the rotas and the staffing count. Their record is kept."
+            ] });
+          })(),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Field$2, { label: "Service number", children: editableValue("details", "service_number", /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono", children: profile2.service_number || "—" }), /* @__PURE__ */ jsxRuntimeExports.jsx("input", { className: cn(inputCls, "font-mono"), value: getDisplayValue("service_number") || "", onChange: (e) => set({ service_number: e.target.value }) })) }),
           profile2.hire_date && /* @__PURE__ */ jsxRuntimeExports.jsx(Field$2, { label: "Started", children: shortDate$2(profile2.hire_date) })
         ] }),

@@ -1,6 +1,7 @@
 import db from "../db";
 import type { StrengthAbsence, StrengthAdjustment, StrengthMember } from "./strength";
 import { riderQuals, type RiderQuals } from "./ridingSeats";
+import { atHomeStationSql } from "./station";
 
 /** Everything lib/strength needs for a watch over some dates. */
 export async function loadStrengthData(watch: string, start: string, end: string) {
@@ -11,7 +12,8 @@ export async function loadStrengthData(watch: string, start: string, end: string
      LEFT JOIN firefighter_profiles p ON p.user_id = u.id
      WHERE u.left_at IS NULL
        AND u.role IN ('WC', 'CC', 'FF')
-       AND (LOWER(u.watch_unit) = LOWER($1) OR LOWER(p.watch) = LOWER($1))`,
+       AND (LOWER(u.watch_unit) = LOWER($1) OR LOWER(p.watch) = LOWER($1))
+       AND ${atHomeStationSql("p")}`,
     watch
   );
   const ids = roster.map((m) => m.id);

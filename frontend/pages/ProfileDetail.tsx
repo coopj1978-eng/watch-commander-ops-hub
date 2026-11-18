@@ -2,7 +2,7 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useBackend } from "@/lib/rbac";
-import { STATION_OPTIONS } from "@/lib/constants";
+import { HOME_STATION, STATION_OPTIONS } from "@/lib/constants";
 import type { FirefighterProfile, UpdateProfileRequest, DriverPathwayStatus } from "~backend/profile/types";
 import SkillsTab from "@/components/SkillsTab";
 import { Button } from "@/components/ui/button";
@@ -582,6 +582,16 @@ export default function ProfileDetail() {
                   </select>
                 ))}
               </Field>
+              {/* This hub is Springburn's: someone at another station keeps their record but isn't on a watch here. */}
+              {(() => {
+                const station = ((getDisplayValue("station") as string) || "").trim();
+                if (!station || station === HOME_STATION) return null;
+                return (
+                  <p className="rounded-lg bg-muted px-3 py-2 text-xs text-muted-foreground">
+                    At another station, so not on a {HOME_STATION.replace(/^\S+\s/, "")} watch: off the crewing boards, the rotas and the staffing count. Their record is kept.
+                  </p>
+                );
+              })()}
               <Field label="Service number">
                 {editableValue("details", "service_number", <span className="font-mono">{profile.service_number || "—"}</span>, (
                   <input className={cn(inputCls, "font-mono")} value={getDisplayValue("service_number") || ""} onChange={(e) => set({ service_number: e.target.value })} />

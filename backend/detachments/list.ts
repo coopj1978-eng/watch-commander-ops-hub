@@ -1,5 +1,6 @@
 import { api } from "encore.dev/api";
 import db, { type SQLPrimitive } from "../db";
+import { atHomeStationSql } from "../lib/station";
 import type {
   ListDetachmentsRequest,
   ListDetachmentsResponse,
@@ -85,6 +86,7 @@ export const getRota = api<GetRotaRequest, GetRotaResponse>(
          d.last_reason,
          COALESCE(d.total_detachments, 0)::int AS total_detachments
        FROM users u
+       LEFT JOIN firefighter_profiles hp ON hp.user_id = u.id
        LEFT JOIN LATERAL (
          SELECT
            detachment_date::text AS last_detachment_date,
@@ -97,6 +99,8 @@ export const getRota = api<GetRotaRequest, GetRotaResponse>(
          LIMIT 1
        ) d ON true
        WHERE LOWER(u.watch_unit) = LOWER($1)
+         AND u.left_at IS NULL
+         AND ${atHomeStationSql("hp")}
          -- Firefighters only (John, 17 Nov 2026): Watch and Crew Commanders
          -- arrange their own detached duty, so they aren't in the running.
          AND u.role = 'FF'
