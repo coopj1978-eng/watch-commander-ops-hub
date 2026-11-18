@@ -3,7 +3,7 @@ import { api } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
 import type { CrewStats } from "./types";
-import { atHomeStationSql } from "../lib/station";
+import { onWatchHereSql } from "../lib/station";
 
 export const getStats = api<void, CrewStats>(
   { auth: true, expose: true, method: "GET", path: "/crew/stats" },
@@ -33,7 +33,7 @@ export const getStats = api<void, CrewStats>(
          -- Still at the station. is_active only means they've signed in, and
          -- many crew never will — they must still count in staffing.
          AND u.left_at IS NULL
-         AND ${atHomeStationSql("fp")}
+         AND ${onWatchHereSql("fp")}
          AND (SELECT watch FROM caller) IS NOT NULL`,
       auth.userID
     );

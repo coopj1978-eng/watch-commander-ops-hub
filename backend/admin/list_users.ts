@@ -13,7 +13,7 @@ export const listUsers = api(
     const query = `
       SELECT 
         id, email, name, role, watch_unit, rank, avatar_url,
-        last_login_at, is_active, left_at, created_at, updated_at,
+        last_login_at, is_active, is_admin, left_at, created_at, updated_at,
         (password_hash IS NOT NULL) AS has_password
       FROM users
       ORDER BY (left_at IS NOT NULL), name ASC

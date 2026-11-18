@@ -5,7 +5,7 @@ import { logActivity } from "../logging/logger";
 import { syncSkillsToDictionary } from "../dictionary/sync_skills";
 import { syncSkillsFromQualifications } from "../lib/qualifications";
 import type { UpdateProfileRequest, FirefighterProfile } from "./types";
-import { atHomeStation } from "../lib/station";
+import { ADMIN_RANK, atHomeStation } from "../lib/station";
 
 interface UpdateProfileParams {
   id: number;
@@ -131,6 +131,10 @@ export const update = api(
       if (locked.length > 0) {
         throw APIError.permissionDenied(`Only a Watch Commander can change: ${locked.join(", ")}.`);
       }
+    }
+    // The Admin rank gives admin access, so only an admin can hand it out.
+    if (updates.rank === ADMIN_RANK && !auth.isAdmin) {
+      throw APIError.permissionDenied("Only an admin can make an account an Admin.");
     }
 
     if (updates.skills && updates.skills.length > 0) {
@@ -280,6 +284,8 @@ export const update = api(
     // rank is the canonical display field (full name); role is the RBAC field derived from it.
     if (updates.rank !== undefined) {
       const rankToRole: Record<string, string> = {
+        // An admin-only account: a Watch Commander's rights, not on a watch.
+        [ADMIN_RANK]: "WC",
         "Watch Commander": "WC",
         "Crew Commander": "CC",
         "Leading Firefighter": "FF",
@@ -289,6 +295,13 @@ export const update = api(
       await db.exec`
         UPDATE users SET rank = ${updates.rank}, role = ${derivedRole} WHERE id = ${dbProfile.user_id}
       `;
+      // The Admin rank carries admin access with it, and takes the account
+      // off the crewing boards and canteen rota: it isn't crew.
+      if (updates.rank === ADMIN_RANK) {
+        await db.exec`UPDATE users SET is_admin = true WHERE id = ${dbProfile.user_id}`;
+        await db.exec`DELETE FROM shift_crewing WHERE user_id = ${dbProfile.user_id} AND shift_date >= CURRENT_DATE`;
+        await db.exec`DELETE FROM canteen_duties WHERE user_id = ${dbProfile.user_id} AND shift_date >= CURRENT_DATE`;
+      }
     }
 
     const profile = transformProfile(dbProfile);

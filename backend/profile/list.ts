@@ -4,7 +4,7 @@ import db from "../db";
 import { contactsFor, withoutLegacyNotes } from "./privacy";
 import { absenceViewer, redactSickness, visiblePersonIds } from "../lib/absenceAccess";
 import type { FirefighterProfile } from "./types";
-import { atHomeStationSql } from "../lib/station";
+import { onWatchHereSql } from "../lib/station";
 
 interface ListProfilesRequest {
   station?: Query<string>;
@@ -140,7 +140,7 @@ export const list = api<ListProfilesRequest, ListProfilesResponse>(
       // A watch is the people on it at this station who are still here —
       // the same membership as the crewing roster.
       conditions.push(`u.left_at IS NULL`);
-      conditions.push(atHomeStationSql("fp"));
+      conditions.push(onWatchHereSql("fp"));
     }
 
     if (conditions.length > 0) {

@@ -169,11 +169,13 @@ export function rewordLine(labels: string[], idx: number, next: string): { label
  */
 export function canEditTaskDetails(
   task: { assigned_by?: string; assigned_to_user_id?: string; watch_unit?: string } | null | undefined,
-  user: { id?: string; watch_unit?: string } | null | undefined,
+  user: { id?: string; watch_unit?: string; is_admin?: boolean } | null | undefined,
   role: string,
 ): boolean {
   if (!task || !user?.id) return false;
   if (task.assigned_by === user.id || task.assigned_to_user_id === user.id) return true;
+  // An admin can change any card, on any watch.
+  if (user.is_admin) return true;
   const sameWatch = !task.watch_unit || task.watch_unit.toLowerCase() === (user.watch_unit ?? "").toLowerCase();
   return (role === "WC" || role === "CC") && sameWatch;
 }

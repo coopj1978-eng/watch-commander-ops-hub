@@ -1,6 +1,6 @@
 import db from "../db";
 import type { NotificationType } from "./types";
-import { atHomeStationSql } from "../lib/station";
+import { onWatchHereSql } from "../lib/station";
 
 export interface CreateNotificationParams {
   user_id: string;
@@ -47,7 +47,7 @@ export async function notifyWatchManagers(
        LEFT JOIN firefighter_profiles fp ON fp.user_id = u.id
        WHERE u.role IN ('WC', 'CC')
          AND u.left_at IS NULL
-         AND ${atHomeStationSql("fp")}
+         AND ${onWatchHereSql("fp")}
          AND LOWER(COALESCE(u.watch_unit, fp.watch)) = LOWER($1)
          AND NOT (u.id = ANY($2::text[]))`,
       watch,

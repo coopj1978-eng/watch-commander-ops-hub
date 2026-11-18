@@ -25084,6 +25084,7 @@ var admin;
       this.listUsers = this.listUsers.bind(this);
       this.reactivateUser = this.reactivateUser.bind(this);
       this.reassignAssets = this.reassignAssets.bind(this);
+      this.setAdmin = this.setAdmin.bind(this);
     }
     async bootstrap(params) {
       const query = makeRecord({
@@ -25151,6 +25152,10 @@ var admin;
     }
     async reactivateUser(userId) {
       await this.baseClient.callTypedAPI("POST", `/api/admin/users/${encodeURIComponent(userId)}/reactivate`);
+    }
+    /** Give or take away admin access (admin only; hand-patched in, see backend/admin/set_admin.ts). */
+    async setAdmin(userId, params) {
+      await this.baseClient.callTypedAPI("PUT", `/api/admin/users/${encodeURIComponent(userId)}/admin`, JSON.stringify(params));
     }
     async reassignAssets(params) {
       await this.baseClient.callTypedAPI("POST", `/api/admin/reassign`, JSON.stringify(params));
@@ -43032,6 +43037,7 @@ function openingFilters(params, saved) {
   return filtersFromUrl(params) ?? parseSavedFilters(saved) ?? DEFAULT_PEOPLE_FILTERS;
 }
 const HOME_STATION = "B10 Springburn";
+const ADMIN_RANK = "Admin";
 const STATION_OPTIONS = [
   { value: "B01 Cowcaddens", label: "B01 Cowcaddens" },
   { value: "B02 Calton", label: "B02 Calton" },
@@ -48372,7 +48378,7 @@ function ProfileDetail() {
   });
   const personWatch = ((user2 == null ? void 0 : user2.watch_unit) || (profile2 == null ? void 0 : profile2.watch) || "").toLowerCase();
   const myWatch = ((currentUser == null ? void 0 : currentUser.watch_unit) || "").toLowerCase();
-  const isLineManager = !isViewingOwnProfile && isManager && !!myWatch && myWatch === personWatch;
+  const isLineManager = !isViewingOwnProfile && ((currentUser == null ? void 0 : currentUser.is_admin) === true || isManager && !!myWatch && myWatch === personWatch);
   const canSeeSickness = isViewingOwnProfile || isLineManager;
   const canSeeHours = isViewingOwnProfile || isManager;
   const { data: absencesData } = useQuery({
@@ -48799,7 +48805,8 @@ function ProfileDetail() {
         /* @__PURE__ */ jsxRuntimeExports.jsxs(ProfileSection, { id: "profile-details", title: "Details", ...sectionProps("details", canEdit && ["rank", "station", "watch", "service_number"].some(canEditField)), children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Field$2, { label: "Rank", children: editableValue("details", "rank", profile2.rank || "—", /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: selectCls, value: getDisplayValue("rank") || "", onChange: (e) => set({ rank: e.target.value }), children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", disabled: true, children: "Choose a rank" }),
-            RANKS$1.map((r2) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: r2, children: r2 }, r2))
+            RANKS$1.map((r2) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: r2, children: r2 }, r2)),
+            (isAdmin || getDisplayValue("rank") === ADMIN_RANK) && /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: ADMIN_RANK, children: "Admin (not on a watch)" })
           ] })) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Field$2, { label: "Watch", children: editableValue("details", "watch", watchValue ? `${watchValue} Watch` : "—", /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: selectCls, value: watchValue || "_none", onChange: (e) => set({ watch: e.target.value }), children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "_none", children: "No watch" }),
@@ -48809,6 +48816,7 @@ function ProfileDetail() {
             /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", disabled: true, children: "Choose a station or area" }),
             STATION_OPTIONS.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: s.value, children: s.label }, s.value))
           ] })) }),
+          getDisplayValue("rank") === ADMIN_RANK && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "rounded-lg bg-muted px-3 py-2 text-xs text-muted-foreground", children: "An admin account: it can see and change every watch, but it isn't crew, so it's off the crewing boards, the rotas and the staffing count." }),
           (() => {
             const station = (getDisplayValue("station") || "").trim();
             if (!station || station === HOME_STATION) return null;
@@ -56680,6 +56688,7 @@ function rewordLine(labels, idx, next) {
 function canEditTaskDetails(task2, user2, role) {
   if (!task2 || !(user2 == null ? void 0 : user2.id)) return false;
   if (task2.assigned_by === user2.id || task2.assigned_to_user_id === user2.id) return true;
+  if (user2.is_admin) return true;
   const sameWatch = !task2.watch_unit || task2.watch_unit.toLowerCase() === (user2.watch_unit ?? "").toLowerCase();
   return (role === "WC" || role === "CC") && sameWatch;
 }
@@ -68670,6 +68679,8 @@ function AdminUsers() {
   const [offboardingUser, setOffboardingUser] = reactExports.useState(null);
   const [deleteUser, setDeleteUser] = reactExports.useState(null);
   const [showInviteDialog, setShowInviteDialog] = reactExports.useState(false);
+  const [adminAsk, setAdminAsk] = reactExports.useState(null);
+  const { user: me } = useAuth();
   const { toast: toast2 } = useToast();
   const loadUsers = async () => {
     try {
@@ -68721,6 +68732,22 @@ function AdminUsers() {
         variant: "destructive",
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to delete user"
+      });
+    }
+  };
+  const handleSetAdmin = async (user2, isAdmin) => {
+    try {
+      await backendClient.admin.setAdmin(user2.id, { isAdmin });
+      toast2({
+        title: isAdmin ? `${user2.name} now has admin access` : `${user2.name} no longer has admin access`,
+        description: isAdmin ? "They can add and remove people, and see and change every watch." : void 0
+      });
+      await loadUsers();
+    } catch (error) {
+      toast2({
+        variant: "destructive",
+        title: "That didn't save",
+        description: error instanceof Error ? error.message : "Please try again."
       });
     }
   };
@@ -68784,12 +68811,23 @@ function AdminUsers() {
               ]
             }
           ) : /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", children: user2.role }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: user2.left_at ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", children: [
-            "Left ",
-            new Date(user2.left_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
-          ] }) : user2.is_active ? /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: "bg-green-500", children: "Active" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "border-amber-400 text-amber-700 dark:text-amber-400", children: "Not signed up yet" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(TableCell, { children: [
+            user2.is_admin && !user2.left_at && /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: "mr-1.5 bg-indigo-600", children: "Admin" }),
+            user2.left_at ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", children: [
+              "Left ",
+              new Date(user2.left_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+            ] }) : user2.is_active ? /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: "bg-green-500", children: "Active" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "border-amber-400 text-amber-700 dark:text-amber-400", children: "Not signed up yet" })
+          ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: formatDate(user2.last_login_at) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "text-right", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 justify-end", children: [
+            !user2.left_at && user2.role === "WC" && !user2.is_admin && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { size: "sm", variant: "outline", onClick: () => setAdminAsk({ user: user2, isAdmin: true }), children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldCheck, { className: "w-4 h-4 mr-1" }),
+              "Make admin"
+            ] }),
+            !user2.left_at && user2.is_admin && user2.id !== (me == null ? void 0 : me.id) && user2.rank !== "Admin" && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { size: "sm", variant: "outline", onClick: () => setAdminAsk({ user: user2, isAdmin: false }), children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldOff, { className: "w-4 h-4 mr-1" }),
+              "Remove admin"
+            ] }),
             !user2.left_at ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
               Button,
               {
@@ -68846,6 +68884,26 @@ function AdminUsers() {
           onSuccess: loadUsers
         }
       ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialog, { open: !!adminAsk, onOpenChange: (open) => !open && setAdminAsk(null), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogContent, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogHeader, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogTitle, { children: (adminAsk == null ? void 0 : adminAsk.isAdmin) ? `Give ${adminAsk.user.name} admin access?` : `Take admin access away from ${adminAsk == null ? void 0 : adminAsk.user.name}?` }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogDescription, { children: (adminAsk == null ? void 0 : adminAsk.isAdmin) ? "They'll be able to add, remove and invite people, give others admin access, and see and change every watch, including sickness records. Notes & 1:1s stay private to whoever wrote them." : "They keep their Watch Commander access to their own watch, but can no longer manage accounts or other watches' records." })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogFooter, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogCancel, { children: "Cancel" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            AlertDialogAction,
+            {
+              onClick: () => {
+                const a = adminAsk;
+                setAdminAsk(null);
+                if (a) handleSetAdmin(a.user, a.isAdmin);
+              },
+              children: (adminAsk == null ? void 0 : adminAsk.isAdmin) ? "Give admin access" : "Remove admin access"
+            }
+          )
+        ] })
+      ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialog, { open: !!deleteUser, onOpenChange: (open) => !open && setDeleteUser(null), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogContent, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogHeader, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogTitle, { children: "Permanently Delete User" }),

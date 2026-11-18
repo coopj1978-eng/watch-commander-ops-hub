@@ -19,7 +19,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { UserPlus, UserX, UserCheck, Trash2 } from "lucide-react";
+import { ShieldCheck, ShieldOff, UserPlus, UserX, UserCheck, Trash2 } from "lucide-react";
+import { useAuth } from "@/App";
 import { useToast } from "@/components/ui/use-toast";
 import { OffboardingWizard } from "@/components/OffboardingWizard";
 import { InviteUserDialog } from "@/components/InviteUserDialog";
@@ -40,6 +41,8 @@ export function AdminUsers() {
   const [offboardingUser, setOffboardingUser] = useState<User | null>(null);
   const [deleteUser, setDeleteUser] = useState<User | null>(null);
   const [showInviteDialog, setShowInviteDialog] = useState(false);
+  const [adminAsk, setAdminAsk] = useState<{ user: User; isAdmin: boolean } | null>(null);
+  const { user: me } = useAuth();
   const { toast } = useToast();
 
   const loadUsers = async () => {
@@ -95,6 +98,23 @@ export function AdminUsers() {
         variant: "destructive",
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to delete user",
+      });
+    }
+  };
+
+  const handleSetAdmin = async (user: User, isAdmin: boolean) => {
+    try {
+      await backend.admin.setAdmin(user.id, { isAdmin });
+      toast({
+        title: isAdmin ? `${user.name} now has admin access` : `${user.name} no longer has admin access`,
+        description: isAdmin ? "They can add and remove people, and see and change every watch." : undefined,
+      });
+      await loadUsers();
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "That didn't save",
+        description: error instanceof Error ? error.message : "Please try again.",
       });
     }
   };
@@ -183,6 +203,7 @@ export function AdminUsers() {
                     )}
                   </TableCell>
                   <TableCell>
+                    {user.is_admin && !user.left_at && <Badge className="mr-1.5 bg-indigo-600">Admin</Badge>}
                     {user.left_at ? (
                       <Badge variant="outline">Left {new Date(user.left_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</Badge>
                     ) : user.is_active ? (
@@ -194,6 +215,19 @@ export function AdminUsers() {
                   <TableCell>{formatDate(user.last_login_at)}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex gap-2 justify-end">
+                      {/* Admin access: a Watch Commander can be given it; nobody takes away their own. */}
+                      {!user.left_at && user.role === "WC" && !user.is_admin && (
+                        <Button size="sm" variant="outline" onClick={() => setAdminAsk({ user, isAdmin: true })}>
+                          <ShieldCheck className="w-4 h-4 mr-1" />
+                          Make admin
+                        </Button>
+                      )}
+                      {!user.left_at && user.is_admin && user.id !== me?.id && user.rank !== "Admin" && (
+                        <Button size="sm" variant="outline" onClick={() => setAdminAsk({ user, isAdmin: false })}>
+                          <ShieldOff className="w-4 h-4 mr-1" />
+                          Remove admin
+                        </Button>
+                      )}
                       {!user.left_at ? (
                         <Button
                           size="sm"
@@ -250,6 +284,29 @@ export function AdminUsers() {
       />
 
       {/* Delete confirmation dialog */}
+      <AlertDialog open={!!adminAsk} onOpenChange={(open) => !open && setAdminAsk(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {adminAsk?.isAdmin ? `Give ${adminAsk.user.name} admin access?` : `Take admin access away from ${adminAsk?.user.name}?`}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {adminAsk?.isAdmin
+                ? "They'll be able to add, remove and invite people, give others admin access, and see and change every watch, including sickness records. Notes & 1:1s stay private to whoever wrote them."
+                : "They keep their Watch Commander access to their own watch, but can no longer manage accounts or other watches' records."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => { const a = adminAsk; setAdminAsk(null); if (a) handleSetAdmin(a.user, a.isAdmin); }}
+            >
+              {adminAsk?.isAdmin ? "Give admin access" : "Remove admin access"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <AlertDialog open={!!deleteUser} onOpenChange={(open) => !open && setDeleteUser(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>

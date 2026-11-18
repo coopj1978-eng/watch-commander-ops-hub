@@ -64,7 +64,7 @@ export const strength = api<StrengthRequest, StrengthResponse>(
     if (!watchShiftOn(req.watch, req.start_date)) throw APIError.invalidArgument("Unknown watch");
 
     const viewer = await absenceViewer();
-    const ownWatch = !!viewer.watch && viewer.watch.toLowerCase() === req.watch.toLowerCase();
+    const ownWatch = viewer.isAdmin === true || (!!viewer.watch && viewer.watch.toLowerCase() === req.watch.toLowerCase());
 
     const { roster, absences, adjustments, detached, quals } = await loadStrengthData(req.watch, req.start_date, req.end_date);
 

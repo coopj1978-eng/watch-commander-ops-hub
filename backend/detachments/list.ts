@@ -1,6 +1,6 @@
 import { api } from "encore.dev/api";
 import db, { type SQLPrimitive } from "../db";
-import { atHomeStationSql } from "../lib/station";
+import { onWatchHereSql } from "../lib/station";
 import type {
   ListDetachmentsRequest,
   ListDetachmentsResponse,
@@ -100,7 +100,7 @@ export const getRota = api<GetRotaRequest, GetRotaResponse>(
        ) d ON true
        WHERE LOWER(u.watch_unit) = LOWER($1)
          AND u.left_at IS NULL
-         AND ${atHomeStationSql("hp")}
+         AND ${onWatchHereSql("hp")}
          -- Firefighters only (John, 17 Nov 2026): Watch and Crew Commanders
          -- arrange their own detached duty, so they aren't in the running.
          AND u.role = 'FF'

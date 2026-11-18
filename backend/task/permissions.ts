@@ -30,6 +30,8 @@ export async function assertCanModifyTask(taskId: number, boardMoveOnly = false)
   const isOwner = task.assigned_by === auth.userID || task.assigned_to_user_id === auth.userID;
 
   if (isOwner) return "full";
+  // An admin can change any card, on any watch (John, 18 Nov 2026).
+  if (auth.isAdmin) return "full";
   if (isManager && sameWatch) return "full";
   // Working the board (moving a card, ticking its checklist) is for the
   // watch's own members — and for anyone working the shift on duty now

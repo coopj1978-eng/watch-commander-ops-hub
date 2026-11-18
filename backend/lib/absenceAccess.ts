@@ -2,13 +2,15 @@ import { APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db, { type SQLPrimitive } from "../db";
 import { notifyWatchManagers } from "../notification/helpers";
-import { atHomeStationSql, HOME_STATION } from "./station";
+import { ADMIN_RANK, onWatchHereSql, HOME_STATION } from "./station";
 
 // Who may see and change absence (sickness) records.
 //
 //   • Everyone can see their own records — and only see them.
 //   • A WC or CC can see and change the records of people on their own
 //     watch (their line managers). Nobody manages their own.
+//   • An admin can see and change everyone's, on every watch (John,
+//     18 Nov 2026) — but, like everyone, not manage their own.
 //   • Nobody else can see them at all: not other firefighters, and not
 //     WCs/CCs on other watches.
 //
@@ -20,6 +22,8 @@ export interface AbsenceViewer {
   isManager: boolean;
   /** The WC/CC's own watch; null for firefighters (or a manager with none). */
   watch: string | null;
+  /** An admin sees and manages every watch's records. */
+  isAdmin?: boolean;
 }
 
 async function watchOf(userId: string): Promise<string | null> {
@@ -28,6 +32,7 @@ async function watchOf(userId: string): Promise<string | null> {
   const row = await db.queryRow<{ watch: string | null }>`
     SELECT CASE
              WHEN COALESCE(NULLIF(TRIM(fp.station), ''), ${HOME_STATION}) = ${HOME_STATION}
+              AND COALESCE(fp.rank, '') <> ${ADMIN_RANK}
              THEN COALESCE(u.watch_unit, fp.watch)
            END AS watch
     FROM users u
@@ -44,12 +49,15 @@ export async function absenceViewer(): Promise<AbsenceViewer> {
     userID: auth.userID,
     isManager,
     watch: isManager ? await watchOf(auth.userID) : null,
+    isAdmin: auth.isAdmin === true,
   };
 }
 
-/** A WC/CC on the person's watch — never the person themself. */
+/** A WC/CC on the person's watch, or an admin — never the person themself. */
 export async function canManageAbsencesOf(viewer: AbsenceViewer, personId: string): Promise<boolean> {
-  if (personId === viewer.userID || !viewer.isManager || !viewer.watch) return false;
+  if (personId === viewer.userID) return false;
+  if (viewer.isAdmin) return true;
+  if (!viewer.isManager || !viewer.watch) return false;
   const watch = await watchOf(personId);
   return !!watch && watch.toLowerCase() === viewer.watch.toLowerCase();
 }
@@ -78,12 +86,17 @@ export async function assertCanViewAbsencesOf(viewer: AbsenceViewer, personId: s
 /** Ids of everyone whose absence records the viewer may see. */
 export async function visiblePersonIds(viewer: AbsenceViewer): Promise<Set<string>> {
   const ids = new Set([viewer.userID]);
+  if (viewer.isAdmin) {
+    const rows = await db.rawQueryAll<{ id: string }>(`SELECT id FROM users`);
+    for (const r of rows) ids.add(r.id);
+    return ids;
+  }
   if (viewer.isManager && viewer.watch) {
     const rows = await db.rawQueryAll<{ id: string }>(
       `SELECT u.id FROM users u
        LEFT JOIN firefighter_profiles fp ON fp.user_id = u.id
        WHERE LOWER(COALESCE(u.watch_unit, fp.watch)) = LOWER($1)
-         AND ${atHomeStationSql("fp")}`,
+         AND ${onWatchHereSql("fp")}`,
       viewer.watch
     );
     for (const r of rows) ids.add(r.id);

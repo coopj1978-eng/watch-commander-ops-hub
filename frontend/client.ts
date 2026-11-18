@@ -679,6 +679,7 @@ export namespace admin {
             this.listUsers = this.listUsers.bind(this)
             this.reactivateUser = this.reactivateUser.bind(this)
             this.reassignAssets = this.reassignAssets.bind(this)
+            this.setAdmin = this.setAdmin.bind(this)
         }
 
         public async bootstrap(params: BootstrapRequest): Promise<BootstrapResponse> {
@@ -776,6 +777,11 @@ export namespace admin {
 
         public async reactivateUser(userId: string): Promise<void> {
             await this.baseClient.callTypedAPI("POST", `/api/admin/users/${encodeURIComponent(userId)}/reactivate`)
+        }
+
+        /** Give or take away admin access (admin only; hand-patched in, see backend/admin/set_admin.ts). */
+        public async setAdmin(userId: string, params: { isAdmin: boolean }): Promise<void> {
+            await this.baseClient.callTypedAPI("PUT", `/api/admin/users/${encodeURIComponent(userId)}/admin`, JSON.stringify(params))
         }
 
         public async reassignAssets(params: ReassignAssetsRequest): Promise<void> {

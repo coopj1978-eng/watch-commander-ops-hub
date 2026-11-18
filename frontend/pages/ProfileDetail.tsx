@@ -2,7 +2,7 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useBackend } from "@/lib/rbac";
-import { HOME_STATION, STATION_OPTIONS } from "@/lib/constants";
+import { ADMIN_RANK, HOME_STATION, STATION_OPTIONS } from "@/lib/constants";
 import type { FirefighterProfile, UpdateProfileRequest, DriverPathwayStatus } from "~backend/profile/types";
 import SkillsTab from "@/components/SkillsTab";
 import { Button } from "@/components/ui/button";
@@ -112,7 +112,8 @@ export default function ProfileDetail() {
   // or change it (the backend enforces the same rule).
   const personWatch = (user?.watch_unit || profile?.watch || "").toLowerCase();
   const myWatch = (currentUser?.watch_unit || "").toLowerCase();
-  const isLineManager = !isViewingOwnProfile && isManager && !!myWatch && myWatch === personWatch;
+  // An admin sees and manages every watch's (never their own).
+  const isLineManager = !isViewingOwnProfile && (currentUser?.is_admin === true || (isManager && !!myWatch && myWatch === personWatch));
   const canSeeSickness = isViewingOwnProfile || isLineManager;
   // TOIL and shift adjustments: the person, or a WC/CC.
   const canSeeHours = isViewingOwnProfile || isManager;
@@ -563,6 +564,8 @@ export default function ProfileDetail() {
                   <select className={selectCls} value={getDisplayValue("rank") || ""} onChange={(e) => set({ rank: e.target.value })}>
                     <option value="" disabled>Choose a rank</option>
                     {RANKS.map((r) => <option key={r} value={r}>{r}</option>)}
+                    {/* Admin: only an admin can give it (or it's what they already are). */}
+                    {(isAdmin || getDisplayValue("rank") === ADMIN_RANK) && <option value={ADMIN_RANK}>Admin (not on a watch)</option>}
                   </select>
                 ))}
               </Field>
@@ -582,6 +585,11 @@ export default function ProfileDetail() {
                   </select>
                 ))}
               </Field>
+              {getDisplayValue("rank") === ADMIN_RANK && (
+                <p className="rounded-lg bg-muted px-3 py-2 text-xs text-muted-foreground">
+                  An admin account: it can see and change every watch, but it isn't crew, so it's off the crewing boards, the rotas and the staffing count.
+                </p>
+              )}
               {/* This hub is Springburn's: someone at another station keeps their record but isn't on a watch here. */}
               {(() => {
                 const station = ((getDisplayValue("station") as string) || "").trim();
