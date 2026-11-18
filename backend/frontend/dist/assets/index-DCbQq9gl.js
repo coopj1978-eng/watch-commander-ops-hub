@@ -35397,6 +35397,8 @@ function ShiftHero() {
   const canOpen = useCanOpen();
   const status = watch ? getWatchShiftStatus(watch, now) : null;
   const crewShift = crewingShiftFor(watch, now);
+  const boardShift = crewingBoardShiftFor(watch, now);
+  const nextBoard = (boardShift == null ? void 0 : boardShift.running) ? boardShift : null;
   const crewingQ = useQuery({
     queryKey: ["wc-shift-crewing", watch, (crewShift == null ? void 0 : crewShift.shiftDate) ?? "", crewShift == null ? void 0 : crewShift.shiftType],
     queryFn: () => backendClient.crewing.list({ watch, shift_date: crewShift.shiftDate, shift_type: crewShift.shiftType }),
@@ -35557,6 +35559,24 @@ function ShiftHero() {
                     to: crewShift ? `/handover?tab=crewing&date=${crewShift.shiftDate}&shift=${encodeURIComponent(crewShift.shiftType)}` : "/handover",
                     className: "shrink-0 font-medium text-white hover:underline",
                     children: isManager ? entries.length ? "Edit crewing →" : "Set crewing →" : "Crewing →"
+                  }
+                )
+              ] }),
+              nextBoard && canOpen("/handover") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 flex items-center justify-between gap-3 text-sm", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "truncate text-white/70", children: [
+                  "Next shift: ",
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-semibold text-white", children: [
+                    nextBoard.shiftType,
+                    " · ",
+                    (/* @__PURE__ */ new Date(nextBoard.shiftDate + "T12:00:00")).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  Link,
+                  {
+                    to: `/handover?tab=crewing&date=${nextBoard.shiftDate}&shift=${encodeURIComponent(nextBoard.shiftType)}`,
+                    className: "shrink-0 font-medium text-white hover:underline",
+                    children: isManager ? "Set next crewing →" : "Next crewing →"
                   }
                 )
               ] })
@@ -74598,23 +74618,49 @@ function CrewingBoard({ onOpenCanteenRota } = {}) {
       (() => {
         const opening = crewingBoardShiftFor(watch);
         const running = opening == null ? void 0 : opening.running;
-        if (!running || opening.shiftDate !== shiftDate || opening.shiftType !== shiftType) return null;
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { role: "status", className: "flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-border bg-muted/50 px-3.5 py-2.5 text-sm print:hidden", children: [
+        if (!running) return null;
+        const tonight = running.shiftType.includes("Night");
+        const strip = "flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-border bg-muted/50 px-3.5 py-2.5 text-sm print:hidden";
+        if (opening.shiftDate === shiftDate && opening.shiftType === shiftType) {
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { role: "status", className: strip, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "min-w-0 flex-1", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold", children: "This is your next shift's board." }),
+              " ",
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-muted-foreground", children: [
+                tonight ? "Tonight's" : "Today's",
+                " ",
+                running.shiftType,
+                " is still on duty."
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", size: "sm", className: "h-9", onClick: () => {
+              setShiftDate(running.shiftDate);
+              setShiftType(running.shiftType);
+              setActiveSlotId(null);
+            }, children: tonight ? "Tonight's board" : "Today's board" })
+          ] });
+        }
+        if (running.shiftDate !== shiftDate || running.shiftType !== shiftType) return null;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { role: "status", className: strip, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "min-w-0 flex-1", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold", children: "This is your next shift's board." }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-semibold", children: [
+              tonight ? "Tonight's" : "Today's",
+              " board."
+            ] }),
             " ",
             /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-muted-foreground", children: [
-              running.shiftType.includes("Night") ? "Tonight's" : "Today's",
-              " ",
-              running.shiftType,
-              " is still on duty."
+              "Next shift: ",
+              opening.shiftType,
+              ", ",
+              format(parseISO(opening.shiftDate), "EEE d MMM"),
+              "."
             ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", size: "sm", className: "h-9", onClick: () => {
-            setShiftDate(running.shiftDate);
-            setShiftType(running.shiftType);
+            setShiftDate(opening.shiftDate);
+            setShiftType(opening.shiftType);
             setActiveSlotId(null);
-          }, children: running.shiftType.includes("Night") ? "Tonight's board" : "Today's board" })
+          }, children: "Next shift's board" })
         ] });
       })(),
       seatLine && /* @__PURE__ */ jsxRuntimeExports.jsx(MySeatStrip, { line: seatLine }),

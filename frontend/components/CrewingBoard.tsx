@@ -2462,15 +2462,33 @@ export default function CrewingBoard({ onOpenCanteenRota }: { onOpenCanteenRota?
         {(() => {
           const opening = crewingBoardShiftFor(watch);
           const running = opening?.running;
-          if (!running || opening.shiftDate !== shiftDate || opening.shiftType !== shiftType) return null;
+          if (!running) return null;
+          const tonight = running.shiftType.includes("Night");
+          const strip = "flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-border bg-muted/50 px-3.5 py-2.5 text-sm print:hidden";
+          if (opening.shiftDate === shiftDate && opening.shiftType === shiftType) {
+            return (
+              <div role="status" className={strip}>
+                <span className="min-w-0 flex-1">
+                  <span className="font-semibold">This is your next shift's board.</span>{" "}
+                  <span className="text-muted-foreground">{tonight ? "Tonight's" : "Today's"} {running.shiftType} is still on duty.</span>
+                </span>
+                <Button variant="outline" size="sm" className="h-9" onClick={() => { setShiftDate(running.shiftDate); setShiftType(running.shiftType); setActiveSlotId(null); }}>
+                  {tonight ? "Tonight's board" : "Today's board"}
+                </Button>
+              </div>
+            );
+          }
+          // On the shift still on duty (from Home, or the button above): the
+          // next shift's board is one tap back.
+          if (running.shiftDate !== shiftDate || running.shiftType !== shiftType) return null;
           return (
-            <div role="status" className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-border bg-muted/50 px-3.5 py-2.5 text-sm print:hidden">
+            <div role="status" className={strip}>
               <span className="min-w-0 flex-1">
-                <span className="font-semibold">This is your next shift's board.</span>{" "}
-                <span className="text-muted-foreground">{running.shiftType.includes("Night") ? "Tonight's" : "Today's"} {running.shiftType} is still on duty.</span>
+                <span className="font-semibold">{tonight ? "Tonight's" : "Today's"} board.</span>{" "}
+                <span className="text-muted-foreground">Next shift: {opening.shiftType}, {format(parseISO(opening.shiftDate), "EEE d MMM")}.</span>
               </span>
-              <Button variant="outline" size="sm" className="h-9" onClick={() => { setShiftDate(running.shiftDate); setShiftType(running.shiftType); setActiveSlotId(null); }}>
-                {running.shiftType.includes("Night") ? "Tonight's board" : "Today's board"}
+              <Button variant="outline" size="sm" className="h-9" onClick={() => { setShiftDate(opening.shiftDate); setShiftType(opening.shiftType); setActiveSlotId(null); }}>
+                Next shift's board
               </Button>
             </div>
           );

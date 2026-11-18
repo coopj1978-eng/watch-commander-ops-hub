@@ -5,7 +5,7 @@ import { useAuth } from "@/App";
 import backend from "@/lib/backend";
 import { useCanOpen } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
-import { crewingShiftFor, getWatchShiftStatus, type ShiftDay } from "@/lib/shiftRota";
+import { crewingBoardShiftFor, crewingShiftFor, getWatchShiftStatus, type ShiftDay } from "@/lib/shiftRota";
 import { latestAbsencePerPerson, useTodaysAbsences } from "@/lib/absences";
 import { ShiftWeather } from "@/components/home/ShiftWeather";
 import { useMyShifts } from "@/components/home/MyNextShifts";
@@ -217,6 +217,10 @@ export function ShiftHero() {
 
   const status = watch ? getWatchShiftStatus(watch, now) : null;
   const crewShift = crewingShiftFor(watch, now);
+  // Towards the end of a shift the Crewing page moves on to the next shift's
+  // board, so it can be made up before going off. Offer it here too.
+  const boardShift = crewingBoardShiftFor(watch, now);
+  const nextBoard = boardShift?.running ? boardShift : null;
 
   const crewingQ = useQuery({
     queryKey: ["wc-shift-crewing", watch, crewShift?.shiftDate ?? "", crewShift?.shiftType],
@@ -405,6 +409,19 @@ export function ShiftHero() {
                   </Link>
                 )}
               </div>
+              {nextBoard && canOpen("/handover") && (
+                <div className="mt-3 flex items-center justify-between gap-3 text-sm">
+                  <span className="truncate text-white/70">
+                    Next shift: <span className="font-semibold text-white">{nextBoard.shiftType} · {new Date(nextBoard.shiftDate + "T12:00:00").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}</span>
+                  </span>
+                  <Link
+                    to={`/handover?tab=crewing&date=${nextBoard.shiftDate}&shift=${encodeURIComponent(nextBoard.shiftType)}`}
+                    className="shrink-0 font-medium text-white hover:underline"
+                  >
+                    {isManager ? "Set next crewing →" : "Next crewing →"}
+                  </Link>
+                </div>
+              )}
             </>
           ) : (
             <div className="mt-6 flex flex-col items-start gap-2 text-sm text-white/60">
