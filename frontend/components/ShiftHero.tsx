@@ -410,8 +410,8 @@ export function ShiftHero() {
                 )}
               </div>
               {nextBoard && canOpen("/handover") && (
-                <div className="mt-3 flex items-center justify-between gap-3 text-sm">
-                  <span className="truncate text-white/70">
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm">
+                  <span className="text-white/70">
                     Next shift: <span className="font-semibold text-white">{nextBoard.shiftType} · {new Date(nextBoard.shiftDate + "T12:00:00").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}</span>
                   </span>
                   <Link

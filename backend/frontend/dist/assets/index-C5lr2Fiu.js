@@ -35562,8 +35562,8 @@ function ShiftHero() {
                   }
                 )
               ] }),
-              nextBoard && canOpen("/handover") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 flex items-center justify-between gap-3 text-sm", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "truncate text-white/70", children: [
+              nextBoard && canOpen("/handover") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-white/70", children: [
                   "Next shift: ",
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-semibold text-white", children: [
                     nextBoard.shiftType,
