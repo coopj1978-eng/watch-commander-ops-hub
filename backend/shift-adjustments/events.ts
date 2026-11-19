@@ -1,4 +1,6 @@
+import { APIError } from "encore.dev/api";
 import db from "../db";
+import { overtimeHoursProblem } from "../lib/overtime";
 
 /** Shape of a shift_adjustments row as far as event/cascade logic needs it. */
 export interface AdjustmentRow {
@@ -12,6 +14,7 @@ export interface AdjustmentRow {
   covering_watch?: string | null;
   shift_day_night?: string | null;
   toil_hours?: number | string | null;
+  overtime_hours?: number | string | null;
   created_by_user_id: string;
 }
 
@@ -45,6 +48,12 @@ export function sanitiseText(value: string): string {
     if (code === 0x2028 || code === 0x2029) return false;
     return true;
   }).join("");
+}
+
+/** Overtime hours must be half-hours, from half an hour to a whole day. */
+export function assertOvertimeHours(hours: number | undefined | null): void {
+  const problem = overtimeHoursProblem(hours);
+  if (problem) throw APIError.invalidArgument(problem);
 }
 
 export function spentReasonFor(coveringName: string | null | undefined): string {
@@ -110,6 +119,32 @@ export async function insertAdjustmentEvents(
       userId: adj.user_id,
       isWatchEvent: true,
       watch: adj.covering_watch ?? null,
+    });
+    return;
+  }
+
+  if (adj.type === "overtime") {
+    // On your own calendar, and on the calendar of the watch worked with.
+    const shiftLabel = adj.shift_day_night ?? "Day";
+    const hrs = adj.overtime_hours != null ? `${Number(adj.overtime_hours)}hrs` : "";
+    const withWatch = adj.covering_watch ?? owner.watch_unit;
+    await insertEvent({
+      ...base,
+      title: `Overtime ${hrs} · ${shiftLabel} Shift (${withWatch} Watch)`,
+      eventType: "personal",
+      visibility: "personal",
+      userId: adj.user_id,
+      isWatchEvent: false,
+      watch: owner.watch_unit,
+    });
+    await insertEvent({
+      ...base,
+      title: `${owner.name} – Overtime ${hrs} (${shiftLabel} Shift)`,
+      eventType: "personal",
+      visibility: "watch",
+      userId: adj.user_id,
+      isWatchEvent: true,
+      watch: withWatch,
     });
     return;
   }
@@ -274,7 +309,7 @@ export function canModifyAdjustment(
 export async function loadAdjustment(id: number): Promise<(AdjustmentRow & { watch_unit: string }) | null> {
   return db.queryRow<AdjustmentRow & { watch_unit: string }>`
     SELECT id, user_id, type, start_date, end_date, covering_user_id, covering_name,
-           covering_watch, shift_day_night, toil_hours, created_by_user_id, watch_unit
+           covering_watch, shift_day_night, toil_hours, overtime_hours, created_by_user_id, watch_unit
     FROM shift_adjustments WHERE id = ${id}
   `;
 }

@@ -3,7 +3,7 @@ import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { createNotification } from "../notification/helpers";
 import type { ShiftAdjustment, ShiftAdjustmentType } from "./types";
-import { insertAdjustmentEvents, spentReasonFor } from "./events";
+import { assertOvertimeHours, insertAdjustmentEvents, spentReasonFor } from "./events";
 
 export interface CreateShiftAdjustmentRequest {
   type: ShiftAdjustmentType;
@@ -14,6 +14,7 @@ export interface CreateShiftAdjustmentRequest {
   covering_watch?: string;        // for flexi_payback / orange_day
   shift_day_night?: "Day" | "Night"; // for flexi_payback / orange_day
   toil_hours?: number;            // for toil: how many hours being used (min 4)
+  overtime_hours?: number;        // for overtime: hours worked (with covering_watch + shift_day_night)
   notes?: string;
   for_user_id?: string;           // WC/CC can log on behalf of another user
 }
@@ -71,6 +72,16 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
       }
     }
 
+    // Overtime is one shift (or part of one) with a watch; its hours are what
+    // gets added up each month.
+    const isOvertime = req.type === "overtime";
+    if (isOvertime) {
+      assertOvertimeHours(req.overtime_hours);
+      if (!req.covering_watch) throw APIError.invalidArgument("Say which watch the overtime is with.");
+      if (!req.shift_day_night) throw APIError.invalidArgument("Say whether the overtime is on a day or a night shift.");
+      req.end_date = req.start_date;
+    }
+
     if (new Date(req.end_date) < new Date(req.start_date)) {
       throw APIError.invalidArgument("End date must be on or after start date.");
     }
@@ -82,7 +93,7 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
           user_id, type, start_date, end_date,
           covering_user_id, covering_name,
           covering_watch, shift_day_night,
-          toil_hours,
+          toil_hours, overtime_hours,
           watch_unit, notes, created_by_user_id
         ) VALUES (
           ${targetUserId},
@@ -94,6 +105,7 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
           ${req.covering_watch || null},
           ${req.shift_day_night || null},
           ${req.toil_hours || null},
+          ${isOvertime ? req.overtime_hours! : null},
           ${userInfo.watch_unit},
           ${req.notes || null},
           ${auth.userID}
@@ -191,6 +203,7 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
       const typeLabel =
         req.type === "training"      ? "Training"      :
         req.type === "toil"          ? "TOIL"          :
+        req.type === "overtime"      ? "Overtime"      :
         req.type === "flexi_payback" ? "Flexi Payback" : "Orange Day";
 
       const startStr = new Date(req.start_date).toLocaleDateString("en-GB");
@@ -229,6 +242,8 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
         message += ` ${req.toil_hours}hrs TOIL used. Covered by ${coverLabel}.`;
       } else if (isFlexiPayback) {
         message += ` They will cover ${notifyWatch} Watch.`;
+      } else if (isOvertime) {
+        message += ` ${req.overtime_hours}hrs with ${req.covering_watch} Watch.`;
       }
 
       for await (const wc of wcUsers) {

@@ -1322,7 +1322,7 @@ function RosterPanel({
   absentIds: Set<string>;
   adjustmentByUserId: Map<string, ShiftAdjType>;
   h4hCovers: { name: string; userId?: string }[];
-  inboundCovers: { name: string; userId: string; type: "flexi_payback" | "orange_day"; shiftDayNight?: "Day" | "Night"; watchUnit: string }[];
+  inboundCovers: { name: string; userId: string; type: "flexi_payback" | "orange_day" | "overtime"; shiftDayNight?: "Day" | "Night"; watchUnit: string }[];
   isLoading: boolean;
   watch: string;
   canEdit: boolean;
@@ -1517,8 +1517,9 @@ function RosterPanel({
                       hooklift_operator: false,
                     };
                     const isOrange = cover.type === "orange_day";
-                    const label    = isOrange ? "Orange Day" : "Flexi PB";
-                    const textCls  = isOrange ? "text-orange-600" : "text-teal-600";
+                    const isOvertime = cover.type === "overtime";
+                    const label    = isOvertime ? "Overtime" : isOrange ? "Orange Day" : "Flexi PB";
+                    const textCls  = isOvertime ? "text-sky-600" : isOrange ? "text-orange-600" : "text-teal-600";
                     return (
                       <div key={cover.userId} className="flex flex-col items-center">
                         <DraggableTile
@@ -2194,19 +2195,21 @@ export default function CrewingBoard({ onOpenCanteenRota }: { onOpenCanteenRota?
     const result: {
       name: string;
       userId: string;
-      type: "flexi_payback" | "orange_day";
+      type: "flexi_payback" | "orange_day" | "overtime";
       shiftDayNight: "Day" | "Night" | undefined;
       watchUnit: string;
     }[] = [];
     for (const a of (inboundAdjData?.adjustments ?? []) as any[]) {
       if (!adjMatchesShift(a)) continue;
       if (!a.user_id) continue;
+      // Overtime with your own watch: you're on its roster already.
+      if (a.type === "overtime" && String(a.watch_unit ?? "").toLowerCase() === watch.toLowerCase()) continue;
       if (seen.has(a.user_id)) continue;
       seen.add(a.user_id);
       result.push({
         name: a.user_name || "Cover",
         userId: a.user_id,
-        type: a.type as "flexi_payback" | "orange_day",
+        type: a.type as "flexi_payback" | "orange_day" | "overtime",
         shiftDayNight: a.shift_day_night as "Day" | "Night" | undefined,
         watchUnit: a.watch_unit,
       });

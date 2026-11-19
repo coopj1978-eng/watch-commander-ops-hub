@@ -1,4 +1,4 @@
-export type ShiftAdjustmentType = "flexi" | "training" | "h4h" | "flexi_payback" | "orange_day" | "toil";
+export type ShiftAdjustmentType = "flexi" | "training" | "h4h" | "flexi_payback" | "orange_day" | "toil" | "overtime";
 
 export interface ShiftAdjustment {
   id: number;
@@ -14,6 +14,7 @@ export interface ShiftAdjustment {
   covering_watch?: string;
   shift_day_night?: "Day" | "Night";
   toil_hours?: number;          // how many TOIL hours used for this shift
+  overtime_hours?: number;      // overtime: hours worked (added up per month)
   watch_unit: string;
   notes?: string;
   created_by_user_id: string;

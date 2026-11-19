@@ -15,8 +15,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  CalendarDays, Users, GraduationCap, ArrowLeftRight, Loader2, X, RefreshCw, Sun, Pencil, Clock, Trash2,
+  CalendarDays, Users, GraduationCap, ArrowLeftRight, Loader2, X, RefreshCw, Sun, Pencil, Clock, Trash2, Timer, Minus, Plus,
 } from "lucide-react";
+import { hoursText, monthName, monthOf, overtimeIn, shiftHours } from "@/lib/overtime";
 import type { shift_adjustments } from "@/client";
 import { CALENDAR_EVENTS_KEY } from "@/lib/calendarQueries";
 import { rotaDayNight } from "@/lib/shiftRota";
@@ -81,6 +82,14 @@ const TYPE_CONFIG: Record<AdjType, {
     border: "border-emerald-300 dark:border-emerald-700",
     description: "Use your banked TOIL hours for a shift off. Someone covers for you and receives payment (min 4hrs).",
   },
+  overtime: {
+    label: "Overtime",
+    icon: Timer,
+    color: "text-sky-600 dark:text-sky-400",
+    bg: "bg-sky-50 dark:bg-sky-950/40",
+    border: "border-sky-300 dark:border-sky-700",
+    description: "Extra hours worked — a whole shift or part of one. The hours are added up for each month.",
+  },
 };
 
 const WATCHES = ["Red", "White", "Green", "Blue", "Amber"] as const;
@@ -130,6 +139,11 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
   // Orange Day shift selector
   const [orangeShift, setOrangeShift] = useState<"Day" | "Night">("Day");
 
+  // Overtime: the watch worked with, the shift, and the hours.
+  const [overtimeWatch, setOvertimeWatch] = useState("");
+  const [overtimeShift, setOvertimeShift] = useState<"Day" | "Night">("Day");
+  const [overtimeHours, setOvertimeHours] = useState(shiftHours("Day"));
+
   // Outbound shift selector — used by H4H + TOIL where the person is going
   // OFF a single shift. Drives whether the calendar event lands on the
   // start date only (Night shifts that physically span 2 calendar dates)
@@ -162,6 +176,9 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
       setInboundWatch("");
       setInboundShift("Day");
       setOrangeShift("Day");
+      setOvertimeWatch("");
+      setOvertimeShift("Day");
+      setOvertimeHours(shiftHours("Day"));
       setOutboundShift("Day");
       setToilHours(4);
       setForAnother(false);
@@ -218,17 +235,21 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
 
       const isFlexiPayback = type === "flexi_payback";
       const isOrangeDay = type === "orange_day";
+      const isOvertime = type === "overtime";
       const isToil = type === "toil";
       const isH4h = type === "h4h";
       const isOutbound = isToil || isH4h;
+      const noCover = isFlexiPayback || isOrangeDay || isOvertime;
 
       return backend.shift_adjustments.create({
         type: type!,
         start_date: `${startDate}T00:00:00.000Z`,
-        end_date: `${endDate}T00:00:00.000Z`,
-        covering_user_id: isFlexiPayback || isOrangeDay ? undefined : covering_user_id,
-        covering_name:    isFlexiPayback || isOrangeDay ? undefined : covering_name,
-        covering_watch:   isFlexiPayback ? inboundWatch || undefined : undefined,
+        // Overtime is one shift: it ends the day it starts.
+        end_date: `${isOvertime ? startDate : endDate}T00:00:00.000Z`,
+        covering_user_id: noCover ? undefined : covering_user_id,
+        covering_name:    noCover ? undefined : covering_name,
+        covering_watch:   isFlexiPayback ? inboundWatch || undefined : isOvertime ? overtimeWatch || undefined : undefined,
+        overtime_hours:   isOvertime ? overtimeHours : undefined,
         // Day/Night flag now drives 4 surfaces:
         //   • flexi_payback → which shift on the covered watch (inboundShift)
         //   • orange_day    → which shift the person is working (orangeShift)
@@ -239,6 +260,7 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
         shift_day_night:
           isFlexiPayback ? inboundShift :
           isOrangeDay    ? orangeShift  :
+          isOvertime     ? overtimeShift :
           isOutbound     ? outboundShift :
           undefined,
         toil_hours:       isToil ? toilHours : undefined,
@@ -288,6 +310,9 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
         ...(type === "toil" ? { toil_hours: toilHours } : {}),
         ...(type === "flexi_payback" ? { covering_watch: inboundWatch || undefined, shift_day_night: inboundShift } : {}),
         ...(type === "orange_day" ? { shift_day_night: orangeShift } : {}),
+        ...(type === "overtime"
+          ? { end_date: `${startDate}T00:00:00.000Z`, covering_watch: overtimeWatch || undefined, shift_day_night: overtimeShift, overtime_hours: overtimeHours }
+          : {}),
         notes: notes.trim() || undefined,
       });
     },
@@ -344,6 +369,12 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
     if (a.type === "orange_day") {
       setOrangeShift(a.shift_day_night ?? "Day");
     }
+    if (a.type === "overtime") {
+      setOvertimeWatch(a.covering_watch ?? "");
+      setOvertimeShift(a.shift_day_night ?? "Day");
+      // Postgres NUMERIC arrives as a string ("10.00").
+      setOvertimeHours(Number(a.overtime_hours ?? shiftHours(a.shift_day_night ?? "Day")));
+    }
     if (a.type === "toil") {
       // Postgres NUMERIC arrives as a string ("8"); the API expects a number.
       setToilHours(Number(a.toil_hours ?? 4));
@@ -376,6 +407,9 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
     if (type === "flexi_payback") {
       return !!inboundWatch;
     }
+    if (type === "overtime") {
+      return !!overtimeWatch && overtimeHours >= 0.5 && overtimeHours <= 24;
+    }
     // orange_day just needs Day/Night (always has a default)
     return true;
   })();
@@ -400,6 +434,39 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
     const dn = rotaDayNight(inboundWatch, startDate);
     if (dn) setInboundShift(dn);
   }, [open, startDate, inboundWatch, editingId, editAdjustment]);
+
+  // Overtime: the shift follows the rota of the watch worked with, and the
+  // hours start as that whole shift (10 for a day, 14 for a night).
+  const pickOvertimeShift = (s: "Day" | "Night") => {
+    setOvertimeHours((h) => (h === shiftHours(overtimeShift) ? shiftHours(s) : h));
+    setOvertimeShift(s);
+  };
+  useEffect(() => {
+    if (!open || editingId || editAdjustment || type !== "overtime") return;
+    const dn = rotaDayNight(overtimeWatch, startDate);
+    if (dn) pickOvertimeShift(dn);
+  }, [open, startDate, overtimeWatch, editingId, editAdjustment, type]);
+
+  // The month's overtime so far for whoever this is for, so the total is
+  // seen as it's logged.
+  const overtimeFor = editingAdj?.user_id ?? (forAnother ? forUserId : user?.id) ?? "";
+  const overtimeMonth = monthOf(startDate || today);
+  const { data: overtimeMonthData } = useQuery({
+    queryKey: ["shift-adjustments", "overtime-month", overtimeFor, overtimeMonth],
+    queryFn: () => {
+      const [y, m] = overtimeMonth.split("-").map(Number);
+      const last = new Date(Date.UTC(y, m, 0)).getUTCDate();
+      return backend.shift_adjustments.list({
+        user_id: overtimeFor, start_date: `${overtimeMonth}-01`, end_date: `${overtimeMonth}-${String(last).padStart(2, "0")}`,
+      });
+    },
+    enabled: open && type === "overtime" && !!overtimeFor,
+  });
+  // Leave out the entry being edited: its hours are the ones on the form.
+  const overtimeSoFar = overtimeIn(
+    (overtimeMonthData?.adjustments ?? []).filter((a) => a.id !== editingId),
+    overtimeMonth,
+  );
 
   const fmt = (d: string) => new Date(d + "T12:00:00").toLocaleDateString("en-GB", {
     day: "numeric", month: "short", year: "numeric",
@@ -462,8 +529,8 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
             </div>
 
             <Label className="text-xs text-muted-foreground mb-2 mt-3 block">Additional shifts</Label>
-            <div className="grid grid-cols-2 gap-2">
-              {(["flexi_payback", "orange_day"] as AdjType[]).map((key) => {
+            <div className="grid grid-cols-3 gap-2">
+              {(["flexi_payback", "orange_day", "overtime"] as AdjType[]).map((key) => {
                 const cfg = TYPE_CONFIG[key];
                 const Icon = cfg.icon;
                 const selected = type === key;
@@ -495,9 +562,9 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
           {type && (
             <>
               {/* ── Date range ── */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className={type === "overtime" ? "grid grid-cols-1 gap-3" : "grid grid-cols-2 gap-3"}>
                 <div>
-                  <Label className="text-xs text-muted-foreground mb-1 block">First day</Label>
+                  <Label className="text-xs text-muted-foreground mb-1 block">{type === "overtime" ? "Date worked" : "First day"}</Label>
                   <input
                     type="date"
                     value={startDate}
@@ -505,6 +572,8 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
                     className="w-full h-10 rounded-lg border border-border px-2 text-sm bg-background outline-none focus:border-indigo-400"
                   />
                 </div>
+                {/* Overtime is one shift, so it has no last day. */}
+                {type !== "overtime" && (
                 <div>
                   <Label className="text-xs text-muted-foreground mb-1 block">Last day</Label>
                   <input
@@ -515,10 +584,11 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
                     className="w-full h-10 rounded-lg border border-border px-2 text-sm bg-background outline-none focus:border-indigo-400"
                   />
                 </div>
+                )}
               </div>
               {/* A slip on the last day (the wrong month, say) books every
                   day in between — say how long it is so it's seen before saving. */}
-              {daysBooked > 7 && (
+              {type !== "overtime" && daysBooked > 7 && (
                 <p role="alert" className="text-xs rounded-lg border border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200 px-3 py-2">
                   That's {daysBooked} days in a row. If it's meant to be one shift, set the last day to the same date as the first.
                 </p>
@@ -676,6 +746,85 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
                 </div>
               )}
 
+              {/* ── Overtime: watch, shift and hours ── */}
+              {type === "overtime" && (
+                <div className="space-y-3 rounded-xl border border-sky-200 dark:border-sky-800 bg-sky-50/40 dark:bg-sky-950/30 p-3">
+                  <div className="flex items-center gap-1.5">
+                    <Timer className="h-4 w-4 text-sky-500" />
+                    <Label className="text-sm font-medium text-sky-700 dark:text-sky-300">Which watch was it with?</Label>
+                  </div>
+                  <Select value={overtimeWatch} onValueChange={setOvertimeWatch}>
+                    <SelectTrigger className="h-10 w-full text-sm">
+                      <SelectValue placeholder="Select watch…" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {WATCHES.map(w => (
+                        <SelectItem key={w} value={w}>{w} Watch{w === userWatch ? " (own watch)" : ""}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <div>
+                    <Label className="text-xs text-muted-foreground mb-1 block">Shift</Label>
+                    <div className="flex gap-2">
+                      {(["Day", "Night"] as const).map(s => (
+                        <button
+                          key={s}
+                          type="button"
+                          onClick={() => pickOvertimeShift(s)}
+                          className={`flex-1 h-11 text-sm rounded-lg border transition-all ${overtimeShift === s ? "border-sky-400 bg-sky-100 dark:bg-sky-900/50 text-sky-700 dark:text-sky-300 font-semibold" : "border-border text-muted-foreground"}`}
+                        >
+                          {s} Shift
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="overtime-hours" className="text-xs text-muted-foreground mb-1 block">Hours worked</Label>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        aria-label="Half an hour less"
+                        disabled={overtimeHours <= 0.5}
+                        onClick={() => setOvertimeHours(h => Math.max(0.5, h - 0.5))}
+                        className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-border bg-background text-foreground disabled:opacity-40"
+                      >
+                        <Minus className="h-4 w-4" />
+                      </button>
+                      <input
+                        id="overtime-hours"
+                        type="number"
+                        inputMode="decimal"
+                        min={0.5}
+                        max={24}
+                        step={0.5}
+                        value={overtimeHours}
+                        onChange={e => setOvertimeHours(Math.round(Number(e.target.value) * 2) / 2)}
+                        className="h-11 w-full min-w-0 rounded-lg border border-border bg-background px-3 text-center text-lg font-bold text-sky-700 dark:text-sky-300 outline-none focus:border-sky-400"
+                      />
+                      <button
+                        type="button"
+                        aria-label="Half an hour more"
+                        disabled={overtimeHours >= 24}
+                        onClick={() => setOvertimeHours(h => Math.min(24, h + 0.5))}
+                        className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-border bg-background text-foreground disabled:opacity-40"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </button>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground mt-1.5">
+                      A whole {overtimeShift.toLowerCase()} shift is {shiftHours(overtimeShift)} hours. Half-hours are fine.
+                    </p>
+                  </div>
+
+                  <p className="text-xs text-sky-800 dark:text-sky-200 border-t border-sky-200 dark:border-sky-800 pt-2">
+                    Overtime in {monthName(overtimeMonth)}: <strong>{hoursText(overtimeSoFar + (overtimeHours || 0))} hrs</strong> with this
+                    {overtimeSoFar > 0 ? ` (${hoursText(overtimeSoFar)} hrs already logged)` : ""}.
+                  </p>
+                </div>
+              )}
+
               {/* ── TOIL: hours selector ── */}
               {type === "toil" && (
                 <div className="space-y-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/30 p-3">
@@ -818,7 +967,11 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
                         )}
                       </p>
                       <p className="text-xs text-muted-foreground truncate">{dateStr}</p>
-                      {(a as any).toil_hours ? (
+                      {a.type === "overtime" ? (
+                        <p className="text-xs text-muted-foreground truncate">
+                          {hoursText(Number(a.overtime_hours ?? 0))}hrs · {a.covering_watch} Watch · {a.shift_day_night ?? "Day"} Shift
+                        </p>
+                      ) : (a as any).toil_hours ? (
                         <p className="text-xs text-muted-foreground truncate">{(a as any).toil_hours}hrs · Cover: {a.covering_name}</p>
                       ) : (a as any).covering_watch ? (
                         <p className="text-xs text-muted-foreground truncate">{(a as any).covering_watch} Watch · {(a as any).shift_day_night ?? "Day"} Shift</p>

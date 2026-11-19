@@ -54,7 +54,7 @@ const dayNightOf = (label: string): DayNight => (label.includes("Night") ? "Nigh
 const same = (a: string | null | undefined, b: string | null | undefined) => !!a && !!b && a.toLowerCase() === b.toLowerCase();
 const covers = (a: StrengthAdjustment, date: string, dn: DayNight) => a.start <= date && a.end >= date && (!a.day_night || a.day_night === dn);
 const WAITING_LABEL: Record<string, "Flexi" | "H4H"> = { flexi: "Flexi", h4h: "H4H" };
-const EXTRA_WHY: Record<string, CoverWhy> = { flexi_payback: "Flexi payback", orange_day: "Orange day" };
+const EXTRA_WHY: Record<string, CoverWhy> = { flexi_payback: "Flexi payback", orange_day: "Orange day", overtime: "Overtime" };
 
 /**
  * Your shifts from `from` to `to` (inclusive dates) that haven't finished by
@@ -134,6 +134,10 @@ export function myShifts(i: {
       const theirs = onWatch ? watchShiftOn(onWatch, date) : null;
       const dn: DayNight | null = a.day_night ?? (isShift(theirs) ? dayNightOf(theirs) : null);
       if (!dn) continue; // nothing says which shift: the other watch isn't on and the booking doesn't say
+      // Overtime on a shift your own watch is working anyway (kept on late,
+      // say) isn't an extra shift — you're already down as on.
+      const own = watch ? watchShiftOn(watch, date) : null;
+      if (a.type === "overtime" && same(onWatch, watch) && isShift(own) && dayNightOf(own) === dn) continue;
       const shiftType = isShift(theirs) && dayNightOf(theirs) === dn ? theirs : dn;
       const slot = slotFor(date, dn);
       if (slot.end <= now) continue;

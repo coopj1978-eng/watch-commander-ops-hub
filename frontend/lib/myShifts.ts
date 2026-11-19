@@ -48,7 +48,7 @@ export interface MyDay {
 }
 
 const OFF_LABEL: Record<string, string> = { flexi: "Flexi day", training: "Training", h4h: "H4H", toil: "TOIL" };
-const EXTRA_LABEL: Record<string, string> = { flexi_payback: "Flexi payback", orange_day: "Orange day" };
+const EXTRA_LABEL: Record<string, string> = { flexi_payback: "Flexi payback", orange_day: "Orange day", overtime: "Overtime" };
 
 /** "YYYY-MM-DD" from a date-only value, whether a string or a Date at UTC midnight. */
 export function isoDay(v: string | Date): string {

@@ -189,7 +189,7 @@ async function commitmentsFor(userId: string, date: string, excludeId = 0) {
     userId, from, to
   );
   const WHAT: Record<string, string> = {
-    orange_day: "an Orange Day", flexi_payback: "a Flexi Payback", training: "training",
+    orange_day: "an Orange Day", flexi_payback: "a Flexi Payback", training: "training", overtime: "overtime",
   };
   for (const a of rows) {
     // A night belongs to the day it starts, whatever an older booking's end date says.

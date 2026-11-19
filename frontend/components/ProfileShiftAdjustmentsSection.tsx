@@ -26,7 +26,9 @@ import {
   Sun,
   Clock,
   AlertTriangle,
+  Timer,
 } from "lucide-react";
+import { hoursText, monthName, overtimeByMonth, thisMonth } from "@/lib/overtime";
 import { refreshCalendar } from "@/lib/calendarQueries";
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -97,6 +99,13 @@ const TYPE_STYLE: Record<
     color: "text-emerald-600 dark:text-emerald-400",
     bg: "bg-emerald-50 dark:bg-emerald-950/40",
     border: "border-emerald-300 dark:border-emerald-700",
+  },
+  overtime: {
+    label: "Overtime",
+    icon: Timer,
+    color: "text-sky-600 dark:text-sky-400",
+    bg: "bg-sky-50 dark:bg-sky-950/40",
+    border: "border-sky-300 dark:border-sky-700",
   },
 };
 
@@ -170,6 +179,13 @@ export function ProfileShiftAdjustmentsSection({
         new Date(b.start_date).getTime() - new Date(a.start_date).getTime()
     );
 
+  // Overtime hours added up per month (John, Nov 2026): this month always
+  // shows, then every earlier or later month that has any.
+  const overtimeMonths = overtimeByMonth(adjustments);
+  const current = thisMonth();
+  const overtimeNow = overtimeMonths.find((m) => m.month === current) ?? { month: current, hours: 0, shifts: 0 };
+  const overtimeOther = overtimeMonths.filter((m) => m.month !== current);
+
   // "Recent" cutoff: anything within the last 30 days or in the future.
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - 30);
@@ -194,6 +210,41 @@ export function ProfileShiftAdjustmentsSection({
       </CardHeader>
 
       <CardContent className="space-y-3">
+        {/* ── Overtime, month by month ── */}
+        {(overtimeMonths.length > 0 || canManage) && !adjustmentsQ.isLoading && (
+          <section aria-label="Overtime by month" className="rounded-lg border border-border p-3">
+            <div className="flex items-center gap-2">
+              <Timer className="h-4 w-4 text-sky-600 dark:text-sky-400" />
+              <h3 className="text-sm font-medium">Overtime</h3>
+            </div>
+            <p className="mt-2 flex items-baseline gap-2 flex-wrap">
+              <span className="text-2xl font-semibold tabular-nums">{hoursText(overtimeNow.hours)}</span>
+              <span className="text-sm text-muted-foreground">
+                hrs in {monthName(current)}
+                {overtimeNow.shifts > 0 ? ` · ${overtimeNow.shifts} ${overtimeNow.shifts === 1 ? "entry" : "entries"}` : ""}
+              </span>
+            </p>
+            {overtimeOther.length > 0 && (
+              <ul className="mt-2 divide-y divide-border border-t border-border text-sm">
+                {overtimeOther.map((m) => (
+                  <li key={m.month} className="flex items-center justify-between gap-3 py-1.5">
+                    <span className="text-muted-foreground">{monthName(m.month)}</span>
+                    <span className="tabular-nums">
+                      <span className="font-medium">{hoursText(m.hours)} hrs</span>
+                      <span className="text-muted-foreground"> · {m.shifts} {m.shifts === 1 ? "entry" : "entries"}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {overtimeMonths.length === 0 && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                None logged. Add it from the calendar: New, Log shift, Overtime.
+              </p>
+            )}
+          </section>
+        )}
+
         <div className="flex items-start gap-2 rounded-lg border bg-muted/40 p-3 text-xs text-muted-foreground">
           <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5 text-amber-500" />
           <p className="leading-snug">
@@ -252,6 +303,11 @@ export function ProfileShiftAdjustmentsSection({
                           {a.toil_hours}hrs
                         </Badge>
                       )}
+                      {a.type === "overtime" && a.overtime_hours && (
+                        <Badge variant="outline" className="text-[9px] px-1 py-0">
+                          {hoursText(Number(a.overtime_hours))}hrs
+                        </Badge>
+                      )}
                       {isLegacy && (
                         <Badge className="text-[9px] px-1 py-0 bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 border-amber-300">
                           Legacy — no Day/Night
@@ -268,7 +324,7 @@ export function ProfileShiftAdjustmentsSection({
                     )}
                     {a.covering_watch && (
                       <p className="text-xs text-muted-foreground/80 mt-0.5">
-                        Covers {a.covering_watch} Watch
+                        {a.type === "overtime" ? "With" : "Covers"} {a.covering_watch} Watch
                       </p>
                     )}
                     {a.notes && (

@@ -16,14 +16,14 @@ export type NewKind = "event" | "shift" | "inspection" | "training";
 
 const ITEMS: { kind: NewKind; label: string; hint: string; Icon: LucideIcon; tint: string }[] = [
   { kind: "event", label: "Event", hint: "Station, watch or personal", Icon: CalendarPlus, tint: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300" },
-  { kind: "shift", label: "Log shift", hint: "TOIL, H4H, flexi, orange day", Icon: CalendarDays, tint: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300" },
+  { kind: "shift", label: "Log shift", hint: "TOIL, H4H, flexi, orange day, overtime", Icon: CalendarDays, tint: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300" },
   { kind: "inspection", label: "Inspection", hint: "HFSV, hydrant, multi-storey, OI, care home", Icon: ClipboardPlus, tint: "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300" },
   { kind: "training", label: "Training", hint: "Plan a session for the watch", Icon: GraduationCap, tint: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" },
 ];
 
 // A firefighter adds to their own calendar and books their own time; planning
 // inspections and training is the WC/CC's (Nov 2026).
-const CREW_HINTS: Partial<Record<NewKind, string>> = { event: "On your calendar, or the watch's", shift: "Flexi, H4H, TOIL, orange day" };
+const CREW_HINTS: Partial<Record<NewKind, string>> = { event: "On your calendar, or the watch's", shift: "Flexi, H4H, TOIL, orange day, overtime" };
 export const newItemsFor = (isManager: boolean) =>
   isManager ? ITEMS : ITEMS.filter((i) => CREW_HINTS[i.kind]).map((i) => ({ ...i, hint: CREW_HINTS[i.kind]! }));
 

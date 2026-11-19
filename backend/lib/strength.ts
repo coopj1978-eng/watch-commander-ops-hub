@@ -15,7 +15,7 @@ export const RIDE_ONE = 5;
 export const RIDE_BOTH = 9;
 
 export type AwayWhy = "Sick" | "Leave" | "Flexi" | "Training" | "H4H" | "TOIL" | "Detached";
-export type CoverWhy = "H4H cover" | "TOIL cover" | "Flexi payback" | "Orange day";
+export type CoverWhy = "H4H cover" | "TOIL cover" | "Flexi payback" | "Orange day" | "Overtime";
 
 export interface StrengthMember { id: string; name: string }
 
@@ -50,7 +50,7 @@ export interface StrengthResult {
 }
 
 const OUTBOUND: Record<string, AwayWhy> = { flexi: "Flexi", training: "Training", h4h: "H4H", toil: "TOIL" };
-const INBOUND: Record<string, CoverWhy> = { flexi_payback: "Flexi payback", orange_day: "Orange day" };
+const INBOUND: Record<string, CoverWhy> = { flexi_payback: "Flexi payback", orange_day: "Orange day", overtime: "Overtime" };
 
 const same = (a: string | null, b: string) => !!a && a.toLowerCase() === b.toLowerCase();
 

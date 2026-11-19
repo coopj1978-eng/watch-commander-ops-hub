@@ -4,6 +4,7 @@ import db, { type SQLPrimitive } from "../db";
 import { logActivity } from "../logging/logger";
 import type { ShiftAdjustment } from "./types";
 import {
+  assertOvertimeHours,
   canModifyAdjustment,
   deleteAdjustmentEvents,
   financialYearOf,
@@ -23,6 +24,8 @@ export interface UpdateShiftAdjustmentRequest {
   shift_day_night?: "Day" | "Night";
   /** TOIL only: hours used for this shift (min 4). */
   toil_hours?: number;
+  /** Overtime only: hours worked. */
+  overtime_hours?: number;
   notes?: string;
 }
 
@@ -39,6 +42,17 @@ export const update = api<UpdateShiftAdjustmentRequest, ShiftAdjustment>(
         "Only the person it belongs to, the person covering it, or a WC/CC can edit this."
       );
     }
+
+    // Overtime is a single shift with its hours: the last day follows the first.
+    const isOvertime = existing.type === "overtime";
+    if (req.overtime_hours !== undefined) {
+      if (!isOvertime) throw APIError.invalidArgument("Hours worked can only be changed on overtime.");
+      assertOvertimeHours(req.overtime_hours);
+    }
+    if (isOvertime && req.covering_watch !== undefined && !req.covering_watch) {
+      throw APIError.invalidArgument("Say which watch the overtime is with.");
+    }
+    if (isOvertime && req.start_date !== undefined) req.end_date = req.start_date;
 
     const newStart = req.start_date !== undefined ? toDateOnly(req.start_date) : toDateOnly(existing.start_date);
     const newEnd = req.end_date !== undefined ? toDateOnly(req.end_date) : toDateOnly(existing.end_date);
@@ -111,6 +125,10 @@ export const update = api<UpdateShiftAdjustmentRequest, ShiftAdjustment>(
       setClauses.push(`toil_hours = $${idx++}`);
       params.push(req.toil_hours);
     }
+    if (req.overtime_hours !== undefined) {
+      setClauses.push(`overtime_hours = $${idx++}`);
+      params.push(req.overtime_hours);
+    }
     if (req.notes !== undefined) {
       setClauses.push(`notes = $${idx++}`);
       params.push(req.notes || null);
@@ -138,7 +156,8 @@ export const update = api<UpdateShiftAdjustmentRequest, ShiftAdjustment>(
       req.covering_name !== undefined ||
       req.covering_watch !== undefined ||
       req.shift_day_night !== undefined ||
-      req.toil_hours !== undefined;
+      req.toil_hours !== undefined ||
+      req.overtime_hours !== undefined;
 
     if (affectsEvents) {
       const owner = await db.queryRow<{ name: string }>`

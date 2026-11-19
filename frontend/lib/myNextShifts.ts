@@ -10,7 +10,7 @@ type MyLeave = crewing.MyLeave;
 
 const ROLE: Record<string, string> = { oic: "OIC", driver: "Driver", ba: "BA", baeco: "BA ECO", ff: "FF" };
 const OFF: Record<string, string> = { Flexi: "Flexi day", Training: "Training", H4H: "H4H", TOIL: "TOIL", Leave: "Leave" };
-const EXTRA: Record<string, string> = { "H4H cover": "H4H", "TOIL cover": "TOIL cover", "Flexi payback": "Flexi payback", "Orange day": "Orange day" };
+const EXTRA: Record<string, string> = { "H4H cover": "H4H", "TOIL cover": "TOIL cover", "Flexi payback": "Flexi payback", "Orange day": "Orange day", Overtime: "Overtime" };
 
 export interface ShiftLine {
   /** "Now", "Today", "Tonight", "Tomorrow", "Tomorrow night" or "Sat 14". */

@@ -1635,7 +1635,7 @@ export namespace crewing {
         available: number
         /** No name on leave for a watch that isn't the viewer's own. */
         away: { name?: string, why: "Sick" | "Leave" | "Flexi" | "Training" | "H4H" | "TOIL" | "Detached" }[]
-        covers: { name: string, why: "H4H cover" | "TOIL cover" | "Flexi payback" | "Orange day" }[]
+        covers: { name: string, why: "H4H cover" | "TOIL cover" | "Flexi payback" | "Orange day" | "Overtime" }[]
 
         /**
          * Pumps the people available can crew with the skills they hold: 2, 1 or 0.
@@ -1678,7 +1678,7 @@ export namespace crewing {
          * extra — an extra shift on another watch (why says H4H cover, TOIL cover, Flexi payback or Orange day).
          */
         state: "on" | "off" | "detached" | "extra"
-        why?: "Sick" | "Leave" | "Flexi" | "Training" | "H4H" | "TOIL" | "H4H cover" | "TOIL cover" | "Flexi payback" | "Orange day"
+        why?: "Sick" | "Leave" | "Flexi" | "Training" | "H4H" | "TOIL" | "H4H cover" | "TOIL cover" | "Flexi payback" | "Orange day" | "Overtime"
         /** H4H/TOIL: who covers you (off), or whom you cover (extra). */
         "with_name"?: string
         /** Where you ride, once the crewing board is set. */
@@ -5635,6 +5635,7 @@ export namespace shift_adjustments {
         "covering_watch"?: string
         "shift_day_night"?: "Day" | "Night"
         "toil_hours"?: number
+        "overtime_hours"?: number
         notes?: string
         "for_user_id"?: string
     }
@@ -5666,6 +5667,7 @@ export namespace shift_adjustments {
         "covering_watch"?: string
         "shift_day_night"?: "Day" | "Night"
         "toil_hours"?: number
+        "overtime_hours"?: number
         "watch_unit": string
         notes?: string
         "created_by_user_id": string
@@ -5673,7 +5675,7 @@ export namespace shift_adjustments {
         "updated_at": string
     }
 
-    export type ShiftAdjustmentType = "flexi" | "training" | "h4h" | "flexi_payback" | "orange_day" | "toil"
+    export type ShiftAdjustmentType = "flexi" | "training" | "h4h" | "flexi_payback" | "orange_day" | "toil" | "overtime"
 
     export interface UpdateShiftAdjustmentRequest {
         "start_date"?: string
@@ -5683,6 +5685,7 @@ export namespace shift_adjustments {
         "covering_watch"?: string
         "shift_day_night"?: "Day" | "Night"
         "toil_hours"?: number
+        "overtime_hours"?: number
         notes?: string
     }
 }
