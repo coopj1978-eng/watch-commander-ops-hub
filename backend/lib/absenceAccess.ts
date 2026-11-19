@@ -121,6 +121,8 @@ export function redactSickness<
  * params.length).
  */
 export function visibleAbsencesSql(viewer: AbsenceViewer, column: string, params: SQLPrimitive[]): string {
+  // An admin sees every watch's records (the same rule as visiblePersonIds).
+  if (viewer.isAdmin) return "TRUE";
   params.push(viewer.userID);
   const self = `$${params.length}`;
   if (!viewer.isManager || !viewer.watch) return `${column} = ${self}`;
@@ -130,6 +132,7 @@ export function visibleAbsencesSql(viewer: AbsenceViewer, column: string, params
     SELECT u.id FROM users u
     LEFT JOIN firefighter_profiles fp ON fp.user_id = u.id
     WHERE LOWER(COALESCE(u.watch_unit, fp.watch)) = LOWER(${watch})
+      AND ${onWatchHereSql("fp")}
   ))`;
 }
 
