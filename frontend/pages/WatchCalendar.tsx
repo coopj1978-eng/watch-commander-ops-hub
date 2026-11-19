@@ -6,11 +6,12 @@ import { createPortal } from "react-dom";
 import { useUserRole } from "@/lib/rbac";
 import backend from "@/lib/backend";
 import type { crewing, shift_adjustments } from "@/client";
-import CalendarWidget, { viewRange, type CalendarViewType, type CalendarItem, type CalendarAnchor, type RidingInfo } from "../components/CalendarWidget";
+import CalendarWidget, { viewRange, type CalendarViewType, type CalendarItem, type CalendarAnchor, type CalendarDayOpen, type RidingInfo } from "../components/CalendarWidget";
 import CalendarFilters from "../components/CalendarFilters";
 import { CalendarNewButton, CalendarNewFab, type NewKind } from "../components/CalendarNewMenu";
 import CalendarEventPeek, { type PeekAction } from "../components/CalendarEventPeek";
 import CalendarRidingPeek from "../components/CalendarRidingPeek";
+import CalendarDayPeek from "../components/CalendarDayPeek";
 import { CALENDAR_EVENTS_KEY, CALENDAR_STRENGTH_KEY, refreshCalendar } from "@/lib/calendarQueries";
 import EventForm, { type EventFormData } from "../components/EventForm";
 import InspectionEventModal, { type ExistingInspectionEvent } from "../components/InspectionEventModal";
@@ -84,6 +85,10 @@ export default function UnifiedCalendar() {
 
   // What you clicked, shown before any editing (Nov 2026).
   const [peek, setPeek] = useState<{ item: CalendarItem; anchor: CalendarAnchor | null } | null>(null);
+  // A day clicked in the month or the list: the day first — what's on it,
+  // then the "New" choices for that day (John, Nov 2026).
+  const [dayPeek, setDayPeek] = useState<CalendarDayOpen | null>(null);
+  const [trainingDate, setTrainingDate] = useState<string | undefined>(undefined);
   const routerNavigate = useNavigate();
 
   // Inspection event modal
@@ -295,11 +300,11 @@ export default function UnifiedCalendar() {
 
   // Escape closes the add/edit panel or the event card.
   useEffect(() => {
-    if (!formOpen && !peek && !ridingPeek) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") { closeForm(); setPeek(null); setRidingPeek(null); } };
+    if (!formOpen && !peek && !ridingPeek && !dayPeek) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") { closeForm(); setPeek(null); setRidingPeek(null); setDayPeek(null); } };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [formOpen, peek, ridingPeek]);
+  }, [formOpen, peek, ridingPeek, dayPeek]);
 
   // ─── Handlers ────────────────────────────────────────────────────────────────
   const handleSlotClick = (date: Date, anchor?: CalendarAnchor) => {
@@ -460,11 +465,21 @@ export default function UnifiedCalendar() {
     return base;
   })();
 
-  const onNew = (kind: NewKind) => {
-    if (kind === "event") handleSlotClick(newDay);
-    else if (kind === "shift") { setShiftAdjDate(newDay); setShiftAdjModalOpen(true); }
-    else if (kind === "inspection") { setFormDate(newDay); setInspectionModalOpen(true); }
-    else setTrainingModalOpen(true);
+  // A new event on a day starts at 09:00 (the next hour if that's today).
+  const startOn = (day: Date) => {
+    const at = new Date(day);
+    const today = new Date();
+    if (at.toDateString() === today.toDateString()) at.setHours(today.getHours() + 1, 0, 0, 0);
+    else at.setHours(9, 0, 0, 0);
+    return at;
+  };
+
+  // "New" in the toolbar uses the day in view; the day card passes its own day.
+  const onNew = (kind: NewKind, day: Date = newDay, anchor?: CalendarAnchor) => {
+    if (kind === "event") handleSlotClick(day, anchor);
+    else if (kind === "shift") { setShiftAdjDate(day); setShiftAdjModalOpen(true); }
+    else if (kind === "inspection") { setFormDate(day); setInspectionModalOpen(true); }
+    else { setTrainingDate(day === newDay ? undefined : ymd(day)); setTrainingModalOpen(true); }
   };
 
   const filters = (
@@ -513,6 +528,7 @@ export default function UnifiedCalendar() {
         view={view}
         onViewChange={setView}
         onSlotClick={handleSlotClick}
+        onDayOpen={(day) => { setPeek(null); setRidingPeek(null); setDayPeek(day); }}
         onEventClick={handleEventClick}
         pendingSlot={formOpen && !editingEvent ? pendingSlot : null}
         filters={filters}
@@ -578,6 +594,29 @@ export default function UnifiedCalendar() {
         document.body
       )}
 
+      {/* ── The day you clicked: what's on it, and adding to it ────────────── */}
+      {dayPeek && createPortal(
+        <div className="cal-ui" style={{ position: "fixed", inset: 0, zIndex: 60 }}>
+          <div
+            onClick={() => setDayPeek(null)}
+            style={{ position: "absolute", inset: 0, background: isPhone || !dayPeek.anchor ? "rgba(0,0,0,.4)" : "rgba(17,20,39,.04)" }}
+          />
+          <CalendarDayPeek
+            day={dayPeek}
+            isManager={isManager}
+            style={popStyle(dayPeek.anchor ?? null, 360, 520)}
+            onClose={() => setDayPeek(null)}
+            onOpenItem={(item) => { setDayPeek(null); handleEventClick(item, dayPeek.anchor); }}
+            onOpenBooking={() => {
+              const booking = myBookings?.adjustments.find((a) => Number(a.id) === dayPeek.note?.bookingId);
+              if (booking) { setDayPeek(null); setBookingToEdit(booking); }
+            }}
+            onAdd={(kind) => { setDayPeek(null); onNew(kind, startOn(dayPeek.date), dayPeek.anchor); }}
+          />
+        </div>,
+        document.body
+      )}
+
       {/* ── A shift's riding count ─────────────────────────────────────────── */}
       {ridingPeek && riding && createPortal(
         <div className="cal-ui" style={{ position: "fixed", inset: 0, zIndex: 60 }}>
@@ -624,6 +663,7 @@ export default function UnifiedCalendar() {
         open={trainingModalOpen}
         onOpenChange={setTrainingModalOpen}
         watch={userWatch}
+        defaultDate={trainingDate}
       />
     </div>
   );

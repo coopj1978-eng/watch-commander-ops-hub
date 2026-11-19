@@ -24,7 +24,7 @@ const ITEMS: { kind: NewKind; label: string; hint: string; Icon: LucideIcon; tin
 // A firefighter adds to their own calendar and books their own time; planning
 // inspections and training is the WC/CC's (Nov 2026).
 const CREW_HINTS: Partial<Record<NewKind, string>> = { event: "On your calendar, or the watch's", shift: "Flexi, H4H, TOIL, orange day" };
-const itemsFor = (isManager: boolean) =>
+export const newItemsFor = (isManager: boolean) =>
   isManager ? ITEMS : ITEMS.filter((i) => CREW_HINTS[i.kind]).map((i) => ({ ...i, hint: CREW_HINTS[i.kind]! }));
 
 export function CalendarNewButton({ onPick, isManager = true }: { onPick: (kind: NewKind) => void; isManager?: boolean }) {
@@ -44,7 +44,7 @@ export function CalendarNewButton({ onPick, isManager = true }: { onPick: (kind:
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" sideOffset={6} className="w-64 p-1.5">
-        {itemsFor(isManager).map(({ kind, label, hint, Icon, tint }) => (
+        {newItemsFor(isManager).map(({ kind, label, hint, Icon, tint }) => (
           <DropdownMenuItem key={kind} onSelect={() => onPick(kind)} className="gap-3 py-2">
             <span className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-lg", tint)}>
               <Icon className="h-4 w-4" />
@@ -100,7 +100,7 @@ export function CalendarNewFab({ onPick, dayLabel, isManager = true }: { onPick:
             </Dialog.Close>
           </div>
           <ul className="grid gap-1.5">
-            {itemsFor(isManager).map(({ kind, label, hint, Icon, tint }) => (
+            {newItemsFor(isManager).map(({ kind, label, hint, Icon, tint }) => (
               <li key={kind}>
                 <button
                   type="button"

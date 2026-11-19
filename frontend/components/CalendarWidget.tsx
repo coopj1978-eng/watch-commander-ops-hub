@@ -33,6 +33,15 @@ export interface CalendarAnchor {
   y: number;
 }
 
+/** A day clicked in the month or the list: what's on it, for the day card. */
+export interface CalendarDayOpen {
+  date: Date;
+  items: CalendarItem[];
+  shift?: ShiftDay;
+  note?: MyDay;
+  anchor?: CalendarAnchor;
+}
+
 interface CalendarWidgetProps {
   events?: CalendarEvent[];
   tasks?: Task[];
@@ -47,6 +56,9 @@ interface CalendarWidgetProps {
   view: CalendarViewType;
   onViewChange: (view: CalendarViewType) => void;
   onSlotClick?: (date: Date, anchor?: CalendarAnchor) => void;
+  /** A day clicked in the month or the list (shows the day first; without
+   *  it, the click starts a new event as a time slot does). */
+  onDayOpen?: (day: CalendarDayOpen) => void;
   onEventClick?: (item: CalendarItem, anchor?: CalendarAnchor) => void;
   /** A new event being added — shown as a dashed placeholder in Day/Week. */
   pendingSlot?: Date | null;
@@ -845,13 +857,14 @@ function TimeGridCard({
 
 // ─── Month ────────────────────────────────────────────────────────────────────
 function MonthView({
-  date, items, shiftSchedule, userWatch, onSlotClick, onEventClick, onDayNavigate,
+  date, items, shiftSchedule, userWatch, onSlotClick, onDayOpen, onEventClick, onDayNavigate,
 }: {
   date: Date;
   items: CalendarItem[];
   shiftSchedule: ShiftDay[];
   userWatch?: string;
   onSlotClick?: (date: Date, anchor?: CalendarAnchor) => void;
+  onDayOpen?: (day: CalendarDayOpen) => void;
   onEventClick?: (item: CalendarItem, anchor?: CalendarAnchor) => void;
   onDayNavigate?: (date: Date) => void;
 }) {
@@ -879,13 +892,16 @@ function MonthView({
           const room = note ? 3 : 4;
           const visible = dayItems.slice(0, dayItems.length > room ? room - 1 : room);
           const more = dayItems.length - visible.length;
+          // The day first — what's on it, and adding to it.
+          const openDay = (anchor?: CalendarAnchor) =>
+            onDayOpen ? onDayOpen({ date: day, items: dayItems, shift, note, anchor }) : onSlotClick?.(day, anchor);
           return (
             <div
               key={day.toISOString()}
               role="button"
               tabIndex={0}
-              onClick={(e) => onSlotClick?.(day, anchorOf(e))}
-              onKeyDown={(e) => { if (e.key === "Enter") onSlotClick?.(day); }}
+              onClick={(e) => openDay(anchorOf(e))}
+              onKeyDown={(e) => { if (e.key === "Enter" && e.target === e.currentTarget) openDay(); }}
               className="cal-focus"
               style={{
                 minHeight: 120, borderRadius: 14, padding: 8, cursor: "pointer", display: "flex", flexDirection: "column", gap: 4,
@@ -1098,7 +1114,7 @@ const CAL_LABEL: Record<CalKey, string> = {
 };
 
 function AgendaView({
-  start, items, shiftSchedule, userWatch, onEventClick, onDayClick,
+  start, items, shiftSchedule, userWatch, onEventClick, onDayClick, onDayOpen,
 }: {
   start: Date;
   items: CalendarItem[];
@@ -1106,6 +1122,7 @@ function AgendaView({
   userWatch?: string;
   onEventClick?: (item: CalendarItem, anchor?: CalendarAnchor) => void;
   onDayClick?: (d: Date, anchor?: CalendarAnchor) => void;
+  onDayOpen?: (day: CalendarDayOpen) => void;
 }) {
   const today = new Date();
   const mine = useMyDays();
@@ -1180,9 +1197,13 @@ function AgendaView({
           >
             <button
               type="button"
-              onClick={(e) => onDayClick?.(r.date, anchorOf(e))}
+              onClick={(e) =>
+                onDayOpen
+                  ? onDayOpen({ date: r.date, items: r.items, shift: r.shift, note: r.note, anchor: anchorOf(e) })
+                  : onDayClick?.(r.date, anchorOf(e))
+              }
               className="cal-focus"
-              title="Add something on this day"
+              title={onDayOpen ? "See this day and add to it" : "Go to this day"}
               style={{
                 display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 0, border: "none", background: "transparent",
                 padding: 0, font: "inherit", cursor: "pointer", color: isToday ? "var(--cal-brand-text)" : "var(--cal-ink)",
@@ -1522,6 +1543,7 @@ export default function CalendarWidget({
   view,
   onViewChange,
   onSlotClick,
+  onDayOpen,
   onEventClick,
   pendingSlot,
   filters,
@@ -1654,6 +1676,7 @@ export default function CalendarWidget({
             shiftSchedule={shiftSchedule}
             userWatch={userWatch}
             onSlotClick={onSlotClick}
+            onDayOpen={onDayOpen}
             onEventClick={onEventClick}
             onDayNavigate={toDay}
           />
@@ -1675,6 +1698,7 @@ export default function CalendarWidget({
             userWatch={userWatch}
             onEventClick={onEventClick}
             onDayClick={onSlotClick}
+            onDayOpen={onDayOpen}
           />
         )}
       </div>
