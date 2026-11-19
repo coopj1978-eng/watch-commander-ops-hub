@@ -58,6 +58,8 @@ interface CalendarWidgetProps {
   riding?: RidingInfo;
   /** Your own calendar: days your bookings take you off, or put you in (YYYY-MM-DD). */
   myDays?: Map<string, MyDay>;
+  /** Clicking a "You're in / You're off" label that has a booking behind it. */
+  onMyDayClick?: (note: MyDay) => void;
 }
 
 // ─── Colours ──────────────────────────────────────────────────────────────────
@@ -263,6 +265,8 @@ const shortWord = (r: ReturnType<typeof ridingFor>) =>
 // bookings make of it — off on a flexi day, in for an orange day.
 const MyDaysContext = createContext<Map<string, MyDay> | null>(null);
 const useMyDays = () => useContext(MyDaysContext);
+/** Opens the booking behind a "You're in / You're off" label. */
+const MyDayOpenContext = createContext<((note: MyDay) => void) | null>(null);
 
 /** The shift colours an extra shift of yours takes (day/night), if known. */
 const myKind = (m?: MyDay): ShiftKind | null => (m?.state !== "in" ? null : m.shift === "Night" ? "night" : m.shift === "Day" ? "day" : null);
@@ -275,24 +279,34 @@ export function myDayText(m: MyDay): string {
 }
 
 function MyDayPill({ note, small }: { note?: MyDay; small?: boolean }) {
+  const open = useContext(MyDayOpenContext);
   if (!note) return null;
   const k = myKind(note) ?? "personal";
   // A request still waiting: dashed and quiet until it's decided.
   const colours: React.CSSProperties = note.state === "asked"
     ? { background: "var(--cal-surface)", color: "var(--cal-ink-2)", border: "1px dashed var(--cal-muted)" }
     : { background: tok(k, "bg"), color: tok(k, "fg") };
-  return (
-    <span
-      title={myDayText(note)}
-      style={{
-        alignSelf: "flex-start", maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-        fontSize: small ? 10.5 : 12, fontWeight: 600, padding: small ? "2px 6px" : "3px 9px", borderRadius: 999,
-        ...colours,
-      }}
-    >
-      {myDayText(note)}
-    </span>
-  );
+  const style: React.CSSProperties = {
+    alignSelf: "flex-start", maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+    fontSize: small ? 10.5 : 12, fontWeight: 600, padding: small ? "2px 6px" : "3px 9px", borderRadius: 999,
+    ...colours,
+  };
+  // A booking of yours opens so you can change or delete it — an extra shift
+  // on another watch has no entry of its own on this calendar to click.
+  if (open && note.bookingId != null) {
+    return (
+      <button
+        type="button"
+        data-event
+        title={`${myDayText(note)} — open to change or delete`}
+        onClick={(e) => { e.stopPropagation(); open(note); }}
+        style={{ ...style, border: "none", cursor: "pointer", fontFamily: "inherit", textAlign: "left" }}
+      >
+        {myDayText(note)}
+      </button>
+    );
+  }
+  return <span title={myDayText(note)} style={style}>{myDayText(note)}</span>;
 }
 
 // Yours first, then the watch's, then the station's.
@@ -1514,6 +1528,7 @@ export default function CalendarWidget({
   newButton,
   riding,
   myDays,
+  onMyDayClick,
 }: CalendarWidgetProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const items = buildItems(events, tasks, inspections);
@@ -1564,6 +1579,7 @@ export default function CalendarWidget({
   return (
     <RidingContext.Provider value={riding ?? null}>
     <MyDaysContext.Provider value={myDays ?? null}>
+    <MyDayOpenContext.Provider value={onMyDayClick ?? null}>
     <div className="cal-ui" style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }}>
       {/* ── Phone: the month, then the picked day ── */}
       <div className="flex flex-col gap-3 md:hidden">
@@ -1663,6 +1679,7 @@ export default function CalendarWidget({
         )}
       </div>
     </div>
+    </MyDayOpenContext.Provider>
     </MyDaysContext.Provider>
     </RidingContext.Provider>
   );

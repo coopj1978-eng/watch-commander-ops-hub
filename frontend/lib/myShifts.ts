@@ -10,6 +10,7 @@
 export type DayNight = "Day" | "Night";
 
 export interface MyBooking {
+  id?: number | string;
   type: string;
   start_date: string | Date;
   end_date: string | Date;
@@ -42,6 +43,8 @@ export interface MyDay {
   label: string;
   /** For an extra shift: day or night (unknown on older bookings). */
   shift?: DayNight;
+  /** The booking behind it, so the calendar can open it to change or delete. */
+  bookingId?: number;
 }
 
 const OFF_LABEL: Record<string, string> = { flexi: "Flexi day", training: "Training", h4h: "H4H", toil: "TOIL" };
@@ -54,6 +57,7 @@ export function isoDay(v: string | Date): string {
 
 const covers = (b: MyBooking, day: string) => isoDay(b.start_date) <= day && isoDay(b.end_date) >= day;
 const withWatch = (label: string, watch?: string | null) => (watch ? `${label} · ${watch}` : label);
+const idOf = (b: MyBooking) => (b.id == null || Number.isNaN(Number(b.id)) ? undefined : Number(b.id));
 
 /**
  * What each day means for you. Only days your bookings (or waiting requests)
@@ -77,16 +81,16 @@ export function myDays(
       const dn = b.shift_day_night ?? undefined;
       if ((b.type === "h4h" || b.type === "toil") && b.covering_user_id === me && b.user_id !== me) {
         const what = b.type === "h4h" ? "H4H" : "TOIL cover";
-        extra ??= { state: "in", label: withWatch(b.user_name ? `${what} for ${b.user_name}` : what, b.watch_unit), shift: dn };
+        extra ??= { state: "in", label: withWatch(b.user_name ? `${what} for ${b.user_name}` : what, b.watch_unit), shift: dn, bookingId: idOf(b) };
       } else if (EXTRA_LABEL[b.type] && b.user_id === me) {
-        extra ??= { state: "in", label: withWatch(EXTRA_LABEL[b.type], b.covering_watch), shift: dn };
+        extra ??= { state: "in", label: withWatch(EXTRA_LABEL[b.type], b.covering_watch), shift: dn, bookingId: idOf(b) };
       } else if (OFF_LABEL[b.type] && b.user_id === me) {
         const mine = watchShift(day);
         // Off your own watch's shift: only when it's on, and the booking is
         // for that shift (older bookings without Day/Night count for both).
         if (!mine || (dn && dn !== mine)) continue;
         const label = b.type === "h4h" && b.covering_name ? `H4H · ${b.covering_name} covering` : OFF_LABEL[b.type];
-        off ??= { state: "off", label };
+        off ??= { state: "off", label, bookingId: idOf(b) };
       }
     }
     const asked = requests.find((r) => r.user_id === me && WAITING.has(r.status) && isoDay(r.shift_date) === day && ASKED_LABEL[r.type]);

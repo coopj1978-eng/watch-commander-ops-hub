@@ -519,6 +519,10 @@ export default function UnifiedCalendar() {
         newButton={<CalendarNewButton onPick={onNew} isManager={isManager} />}
         riding={riding}
         myDays={myDays}
+        onMyDayClick={(note) => {
+          const booking = myBookings?.adjustments.find((a) => Number(a.id) === note.bookingId);
+          if (booking) setBookingToEdit(booking);
+        }}
       />
 
       {/* Phones: the calendar's own "+" (the app-wide one is hidden here) */}

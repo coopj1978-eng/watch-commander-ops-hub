@@ -27,6 +27,16 @@ describe("my days", () => {
     expect(r.size).toBe(0);
   });
 
+  it("carries the booking's id, so the label can open it to change or delete", () => {
+    // A flexi payback on another watch has no entry on your own watch's calendar.
+    const r = myDays(
+      [book({ id: "36", type: "flexi_payback", covering_watch: "Red", shift_day_night: "Day", end_date: "2026-11-21" })],
+      ME, ["2026-11-20", "2026-11-21"], rota,
+    );
+    expect(r.get("2026-11-20")).toMatchObject({ state: "in", label: "Flexi payback · Red", bookingId: 36 });
+    expect(r.get("2026-11-21")?.bookingId).toBe(36);
+  });
+
   it("puts you in for an orange day on another watch", () => {
     const r = myDays(
       [book({ type: "orange_day", start_date: "2026-11-24", end_date: "2026-11-24", covering_watch: "Red", shift_day_night: "Day" })],

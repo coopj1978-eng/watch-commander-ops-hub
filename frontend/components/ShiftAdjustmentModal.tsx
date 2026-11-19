@@ -360,6 +360,11 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
     }
   };
 
+  const daysBooked =
+    startDate && endDate
+      ? Math.round((Date.parse(`${endDate}T00:00:00Z`) - Date.parse(`${startDate}T00:00:00Z`)) / 86400000) + 1
+      : 0;
+
   const canSubmit = (() => {
     if (!type) return false;
     if (!startDate || !endDate) return false;
@@ -511,6 +516,13 @@ export default function ShiftAdjustmentModal({ open, onClose, defaultDate, editA
                   />
                 </div>
               </div>
+              {/* A slip on the last day (the wrong month, say) books every
+                  day in between — say how long it is so it's seen before saving. */}
+              {daysBooked > 7 && (
+                <p role="alert" className="text-xs rounded-lg border border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200 px-3 py-2">
+                  That's {daysBooked} days in a row. If it's meant to be one shift, set the last day to the same date as the first.
+                </p>
+              )}
 
               {/* ── H4H / TOIL: which shift are you OFF? Day / Night ──
                     Drives the calendar event placement so a night shift

@@ -46032,6 +46032,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
       setOutboundShift(a.shift_day_night ?? "Day");
     }
   };
+  const daysBooked = startDate && endDate ? Math.round((Date.parse(`${endDate}T00:00:00Z`) - Date.parse(`${startDate}T00:00:00Z`)) / 864e5) + 1 : 0;
   const canSubmit = (() => {
     if (!type) return false;
     if (!startDate || !endDate) return false;
@@ -46175,6 +46176,11 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
                 }
               )
             ] })
+          ] }),
+          daysBooked > 7 && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { role: "alert", className: "text-xs rounded-lg border border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200 px-3 py-2", children: [
+            "That's ",
+            daysBooked,
+            " days in a row. If it's meant to be one shift, set the last day to the same date as the first."
           ] }),
           (type === "h4h" || type === "toil") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50/40 dark:bg-blue-950/30 p-3", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
@@ -49318,6 +49324,7 @@ function ShortMark({ day: day2 }) {
 const shortWord = (r2) => !r2 || r2.level === "ok" ? "" : r2.level === "crit" ? ", can't ride a pump" : ", short of crew";
 const MyDaysContext = reactExports.createContext(null);
 const useMyDays = () => reactExports.useContext(MyDaysContext);
+const MyDayOpenContext = reactExports.createContext(null);
 const myKind = (m) => (m == null ? void 0 : m.state) !== "in" ? null : m.shift === "Night" ? "night" : m.shift === "Day" ? "day" : null;
 function myDayText(m) {
   if (m.state === "off") return `You're off · ${m.label}`;
@@ -49326,28 +49333,39 @@ function myDayText(m) {
   return `You're in · ${m.label}${when}`;
 }
 function MyDayPill({ note: note2, small }) {
+  const open = reactExports.useContext(MyDayOpenContext);
   if (!note2) return null;
   const k = myKind(note2) ?? "personal";
   const colours = note2.state === "asked" ? { background: "var(--cal-surface)", color: "var(--cal-ink-2)", border: "1px dashed var(--cal-muted)" } : { background: tok(k, "bg"), color: tok(k, "fg") };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    "span",
-    {
-      title: myDayText(note2),
-      style: {
-        alignSelf: "flex-start",
-        maxWidth: "100%",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-        whiteSpace: "nowrap",
-        fontSize: small ? 10.5 : 12,
-        fontWeight: 600,
-        padding: small ? "2px 6px" : "3px 9px",
-        borderRadius: 999,
-        ...colours
-      },
-      children: myDayText(note2)
-    }
-  );
+  const style = {
+    alignSelf: "flex-start",
+    maxWidth: "100%",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+    fontSize: small ? 10.5 : 12,
+    fontWeight: 600,
+    padding: small ? "2px 6px" : "3px 9px",
+    borderRadius: 999,
+    ...colours
+  };
+  if (open && note2.bookingId != null) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "button",
+      {
+        type: "button",
+        "data-event": true,
+        title: `${myDayText(note2)} — open to change or delete`,
+        onClick: (e) => {
+          e.stopPropagation();
+          open(note2);
+        },
+        style: { ...style, border: "none", cursor: "pointer", fontFamily: "inherit", textAlign: "left" },
+        children: myDayText(note2)
+      }
+    );
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { title: myDayText(note2), style, children: myDayText(note2) });
 }
 const RANK = { personal: 0, tasks: 1, watch: 2, training: 2, station: 3, insp: 4 };
 const rank = (it) => RANK[calKey(it)];
@@ -50640,7 +50658,8 @@ function CalendarWidget({
   filters,
   newButton,
   riding,
-  myDays: myDays2
+  myDays: myDays2,
+  onMyDayClick
 }) {
   const scrollRef = reactExports.useRef(null);
   const items = buildItems(events2, tasks, inspections);
@@ -50685,7 +50704,7 @@ function CalendarWidget({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(RidingContext.Provider, { value: riding ?? null, children: /* @__PURE__ */ jsxRuntimeExports.jsx(MyDaysContext.Provider, { value: myDays2 ?? null, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cal-ui", style: { display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }, children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(RidingContext.Provider, { value: riding ?? null, children: /* @__PURE__ */ jsxRuntimeExports.jsx(MyDaysContext.Provider, { value: myDays2 ?? null, children: /* @__PURE__ */ jsxRuntimeExports.jsx(MyDayOpenContext.Provider, { value: onMyDayClick ?? null, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cal-ui", style: { display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-3 md:hidden", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         PhoneHeader,
@@ -50801,7 +50820,7 @@ function CalendarWidget({
         }
       )
     ] })
-  ] }) }) });
+  ] }) }) }) });
 }
 const WATCHES$c = ["Red", "White", "Green", "Blue", "Amber"];
 const CALENDAR_LAYERS = [
@@ -52087,6 +52106,7 @@ function isoDay(v) {
 }
 const covers = (b, day2) => isoDay(b.start_date) <= day2 && isoDay(b.end_date) >= day2;
 const withWatch = (label2, watch) => watch ? `${label2} · ${watch}` : label2;
+const idOf = (b) => b.id == null || Number.isNaN(Number(b.id)) ? void 0 : Number(b.id);
 function myDays(bookings, me, days, watchShift, requests = []) {
   const out = /* @__PURE__ */ new Map();
   for (const day2 of days) {
@@ -52097,14 +52117,14 @@ function myDays(bookings, me, days, watchShift, requests = []) {
       const dn = b.shift_day_night ?? void 0;
       if ((b.type === "h4h" || b.type === "toil") && b.covering_user_id === me && b.user_id !== me) {
         const what = b.type === "h4h" ? "H4H" : "TOIL cover";
-        extra ?? (extra = { state: "in", label: withWatch(b.user_name ? `${what} for ${b.user_name}` : what, b.watch_unit), shift: dn });
+        extra ?? (extra = { state: "in", label: withWatch(b.user_name ? `${what} for ${b.user_name}` : what, b.watch_unit), shift: dn, bookingId: idOf(b) });
       } else if (EXTRA_LABEL[b.type] && b.user_id === me) {
-        extra ?? (extra = { state: "in", label: withWatch(EXTRA_LABEL[b.type], b.covering_watch), shift: dn });
+        extra ?? (extra = { state: "in", label: withWatch(EXTRA_LABEL[b.type], b.covering_watch), shift: dn, bookingId: idOf(b) });
       } else if (OFF_LABEL[b.type] && b.user_id === me) {
         const mine = watchShift(day2);
         if (!mine || dn && dn !== mine) continue;
         const label2 = b.type === "h4h" && b.covering_name ? `H4H · ${b.covering_name} covering` : OFF_LABEL[b.type];
-        off ?? (off = { state: "off", label: label2 });
+        off ?? (off = { state: "off", label: label2, bookingId: idOf(b) });
       }
     }
     const asked = requests.find((r2) => r2.user_id === me && WAITING.has(r2.status) && isoDay(r2.shift_date) === day2 && ASKED_LABEL[r2.type]);
@@ -52665,7 +52685,11 @@ This cancels the whole booking (TOIL/H4H/Flexi): any TOIL hours are refunded and
         filters,
         newButton: /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarNewButton, { onPick: onNew, isManager }),
         riding,
-        myDays: myDays$1
+        myDays: myDays$1,
+        onMyDayClick: (note2) => {
+          const booking = myBookings == null ? void 0 : myBookings.adjustments.find((a) => Number(a.id) === note2.bookingId);
+          if (booking) setBookingToEdit(booking);
+        }
       }
     ),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
