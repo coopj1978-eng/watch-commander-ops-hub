@@ -3235,6 +3235,7 @@ export namespace note {
             this.list = this.list.bind(this)
             this.update = this.update.bind(this)
             this.uploadFile = this.uploadFile.bind(this)
+            this.removeFile = this.removeFile.bind(this)
         }
 
         public async create(params: CreateNoteRequest): Promise<Note> {
@@ -3279,6 +3280,13 @@ export namespace note {
         /**
          * Attaches a file to one of your notes (raw endpoint: the file is the body).
          */
+        /**
+         * Takes one file off one of your notes (hand-patched in, see backend/note/remove_attachment.ts).
+         */
+        public async removeFile(note_id: number, params: { key: string }): Promise<void> {
+            await this.baseClient.callTypedAPI("POST", `/notes/${encodeURIComponent(note_id)}/files/remove`, JSON.stringify(params))
+        }
+
         public async uploadFile(note_id: number, file: Blob, filename: string): Promise<void> {
             await this.baseClient.callAPI("POST", `/notes/${encodeURIComponent(note_id)}/files`, file, {
                 query: { filename },

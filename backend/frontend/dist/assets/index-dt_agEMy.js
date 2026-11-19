@@ -26068,6 +26068,7 @@ var note;
       this.list = this.list.bind(this);
       this.update = this.update.bind(this);
       this.uploadFile = this.uploadFile.bind(this);
+      this.removeFile = this.removeFile.bind(this);
     }
     async create(params) {
       const resp = await this.baseClient.callTypedAPI("POST", `/notes`, JSON.stringify(params));
@@ -26092,6 +26093,12 @@ var note;
     /**
      * Attaches a file to one of your notes (raw endpoint: the file is the body).
      */
+    /**
+     * Takes one file off one of your notes (hand-patched in, see backend/note/remove_attachment.ts).
+     */
+    async removeFile(note_id, params) {
+      await this.baseClient.callTypedAPI("POST", `/notes/${encodeURIComponent(note_id)}/files/remove`, JSON.stringify(params));
+    }
     async uploadFile(note_id, file, filename) {
       await this.baseClient.callAPI("POST", `/notes/${encodeURIComponent(note_id)}/files`, file, {
         query: { filename },
@@ -48004,6 +48011,10 @@ const AlertDialogCancel = reactExports.forwardRef(({ className, ...props }, ref)
 AlertDialogCancel.displayName = Cancel.displayName;
 const longDate = (d) => new Date(d).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
 const dayMonth$1 = (d) => new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+const MAX_FILE_BYTES = 10 * 1024 * 1024;
+const ACCEPT = ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif";
+const fileKey = (f) => `${f.name}:${f.size}:${f.lastModified}`;
+const sizeText = (bytes) => bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
 const titleCls = "h-10 w-full rounded-xl border border-border bg-background px-3 text-sm font-medium placeholder:font-normal";
 const textCls = "w-full rounded-xl border border-border bg-background p-3 text-sm";
 const dateCls = "h-8 rounded-lg border border-border bg-background px-2 text-xs text-foreground";
@@ -48071,6 +48082,49 @@ function ProfileNotes({ profileId, firstName, notes, canWrite }) {
   const [editingId, setEditingId] = reactExports.useState(null);
   const [edit, setEdit] = reactExports.useState(EMPTY$3);
   const [deleting, setDeleting] = reactExports.useState(null);
+  const [addingTo, setAddingTo] = reactExports.useState(null);
+  const [removingFile, setRemovingFile] = reactExports.useState(null);
+  const addPicked = (list2) => {
+    if (!(list2 == null ? void 0 : list2.length)) return;
+    const picked = Array.from(list2);
+    const tooBig = picked.filter((f) => f.size > MAX_FILE_BYTES);
+    if (tooBig.length) {
+      toast2({
+        title: tooBig.length === 1 ? `${tooBig[0].name} is over 10 MB` : `${tooBig.length} files are over 10 MB`,
+        description: "Each file can be up to 10 MB.",
+        variant: "destructive"
+      });
+    }
+    setUploadingFiles((prev) => {
+      const have = new Set(prev.map(fileKey));
+      return [...prev, ...picked.filter((f) => f.size <= MAX_FILE_BYTES && !have.has(fileKey(f)))];
+    });
+  };
+  const addFilesToNote = async (note2, list2) => {
+    if (!(list2 == null ? void 0 : list2.length)) return;
+    setAddingTo(note2.id);
+    let ok = 0;
+    const failed = [];
+    for (const file of Array.from(list2)) {
+      if (file.size > MAX_FILE_BYTES) {
+        failed.push(`${file.name} (over 10 MB)`);
+        continue;
+      }
+      try {
+        await backend.note.uploadFile(note2.id, file, file.name);
+        ok++;
+      } catch (error) {
+        console.error(`Failed to upload ${file.name}:`, error);
+        failed.push(file.name);
+      }
+    }
+    setAddingTo(null);
+    queryClient2.invalidateQueries({ queryKey: ["notes", profileId] });
+    if (ok) toast2({ title: ok === 1 ? "File attached" : `${ok} files attached` });
+    if (failed.length) {
+      toast2({ title: "Some files weren't attached", description: failed.join(", "), variant: "destructive" });
+    }
+  };
   const refresh = (calendarToo) => {
     queryClient2.invalidateQueries({ queryKey: ["notes", profileId] });
     if (calendarToo) {
@@ -48109,7 +48163,7 @@ function ProfileNotes({ profileId, firstName, notes, canWrite }) {
       toast2({
         title: "Note added",
         description: [
-          uploadingFiles.length ? `${uploadingFiles.length} file(s) attached` : "",
+          uploadingFiles.length ? uploadingFiles.length === 1 ? "1 file attached" : `${uploadingFiles.length} files attached` : "",
           newNote.reminder_enabled ? "reminder set" : ""
         ].filter(Boolean).join(", ") || void 0
       });
@@ -48148,6 +48202,17 @@ function ProfileNotes({ profileId, firstName, notes, canWrite }) {
       toast2({ title: "Couldn't delete the note", description: (error == null ? void 0 : error.message) || "An error occurred", variant: "destructive" });
     }
   });
+  const removeFile = useMutation({
+    mutationFn: async (f) => backend.note.removeFile(f.note.id, { key: f.key }),
+    onSuccess: () => {
+      queryClient2.invalidateQueries({ queryKey: ["notes", profileId] });
+      setRemovingFile(null);
+      toast2({ title: "File removed" });
+    },
+    onError: (error) => {
+      toast2({ title: "Couldn't remove the file", description: (error == null ? void 0 : error.message) || "An error occurred", variant: "destructive" });
+    }
+  });
   const startEdit = (note2) => {
     setEditingId(note2.id);
     setEdit({
@@ -48165,29 +48230,37 @@ function ProfileNotes({ profileId, firstName, notes, canWrite }) {
       /* @__PURE__ */ jsxRuntimeExports.jsx(NoteFields, { draft: newNote, onChange: setNewNote, firstName }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2 flex", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "ml-auto inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-border px-2.5 text-xs font-medium hover:bg-muted", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Paperclip, { className: "h-3.5 w-3.5" }),
-        " Attach",
+        " ",
+        uploadingFiles.length ? "Attach more" : "Attach files",
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
           {
             type: "file",
             multiple: true,
-            accept: ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif",
+            accept: ACCEPT,
             className: "sr-only",
-            onChange: (e) => e.target.files && setUploadingFiles(Array.from(e.target.files))
+            onChange: (e) => {
+              addPicked(e.target.files);
+              e.target.value = "";
+            }
           }
         )
       ] }) }),
-      uploadingFiles.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "mt-2 space-y-1", children: uploadingFiles.map((file, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-center gap-2 text-xs text-muted-foreground", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "h-3.5 w-3.5" }),
-        " ",
-        file.name,
-        " ",
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-          "(",
-          (file.size / 1024).toFixed(1),
-          " KB)"
-        ] })
-      ] }, idx)) }),
+      uploadingFiles.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "mt-2 space-y-1", children: uploadingFiles.map((file) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-center gap-2 rounded-lg border border-border/70 py-1 pl-2 pr-1 text-xs", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "h-3.5 w-3.5 shrink-0 text-muted-foreground" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "min-w-0 flex-1 truncate", children: file.name }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "shrink-0 text-muted-foreground", children: sizeText(file.size) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            "aria-label": `Take ${file.name} off this note`,
+            onClick: () => setUploadingFiles((prev) => prev.filter((f) => fileKey(f) !== fileKey(file))),
+            className: "grid h-7 w-7 shrink-0 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground",
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" })
+          }
+        )
+      ] }, fileKey(file))) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
         Button,
         {
@@ -48211,6 +48284,7 @@ function ProfileNotes({ profileId, firstName, notes, canWrite }) {
         ] })
       ] }),
       sorted.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("ol", { className: "relative ml-1.5 mt-4 border-l border-border/70", children: sorted.map((note2) => {
+        var _a3;
         const isEditing = editingId === note2.id;
         const edited = new Date(note2.updated_at).getTime() - new Date(note2.created_at).getTime() > 6e4;
         return /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "relative pb-6 pl-5 last:pb-0", children: [
@@ -48289,25 +48363,95 @@ function ProfileNotes({ profileId, firstName, notes, canWrite }) {
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1 whitespace-pre-wrap text-sm text-foreground/90", children: note2.note_text })
           ] }),
-          note2.attachments && note2.attachments.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2 flex flex-wrap gap-1.5", children: note2.attachments.map((attachment, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "a",
-            {
-              href: attachment.url,
-              target: "_blank",
-              rel: "noopener noreferrer",
-              className: "inline-flex items-center gap-1.5 rounded-lg border border-border px-2 py-1 text-xs hover:bg-muted",
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "h-3.5 w-3.5" }),
-                " ",
-                attachment.filename,
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { className: "h-3 w-3 text-muted-foreground" })
-              ]
-            },
-            idx
-          )) })
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 flex flex-wrap items-center gap-1.5", children: [
+            (note2.attachments ?? []).map((attachment, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex max-w-full items-center rounded-lg border border-border text-xs", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "a",
+                {
+                  href: attachment.url,
+                  target: "_blank",
+                  rel: "noopener noreferrer",
+                  className: "inline-flex min-w-0 items-center gap-1.5 rounded-l-lg px-2 py-1.5 hover:bg-muted",
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "h-3.5 w-3.5 shrink-0" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate", children: attachment.filename }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { className: "h-3 w-3 shrink-0 text-muted-foreground" })
+                  ]
+                }
+              ),
+              attachment.key && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  type: "button",
+                  "aria-label": `Remove ${attachment.filename}`,
+                  onClick: () => setRemovingFile({ note: note2, key: attachment.key, filename: attachment.filename }),
+                  className: "grid h-7 w-7 shrink-0 place-items-center rounded-r-lg border-l border-border text-muted-foreground hover:bg-muted hover:text-foreground",
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" })
+                }
+              )
+            ] }, attachment.key ?? idx)),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "label",
+              {
+                className: cn(
+                  "inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-lg border border-dashed border-border px-2 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground",
+                  addingTo === note2.id && "pointer-events-none opacity-70"
+                ),
+                children: [
+                  addingTo === note2.id ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "h-3.5 w-3.5 animate-spin" }),
+                    " Attaching…"
+                  ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Paperclip, { className: "h-3.5 w-3.5" }),
+                    " ",
+                    ((_a3 = note2.attachments) == null ? void 0 : _a3.length) ? "Add files" : "Attach files"
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      type: "file",
+                      multiple: true,
+                      accept: ACCEPT,
+                      className: "sr-only",
+                      disabled: addingTo === note2.id,
+                      onChange: (e) => {
+                        const picked = e.target.files;
+                        void addFilesToNote(note2, picked).finally(() => {
+                          e.target.value = "";
+                        });
+                      }
+                    }
+                  )
+                ]
+              }
+            )
+          ] })
         ] }, note2.id);
       }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "py-10 text-center text-sm text-muted-foreground", children: "No notes yet." })
     ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialog, { open: !!removingFile, onOpenChange: (open) => !open && setRemovingFile(null), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogContent, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogHeader, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogTitle, { children: "Remove this file?" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogDescription, { children: [
+          removingFile == null ? void 0 : removingFile.filename,
+          " will be taken off the note and deleted. This can't be undone. The note itself stays."
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogFooter, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogCancel, { children: "Keep it" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          AlertDialogAction,
+          {
+            onClick: (e) => {
+              e.preventDefault();
+              if (removingFile) removeFile.mutate(removingFile);
+            },
+            className: "bg-red-600 hover:bg-red-700",
+            children: removeFile.isPending ? "Removing…" : "Remove file"
+          }
+        )
+      ] })
+    ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialog, { open: !!deleting, onOpenChange: (open) => !open && setDeleting(null), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogContent, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogHeader, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogTitle, { children: "Delete this note?" }),

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  Bell, Calendar as CalendarIcon, Download, FileText, MoreHorizontal, Paperclip, Pencil, Plus, Trash2,
+  Bell, Calendar as CalendarIcon, Download, FileText, Loader2, MoreHorizontal, Paperclip, Pencil, Plus, Trash2, X,
 } from "lucide-react";
 import { useBackend } from "@/lib/rbac";
 import type { note as noteApi } from "@/client";
@@ -24,6 +24,13 @@ type Note = noteApi.Note;
 const longDate = (d: string) =>
   new Date(d).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
 const dayMonth = (d: string) => new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+
+// A note can hold as many files as it needs (the server's limit is per file).
+const MAX_FILE_BYTES = 10 * 1024 * 1024;
+const ACCEPT = ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif";
+const fileKey = (f: File) => `${f.name}:${f.size}:${f.lastModified}`;
+const sizeText = (bytes: number) =>
+  bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
 const titleCls = "h-10 w-full rounded-xl border border-border bg-background px-3 text-sm font-medium placeholder:font-normal";
 const textCls = "w-full rounded-xl border border-border bg-background p-3 text-sm";
 const dateCls = "h-8 rounded-lg border border-border bg-background px-2 text-xs text-foreground";
@@ -104,6 +111,51 @@ export function ProfileNotes({ profileId, firstName, notes, canWrite }: {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [edit, setEdit] = useState<Draft>(EMPTY);
   const [deleting, setDeleting] = useState<Note | null>(null);
+  const [addingTo, setAddingTo] = useState<number | null>(null);
+  const [removingFile, setRemovingFile] = useState<{ note: Note; key: string; filename: string } | null>(null);
+
+  // New note: each pick ADDS to the list (on a phone you choose one photo at
+  // a time), and any of them can be taken off again before saving.
+  const addPicked = (list: FileList | null) => {
+    if (!list?.length) return;
+    const picked = Array.from(list);
+    const tooBig = picked.filter((f) => f.size > MAX_FILE_BYTES);
+    if (tooBig.length) {
+      toast({
+        title: tooBig.length === 1 ? `${tooBig[0].name} is over 10 MB` : `${tooBig.length} files are over 10 MB`,
+        description: "Each file can be up to 10 MB.",
+        variant: "destructive",
+      });
+    }
+    setUploadingFiles((prev) => {
+      const have = new Set(prev.map(fileKey));
+      return [...prev, ...picked.filter((f) => f.size <= MAX_FILE_BYTES && !have.has(fileKey(f)))];
+    });
+  };
+
+  // A note already saved: more files go straight on.
+  const addFilesToNote = async (note: Note, list: FileList | null) => {
+    if (!list?.length) return;
+    setAddingTo(note.id);
+    let ok = 0;
+    const failed: string[] = [];
+    for (const file of Array.from(list)) {
+      if (file.size > MAX_FILE_BYTES) { failed.push(`${file.name} (over 10 MB)`); continue; }
+      try {
+        await backend.note.uploadFile(note.id, file, file.name);
+        ok++;
+      } catch (error) {
+        console.error(`Failed to upload ${file.name}:`, error);
+        failed.push(file.name);
+      }
+    }
+    setAddingTo(null);
+    queryClient.invalidateQueries({ queryKey: ["notes", profileId] });
+    if (ok) toast({ title: ok === 1 ? "File attached" : `${ok} files attached` });
+    if (failed.length) {
+      toast({ title: "Some files weren't attached", description: failed.join(", "), variant: "destructive" });
+    }
+  };
 
   const refresh = (calendarToo: boolean) => {
     queryClient.invalidateQueries({ queryKey: ["notes", profileId] });
@@ -145,7 +197,7 @@ export function ProfileNotes({ profileId, firstName, notes, canWrite }: {
       toast({
         title: "Note added",
         description: [
-          uploadingFiles.length ? `${uploadingFiles.length} file(s) attached` : "",
+          uploadingFiles.length ? (uploadingFiles.length === 1 ? "1 file attached" : `${uploadingFiles.length} files attached`) : "",
           newNote.reminder_enabled ? "reminder set" : "",
         ].filter(Boolean).join(", ") || undefined,
       });
@@ -188,6 +240,18 @@ export function ProfileNotes({ profileId, firstName, notes, canWrite }: {
     },
   });
 
+  const removeFile = useMutation({
+    mutationFn: async (f: { note: Note; key: string }) => backend.note.removeFile(f.note.id, { key: f.key }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notes", profileId] });
+      setRemovingFile(null);
+      toast({ title: "File removed" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Couldn't remove the file", description: error?.message || "An error occurred", variant: "destructive" });
+    },
+  });
+
   const startEdit = (note: Note) => {
     setEditingId(note.id);
     setEdit({
@@ -209,21 +273,32 @@ export function ProfileNotes({ profileId, firstName, notes, canWrite }: {
           <NoteFields draft={newNote} onChange={setNewNote} firstName={firstName} />
           <div className="mt-2 flex">
             <label className="ml-auto inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-border px-2.5 text-xs font-medium hover:bg-muted">
-              <Paperclip className="h-3.5 w-3.5" /> Attach
+              <Paperclip className="h-3.5 w-3.5" /> {uploadingFiles.length ? "Attach more" : "Attach files"}
               <input
                 type="file"
                 multiple
-                accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif"
+                accept={ACCEPT}
                 className="sr-only"
-                onChange={(e) => e.target.files && setUploadingFiles(Array.from(e.target.files))}
+                // Cleared after each pick so the same file can be chosen again.
+                onChange={(e) => { addPicked(e.target.files); e.target.value = ""; }}
               />
             </label>
           </div>
           {uploadingFiles.length > 0 && (
             <ul className="mt-2 space-y-1">
-              {uploadingFiles.map((file, idx) => (
-                <li key={idx} className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <FileText className="h-3.5 w-3.5" /> {file.name} <span>({(file.size / 1024).toFixed(1)} KB)</span>
+              {uploadingFiles.map((file) => (
+                <li key={fileKey(file)} className="flex items-center gap-2 rounded-lg border border-border/70 py-1 pl-2 pr-1 text-xs">
+                  <FileText className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                  <span className="min-w-0 flex-1 truncate">{file.name}</span>
+                  <span className="shrink-0 text-muted-foreground">{sizeText(file.size)}</span>
+                  <button
+                    type="button"
+                    aria-label={`Take ${file.name} off this note`}
+                    onClick={() => setUploadingFiles((prev) => prev.filter((f) => fileKey(f) !== fileKey(file)))}
+                    className="grid h-7 w-7 shrink-0 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
                 </li>
               ))}
             </ul>
@@ -328,22 +403,53 @@ export function ProfileNotes({ profileId, firstName, notes, canWrite }: {
                     </>
                   )}
 
-                  {note.attachments && note.attachments.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-1.5">
-                      {note.attachments.map((attachment, idx) => (
+                  <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                    {(note.attachments ?? []).map((attachment, idx) => (
+                      <span key={attachment.key ?? idx} className="inline-flex max-w-full items-center rounded-lg border border-border text-xs">
                         <a
-                          key={idx}
                           href={attachment.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2 py-1 text-xs hover:bg-muted"
+                          className="inline-flex min-w-0 items-center gap-1.5 rounded-l-lg px-2 py-1.5 hover:bg-muted"
                         >
-                          <FileText className="h-3.5 w-3.5" /> {attachment.filename}
-                          <Download className="h-3 w-3 text-muted-foreground" />
+                          <FileText className="h-3.5 w-3.5 shrink-0" />
+                          <span className="truncate">{attachment.filename}</span>
+                          <Download className="h-3 w-3 shrink-0 text-muted-foreground" />
                         </a>
-                      ))}
-                    </div>
-                  )}
+                        {attachment.key && (
+                          <button
+                            type="button"
+                            aria-label={`Remove ${attachment.filename}`}
+                            onClick={() => setRemovingFile({ note, key: attachment.key!, filename: attachment.filename })}
+                            className="grid h-7 w-7 shrink-0 place-items-center rounded-r-lg border-l border-border text-muted-foreground hover:bg-muted hover:text-foreground"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                      </span>
+                    ))}
+                    {/* More files can go on a saved note at any time. */}
+                    <label
+                      className={cn(
+                        "inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-lg border border-dashed border-border px-2 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground",
+                        addingTo === note.id && "pointer-events-none opacity-70",
+                      )}
+                    >
+                      {addingTo === note.id ? (
+                        <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Attaching…</>
+                      ) : (
+                        <><Paperclip className="h-3.5 w-3.5" /> {note.attachments?.length ? "Add files" : "Attach files"}</>
+                      )}
+                      <input
+                        type="file"
+                        multiple
+                        accept={ACCEPT}
+                        className="sr-only"
+                        disabled={addingTo === note.id}
+                        onChange={(e) => { const picked = e.target.files; void addFilesToNote(note, picked).finally(() => { e.target.value = ""; }); }}
+                      />
+                    </label>
+                  </div>
                 </li>
               );
             })}
@@ -352,6 +458,26 @@ export function ProfileNotes({ profileId, firstName, notes, canWrite }: {
           <p className="py-10 text-center text-sm text-muted-foreground">No notes yet.</p>
         )}
       </section>
+
+      <AlertDialog open={!!removingFile} onOpenChange={(open) => !open && setRemovingFile(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove this file?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {removingFile?.filename} will be taken off the note and deleted. This can't be undone. The note itself stays.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep it</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); if (removingFile) removeFile.mutate(removingFile); }}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {removeFile.isPending ? "Removing…" : "Remove file"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog open={!!deleting} onOpenChange={(open) => !open && setDeleting(null)}>
         <AlertDialogContent>
