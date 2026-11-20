@@ -35,6 +35,18 @@ export const updateDefect = api<UpdateDefectRequest, EquipmentDefect>(
       setClauses.push(`j7_raised = $${paramIndex++}`);
       params.push(updates.j7_raised);
     }
+    if (updates.equipment_item_id !== undefined) {
+      // The kit item has to be on the same appliance as the line.
+      const match = await db.queryRow<{ id: number }>`
+        SELECT e.id FROM equipment_items e
+        JOIN equipment_defects d ON d.appliance_id = e.appliance_id
+        WHERE e.id = ${updates.equipment_item_id} AND d.id = ${id}
+      `;
+      if (!match) throw APIError.invalidArgument("That kit item isn't on this line's appliance.");
+      setClauses.push(`equipment_item_id = $${paramIndex++}`);
+      params.push(updates.equipment_item_id);
+      setClauses.push(`defect_type = 'equipment'`);
+    }
     if (updates.description !== undefined) {
       setClauses.push(`description = $${paramIndex++}`);
       params.push(updates.description);

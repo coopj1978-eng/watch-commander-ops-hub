@@ -168,6 +168,8 @@ export interface UpdateDefectRequest {
   status?: DefectStatus;
   description?: string;
   j7_raised?: boolean;
+  /** Ties a typed-in line to a kit item on its appliance, so the J4 check knows it's on the board. */
+  equipment_item_id?: number;
 }
 
 export interface ListAppliancesResponse {

@@ -19603,12 +19603,36 @@ const createLucideIcon = (iconName, iconNode) => {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$2p = [
+const __iconNode$2r = [
   ["path", { d: "M15 12H3", key: "6jk70r" }],
   ["path", { d: "M17 18H3", key: "1amg6g" }],
   ["path", { d: "M21 6H3", key: "1jwq7v" }]
 ];
-const AlignLeft = createLucideIcon("align-left", __iconNode$2p);
+const AlignLeft = createLucideIcon("align-left", __iconNode$2r);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$2q = [
+  ["path", { d: "M12 5v14", key: "s699le" }],
+  ["path", { d: "m19 12-7 7-7-7", key: "1idqje" }]
+];
+const ArrowDown = createLucideIcon("arrow-down", __iconNode$2q);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$2p = [
+  ["path", { d: "M8 3 4 7l4 4", key: "9rb6wj" }],
+  ["path", { d: "M4 7h16", key: "6tx8e3" }],
+  ["path", { d: "m16 21 4-4-4-4", key: "siv7j2" }],
+  ["path", { d: "M20 17H4", key: "h6l3hr" }]
+];
+const ArrowLeftRight = createLucideIcon("arrow-left-right", __iconNode$2p);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19616,12 +19640,10 @@ const AlignLeft = createLucideIcon("align-left", __iconNode$2p);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2o = [
-  ["path", { d: "M8 3 4 7l4 4", key: "9rb6wj" }],
-  ["path", { d: "M4 7h16", key: "6tx8e3" }],
-  ["path", { d: "m16 21 4-4-4-4", key: "siv7j2" }],
-  ["path", { d: "M20 17H4", key: "h6l3hr" }]
+  ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
+  ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowLeftRight = createLucideIcon("arrow-left-right", __iconNode$2o);
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$2o);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19629,10 +19651,12 @@ const ArrowLeftRight = createLucideIcon("arrow-left-right", __iconNode$2o);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2n = [
-  ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
-  ["path", { d: "M19 12H5", key: "x3x0zl" }]
+  ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
+  ["path", { d: "M20 7H4", key: "zbl0bi" }],
+  ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
+  ["path", { d: "M4 17h16", key: "g4d7ey" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$2n);
+const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$2n);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19640,12 +19664,10 @@ const ArrowLeft = createLucideIcon("arrow-left", __iconNode$2n);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2m = [
-  ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
-  ["path", { d: "M20 7H4", key: "zbl0bi" }],
-  ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
-  ["path", { d: "M4 17h16", key: "g4d7ey" }]
+  ["path", { d: "M5 12h14", key: "1ays0h" }],
+  ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$2m);
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$2m);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19653,10 +19675,10 @@ const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$2m);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2l = [
-  ["path", { d: "M5 12h14", key: "1ays0h" }],
-  ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
+  ["path", { d: "M7 7h10v10", key: "1tivn9" }],
+  ["path", { d: "M7 17 17 7", key: "1vkiza" }]
 ];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$2l);
+const ArrowUpRight = createLucideIcon("arrow-up-right", __iconNode$2l);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19664,10 +19686,10 @@ const ArrowRight = createLucideIcon("arrow-right", __iconNode$2l);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2k = [
-  ["path", { d: "M7 7h10v10", key: "1tivn9" }],
-  ["path", { d: "M7 17 17 7", key: "1vkiza" }]
+  ["path", { d: "m5 12 7-7 7 7", key: "hav0vg" }],
+  ["path", { d: "M12 19V5", key: "x0mq9r" }]
 ];
-const ArrowUpRight = createLucideIcon("arrow-up-right", __iconNode$2k);
+const ArrowUp = createLucideIcon("arrow-up", __iconNode$2k);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -25250,6 +25272,18 @@ var appliance;
     }
     async startCheck(params) {
       const resp = await this.baseClient.callTypedAPI("POST", `/appliances/checks`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async renameSection(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/appliances/equipment/sections/rename`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async removeSection(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/appliances/equipment/sections/remove`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async reorderEquipment(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/appliances/equipment/reorder`, JSON.stringify(params));
       return await resp.json();
     }
     async updateAppliance(id, params) {
@@ -58072,7 +58106,7 @@ function ColumnHeader({
     onSetWip(isNaN(n) || n <= 0 ? void 0 : n);
     setEditingWip(false);
   };
-  const iconBtn = {
+  const iconBtn2 = {
     width: 32,
     height: 32,
     borderRadius: 9,
@@ -58138,7 +58172,7 @@ function ColumnHeader({
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { flex: 1 } }),
           !renaming && canManage && /* @__PURE__ */ jsxRuntimeExports.jsxs(Root2$3, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Trigger$3, { asChild: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": `${column.name} column actions`, className: "cal-focus", style: iconBtn, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Ellipsis, { className: "h-4 w-4" }) }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Trigger$3, { asChild: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": `${column.name} column actions`, className: "cal-focus", style: iconBtn2, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Ellipsis, { className: "h-4 w-4" }) }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(Portal2$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Content2$2, { align: "end", sideOffset: 6, collisionPadding: 12, className: "cal-menu", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Item2, { className: "cal-menu-item", onSelect: () => setRenaming(true), children: "Rename" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(Item2, { className: "cal-menu-item", onSelect: () => {
@@ -58149,7 +58183,7 @@ function ColumnHeader({
               /* @__PURE__ */ jsxRuntimeExports.jsx(Item2, { className: "cal-menu-item cal-menu-danger", onSelect: onDelete, children: "Delete column" })
             ] }) })
           ] }),
-          !renaming && onCollapse && /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": `Collapse ${column.name}`, title: "Collapse column", onClick: onCollapse, className: "cal-focus", style: { ...iconBtn, width: 32, height: 32, borderRadius: 9 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronsLeft, { className: "h-4 w-4" }) }),
+          !renaming && onCollapse && /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": `Collapse ${column.name}`, title: "Collapse column", onClick: onCollapse, className: "cal-focus", style: { ...iconBtn2, width: 32, height: 32, borderRadius: 9 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronsLeft, { className: "h-4 w-4" }) }),
           onQuickAdd && !renaming && /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
@@ -58189,8 +58223,8 @@ function ColumnHeader({
           autoFocus: true
         }
       ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": "Save limit", onClick: saveWip, style: { ...iconBtn, color: "var(--cal-leave-dot)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-4 w-4" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": "Cancel", onClick: () => setEditingWip(false), style: iconBtn, children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4" }) })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": "Save limit", onClick: saveWip, style: { ...iconBtn2, color: "var(--cal-leave-dot)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-4 w-4" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": "Cancel", onClick: () => setEditingWip(false), style: iconBtn2, children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4" }) })
     ] })
   ] });
 }
@@ -62549,7 +62583,7 @@ function Tasks() {
   const activeFilterCount = [filterSearch, filterLabels.length, filterOverdue, filterAssignee].filter(Boolean).length;
   const shiftWhen = shift2 ? shift2.on_duty ? `${shift2.label} · on duty` : `next shift ${new Date(shift2.start).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}` : "";
   const toggleLabel = (id) => setFilterLabels(filterLabels.includes(id) ? filterLabels.filter((l) => l !== id) : [...filterLabels, id]);
-  const iconBtn = { width: 44, height: 44, padding: 0, position: "relative" };
+  const iconBtn2 = { width: 44, height: 44, padding: 0, position: "relative" };
   const personButton = (p, size2) => {
     const on = filterAssignee === p.id;
     const k = personTint(p.id);
@@ -62685,12 +62719,12 @@ function Tasks() {
                 /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { style: { margin: 0, fontSize: isPhone ? 28 : 36, lineHeight: 1.05, fontWeight: 600, letterSpacing: "-.02em", color: "var(--cal-ink)" }, children: viewMode === "board" ? "Shift board" : "All tasks" })
               ] }),
               isPhone ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: 6, position: "relative" }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: () => setShowFilterSheet(true), "aria-label": `Filters, ${activeFilterCount ? `${activeFilterCount} active` : "none active"}`, className: "cal-btn", style: iconBtn, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: () => setShowFilterSheet(true), "aria-label": `Filters, ${activeFilterCount ? `${activeFilterCount} active` : "none active"}`, className: "cal-btn", style: iconBtn2, children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { className: "h-[18px] w-[18px]" }),
                   activeFilterCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { position: "absolute", top: -5, right: -5, minWidth: 18, height: 18, borderRadius: 9, background: "var(--cal-brand)", color: "#fff", fontSize: 10, fontWeight: 600, display: "grid", placeItems: "center", padding: "0 4px" }, children: activeFilterCount })
                 ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setViewMode(viewMode === "board" ? "list" : "board"), "aria-label": viewMode === "board" ? "Switch to list" : "Switch to board", className: "cal-btn", style: iconBtn, children: viewMode === "board" ? /* @__PURE__ */ jsxRuntimeExports.jsx(List$1, { className: "h-[18px] w-[18px]" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(LayoutGrid, { className: "h-[18px] w-[18px]" }) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setShowRoutines(true), "aria-label": "Weekly routine", className: "cal-btn", style: iconBtn, children: /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarRange, { className: "h-[18px] w-[18px]" }) })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setViewMode(viewMode === "board" ? "list" : "board"), "aria-label": viewMode === "board" ? "Switch to list" : "Switch to board", className: "cal-btn", style: iconBtn2, children: viewMode === "board" ? /* @__PURE__ */ jsxRuntimeExports.jsx(List$1, { className: "h-[18px] w-[18px]" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(LayoutGrid, { className: "h-[18px] w-[18px]" }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setShowRoutines(true), "aria-label": "Weekly routine", className: "cal-btn", style: iconBtn2, children: /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarRange, { className: "h-[18px] w-[18px]" }) })
               ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("div", { role: "group", "aria-label": "View", style: { display: "inline-flex", padding: 4, borderRadius: 14, background: "var(--cal-surface-3)", gap: 2 }, children: [["board", "Shift board", LayoutGrid], ["list", "All tasks", List$1]].map(([mode, label2, Icon2]) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
                   "button",
@@ -62732,7 +62766,7 @@ function Tasks() {
                     "aria-label": calOpen ? "Hide Upcoming" : "Show Upcoming",
                     title: calOpen ? "Hide Upcoming" : "Show Upcoming",
                     className: "cal-btn",
-                    style: iconBtn,
+                    style: iconBtn2,
                     children: calOpen ? /* @__PURE__ */ jsxRuntimeExports.jsx(PanelRightClose, { className: "h-[18px] w-[18px]" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(PanelRightOpen, { className: "h-[18px] w-[18px]" })
                   }
                 ),
@@ -70375,7 +70409,7 @@ function MultistorySection({ canEdit }) {
     },
     onError: () => toast2({ title: "Error", description: "Failed to delete", variant: "destructive" })
   });
-  const moveItem = async (index2, direction) => {
+  const moveItem2 = async (index2, direction) => {
     const items2 = (data == null ? void 0 : data.items) ?? [];
     const targetIndex = direction === "up" ? index2 - 1 : index2 + 1;
     if (targetIndex < 0 || targetIndex >= items2.length) return;
@@ -70449,7 +70483,7 @@ function MultistorySection({ canEdit }) {
               /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "icon", variant: "ghost", className: "h-7 w-7 text-muted-foreground", onClick: () => setEditId(null), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" }) })
             ] }) })
           ] }, item.id) : /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "border-b border-border last:border-0 hover:bg-muted/30 transition-colors", children: [
-            canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-2 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(MoveButtons, { onUp: () => moveItem(index2, "up"), onDown: () => moveItem(index2, "down"), isFirst: index2 === 0, isLast: index2 === items.length - 1, isPending: movePending }) }),
+            canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-2 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(MoveButtons, { onUp: () => moveItem2(index2, "up"), onDown: () => moveItem2(index2, "down"), isFirst: index2 === 0, isLast: index2 === items.length - 1, isPending: movePending }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 font-medium", children: item.address }),
             [item.q1_watch, item.q2_watch, item.q3_watch, item.q4_watch].map((w, i) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-3 py-3 text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(WatchBadge, { watch: shownWatch(w) }) }, i)),
             canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-3 py-3", children: confirmDelete === item.id ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1 justify-end", children: [
@@ -70532,7 +70566,7 @@ function CareHomeSection({ canEdit }) {
     },
     onError: () => toast2({ title: "Error", description: "Failed to delete", variant: "destructive" })
   });
-  const moveItem = async (index2, direction) => {
+  const moveItem2 = async (index2, direction) => {
     const items2 = (data == null ? void 0 : data.items) ?? [];
     const targetIndex = direction === "up" ? index2 - 1 : index2 + 1;
     if (targetIndex < 0 || targetIndex >= items2.length) return;
@@ -70577,7 +70611,7 @@ function CareHomeSection({ canEdit }) {
               /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "icon", variant: "ghost", className: "h-7 w-7", onClick: () => setEditId(null), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" }) })
             ] }) })
           ] }, item.id) : /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "border-b border-border last:border-0 hover:bg-muted/30 transition-colors", children: [
-            canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-2 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(MoveButtons, { onUp: () => moveItem(index2, "up"), onDown: () => moveItem(index2, "down"), isFirst: index2 === 0, isLast: index2 === items.length - 1, isPending: movePending }) }),
+            canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-2 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(MoveButtons, { onUp: () => moveItem2(index2, "up"), onDown: () => moveItem2(index2, "down"), isFirst: index2 === 0, isLast: index2 === items.length - 1, isPending: movePending }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 font-medium", children: item.address }),
             canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-3 py-3", children: confirmDelete === item.id ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1 justify-end", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "icon", variant: "ghost", className: "h-7 w-7 text-destructive", onClick: () => deleteMutation.mutate(item.id), disabled: deleteMutation.isPending, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-3.5 w-3.5" }) }),
@@ -70662,7 +70696,7 @@ function OperationalSection({ canEdit }) {
     },
     onError: () => toast2({ title: "Error", description: "Failed to delete", variant: "destructive" })
   });
-  const moveItem = async (index2, direction) => {
+  const moveItem2 = async (index2, direction) => {
     const items2 = (data == null ? void 0 : data.items) ?? [];
     const targetIndex = direction === "up" ? index2 - 1 : index2 + 1;
     if (targetIndex < 0 || targetIndex >= items2.length) return;
@@ -70707,7 +70741,7 @@ function OperationalSection({ canEdit }) {
               /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "icon", variant: "ghost", className: "h-7 w-7", onClick: () => setEditId(null), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" }) })
             ] }) })
           ] }, item.id) : /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "border-b border-border last:border-0 hover:bg-muted/30 transition-colors", children: [
-            canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-2 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(MoveButtons, { onUp: () => moveItem(index2, "up"), onDown: () => moveItem(index2, "down"), isFirst: index2 === 0, isLast: index2 === items.length - 1, isPending: movePending }) }),
+            canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-2 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(MoveButtons, { onUp: () => moveItem2(index2, "up"), onDown: () => moveItem2(index2, "down"), isFirst: index2 === 0, isLast: index2 === items.length - 1, isPending: movePending }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 font-medium", children: item.address }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-3 py-3 font-mono text-xs text-muted-foreground", children: item.uprn }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-3 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(WatchBadge, { watch: item.watch }) }),
@@ -71338,12 +71372,41 @@ function kitSections(items) {
 function lockersOf(items) {
   return kitSections(items).filter((s) => s.isLocker).map((s) => s.name);
 }
+const idsOf = (sections) => sections.flatMap((s) => s.shelves.flatMap((sh) => sh.items.map((i) => i.id)));
+function moveItem(sections, id, by) {
+  for (const section2 of sections) {
+    for (const shelf of section2.shelves) {
+      const at = shelf.items.findIndex((i) => i.id === id);
+      if (at < 0) continue;
+      const to = at + by;
+      if (to < 0 || to >= shelf.items.length) return null;
+      const ids2 = idsOf(sections);
+      const a = ids2.indexOf(id), b = ids2.indexOf(shelf.items[to].id);
+      [ids2[a], ids2[b]] = [ids2[b], ids2[a]];
+      return ids2;
+    }
+  }
+  return null;
+}
+function moveSection(sections, key2, by) {
+  const lockers = sections.filter((s) => s.isLocker);
+  const at = lockers.findIndex((s) => s.key === key2);
+  const to = at + by;
+  if (at < 0 || to < 0 || to >= lockers.length) return null;
+  const next = [...lockers];
+  [next[at], next[to]] = [next[to], next[at]];
+  return idsOf([...next, ...sections.filter((s) => !s.isLocker)]);
+}
+function shelvesOf(items, locker) {
+  const section2 = kitSections(items).find((s) => s.isLocker && s.name.trim().toLowerCase() === locker.trim().toLowerCase());
+  return section2 ? section2.shelves.map((s) => s.name).filter(Boolean) : [];
+}
 const STATUS_BUTTONS = [
   { value: "OK", label: "OK", Icon: CircleCheck, on: "border-green-600 bg-green-600 text-white" },
   { value: "Defective", label: "Defect", Icon: TriangleAlert, on: "border-amber-600 bg-amber-600 text-white" },
   { value: "Missing", label: "Missing", Icon: CircleX, on: "border-red-600 bg-red-600 text-white" }
 ];
-const LONG_LIST = 30;
+const LONG_LIST$1 = 30;
 function shiftNow(watch) {
   const h = (/* @__PURE__ */ new Date()).getHours();
   return currentDayNight(watch) ?? (h >= 8 && h < 18 ? "Day" : "Night");
@@ -71466,7 +71529,7 @@ function CheckForm({
   const indexOf = new Map(checkItems.map((item, index2) => [item.equipment_item_id, index2]));
   const sections = kitSections(checkItems);
   const issuesIn = (items) => items.filter((i) => i.status !== "OK").length;
-  const longList = checkItems.length > LONG_LIST;
+  const longList = checkItems.length > LONG_LIST$1;
   const startsOpen = (key2) => {
     const section2 = sections.find((x) => x.key === key2);
     return !longList || !!section2 && issuesIn(section2.shelves.flatMap((sh) => sh.items)) > 0;
@@ -71851,17 +71914,11 @@ function CheckHistory({ appliances }) {
     ] }) })
   ] });
 }
-const CATEGORIES = [
-  { value: "BA", label: "Breathing Apparatus" },
-  { value: "Ladders", label: "Ladders" },
-  { value: "Hose", label: "Hose" },
-  { value: "TIC", label: "Thermal Imaging" },
-  { value: "PPE", label: "PPE" },
-  { value: "Tools", label: "Tools" },
-  { value: "Medical", label: "Medical" },
-  { value: "Other", label: "Other" }
-];
-const BLANK_ITEM = { name: "", category: "Other", serial_number: "", quantity: 1, locker: "", shelf: "" };
+const CATEGORIES = Object.entries(CATEGORY_LABELS).map(([value, label2]) => ({ value, label: label2 }));
+const LONG_LIST = 30;
+const BLANK = { name: "", category: "Other", serial_number: "", quantity: 1, locker: "", shelf: "" };
+const headingName = (h) => h.shelf !== void 0 ? `${h.shelf || "the unshelved part"} in ${h.locker}` : h.locker;
+const iconBtn = "grid h-10 w-10 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground";
 function EquipmentManager({
   open,
   onOpenChange,
@@ -71871,361 +71928,474 @@ function EquipmentManager({
   const { toast: toast2 } = useToast();
   const queryClient2 = useQueryClient();
   const isWC = useIsWatchCommander();
-  const [showAddForm, setShowAddForm] = reactExports.useState(false);
-  const [editingItem, setEditingItem] = reactExports.useState(null);
-  const [newItem, setNewItem] = reactExports.useState(BLANK_ITEM);
+  const [form, setForm] = reactExports.useState(null);
+  const [renaming, setRenaming] = reactExports.useState(null);
+  const [removingHeading, setRemovingHeading] = reactExports.useState(null);
+  const [removingItem, setRemovingItem] = reactExports.useState(null);
+  const [opened, setOpened] = reactExports.useState(null);
   const { data: equipmentData, isLoading } = useQuery({
     queryKey: ["equipment", applianceId],
-    queryFn: async () => {
-      const result = await backendClient.appliance.listEquipment({
-        appliance_id: applianceId
-      });
-      return result;
-    },
+    queryFn: () => backendClient.appliance.listEquipment({ appliance_id: applianceId }),
     enabled: open
-  });
-  const createMutation = useMutation({
-    mutationFn: async () => {
-      return await backendClient.appliance.createEquipment({
-        appliance_id: applianceId,
-        name: newItem.name,
-        category: newItem.category,
-        serial_number: newItem.serial_number || void 0,
-        quantity: newItem.quantity,
-        locker: newItem.locker.trim() || void 0,
-        shelf: newItem.shelf.trim() || void 0
-      });
-    },
-    onSuccess: () => {
-      queryClient2.invalidateQueries({ queryKey: ["equipment", applianceId] });
-      toast2({ title: "Equipment added" });
-      setNewItem((p) => ({ ...BLANK_ITEM, locker: p.locker, shelf: p.shelf }));
-    },
-    onError: () => {
-      toast2({ title: "Failed to add equipment", variant: "destructive" });
-    }
-  });
-  const updateMutation = useMutation({
-    mutationFn: async (item) => {
-      return await backendClient.appliance.updateEquipment(item.id, {
-        name: item.name,
-        category: item.category,
-        serial_number: item.serial_number || void 0,
-        quantity: item.quantity,
-        // "" takes it out of its locker.
-        locker: item.locker.trim(),
-        shelf: item.shelf.trim()
-      });
-    },
-    onSuccess: () => {
-      queryClient2.invalidateQueries({ queryKey: ["equipment", applianceId] });
-      toast2({ title: "Equipment updated" });
-      setEditingItem(null);
-    },
-    onError: () => {
-      toast2({ title: "Failed to update equipment", variant: "destructive" });
-    }
-  });
-  const deleteMutation = useMutation({
-    mutationFn: async (id) => {
-      return await backendClient.appliance.deleteEquipment(id);
-    },
-    onSuccess: () => {
-      queryClient2.invalidateQueries({ queryKey: ["equipment", applianceId] });
-      toast2({ title: "Equipment removed" });
-    },
-    onError: () => {
-      toast2({ title: "Failed to remove equipment", variant: "destructive" });
-    }
   });
   const items = (equipmentData == null ? void 0 : equipmentData.items) || [];
   const sections = kitSections(items);
   const lockers = lockersOf(items);
-  const categoryLabel = (cat) => {
-    var _a3;
-    return ((_a3 = CATEGORIES.find((c) => c.value === cat)) == null ? void 0 : _a3.label) || cat;
+  const longList = items.length > LONG_LIST;
+  const isOpen = (key2) => opened ? opened.has(key2) : !longList;
+  const toggle = (key2) => setOpened((prev) => {
+    const next = new Set(prev ?? (longList ? [] : sections.map((s) => s.key)));
+    if (next.has(key2)) next.delete(key2);
+    else next.add(key2);
+    return next;
+  });
+  const refresh = () => queryClient2.invalidateQueries({ queryKey: ["equipment", applianceId] });
+  const failed = (title) => (e) => toast2({ title, description: e == null ? void 0 : e.message, variant: "destructive" });
+  const saveItem = useMutation({
+    mutationFn: async (f) => {
+      const fields = {
+        name: f.name.trim(),
+        category: f.category,
+        quantity: f.quantity,
+        // "" takes an item out of its locker, or off its shelf.
+        locker: f.locker.trim(),
+        shelf: f.locker.trim() ? f.shelf.trim() : ""
+      };
+      return f.id ? backendClient.appliance.updateEquipment(f.id, { ...fields, serial_number: f.serial_number.trim() }) : backendClient.appliance.createEquipment({ appliance_id: applianceId, ...fields, serial_number: f.serial_number.trim() || void 0 });
+    },
+    onSuccess: (_d2, f) => {
+      refresh();
+      toast2({ title: f.id ? "Item changed" : `${f.name.trim()} added` });
+      if (f.locker.trim()) setOpened((prev) => /* @__PURE__ */ new Set([...prev ?? (longList ? [] : sections.map((s) => s.key)), `locker:${f.locker.trim().toLowerCase()}`]));
+      setForm(null);
+    },
+    onError: failed("Couldn't save it")
+  });
+  const removeItem = useMutation({
+    mutationFn: (id) => backendClient.appliance.deleteEquipment(id),
+    onSuccess: () => {
+      refresh();
+      toast2({ title: "Item removed" });
+      setRemovingItem(null);
+      setForm(null);
+    },
+    onError: failed("Couldn't remove it")
+  });
+  const renameHeading = useMutation({
+    mutationFn: (r2) => backendClient.appliance.renameSection({
+      appliance_id: applianceId,
+      locker: r2.locker,
+      ...r2.shelf !== void 0 ? { shelf: r2.shelf } : {},
+      new_name: r2.to.trim()
+    }),
+    onSuccess: (_d2, r2) => {
+      refresh();
+      toast2({ title: "Renamed" });
+      if (r2.shelf === void 0) {
+        setOpened((prev) => {
+          const was = `locker:${r2.locker.trim().toLowerCase()}`;
+          if (!(prev == null ? void 0 : prev.has(was))) return prev;
+          const next = new Set(prev);
+          next.delete(was);
+          next.add(`locker:${r2.to.trim().toLowerCase()}`);
+          return next;
+        });
+      }
+      setRenaming(null);
+    },
+    onError: failed("Couldn't rename it")
+  });
+  const removeHeading = useMutation({
+    mutationFn: (h) => backendClient.appliance.removeSection({ appliance_id: applianceId, locker: h.locker, ...h.shelf !== void 0 ? { shelf: h.shelf } : {} }),
+    onSuccess: (d) => {
+      refresh();
+      toast2({ title: `${d.removed} ${d.removed === 1 ? "item" : "items"} removed` });
+      setRemovingHeading(null);
+    },
+    onError: failed("Couldn't remove it")
+  });
+  const reorder = useMutation({
+    mutationFn: (ids2) => backendClient.appliance.reorderEquipment({ appliance_id: applianceId, ids: ids2 }),
+    onSuccess: refresh,
+    onError: failed("Couldn't move it")
+  });
+  const move = (ids2) => {
+    if (ids2 && !reorder.isPending) reorder.mutate(ids2);
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-3xl max-h-[85vh] overflow-y-auto", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { className: "flex items-center gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Package, { className: "h-5 w-5" }),
-        "Manage Equipment — ",
-        applianceName
+  const editItem = (item) => setForm({
+    id: item.id,
+    name: item.name,
+    category: item.category,
+    serial_number: item.serial_number || "",
+    quantity: item.quantity,
+    locker: item.locker || "",
+    shelf: item.shelf || ""
+  });
+  const lockerSections = sections.filter((s) => s.isLocker);
+  const formValid = !!form && form.name.trim().length > 0 && form.quantity >= 1;
+  const formShelves = form ? shelvesOf(items, form.locker) : [];
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-3xl max-h-[85vh] overflow-y-auto", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { className: "pr-8 text-left", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { className: "flex items-start gap-2 leading-snug", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Package, { className: "mt-0.5 h-5 w-5 shrink-0" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "min-w-0 break-words", children: [
+            "Kit list · ",
+            applianceName
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: "What's on this appliance, by locker and shelf, in the order the J4 check goes through it. Changes apply to the next check." })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: "The kit on this appliance, by locker and shelf as the J4 folder has it. Changes apply to the next J4 check." })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0 space-y-4 py-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        Button,
-        {
-          onClick: () => setShowAddForm(!showAddForm),
-          variant: showAddForm ? "secondary" : "default",
-          size: "sm",
-          children: showAddForm ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4 mr-2" }),
-            "Cancel"
-          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0 space-y-3 py-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-muted-foreground", children: [
+            items.length,
+            " ",
+            items.length === 1 ? "item" : "items",
+            lockerSections.length > 0 ? ` in ${lockerSections.length} ${lockerSections.length === 1 ? "locker" : "lockers and cabs"}` : ""
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { onClick: () => setForm(BLANK), size: "sm", className: "h-10", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4 mr-2" }),
-            "Add Equipment"
-          ] })
-        }
-      ) }),
-      showAddForm && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "border rounded-lg p-4 bg-muted/50 space-y-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 sm:grid-cols-2 gap-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "new-name", children: "Name *" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Input,
-              {
-                id: "new-name",
-                placeholder: "e.g. BA Set 1035",
-                value: newItem.name,
-                onChange: (e) => setNewItem((p) => ({ ...p, name: e.target.value }))
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "new-category", children: "Category *" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              Select,
-              {
-                value: newItem.category,
-                onValueChange: (v) => setNewItem((p) => ({ ...p, category: v })),
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "new-category", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: CATEGORIES.map((cat) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: cat.value, children: cat.label }, cat.value)) })
-                ]
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "new-locker", children: "Locker or cab" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Input,
-              {
-                id: "new-locker",
-                list: "kit-lockers",
-                placeholder: "e.g. Offside Front · Locker 7",
-                value: newItem.locker,
-                onChange: (e) => setNewItem((p) => ({ ...p, locker: e.target.value }))
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("datalist", { id: "kit-lockers", children: lockers.map((l) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: l }, l)) })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "new-shelf", children: "Shelf" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Input,
-              {
-                id: "new-shelf",
-                placeholder: "e.g. Shelf 3",
-                value: newItem.shelf,
-                onChange: (e) => setNewItem((p) => ({ ...p, shelf: e.target.value }))
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "new-serial", children: "Serial Number" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Input,
-              {
-                id: "new-serial",
-                placeholder: "Optional",
-                value: newItem.serial_number,
-                onChange: (e) => setNewItem((p) => ({
-                  ...p,
-                  serial_number: e.target.value
-                }))
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "new-qty", children: "Quantity" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Input,
-              {
-                id: "new-qty",
-                type: "number",
-                min: 1,
-                value: newItem.quantity,
-                onChange: (e) => setNewItem((p) => ({
-                  ...p,
-                  quantity: parseInt(e.target.value) || 1
-                }))
-              }
-            )
+            "Add item"
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Button,
-          {
-            onClick: () => createMutation.mutate(),
-            disabled: !newItem.name.trim() || createMutation.isPending,
-            size: "sm",
-            className: "bg-indigo-600 hover:bg-indigo-700",
-            children: createMutation.isPending ? "Adding..." : "Add Item"
-          }
-        ) })
+        isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-center py-8 text-muted-foreground", children: "Loading the kit list…" }) : items.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "rounded-xl border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground", children: "Nothing on this appliance's kit list yet. Add the first item, and give it the locker or cab it's kept in." }) : sections.map((section2) => {
+          const open2 = isOpen(section2.key);
+          const lockerAt = lockerSections.findIndex((s) => s.key === section2.key);
+          const whole = { locker: section2.name, count: section2.count };
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "rounded-xl border border-border", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1 pr-1", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "min-w-0 flex-1", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  type: "button",
+                  "aria-expanded": open2,
+                  onClick: () => toggle(section2.key),
+                  className: "flex min-h-12 w-full items-center gap-3 rounded-xl px-3 py-2 text-left hover:bg-muted/50",
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: cn("h-4 w-4 shrink-0 text-muted-foreground transition-transform", !open2 && "-rotate-90"), "aria-hidden": true }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "min-w-0", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block font-semibold leading-snug", children: section2.name }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "block text-xs text-muted-foreground", children: [
+                        section2.count,
+                        " ",
+                        section2.count === 1 ? "item" : "items",
+                        !section2.isLocker && " · no locker set"
+                      ] })
+                    ] })
+                  ]
+                }
+              ) }),
+              section2.isLocker && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    type: "button",
+                    className: iconBtn,
+                    "aria-label": `Add an item to ${section2.name}`,
+                    title: "Add an item here",
+                    onClick: () => setForm({ ...BLANK, locker: section2.name }),
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4" })
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenu, { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuTrigger, { asChild: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: iconBtn, "aria-label": `More for ${section2.name}`, title: "Rename, move or remove", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Ellipsis, { className: "h-4 w-4" }) }) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuContent, { align: "end", className: "w-52", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuItem, { onSelect: () => setRenaming({ ...whole, to: section2.name }), children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "h-4 w-4" }),
+                      " Rename"
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuItem, { disabled: lockerAt <= 0, onSelect: () => move(moveSection(sections, section2.key, -1)), children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowUp, { className: "h-4 w-4" }),
+                      " Move up"
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuItem, { disabled: lockerAt >= lockerSections.length - 1, onSelect: () => move(moveSection(sections, section2.key, 1)), children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowDown, { className: "h-4 w-4" }),
+                      " Move down"
+                    ] }),
+                    isWC && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuSeparator, {}),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuItem, { className: "text-red-600 focus:text-red-600", onSelect: () => setRemovingHeading(whole), children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-4 w-4" }),
+                        " Remove with its items"
+                      ] })
+                    ] })
+                  ] })
+                ] })
+              ] })
+            ] }),
+            open2 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 border-t border-border p-3", children: [
+              !section2.isLocker && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "These have no locker yet. Use the pencil on an item to say where it's kept." }),
+              section2.shelves.map((shelf) => {
+                const part = { locker: section2.name, shelf: shelf.name, count: shelf.items.length };
+                return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  section2.isLocker && (shelf.name || section2.shelves.length > 1) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "min-w-0 flex-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground", children: shelf.name || "No shelf" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        type: "button",
+                        className: iconBtn,
+                        "aria-label": `Add an item to ${shelf.name || "this part"} of ${section2.name}`,
+                        title: "Add an item here",
+                        onClick: () => setForm({ ...BLANK, locker: section2.name, shelf: shelf.name }),
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-4 w-4" })
+                      }
+                    ),
+                    shelf.name && /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenu, { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuTrigger, { asChild: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: iconBtn, "aria-label": `More for ${shelf.name} of ${section2.name}`, title: "Rename or remove", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Ellipsis, { className: "h-4 w-4" }) }) }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuContent, { align: "end", className: "w-52", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuItem, { onSelect: () => setRenaming({ ...part, to: shelf.name }), children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "h-4 w-4" }),
+                          " Rename"
+                        ] }),
+                        isWC && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuSeparator, {}),
+                          /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuItem, { className: "text-red-600 focus:text-red-600", onSelect: () => setRemovingHeading(part), children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-4 w-4" }),
+                            " Remove with its items"
+                          ] })
+                        ] })
+                      ] })
+                    ] })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "divide-y divide-border rounded-lg border border-border", children: shelf.items.map((item, at) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex min-h-12 items-center gap-1 py-1 pl-3 pr-1", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-0.5", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: item.name }),
+                      item.quantity > 1 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-sm text-muted-foreground", children: [
+                        "× ",
+                        item.quantity
+                      ] }),
+                      item.serial_number && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-xs", children: [
+                        "S/N: ",
+                        item.serial_number
+                      ] })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: iconBtn, "aria-label": `Change ${item.name}`, title: "Change this item", onClick: () => editItem(item), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "h-4 w-4" }) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenu, { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuTrigger, { asChild: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: iconBtn, "aria-label": `More for ${item.name}`, title: "Move or remove", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Ellipsis, { className: "h-4 w-4" }) }) }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuContent, { align: "end", className: "w-44", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuItem, { disabled: at === 0, onSelect: () => move(moveItem(sections, item.id, -1)), children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowUp, { className: "h-4 w-4" }),
+                          " Move up"
+                        ] }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuItem, { disabled: at === shelf.items.length - 1, onSelect: () => move(moveItem(sections, item.id, 1)), children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowDown, { className: "h-4 w-4" }),
+                          " Move down"
+                        ] }),
+                        isWC && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuSeparator, {}),
+                          /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuItem, { className: "text-red-600 focus:text-red-600", onSelect: () => setRemovingItem(item), children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-4 w-4" }),
+                            " Remove"
+                          ] })
+                        ] })
+                      ] })
+                    ] })
+                  ] }, item.id)) })
+                ] }, shelf.name || "_");
+              })
+            ] })
+          ] }, section2.key);
+        })
       ] }),
-      isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-center py-8 text-muted-foreground", children: "Loading equipment..." }) : items.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-center py-8 text-muted-foreground", children: "No equipment items configured for this appliance." }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "rounded-md border", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "overflow-x-auto", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Name" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Shelf" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Type" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Serial No." }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Qty" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "w-[100px]", children: "Actions" })
-          ] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableBody, { children: sections.flatMap((section2) => [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableRow, { className: "bg-muted/60 hover:bg-muted/60", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TableCell, { colSpan: 6, className: "py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground", children: [
-              section2.name,
-              " · ",
-              section2.count,
-              " ",
-              section2.count === 1 ? "item" : "items",
-              !section2.isLocker && " · no locker set"
-            ] }) }, `h-${section2.key}`),
-            ...section2.shelves.flatMap((sh) => sh.items).map(
-              (item) => (editingItem == null ? void 0 : editingItem.id) === item.id ? /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogFooter, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", onClick: () => onOpenChange(false), children: "Close" }) })
+    ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: !!form, onOpenChange: (o) => !o && setForm(null), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-md", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { className: "pr-8 text-left", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: (form == null ? void 0 : form.id) ? "Change this item" : "Add an item" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: (form == null ? void 0 : form.id) ? "Changing the locker or shelf moves it there." : "To start a new locker, cab or shelf, type its name." })
+      ] }),
+      form && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "form",
+        {
+          className: "space-y-3",
+          onSubmit: (e) => {
+            e.preventDefault();
+            if (formValid && !saveItem.isPending) saveItem.mutate(form);
+          },
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "kit-name", children: "Name" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "kit-name", autoFocus: true, value: form.name, maxLength: 120, onChange: (e) => setForm({ ...form, name: e.target.value }), placeholder: "e.g. Salvage Sheets" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "kit-qty", children: "How many" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
                   Input,
                   {
-                    value: editingItem.name,
-                    onChange: (e) => setEditingItem(
-                      (p) => p ? { ...p, name: e.target.value } : null
-                    ),
-                    className: "h-8"
-                  }
-                ) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-[9rem] flex-col gap-1", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    Input,
-                    {
-                      "aria-label": "Locker or cab",
-                      list: "kit-lockers-edit",
-                      placeholder: "Locker or cab",
-                      value: editingItem.locker,
-                      onChange: (e) => setEditingItem((p) => p ? { ...p, locker: e.target.value } : null),
-                      className: "h-8"
-                    }
-                  ),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    Input,
-                    {
-                      "aria-label": "Shelf",
-                      placeholder: "Shelf",
-                      value: editingItem.shelf,
-                      onChange: (e) => setEditingItem((p) => p ? { ...p, shelf: e.target.value } : null),
-                      className: "h-8"
-                    }
-                  )
-                ] }) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  Select,
-                  {
-                    value: editingItem.category,
-                    onValueChange: (v) => setEditingItem(
-                      (p) => p ? { ...p, category: v } : null
-                    ),
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: CATEGORIES.map((cat) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: cat.value, children: cat.label }, cat.value)) })
-                    ]
-                  }
-                ) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  Input,
-                  {
-                    value: editingItem.serial_number,
-                    onChange: (e) => setEditingItem(
-                      (p) => p ? { ...p, serial_number: e.target.value } : null
-                    ),
-                    className: "h-8"
-                  }
-                ) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  Input,
-                  {
+                    id: "kit-qty",
                     type: "number",
+                    inputMode: "numeric",
                     min: 1,
-                    value: editingItem.quantity,
-                    onChange: (e) => setEditingItem(
-                      (p) => p ? {
-                        ...p,
-                        quantity: parseInt(e.target.value) || 1
-                      } : null
-                    ),
-                    className: "h-8 w-16"
+                    value: form.quantity,
+                    onChange: (e) => setForm({ ...form, quantity: parseInt(e.target.value) || 0 })
                   }
-                ) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    Button,
-                    {
-                      size: "sm",
-                      variant: "ghost",
-                      className: "h-7 w-7 p-0",
-                      onClick: () => updateMutation.mutate(editingItem),
-                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { className: "h-3.5 w-3.5 text-green-600" })
-                    }
-                  ),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    Button,
-                    {
-                      size: "sm",
-                      variant: "ghost",
-                      className: "h-7 w-7 p-0",
-                      onClick: () => setEditingItem(null),
-                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" })
-                    }
-                  )
-                ] }) })
-              ] }, item.id) : /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "font-medium", children: item.name }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "text-sm text-muted-foreground", children: item.locker && item.shelf || "—" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-xs", children: categoryLabel(item.category) }) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "text-sm text-muted-foreground", children: item.serial_number || "—" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: item.quantity }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    Button,
-                    {
-                      size: "sm",
-                      variant: "ghost",
-                      className: "h-7 w-7 p-0",
-                      onClick: () => setEditingItem({
-                        id: item.id,
-                        name: item.name,
-                        category: item.category,
-                        serial_number: item.serial_number || "",
-                        quantity: item.quantity,
-                        locker: item.locker || "",
-                        shelf: item.shelf || ""
-                      }),
-                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "h-3.5 w-3.5" })
-                    }
-                  ),
-                  isWC && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    Button,
-                    {
-                      size: "sm",
-                      variant: "ghost",
-                      className: "h-7 w-7 p-0 text-red-600 hover:text-red-700",
-                      onClick: () => deleteMutation.mutate(item.id),
-                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-3.5 w-3.5" })
-                    }
-                  )
-                ] }) })
-              ] }, item.id)
-            )
-          ]) })
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "kit-type", children: "Type" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: form.category, onValueChange: (v) => setForm({ ...form, category: v }), children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "kit-type", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: CATEGORIES.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: c.value, children: c.label }, c.value)) })
+                ] })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "kit-locker", children: "Locker or cab" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Input,
+                {
+                  id: "kit-locker",
+                  list: "kit-lockers",
+                  value: form.locker,
+                  maxLength: 80,
+                  onChange: (e) => setForm({ ...form, locker: e.target.value }),
+                  placeholder: "e.g. Offside Front · Locker 7"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("datalist", { id: "kit-lockers", children: lockers.map((l) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: l }, l)) })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(Label, { htmlFor: "kit-shelf", children: [
+                "Shelf ",
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-normal text-muted-foreground", children: "(if the locker has them)" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Input,
+                {
+                  id: "kit-shelf",
+                  list: "kit-shelves",
+                  value: form.shelf,
+                  maxLength: 80,
+                  disabled: !form.locker.trim(),
+                  onChange: (e) => setForm({ ...form, shelf: e.target.value }),
+                  placeholder: "e.g. Shelf 3"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("datalist", { id: "kit-shelves", children: formShelves.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: s }, s)) })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(Label, { htmlFor: "kit-serial", children: [
+                "Serial or set number ",
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-normal text-muted-foreground", children: "(optional)" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "kit-serial", value: form.serial_number, maxLength: 60, onChange: (e) => setForm({ ...form, serial_number: e.target.value }) })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogFooter, { className: "flex-row items-center justify-end gap-2 pt-2", children: [
+              form.id && isWC && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                Button,
+                {
+                  type: "button",
+                  variant: "ghost",
+                  className: "mr-auto text-red-600 hover:text-red-700",
+                  onClick: () => {
+                    const item = items.find((i) => i.id === form.id);
+                    if (item) setRemovingItem(item);
+                  },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-4 w-4 mr-2" }),
+                    " Remove"
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "button", variant: "outline", onClick: () => setForm(null), children: "Cancel" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "submit", disabled: !formValid || saveItem.isPending, children: saveItem.isPending ? "Saving…" : form.id ? "Save" : "Add" })
+            ] })
+          ]
+        }
+      )
+    ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: !!renaming, onOpenChange: (o) => !o && setRenaming(null), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-sm", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { className: "pr-8 text-left", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { children: [
+          "Rename ",
+          (renaming == null ? void 0 : renaming.shelf) !== void 0 ? "this shelf" : "this locker or cab"
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("datalist", { id: "kit-lockers-edit", children: lockers.map((l) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: l }, l)) })
-      ] }) })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(DialogFooter, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", onClick: () => onOpenChange(false), children: "Close" }) })
-  ] }) });
+        /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: "Its items stay as they are." })
+      ] }),
+      renaming && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "form",
+        {
+          className: "space-y-3",
+          onSubmit: (e) => {
+            e.preventDefault();
+            if (renaming.to.trim() && !renameHeading.isPending) renameHeading.mutate(renaming);
+          },
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "kit-heading", children: "Name" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "kit-heading", autoFocus: true, value: renaming.to, maxLength: 80, onChange: (e) => setRenaming({ ...renaming, to: e.target.value }) })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogFooter, { className: "flex-row justify-end gap-2 pt-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "button", variant: "outline", onClick: () => setRenaming(null), children: "Cancel" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Button,
+                {
+                  type: "submit",
+                  disabled: !renaming.to.trim() || renaming.to.trim() === (renaming.shelf ?? renaming.locker) || renameHeading.isPending,
+                  children: renameHeading.isPending ? "Saving…" : "Save"
+                }
+              )
+            ] })
+          ]
+        }
+      )
+    ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialog, { open: !!removingHeading, onOpenChange: (o) => !o && setRemovingHeading(null), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogContent, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogHeader, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogTitle, { children: [
+          "Remove ",
+          removingHeading ? headingName(removingHeading) : "",
+          "?"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogDescription, { children: [
+          "This takes ",
+          (removingHeading == null ? void 0 : removingHeading.count) === 1 ? "its 1 item" : `all ${removingHeading == null ? void 0 : removingHeading.count} of its items`,
+          " off the kit list, so they stop being checked. Past checks keep their record of them."
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogFooter, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogCancel, { children: "Keep it" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          AlertDialogAction,
+          {
+            className: "bg-red-600 hover:bg-red-700",
+            onClick: (e) => {
+              e.preventDefault();
+              if (removingHeading && !removeHeading.isPending) removeHeading.mutate(removingHeading);
+            },
+            children: removeHeading.isPending ? "Removing…" : "Remove"
+          }
+        )
+      ] })
+    ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialog, { open: !!removingItem, onOpenChange: (o) => !o && setRemovingItem(null), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogContent, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogHeader, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogTitle, { children: [
+          "Remove ",
+          removingItem == null ? void 0 : removingItem.name,
+          "?"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogDescription, { children: "It comes off the kit list and stops being checked. Past checks keep their record of it." })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogFooter, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogCancel, { children: "Keep it" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          AlertDialogAction,
+          {
+            className: "bg-red-600 hover:bg-red-700",
+            onClick: (e) => {
+              e.preventDefault();
+              if (removingItem && !removeItem.isPending) removeItem.mutate(removingItem.id);
+            },
+            children: removeItem.isPending ? "Removing…" : "Remove"
+          }
+        )
+      ] })
+    ] }) })
+  ] });
 }
 function AddApplianceModal({
   open,

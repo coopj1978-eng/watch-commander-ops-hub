@@ -27,7 +27,7 @@ export const updateEquipment = api<UpdateEquipmentRequest, EquipmentItem>(
     }
     if (updates.serial_number !== undefined) {
       setClauses.push(`serial_number = $${paramIndex++}`);
-      params.push(updates.serial_number);
+      params.push(updates.serial_number.trim() || null);
     }
     if (updates.quantity !== undefined) {
       setClauses.push(`quantity = $${paramIndex++}`);

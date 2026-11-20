@@ -85,3 +85,46 @@ export function lockersOf(items: KitItem[]): string[] {
 export function whereKept(item: { locker?: string | null; shelf?: string | null }): string {
   return [clean(item.locker), clean(item.locker) ? clean(item.shelf) : ""].filter(Boolean).join(" · ");
 }
+
+// ─── Reordering (the kit editor's "Move up / Move down") ──────────────────────
+// The list's order is just the order of its ids, so a move is the same list
+// with two neighbours swapped. Each returns every id in the new order, or
+// null when there's nowhere to move to.
+
+type WithId = KitItem & { id: number };
+const idsOf = <T extends WithId>(sections: KitSection<T>[]) =>
+  sections.flatMap((s) => s.shelves.flatMap((sh) => sh.items.map((i) => i.id)));
+
+/** An item one place up or down within its own shelf. */
+export function moveItem<T extends WithId>(sections: KitSection<T>[], id: number, by: -1 | 1): number[] | null {
+  for (const section of sections) {
+    for (const shelf of section.shelves) {
+      const at = shelf.items.findIndex((i) => i.id === id);
+      if (at < 0) continue;
+      const to = at + by;
+      if (to < 0 || to >= shelf.items.length) return null;
+      const ids = idsOf(sections);
+      const a = ids.indexOf(id), b = ids.indexOf(shelf.items[to].id);
+      [ids[a], ids[b]] = [ids[b], ids[a]];
+      return ids;
+    }
+  }
+  return null;
+}
+
+/** A whole locker (or cab) one place up or down among the lockers. */
+export function moveSection<T extends WithId>(sections: KitSection<T>[], key: string, by: -1 | 1): number[] | null {
+  const lockers = sections.filter((s) => s.isLocker);
+  const at = lockers.findIndex((s) => s.key === key);
+  const to = at + by;
+  if (at < 0 || to < 0 || to >= lockers.length) return null;
+  const next = [...lockers];
+  [next[at], next[to]] = [next[to], next[at]];
+  return idsOf([...next, ...sections.filter((s) => !s.isLocker)]);
+}
+
+/** The shelves already used in a locker, in list order — for picking one when adding kit. */
+export function shelvesOf(items: KitItem[], locker: string): string[] {
+  const section = kitSections(items).find((s) => s.isLocker && s.name.trim().toLowerCase() === locker.trim().toLowerCase());
+  return section ? section.shelves.map((s) => s.name).filter(Boolean) : [];
+}

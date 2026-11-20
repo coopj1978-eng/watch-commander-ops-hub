@@ -1023,6 +1023,14 @@ export namespace appliance {
         status?: DefectStatus
         description?: string
         "j7_raised"?: boolean
+        "equipment_item_id"?: number
+    }
+
+    /** A heading of an appliance's kit list: a locker (or cab), or one shelf of it. */
+    export interface KitSectionRef {
+        "appliance_id": number
+        locker: string
+        shelf?: string
     }
 
     export interface UpdateEquipmentRequest {
@@ -1141,6 +1149,21 @@ export namespace appliance {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("POST", `/appliances/checks`, JSON.stringify(params))
             return await resp.json() as StartCheckResponse
+        }
+
+        public async renameSection(params: KitSectionRef & { "new_name": string }): Promise<{ updated: number }> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/appliances/equipment/sections/rename`, JSON.stringify(params))
+            return await resp.json() as { updated: number }
+        }
+
+        public async removeSection(params: KitSectionRef): Promise<{ removed: number }> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/appliances/equipment/sections/remove`, JSON.stringify(params))
+            return await resp.json() as { removed: number }
+        }
+
+        public async reorderEquipment(params: { "appliance_id": number, ids: number[] }): Promise<{ ordered: number }> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/appliances/equipment/reorder`, JSON.stringify(params))
+            return await resp.json() as { ordered: number }
         }
 
         public async updateAppliance(id: number, params: UpdateApplianceRequest): Promise<Appliance> {
