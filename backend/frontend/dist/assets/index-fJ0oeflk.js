@@ -39181,8 +39181,23 @@ function boardLine(d) {
     watch: clean$1(d.watch) || null,
     date: d.reported_at,
     reportedBy: d.reported_by_name,
-    overdue: d.overdue
+    overdue: d.overdue,
+    applianceId: d.appliance_id,
+    kit: kitState(d),
+    typed: title
   };
+}
+const typedIn = (title) => !!title && !/^(missing|defective)$/i.test(title);
+function kitState(d) {
+  if (d.appliance_id === null || d.defect_type === "station") return null;
+  if (d.defect_type === "equipment" && d.equipment_item_id) return typedIn(clean$1(d.title)) ? "linked" : null;
+  return "unlinked";
+}
+function kitMatches(typed, items) {
+  const words = (s) => s.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length >= 4).map((w) => w.replace(/s$/, ""));
+  const want = new Set(words(typed));
+  if (want.size === 0) return [];
+  return items.map((item) => ({ item, score: new Set(words(item.name).filter((w) => want.has(w))).size })).filter((x) => x.score > 0).sort((a, b) => b.score - a.score || a.item.name.length - b.item.name.length).map((x) => x.item);
 }
 const outstanding = (d) => d.status !== "Resolved";
 function boardGroups(appliances, defects) {
@@ -39210,6 +39225,82 @@ function boardGroups(appliances, defects) {
 function boardSummary(groups) {
   return groups.filter((g) => g.lines.length > 0).map((g) => `${g.lines.length} on ${g.heading === "Station" ? "the station" : g.heading}`).join(" · ");
 }
+const CATEGORY_LABELS = {
+  BA: "Breathing Apparatus",
+  Ladders: "Ladders",
+  Hose: "Hose",
+  TIC: "Thermal Imaging",
+  PPE: "PPE",
+  Tools: "Tools",
+  Medical: "Medical",
+  Other: "Other"
+};
+const clean = (s) => (s ?? "").trim();
+const order = (i) => i.sort_order ?? 0;
+function kitSections(items) {
+  const sorted = [...items].sort((a, b) => order(a) - order(b) || a.name.localeCompare(b.name));
+  const sections = /* @__PURE__ */ new Map();
+  for (const item of sorted) {
+    const locker = clean(item.locker);
+    const key2 = locker ? `locker:${locker.toLowerCase()}` : `type:${item.category}`;
+    let section2 = sections.get(key2);
+    if (!section2) {
+      section2 = {
+        key: key2,
+        name: locker || CATEGORY_LABELS[item.category] || item.category,
+        isLocker: !!locker,
+        shelves: [],
+        count: 0
+      };
+      sections.set(key2, section2);
+    }
+    const shelfName = locker ? clean(item.shelf) : "";
+    let shelf = section2.shelves.find((s) => s.name.toLowerCase() === shelfName.toLowerCase());
+    if (!shelf) {
+      shelf = { name: shelfName, items: [] };
+      section2.shelves.push(shelf);
+    }
+    shelf.items.push(item);
+    section2.count++;
+  }
+  const all = [...sections.values()];
+  return [...all.filter((s) => s.isLocker), ...all.filter((s) => !s.isLocker)];
+}
+function lockersOf(items) {
+  return kitSections(items).filter((s) => s.isLocker).map((s) => s.name);
+}
+function whereKept(item) {
+  return [clean(item.locker), clean(item.locker) ? clean(item.shelf) : ""].filter(Boolean).join(" · ");
+}
+const idsOf = (sections) => sections.flatMap((s) => s.shelves.flatMap((sh) => sh.items.map((i) => i.id)));
+function moveItem(sections, id, by) {
+  for (const section2 of sections) {
+    for (const shelf of section2.shelves) {
+      const at = shelf.items.findIndex((i) => i.id === id);
+      if (at < 0) continue;
+      const to = at + by;
+      if (to < 0 || to >= shelf.items.length) return null;
+      const ids2 = idsOf(sections);
+      const a = ids2.indexOf(id), b = ids2.indexOf(shelf.items[to].id);
+      [ids2[a], ids2[b]] = [ids2[b], ids2[a]];
+      return ids2;
+    }
+  }
+  return null;
+}
+function moveSection(sections, key2, by) {
+  const lockers = sections.filter((s) => s.isLocker);
+  const at = lockers.findIndex((s) => s.key === key2);
+  const to = at + by;
+  if (at < 0 || to < 0 || to >= lockers.length) return null;
+  const next = [...lockers];
+  [next[at], next[to]] = [next[to], next[at]];
+  return idsOf([...next, ...sections.filter((s) => !s.isLocker)]);
+}
+function shelvesOf(items, locker) {
+  const section2 = kitSections(items).find((s) => s.isLocker && s.name.trim().toLowerCase() === locker.trim().toLowerCase());
+  return section2 ? section2.shelves.map((s) => s.name).filter(Boolean) : [];
+}
 function useBoardDefects() {
   return useQuery({
     queryKey: ["defects", "board"],
@@ -39221,6 +39312,7 @@ function J4Board() {
   const queryClient2 = useQueryClient();
   const canManage = useIsCrewCommander();
   const [view, setView] = reactExports.useState("board");
+  const [linking, setLinking] = reactExports.useState(null);
   const { data: appliancesData, isLoading: loadingAppliances } = useQuery({
     queryKey: ["appliances"],
     queryFn: () => backendClient.appliance.listAppliances({})
@@ -39289,20 +39381,137 @@ function J4Board() {
             line,
             canManage,
             busy: update.isPending,
-            onUpdate: (patch) => update.mutate({ id: line.id, ...patch })
+            onUpdate: (patch) => update.mutate({ id: line.id, ...patch }),
+            onLink: () => setLinking(line)
           },
           line.id
         )) })
       ] })
     ] }, g.key)),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: 'Anyone can add a line with "Add to the board". A Watch or Crew Commander ticks the J7, marks it ordered and clears it when the kit is back.' })
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground", children: [
+      'Anyone can add a line with "Add to the board". A Watch or Crew Commander ticks the J7, marks it ordered and clears it when the kit is back',
+      canManage ? ", and can link a typed-in line to its item on the kit list so the J4 check starts that item as missing or defective." : "."
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      LinkKitDialog,
+      {
+        line: linking,
+        taken: new Set(onBoard.filter((d) => d.equipment_item_id && d.id !== (linking == null ? void 0 : linking.id)).map((d) => d.equipment_item_id)),
+        onClose: () => setLinking(null)
+      }
+    )
   ] });
+}
+function LinkKitDialog({ line, taken, onClose }) {
+  const { toast: toast2 } = useToast();
+  const queryClient2 = useQueryClient();
+  const [search, setSearch] = reactExports.useState("");
+  const [picked, setPicked] = reactExports.useState(null);
+  const applianceId = (line == null ? void 0 : line.applianceId) ?? null;
+  const { data, isLoading } = useQuery({
+    queryKey: ["equipment", applianceId],
+    queryFn: () => backendClient.appliance.listEquipment({ appliance_id: applianceId }),
+    enabled: applianceId !== null
+  });
+  const kit = (data == null ? void 0 : data.items) ?? [];
+  const close = () => {
+    setSearch("");
+    setPicked(null);
+    onClose();
+  };
+  const link = useMutation({
+    mutationFn: (itemId) => backendClient.appliance.updateDefect(line.id, { equipment_item_id: itemId }),
+    onSuccess: (_d2, itemId) => {
+      var _a3;
+      queryClient2.invalidateQueries({ queryKey: ["defects"] });
+      toast2({ title: `Linked to ${((_a3 = kit.find((i) => i.id === itemId)) == null ? void 0 : _a3.name) ?? "the kit item"}`, description: "The J4 check will start it as on the board." });
+      close();
+    },
+    onError: (e) => toast2({ title: "Couldn't link it", description: e == null ? void 0 : e.message, variant: "destructive" })
+  });
+  const q = search.trim().toLowerCase();
+  const found = q ? kit.filter((i) => `${i.name} ${i.locker ?? ""} ${i.shelf ?? ""}`.toLowerCase().includes(q)) : kit;
+  const likely = q || !line ? [] : kitMatches(line.typed || line.item, kit).slice(0, 4);
+  const sections = kitSections(found);
+  const row = (item, showWhere) => {
+    const onBoard = taken.has(item.id);
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "button",
+      {
+        type: "button",
+        role: "radio",
+        "aria-checked": picked === item.id,
+        disabled: onBoard,
+        onClick: () => setPicked(item.id),
+        className: cn(
+          "flex min-h-11 w-full items-center gap-3 px-3 py-1.5 text-left text-sm transition-colors",
+          picked === item.id ? "bg-foreground text-background" : "hover:bg-muted",
+          onBoard && "cursor-not-allowed opacity-50 hover:bg-transparent"
+        ),
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "min-w-0 flex-1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "block font-medium", children: [
+              item.name,
+              item.quantity > 1 ? ` × ${item.quantity}` : ""
+            ] }),
+            (showWhere || onBoard) && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn("block text-xs", picked === item.id ? "text-background/80" : "text-muted-foreground"), children: [showWhere ? whereKept(item) : "", onBoard ? "already has a line on the board" : ""].filter(Boolean).join(" · ") })
+          ] }),
+          picked === item.id && /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-4 w-4 shrink-0" })
+        ]
+      }
+    ) }, item.id);
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: !!line, onOpenChange: (o) => !o && close(), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-lg max-h-[85vh] overflow-y-auto pb-0", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { className: "pr-8 text-left", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: (line == null ? void 0 : line.kit) === "linked" ? "Change the kit item" : "Link to a kit item" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogDescription, { children: [
+        'Pick the item on the kit list that "',
+        (line == null ? void 0 : line.typed) || (line == null ? void 0 : line.item),
+        '" is about. The J4 check will then start that item as on the board.'
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0 space-y-3", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Input,
+          {
+            "aria-label": "Find a kit item",
+            placeholder: "Find a kit item…",
+            value: search,
+            onChange: (e) => setSearch(e.target.value),
+            className: "h-11 pl-9"
+          }
+        )
+      ] }),
+      isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-40 w-full rounded-xl" }) : kit.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "rounded-xl border border-dashed px-4 py-8 text-center text-sm text-muted-foreground", children: "This appliance has no kit list yet. Add its kit from the Appliances tab first." }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { role: "radiogroup", "aria-label": "Kit items", className: "space-y-3", children: [
+        likely.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground", children: "Likely" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "divide-y overflow-hidden rounded-lg border", children: likely.map((i) => row(i, true)) })
+        ] }),
+        sections.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "px-1 py-4 text-sm text-muted-foreground", children: [
+          'Nothing on the kit list matches "',
+          search.trim(),
+          '".'
+        ] }),
+        sections.map((section2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground", children: section2.name }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "divide-y overflow-hidden rounded-lg border", children: section2.shelves.flatMap((shelf) => shelf.items.map((i) => row(i, false))) })
+        ] }, section2.key))
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogFooter, { className: "sticky bottom-0 -mx-6 flex-row justify-end gap-2 border-t bg-background px-6 py-3", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "button", variant: "outline", onClick: close, children: "Cancel" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "button", disabled: picked === null || link.isPending, onClick: () => picked !== null && link.mutate(picked), children: link.isPending ? "Linking…" : "Link" })
+    ] })
+  ] }) });
 }
 function Line({
   line,
   canManage,
   busy,
-  onUpdate
+  onUpdate,
+  onLink
 }) {
   const date2 = new Date(line.date);
   const days = differenceInDays(/* @__PURE__ */ new Date(), date2);
@@ -39377,6 +39586,18 @@ function Line({
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "shrink-0 md:hidden", children: status })
       ] }),
       line.remarks && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-0.5 break-words text-sm text-muted-foreground", children: line.remarks }),
+      canManage && !isCleared && line.kit && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "button",
+        {
+          type: "button",
+          onClick: onLink,
+          className: "mt-1 inline-flex min-h-9 items-center gap-1.5 rounded-md text-xs font-medium text-muted-foreground underline-offset-2 hover:text-foreground hover:underline md:min-h-7",
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Link2, { className: "h-3.5 w-3.5" }),
+            line.kit === "linked" ? "Change kit item" : "Link to a kit item"
+          ]
+        }
+      ),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 md:hidden", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs tabular-nums text-muted-foreground", children: [
           format(date2, "d MMM yy"),
@@ -71327,79 +71548,6 @@ function ApplianceCard({
       )
     ] })
   ] });
-}
-const CATEGORY_LABELS = {
-  BA: "Breathing Apparatus",
-  Ladders: "Ladders",
-  Hose: "Hose",
-  TIC: "Thermal Imaging",
-  PPE: "PPE",
-  Tools: "Tools",
-  Medical: "Medical",
-  Other: "Other"
-};
-const clean = (s) => (s ?? "").trim();
-const order = (i) => i.sort_order ?? 0;
-function kitSections(items) {
-  const sorted = [...items].sort((a, b) => order(a) - order(b) || a.name.localeCompare(b.name));
-  const sections = /* @__PURE__ */ new Map();
-  for (const item of sorted) {
-    const locker = clean(item.locker);
-    const key2 = locker ? `locker:${locker.toLowerCase()}` : `type:${item.category}`;
-    let section2 = sections.get(key2);
-    if (!section2) {
-      section2 = {
-        key: key2,
-        name: locker || CATEGORY_LABELS[item.category] || item.category,
-        isLocker: !!locker,
-        shelves: [],
-        count: 0
-      };
-      sections.set(key2, section2);
-    }
-    const shelfName = locker ? clean(item.shelf) : "";
-    let shelf = section2.shelves.find((s) => s.name.toLowerCase() === shelfName.toLowerCase());
-    if (!shelf) {
-      shelf = { name: shelfName, items: [] };
-      section2.shelves.push(shelf);
-    }
-    shelf.items.push(item);
-    section2.count++;
-  }
-  const all = [...sections.values()];
-  return [...all.filter((s) => s.isLocker), ...all.filter((s) => !s.isLocker)];
-}
-function lockersOf(items) {
-  return kitSections(items).filter((s) => s.isLocker).map((s) => s.name);
-}
-const idsOf = (sections) => sections.flatMap((s) => s.shelves.flatMap((sh) => sh.items.map((i) => i.id)));
-function moveItem(sections, id, by) {
-  for (const section2 of sections) {
-    for (const shelf of section2.shelves) {
-      const at = shelf.items.findIndex((i) => i.id === id);
-      if (at < 0) continue;
-      const to = at + by;
-      if (to < 0 || to >= shelf.items.length) return null;
-      const ids2 = idsOf(sections);
-      const a = ids2.indexOf(id), b = ids2.indexOf(shelf.items[to].id);
-      [ids2[a], ids2[b]] = [ids2[b], ids2[a]];
-      return ids2;
-    }
-  }
-  return null;
-}
-function moveSection(sections, key2, by) {
-  const lockers = sections.filter((s) => s.isLocker);
-  const at = lockers.findIndex((s) => s.key === key2);
-  const to = at + by;
-  if (at < 0 || to < 0 || to >= lockers.length) return null;
-  const next = [...lockers];
-  [next[at], next[to]] = [next[to], next[at]];
-  return idsOf([...next, ...sections.filter((s) => !s.isLocker)]);
-}
-function shelvesOf(items, locker) {
-  const section2 = kitSections(items).find((s) => s.isLocker && s.name.trim().toLowerCase() === locker.trim().toLowerCase());
-  return section2 ? section2.shelves.map((s) => s.name).filter(Boolean) : [];
 }
 const STATUS_BUTTONS = [
   { value: "OK", label: "OK", Icon: CircleCheck, on: "border-green-600 bg-green-600 text-white" },

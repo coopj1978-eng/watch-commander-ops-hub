@@ -31,6 +31,18 @@ export interface BoardLine {
   date: string;
   reportedBy: string;
   overdue: boolean;
+  /** The appliance it's on (null for the station). */
+  applianceId: number | null;
+  /**
+   * How it stands with the appliance's kit list — only a line tied to a kit
+   * item starts that item as missing or defective in the J4 check:
+   *   "unlinked" — typed in, on an appliance, not tied to a kit item yet;
+   *   "linked"   — typed in and since tied to one (the tie can be changed);
+   *   null       — raised from the kit list itself, or a station line.
+   */
+  kit: "unlinked" | "linked" | null;
+  /** What was typed in, for finding its kit item. */
+  typed: string;
 }
 
 export interface BoardGroup {
@@ -71,7 +83,36 @@ export function boardLine(d: BoardDefect): BoardLine {
     date: d.reported_at,
     reportedBy: d.reported_by_name,
     overdue: d.overdue,
+    applianceId: d.appliance_id,
+    kit: kitState(d),
+    typed: title,
   };
+}
+
+/** A check writes "Missing" or "Defective" as the title; anything else was typed in by someone. */
+const typedIn = (title: string) => !!title && !/^(missing|defective)$/i.test(title);
+
+function kitState(d: BoardDefect): BoardLine["kit"] {
+  if (d.appliance_id === null || d.defect_type === "station") return null;
+  if (d.defect_type === "equipment" && d.equipment_item_id) return typedIn(clean(d.title)) ? "linked" : null;
+  return "unlinked";
+}
+
+/**
+ * Kit items that look like what was typed on a line ("Electrical gauntlets"
+ * → Gauntlets), best first: those sharing most words of four letters or
+ * more, plurals aside.
+ */
+export function kitMatches<T extends { name: string }>(typed: string, items: T[]): T[] {
+  const words = (s: string) =>
+    s.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length >= 4).map((w) => w.replace(/s$/, ""));
+  const want = new Set(words(typed));
+  if (want.size === 0) return [];
+  return items
+    .map((item) => ({ item, score: new Set(words(item.name).filter((w) => want.has(w))).size }))
+    .filter((x) => x.score > 0)
+    .sort((a, b) => b.score - a.score || a.item.name.length - b.item.name.length)
+    .map((x) => x.item);
 }
 
 /** Still on the board: not cleared. */

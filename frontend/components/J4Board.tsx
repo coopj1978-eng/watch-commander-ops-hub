@@ -1,15 +1,19 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { differenceInDays, format } from "date-fns";
-import { Check, CheckCircle2, Package, RotateCcw } from "lucide-react";
+import { Check, CheckCircle2, Link2, Package, RotateCcw, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import { WatchDot } from "@/components/WatchBadge";
 import { useIsCrewCommander } from "@/lib/rbac";
 import backend from "@/lib/backend";
 import { cn } from "@/lib/utils";
-import { boardGroups, outstanding, type BoardDefect, type BoardLine } from "@/lib/j4Board";
+import { boardGroups, kitMatches, outstanding, type BoardDefect, type BoardLine } from "@/lib/j4Board";
+import { kitSections, whereKept } from "@/lib/kitList";
+import type { appliance } from "@/client";
 
 // ──────────────────────────────────────────────────────────────────────────────
 // J4Board — the whiteboard in the office, in the app (John, Nov 2026).
@@ -33,6 +37,8 @@ export default function J4Board() {
   const queryClient = useQueryClient();
   const canManage = useIsCrewCommander(); // WC or CC
   const [view, setView] = useState<"board" | "cleared">("board");
+  // The line being tied to an item on its appliance's kit list.
+  const [linking, setLinking] = useState<BoardLine | null>(null);
 
   const { data: appliancesData, isLoading: loadingAppliances } = useQuery({
     queryKey: ["appliances"],
@@ -137,6 +143,7 @@ export default function J4Board() {
                     canManage={canManage}
                     busy={update.isPending}
                     onUpdate={(patch) => update.mutate({ id: line.id, ...patch })}
+                    onLink={() => setLinking(line)}
                   />
                 ))}
               </ul>
@@ -146,19 +153,156 @@ export default function J4Board() {
       ))}
 
       <p className="text-xs text-muted-foreground">
-        Anyone can add a line with "Add to the board". A Watch or Crew Commander ticks the J7, marks it ordered and clears it when the kit is back.
+        Anyone can add a line with "Add to the board". A Watch or Crew Commander ticks the J7, marks it ordered and clears it when the kit is back
+        {canManage ? ", and can link a typed-in line to its item on the kit list so the J4 check starts that item as missing or defective." : "."}
       </p>
+
+      <LinkKitDialog
+        line={linking}
+        // Kit that already has a line on the board (other than this one).
+        taken={new Set(onBoard.filter((d) => d.equipment_item_id && d.id !== linking?.id).map((d) => d.equipment_item_id!))}
+        onClose={() => setLinking(null)}
+      />
     </div>
   );
 }
 
+/**
+ * Ties a typed-in line to an item on its appliance's kit list (John, Nov
+ * 2026). The J4 check only knows an item is on the board when its line is
+ * tied to it; a line typed in by hand isn't until someone says which item.
+ */
+function LinkKitDialog({ line, taken, onClose }: { line: BoardLine | null; taken: Set<number>; onClose: () => void }) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [search, setSearch] = useState("");
+  const [picked, setPicked] = useState<number | null>(null);
+  const applianceId = line?.applianceId ?? null;
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["equipment", applianceId],
+    queryFn: () => backend.appliance.listEquipment({ appliance_id: applianceId! }),
+    enabled: applianceId !== null,
+  });
+  const kit = data?.items ?? [];
+
+  const close = () => { setSearch(""); setPicked(null); onClose(); };
+
+  const link = useMutation({
+    mutationFn: (itemId: number) => backend.appliance.updateDefect(line!.id, { equipment_item_id: itemId }),
+    onSuccess: (_d, itemId) => {
+      queryClient.invalidateQueries({ queryKey: ["defects"] });
+      toast({ title: `Linked to ${kit.find((i) => i.id === itemId)?.name ?? "the kit item"}`, description: "The J4 check will start it as on the board." });
+      close();
+    },
+    onError: (e: any) => toast({ title: "Couldn't link it", description: e?.message, variant: "destructive" }),
+  });
+
+  const q = search.trim().toLowerCase();
+  const found = q ? kit.filter((i) => `${i.name} ${i.locker ?? ""} ${i.shelf ?? ""}`.toLowerCase().includes(q)) : kit;
+  const likely = q || !line ? [] : kitMatches(line.typed || line.item, kit).slice(0, 4);
+  const sections = kitSections(found);
+
+  const row = (item: appliance.EquipmentItem, showWhere: boolean) => {
+    const onBoard = taken.has(item.id);
+    return (
+      <li key={item.id}>
+        <button
+          type="button"
+          role="radio"
+          aria-checked={picked === item.id}
+          disabled={onBoard}
+          onClick={() => setPicked(item.id)}
+          className={cn(
+            "flex min-h-11 w-full items-center gap-3 px-3 py-1.5 text-left text-sm transition-colors",
+            picked === item.id ? "bg-foreground text-background" : "hover:bg-muted",
+            onBoard && "cursor-not-allowed opacity-50 hover:bg-transparent",
+          )}
+        >
+          <span className="min-w-0 flex-1">
+            <span className="block font-medium">{item.name}{item.quantity > 1 ? ` × ${item.quantity}` : ""}</span>
+            {(showWhere || onBoard) && (
+              <span className={cn("block text-xs", picked === item.id ? "text-background/80" : "text-muted-foreground")}>
+                {[showWhere ? whereKept(item) : "", onBoard ? "already has a line on the board" : ""].filter(Boolean).join(" · ")}
+              </span>
+            )}
+          </span>
+          {picked === item.id && <Check className="h-4 w-4 shrink-0" />}
+        </button>
+      </li>
+    );
+  };
+
+  return (
+    <Dialog open={!!line} onOpenChange={(o) => !o && close()}>
+      <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto pb-0">
+        <DialogHeader className="pr-8 text-left">
+          <DialogTitle>{line?.kit === "linked" ? "Change the kit item" : "Link to a kit item"}</DialogTitle>
+          <DialogDescription>
+            Pick the item on the kit list that "{line?.typed || line?.item}" is about. The J4 check will then start that item as on the board.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="min-w-0 space-y-3">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              aria-label="Find a kit item"
+              placeholder="Find a kit item…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="h-11 pl-9"
+            />
+          </div>
+
+          {isLoading ? (
+            <Skeleton className="h-40 w-full rounded-xl" />
+          ) : kit.length === 0 ? (
+            <p className="rounded-xl border border-dashed px-4 py-8 text-center text-sm text-muted-foreground">
+              This appliance has no kit list yet. Add its kit from the Appliances tab first.
+            </p>
+          ) : (
+            <div role="radiogroup" aria-label="Kit items" className="space-y-3">
+              {likely.length > 0 && (
+                <div>
+                  <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Likely</h4>
+                  <ul className="divide-y overflow-hidden rounded-lg border">{likely.map((i) => row(i, true))}</ul>
+                </div>
+              )}
+              {sections.length === 0 && (
+                <p className="px-1 py-4 text-sm text-muted-foreground">Nothing on the kit list matches "{search.trim()}".</p>
+              )}
+              {sections.map((section) => (
+                <div key={section.key}>
+                  <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{section.name}</h4>
+                  <ul className="divide-y overflow-hidden rounded-lg border">
+                    {section.shelves.flatMap((shelf) => shelf.items.map((i) => row(i, false)))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <DialogFooter className="sticky bottom-0 -mx-6 flex-row justify-end gap-2 border-t bg-background px-6 py-3">
+          <Button type="button" variant="outline" onClick={close}>Cancel</Button>
+          <Button type="button" disabled={picked === null || link.isPending} onClick={() => picked !== null && link.mutate(picked)}>
+            {link.isPending ? "Linking…" : "Link"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function Line({
-  line, canManage, busy, onUpdate,
+  line, canManage, busy, onUpdate, onLink,
 }: {
   line: BoardLine;
   canManage: boolean;
   busy: boolean;
   onUpdate: (patch: { status?: "Open" | "Ordered" | "Resolved"; j7_raised?: boolean }) => void;
+  onLink: () => void;
 }) {
   const date = new Date(line.date);
   const days = differenceInDays(new Date(), date);
@@ -245,6 +389,17 @@ function Line({
           <span className="shrink-0 md:hidden">{status}</span>
         </div>
         {line.remarks && <p className="mt-0.5 break-words text-sm text-muted-foreground">{line.remarks}</p>}
+        {/* A typed-in line isn't tied to the kit list until someone says which item it is. */}
+        {canManage && !isCleared && line.kit && (
+          <button
+            type="button"
+            onClick={onLink}
+            className="mt-1 inline-flex min-h-9 items-center gap-1.5 rounded-md text-xs font-medium text-muted-foreground underline-offset-2 hover:text-foreground hover:underline md:min-h-7"
+          >
+            <Link2 className="h-3.5 w-3.5" />
+            {line.kit === "linked" ? "Change kit item" : "Link to a kit item"}
+          </button>
+        )}
         {/* Phone: date, watch and J7 on one line under the item. */}
         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 md:hidden">
           <span className="text-xs tabular-nums text-muted-foreground">

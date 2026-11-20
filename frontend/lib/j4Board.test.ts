@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { boardGroups, boardLine, boardSummary, outstanding, type BoardDefect } from "./j4Board";
+import { boardGroups, boardLine, boardSummary, kitMatches, outstanding, type BoardDefect } from "./j4Board";
 
 const base: BoardDefect = {
   id: 1,
@@ -86,5 +86,30 @@ describe("boardGroups", () => {
 describe("outstanding", () => {
   it("open and ordered stay on the board; resolved comes off", () => {
     expect(["Open", "Ordered", "Resolved"].map((status) => outstanding({ status }))).toEqual([true, true, false]);
+  });
+});
+
+describe("a line and the kit list", () => {
+  it("a typed-in line on an appliance can be tied to a kit item", () => {
+    expect(boardLine(base)).toMatchObject({ kit: "unlinked", typed: "Tool box", applianceId: 1 });
+  });
+
+  it("once tied, the kit item is the item and the tie can be changed", () => {
+    const line = boardLine({ ...base, defect_type: "equipment", equipment_item_id: 7, equipment_name: "Gauntlets", title: "Electrical gauntlets", description: "Test expired" });
+    expect(line).toMatchObject({ kit: "linked", item: "Gauntlets", remarks: "Electrical gauntlets. Test expired" });
+  });
+
+  it("a line a J4 check raised, and a station line, have nothing to tie", () => {
+    expect(boardLine({ ...base, defect_type: "equipment", equipment_item_id: 7, equipment_name: "BA Set", title: "Missing" }).kit).toBeNull();
+    expect(boardLine({ ...base, defect_type: "equipment", equipment_item_id: 7, equipment_name: "TIC", title: null }).kit).toBeNull();
+    expect(boardLine({ ...base, defect_type: "station", appliance_id: null }).kit).toBeNull();
+  });
+
+  it("suggests the kit that sounds like what was typed, best first", () => {
+    const kit = ["Gauntlets", "Pager", "Tool box", "Large Adjustable Spanner", "Box of Wipes", "Fire Blanket"].map((name) => ({ name }));
+    expect(kitMatches("Electrical gauntlets", kit).map((k) => k.name)).toEqual(["Gauntlets"]);
+    expect(kitMatches("Pager", kit).map((k) => k.name)).toEqual(["Pager"]);
+    expect(kitMatches("Tool box", kit).map((k) => k.name)).toEqual(["Tool box"]);
+    expect(kitMatches("Key and bar", kit)).toEqual([]);
   });
 });

@@ -1322,6 +1322,10 @@
     height: calc(var(--spacing) * 32);
   }
 
+  .h-40 {
+    height: calc(var(--spacing) * 40);
+  }
+
   .h-48 {
     height: calc(var(--spacing) * 48);
   }
@@ -4967,8 +4971,14 @@
     color: var(--color-amber-900);
   }
 
-  .text-background {
+  .text-background, .text-background\/80 {
     color: var(--background);
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .text-background\/80 {
+      color: color-mix(in oklab, var(--background) 80%, transparent);
+    }
   }
 
   .text-blue-500 {
@@ -6582,6 +6592,10 @@
       background-color: var(--color-teal-700);
     }
 
+    .hover\:bg-transparent:hover {
+      background-color: #0000;
+    }
+
     .hover\:bg-white\/5:hover {
       background-color: #ffffff0d;
     }
@@ -8034,6 +8048,10 @@
 
     .md\:max-h-\[420px\] {
       max-height: 420px;
+    }
+
+    .md\:min-h-7 {
+      min-height: calc(var(--spacing) * 7);
     }
 
     .md\:w-\[380px\] {
