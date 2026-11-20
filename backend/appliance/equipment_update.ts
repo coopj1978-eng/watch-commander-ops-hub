@@ -33,6 +33,18 @@ export const updateEquipment = api<UpdateEquipmentRequest, EquipmentItem>(
       setClauses.push(`quantity = $${paramIndex++}`);
       params.push(updates.quantity);
     }
+    if (updates.locker !== undefined) {
+      setClauses.push(`locker = $${paramIndex++}`);
+      params.push(updates.locker.trim() || null);
+    }
+    if (updates.shelf !== undefined) {
+      setClauses.push(`shelf = $${paramIndex++}`);
+      params.push(updates.shelf.trim() || null);
+    }
+    if (updates.sort_order !== undefined) {
+      setClauses.push(`sort_order = $${paramIndex++}`);
+      params.push(updates.sort_order);
+    }
     if (updates.active !== undefined) {
       setClauses.push(`active = $${paramIndex++}`);
       params.push(updates.active);

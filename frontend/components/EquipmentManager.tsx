@@ -38,6 +38,7 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { useIsWatchCommander } from "@/lib/rbac";
 import backend from "@/lib/backend";
+import { kitSections, lockersOf } from "@/lib/kitList";
 
 interface EquipmentManagerProps {
   open: boolean;
@@ -62,6 +63,8 @@ interface NewItemForm {
   category: string;
   serial_number: string;
   quantity: number;
+  locker: string;
+  shelf: string;
 }
 
 interface EditingItem {
@@ -70,7 +73,11 @@ interface EditingItem {
   category: string;
   serial_number: string;
   quantity: number;
+  locker: string;
+  shelf: string;
 }
+
+const BLANK_ITEM: NewItemForm = { name: "", category: "Other", serial_number: "", quantity: 1, locker: "", shelf: "" };
 
 export default function EquipmentManager({
   open,
@@ -83,12 +90,7 @@ export default function EquipmentManager({
   const isWC = useIsWatchCommander();
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingItem, setEditingItem] = useState<EditingItem | null>(null);
-  const [newItem, setNewItem] = useState<NewItemForm>({
-    name: "",
-    category: "Other",
-    serial_number: "",
-    quantity: 1,
-  });
+  const [newItem, setNewItem] = useState<NewItemForm>(BLANK_ITEM);
 
   const { data: equipmentData, isLoading } = useQuery({
     queryKey: ["equipment", applianceId],
@@ -109,13 +111,15 @@ export default function EquipmentManager({
         category: newItem.category as any,
         serial_number: newItem.serial_number || undefined,
         quantity: newItem.quantity,
+        locker: newItem.locker.trim() || undefined,
+        shelf: newItem.shelf.trim() || undefined,
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["equipment", applianceId] });
       toast({ title: "Equipment added" });
-      setNewItem({ name: "", category: "Other", serial_number: "", quantity: 1 });
-      setShowAddForm(false);
+      // Keep the locker and shelf: the next item is usually beside it.
+      setNewItem((p) => ({ ...BLANK_ITEM, locker: p.locker, shelf: p.shelf }));
     },
     onError: () => {
       toast({ title: "Failed to add equipment", variant: "destructive" });
@@ -129,6 +133,9 @@ export default function EquipmentManager({
         category: item.category as any,
         serial_number: item.serial_number || undefined,
         quantity: item.quantity,
+        // "" takes it out of its locker.
+        locker: item.locker.trim(),
+        shelf: item.shelf.trim(),
       });
     },
     onSuccess: () => {
@@ -155,6 +162,8 @@ export default function EquipmentManager({
   });
 
   const items = equipmentData?.items || [];
+  const sections = kitSections(items);
+  const lockers = lockersOf(items);
 
   const categoryLabel = (cat: string) =>
     CATEGORIES.find((c) => c.value === cat)?.label || cat;
@@ -168,8 +177,8 @@ export default function EquipmentManager({
             Manage Equipment — {applianceName}
           </DialogTitle>
           <DialogDescription>
-            Add, edit, or remove equipment items for this appliance. Changes will
-            apply to future J4 checks.
+            The kit on this appliance, by locker and shelf as the J4 folder has it. Changes
+            apply to the next J4 check.
           </DialogDescription>
         </DialogHeader>
 
@@ -198,7 +207,7 @@ export default function EquipmentManager({
           {/* Add form */}
           {showAddForm && (
             <div className="border rounded-lg p-4 bg-muted/50 space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <Label htmlFor="new-name">Name *</Label>
                   <Input
@@ -229,6 +238,28 @@ export default function EquipmentManager({
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+                <div>
+                  <Label htmlFor="new-locker">Locker or cab</Label>
+                  <Input
+                    id="new-locker"
+                    list="kit-lockers"
+                    placeholder="e.g. Offside Front · Locker 7"
+                    value={newItem.locker}
+                    onChange={(e) => setNewItem((p) => ({ ...p, locker: e.target.value }))}
+                  />
+                  <datalist id="kit-lockers">
+                    {lockers.map((l) => <option key={l} value={l} />)}
+                  </datalist>
+                </div>
+                <div>
+                  <Label htmlFor="new-shelf">Shelf</Label>
+                  <Input
+                    id="new-shelf"
+                    placeholder="e.g. Shelf 3"
+                    value={newItem.shelf}
+                    onChange={(e) => setNewItem((p) => ({ ...p, shelf: e.target.value }))}
+                  />
                 </div>
                 <div>
                   <Label htmlFor="new-serial">Serial Number</Label>
@@ -291,14 +322,22 @@ export default function EquipmentManager({
                 <TableHeader>
                   <TableRow>
                     <TableHead>Name</TableHead>
-                    <TableHead>Category</TableHead>
+                    <TableHead>Shelf</TableHead>
+                    <TableHead>Type</TableHead>
                     <TableHead>Serial No.</TableHead>
                     <TableHead>Qty</TableHead>
                     <TableHead className="w-[100px]">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {items.map((item) =>
+                  {sections.flatMap((section) => [
+                    <TableRow key={`h-${section.key}`} className="bg-muted/60 hover:bg-muted/60">
+                      <TableCell colSpan={6} className="py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        {section.name} · {section.count} {section.count === 1 ? "item" : "items"}
+                        {!section.isLocker && " · no locker set"}
+                      </TableCell>
+                    </TableRow>,
+                    ...section.shelves.flatMap((sh) => sh.items).map((item) =>
                     editingItem?.id === item.id ? (
                       <TableRow key={item.id}>
                         <TableCell>
@@ -311,6 +350,25 @@ export default function EquipmentManager({
                             }
                             className="h-8"
                           />
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex min-w-[9rem] flex-col gap-1">
+                            <Input
+                              aria-label="Locker or cab"
+                              list="kit-lockers-edit"
+                              placeholder="Locker or cab"
+                              value={editingItem.locker}
+                              onChange={(e) => setEditingItem((p) => (p ? { ...p, locker: e.target.value } : null))}
+                              className="h-8"
+                            />
+                            <Input
+                              aria-label="Shelf"
+                              placeholder="Shelf"
+                              value={editingItem.shelf}
+                              onChange={(e) => setEditingItem((p) => (p ? { ...p, shelf: e.target.value } : null))}
+                              className="h-8"
+                            />
+                          </div>
                         </TableCell>
                         <TableCell>
                           <Select
@@ -392,6 +450,9 @@ export default function EquipmentManager({
                         <TableCell className="font-medium">
                           {item.name}
                         </TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          {(item.locker && item.shelf) || "—"}
+                        </TableCell>
                         <TableCell>
                           <Badge variant="outline" className="text-xs">
                             {categoryLabel(item.category)}
@@ -414,6 +475,8 @@ export default function EquipmentManager({
                                   category: item.category,
                                   serial_number: item.serial_number || "",
                                   quantity: item.quantity,
+                                  locker: item.locker || "",
+                                  shelf: item.shelf || "",
                                 })
                               }
                             >
@@ -433,9 +496,13 @@ export default function EquipmentManager({
                         </TableCell>
                       </TableRow>
                     )
-                  )}
+                    ),
+                  ])}
                 </TableBody>
               </Table>
+              <datalist id="kit-lockers-edit">
+                {lockers.map((l) => <option key={l} value={l} />)}
+              </datalist>
               </div>
             </div>
           )}

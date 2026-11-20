@@ -37744,8 +37744,8 @@ function WCAlertBanner() {
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "— nothing needs you right now." })
     ] });
   }
-  const order = { critical: 0, warning: 1, info: 2 };
-  alerts.sort((a, b) => order[a.severity] - order[b.severity]);
+  const order2 = { critical: 0, warning: 1, info: 2 };
+  alerts.sort((a, b) => order2[a.severity] - order2[b.severity]);
   const criticalItems = alerts.filter((a) => a.severity === "critical").length;
   const warningItems = alerts.filter((a) => a.severity === "warning").length;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -39121,17 +39121,17 @@ function OurReference() {
     ] })
   ] });
 }
-const clean = (s) => (s ?? "").trim();
+const clean$1 = (s) => (s ?? "").trim();
 function boardLine(d) {
-  const title = clean(d.title);
-  const detail = clean(d.description);
+  const title = clean$1(d.title);
+  const detail = clean$1(d.description);
   let item;
   let remarks;
   if (d.defect_type === "equipment") {
-    item = clean(d.equipment_name) || title || "Equipment";
+    item = clean$1(d.equipment_name) || title || "Equipment";
     remarks = [title && title !== item ? title : "", detail].filter(Boolean).join(". ");
   } else if (d.defect_type === "station") {
-    const where = clean(d.location);
+    const where = clean$1(d.location);
     item = title || where || "Station";
     remarks = [where && where !== item ? where : "", detail].filter(Boolean).join(". ");
   } else {
@@ -39144,7 +39144,7 @@ function boardLine(d) {
     remarks,
     status: d.status === "Ordered" ? "Ordered" : d.status === "Resolved" ? "Resolved" : "Open",
     j7: !!d.j7_raised,
-    watch: clean(d.watch) || null,
+    watch: clean$1(d.watch) || null,
     date: d.reported_at,
     reportedBy: d.reported_by_name,
     overdue: d.overdue
@@ -42932,8 +42932,8 @@ function CustomiseDialog({
     )
   ] }) });
 }
-function Cell({ i, order, children }) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `bento-item flex min-w-0 flex-col gap-4 ${order}`, style: { "--i": i }, children });
+function Cell({ i, order: order2, children }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `bento-item flex min-w-0 flex-col gap-4 ${order2}`, style: { "--i": i }, children });
 }
 function WatchCommanderDashboard() {
   const { hidden, toggle, reset, changed } = useHiddenCards();
@@ -54882,7 +54882,7 @@ function useAutoScroller(_ref) {
     draggingRect,
     enabled,
     interval = 5,
-    order = TraversalOrder.TreeOrder,
+    order: order2 = TraversalOrder.TreeOrder,
     pointerCoordinates,
     scrollableAncestors,
     scrollableAncestorRects,
@@ -54925,7 +54925,7 @@ function useAutoScroller(_ref) {
     const scrollTop = scrollSpeed.current.y * scrollDirection.current.y;
     scrollContainer.scrollBy(scrollLeft, scrollTop);
   }, []);
-  const sortedScrollableAncestors = reactExports.useMemo(() => order === TraversalOrder.TreeOrder ? [...scrollableAncestors].reverse() : scrollableAncestors, [order, scrollableAncestors]);
+  const sortedScrollableAncestors = reactExports.useMemo(() => order2 === TraversalOrder.TreeOrder ? [...scrollableAncestors].reverse() : scrollableAncestors, [order2, scrollableAncestors]);
   reactExports.useEffect(
     () => {
       if (!enabled || !scrollableAncestors.length || !rect) {
@@ -71294,11 +71294,56 @@ function ApplianceCard({
     ] })
   ] });
 }
+const CATEGORY_LABELS = {
+  BA: "Breathing Apparatus",
+  Ladders: "Ladders",
+  Hose: "Hose",
+  TIC: "Thermal Imaging",
+  PPE: "PPE",
+  Tools: "Tools",
+  Medical: "Medical",
+  Other: "Other"
+};
+const clean = (s) => (s ?? "").trim();
+const order = (i) => i.sort_order ?? 0;
+function kitSections(items) {
+  const sorted = [...items].sort((a, b) => order(a) - order(b) || a.name.localeCompare(b.name));
+  const sections = /* @__PURE__ */ new Map();
+  for (const item of sorted) {
+    const locker = clean(item.locker);
+    const key2 = locker ? `locker:${locker.toLowerCase()}` : `type:${item.category}`;
+    let section2 = sections.get(key2);
+    if (!section2) {
+      section2 = {
+        key: key2,
+        name: locker || CATEGORY_LABELS[item.category] || item.category,
+        isLocker: !!locker,
+        shelves: [],
+        count: 0
+      };
+      sections.set(key2, section2);
+    }
+    const shelfName = locker ? clean(item.shelf) : "";
+    let shelf = section2.shelves.find((s) => s.name.toLowerCase() === shelfName.toLowerCase());
+    if (!shelf) {
+      shelf = { name: shelfName, items: [] };
+      section2.shelves.push(shelf);
+    }
+    shelf.items.push(item);
+    section2.count++;
+  }
+  const all = [...sections.values()];
+  return [...all.filter((s) => s.isLocker), ...all.filter((s) => !s.isLocker)];
+}
+function lockersOf(items) {
+  return kitSections(items).filter((s) => s.isLocker).map((s) => s.name);
+}
 const STATUS_BUTTONS = [
   { value: "OK", label: "OK", Icon: CircleCheck, on: "border-green-600 bg-green-600 text-white" },
   { value: "Defective", label: "Defect", Icon: TriangleAlert, on: "border-amber-600 bg-amber-600 text-white" },
   { value: "Missing", label: "Missing", Icon: CircleX, on: "border-red-600 bg-red-600 text-white" }
 ];
+const LONG_LIST = 30;
 function shiftNow(watch) {
   const h = (/* @__PURE__ */ new Date()).getHours();
   return currentDayNight(watch) ?? (h >= 8 && h < 18 ? "Day" : "Night");
@@ -71319,6 +71364,7 @@ function CheckForm({
   const [notes, setNotes] = reactExports.useState("");
   const [checkItems, setCheckItems] = reactExports.useState([]);
   const [initialized, setInitialized] = reactExports.useState(false);
+  const [opened, setOpened] = reactExports.useState(null);
   const { data: equipmentData, isLoading } = useQuery({
     queryKey: ["equipment", applianceId],
     queryFn: async () => {
@@ -71342,6 +71388,9 @@ function CheckForm({
           equipment_item_id: item.id,
           name: item.name,
           category: item.category,
+          locker: item.locker ?? null,
+          shelf: item.shelf ?? null,
+          sort_order: item.sort_order ?? 0,
           serial_number: item.serial_number,
           expected_quantity: item.quantity,
           status: line ? missing ? "Missing" : "Defective" : "OK",
@@ -71353,13 +71402,14 @@ function CheckForm({
     );
     setInitialized(true);
   }
-  const handleOpenChange = (isOpen) => {
-    if (!isOpen) {
+  const handleOpenChange = (isOpen2) => {
+    if (!isOpen2) {
       setInitialized(false);
       setCheckItems([]);
       setNotes("");
+      setOpened(null);
     }
-    onOpenChange(isOpen);
+    onOpenChange(isOpen2);
   };
   const submitMutation = useMutation({
     mutationFn: async () => {
@@ -71413,24 +71463,21 @@ function CheckForm({
       )
     );
   };
-  const groupedItems = {};
-  checkItems.forEach((item, index2) => {
-    if (!groupedItems[item.category]) {
-      groupedItems[item.category] = { items: [], indices: [] };
-    }
-    groupedItems[item.category].items.push(item);
-    groupedItems[item.category].indices.push(index2);
-  });
-  const categoryLabels = {
-    BA: "Breathing Apparatus",
-    Ladders: "Ladders",
-    Hose: "Hose",
-    TIC: "Thermal Imaging",
-    PPE: "PPE",
-    Tools: "Tools",
-    Medical: "Medical",
-    Other: "Other"
+  const indexOf = new Map(checkItems.map((item, index2) => [item.equipment_item_id, index2]));
+  const sections = kitSections(checkItems);
+  const issuesIn = (items) => items.filter((i) => i.status !== "OK").length;
+  const longList = checkItems.length > LONG_LIST;
+  const startsOpen = (key2) => {
+    const section2 = sections.find((x) => x.key === key2);
+    return !longList || !!section2 && issuesIn(section2.shelves.flatMap((sh) => sh.items)) > 0;
   };
+  const isOpen = (key2) => opened ? opened.has(key2) : startsOpen(key2);
+  const toggleSection = (key2) => setOpened((prev) => {
+    const next = new Set(prev ?? sections.filter((x) => startsOpen(x.key)).map((x) => x.key));
+    if (next.has(key2)) next.delete(key2);
+    else next.add(key2);
+    return next;
+  });
   const defectiveCount = checkItems.filter(
     (i) => i.status === "Defective" || i.status === "Missing"
   ).length;
@@ -71481,80 +71528,120 @@ function CheckForm({
           }
         ) })
       ] }),
-      isLoading || boardLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground text-center py-8", children: "Loading equipment..." }) : Object.entries(groupedItems).map(([category, group]) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-semibold text-sm uppercase tracking-wider text-muted-foreground border-b pb-2", children: categoryLabels[category] || category }),
-        group.items.map((item, groupIdx) => {
-          const globalIdx = group.indices[groupIdx];
-          return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "div",
-            {
-              className: `rounded-lg border p-3 transition-colors ${item.status === "Defective" ? "border-amber-300 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800" : item.status === "Missing" ? "border-red-300 bg-red-50 dark:bg-red-950/20 dark:border-red-800" : "border-border"}`,
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 flex-1 items-center justify-between gap-3", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 flex-wrap items-center gap-2", children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: item.name }),
-                      item.serial_number && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-xs", children: [
-                        "S/N: ",
-                        item.serial_number
-                      ] })
-                    ] }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex shrink-0 items-center gap-2", children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: `qty-${item.equipment_item_id}`, className: "text-xs text-muted-foreground whitespace-nowrap", children: "Qty" }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        Input,
-                        {
-                          id: `qty-${item.equipment_item_id}`,
-                          type: "number",
-                          inputMode: "numeric",
-                          min: 0,
-                          value: item.quantity_checked,
-                          onChange: (e) => updateItem(globalIdx, {
-                            quantity_checked: parseInt(e.target.value) || 0
-                          }),
-                          className: "h-10 w-16 text-center"
-                        }
-                      ),
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-muted-foreground", children: [
-                        "/ ",
-                        item.expected_quantity
-                      ] })
+      isLoading || boardLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground text-center py-8", children: "Loading equipment..." }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        longList && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-muted-foreground", children: [
+          checkItems.length,
+          " items in ",
+          sections.length,
+          " lockers and cabs. Everything starts as OK — open a locker to mark anything missing or defective."
+        ] }),
+        sections.map((section2) => {
+          const sectionItems = section2.shelves.flatMap((sh) => sh.items);
+          const issues = issuesIn(sectionItems);
+          const open2 = isOpen(section2.key);
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "rounded-xl border border-border", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                "aria-expanded": open2,
+                onClick: () => toggleSection(section2.key),
+                className: "flex min-h-12 w-full items-center gap-3 rounded-xl px-3 py-2 text-left hover:bg-muted/50",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: cn("h-4 w-4 shrink-0 text-muted-foreground transition-transform", !open2 && "-rotate-90"), "aria-hidden": true }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "min-w-0 flex-1", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block font-semibold leading-snug", children: section2.name }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "block text-xs text-muted-foreground", children: [
+                      section2.count,
+                      " ",
+                      section2.count === 1 ? "item" : "items"
                     ] })
                   ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { role: "radiogroup", "aria-label": `${item.name}: status`, className: "grid grid-cols-3 gap-1.5 sm:flex sm:w-auto", children: STATUS_BUTTONS.map(({ value, label: label2, Icon: Icon2, on }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                    "button",
-                    {
-                      type: "button",
-                      role: "radio",
-                      "aria-checked": item.status === value,
-                      onClick: () => updateItem(globalIdx, { status: value }),
-                      className: cn(
-                        "flex h-11 items-center justify-center gap-1.5 rounded-lg border px-3 text-sm font-medium transition-colors",
-                        item.status === value ? on : "border-border text-foreground hover:bg-muted"
-                      ),
-                      children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "h-4 w-4 shrink-0", "aria-hidden": true }),
-                        label2
-                      ]
-                    },
-                    value
-                  )) })
-                ] }),
-                item.onBoardSince && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2 text-xs text-muted-foreground", children: item.status === "OK" ? "This is on the J4 board. If it's back, tell your Watch or Crew Commander so they can clear it." : `On the J4 board since ${format(new Date(item.onBoardSince), "d MMM")}. It won't be added again.` }),
-                (item.status === "Defective" || item.status === "Missing") && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  Input,
+                  issues > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "destructive", className: "shrink-0", children: [
+                    issues,
+                    " ",
+                    issues === 1 ? "issue" : "issues"
+                  ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "shrink-0 text-xs font-medium text-green-700 dark:text-green-400", children: "All OK" })
+                ]
+              }
+            ) }),
+            open2 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3 border-t border-border p-3", children: section2.shelves.map((shelf) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
+              shelf.name && /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-xs font-semibold uppercase tracking-wider text-muted-foreground", children: shelf.name }),
+              shelf.items.map((item) => {
+                const globalIdx = indexOf.get(item.equipment_item_id);
+                return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "div",
                   {
-                    placeholder: `Describe the ${item.status === "Defective" ? "defect" : "issue"}...`,
-                    value: item.notes,
-                    onChange: (e) => updateItem(globalIdx, { notes: e.target.value })
-                  }
-                ) })
-              ]
-            },
-            item.equipment_item_id
-          );
+                    className: `rounded-lg border p-3 transition-colors ${item.status === "Defective" ? "border-amber-300 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800" : item.status === "Missing" ? "border-red-300 bg-red-50 dark:bg-red-950/20 dark:border-red-800" : "border-border"}`,
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 flex-1 items-center justify-between gap-3", children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 flex-wrap items-center gap-2", children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: item.name }),
+                            item.serial_number && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-xs", children: [
+                              "S/N: ",
+                              item.serial_number
+                            ] })
+                          ] }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex shrink-0 items-center gap-2", children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: `qty-${item.equipment_item_id}`, className: "text-xs text-muted-foreground whitespace-nowrap", children: "Qty" }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              Input,
+                              {
+                                id: `qty-${item.equipment_item_id}`,
+                                type: "number",
+                                inputMode: "numeric",
+                                min: 0,
+                                value: item.quantity_checked,
+                                onChange: (e) => updateItem(globalIdx, {
+                                  quantity_checked: parseInt(e.target.value) || 0
+                                }),
+                                className: "h-10 w-16 text-center"
+                              }
+                            ),
+                            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-muted-foreground", children: [
+                              "/ ",
+                              item.expected_quantity
+                            ] })
+                          ] })
+                        ] }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { role: "radiogroup", "aria-label": `${item.name}: status`, className: "grid grid-cols-3 gap-1.5 sm:flex sm:w-auto", children: STATUS_BUTTONS.map(({ value, label: label2, Icon: Icon2, on }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                          "button",
+                          {
+                            type: "button",
+                            role: "radio",
+                            "aria-checked": item.status === value,
+                            onClick: () => updateItem(globalIdx, { status: value }),
+                            className: cn(
+                              "flex h-11 items-center justify-center gap-1.5 rounded-lg border px-3 text-sm font-medium transition-colors",
+                              item.status === value ? on : "border-border text-foreground hover:bg-muted"
+                            ),
+                            children: [
+                              /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "h-4 w-4 shrink-0", "aria-hidden": true }),
+                              label2
+                            ]
+                          },
+                          value
+                        )) })
+                      ] }),
+                      item.onBoardSince && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2 text-xs text-muted-foreground", children: item.status === "OK" ? "This is on the J4 board. If it's back, tell your Watch or Crew Commander so they can clear it." : `On the J4 board since ${format(new Date(item.onBoardSince), "d MMM")}. It won't be added again.` }),
+                      (item.status === "Defective" || item.status === "Missing") && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        Input,
+                        {
+                          placeholder: `Describe the ${item.status === "Defective" ? "defect" : "issue"}...`,
+                          value: item.notes,
+                          onChange: (e) => updateItem(globalIdx, { notes: e.target.value })
+                        }
+                      ) })
+                    ]
+                  },
+                  item.equipment_item_id
+                );
+              })
+            ] }, shelf.name || "_")) })
+          ] }, section2.key);
         })
-      ] }, category)),
+      ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "check-notes", children: "Check Notes (optional)" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -71737,7 +71824,7 @@ function CheckHistory({ appliances }) {
                   ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-muted-foreground ml-2", children: [
                     "(",
-                    item.equipment_category,
+                    [item.equipment_locker, item.equipment_locker ? item.equipment_shelf : null].filter(Boolean).join(" · ") || item.equipment_category,
                     ")"
                   ] })
                 ] })
@@ -71774,6 +71861,7 @@ const CATEGORIES = [
   { value: "Medical", label: "Medical" },
   { value: "Other", label: "Other" }
 ];
+const BLANK_ITEM = { name: "", category: "Other", serial_number: "", quantity: 1, locker: "", shelf: "" };
 function EquipmentManager({
   open,
   onOpenChange,
@@ -71785,12 +71873,7 @@ function EquipmentManager({
   const isWC = useIsWatchCommander();
   const [showAddForm, setShowAddForm] = reactExports.useState(false);
   const [editingItem, setEditingItem] = reactExports.useState(null);
-  const [newItem, setNewItem] = reactExports.useState({
-    name: "",
-    category: "Other",
-    serial_number: "",
-    quantity: 1
-  });
+  const [newItem, setNewItem] = reactExports.useState(BLANK_ITEM);
   const { data: equipmentData, isLoading } = useQuery({
     queryKey: ["equipment", applianceId],
     queryFn: async () => {
@@ -71808,14 +71891,15 @@ function EquipmentManager({
         name: newItem.name,
         category: newItem.category,
         serial_number: newItem.serial_number || void 0,
-        quantity: newItem.quantity
+        quantity: newItem.quantity,
+        locker: newItem.locker.trim() || void 0,
+        shelf: newItem.shelf.trim() || void 0
       });
     },
     onSuccess: () => {
       queryClient2.invalidateQueries({ queryKey: ["equipment", applianceId] });
       toast2({ title: "Equipment added" });
-      setNewItem({ name: "", category: "Other", serial_number: "", quantity: 1 });
-      setShowAddForm(false);
+      setNewItem((p) => ({ ...BLANK_ITEM, locker: p.locker, shelf: p.shelf }));
     },
     onError: () => {
       toast2({ title: "Failed to add equipment", variant: "destructive" });
@@ -71827,7 +71911,10 @@ function EquipmentManager({
         name: item.name,
         category: item.category,
         serial_number: item.serial_number || void 0,
-        quantity: item.quantity
+        quantity: item.quantity,
+        // "" takes it out of its locker.
+        locker: item.locker.trim(),
+        shelf: item.shelf.trim()
       });
     },
     onSuccess: () => {
@@ -71852,6 +71939,8 @@ function EquipmentManager({
     }
   });
   const items = (equipmentData == null ? void 0 : equipmentData.items) || [];
+  const sections = kitSections(items);
+  const lockers = lockersOf(items);
   const categoryLabel = (cat) => {
     var _a3;
     return ((_a3 = CATEGORIES.find((c) => c.value === cat)) == null ? void 0 : _a3.label) || cat;
@@ -71863,7 +71952,7 @@ function EquipmentManager({
         "Manage Equipment — ",
         applianceName
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: "Add, edit, or remove equipment items for this appliance. Changes will apply to future J4 checks." })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: "The kit on this appliance, by locker and shelf as the J4 folder has it. Changes apply to the next J4 check." })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 py-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -71882,7 +71971,7 @@ function EquipmentManager({
         }
       ) }),
       showAddForm && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "border rounded-lg p-4 bg-muted/50 space-y-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 sm:grid-cols-2 gap-3", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "new-name", children: "Name *" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -71906,6 +71995,32 @@ function EquipmentManager({
                   /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "new-category", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: CATEGORIES.map((cat) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: cat.value, children: cat.label }, cat.value)) })
                 ]
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "new-locker", children: "Locker or cab" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Input,
+              {
+                id: "new-locker",
+                list: "kit-lockers",
+                placeholder: "e.g. Offside Front · Locker 7",
+                value: newItem.locker,
+                onChange: (e) => setNewItem((p) => ({ ...p, locker: e.target.value }))
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("datalist", { id: "kit-lockers", children: lockers.map((l) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: l }, l)) })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "new-shelf", children: "Shelf" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Input,
+              {
+                id: "new-shelf",
+                placeholder: "e.g. Shelf 3",
+                value: newItem.shelf,
+                onChange: (e) => setNewItem((p) => ({ ...p, shelf: e.target.value }))
               }
             )
           ] }),
@@ -71952,122 +72067,162 @@ function EquipmentManager({
           }
         ) })
       ] }),
-      isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-center py-8 text-muted-foreground", children: "Loading equipment..." }) : items.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-center py-8 text-muted-foreground", children: "No equipment items configured for this appliance." }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "rounded-md border", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Name" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Category" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Serial No." }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Qty" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "w-[100px]", children: "Actions" })
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableBody, { children: items.map(
-          (item) => (editingItem == null ? void 0 : editingItem.id) === item.id ? /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Input,
-              {
-                value: editingItem.name,
-                onChange: (e) => setEditingItem(
-                  (p) => p ? { ...p, name: e.target.value } : null
-                ),
-                className: "h-8"
-              }
-            ) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              Select,
-              {
-                value: editingItem.category,
-                onValueChange: (v) => setEditingItem(
-                  (p) => p ? { ...p, category: v } : null
-                ),
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: CATEGORIES.map((cat) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: cat.value, children: cat.label }, cat.value)) })
-                ]
-              }
-            ) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Input,
-              {
-                value: editingItem.serial_number,
-                onChange: (e) => setEditingItem(
-                  (p) => p ? { ...p, serial_number: e.target.value } : null
-                ),
-                className: "h-8"
-              }
-            ) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Input,
-              {
-                type: "number",
-                min: 1,
-                value: editingItem.quantity,
-                onChange: (e) => setEditingItem(
-                  (p) => p ? {
-                    ...p,
-                    quantity: parseInt(e.target.value) || 1
-                  } : null
-                ),
-                className: "h-8 w-16"
-              }
-            ) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                Button,
-                {
-                  size: "sm",
-                  variant: "ghost",
-                  className: "h-7 w-7 p-0",
-                  onClick: () => updateMutation.mutate(editingItem),
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { className: "h-3.5 w-3.5 text-green-600" })
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                Button,
-                {
-                  size: "sm",
-                  variant: "ghost",
-                  className: "h-7 w-7 p-0",
-                  onClick: () => setEditingItem(null),
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" })
-                }
-              )
-            ] }) })
-          ] }, item.id) : /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "font-medium", children: item.name }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-xs", children: categoryLabel(item.category) }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "text-sm text-muted-foreground", children: item.serial_number || "—" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: item.quantity }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                Button,
-                {
-                  size: "sm",
-                  variant: "ghost",
-                  className: "h-7 w-7 p-0",
-                  onClick: () => setEditingItem({
-                    id: item.id,
-                    name: item.name,
-                    category: item.category,
-                    serial_number: item.serial_number || "",
-                    quantity: item.quantity
-                  }),
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "h-3.5 w-3.5" })
-                }
-              ),
-              isWC && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                Button,
-                {
-                  size: "sm",
-                  variant: "ghost",
-                  className: "h-7 w-7 p-0 text-red-600 hover:text-red-700",
-                  onClick: () => deleteMutation.mutate(item.id),
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-3.5 w-3.5" })
-                }
-              )
-            ] }) })
-          ] }, item.id)
-        ) })
-      ] }) }) })
+      isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-center py-8 text-muted-foreground", children: "Loading equipment..." }) : items.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-center py-8 text-muted-foreground", children: "No equipment items configured for this appliance." }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "rounded-md border", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "overflow-x-auto", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TableHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Name" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Shelf" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Type" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Serial No." }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Qty" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "w-[100px]", children: "Actions" })
+          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TableBody, { children: sections.flatMap((section2) => [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TableRow, { className: "bg-muted/60 hover:bg-muted/60", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TableCell, { colSpan: 6, className: "py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground", children: [
+              section2.name,
+              " · ",
+              section2.count,
+              " ",
+              section2.count === 1 ? "item" : "items",
+              !section2.isLocker && " · no locker set"
+            ] }) }, `h-${section2.key}`),
+            ...section2.shelves.flatMap((sh) => sh.items).map(
+              (item) => (editingItem == null ? void 0 : editingItem.id) === item.id ? /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  Input,
+                  {
+                    value: editingItem.name,
+                    onChange: (e) => setEditingItem(
+                      (p) => p ? { ...p, name: e.target.value } : null
+                    ),
+                    className: "h-8"
+                  }
+                ) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-[9rem] flex-col gap-1", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    Input,
+                    {
+                      "aria-label": "Locker or cab",
+                      list: "kit-lockers-edit",
+                      placeholder: "Locker or cab",
+                      value: editingItem.locker,
+                      onChange: (e) => setEditingItem((p) => p ? { ...p, locker: e.target.value } : null),
+                      className: "h-8"
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    Input,
+                    {
+                      "aria-label": "Shelf",
+                      placeholder: "Shelf",
+                      value: editingItem.shelf,
+                      onChange: (e) => setEditingItem((p) => p ? { ...p, shelf: e.target.value } : null),
+                      className: "h-8"
+                    }
+                  )
+                ] }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  Select,
+                  {
+                    value: editingItem.category,
+                    onValueChange: (v) => setEditingItem(
+                      (p) => p ? { ...p, category: v } : null
+                    ),
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: CATEGORIES.map((cat) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: cat.value, children: cat.label }, cat.value)) })
+                    ]
+                  }
+                ) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  Input,
+                  {
+                    value: editingItem.serial_number,
+                    onChange: (e) => setEditingItem(
+                      (p) => p ? { ...p, serial_number: e.target.value } : null
+                    ),
+                    className: "h-8"
+                  }
+                ) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  Input,
+                  {
+                    type: "number",
+                    min: 1,
+                    value: editingItem.quantity,
+                    onChange: (e) => setEditingItem(
+                      (p) => p ? {
+                        ...p,
+                        quantity: parseInt(e.target.value) || 1
+                      } : null
+                    ),
+                    className: "h-8 w-16"
+                  }
+                ) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    Button,
+                    {
+                      size: "sm",
+                      variant: "ghost",
+                      className: "h-7 w-7 p-0",
+                      onClick: () => updateMutation.mutate(editingItem),
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { className: "h-3.5 w-3.5 text-green-600" })
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    Button,
+                    {
+                      size: "sm",
+                      variant: "ghost",
+                      className: "h-7 w-7 p-0",
+                      onClick: () => setEditingItem(null),
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" })
+                    }
+                  )
+                ] }) })
+              ] }, item.id) : /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "font-medium", children: item.name }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "text-sm text-muted-foreground", children: item.locker && item.shelf || "—" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-xs", children: categoryLabel(item.category) }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "text-sm text-muted-foreground", children: item.serial_number || "—" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: item.quantity }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    Button,
+                    {
+                      size: "sm",
+                      variant: "ghost",
+                      className: "h-7 w-7 p-0",
+                      onClick: () => setEditingItem({
+                        id: item.id,
+                        name: item.name,
+                        category: item.category,
+                        serial_number: item.serial_number || "",
+                        quantity: item.quantity,
+                        locker: item.locker || "",
+                        shelf: item.shelf || ""
+                      }),
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "h-3.5 w-3.5" })
+                    }
+                  ),
+                  isWC && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    Button,
+                    {
+                      size: "sm",
+                      variant: "ghost",
+                      className: "h-7 w-7 p-0 text-red-600 hover:text-red-700",
+                      onClick: () => deleteMutation.mutate(item.id),
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-3.5 w-3.5" })
+                    }
+                  )
+                ] }) })
+              ] }, item.id)
+            )
+          ]) })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("datalist", { id: "kit-lockers-edit", children: lockers.map((l) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: l }, l)) })
+      ] }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(DialogFooter, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", onClick: () => onOpenChange(false), children: "Close" }) })
   ] }) });
@@ -73480,13 +73635,13 @@ function seatCost(c, seat) {
   return cost;
 }
 function suggestCrew(seats, candidates) {
-  const order = [...seats].sort(
+  const order2 = [...seats].sort(
     (a, b) => Number(b.required) - Number(a.required) || ROLE_ORDER[a.role] - ROLE_ORDER[b.role] || a.appliance.localeCompare(b.appliance)
   );
   const used = /* @__PURE__ */ new Set();
   const picks = [];
   const unfilled = [];
-  for (const seat of order) {
+  for (const seat of order2) {
     const best = candidates.filter((c) => !used.has(c.id) && qualifiesFor(c, seat.role)).sort((a, b) => seatCost(a, seat) - seatCost(b, seat) || a.name.localeCompare(b.name))[0];
     if (best) {
       used.add(best.id);

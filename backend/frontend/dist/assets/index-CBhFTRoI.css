@@ -1506,6 +1506,10 @@
     min-height: calc(var(--spacing) * 11);
   }
 
+  .min-h-12 {
+    min-height: calc(var(--spacing) * 12);
+  }
+
   .min-h-16 {
     min-height: calc(var(--spacing) * 16);
   }
@@ -1884,6 +1888,10 @@
 
   .min-w-\[8rem\] {
     min-width: 8rem;
+  }
+
+  .min-w-\[9rem\] {
+    min-width: 9rem;
   }
 
   .min-w-\[18px\] {

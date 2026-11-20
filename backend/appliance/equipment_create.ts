@@ -12,9 +12,18 @@ export const createEquipment = api<CreateEquipmentRequest, EquipmentItem>(
       throw APIError.permissionDenied("Only Watch/Crew Commanders can add equipment");
     }
 
+    const name = req.name.trim();
+    if (!name) throw APIError.invalidArgument("Give the item a name.");
+
+    // No place given: it goes at the end of the appliance's list.
     const item = await db.queryRow<EquipmentItem>`
-      INSERT INTO equipment_items (appliance_id, name, category, serial_number, quantity)
-      VALUES (${req.appliance_id}, ${req.name}, ${req.category}, ${req.serial_number || null}, ${req.quantity || 1})
+      INSERT INTO equipment_items (appliance_id, name, category, serial_number, quantity, locker, shelf, sort_order)
+      VALUES (
+        ${req.appliance_id}, ${name}, ${req.category}, ${req.serial_number || null}, ${req.quantity || 1},
+        ${req.locker?.trim() || null}, ${req.shelf?.trim() || null},
+        COALESCE(${req.sort_order ?? null}::int,
+                 (SELECT COALESCE(MAX(sort_order), 0) + 10 FROM equipment_items WHERE appliance_id = ${req.appliance_id}))
+      )
       RETURNING *
     `;
 

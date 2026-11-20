@@ -818,6 +818,8 @@ export namespace appliance {
             "equipment_name": string
             "equipment_category": string
             "equipment_serial": string | null
+            "equipment_locker": string | null
+            "equipment_shelf": string | null
         }[]
         "checked_by_name": string
     }
@@ -847,6 +849,9 @@ export namespace appliance {
         category: EquipmentCategory
         "serial_number"?: string
         quantity?: number
+        locker?: string
+        shelf?: string
+        "sort_order"?: number
     }
 
     export type DefectStatus = "Open" | "Ordered" | "Resolved"
@@ -904,6 +909,9 @@ export namespace appliance {
         category: EquipmentCategory
         "serial_number": string | null
         quantity: number
+        locker: string | null
+        shelf: string | null
+        "sort_order": number
         active: boolean
         "created_at": string
         "updated_at": string
@@ -1022,6 +1030,9 @@ export namespace appliance {
         category?: EquipmentCategory
         "serial_number"?: string
         quantity?: number
+        locker?: string
+        shelf?: string
+        "sort_order"?: number
         active?: boolean
     }
 

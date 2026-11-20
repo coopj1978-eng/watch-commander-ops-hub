@@ -15,10 +15,10 @@ export const listEquipment = api<ListEquipmentRequest, ListEquipmentResponse>(
 
     const items = activeOnly
       ? await db.queryAll<EquipmentItem>`
-          SELECT * FROM equipment_items WHERE appliance_id = ${req.appliance_id} AND active = true ORDER BY category, name
+          SELECT * FROM equipment_items WHERE appliance_id = ${req.appliance_id} AND active = true ORDER BY sort_order, category, name
         `
       : await db.queryAll<EquipmentItem>`
-          SELECT * FROM equipment_items WHERE appliance_id = ${req.appliance_id} ORDER BY category, name
+          SELECT * FROM equipment_items WHERE appliance_id = ${req.appliance_id} ORDER BY sort_order, category, name
         `;
 
     return { items };

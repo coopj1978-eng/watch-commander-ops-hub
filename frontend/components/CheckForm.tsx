@@ -5,6 +5,7 @@ import {
   AlertTriangle,
   XCircle,
   ClipboardCheck,
+  ChevronDown,
 } from "lucide-react";
 import {
   Dialog,
@@ -27,11 +28,16 @@ import { currentDayNight } from "@/lib/shiftRota";
 import { useBoardDefects } from "@/components/J4Board";
 import { outstanding } from "@/lib/j4Board";
 import { format } from "date-fns";
+import { kitSections } from "@/lib/kitList";
 
 interface CheckItemState {
   equipment_item_id: number;
   name: string;
   category: string;
+  /** Where it's kept, as the J4 folder has it. */
+  locker: string | null;
+  shelf: string | null;
+  sort_order: number;
   serial_number: string | null;
   expected_quantity: number;
   status: "OK" | "Defective" | "Missing";
@@ -50,6 +56,9 @@ const STATUS_BUTTONS: { value: ItemStatus; label: string; Icon: typeof CheckCirc
   { value: "Defective", label: "Defect", Icon: AlertTriangle, on: "border-amber-600 bg-amber-600 text-white" },
   { value: "Missing", label: "Missing", Icon: XCircle, on: "border-red-600 bg-red-600 text-white" },
 ];
+
+/** More kit than this and the check shows one locker at a time. */
+const LONG_LIST = 30;
 
 /** The shift this check is for, from the watch's rota (the clock if there's no rota). */
 function shiftNow(watch: string | undefined): "Day" | "Night" {
@@ -80,6 +89,8 @@ export default function CheckForm({
   const [notes, setNotes] = useState("");
   const [checkItems, setCheckItems] = useState<CheckItemState[]>([]);
   const [initialized, setInitialized] = useState(false);
+  // Which lockers are open; null until one is opened or closed by hand.
+  const [opened, setOpened] = useState<Set<string> | null>(null);
 
   const { data: equipmentData, isLoading } = useQuery({
     queryKey: ["equipment", applianceId],
@@ -111,6 +122,9 @@ export default function CheckForm({
           equipment_item_id: item.id,
           name: item.name,
           category: item.category,
+          locker: item.locker ?? null,
+          shelf: item.shelf ?? null,
+          sort_order: item.sort_order ?? 0,
           serial_number: item.serial_number,
           expected_quantity: item.quantity,
           status: line ? (missing ? ("Missing" as const) : ("Defective" as const)) : ("OK" as const),
@@ -129,6 +143,7 @@ export default function CheckForm({
       setInitialized(false);
       setCheckItems([]);
       setNotes("");
+      setOpened(null);
     }
     onOpenChange(isOpen);
   };
@@ -193,26 +208,26 @@ export default function CheckForm({
     );
   };
 
-  // Group items by category
-  const groupedItems: Record<string, { items: CheckItemState[]; indices: number[] }> = {};
-  checkItems.forEach((item, index) => {
-    if (!groupedItems[item.category]) {
-      groupedItems[item.category] = { items: [], indices: [] };
-    }
-    groupedItems[item.category].items.push(item);
-    groupedItems[item.category].indices.push(index);
-  });
-
-  const categoryLabels: Record<string, string> = {
-    BA: "Breathing Apparatus",
-    Ladders: "Ladders",
-    Hose: "Hose",
-    TIC: "Thermal Imaging",
-    PPE: "PPE",
-    Tools: "Tools",
-    Medical: "Medical",
-    Other: "Other",
+  // The kit as the J4 folder has it: by locker (or cab), then shelf. Kit with
+  // no locker yet is grouped by its type, as before.
+  const indexOf = new Map(checkItems.map((item, index) => [item.equipment_item_id, index] as const));
+  const sections = kitSections(checkItems);
+  const issuesIn = (items: CheckItemState[]) => items.filter((i) => i.status !== "OK").length;
+  // A long list (a whole pump) opens a locker at a time; a short one shows
+  // everything. Lockers with something missing or defective start open.
+  const longList = checkItems.length > LONG_LIST;
+  const startsOpen = (key: string) => {
+    const section = sections.find((x) => x.key === key);
+    return !longList || (!!section && issuesIn(section.shelves.flatMap((sh) => sh.items)) > 0);
   };
+  const isOpen = (key: string) => (opened ? opened.has(key) : startsOpen(key));
+  const toggleSection = (key: string) =>
+    setOpened((prev) => {
+      const next = new Set(prev ?? sections.filter((x) => startsOpen(x.key)).map((x) => x.key));
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
 
   const defectiveCount = checkItems.filter(
     (i) => i.status === "Defective" || i.status === "Missing"
@@ -266,19 +281,55 @@ export default function CheckForm({
             </div>
           </div>
 
-          {/* Equipment items by category */}
+          {/* The kit, locker by locker */}
           {isLoading || boardLoading ? (
             <p className="text-muted-foreground text-center py-8">
               Loading equipment...
             </p>
           ) : (
-            Object.entries(groupedItems).map(([category, group]) => (
-              <div key={category} className="space-y-3">
-                <h3 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground border-b pb-2">
-                  {categoryLabels[category] || category}
+            <>
+            {longList && (
+              <p className="text-sm text-muted-foreground">
+                {checkItems.length} items in {sections.length} lockers and cabs. Everything starts as OK — open a locker to mark
+                anything missing or defective.
+              </p>
+            )}
+            {sections.map((section) => {
+              const sectionItems = section.shelves.flatMap((sh) => sh.items);
+              const issues = issuesIn(sectionItems);
+              const open = isOpen(section.key);
+              return (
+              <section key={section.key} className="rounded-xl border border-border">
+                <h3>
+                  <button
+                    type="button"
+                    aria-expanded={open}
+                    onClick={() => toggleSection(section.key)}
+                    className="flex min-h-12 w-full items-center gap-3 rounded-xl px-3 py-2 text-left hover:bg-muted/50"
+                  >
+                    <ChevronDown className={cn("h-4 w-4 shrink-0 text-muted-foreground transition-transform", !open && "-rotate-90")} aria-hidden />
+                    <span className="min-w-0 flex-1">
+                      <span className="block font-semibold leading-snug">{section.name}</span>
+                      <span className="block text-xs text-muted-foreground">
+                        {section.count} {section.count === 1 ? "item" : "items"}
+                      </span>
+                    </span>
+                    {issues > 0 ? (
+                      <Badge variant="destructive" className="shrink-0">{issues} {issues === 1 ? "issue" : "issues"}</Badge>
+                    ) : (
+                      <span className="shrink-0 text-xs font-medium text-green-700 dark:text-green-400">All OK</span>
+                    )}
+                  </button>
                 </h3>
-                {group.items.map((item, groupIdx) => {
-                  const globalIdx = group.indices[groupIdx];
+                {open && (
+                <div className="space-y-3 border-t border-border p-3">
+                {section.shelves.map((shelf) => (
+                <div key={shelf.name || "_"} className="space-y-3">
+                {shelf.name && (
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{shelf.name}</h4>
+                )}
+                {shelf.items.map((item) => {
+                  const globalIdx = indexOf.get(item.equipment_item_id)!;
                   return (
                     <div
                       key={item.equipment_item_id}
@@ -369,8 +420,14 @@ export default function CheckForm({
                     </div>
                   );
                 })}
-              </div>
-            ))
+                </div>
+                ))}
+                </div>
+                )}
+              </section>
+              );
+            })}
+            </>
           )}
 
           {/* Overall notes */}

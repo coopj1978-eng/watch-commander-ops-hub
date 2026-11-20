@@ -266,7 +266,7 @@ export default function CheckHistory({ appliances }: CheckHistoryProps) {
                           </Badge>
                         )}
                         <span className="text-xs text-muted-foreground ml-2">
-                          ({item.equipment_category})
+                          ({[item.equipment_locker, item.equipment_locker ? item.equipment_shelf : null].filter(Boolean).join(" · ") || item.equipment_category})
                         </span>
                       </div>
                     </div>

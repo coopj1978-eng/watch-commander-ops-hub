@@ -31,6 +31,12 @@ export interface EquipmentItem {
   category: EquipmentCategory;
   serial_number: string | null;
   quantity: number;
+  /** Where it's kept, as the J4 folder has it: "Offside Front · Locker 7", "Front Cab". */
+  locker: string | null;
+  /** "Shelf 3", "ToolBox" — within the locker. */
+  shelf: string | null;
+  /** Its place in the appliance's list (the folder's order). */
+  sort_order: number;
   active: boolean;
   created_at: Date;
   updated_at: Date;
@@ -118,6 +124,10 @@ export interface CreateEquipmentRequest {
   category: EquipmentCategory;
   serial_number?: string;
   quantity?: number;
+  locker?: string;
+  shelf?: string;
+  /** Left out, the item goes at the end of the appliance's list. */
+  sort_order?: number;
 }
 
 export interface UpdateEquipmentRequest {
@@ -126,6 +136,10 @@ export interface UpdateEquipmentRequest {
   category?: EquipmentCategory;
   serial_number?: string;
   quantity?: number;
+  /** "" clears it. */
+  locker?: string;
+  shelf?: string;
+  sort_order?: number;
   active?: boolean;
 }
 
@@ -171,7 +185,10 @@ export interface ListChecksResponse {
 
 export interface CheckDetailResponse {
   check: EquipmentCheck;
-  items: (EquipmentCheckItem & { equipment_name: string; equipment_category: string; equipment_serial: string | null })[];
+  items: (EquipmentCheckItem & {
+    equipment_name: string; equipment_category: string; equipment_serial: string | null;
+    equipment_locker: string | null; equipment_shelf: string | null;
+  })[];
   checked_by_name: string;
 }
 
