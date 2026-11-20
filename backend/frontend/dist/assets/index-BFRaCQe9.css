@@ -7686,6 +7686,10 @@
       max-width: var(--container-2xl);
     }
 
+    .sm\:max-w-3xl {
+      max-width: var(--container-3xl);
+    }
+
     .sm\:max-w-\[60\%\] {
       max-width: 60%;
     }

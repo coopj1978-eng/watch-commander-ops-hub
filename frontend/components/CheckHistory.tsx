@@ -193,7 +193,7 @@ export default function CheckHistory({ appliances }: CheckHistoryProps) {
 
       {/* Check Detail Modal */}
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               J4 Check Details

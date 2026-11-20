@@ -235,7 +235,9 @@ export default function CheckForm({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-3xl pb-0">
+      {/* sm:max-w-3xl, not max-w-3xl: the dialog's own sm:max-w-lg would win and
+          leave it narrower than its rows, cutting off the right-hand edge. */}
+      <DialogContent className="sm:max-w-3xl pb-0">
         <DialogHeader className="pr-8 text-left">
           <DialogTitle className="flex items-start gap-2 leading-snug">
             <ClipboardCheck className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
@@ -246,7 +248,7 @@ export default function CheckForm({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
+        <div className="min-w-0 space-y-6 py-4">
           {/* Shift — from the rota, changeable */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>

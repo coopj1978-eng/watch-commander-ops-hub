@@ -71481,7 +71481,7 @@ function CheckForm({
   const defectiveCount = checkItems.filter(
     (i) => i.status === "Defective" || i.status === "Missing"
   ).length;
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: handleOpenChange, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-3xl pb-0", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: handleOpenChange, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-3xl pb-0", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { className: "pr-8 text-left", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { className: "flex items-start gap-2 leading-snug", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(ClipboardCheck, { className: "mt-0.5 h-5 w-5 shrink-0 text-red-600" }),
@@ -71492,7 +71492,7 @@ function CheckForm({
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: "Mark each item. Anything defective or missing goes on the J4 board, and finishing the check ticks it off on this shift's task card." })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6 py-4", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0 space-y-6 py-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 sm:grid-cols-2 gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { id: "j4-shift", children: "Shift" }),
@@ -71776,7 +71776,7 @@ function CheckHistory({ appliances }) {
         ) })
       ] }, check.id)) })
     ] }) }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: detailOpen, onOpenChange: setDetailOpen, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-2xl max-h-[80vh] overflow-y-auto", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: detailOpen, onOpenChange: setDetailOpen, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-2xl max-h-[80vh] overflow-y-auto", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { children: [
         "J4 Check Details",
         checkDetail && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-muted-foreground font-normal text-sm ml-2", children: [
@@ -71945,7 +71945,7 @@ function EquipmentManager({
     var _a3;
     return ((_a3 = CATEGORIES.find((c) => c.value === cat)) == null ? void 0 : _a3.label) || cat;
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-3xl max-h-[85vh] overflow-y-auto", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-3xl max-h-[85vh] overflow-y-auto", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { className: "flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Package, { className: "h-5 w-5" }),
@@ -71954,7 +71954,7 @@ function EquipmentManager({
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: "The kit on this appliance, by locker and shelf as the J4 folder has it. Changes apply to the next J4 check." })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 py-4", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0 space-y-4 py-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
         Button,
         {

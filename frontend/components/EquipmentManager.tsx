@@ -170,7 +170,7 @@ export default function EquipmentManager({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-3xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
@@ -182,7 +182,7 @@ export default function EquipmentManager({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="min-w-0 space-y-4 py-4">
           {/* Add button */}
           <div className="flex justify-end">
             <Button
