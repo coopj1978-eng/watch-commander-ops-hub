@@ -735,6 +735,10 @@ table.plain tbody tr:last-child td { border-bottom: none; }
   }
   /* Filter chips and other pills that sit in rows: properly taller. */
   .tap-chip { min-height: 40px; }
+  /* Lines in a drop-down menu or a pick list are a finger tall. */
+  [data-slot="dropdown-menu-item"], [data-slot="dropdown-menu-checkbox-item"],
+  [data-slot="dropdown-menu-radio-item"], [data-slot="dropdown-menu-sub-trigger"],
+  [data-slot="select-item"] { min-height: 40px; }
   /* The segmented switch (Current / All / Left) matches the buttons beside it. */
   .seg { height: 44px; }
   .seg button { font-size: 13px; }

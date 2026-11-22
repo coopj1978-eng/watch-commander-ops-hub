@@ -1375,13 +1375,14 @@ function MobileAgenda({
                 borderRadius: 12, padding: "10px 12px", background: blockBg(it), color: tok(k, "fg"), cursor: isReadOnly(it) ? "default" : "pointer",
               }}
             >
-              <span className="cal-mono" style={{ fontSize: 12, width: 44, flex: "none", paddingTop: 1 }}>
+              <span className="cal-mono" style={{ fontSize: 12, minWidth: 44, flex: "none", paddingTop: 1, whiteSpace: "nowrap" }}>
                 {it.allDay ? "All day" : hhmm(it.startTime)}
               </span>
               <span style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0, flex: 1 }}>
-                <span style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
-                  <Dot k={k} />
-                  <span style={{ ...titleStyle(it), fontSize: 14 }}>{it.title}</span>
+                <span style={{ display: "flex", alignItems: "flex-start", gap: 6, minWidth: 0 }}>
+                  <span style={{ display: "flex", flex: "none", paddingTop: 5 }}><Dot k={k} /></span>
+                  {/* The day's list has the room: a long title ("… – H4H · Day Shift (covering …)") runs to a second line rather than being cut. */}
+                  <span style={{ ...titleStyle(it), fontSize: 14, whiteSpace: "normal", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>{it.title}</span>
                   <ItemIcons item={it} />
                 </span>
                 {!it.allDay && (

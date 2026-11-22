@@ -51093,11 +51093,11 @@ function MobileAgenda({
             cursor: isReadOnly(it) ? "default" : "pointer"
           },
           children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 12, width: 44, flex: "none", paddingTop: 1 }, children: it.allDay ? "All day" : hhmm$4(it.startTime) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 12, minWidth: 44, flex: "none", paddingTop: 1, whiteSpace: "nowrap" }, children: it.allDay ? "All day" : hhmm$4(it.startTime) }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "flex", flexDirection: "column", gap: 2, minWidth: 0, flex: 1 }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "flex", alignItems: "center", gap: 6, minWidth: 0 }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Dot$1, { k }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { ...titleStyle(it), fontSize: 14 }, children: it.title }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "flex", alignItems: "flex-start", gap: 6, minWidth: 0 }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { display: "flex", flex: "none", paddingTop: 5 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Dot$1, { k }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { ...titleStyle(it), fontSize: 14, whiteSpace: "normal", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }, children: it.title }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(ItemIcons, { item: it })
               ] }),
               !it.allDay && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: { fontSize: 11.5, opacity: 0.85 }, children: [

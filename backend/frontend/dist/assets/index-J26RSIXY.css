@@ -11013,7 +11013,7 @@ table.plain tbody tr:last-child td {
     transform: translateY(-50%);
   }
 
-  .tap-chip {
+  .tap-chip, [data-slot="dropdown-menu-item"], [data-slot="dropdown-menu-checkbox-item"], [data-slot="dropdown-menu-radio-item"], [data-slot="dropdown-menu-sub-trigger"], [data-slot="select-item"] {
     min-height: 40px;
   }
 
