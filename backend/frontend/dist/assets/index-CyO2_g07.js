@@ -66840,8 +66840,8 @@ function References() {
         "."
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { ref: planner, "aria-label": "10-year planner", className: "overflow-x-auto rounded-2xl border border-border/70 bg-card", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full min-w-[640px] text-sm", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { "aria-label": "10-year planner", className: "overflow-hidden rounded-2xl border border-border/70 bg-card", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { ref: planner, className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full min-w-[640px] text-sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "border-b border-border/60 text-left", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "sticky left-0 z-10 bg-card px-4 py-2.5 text-xs font-medium text-muted-foreground", children: "Watch" }),
           blocks.map((b) => /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { "data-now": periodLabel$1(b) === periodLabel$1(year) ? "" : void 0, className: cn("whitespace-nowrap px-3 py-2.5 font-mono text-xs font-semibold", periodLabel$1(b) === periodLabel$1(year) ? "text-foreground" : "text-muted-foreground"), children: [
@@ -66871,7 +66871,7 @@ function References() {
             ] }, b);
           })
         ] }, w)) })
-      ] }),
+      ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "border-t border-border/60 px-4 py-2 text-xs text-muted-foreground", children: [
         "Runs 1 January – 31 December; the ten-year cycle started in ",
         REFERENCE_START,

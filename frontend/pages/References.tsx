@@ -59,7 +59,7 @@ export default function References() {
   // On a phone the planner scrolls sideways: open it on the current two
   // years (it showed 2022–2025 and cut "now" off the edge), with the watch
   // names staying put down the left.
-  const planner = useRef<HTMLElement>(null);
+  const planner = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = planner.current;
     const now = el?.querySelector<HTMLElement>("[data-now]");
@@ -80,7 +80,9 @@ export default function References() {
       </div>
 
       {/* ── The 10-year planner ─────────────────────────────────────────── */}
-      <section ref={planner} aria-label="10-year planner" className="overflow-x-auto rounded-2xl border border-border/70 bg-card">
+      <section aria-label="10-year planner" className="overflow-hidden rounded-2xl border border-border/70 bg-card">
+        {/* Only the table scrolls sideways; the note under it stays put. */}
+        <div ref={planner} className="overflow-x-auto">
         <table className="w-full min-w-[640px] text-sm">
           <thead>
             <tr className="border-b border-border/60 text-left">
@@ -110,6 +112,7 @@ export default function References() {
             ))}
           </tbody>
         </table>
+        </div>
         <p className="border-t border-border/60 px-4 py-2 text-xs text-muted-foreground">Runs 1 January – 31 December; the ten-year cycle started in {REFERENCE_START} and repeats.</p>
       </section>
 
