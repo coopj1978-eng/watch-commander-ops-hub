@@ -15,6 +15,7 @@ import { RequestCard } from "@/components/requests/RequestCard";
 import { NewRequestDialog } from "@/components/requests/NewRequestDialog";
 import { REQUEST_LABEL, STATUS_LABEL, dayText, requestsCsv, signedAs } from "@/lib/shiftRequests";
 import type { shift_adjustments } from "@/client";
+import { useActiveTabInView } from "@/lib/useActiveTabInView";
 
 // Flexi Day and Head for Head requests (Nov 2026), with no paper: asking, the
 // WC's review, and the record kept for audit. Everything else about a shift
@@ -306,6 +307,7 @@ export default function Requests() {
     : [{ key: "mine", label: "Mine" }];
   const asked = params.get("tab") as Tab | null;
   const tab: Tab = tabs.some((t) => t.key === asked) ? asked! : tabs[0].key;
+  const tabRow = useActiveTabInView(tab);
 
   const openParam = params.get("open");
   const openId = openParam && /^\d+$/.test(openParam) ? Number(openParam) : null;
@@ -338,7 +340,7 @@ export default function Requests() {
       </div>
 
       {tabs.length > 1 && (
-        <div className="-mx-4 flex gap-1 overflow-x-auto border-b border-border px-4 sm:mx-0 sm:px-0 [scrollbar-width:none]">
+        <div ref={tabRow} className="-mx-4 flex gap-1 overflow-x-auto border-b border-border px-4 sm:mx-0 sm:px-0 [scrollbar-width:none]">
           {tabs.map((t) => (
             <button
               key={t.key}

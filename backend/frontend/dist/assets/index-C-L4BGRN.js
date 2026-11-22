@@ -49109,6 +49109,20 @@ function ProfileNotes({ profileId, firstName, notes, canWrite }) {
     ] }) })
   ] });
 }
+function useActiveTabInView(active) {
+  const row = reactExports.useRef(null);
+  reactExports.useEffect(() => {
+    const el = row.current;
+    if (!el || el.scrollWidth <= el.clientWidth) return;
+    const tab = el.querySelector('[data-state="active"], [aria-selected="true"], [aria-current="page"]');
+    if (!tab) return;
+    const t = tab.getBoundingClientRect();
+    const r2 = el.getBoundingClientRect();
+    if (t.left >= r2.left + 12 && t.right <= r2.right - 12) return;
+    el.scrollTo({ left: el.scrollLeft + t.left - r2.left - 16 });
+  }, [active]);
+  return row;
+}
 const RANKS$1 = ["Watch Commander", "Crew Commander", "Leading Firefighter", "Firefighter"];
 const WATCHES$d = ["Green", "Red", "White", "Blue", "Amber"];
 const shortDate$2 = (d) => d ? new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "";
@@ -49270,6 +49284,7 @@ function ProfileDetail() {
   ];
   const requested = searchParams.get("tab");
   const tab = tabs.some((t) => t.key === requested) ? requested : "overview";
+  const tabRow = useActiveTabInView(`${tab}-${userLoading || profileLoading}`);
   const openTab = (t) => {
     const next = new URLSearchParams(searchParams);
     if (t === "overview") next.delete("tab");
@@ -49521,7 +49536,7 @@ function ProfileDetail() {
         menu: adminMenu
       }
     ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { role: "tablist", "aria-label": "Profile sections", className: "-mx-4 flex gap-1 overflow-x-auto border-b border-border/70 px-4 md:mx-0 md:px-0", children: tabs.map((t) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { ref: tabRow, role: "tablist", "aria-label": "Profile sections", className: "-mx-4 flex gap-1 overflow-x-auto border-b border-border/70 px-4 md:mx-0 md:px-0", children: tabs.map((t) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "button",
       {
         type: "button",
@@ -63736,6 +63751,13 @@ function QuarterStrip({
   onFy
 }) {
   const now = currentFyQuarter();
+  const strip = reactExports.useRef(null);
+  reactExports.useEffect(() => {
+    const el = strip.current;
+    const tile2 = el == null ? void 0 : el.querySelector(`[data-q="${selected}"]`);
+    if (!el || !tile2 || el.scrollWidth <= el.clientWidth) return;
+    el.scrollTo({ left: tile2.getBoundingClientRect().left - el.getBoundingClientRect().left + el.scrollLeft - 16 });
+  }, [selected, fy]);
   const results = useQueries({
     queries: QS.flatMap((q) => [
       {
@@ -63776,7 +63798,7 @@ function QuarterStrip({
         )
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-4 sm:overflow-visible sm:px-0 [scrollbar-width:none]", children: QS.map((q, i) => {
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { ref: strip, className: "-mx-4 flex snap-x scroll-px-4 gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-4 sm:overflow-visible sm:px-0 [scrollbar-width:none]", children: QS.map((q, i) => {
       var _a3, _b3;
       const fq = fyQuarter(fy, q);
       const time2 = quarterTime(fq);
@@ -63796,6 +63818,7 @@ function QuarterStrip({
         "button",
         {
           type: "button",
+          "data-q": q,
           onClick: () => onSelect(q),
           "aria-pressed": isSel,
           className: cn(
@@ -68320,6 +68343,7 @@ function Requests() {
   const tabs = isManager ? [{ key: "review", label: "Booked" }, { key: "mine", label: "Mine" }, { key: "records", label: "Records" }, { key: "balances", label: "Flexi balances" }] : [{ key: "mine", label: "Mine" }];
   const asked = params.get("tab");
   const tab = tabs.some((t) => t.key === asked) ? asked : tabs[0].key;
+  const tabRow = useActiveTabInView(tab);
   const openParam = params.get("open");
   const openId = openParam && /^\d+$/.test(openParam) ? Number(openParam) : null;
   const update = (change) => {
@@ -68349,7 +68373,7 @@ function Requests() {
         "Book a day"
       ] })
     ] }),
-    tabs.length > 1 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "-mx-4 flex gap-1 overflow-x-auto border-b border-border px-4 sm:mx-0 sm:px-0 [scrollbar-width:none]", children: tabs.map((t) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    tabs.length > 1 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { ref: tabRow, className: "-mx-4 flex gap-1 overflow-x-auto border-b border-border px-4 sm:mx-0 sm:px-0 [scrollbar-width:none]", children: tabs.map((t) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "button",
       {
         type: "button",
@@ -71210,6 +71234,7 @@ function AdminPanel() {
   const tabs = [...canSetUpStation ? STATION_TABS : [PLANS_TAB], ...isAdmin ? ADMIN_TABS : []];
   const asked = params.get("tab");
   const activeTab = tabs.some((t) => t.value === asked) ? asked : tabs[0].value;
+  const tabRow = useActiveTabInView(activeTab);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3", children: [
@@ -71222,7 +71247,7 @@ function AdminPanel() {
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Tabs, { value: activeTab, onValueChange: (tab) => setParams({ tab }, { replace: true }), children: [
-      tabs.length > 1 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "-mx-4 overflow-x-auto px-4 md:mx-0 md:px-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx(TabsList, { className: "w-max", children: tabs.map((t) => /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: t.value, children: t.label }, t.value)) }) }),
+      tabs.length > 1 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { ref: tabRow, className: "-mx-4 overflow-x-auto px-4 md:mx-0 md:px-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx(TabsList, { className: "w-max", children: tabs.map((t) => /* @__PURE__ */ jsxRuntimeExports.jsx(TabsTrigger, { value: t.value, children: t.label }, t.value)) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "skills", className: "mt-6 space-y-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(DictionariesManager, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "absence", className: "mt-6 space-y-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(AbsenceThresholds, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "inspection-plans", className: "mt-6 space-y-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(InspectionPlans, {}) }),
@@ -77178,6 +77203,7 @@ function Handover() {
   const [rotaSub, setRotaSub] = reactExports.useState(
     searchParams.get("rota") === "canteen" ? "canteen" : searchParams.get("rota") === "history" ? "history" : "rota"
   );
+  const tabRow = useActiveTabInView(activeTab);
   const [rotaWatch, setRotaWatch] = reactExports.useState("");
   const [showForm, setShowForm] = reactExports.useState(false);
   const [expandedId, setExpandedId] = reactExports.useState(null);
@@ -77331,7 +77357,7 @@ function Handover() {
         ] })
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "-mx-4 flex gap-1 overflow-x-auto border-b border-border px-4 pb-0 print:hidden sm:mx-0 sm:px-0 [scrollbar-width:none]", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { ref: tabRow, className: "-mx-4 flex gap-1 overflow-x-auto border-b border-border px-4 pb-0 print:hidden sm:mx-0 sm:px-0 [scrollbar-width:none]", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         TabButton$2,
         {
@@ -77725,6 +77751,7 @@ function TabButton$2({
     "button",
     {
       onClick,
+      "aria-current": active ? "page" : void 0,
       className: `
         flex shrink-0 items-center gap-2 whitespace-nowrap px-3 sm:px-4 py-2.5 text-sm font-medium border-b-2 transition-colors
         ${active ? "border-indigo-500 text-indigo-600 dark:text-indigo-400" : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"}

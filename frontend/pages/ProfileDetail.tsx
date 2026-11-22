@@ -44,6 +44,7 @@ import { RecordHistory } from "@/components/profile/RecordHistory";
 import { OffboardingWizard } from "@/components/OffboardingWizard";
 import { ProfileNotes } from "@/components/profile/ProfileNotes";
 import { QUALIFICATIONS, type QualificationKey } from "@/lib/qualifications";
+import { useActiveTabInView } from "@/lib/useActiveTabInView";
 
 // A person's profile (redesigned Nov 2026, from John's "be bold" brief and a
 // look at Attio, Personio, HubSpot mobile and Sage record pages):
@@ -250,6 +251,8 @@ export default function ProfileDetail() {
   ];
   const requested = searchParams.get("tab") as TabKey | null;
   const tab: TabKey = tabs.some((t) => t.key === requested) ? requested! : "overview";
+  // (Also depends on the profile having loaded: the row isn't there before.)
+  const tabRow = useActiveTabInView(`${tab}-${userLoading || profileLoading}`);
   const openTab = (t: TabKey) => {
     const next = new URLSearchParams(searchParams);
     if (t === "overview") next.delete("tab");
@@ -507,7 +510,7 @@ export default function ProfileDetail() {
       />
 
       {/* ── Tabs ─────────────────────────────────────────────────────────── */}
-      <div role="tablist" aria-label="Profile sections" className="-mx-4 flex gap-1 overflow-x-auto border-b border-border/70 px-4 md:mx-0 md:px-0">
+      <div ref={tabRow} role="tablist" aria-label="Profile sections" className="-mx-4 flex gap-1 overflow-x-auto border-b border-border/70 px-4 md:mx-0 md:px-0">
         {tabs.map((t) => (
           <button
             key={t.key}

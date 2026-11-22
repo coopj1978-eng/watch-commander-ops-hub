@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import backend from "@/lib/backend";
@@ -20,6 +21,18 @@ export function QuarterStrip({
   watch: string; fy: number; selected: QuarterNo; onSelect: (q: QuarterNo) => void; onFy: (fy: number) => void;
 }) {
   const now = currentFyQuarter();
+
+  // On a phone the four tiles are a strip you swipe along. Bring the picked
+  // quarter into view — it opened on Q1 whatever the time of year, so in
+  // October "this quarter" was two swipes away. Sideways only: the page
+  // itself doesn't move.
+  const strip = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = strip.current;
+    const tile = el?.querySelector<HTMLElement>(`[data-q="${selected}"]`);
+    if (!el || !tile || el.scrollWidth <= el.clientWidth) return;
+    el.scrollTo({ left: tile.getBoundingClientRect().left - el.getBoundingClientRect().left + el.scrollLeft - 16 });
+  }, [selected, fy]);
 
   const results = useQueries({
     queries: QS.flatMap((q) => [
@@ -61,7 +74,7 @@ export function QuarterStrip({
         </div>
       </div>
 
-      <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-4 sm:overflow-visible sm:px-0 [scrollbar-width:none]">
+      <div ref={strip} className="-mx-4 flex snap-x scroll-px-4 gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-4 sm:overflow-visible sm:px-0 [scrollbar-width:none]">
         {QS.map((q, i) => {
           const fq = fyQuarter(fy, q);
           const time = quarterTime(fq);
@@ -81,6 +94,7 @@ export function QuarterStrip({
             <button
               key={q}
               type="button"
+              data-q={q}
               onClick={() => onSelect(q)}
               aria-pressed={isSel}
               className={cn(

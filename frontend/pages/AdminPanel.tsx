@@ -22,6 +22,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useActiveTabInView } from "@/lib/useActiveTabInView";
 import { AdminUsers } from "./AdminUsers";
 import { useSearchParams } from "react-router-dom";
 import { DictionariesManager } from "@/components/DictionaryManager";
@@ -103,6 +104,7 @@ export default function AdminPanel() {
   const tabs = [...(canSetUpStation ? STATION_TABS : [PLANS_TAB]), ...(isAdmin ? ADMIN_TABS : [])];
   const asked = params.get("tab");
   const activeTab = tabs.some((t) => t.value === asked) ? asked! : tabs[0].value;
+  const tabRow = useActiveTabInView(activeTab);
 
   return (
     <div className="space-y-6">
@@ -118,7 +120,7 @@ export default function AdminPanel() {
 
       <Tabs value={activeTab} onValueChange={(tab) => setParams({ tab }, { replace: true })}>
         {tabs.length > 1 && (
-          <div className="-mx-4 overflow-x-auto px-4 md:mx-0 md:px-0">
+          <div ref={tabRow} className="-mx-4 overflow-x-auto px-4 md:mx-0 md:px-0">
             <TabsList className="w-max">
               {tabs.map((t) => (
                 <TabsTrigger key={t.value} value={t.value}>{t.label}</TabsTrigger>

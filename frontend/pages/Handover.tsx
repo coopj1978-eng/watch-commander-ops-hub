@@ -17,6 +17,7 @@ import { formatDistanceToNow, parseISO, format, differenceInDays } from "date-fn
 import { useUserRole } from "@/lib/rbac";
 import CrewingBoard from "@/components/CrewingBoard";
 import { handoverShiftFor, shiftDisplay } from "@/lib/shiftRota";
+import { useActiveTabInView } from "@/lib/useActiveTabInView";
 import HandoverItemsEditor, { KindBadge, tagLabel } from "@/components/HandoverItemsEditor";
 import type { handover as handoverApi } from "@/client";
 import {
@@ -431,6 +432,7 @@ export default function Handover() {
   const [rotaSub, setRotaSub] = useState<"rota" | "canteen" | "history">(
     searchParams.get("rota") === "canteen" ? "canteen" : searchParams.get("rota") === "history" ? "history" : "rota",
   );
+  const tabRow = useActiveTabInView(activeTab);
   // Whose rotas an account with no watch of its own is looking at.
   const [rotaWatch, setRotaWatch]     = useState<string>("");
   const [showForm, setShowForm]       = useState(false);
@@ -609,7 +611,7 @@ export default function Handover() {
           night's shift. Each tab now says which shift it's on.) */}
 
       {/* ── Tab bar ─────────────────────────────────────────────────────── */}
-      <div className="-mx-4 flex gap-1 overflow-x-auto border-b border-border px-4 pb-0 print:hidden sm:mx-0 sm:px-0 [scrollbar-width:none]">
+      <div ref={tabRow} className="-mx-4 flex gap-1 overflow-x-auto border-b border-border px-4 pb-0 print:hidden sm:mx-0 sm:px-0 [scrollbar-width:none]">
         <TabButton
           active={activeTab === "crewing"}
           onClick={() => setActiveTab("crewing")}
@@ -1028,6 +1030,7 @@ function TabButton({
   return (
     <button
       onClick={onClick}
+      aria-current={active ? "page" : undefined}
       className={`
         flex shrink-0 items-center gap-2 whitespace-nowrap px-3 sm:px-4 py-2.5 text-sm font-medium border-b-2 transition-colors
         ${active
