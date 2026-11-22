@@ -25,6 +25,7 @@ import {
   UserCircle,
   Users,
   type LucideIcon,
+  Timer,
 } from "lucide-react";
 import { useAuth } from "@/App";
 import { useFeatureFlags, type FeatureFlags } from "@/lib/feature-flags";
@@ -93,6 +94,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { name: "Flexi & H4H", path: "/requests",    icon: FileCheck,     featureKey: "requests", badge: "requests", keywords: "requests flexi day head for head h4h swap annual leave move kronos records balances" },
       { name: "Bulletins",   path: "/bulletins",   icon: Megaphone,     featureKey: "bulletins", badge: "bulletins", keywords: "news announcements messages" },
       { name: "Training",    path: "/training",    icon: GraduationCap, featureKey: "training", keywords: "courses skills certificates" },
+      { name: "Overtime",    path: "/overtime",    icon: Timer,         managersOrAdmin: true, keywords: "overtime hours month watch totals spreadsheet" },
     ],
   },
   {

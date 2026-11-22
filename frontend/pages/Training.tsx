@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { localTodayIso } from "@/lib/absences";
 import { useAuth } from "@/App";
 import backend from "@/lib/backend";
 import { useUserRole } from "@/lib/rbac";
@@ -663,54 +664,82 @@ function UpcomingPanel({
     );
   }
 
-  return (
-    <div className="space-y-3">
-      <p className="text-xs text-muted-foreground">{total} planned session{total !== 1 ? "s" : ""}</p>
-      {records.map((r) => (
-        <Card key={r.id} className="border-t-2 border-t-teal-500 transition-all hover:shadow-md max-sm:py-0">
-          <CardContent className="py-4 max-sm:px-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="space-y-1.5 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-semibold text-foreground">
-                    {format(parseISO(r.training_date), "EEE dd MMM yyyy")}
-                  </span>
-                  <TypeBadge type={r.training_type} />
-                  {r.shift_type && (
-                    <Badge variant="secondary" className="text-xs">{r.shift_type}</Badge>
-                  )}
-                  {r.watch && (
-                    <Badge variant="outline" className="text-xs">{r.watch} Watch</Badge>
-                  )}
-                </div>
-                <p className="text-sm text-muted-foreground">{r.topic}</p>
-              </div>
+  // A planned session whose date has gone isn't "upcoming" — it's waiting to
+  // be logged (or removed, if it didn't happen). Soonest first for what's
+  // ahead; the overdue ones sit under it, and only for those who can log them.
+  const today = localTodayIso();
+  const ahead = records.filter((r) => r.training_date >= today).sort((a, b) => a.training_date.localeCompare(b.training_date));
+  const past = canEdit ? records.filter((r) => r.training_date < today) : [];
 
-              {canEdit && (
-                <div className="flex items-center gap-2 shrink-0">
-                  <Button
-                    size="sm"
-                    className="bg-green-600 hover:bg-green-700 gap-1.5"
-                    onClick={() => onLog(r.id)}
-                  >
-                    <CheckCircle2 className="h-3.5 w-3.5" />
-                    Log Training
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="text-muted-foreground hover:text-red-500"
-                    onClick={() => onCancel(r.id)}
-                    aria-label="Cancel this session"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
+  const card = (r: any, late: boolean) => (
+    <Card key={r.id} className={`border-t-2 transition-all hover:shadow-md max-sm:py-0 ${late ? "border-t-amber-500" : "border-t-teal-500"}`}>
+      <CardContent className="py-4 max-sm:px-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="space-y-1.5 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-semibold text-foreground">
+                {format(parseISO(r.training_date), "EEE dd MMM yyyy")}
+              </span>
+              <TypeBadge type={r.training_type} />
+              {r.shift_type && (
+                <Badge variant="secondary" className="text-xs">{r.shift_type}</Badge>
+              )}
+              {r.watch && (
+                <Badge variant="outline" className="text-xs">{r.watch} Watch</Badge>
               )}
             </div>
-          </CardContent>
-        </Card>
-      ))}
+            <p className="text-sm text-muted-foreground">{r.topic}</p>
+          </div>
+
+          {canEdit && (
+            <div className="flex items-center gap-2 shrink-0">
+              <Button
+                size="sm"
+                className="bg-green-600 hover:bg-green-700 gap-1.5"
+                onClick={() => onLog(r.id)}
+              >
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                Log Training
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="text-muted-foreground hover:text-red-500"
+                onClick={() => onCancel(r.id)}
+                aria-label={late ? "It didn't happen — remove this session" : "Cancel this session"}
+                title={late ? "It didn't happen — remove it" : "Cancel this session"}
+              >
+                <X className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  return (
+    <div className="space-y-3">
+      {ahead.length > 0 ? (
+        <>
+          <p className="text-xs text-muted-foreground">{ahead.length} session{ahead.length !== 1 ? "s" : ""} coming up</p>
+          {ahead.map((r) => card(r, false))}
+        </>
+      ) : (
+        <p className="rounded-xl border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
+          Nothing coming up{canEdit ? " — schedule a session with the button above." : "."}
+        </p>
+      )}
+
+      {past.length > 0 && (
+        <>
+          <div className="pt-3">
+            <p className="text-sm font-semibold text-foreground">Waiting to be logged · {past.length}</p>
+            <p className="text-xs text-muted-foreground">The date has passed. Log what was done, or tap the X if it didn't happen.</p>
+          </div>
+          {past.map((r) => card(r, true))}
+        </>
+      )}
 
       {hasMore && (
         <div className="pt-2 text-center">

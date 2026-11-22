@@ -28,6 +28,7 @@ import CrewCommanderHome from "./pages/CrewCommanderHome";
 import HandoverPage from "./pages/Handover";
 import { LibraryIndex } from "./components/library/LibraryTabs";
 import TrainingPage from "./pages/Training";
+import OvertimePage from "./pages/Overtime";
 import Bulletins from "./pages/Bulletins";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
@@ -231,6 +232,10 @@ function AppRoutes() {
         <Route path="/reports/quarterly/:id" element={<QuarterlyReport />} />
         <Route path="/admin" element={
           (role === "WC" || role === "CC" || user?.is_admin) ? <AdminPanel /> : <Navigate to="/" replace />
+        } />
+        {/* The watch's overtime for a month — WC, CC and the admin only. */}
+        <Route path="/overtime" element={
+          (role === "WC" || role === "CC" || user?.is_admin) ? <OvertimePage /> : <Navigate to="/" replace />
         } />
         <Route path="/settings" element={<Settings />} />
       </Route>
