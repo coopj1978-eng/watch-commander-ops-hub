@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Stethoscope, CalendarDays } from "lucide-react";
 import { invalidateAbsenceViews } from "@/lib/absences";
+import { useToast } from "@/components/ui/use-toast";
 
 // ──────────────────────────────────────────────────────────────────────────────
 // LogSickDialog
@@ -63,6 +64,7 @@ function dateToIso(yyyy_mm_dd: string): string {
 
 export function LogSickDialog({ open, onOpenChange, person }: LogSickDialogProps) {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const today = useMemo(() => todayLocalIso(), []);
 
@@ -86,6 +88,11 @@ export function LogSickDialog({ open, onOpenChange, person }: LogSickDialogProps
       // Union of every cache key any caller depends on.
       invalidateAbsenceViews(queryClient);
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      // Whoever takes the call books it; the server tells the person's own WC and CC.
+      toast({
+        title: person ? `${person.name} is booked off sick` : "Booked off sick",
+        description: "The WC and CC on their watch have been notified.",
+      });
       onOpenChange(false);
     },
     onError: (err) => {

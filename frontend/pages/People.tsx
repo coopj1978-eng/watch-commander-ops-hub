@@ -6,7 +6,7 @@ import { useBackend, useCanViewPeople, useCanCreatePerson, useIsWatchCommander, 
 import { useAuth } from "@/App";
 import { STATION_OPTIONS } from "@/lib/constants";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ShieldAlert, Search, UserPlus, Settings2, ChevronDown, ChevronRight, ChevronUp, Stethoscope, Users } from "lucide-react";
+import { ShieldAlert, Search, UserPlus, Settings2, ChevronDown, ChevronRight, ChevronUp, HeartPulse, Stethoscope, Users } from "lucide-react";
 import AddPersonModal from "@/components/AddPersonModal";
 import ColumnsDrawer from "@/components/ColumnsDrawer";
 import { LogSickDialog } from "@/components/LogSickDialog";
@@ -194,7 +194,7 @@ export default function People() {
       queryClient.invalidateQueries({ queryKey: ["back-to-work"] });
       toast({
         title: "Booked back fit",
-        description: res.back_to_work_due ? `Back to work interview due on their first shift back: ${res.back_to_work_due}.` : undefined,
+        description: `The WC and CC on their watch have been notified.${res.back_to_work_due ? ` Back to work interview due on their first shift back: ${res.back_to_work_due}.` : ""}`,
       });
     },
     onError: (err: any) =>
@@ -551,37 +551,72 @@ export default function People() {
                 .slice(0, 2)
                 .join("")
                 .toUpperCase() ?? "?";
+              const isSick = !!sickToday?.has(user.id);
               return (
-                <button
-                  key={user.id}
-                  onClick={() => navigate(`/people/${user.id}`)}
-                  className="w-full text-left bg-card border border-border rounded-xl p-3 flex items-center gap-3 hover:bg-muted/40 active:bg-muted/60 transition-colors"
-                >
-                  <div className="h-11 w-11 rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 flex items-center justify-center text-white font-bold shrink-0">
-                    {initials}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-semibold truncate">{user.name}</span>
-                      {sickToday?.has(user.id) && (
-                        <Badge variant="outline" className="text-[10px] bg-red-500/10 text-red-600 border-red-500/20 gap-1">
-                          <Stethoscope className="h-2.5 w-2.5" /> Sick
-                        </Badge>
-                      )}
-                      {!user.is_active && !user.left_at && (
-                        <Badge variant="outline" className="text-[10px] bg-yellow-500/10 text-yellow-600 border-yellow-500/20">
-                          Pending
-                        </Badge>
-                      )}
+                <div key={user.id} className="flex items-stretch overflow-hidden rounded-xl border border-border bg-card">
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/people/${user.id}`)}
+                    className="flex min-w-0 flex-1 items-center gap-3 p-3 text-left transition-colors hover:bg-muted/40 active:bg-muted/60"
+                  >
+                    <div className="h-11 w-11 rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 flex items-center justify-center text-white font-bold shrink-0">
+                      {initials}
                     </div>
-                    <div className="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground">
-                      {profile?.rank && <span className="truncate">{profile.rank}</span>}
-                      {profile?.rank && watch && <span className="text-muted-foreground/40">·</span>}
-                      {watch && <WatchBadge watch={watch} />}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold truncate">{user.name}</span>
+                        {isSick && (
+                          <Badge variant="outline" className="text-[10px] bg-red-500/10 text-red-600 border-red-500/20 gap-1">
+                            <Stethoscope className="h-2.5 w-2.5" /> Sick
+                          </Badge>
+                        )}
+                        {!user.is_active && !user.left_at && (
+                          <Badge variant="outline" className="text-[10px] bg-yellow-500/10 text-yellow-600 border-yellow-500/20">
+                            Pending
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground">
+                        {profile?.rank && <span className="truncate">{profile.rank}</span>}
+                        {profile?.rank && watch && <span className="text-muted-foreground/40">·</span>}
+                        {watch && <WatchBadge watch={watch} />}
+                      </div>
                     </div>
-                  </div>
-                  <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/60" aria-hidden="true" />
-                </button>
+                    <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/60" aria-hidden="true" />
+                  </button>
+                  {/* Whoever is on duty takes the call: any WC/CC can book
+                      anyone off sick, and back fit (same as the table). */}
+                  {canLogSick && !isSick && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLogSickPerson({ id: user.id, name: user.name });
+                        setLogSickOpen(true);
+                      }}
+                      aria-label={`Log ${user.name} off sick`}
+                      className="flex w-[68px] shrink-0 flex-col items-center justify-center gap-1 border-l border-border/60 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted/40 active:bg-muted/60"
+                    >
+                      <Stethoscope className="h-4 w-4" aria-hidden="true" />
+                      Log sick
+                    </button>
+                  )}
+                  {canLogSick && isSick && sickOn?.openAbsence.has(user.id) && user.id !== authUser?.id && (
+                    <button
+                      type="button"
+                      disabled={bookBackFit.isPending}
+                      onClick={() => {
+                        if (confirm(`Book ${user.name} back fit for duty from today?`)) {
+                          bookBackFit.mutate(sickOn.openAbsence.get(user.id)!);
+                        }
+                      }}
+                      aria-label={`Mark ${user.name} fit`}
+                      className="flex w-[68px] shrink-0 flex-col items-center justify-center gap-1 border-l border-border/60 text-[11px] font-medium text-emerald-700 transition-colors hover:bg-emerald-50 active:bg-emerald-50 disabled:opacity-50 dark:text-emerald-400 dark:hover:bg-emerald-950/20"
+                    >
+                      <HeartPulse className="h-4 w-4" aria-hidden="true" />
+                      Mark fit
+                    </button>
+                  )}
+                </div>
               );
             })}
           </div>

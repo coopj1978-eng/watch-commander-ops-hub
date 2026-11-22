@@ -40470,6 +40470,7 @@ function dateToIso(yyyy_mm_dd) {
 }
 function LogSickDialog({ open, onOpenChange, person }) {
   const queryClient2 = useQueryClient();
+  const { toast: toast2 } = useToast();
   const today = reactExports.useMemo(() => todayLocalIso$1(), []);
   const [startDate, setStartDate] = reactExports.useState(today);
   const [endDate, setEndDate] = reactExports.useState(today);
@@ -40489,6 +40490,10 @@ function LogSickDialog({ open, onOpenChange, person }) {
     onSuccess: () => {
       invalidateAbsenceViews(queryClient2);
       queryClient2.invalidateQueries({ queryKey: ["notifications"] });
+      toast2({
+        title: person ? `${person.name} is booked off sick` : "Booked off sick",
+        description: "The WC and CC on their watch have been notified."
+      });
       onOpenChange(false);
     },
     onError: (err2) => {
@@ -40717,7 +40722,7 @@ function CrewOnWatchTable({ compact = false } = {}) {
       queryClient2.invalidateQueries({ queryKey: ["back-to-work"] });
       toast2({
         title: "Booked back fit",
-        description: res.back_to_work_due ? `Back to work interview due on their first shift back: ${res.back_to_work_due}.` : void 0
+        description: `The WC and CC on their watch have been notified.${res.back_to_work_due ? ` Back to work interview due on their first shift back: ${res.back_to_work_due}.` : ""}`
       });
     },
     onError: (err2) => toast2({
@@ -44100,7 +44105,7 @@ function People() {
       queryClient2.invalidateQueries({ queryKey: ["back-to-work"] });
       toast2({
         title: "Booked back fit",
-        description: res.back_to_work_due ? `Back to work interview due on their first shift back: ${res.back_to_work_due}.` : void 0
+        description: `The WC and CC on their watch have been notified.${res.back_to_work_due ? ` Back to work interview due on their first shift back: ${res.back_to_work_due}.` : ""}`
       });
     },
     onError: (err2) => toast2({
@@ -44417,33 +44422,70 @@ function People() {
         const { user: user2, profile: profile2 } = person;
         const watch = user2.watch_unit || (profile2 == null ? void 0 : profile2.watch);
         const initials2 = ((_a3 = user2.name) == null ? void 0 : _a3.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase()) ?? "?";
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "button",
-          {
-            onClick: () => navigate(`/people/${user2.id}`),
-            className: "w-full text-left bg-card border border-border rounded-xl p-3 flex items-center gap-3 hover:bg-muted/40 active:bg-muted/60 transition-colors",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-11 w-11 rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 flex items-center justify-center text-white font-bold shrink-0", children: initials2 }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-wrap", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold truncate", children: user2.name }),
-                  (sickToday == null ? void 0 : sickToday.has(user2.id)) && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-[10px] bg-red-500/10 text-red-600 border-red-500/20 gap-1", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(Stethoscope, { className: "h-2.5 w-2.5" }),
-                    " Sick"
+        const isSick = !!(sickToday == null ? void 0 : sickToday.has(user2.id));
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-stretch overflow-hidden rounded-xl border border-border bg-card", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              onClick: () => navigate(`/people/${user2.id}`),
+              className: "flex min-w-0 flex-1 items-center gap-3 p-3 text-left transition-colors hover:bg-muted/40 active:bg-muted/60",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-11 w-11 rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 flex items-center justify-center text-white font-bold shrink-0", children: initials2 }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-wrap", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold truncate", children: user2.name }),
+                    isSick && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-[10px] bg-red-500/10 text-red-600 border-red-500/20 gap-1", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Stethoscope, { className: "h-2.5 w-2.5" }),
+                      " Sick"
+                    ] }),
+                    !user2.is_active && !user2.left_at && /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-[10px] bg-yellow-500/10 text-yellow-600 border-yellow-500/20", children: "Pending" })
                   ] }),
-                  !user2.is_active && !user2.left_at && /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-[10px] bg-yellow-500/10 text-yellow-600 border-yellow-500/20", children: "Pending" })
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 mt-0.5 text-xs text-muted-foreground", children: [
+                    (profile2 == null ? void 0 : profile2.rank) && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate", children: profile2.rank }),
+                    (profile2 == null ? void 0 : profile2.rank) && watch && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground/40", children: "·" }),
+                    watch && /* @__PURE__ */ jsxRuntimeExports.jsx(WatchBadge$2, { watch })
+                  ] })
                 ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 mt-0.5 text-xs text-muted-foreground", children: [
-                  (profile2 == null ? void 0 : profile2.rank) && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate", children: profile2.rank }),
-                  (profile2 == null ? void 0 : profile2.rank) && watch && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground/40", children: "·" }),
-                  watch && /* @__PURE__ */ jsxRuntimeExports.jsx(WatchBadge$2, { watch })
-                ] })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-4 w-4 shrink-0 text-muted-foreground/60", "aria-hidden": "true" })
-            ]
-          },
-          user2.id
-        );
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-4 w-4 shrink-0 text-muted-foreground/60", "aria-hidden": "true" })
+              ]
+            }
+          ),
+          canLogSick && !isSick && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              onClick: () => {
+                setLogSickPerson({ id: user2.id, name: user2.name });
+                setLogSickOpen(true);
+              },
+              "aria-label": `Log ${user2.name} off sick`,
+              className: "flex w-[68px] shrink-0 flex-col items-center justify-center gap-1 border-l border-border/60 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted/40 active:bg-muted/60",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Stethoscope, { className: "h-4 w-4", "aria-hidden": "true" }),
+                "Log sick"
+              ]
+            }
+          ),
+          canLogSick && isSick && (sickOn == null ? void 0 : sickOn.openAbsence.has(user2.id)) && user2.id !== (authUser == null ? void 0 : authUser.id) && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              disabled: bookBackFit.isPending,
+              onClick: () => {
+                if (confirm(`Book ${user2.name} back fit for duty from today?`)) {
+                  bookBackFit.mutate(sickOn.openAbsence.get(user2.id));
+                }
+              },
+              "aria-label": `Mark ${user2.name} fit`,
+              className: "flex w-[68px] shrink-0 flex-col items-center justify-center gap-1 border-l border-border/60 text-[11px] font-medium text-emerald-700 transition-colors hover:bg-emerald-50 active:bg-emerald-50 disabled:opacity-50 dark:text-emerald-400 dark:hover:bg-emerald-950/20",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(HeartPulse, { className: "h-4 w-4", "aria-hidden": "true" }),
+                "Mark fit"
+              ]
+            }
+          )
+        ] }, user2.id);
       }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "card-flush hidden md:block", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { className: "plain", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [

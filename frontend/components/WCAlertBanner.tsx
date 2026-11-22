@@ -136,8 +136,8 @@ export function WCAlertBanner() {
     refetchInterval: 5 * 60 * 1000,
   });
 
-  // Who on this watch is off sick on that shift's date? (Own watch only
-  // since 22 Nov 2026 — the server no longer names other watches' people.)
+  // Who is off sick on that shift's date (station-wide, so a Head for Head
+  // from another watch counts too)?
   const { data: sickOn } = useSickOn(shiftDate, !!crewShift);
 
   // That shift's crewing for this watch (same key as WCShiftWidget → cache hit)

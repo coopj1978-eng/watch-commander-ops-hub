@@ -1750,6 +1750,10 @@
     width: 36px;
   }
 
+  .w-\[68px\] {
+    width: 68px;
+  }
+
   .w-\[80px\] {
     width: 80px;
   }
@@ -7071,6 +7075,10 @@
 
   .active\:cursor-grabbing:active {
     cursor: grabbing;
+  }
+
+  .active\:bg-emerald-50:active {
+    background-color: var(--color-emerald-50);
   }
 
   .active\:bg-muted:active, .active\:bg-muted\/60:active {

@@ -149,7 +149,7 @@ export function CrewOnWatchTable({ compact = false }: { compact?: boolean } = {}
       queryClient.invalidateQueries({ queryKey: ["back-to-work"] });
       toast({
         title: "Booked back fit",
-        description: res.back_to_work_due ? `Back to work interview due on their first shift back: ${res.back_to_work_due}.` : undefined,
+        description: `The WC and CC on their watch have been notified.${res.back_to_work_due ? ` Back to work interview due on their first shift back: ${res.back_to_work_due}.` : ""}`,
       });
     },
     onError: (err: any) =>
