@@ -38,7 +38,7 @@ const initials = (name: string) =>
   name.split(/\s+/).filter(Boolean).map((p) => p[0]).slice(0, 2).join("").toUpperCase() || "?";
 
 export function ProfileHero({
-  name, rank, watch, station, serviceNumber, phone, email, flags, facts, menu,
+  name, rank, watch, station, serviceNumber, phone, email, flags, facts, menu, own,
 }: {
   name: string;
   rank?: string | null;
@@ -51,6 +51,8 @@ export function ProfileHero({
   facts: ProfileFact[];
   /** Extra actions (e.g. the admin's invite / reset links), shown as a ⋯ menu. */
   menu?: ReactNode;
+  /** Your own profile: no Call / Text / Email — you don't ring yourself. */
+  own?: boolean;
 }) {
   const shift = watch ? shiftDisplay(watch) : null;
   const onShift = watch ? getWatchShiftStatus(watch)?.state === "on" : false;
@@ -104,12 +106,18 @@ export function ProfileHero({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <QuickAction href={tel ? `tel:${tel}` : undefined} icon={<Phone className="h-4 w-4" />} label="Call" />
-          <QuickAction href={tel ? `sms:${tel}` : undefined} icon={<MessageSquare className="h-4 w-4" />} label="Text" />
-          <QuickAction href={email ? `mailto:${email}` : undefined} icon={<Mail className="h-4 w-4" />} label="Email" />
-          {menu}
-        </div>
+        {(!own || menu) && (
+          <div className="flex items-center gap-2">
+            {!own && (
+              <>
+                <QuickAction href={tel ? `tel:${tel}` : undefined} icon={<Phone className="h-4 w-4" />} label="Call" />
+                <QuickAction href={tel ? `sms:${tel}` : undefined} icon={<MessageSquare className="h-4 w-4" />} label="Text" />
+                <QuickAction href={email ? `mailto:${email}` : undefined} icon={<Mail className="h-4 w-4" />} label="Email" />
+              </>
+            )}
+            {menu}
+          </div>
+        )}
       </div>
 
       {facts.length > 0 && (

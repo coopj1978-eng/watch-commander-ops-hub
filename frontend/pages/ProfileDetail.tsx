@@ -507,6 +507,7 @@ export default function ProfileDetail() {
         flags={flags}
         facts={facts}
         menu={adminMenu}
+        own={isViewingOwnProfile}
       />
 
       {/* ── Tabs ─────────────────────────────────────────────────────────── */}

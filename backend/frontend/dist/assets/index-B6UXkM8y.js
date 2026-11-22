@@ -47742,7 +47742,8 @@ function ProfileHero({
   email,
   flags,
   facts,
-  menu
+  menu,
+  own
 }) {
   var _a3;
   const shift2 = watch ? shiftDisplay(watch) : null;
@@ -47792,10 +47793,12 @@ function ProfileHero({
           ] })
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(QuickAction, { href: tel ? `tel:${tel}` : void 0, icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Phone, { className: "h-4 w-4" }), label: "Call" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(QuickAction, { href: tel ? `sms:${tel}` : void 0, icon: /* @__PURE__ */ jsxRuntimeExports.jsx(MessageSquare, { className: "h-4 w-4" }), label: "Text" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(QuickAction, { href: email ? `mailto:${email}` : void 0, icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Mail, { className: "h-4 w-4" }), label: "Email" }),
+      (!own || menu) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+        !own && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(QuickAction, { href: tel ? `tel:${tel}` : void 0, icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Phone, { className: "h-4 w-4" }), label: "Call" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(QuickAction, { href: tel ? `sms:${tel}` : void 0, icon: /* @__PURE__ */ jsxRuntimeExports.jsx(MessageSquare, { className: "h-4 w-4" }), label: "Text" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(QuickAction, { href: email ? `mailto:${email}` : void 0, icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Mail, { className: "h-4 w-4" }), label: "Email" })
+        ] }),
         menu
       ] })
     ] }),
@@ -49533,7 +49536,8 @@ function ProfileDetail() {
         email: user2 == null ? void 0 : user2.email,
         flags,
         facts,
-        menu: adminMenu
+        menu: adminMenu,
+        own: isViewingOwnProfile
       }
     ),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { ref: tabRow, role: "tablist", "aria-label": "Profile sections", className: "-mx-4 flex gap-1 overflow-x-auto border-b border-border/70 px-4 md:mx-0 md:px-0", children: tabs.map((t) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -68179,7 +68183,7 @@ function MineTab({ onOpen }) {
   if (isLoading) return /* @__PURE__ */ jsxRuntimeExports.jsx(Loading, {});
   const rows = (data == null ? void 0 : data.requests) ?? [];
   const needsMe = (r2) => r2.status === "with_cover" && r2.cover_user_id === (user2 == null ? void 0 : user2.id) || (r2.status === "authorised" || r2.status === "referred") && r2.user_id === (user2 == null ? void 0 : user2.id);
-  if (rows.length === 0) return /* @__PURE__ */ jsxRuntimeExports.jsx(Empty, { title: "Nothing yet", body: "Put a Flexi Day or a Head for Head on with Flexi / H4H." });
+  if (rows.length === 0) return /* @__PURE__ */ jsxRuntimeExports.jsx(Empty, { title: "Nothing yet", body: "Tap Book a day to put a Flexi Day or a Head for Head on." });
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(Group, { title: "Needs you", rows: rows.filter(needsMe), onOpen }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Group, { title: "Yours", rows: rows.filter((r2) => !needsMe(r2)), onOpen })
@@ -74684,7 +74688,7 @@ function MySeatStrip({ line }) {
     ] })
   ] });
 }
-function mySeatLine({ seat, boardSet, mine, ownWatch }) {
+function mySeatLine({ seat, boardSet, mine, ownWatch, started }) {
   const extra = (mine == null ? void 0 : mine.state) === "extra" ? mine.why ?? "Extra shift" : null;
   const covering = (mine == null ? void 0 : mine.state) === "extra" && mine.with_name ? ` · covering ${mine.with_name}` : "";
   if ((seat == null ? void 0 : seat.kind) === "pump") {
@@ -74713,7 +74717,7 @@ function mySeatLine({ seat, boardSet, mine, ownWatch }) {
     return {
       tone: "unset",
       title: "Crewing isn't set yet",
-      detail: extra ? `You're in for an extra · ${extra}${covering}` : "Check back nearer the start of the shift."
+      detail: extra ? `You're in for an extra · ${extra}${covering}` : started ? "Nobody has been put on the board for this shift." : "Check back nearer the start of the shift."
     };
   }
   return {
@@ -76121,7 +76125,9 @@ function CrewingBoard({ onOpenCanteenRota } = {}) {
       seat,
       boardSet: entries.length > 0,
       mine,
-      ownWatch: watch.toLowerCase() === ((user2 == null ? void 0 : user2.watch_unit) ?? "").toLowerCase()
+      ownWatch: watch.toLowerCase() === ((user2 == null ? void 0 : user2.watch_unit) ?? "").toLowerCase(),
+      // Days start at 08:00, nights at 18:00.
+      started: Date.now() >= (/* @__PURE__ */ new Date(`${shiftDate}T${shiftType.includes("Night") ? "18" : "08"}:00:00`)).getTime()
     });
   }, [canEdit, me, crewingLoading, entries, myShifts.data, shiftDate, shiftType, watch, user2 == null ? void 0 : user2.watch_unit]);
   const { data: sickOn } = useSickOn(shiftDate);

@@ -115,7 +115,7 @@ function MineTab({ onOpen }: { onOpen: (id: number) => void }) {
   const needsMe = (r: Req) =>
     (r.status === "with_cover" && r.cover_user_id === user?.id) ||
     ((r.status === "authorised" || r.status === "referred") && r.user_id === user?.id);
-  if (rows.length === 0) return <Empty title="Nothing yet" body="Put a Flexi Day or a Head for Head on with Flexi / H4H." />;
+  if (rows.length === 0) return <Empty title="Nothing yet" body="Tap Book a day to put a Flexi Day or a Head for Head on." />;
   return (
     <div className="space-y-5">
       <Group title="Needs you" rows={rows.filter(needsMe)} onOpen={onOpen} />

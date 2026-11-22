@@ -38,6 +38,9 @@ describe("your seat on the crewing board", () => {
 
   it("board not set yet, or set without you", () => {
     expect(mySeatLine({ seat: null, boardSet: false, ownWatch: true, mine: shift({}) })).toMatchObject({ tone: "unset", title: "Crewing isn't set yet" });
+    // Before the shift it says to check back; once it has begun, it doesn't.
+    expect(mySeatLine({ seat: null, boardSet: false, ownWatch: true, mine: shift({}) })?.detail).toBe("Check back nearer the start of the shift.");
+    expect(mySeatLine({ seat: null, boardSet: false, ownWatch: true, mine: shift({}), started: true })?.detail).toBe("Nobody has been put on the board for this shift.");
     expect(mySeatLine({ seat: null, boardSet: true, ownWatch: true })).toMatchObject({ tone: "not", title: "You're not riding this shift" });
   });
 

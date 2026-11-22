@@ -2116,6 +2116,8 @@ export default function CrewingBoard({ onOpenCanteenRota }: { onOpenCanteenRota?
       boardSet: entries.length > 0,
       mine,
       ownWatch: watch.toLowerCase() === (user?.watch_unit ?? "").toLowerCase(),
+      // Days start at 08:00, nights at 18:00.
+      started: Date.now() >= new Date(`${shiftDate}T${shiftType.includes("Night") ? "18" : "08"}:00:00`).getTime(),
     });
   }, [canEdit, me, crewingLoading, entries, myShifts.data, shiftDate, shiftType, watch, user?.watch_unit]);
 

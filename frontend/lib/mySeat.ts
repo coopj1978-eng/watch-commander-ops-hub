@@ -20,7 +20,7 @@ export interface MySeatLine {
   detail?: string;
 }
 
-export function mySeatLine({ seat, boardSet, mine, ownWatch }: {
+export function mySeatLine({ seat, boardSet, mine, ownWatch, started }: {
   seat: BoardSeat;
   /** Anyone on the board yet (either pump or detached). */
   boardSet: boolean;
@@ -28,6 +28,8 @@ export function mySeatLine({ seat, boardSet, mine, ownWatch }: {
   mine?: MyShift;
   /** The board is your own watch's. */
   ownWatch: boolean;
+  /** The shift has already begun (so "check back nearer the start" would be wrong). */
+  started?: boolean;
 }): MySeatLine | null {
   const extra = mine?.state === "extra" ? (mine.why ?? "Extra shift") : null;
   const covering = mine?.state === "extra" && mine.with_name ? ` · covering ${mine.with_name}` : "";
@@ -59,7 +61,11 @@ export function mySeatLine({ seat, boardSet, mine, ownWatch }: {
     return {
       tone: "unset",
       title: "Crewing isn't set yet",
-      detail: extra ? `You're in for an extra · ${extra}${covering}` : "Check back nearer the start of the shift.",
+      detail: extra
+        ? `You're in for an extra · ${extra}${covering}`
+        : started
+        ? "Nobody has been put on the board for this shift."
+        : "Check back nearer the start of the shift.",
     };
   }
   return {
