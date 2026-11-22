@@ -92,8 +92,8 @@ interface ApplianceSlot {
 
 const WATCHES = ["Red", "White", "Green", "Blue", "Amber"] as const;
 
-// Everyone off sick on the board's date — station-wide, so a Head for Head
-// or cover from another watch shows as sick here too. Read by the tiles and
+// Everyone on this watch off sick on the board's date (own watch only since
+// 22 Nov 2026 — cover from another watch no longer shows). Read by the tiles and
 // filled slots instead of threading a prop through every layer.
 const EMPTY_IDS = new Set<string>();
 const SickIdsContext = createContext<Set<string>>(EMPTY_IDS);

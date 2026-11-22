@@ -53,9 +53,10 @@ export function latestAbsencePerPerson<
 }
 
 /**
- * Ids of everyone off sick on a date. For a WC/CC this is the whole station
- * (names only — no reasons or history), so someone from another watch on
- * your board for a Head for Head shows as sick there too.
+ * Ids of everyone off sick on a date that you're allowed to know about. For
+ * a WC/CC that's their own watch only (22 Nov 2026 — it used to be the whole
+ * station), so someone from another watch on your board for a Head for Head
+ * no longer shows as sick there.
  */
 export function useSickOn(date: string, enabled = true) {
   return useQuery({
