@@ -27365,7 +27365,8 @@ const NAV_GROUPS = [
       { name: "People", path: "/people", icon: Users, featureKey: "people", shortcut: "P", badge: "people", keywords: "crew staff firefighters profiles" },
       { name: "Flexi & H4H", path: "/requests", icon: FileCheck, featureKey: "requests", badge: "requests", keywords: "requests flexi day head for head h4h swap annual leave move kronos records balances" },
       { name: "Bulletins", path: "/bulletins", icon: Megaphone, featureKey: "bulletins", badge: "bulletins", keywords: "news announcements messages" },
-      { name: "Training", path: "/training", icon: GraduationCap, featureKey: "training", keywords: "courses skills certificates" }
+      { name: "Training", path: "/training", icon: GraduationCap, featureKey: "training", keywords: "courses skills certificates" },
+      { name: "Overtime", path: "/overtime", icon: Timer, managersOrAdmin: true, keywords: "overtime hours month watch totals spreadsheet" }
     ]
   },
   {
@@ -38605,21 +38606,21 @@ function MonthLine({ month, count: count2, pace: pace2, noun }) {
   ] });
 }
 const STATION_WATCHES = ["Red", "White", "Green", "Blue", "Amber"];
-function MetricCell({ cell, label: label2 }) {
-  const pct = cell.target > 0 ? Math.min(100, cell.done / cell.target * 100) : 0;
-  const behind = cell.p.state === "behind" || cell.p.state === "late" || cell.p.state === "missed";
+function MetricCell({ cell: cell2, label: label2 }) {
+  const pct = cell2.target > 0 ? Math.min(100, cell2.done / cell2.target * 100) : 0;
+  const behind = cell2.p.state === "behind" || cell2.p.state === "late" || cell2.p.state === "missed";
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-baseline justify-between gap-2 text-xs sm:hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: label2 }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline gap-1.5", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono text-sm font-semibold tabular-nums", children: cell.target === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "—" }) : cell.done }),
-      cell.target > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono text-xs tabular-nums text-muted-foreground", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono text-sm font-semibold tabular-nums", children: cell2.target === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "—" }) : cell2.done }),
+      cell2.target > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono text-xs tabular-nums text-muted-foreground", children: [
         "/ ",
-        cell.target
+        cell2.target
       ] }),
-      cell.extra && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-auto text-[10px] font-medium text-muted-foreground", children: cell.extra })
+      cell2.extra && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-auto text-[10px] font-medium text-muted-foreground", children: cell2.extra })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: cn("h-full rounded-full transition-[width] duration-700", BAR_COLOUR[cell.p.state]), style: { width: `${pct}%` } }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: cn("mt-1 h-4 text-[11px]", behind ? cell.p.state === "behind" ? "text-amber-700 dark:text-amber-400" : "text-red-600 dark:text-red-400" : "text-muted-foreground"), children: cell.target === 0 ? "" : cell.p.state === "done" ? "Done" : behind ? `${cell.p.behindBy} behind` : cell.p.state === "upcoming" ? "" : "On pace" })
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: cn("h-full rounded-full transition-[width] duration-700", BAR_COLOUR[cell2.p.state]), style: { width: `${pct}%` } }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: cn("mt-1 h-4 text-[11px]", behind ? cell2.p.state === "behind" ? "text-amber-700 dark:text-amber-400" : "text-red-600 dark:text-red-400" : "text-muted-foreground"), children: cell2.target === 0 ? "" : cell2.p.state === "done" ? "Done" : behind ? `${cell2.p.behindBy} behind` : cell2.p.state === "upcoming" ? "" : "On pace" })
   ] });
 }
 function StationComparison({
@@ -42807,7 +42808,7 @@ function SelectScrollDownButton({
     }
   );
 }
-const WATCHES$g = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$h = ["Red", "White", "Green", "Blue", "Amber"];
 function ToilWidget() {
   var _a3;
   const { user: user2 } = useAuth();
@@ -43104,7 +43105,7 @@ function ToilWidget() {
               setEarnForUserId("");
             }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select watch…" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$g.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$h.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
                 w,
                 " Watch"
               ] }, w)) })
@@ -45888,6 +45889,62 @@ const overtimeIn = (bookings, month) => {
   var _a3;
   return ((_a3 = overtimeByMonth(bookings).find((m) => m.month === month)) == null ? void 0 : _a3.hours) ?? 0;
 };
+function watchOvertime(roster, bookings, month) {
+  const byPerson = new Map(
+    roster.map((m) => [m.id, { id: m.id, name: m.name, role: m.system_role, hours: 0, entries: [] }])
+  );
+  for (const b of bookings) {
+    if (b.type !== "overtime" || monthOf(b.start_date) !== month) continue;
+    const hours = Number(b.overtime_hours ?? 0);
+    const person = byPerson.get(b.user_id);
+    if (!person || !Number.isFinite(hours) || hours <= 0) continue;
+    person.hours += hours;
+    person.entries.push({
+      id: b.id,
+      date: isoDay$1(b.start_date),
+      hours,
+      dayNight: b.shift_day_night ?? void 0,
+      withWatch: b.covering_watch ?? void 0,
+      notes: b.notes ?? void 0
+    });
+  }
+  const people = [...byPerson.values()];
+  for (const p of people) p.entries.sort((a, b) => a.date.localeCompare(b.date));
+  people.sort((a, b) => b.hours - a.hours || a.name.localeCompare(b.name));
+  return {
+    people,
+    hours: people.reduce((n, p) => n + p.hours, 0),
+    entries: people.reduce((n, p) => n + p.entries.length, 0),
+    withSome: people.filter((p) => p.hours > 0).length
+  };
+}
+function monthShift(month, by) {
+  const [y, m] = month.split("-").map(Number);
+  const d = new Date(y, m - 1 + by, 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+function monthRange(month) {
+  const [y, m] = month.split("-").map(Number);
+  const last = new Date(y, m, 0).getDate();
+  return { from: `${month}-01`, to: `${month}-${String(last).padStart(2, "0")}` };
+}
+const cell = (v) => {
+  const s = String(v ?? "");
+  return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+};
+function watchOvertimeCsv(data) {
+  const lines = [["Name", "Date", "Shift", "Hours", "Worked with", "Note"].join(",")];
+  for (const p of data.people) {
+    for (const e of p.entries) {
+      lines.push([p.name, e.date, e.dayNight ?? "", hoursText(e.hours), e.withWatch ? `${e.withWatch} Watch` : "", e.notes ?? ""].map(cell).join(","));
+    }
+  }
+  lines.push("");
+  lines.push(["Name", "Total hours", "Entries"].join(","));
+  for (const p of data.people) if (p.hours > 0) lines.push([p.name, hoursText(p.hours), p.entries.length].map(cell).join(","));
+  lines.push(["Watch total", hoursText(data.hours), data.entries].map(cell).join(","));
+  return lines.join("\r\n");
+}
 const REQUEST_LABEL = {
   flexi: "Flexi Day",
   h4h: "Head for Head"
@@ -45904,7 +45961,7 @@ const STATUS_LABEL = {
   withdrawn: "Withdrawn",
   cancelled: "Cancelled"
 };
-const dayText = (iso2) => (/* @__PURE__ */ new Date(`${iso2}T12:00:00`)).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+const dayText$1 = (iso2) => (/* @__PURE__ */ new Date(`${iso2}T12:00:00`)).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
 const stampText = (at) => new Date(at).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
 const deadlineText = (at) => new Date(at).toLocaleString("en-GB", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 function signedAs(r2) {
@@ -45974,7 +46031,7 @@ function CheckList({ checks, soft = false }) {
     ] }, c.key);
   }) });
 }
-const WATCHES$f = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$g = ["Red", "White", "Green", "Blue", "Amber"];
 const pad$3 = (n) => String(n).padStart(2, "0");
 const ymd = (d) => `${d.getFullYear()}-${pad$3(d.getMonth() + 1)}-${pad$3(d.getDate())}`;
 function Toggle({ value, options, onChange, label: label2 }) {
@@ -46008,7 +46065,7 @@ function WatchPerson({ watch, onWatch, person, onPerson, exclude, label: label2 
       onPerson("");
     }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { "aria-label": `${label2}: watch`, className: "w-full", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Watch" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$f.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$g.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: person, onValueChange: onPerson, disabled: !watch, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { "aria-label": label2, className: "w-full", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Person" }) }),
@@ -46165,7 +46222,7 @@ function NewRequestDialog({ open, onClose, initialType = "flexi", defaultDate, o
           /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { "aria-label": "Station", placeholder: "Station", value: coverStation, onChange: (e) => setCoverStation(e.target.value) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: coverOtherWatch, onValueChange: setCoverOtherWatch, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { "aria-label": "Their watch", className: "w-full", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Watch" }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$f.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$g.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
@@ -46254,7 +46311,7 @@ const TYPE_CONFIG = {
     description: "Extra hours worked — a whole shift or part of one. The hours are added up for each month."
   }
 };
-const WATCHES$e = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$f = ["Red", "White", "Green", "Blue", "Amber"];
 function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
   const { user: user2 } = useAuth();
   const userRole = useUserRole();
@@ -46499,7 +46556,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
   })();
   const userWatch = (editingAdj == null ? void 0 : editingAdj.watch_unit) ?? (user2 == null ? void 0 : user2.watch_unit) ?? "";
   const subjectName = (editingAdj == null ? void 0 : editingAdj.user_name) ?? (user2 == null ? void 0 : user2.name);
-  const otherWatches = WATCHES$e.filter((w) => w !== userWatch);
+  const otherWatches = WATCHES$f.filter((w) => w !== userWatch);
   const subjectWatch = forAnother && forWatch ? forWatch : userWatch;
   reactExports.useEffect(() => {
     if (!open || editingId || editAdjustment) return;
@@ -46792,7 +46849,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: overtimeWatch, onValueChange: setOvertimeWatch, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-10 w-full text-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select watch…" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$e.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$f.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
                 w,
                 " Watch",
                 w === userWatch ? " (own watch)" : ""
@@ -46923,7 +46980,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
                 setForUserId("");
               }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-10 w-full text-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select their watch…" }) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$e.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$f.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
                   w,
                   " Watch"
                 ] }, w)) })
@@ -49127,7 +49184,7 @@ function useActiveTabInView(active) {
   return row;
 }
 const RANKS$1 = ["Watch Commander", "Crew Commander", "Leading Firefighter", "Firefighter"];
-const WATCHES$d = ["Green", "Red", "White", "Blue", "Amber"];
+const WATCHES$e = ["Green", "Red", "White", "Blue", "Amber"];
 const shortDate$2 = (d) => d ? new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "";
 const dayMonth = (d) => new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 const selectCls = "h-9 w-full max-w-[220px] rounded-lg border border-border bg-background px-2 text-sm font-normal";
@@ -49602,7 +49659,7 @@ function ProfileDetail() {
           ] })) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Field$2, { label: "Watch", children: editableValue("details", "watch", watchValue ? `${watchValue} Watch` : "—", /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: selectCls, value: watchValue || "_none", onChange: (e) => set({ watch: e.target.value }), children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "_none", children: "No watch" }),
-            WATCHES$d.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: w, children: w }, w))
+            WATCHES$e.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: w, children: w }, w))
           ] })) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Field$2, { label: "Station", children: editableValue("details", "station", profile2.station || "—", /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: selectCls, value: getDisplayValue("station") || "", onChange: (e) => set({ station: e.target.value }), children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", disabled: true, children: "Choose a station or area" }),
@@ -51470,7 +51527,7 @@ function CalendarWidget({
     ] })
   ] }) }) }) });
 }
-const WATCHES$c = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$d = ["Red", "White", "Green", "Blue", "Amber"];
 const CALENDAR_LAYERS = [
   { key: "personal", label: "My calendar", sub: "Only you, plus your shifts and bookings", dot: "var(--cal-personal-dot)" },
   { key: "watch", label: "Watch calendar", sub: "", dot: "var(--cal-watch-dot)" },
@@ -51556,7 +51613,7 @@ function CalendarFilters({
       isManager && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuSeparator, {}),
         /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuLabel, { className: "text-xs font-semibold uppercase tracking-wide text-muted-foreground", children: "Whose watch calendar" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuRadioGroup, { value: watchShown, onValueChange: onWatchChange, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-5 gap-1 px-1 pb-1", children: WATCHES$c.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuRadioGroup, { value: watchShown, onValueChange: onWatchChange, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-5 gap-1 px-1 pb-1", children: WATCHES$d.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(
           DropdownMenuRadioItem,
           {
             value: w,
@@ -59833,7 +59890,7 @@ const COVER_TABS = [
   { id: "colours", label: "Colours" },
   { id: "upload", label: "Upload" }
 ];
-const WATCHES$b = ["Amber", "Green", "Blue", "Red", "White"];
+const WATCHES$c = ["Amber", "Green", "Blue", "Red", "White"];
 const ITEM_CLS = "rounded-[10px] py-2 pl-3 text-sm focus:bg-[var(--cal-surface-2)] focus:text-[var(--cal-ink)]";
 const CSS$1 = `
 .tdd-lbl{font-size:12px;font-weight:600;color:var(--cal-muted);letter-spacing:.06em;text-transform:uppercase}
@@ -60207,7 +60264,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
     /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id, className: "tdd-field cal-focus", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Assign watch…" }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { className: "cal-menu", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "__none__", className: ITEM_CLS, children: "— None —" }),
-      WATCHES$b.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, className: ITEM_CLS, children: [
+      WATCHES$c.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, className: ITEM_CLS, children: [
         w,
         " Watch"
       ] }, w))
@@ -62122,7 +62179,7 @@ function RoutinePlanner({ open, onClose, canManage, onOpenOtherChecks }) {
     };
   }, [open]);
   if (!open) return null;
-  const cell = (slot, opts) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+  const cell2 = (slot, opts) => /* @__PURE__ */ jsxRuntimeExports.jsx(
     SlotCell,
     {
       slot,
@@ -62194,7 +62251,7 @@ function RoutinePlanner({ open, onClose, canManage, onOpenOtherChecks }) {
               /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": "Close", onClick: onClose, className: "cal-btn", style: { width: 40, height: 40, padding: 0, flex: "none" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4" }) })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { flex: 1, minHeight: 0, overflowY: "auto", padding: isPhone ? 14 : "18px 28px 24px", display: "flex", flexDirection: "column", gap: 16 }, children: isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: 14, color: "var(--cal-muted)" }, children: "Loading the routine…" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-              cell("every", {
+              cell2("every", {
                 row: !isPhone,
                 title: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }, children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 15, fontWeight: 600 }, children: "Every shift" }),
@@ -62235,7 +62292,7 @@ function RoutinePlanner({ open, onClose, canManage, onOpenOtherChecks }) {
                     d.key
                   );
                 }) }),
-                SHIFTS.map((s) => cell(`${phoneDay}-${s.key}`, { title: /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftTitle, { shift: s }), minHeight: 100 })),
+                SHIFTS.map((s) => cell2(`${phoneDay}-${s.key}`, { title: /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftTitle, { shift: s }), minHeight: 100 })),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: onOpenOtherChecks, className: "cal-btn", style: { height: 48, fontSize: 14 }, children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat, { className: "h-4 w-4" }),
                   " Other checks",
@@ -62252,7 +62309,7 @@ function RoutinePlanner({ open, onClose, canManage, onOpenOtherChecks }) {
                 }),
                 SHIFTS.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsxs(reactExports.Fragment, { children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { paddingTop: 12 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftTitle, { shift: s, stacked: true }) }),
-                  DAYS.map((d) => cell(`${d.key}-${s.key}`, { minHeight: s.key === "day" ? 160 : 90 }))
+                  DAYS.map((d) => cell2(`${d.key}-${s.key}`, { minHeight: s.key === "day" ? 160 : 90 }))
                 ] }, s.key))
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: 0, fontSize: 13, color: "var(--cal-muted)", maxWidth: 860 }, children: canManage ? `Changes save as you go and reach today's cards straight away (ticks are kept). ${isPhone ? "" : "Drag an item to move it to another card. "}Use a card's ⋯ to set how often it comes round, change its header or copy it to another day. A weekly card stays with its watch until it's done or their 2nd Night ends, and an every-shift card until the shift ends. Anything not done by then is marked missed and shows on the WC dashboard.` : "Only Watch and Crew Commanders can change the routine." })
@@ -67823,7 +67880,7 @@ function CoverAnswer({ d, act, busy }) {
   const self = (user2 == null ? void 0 : user2.id) === r2.cover_user_id;
   const answer = (agreed) => act(() => backendClient.shift_adjustments.confirmCover(r2.id, { agreed }), agreed ? "Confirmed" : "Answer recorded");
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Section$1, { title: "Does the cover agree?", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: self ? `${r2.user_name} has put you down to work ${dayText(r2.shift_date)} (${r2.shift_type}). Have you agreed?` : `${r2.cover_name} hasn't answered yet. If you've checked with them, you can answer for them.` }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: self ? `${r2.user_name} has put you down to work ${dayText$1(r2.shift_date)} (${r2.shift_type}). Have you agreed?` : `${r2.cover_name} hasn't answered yet. If you've checked with them, you can answer for them.` }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", disabled: busy, onClick: () => answer(false), children: self ? "No, not agreed" : "They haven't" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { disabled: busy, onClick: () => answer(true), children: self ? "Yes, I've agreed" : "They've agreed" })
@@ -67870,7 +67927,7 @@ function Decision({ d, act, busy }) {
       /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-sm", children: "Pinch point on Kronos" }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground", children: [
         "Only Kronos has this. Look it up under Pinch Points, Time Off, for ",
-        dayText(r2.shift_date),
+        dayText$1(r2.shift_date),
         "."
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Choice, { label: "Pinch point", value: pinch, onChange: (p) => {
@@ -67986,7 +68043,7 @@ function PaybackDecision({ d, act, busy }) {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-muted-foreground", children: [
       r2.user_name,
       " works ",
-      r2.payback_date && dayText(r2.payback_date),
+      r2.payback_date && dayText$1(r2.payback_date),
       " (",
       r2.payback_day_night,
       ") to pay this back."
@@ -68034,7 +68091,7 @@ function RequestCard({ id, onClose }) {
   }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "flex flex-col gap-0 overflow-hidden p-0 sm:max-w-lg", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { className: "border-b border-border px-5 pb-3 pt-5 text-left", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { className: "pr-6 text-base", children: r2 ? `${REQUEST_LABEL[r2.type]}: ${r2.user_name}` : "Request" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: r2 ? `${dayText(r2.shift_date)} · ${r2.shift_type} · ${r2.watch} Watch` : "Loading" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: r2 ? `${dayText$1(r2.shift_date)} · ${r2.shift_type} · ${r2.watch} Watch` : "Loading" }),
       r2 && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "pt-1 text-sm font-medium text-foreground", children: [
         STATUS_LABEL[r2.status],
         r2.payback_status === "with_wc" && " · payback with the WC",
@@ -68066,7 +68123,7 @@ function RequestCard({ id, onClose }) {
               /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Their station", value: r2.cover_station }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Their watch", value: r2.cover_watch })
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Payback", value: r2.payback_date ? `${dayText(r2.payback_date)} (${r2.payback_day_night})` : null }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Payback", value: r2.payback_date ? `${dayText$1(r2.payback_date)} (${r2.payback_day_night})` : null }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Payback watch", value: r2.payback_watch }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Reviewer asked", value: r2.reviewer_name }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(Field, { label: "Signed by", value: signedAs(r2) }),
@@ -68101,7 +68158,7 @@ function RequestCard({ id, onClose }) {
     ] })
   ] }) });
 }
-const WATCHES$a = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$b = ["Red", "White", "Green", "Blue", "Amber"];
 function RequestRow({ r: r2, onOpen, extra }) {
   const Icon2 = r2.type === "flexi" ? CalendarDays : ArrowLeftRight;
   return /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: onOpen, className: "flex w-full items-center gap-3 px-3 py-3 text-left transition-colors hover:bg-muted/60 sm:px-4", children: [
@@ -68116,7 +68173,7 @@ function RequestRow({ r: r2, onOpen, extra }) {
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "block truncate text-[13px] text-muted-foreground", children: [
-        dayText(r2.shift_date),
+        dayText$1(r2.shift_date),
         " · ",
         r2.shift_type,
         " · ",
@@ -68307,7 +68364,7 @@ function BalancesTab() {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watch, onValueChange: setWatch, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { "aria-label": "Watch", className: "w-28", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$a.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$b.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: String(year), onValueChange: (v) => setYear(Number(v)), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { "aria-label": "Year", className: "w-24", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
@@ -68422,7 +68479,7 @@ function quarterLabel$2(q, fy) {
   const periods = ["Apr–Jun", "Jul–Sep", "Oct–Dec", "Jan–Mar"];
   return `Q${q} ${periods[q - 1]} ${fy}/${String(fy + 1).slice(2)}`;
 }
-const WATCHES$9 = ["Blue", "Red", "Green", "Amber", "White"];
+const WATCHES$a = ["Blue", "Red", "Green", "Amber", "White"];
 const EXPORT_TABLES = [
   { value: "users", label: "Users" },
   { value: "firefighter_profiles", label: "Firefighter Profiles" },
@@ -68475,7 +68532,7 @@ function NewReportDialog({
         /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Watch" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watch, onValueChange: setWatch, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$9.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$a.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
             w,
             " Watch"
           ] }, w)) })
@@ -69584,7 +69641,7 @@ function TabsContent({
     }
   );
 }
-const WATCHES$8 = ["Red", "White", "Blue", "Green", "Amber"];
+const WATCHES$9 = ["Red", "White", "Blue", "Green", "Amber"];
 const RANKS = ["Firefighter", "Leading Firefighter", "Crew Commander", "Watch Commander"];
 function InviteUserDialog({ open, onClose, onSuccess }) {
   const [name, setName] = reactExports.useState("");
@@ -69695,7 +69752,7 @@ function InviteUserDialog({ open, onClose, onSuccess }) {
           /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Watch" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watchUnit, onValueChange: setWatchUnit, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Choose…" }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$8.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$9.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
           ] })
         ] })
       ] }),
@@ -70658,7 +70715,7 @@ function watchInYear(planWatch, year) {
 function watchInPlan(yearWatch, year) {
   return moveAlong(yearWatch, PLAN_YEAR - year);
 }
-const WATCHES$7 = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$8 = ["Red", "White", "Green", "Blue", "Amber"];
 const watchBadgeClass = {
   Red: "bg-red-500/10 text-red-600 border-red-400/30",
   White: "bg-gray-100 text-gray-700 border-gray-300 dark:bg-gray-700/40 dark:text-gray-200 dark:border-gray-500",
@@ -70684,7 +70741,7 @@ function WatchSelect({
         /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-8 text-xs w-[110px]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "__none__", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "None" }) }),
-          WATCHES$7.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: w }) }, w))
+          WATCHES$8.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: w }) }, w))
         ] })
       ]
     }
@@ -72883,7 +72940,7 @@ function AddApplianceModal({
     ] })
   ] }) });
 }
-const WATCHES$6 = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$7 = ["Red", "White", "Green", "Blue", "Amber"];
 const todayIso = () => {
   const d = /* @__PURE__ */ new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -72899,7 +72956,7 @@ function ReportDefectDialog({
   const queryClient2 = useQueryClient();
   const { user: user2 } = useAuth();
   const canBackfill = (user2 == null ? void 0 : user2.role) === "WC" || (user2 == null ? void 0 : user2.role) === "CC";
-  const ownWatch = WATCHES$6.find((w) => w.toLowerCase() === ((user2 == null ? void 0 : user2.watch_unit) ?? "").toLowerCase()) ?? "";
+  const ownWatch = WATCHES$7.find((w) => w.toLowerCase() === ((user2 == null ? void 0 : user2.watch_unit) ?? "").toLowerCase()) ?? "";
   const [j7, setJ7] = reactExports.useState(false);
   const [reportedOn, setReportedOn] = reactExports.useState(todayIso());
   const [watch, setWatch] = reactExports.useState(ownWatch);
@@ -73103,7 +73160,7 @@ function ReportDefectDialog({
             /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Watch" }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watch, onValueChange: setWatch, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Watch" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$6.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$7.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
             ] })
           ] })
         ] }),
@@ -74309,7 +74366,7 @@ function PersonPicker({
     )
   ] }) });
 }
-const WATCHES$5 = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$6 = ["Red", "White", "Green", "Blue", "Amber"];
 const TYPES = ["1st Day", "2nd Day", "1st Night", "2nd Night"];
 function stepShift(watch, date2, type, dir) {
   const d = /* @__PURE__ */ new Date(`${date2}T12:00:00`);
@@ -74406,7 +74463,7 @@ function ShiftNavigator({
     !hasRota && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "seg", style: { width: 300 }, children: TYPES.map((t) => /* @__PURE__ */ jsxRuntimeExports.jsx("button", { "data-on": t === type, onClick: () => onChange(date2, t), children: t }, t)) }),
     canChangeWatch && /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watch, onValueChange: onWatch, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-9 w-32", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$5.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$6.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
         w,
         " Watch"
       ] }, w)) })
@@ -74726,7 +74783,7 @@ function mySeatLine({ seat, boardSet, mine, ownWatch, started }) {
     detail: extra ? `You're in for an extra (${extra}) but not on the board yet.` : "Check with your Watch Commander if that's wrong."
   };
 }
-const WATCHES$4 = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$5 = ["Red", "White", "Green", "Blue", "Amber"];
 const EMPTY_IDS = /* @__PURE__ */ new Set();
 const SickIdsContext = reactExports.createContext(EMPTY_IDS);
 const SHIFT_TYPES = [
@@ -75698,7 +75755,7 @@ function ExternalDialog({
   const [selectedWatch, setSelectedWatch] = reactExports.useState("");
   const [userId, setUserId] = reactExports.useState("");
   const [name, setName] = reactExports.useState("");
-  const otherWatches = WATCHES$4.filter((w) => w !== currentWatch);
+  const otherWatches = WATCHES$5.filter((w) => w !== currentWatch);
   const { data: otherRosterData, isLoading: rosterLoading } = useQuery({
     queryKey: ["crewing-roster", selectedWatch],
     queryFn: () => backendClient.crewing.roster({ watch: selectedWatch }),
@@ -76891,7 +76948,7 @@ function HandoverItemsEditor({ items, onChange }) {
     ] })
   ] });
 }
-const WATCHES$3 = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$4 = ["Red", "White", "Green", "Blue", "Amber"];
 const emptyForm = {
   watch: "",
   shift_type: "Day",
@@ -77411,7 +77468,7 @@ function Handover() {
       }
     ),
     activeTab === "detachments" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      !(user2 == null ? void 0 : user2.watch_unit) && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap items-center gap-2", role: "group", "aria-label": "Watch", children: WATCHES$3.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      !(user2 == null ? void 0 : user2.watch_unit) && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap items-center gap-2", role: "group", "aria-label": "Watch", children: WATCHES$4.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "button",
         {
           type: "button",
@@ -77430,7 +77487,7 @@ function Handover() {
     activeTab === "handover" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
       !showForm && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold text-muted-foreground uppercase tracking-wide mr-1", children: "Filter:" }),
-        ["", ...WATCHES$3].map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        ["", ...WATCHES$4].map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
           {
             onClick: () => {
@@ -77464,7 +77521,7 @@ function Handover() {
                   onValueChange: (v) => setForm((f) => ({ ...f, watch: v })),
                   children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select watch" }) }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$3.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$4.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
                       w,
                       " Watch"
                     ] }, w)) })
@@ -77802,7 +77859,7 @@ function Section({ label: label2, value, colour }) {
     /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-foreground whitespace-pre-wrap", children: value })
   ] });
 }
-const WATCHES$2 = ["Red", "White", "Green", "Blue", "Amber"];
+const WATCHES$3 = ["Red", "White", "Green", "Blue", "Amber"];
 const TRAINING_TYPE_LABELS = {
   ba_drill: "BA Drill",
   rtc: "RTC / Extrication",
@@ -78009,7 +78066,7 @@ function Training() {
         /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { className: "h-3 w-3 inline mr-1" }),
         "Filter:"
       ] }),
-      ["", ...WATCHES$2].map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ["", ...WATCHES$3].map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(
         "button",
         {
           onClick: () => {
@@ -78318,51 +78375,72 @@ function UpcomingPanel({
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground mt-1", children: canEdit ? "Schedule a training session using the button above." : "No training sessions have been planned yet." })
     ] }) });
   }
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground", children: [
-      total,
-      " planned session",
-      total !== 1 ? "s" : ""
-    ] }),
-    records.map((r2) => /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { className: "border-t-2 border-t-teal-500 transition-all hover:shadow-md max-sm:py-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { className: "py-4 max-sm:px-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-center justify-between gap-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5 min-w-0", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-wrap", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold text-foreground", children: format(parseISO(r2.training_date), "EEE dd MMM yyyy") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TypeBadge, { type: r2.training_type }),
-          r2.shift_type && /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "secondary", className: "text-xs", children: r2.shift_type }),
-          r2.watch && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-xs", children: [
-            r2.watch,
-            " Watch"
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: r2.topic })
+  const today = localTodayIso();
+  const ahead = records.filter((r2) => r2.training_date >= today).sort((a, b) => a.training_date.localeCompare(b.training_date));
+  const past = canEdit ? records.filter((r2) => r2.training_date < today) : [];
+  const card = (r2, late) => /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { className: `border-t-2 transition-all hover:shadow-md max-sm:py-0 ${late ? "border-t-amber-500" : "border-t-teal-500"}`, children: /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { className: "py-4 max-sm:px-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-center justify-between gap-3", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5 min-w-0", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-wrap", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold text-foreground", children: format(parseISO(r2.training_date), "EEE dd MMM yyyy") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TypeBadge, { type: r2.training_type }),
+        r2.shift_type && /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "secondary", className: "text-xs", children: r2.shift_type }),
+        r2.watch && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", className: "text-xs", children: [
+          r2.watch,
+          " Watch"
+        ] })
       ] }),
-      canEdit && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 shrink-0", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Button,
-          {
-            size: "sm",
-            className: "bg-green-600 hover:bg-green-700 gap-1.5",
-            onClick: () => onLog(r2.id),
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-3.5 w-3.5" }),
-              "Log Training"
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Button,
-          {
-            size: "sm",
-            variant: "ghost",
-            className: "text-muted-foreground hover:text-red-500",
-            onClick: () => onCancel(r2.id),
-            "aria-label": "Cancel this session",
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" })
-          }
-        )
-      ] })
-    ] }) }) }, r2.id)),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: r2.topic })
+    ] }),
+    canEdit && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 shrink-0", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        Button,
+        {
+          size: "sm",
+          className: "bg-green-600 hover:bg-green-700 gap-1.5",
+          onClick: () => onLog(r2.id),
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-3.5 w-3.5" }),
+            "Log Training"
+          ]
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        Button,
+        {
+          size: "sm",
+          variant: "ghost",
+          className: "text-muted-foreground hover:text-red-500",
+          onClick: () => onCancel(r2.id),
+          "aria-label": late ? "It didn't happen — remove this session" : "Cancel this session",
+          title: late ? "It didn't happen — remove it" : "Cancel this session",
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" })
+        }
+      )
+    ] })
+  ] }) }) }, r2.id);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
+    ahead.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground", children: [
+        ahead.length,
+        " session",
+        ahead.length !== 1 ? "s" : "",
+        " coming up"
+      ] }),
+      ahead.map((r2) => card(r2, false))
+    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "rounded-xl border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground", children: [
+      "Nothing coming up",
+      canEdit ? " — schedule a session with the button above." : "."
+    ] }),
+    past.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm font-semibold text-foreground", children: [
+          "Waiting to be logged · ",
+          past.length
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "The date has passed. Log what was done, or tap the X if it didn't happen." })
+      ] }),
+      past.map((r2) => card(r2, true))
+    ] }),
     hasMore && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pt-2 text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", size: "sm", disabled: isFetching, onClick: onLoadMore, children: isFetching ? "Loading..." : `Load more (${total - records.length} remaining)` }) })
   ] });
 }
@@ -78506,6 +78584,163 @@ function StatusBadge({ status }) {
     ] });
   }
   return null;
+}
+const WATCHES$2 = ["Red", "White", "Green", "Blue", "Amber"];
+const dayText = (iso2) => (/* @__PURE__ */ new Date(`${iso2}T12:00:00`)).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+function Overtime() {
+  var _a3, _b3;
+  const { user: user2 } = useAuth();
+  const own = (user2 == null ? void 0 : user2.watch_unit) ?? "";
+  const [picked, setPicked] = reactExports.useState("");
+  const watch = own || picked;
+  const [month, setMonth] = reactExports.useState(thisMonth());
+  const [open, setOpen] = reactExports.useState(null);
+  const isNow = month >= thisMonth();
+  const { from, to } = monthRange(month);
+  const roster = useQuery({
+    queryKey: ["crewing-roster", watch],
+    queryFn: () => backendClient.crewing.roster({ watch }),
+    enabled: !!watch
+  });
+  const bookings = useQuery({
+    queryKey: ["shift-adjustments", "overtime-month", month],
+    queryFn: () => backendClient.shift_adjustments.list({ start_date: from, end_date: to }),
+    enabled: !!watch
+  });
+  const loading = roster.isLoading || bookings.isLoading;
+  const failed = roster.isError || bookings.isError;
+  const data = watchOvertime(((_a3 = roster.data) == null ? void 0 : _a3.members) ?? [], ((_b3 = bookings.data) == null ? void 0 : _b3.adjustments) ?? [], month);
+  const download = () => {
+    const url = URL.createObjectURL(new Blob([watchOvertimeCsv(data)], { type: "text/csv" }));
+    const a = Object.assign(document.createElement("a"), { href: url, download: `Overtime ${watch} Watch ${monthName(month)}.csv` });
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-start justify-between gap-3", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "flex items-center gap-3 text-3xl font-bold text-foreground", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Timer, { className: "h-7 w-7 shrink-0 text-brand", "aria-hidden": "true" }),
+          "Overtime"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "mt-1 text-sm text-muted-foreground", children: [
+          watch ? `${watch} Watch, month by month.` : "A watch's overtime, month by month.",
+          " Hours only — pay stays in iTrent."
+        ] })
+      ] }),
+      watch && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline", disabled: loading || data.entries === 0, onClick: download, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { className: "mr-2 h-4 w-4" }),
+        "Download"
+      ] })
+    ] }),
+    !own && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap items-center gap-2", role: "group", "aria-label": "Watch", children: WATCHES$2.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "button",
+      {
+        type: "button",
+        "aria-pressed": picked === w,
+        onClick: () => {
+          setPicked(w);
+          setOpen(null);
+        },
+        className: cn(
+          "tap-chip rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+          picked === w ? "border-foreground bg-foreground text-background" : "border-border bg-background text-muted-foreground hover:text-foreground"
+        ),
+        children: [
+          w,
+          " Watch"
+        ]
+      },
+      w
+    )) }),
+    !watch ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "rounded-xl border border-dashed border-border px-4 py-10 text-center text-sm text-muted-foreground", children: "Pick a watch to see its overtime." }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-2 rounded-2xl border border-border/70 bg-card p-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "ghost", size: "icon", "aria-label": "Previous month", onClick: () => {
+          setMonth(monthShift(month, -1));
+          setOpen(null);
+        }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronLeft, { className: "h-4 w-4" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0 text-center", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "truncate text-base font-semibold", children: monthName(month) }),
+          !isNow && /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "tap text-xs text-brand hover:underline", onClick: () => {
+            setMonth(thisMonth());
+            setOpen(null);
+          }, children: "Back to this month" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "ghost", size: "icon", "aria-label": "Next month", disabled: isNow, onClick: () => {
+          setMonth(monthShift(month, 1));
+          setOpen(null);
+        }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-4 w-4" }) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("dl", { className: "grid grid-cols-3 gap-px overflow-hidden rounded-2xl border border-border/70 bg-border/70 text-center", children: [
+        { k: "Hours", v: loading ? "–" : hoursText(data.hours) },
+        { k: data.entries === 1 ? "Entry" : "Entries", v: loading ? "–" : String(data.entries) },
+        { k: "People", v: loading ? "–" : `${data.withSome} of ${data.people.length}` }
+      ].map((s) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-card px-2 py-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("dd", { className: "text-2xl font-semibold tabular-nums", children: s.v }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("dt", { className: "text-xs text-muted-foreground", children: s.k })
+      ] }, s.k)) }),
+      failed ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { role: "alert", className: "rounded-xl border border-red-300/70 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/30 dark:text-red-200", children: "Couldn't load the overtime. Check your signal and try again." }) : loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: [0, 1, 2, 3].map((i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-14 w-full rounded-xl" }, i)) }) : data.people.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "rounded-xl border border-dashed border-border px-4 py-10 text-center text-sm text-muted-foreground", children: [
+        "Nobody is on ",
+        watch,
+        " Watch yet."
+      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "divide-y divide-border/60 overflow-hidden rounded-2xl border border-border/70 bg-card", children: data.people.map((p) => {
+        const has = p.entries.length > 0;
+        const isOpen = open === p.id;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              disabled: !has,
+              "aria-expanded": has ? isOpen : void 0,
+              onClick: () => setOpen(isOpen ? null : p.id),
+              className: cn("flex min-h-14 w-full items-center gap-3 px-4 py-2.5 text-left", has && "transition-colors hover:bg-muted/50 active:bg-muted/60"),
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "min-w-0 flex-1", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: cn("block truncate text-sm font-semibold", !has && "font-medium text-muted-foreground"), children: [
+                    p.name,
+                    " ",
+                    p.role && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-normal text-muted-foreground", children: p.role })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block text-xs text-muted-foreground", children: has ? `${p.entries.length} ${p.entries.length === 1 ? "entry" : "entries"}` : "None this month" })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn("shrink-0 text-right tabular-nums", has ? "text-lg font-semibold" : "text-sm text-muted-foreground"), children: has ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                  hoursText(p.hours),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-0.5 text-xs font-normal text-muted-foreground", children: "hrs" })
+                ] }) : "—" }),
+                has && /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: cn("h-4 w-4 shrink-0 text-muted-foreground transition-transform", isOpen && "rotate-180"), "aria-hidden": "true" })
+              ]
+            }
+          ),
+          has && isOpen && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "border-t border-border/50 bg-muted/30 px-4 py-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "divide-y divide-border/40", children: p.entries.map((e) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-baseline justify-between gap-3 py-2 text-sm", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "min-w-0", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: dayText(e.date) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-muted-foreground", children: [
+                  e.dayNight ? ` · ${e.dayNight}` : "",
+                  e.withWatch ? ` · with ${e.withWatch} Watch` : ""
+                ] }),
+                e.notes && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block break-words text-xs text-muted-foreground", children: e.notes })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "shrink-0 tabular-nums", children: [
+                hoursText(e.hours),
+                " hrs"
+              ] })
+            ] }, e.id)) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(Link, { to: `/people/${p.id}?tab=hours`, className: "tap mt-1 inline-block text-xs text-brand hover:underline", children: [
+              p.name.split(" ")[0],
+              "'s hours →"
+            ] })
+          ] })
+        ] }, p.id);
+      }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground", children: [
+        "Overtime goes on from the ",
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: "/calendar", className: "text-brand hover:underline", children: "calendar" }),
+        ": New, Log shift, Overtime. It counts in the month it was worked."
+      ] })
+    ] })
+  ] });
 }
 const WATCHES$1 = ["Red", "White", "Green", "Blue", "Amber"];
 function Bulletins() {
@@ -79691,6 +79926,7 @@ function AppRoutes() {
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/reports", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Reports, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/reports/quarterly/:id", element: /* @__PURE__ */ jsxRuntimeExports.jsx(QuarterlyReportPage, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/admin", element: role === "WC" || role === "CC" || (user2 == null ? void 0 : user2.is_admin) ? /* @__PURE__ */ jsxRuntimeExports.jsx(AdminPanel, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(Navigate, { to: "/", replace: true }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/overtime", element: role === "WC" || role === "CC" || (user2 == null ? void 0 : user2.is_admin) ? /* @__PURE__ */ jsxRuntimeExports.jsx(Overtime, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(Navigate, { to: "/", replace: true }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/settings", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings, {}) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/reports/quarterly/:id/print", element: /* @__PURE__ */ jsxRuntimeExports.jsx(QuarterlyReportPrint, {}) })

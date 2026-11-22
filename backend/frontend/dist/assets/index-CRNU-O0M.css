@@ -1102,6 +1102,10 @@
     margin-left: calc(var(--spacing) * -1);
   }
 
+  .ml-0\.5 {
+    margin-left: calc(var(--spacing) * .5);
+  }
+
   .ml-1 {
     margin-left: calc(var(--spacing) * 1);
   }
@@ -1512,6 +1516,10 @@
 
   .min-h-12 {
     min-height: calc(var(--spacing) * 12);
+  }
+
+  .min-h-14 {
+    min-height: calc(var(--spacing) * 14);
   }
 
   .min-h-16 {
@@ -2408,7 +2416,17 @@
     border-bottom-width: calc(1px * calc(1 - var(--tw-divide-y-reverse)));
   }
 
-  :where(.divide-border > :not(:last-child)), :where(.divide-border\/50 > :not(:last-child)) {
+  :where(.divide-border > :not(:last-child)), :where(.divide-border\/40 > :not(:last-child)) {
+    border-color: var(--border);
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    :where(.divide-border\/40 > :not(:last-child)) {
+      border-color: color-mix(in oklab, var(--border) 40%, transparent);
+    }
+  }
+
+  :where(.divide-border\/50 > :not(:last-child)) {
     border-color: var(--border);
   }
 
@@ -3453,6 +3471,16 @@
   @supports (color: color-mix(in lab, red, red)) {
     .bg-border\/60 {
       background-color: color-mix(in oklab, var(--border) 60%, transparent);
+    }
+  }
+
+  .bg-border\/70 {
+    background-color: var(--border);
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .bg-border\/70 {
+      background-color: color-mix(in oklab, var(--border) 70%, transparent);
     }
   }
 
