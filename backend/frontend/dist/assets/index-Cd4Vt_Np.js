@@ -33967,7 +33967,7 @@ function MoreSheet({ open, onOpenChange, groups, onSearch, onChangePassword }) {
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mx-auto mb-3 h-1.5 w-10 rounded-full bg-muted-foreground/25", "aria-hidden": true }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Title, { className: "text-lg font-semibold", children: "More" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Close, { className: "grid h-9 w-9 place-items-center rounded-full text-muted-foreground hover:bg-muted", "aria-label": "Close", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-5 w-5" }) })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Close, { className: "grid h-11 w-11 place-items-center rounded-full text-muted-foreground hover:bg-muted", "aria-label": "Close", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-5 w-5" }) })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(Description, { className: "sr-only", children: "Every page, search and your account" }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -34123,7 +34123,7 @@ function QuickAddButton() {
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mx-auto mb-3 h-1.5 w-10 rounded-full bg-muted-foreground/25", "aria-hidden": true }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-2 flex items-center justify-between", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Title, { className: "text-base font-semibold", children: "Add" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Close, { className: "grid h-9 w-9 place-items-center rounded-full text-muted-foreground hover:bg-muted", "aria-label": "Close", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-5 w-5" }) })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Close, { className: "grid h-11 w-11 place-items-center rounded-full text-muted-foreground hover:bg-muted", "aria-label": "Close", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-5 w-5" }) })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(Description, { className: "sr-only", children: "Pick what to add" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "grid gap-1.5", children: actions.map(({ label: label2, hint, to, Icon: Icon2, tint }) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -51584,7 +51584,7 @@ function CalendarNewFab({ onPick, dayLabel: dayLabel2, isManager = true }) {
                 /* @__PURE__ */ jsxRuntimeExports.jsx(Title, { className: "text-base font-semibold", children: "Add to the calendar" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(Description, { className: "text-xs text-muted-foreground", children: dayLabel2 })
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Close, { className: "grid h-9 w-9 place-items-center rounded-full text-muted-foreground hover:bg-muted", "aria-label": "Close", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-5 w-5" }) })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Close, { className: "grid h-11 w-11 place-items-center rounded-full text-muted-foreground hover:bg-muted", "aria-label": "Close", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-5 w-5" }) })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "grid gap-1.5", children: newItemsFor(isManager).map(({ kind, label: label2, hint, Icon: Icon2, tint }) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "button",

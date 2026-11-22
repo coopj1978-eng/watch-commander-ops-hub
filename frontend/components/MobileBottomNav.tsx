@@ -154,7 +154,7 @@ function MoreSheet({ open, onOpenChange, groups, onSearch, onChangePassword }: {
             <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-muted-foreground/25" aria-hidden />
             <div className="flex items-center justify-between">
               <Dialog.Title className="text-lg font-semibold">More</Dialog.Title>
-              <Dialog.Close className="grid h-9 w-9 place-items-center rounded-full text-muted-foreground hover:bg-muted" aria-label="Close">
+              <Dialog.Close className="grid h-11 w-11 place-items-center rounded-full text-muted-foreground hover:bg-muted" aria-label="Close">
                 <X className="h-5 w-5" />
               </Dialog.Close>
             </div>

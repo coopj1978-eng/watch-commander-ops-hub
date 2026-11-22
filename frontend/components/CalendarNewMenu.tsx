@@ -98,7 +98,7 @@ export function CalendarNewFab({ onPick, dayLabel, isManager = true }: { onPick:
               <Dialog.Title className="text-base font-semibold">Add to the calendar</Dialog.Title>
               <Dialog.Description className="text-xs text-muted-foreground">{dayLabel}</Dialog.Description>
             </div>
-            <Dialog.Close className="grid h-9 w-9 place-items-center rounded-full text-muted-foreground hover:bg-muted" aria-label="Close">
+            <Dialog.Close className="grid h-11 w-11 place-items-center rounded-full text-muted-foreground hover:bg-muted" aria-label="Close">
               <X className="h-5 w-5" />
             </Dialog.Close>
           </div>
