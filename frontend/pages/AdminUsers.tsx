@@ -319,7 +319,7 @@ export function AdminUsers() {
             </AlertDialogTitle>
             <AlertDialogDescription>
               {adminAsk?.isAdmin
-                ? "They'll be able to add, remove and invite people, give others admin access, and see and change every watch, including sickness records. Notes & 1:1s stay private to whoever wrote them."
+                ? "They'll be able to add, remove and invite people, give others admin access, and see and change every watch's pages. Sickness records stay with each watch's own WC and CC. Notes & 1:1s stay private to whoever wrote them."
                 : "They keep their Watch Commander access to their own watch, but can no longer manage accounts or other watches' records."}
             </AlertDialogDescription>
           </AlertDialogHeader>

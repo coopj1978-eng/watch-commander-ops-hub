@@ -9,8 +9,12 @@ import { ADMIN_RANK, onWatchHereSql, HOME_STATION } from "./station";
 //   • Everyone can see their own records — and only see them.
 //   • A WC or CC can see and change the records of people on their own
 //     watch (their line managers). Nobody manages their own.
-//   • An admin can see and change everyone's, on every watch (John,
-//     18 Nov 2026) — but, like everyone, not manage their own.
+//   • An admin who isn't a WC/CC on a watch here can see and change
+//     everyone's, on every watch (John, 18 Nov 2026) — but, like everyone,
+//     not manage their own.
+//   • An admin who IS the WC/CC of a watch gets what any WC/CC gets: their
+//     own watch only (John, 22 Nov 2026 — signed in as Blue Watch's WC he
+//     was being shown other watches' absence triggers).
 //   • Nobody else can see them at all: not other firefighters, and not
 //     WCs/CCs on other watches.
 //
@@ -53,10 +57,15 @@ export async function absenceViewer(): Promise<AbsenceViewer> {
   };
 }
 
-/** A WC/CC on the person's watch, or an admin — never the person themself. */
+/** Every watch's records: only an admin who isn't the WC/CC of a watch here. */
+export function seesEveryWatch(viewer: AbsenceViewer): boolean {
+  return viewer.isAdmin === true && !(viewer.isManager && !!viewer.watch);
+}
+
+/** A WC/CC on the person's watch, or an admin with no watch — never the person themself. */
 export async function canManageAbsencesOf(viewer: AbsenceViewer, personId: string): Promise<boolean> {
   if (personId === viewer.userID) return false;
-  if (viewer.isAdmin) return true;
+  if (seesEveryWatch(viewer)) return true;
   if (!viewer.isManager || !viewer.watch) return false;
   const watch = await watchOf(personId);
   return !!watch && watch.toLowerCase() === viewer.watch.toLowerCase();
@@ -86,7 +95,7 @@ export async function assertCanViewAbsencesOf(viewer: AbsenceViewer, personId: s
 /** Ids of everyone whose absence records the viewer may see. */
 export async function visiblePersonIds(viewer: AbsenceViewer): Promise<Set<string>> {
   const ids = new Set([viewer.userID]);
-  if (viewer.isAdmin) {
+  if (seesEveryWatch(viewer)) {
     const rows = await db.rawQueryAll<{ id: string }>(`SELECT id FROM users`);
     for (const r of rows) ids.add(r.id);
     return ids;
@@ -121,8 +130,8 @@ export function redactSickness<
  * params.length).
  */
 export function visibleAbsencesSql(viewer: AbsenceViewer, column: string, params: SQLPrimitive[]): string {
-  // An admin sees every watch's records (the same rule as visiblePersonIds).
-  if (viewer.isAdmin) return "TRUE";
+  // An admin with no watch sees every watch's records (the same rule as visiblePersonIds).
+  if (seesEveryWatch(viewer)) return "TRUE";
   params.push(viewer.userID);
   const self = `$${params.length}`;
   if (!viewer.isManager || !viewer.watch) return `${column} = ${self}`;

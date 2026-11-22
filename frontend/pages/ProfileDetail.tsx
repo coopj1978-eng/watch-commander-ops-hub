@@ -112,8 +112,11 @@ export default function ProfileDetail() {
   // or change it (the backend enforces the same rule).
   const personWatch = (user?.watch_unit || profile?.watch || "").toLowerCase();
   const myWatch = (currentUser?.watch_unit || "").toLowerCase();
-  // An admin sees and manages every watch's (never their own).
-  const isLineManager = !isViewingOwnProfile && (currentUser?.is_admin === true || (isManager && !!myWatch && myWatch === personWatch));
+  // An admin with no watch of their own sees and manages every watch's
+  // (never their own); an admin who is a watch's WC/CC gets their own watch,
+  // like any WC/CC (John, 22 Nov 2026).
+  const adminOfAll = currentUser?.is_admin === true && !(isManager && !!myWatch);
+  const isLineManager = !isViewingOwnProfile && (adminOfAll || (isManager && !!myWatch && myWatch === personWatch));
   const canSeeSickness = isViewingOwnProfile || isLineManager;
   // TOIL and shift adjustments: the person, or a WC/CC.
   const canSeeHours = isViewingOwnProfile || isManager;

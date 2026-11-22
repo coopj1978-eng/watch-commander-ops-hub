@@ -1,7 +1,7 @@
 import { api, APIError, Query } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import { requireRole } from "../auth/rbac";
-import { absenceViewer } from "../lib/absenceAccess";
+import { absenceViewer, seesEveryWatch } from "../lib/absenceAccess";
 import { addDaysIso, watchShiftOn } from "../lib/shiftRota";
 import { RIDE_BOTH, RIDE_ONE, ridersOf, shiftStrength, type AwayWhy, type CoverWhy } from "../lib/strength";
 import { describeShort, seatCheck } from "../lib/ridingSeats";
@@ -64,7 +64,7 @@ export const strength = api<StrengthRequest, StrengthResponse>(
     if (!watchShiftOn(req.watch, req.start_date)) throw APIError.invalidArgument("Unknown watch");
 
     const viewer = await absenceViewer();
-    const ownWatch = viewer.isAdmin === true || (!!viewer.watch && viewer.watch.toLowerCase() === req.watch.toLowerCase());
+    const ownWatch = seesEveryWatch(viewer) || (!!viewer.watch && viewer.watch.toLowerCase() === req.watch.toLowerCase());
 
     const { roster, absences, adjustments, detached, quals } = await loadStrengthData(req.watch, req.start_date, req.end_date);
 

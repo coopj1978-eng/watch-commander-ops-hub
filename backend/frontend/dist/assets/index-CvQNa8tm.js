@@ -49064,7 +49064,8 @@ function ProfileDetail() {
   });
   const personWatch = ((user2 == null ? void 0 : user2.watch_unit) || (profile2 == null ? void 0 : profile2.watch) || "").toLowerCase();
   const myWatch = ((currentUser == null ? void 0 : currentUser.watch_unit) || "").toLowerCase();
-  const isLineManager = !isViewingOwnProfile && ((currentUser == null ? void 0 : currentUser.is_admin) === true || isManager && !!myWatch && myWatch === personWatch);
+  const adminOfAll = (currentUser == null ? void 0 : currentUser.is_admin) === true && !(isManager && !!myWatch);
+  const isLineManager = !isViewingOwnProfile && (adminOfAll || isManager && !!myWatch && myWatch === personWatch);
   const canSeeSickness = isViewingOwnProfile || isLineManager;
   const canSeeHours = isViewingOwnProfile || isManager;
   const { data: absencesData } = useQuery({
@@ -69810,7 +69811,7 @@ function AdminUsers() {
       /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialog, { open: !!adminAsk, onOpenChange: (open) => !open && setAdminAsk(null), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogContent, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogHeader, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogTitle, { children: (adminAsk == null ? void 0 : adminAsk.isAdmin) ? `Give ${adminAsk.user.name} admin access?` : `Take admin access away from ${adminAsk == null ? void 0 : adminAsk.user.name}?` }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogDescription, { children: (adminAsk == null ? void 0 : adminAsk.isAdmin) ? "They'll be able to add, remove and invite people, give others admin access, and see and change every watch, including sickness records. Notes & 1:1s stay private to whoever wrote them." : "They keep their Watch Commander access to their own watch, but can no longer manage accounts or other watches' records." })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogDescription, { children: (adminAsk == null ? void 0 : adminAsk.isAdmin) ? "They'll be able to add, remove and invite people, give others admin access, and see and change every watch's pages. Sickness records stay with each watch's own WC and CC. Notes & 1:1s stay private to whoever wrote them." : "They keep their Watch Commander access to their own watch, but can no longer manage accounts or other watches' records." })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogFooter, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogCancel, { children: "Cancel" }),
