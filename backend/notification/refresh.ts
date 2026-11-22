@@ -21,7 +21,11 @@ export const refresh = api<void, RefreshResponse>(
     const userId = auth.userID;
     let generated = 0;
 
-    // Helper: insert a notification only if no unread one exists for same entity_type+entity_id+type
+    // Helper: insert a notification only if there isn't already one for the
+    // same thing this week — an unread one, or one with the same title that
+    // has been read. (It used to look at unread ones only, so a task that
+    // stayed overdue came back as a new notification every time the last
+    // one was read: four "Task overdue: …" for one task in three days.)
     const maybeInsert = async (params: {
       type: string;
       title: string;
@@ -36,11 +40,11 @@ export const refresh = api<void, RefreshResponse>(
            AND type = $2
            AND entity_type = $3
            AND entity_id = $4
-           AND read = false
+           AND (read = false OR title = $5)
            AND created_at > NOW() - INTERVAL '7 days'`,
-        userId, params.type, params.entity_type, params.entity_id
+        userId, params.type, params.entity_type, params.entity_id, params.title
       );
-      if (existing) return; // already have an unread one
+      if (existing) return; // already told this week
 
       await db.rawExec(
         `INSERT INTO notifications (user_id, type, title, message, entity_type, entity_id, link)
