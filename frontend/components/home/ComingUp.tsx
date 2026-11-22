@@ -43,7 +43,7 @@ export function ComingUp() {
     <section aria-label="Coming up" className="rounded-2xl border border-border/70 bg-card p-4 sm:p-5">
       <div className="flex items-baseline justify-between gap-2">
         <h2 className="text-sm font-semibold">Coming up · next 7 days</h2>
-        <Link to="/calendar" className="text-xs text-muted-foreground hover:text-foreground">Calendar →</Link>
+        <Link to="/calendar" className="tap text-xs text-muted-foreground hover:text-foreground">Calendar →</Link>
       </div>
       {q.isLoading ? (
         <div className="mt-3 space-y-2">{[0, 1].map((i) => <div key={i} className="h-9 animate-pulse rounded-lg bg-muted/60" />)}</div>

@@ -316,7 +316,7 @@ export default function Training() {
               setUpcomingLimit(PAGE_SIZE);
               setHistoryLimit(PAGE_SIZE);
             }}
-            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors border ${
+            className={`tap-chip px-3 py-1 rounded-full text-xs font-medium transition-colors border ${
               watchFilter === w
                 ? "bg-indigo-600 text-white border-indigo-600"
                 : "bg-muted/50 text-muted-foreground border-border hover:bg-muted hover:text-foreground"

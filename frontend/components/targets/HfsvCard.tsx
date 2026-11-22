@@ -131,7 +131,7 @@ export function HfsvCard({ watch, fq, canEdit }: { watch: string; fq: FyQuarter;
               </form>
             )}
             {!logging && (
-              <button onClick={() => setDrawer(true)} className="ml-auto text-xs font-medium text-muted-foreground hover:text-foreground">
+              <button onClick={() => setDrawer(true)} className="tap ml-auto text-xs font-medium text-muted-foreground hover:text-foreground">
                 All {items.length || HFSV_TARGET_Q} visits →
               </button>
             )}

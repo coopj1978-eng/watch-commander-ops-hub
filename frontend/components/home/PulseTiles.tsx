@@ -76,10 +76,13 @@ function Tile({
         </span>
       </div>
 
-      <p className="mt-1 flex items-baseline gap-1.5">
+      {/* On a narrow tile the unit drops under the number; the number itself
+          is never squeezed (a "7" cut in half reads as nothing). */}
+      <p className="mt-1 flex flex-wrap items-baseline gap-x-1.5">
         <span
           className={cn(
-            "min-w-0 truncate font-semibold tracking-tight tabular-nums",
+            "max-w-full font-semibold tracking-tight tabular-nums",
+            !loading && word ? "min-w-0 truncate" : "shrink-0",
             // A name is longer than a number: smaller, on the same line height.
             !loading && word && word.length > 6 ? "text-[1.75rem] leading-[2.5rem]" : "text-[2.5rem] leading-none",
             loading && "text-muted-foreground/40",
@@ -87,7 +90,7 @@ function Tile({
         >
           {loading ? "–" : word ?? shown}
         </span>
-        {unit && <span className="shrink-0 text-sm text-muted-foreground">{unit}</span>}
+        {unit && <span className="min-w-0 text-sm text-muted-foreground">{unit}</span>}
       </p>
 
       <div className="mt-auto pt-3">{children}</div>

@@ -396,7 +396,7 @@ export default function People() {
                     type="button"
                     onClick={() => toggleFilter(watch, watchFilters, setWatchFilters)}
                     aria-pressed={on}
-                    className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
+                    className={`tap-chip inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
                       on ? "border-foreground bg-foreground text-background" : "border-border bg-background text-muted-foreground hover:text-foreground hover:border-foreground/30"
                     }`}
                   >

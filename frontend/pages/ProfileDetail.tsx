@@ -625,7 +625,7 @@ export default function ProfileDetail() {
                       type="button"
                       aria-label="Copy email"
                       onClick={() => { navigator.clipboard.writeText(user.email); toast({ title: "Email copied" }); }}
-                      className="grid h-6 w-6 shrink-0 place-items-center rounded text-muted-foreground hover:bg-muted hover:text-foreground"
+                      className="tap grid h-6 w-6 shrink-0 place-items-center rounded text-muted-foreground hover:bg-muted hover:text-foreground"
                     >
                       <Copy className="h-3 w-3" />
                     </button>

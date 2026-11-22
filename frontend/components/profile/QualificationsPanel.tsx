@@ -86,7 +86,7 @@ export function QualificationsPanel({
       <div>
         <div className="mb-2 flex items-center justify-between">
           <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Other skills</h3>
-          <button type="button" onClick={onOpenSkills} className="inline-flex items-center gap-0.5 text-xs font-medium text-muted-foreground hover:text-foreground">
+          <button type="button" onClick={onOpenSkills} className="tap inline-flex items-center gap-0.5 text-xs font-medium text-muted-foreground hover:text-foreground">
             Dates & renewals <ChevronRight className="h-3.5 w-3.5" />
           </button>
         </div>

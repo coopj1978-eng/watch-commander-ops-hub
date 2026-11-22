@@ -72,7 +72,7 @@ export default function FFH4HBalanceWidget() {
 
         <Link
           to="/profile"
-          className="flex items-center justify-end gap-1 mt-3 pt-3 border-t border-border/40 text-xs text-muted-foreground hover:text-indigo-600 transition-colors"
+          className="flex items-center justify-end gap-1 mt-3 pt-3 pointer-coarse:min-h-11 border-t border-border/40 text-xs text-muted-foreground hover:text-indigo-600 transition-colors"
         >
           View full ledger →
         </Link>

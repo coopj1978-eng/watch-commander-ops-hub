@@ -46,14 +46,14 @@ export function QuarterStrip({
       <div className="mb-2 flex items-center justify-between">
         <div className="eyebrow">Financial year{watch ? ` · ${watch} Watch` : ""}</div>
         <div className="flex items-center gap-1">
-          <button onClick={() => onFy(fy - 1)} className="grid h-7 w-7 place-items-center rounded-md hover:bg-muted" aria-label="Previous year">
+          <button onClick={() => onFy(fy - 1)} className="grid h-7 w-7 pointer-coarse:h-11 pointer-coarse:w-11 place-items-center rounded-md hover:bg-muted" aria-label="Previous year">
             <ChevronLeft className="h-4 w-4" />
           </button>
           <span className="min-w-[64px] text-center font-mono text-sm font-semibold tabular-nums">{fyLabel(fy)}</span>
           <button
             onClick={() => onFy(fy + 1)}
             disabled={fy >= now.fy}
-            className="grid h-7 w-7 place-items-center rounded-md hover:bg-muted disabled:opacity-30"
+            className="grid h-7 w-7 pointer-coarse:h-11 pointer-coarse:w-11 place-items-center rounded-md hover:bg-muted disabled:opacity-30"
             aria-label="Next year"
           >
             <ChevronRight className="h-4 w-4" />

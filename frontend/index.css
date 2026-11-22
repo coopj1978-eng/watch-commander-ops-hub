@@ -693,6 +693,42 @@ table.plain tbody tr:last-child td { border-bottom: none; }
     font-size: 16px !important;
   }
 }
+/* Small print (Nov 2026 phone pass): nothing on a phone is set under 11px,
+   Apple's floor for text that's meant to be read. The desktop keeps its
+   compact labels. */
+@media (max-width: 767px) {
+  .text-\[9px\], .text-\[10px\], .text-\[10\.5px\],
+  .eyebrow, .divider-label, .today-strip .k, .kan-col header .t,
+  .kan-card .meta, .cal .dow, .cal .ev {
+    font-size: 11px;
+  }
+}
+/* Tap sizes (Nov 2026 phone pass). A finger needs about 44px. On a touch
+   screen the shared buttons and tabs grow to that; nothing changes for a
+   mouse. */
+@media (pointer: coarse) {
+  [data-slot="button"]:not([data-variant="link"]) { min-height: 44px; }
+  [data-slot="button"][data-size^="icon"] { min-width: 44px; }
+  [data-slot="tabs-list"] { height: auto; min-height: 44px; }
+  [data-slot="tabs-trigger"] { min-height: 38px; }
+  /* A small link or icon that stands on its own ("Calendar →", a copy
+     button): it looks the same, but the area that takes the tap is 44px
+     tall and a little wider. Not for things packed side by side or in
+     stacked rows — their areas would overlap; make those taller instead
+     (.tap-chip). */
+  .tap { position: relative; }
+  .tap::after {
+    content: "";
+    position: absolute;
+    left: -8px;
+    right: -8px;
+    top: 50%;
+    height: 44px;
+    transform: translateY(-50%);
+  }
+  /* Filter chips and other pills that sit in rows: properly taller. */
+  .tap-chip { min-height: 40px; }
+}
 /* While a phone keyboard is up (lib/visualViewport.ts sets data-keyboard),
    no dialog is taller than the part of the screen still visible. */
 :root[data-keyboard] [data-slot="dialog-content"] {

@@ -400,8 +400,8 @@ function CardChecklist({ task, onToggle }: { task: Task; onToggle: (label: strin
         <button
           type="button"
           onClick={() => setAll(!all)}
-          className="cal-focus"
-          style={{ alignSelf: "flex-start", height: 28, padding: "0 6px", border: "none", background: "transparent", borderRadius: 8, font: "inherit", fontSize: 12, fontWeight: 600, color: "var(--cal-brand-text)", cursor: "pointer" }}
+          className="cal-focus tap-chip h-7"
+          style={{ alignSelf: "flex-start", padding: "0 6px", border: "none", background: "transparent", borderRadius: 8, font: "inherit", fontSize: 12, fontWeight: 600, color: "var(--cal-brand-text)", cursor: "pointer" }}
         >
           {all ? "Show fewer" : `${items.length - CHECKLIST_SHOWN} more…`}
         </button>

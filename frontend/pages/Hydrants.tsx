@@ -218,14 +218,14 @@ export default function Hydrants() {
             <h1 className="text-3xl font-semibold tracking-tight">Hydrants</h1>
             <div className="flex items-center gap-1" role="group" aria-label="Year">
               <button
-                className="grid h-8 w-8 place-items-center rounded-lg border border-border hover:bg-muted disabled:opacity-40"
+                className="grid h-8 w-8 pointer-coarse:h-11 pointer-coarse:w-11 place-items-center rounded-lg border border-border hover:bg-muted disabled:opacity-40"
                 aria-label="Previous year"
                 disabled={year <= FIRST_YEAR}
                 onClick={() => select({ year: year - 1 })}
               ><ChevronLeft className="h-4 w-4" /></button>
               <span className="w-14 text-center font-mono text-sm font-semibold tabular-nums">{year}</span>
               <button
-                className="grid h-8 w-8 place-items-center rounded-lg border border-border hover:bg-muted disabled:opacity-40"
+                className="grid h-8 w-8 pointer-coarse:h-11 pointer-coarse:w-11 place-items-center rounded-lg border border-border hover:bg-muted disabled:opacity-40"
                 aria-label="Next year"
                 disabled={year >= thisYear() + 1}
                 onClick={() => select({ year: year + 1 })}

@@ -241,7 +241,7 @@ export function CrewOnWatchTable({ compact = false }: { compact?: boolean } = {}
       <section aria-label="Crew" className="rounded-2xl border border-border/70 bg-card p-4">
         <div className="flex items-baseline justify-between gap-2">
           <h2 className="text-sm font-semibold">Crew · {watch} Watch</h2>
-          <Link to="/people" className="text-xs text-muted-foreground hover:text-foreground">
+          <Link to="/people" className="tap text-xs text-muted-foreground hover:text-foreground">
             {isLoading ? "…" : <><span className="font-mono tabular-nums text-foreground">{onDutyCount}/{rows.length}</span> available →</>}
           </Link>
         </div>

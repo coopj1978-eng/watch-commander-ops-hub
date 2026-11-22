@@ -34056,11 +34056,35 @@ function Row$1({ icon: Icon2, label: label2, onClick, chevron }) {
     chevron && /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-4 w-4 text-muted-foreground", "aria-hidden": "true" })
   ] });
 }
+function useScrollingDown() {
+  const [down, setDown] = reactExports.useState(false);
+  reactExports.useEffect(() => {
+    let last = window.scrollY;
+    let queued = false;
+    const onScroll = () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => {
+        queued = false;
+        const y = window.scrollY;
+        if (y < 40) setDown(false);
+        else if (y - last > 12) setDown(true);
+        else if (last - y > 12) setDown(false);
+        else return;
+        last = y;
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  return down;
+}
 function QuickAddButton() {
   const [open, setOpen] = reactExports.useState(false);
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { actions } = useNav();
+  const tuckedAway = useScrollingDown();
   if (pathname.startsWith("/tasks") || pathname.startsWith("/hydrants") || pathname.startsWith("/calendar") || pathname.startsWith("/requests")) return null;
   const go = (to) => {
     setOpen(false);
@@ -34075,7 +34099,9 @@ function QuickAddButton() {
         className: cn(
           "md:hidden print:hidden fixed right-4 z-40 grid h-14 w-14 place-items-center rounded-full",
           "bg-brand text-brand-foreground shadow-[0_10px_28px_-6px_rgba(49,46,129,0.55)]",
-          "transition-transform active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/30"
+          "transition-[transform,opacity] duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/30",
+          // Out of the way while reading down; still there for a keyboard.
+          tuckedAway && !open && "pointer-events-none translate-y-6 opacity-0 focus-visible:pointer-events-auto focus-visible:translate-y-0 focus-visible:opacity-100"
         ),
         style: { bottom: "calc(80px + env(safe-area-inset-bottom))" },
         children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-6 w-6", strokeWidth: 2.5 })
@@ -38983,7 +39009,7 @@ function ComingUp() {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { "aria-label": "Coming up", className: "rounded-2xl border border-border/70 bg-card p-4 sm:p-5", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline justify-between gap-2", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-sm font-semibold", children: "Coming up · next 7 days" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: "/calendar", className: "text-xs text-muted-foreground hover:text-foreground", children: "Calendar →" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: "/calendar", className: "tap text-xs text-muted-foreground hover:text-foreground", children: "Calendar →" })
     ] }),
     q.isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 space-y-2", children: [0, 1].map((i) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-9 animate-pulse rounded-lg bg-muted/60" }, i)) }) : days.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-3 text-sm text-muted-foreground", children: "Nothing on the calendar this week." }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2 divide-y divide-border/50", children: days.slice(0, 6).map(([day2, events2]) => {
       const d = /* @__PURE__ */ new Date(`${day2}T12:00:00`);
@@ -39751,12 +39777,13 @@ function Tile({
             }
           )
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "mt-1 flex items-baseline gap-1.5", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "mt-1 flex flex-wrap items-baseline gap-x-1.5", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "span",
             {
               className: cn(
-                "min-w-0 truncate font-semibold tracking-tight tabular-nums",
+                "max-w-full font-semibold tracking-tight tabular-nums",
+                !loading && word ? "min-w-0 truncate" : "shrink-0",
                 // A name is longer than a number: smaller, on the same line height.
                 !loading && word && word.length > 6 ? "text-[1.75rem] leading-[2.5rem]" : "text-[2.5rem] leading-none",
                 loading && "text-muted-foreground/40"
@@ -39764,7 +39791,7 @@ function Tile({
               children: loading ? "–" : word ?? shown
             }
           ),
-          unit && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "shrink-0 text-sm text-muted-foreground", children: unit })
+          unit && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "min-w-0 text-sm text-muted-foreground", children: unit })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-auto pt-3", children }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: cn("mt-2 truncate text-xs", TONE_TEXT[tone]), children: note2 })
@@ -40758,7 +40785,7 @@ function CrewOnWatchTable({ compact = false } = {}) {
           watch,
           " Watch"
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: "/people", className: "text-xs text-muted-foreground hover:text-foreground", children: isLoading ? "…" : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: "/people", className: "tap text-xs text-muted-foreground hover:text-foreground", children: isLoading ? "…" : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono tabular-nums text-foreground", children: [
             onDutyCount,
             "/",
@@ -43099,7 +43126,7 @@ function FFH4HBalanceWidget() {
         Link,
         {
           to: "/profile",
-          className: "flex items-center justify-end gap-1 mt-3 pt-3 border-t border-border/40 text-xs text-muted-foreground hover:text-indigo-600 transition-colors",
+          className: "flex items-center justify-end gap-1 mt-3 pt-3 pointer-coarse:min-h-11 border-t border-border/40 text-xs text-muted-foreground hover:text-indigo-600 transition-colors",
           children: "View full ledger →"
         }
       )
@@ -44239,7 +44266,7 @@ function People() {
                 type: "button",
                 onClick: () => toggleFilter(watch, watchFilters, setWatchFilters),
                 "aria-pressed": on,
-                className: `inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${on ? "border-foreground bg-foreground text-background" : "border-border bg-background text-muted-foreground hover:text-foreground hover:border-foreground/30"}`,
+                className: `tap-chip inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${on ? "border-foreground bg-foreground text-background" : "border-border bg-background text-muted-foreground hover:text-foreground hover:border-foreground/30"}`,
                 children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(WatchDot, { watch, size: "sm" }),
                   watch
@@ -47834,7 +47861,7 @@ function QualificationsPanel({
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-2 flex items-center justify-between", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-xs font-medium uppercase tracking-wide text-muted-foreground", children: "Other skills" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: onOpenSkills, className: "inline-flex items-center gap-0.5 text-xs font-medium text-muted-foreground hover:text-foreground", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: onOpenSkills, className: "tap inline-flex items-center gap-0.5 text-xs font-medium text-muted-foreground hover:text-foreground", children: [
           "Dates & renewals ",
           /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-3.5 w-3.5" })
         ] })
@@ -49491,7 +49518,7 @@ function ProfileDetail() {
                       navigator.clipboard.writeText(user2.email);
                       toast2({ title: "Email copied" });
                     },
-                    className: "grid h-6 w-6 shrink-0 place-items-center rounded text-muted-foreground hover:bg-muted hover:text-foreground",
+                    className: "tap grid h-6 w-6 shrink-0 place-items-center rounded text-muted-foreground hover:bg-muted hover:text-foreground",
                     children: /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "h-3 w-3" })
                   }
                 )
@@ -57990,8 +58017,8 @@ function CardChecklist({ task: task2, onToggle }) {
         {
           type: "button",
           onClick: () => setAll(!all),
-          className: "cal-focus",
-          style: { alignSelf: "flex-start", height: 28, padding: "0 6px", border: "none", background: "transparent", borderRadius: 8, font: "inherit", fontSize: 12, fontWeight: 600, color: "var(--cal-brand-text)", cursor: "pointer" },
+          className: "cal-focus tap-chip h-7",
+          style: { alignSelf: "flex-start", padding: "0 6px", border: "none", background: "transparent", borderRadius: 8, font: "inherit", fontSize: 12, fontWeight: 600, color: "var(--cal-brand-text)", cursor: "pointer" },
           children: all ? "Show fewer" : `${items.length - CHECKLIST_SHOWN} more…`
         }
       )
@@ -63626,14 +63653,14 @@ function QuarterStrip({
         watch ? ` · ${watch} Watch` : ""
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onFy(fy - 1), className: "grid h-7 w-7 place-items-center rounded-md hover:bg-muted", "aria-label": "Previous year", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronLeft, { className: "h-4 w-4" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onFy(fy - 1), className: "grid h-7 w-7 pointer-coarse:h-11 pointer-coarse:w-11 place-items-center rounded-md hover:bg-muted", "aria-label": "Previous year", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronLeft, { className: "h-4 w-4" }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "min-w-[64px] text-center font-mono text-sm font-semibold tabular-nums", children: fyLabel(fy) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
           {
             onClick: () => onFy(fy + 1),
             disabled: fy >= now.fy,
-            className: "grid h-7 w-7 place-items-center rounded-md hover:bg-muted disabled:opacity-30",
+            className: "grid h-7 w-7 pointer-coarse:h-11 pointer-coarse:w-11 place-items-center rounded-md hover:bg-muted disabled:opacity-30",
             "aria-label": "Next year",
             children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-4 w-4" })
           }
@@ -64009,7 +64036,7 @@ function HfsvCard({ watch, fq, canEdit }) {
               ]
             }
           ),
-          !logging && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => setDrawer(true), className: "ml-auto text-xs font-medium text-muted-foreground hover:text-foreground", children: [
+          !logging && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => setDrawer(true), className: "tap ml-auto text-xs font-medium text-muted-foreground hover:text-foreground", children: [
             "All ",
             items.length || HFSV_TARGET_Q,
             " visits →"
@@ -65267,7 +65294,7 @@ function Hydrants() {
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
               {
-                className: "grid h-8 w-8 place-items-center rounded-lg border border-border hover:bg-muted disabled:opacity-40",
+                className: "grid h-8 w-8 pointer-coarse:h-11 pointer-coarse:w-11 place-items-center rounded-lg border border-border hover:bg-muted disabled:opacity-40",
                 "aria-label": "Previous year",
                 disabled: year <= FIRST_YEAR,
                 onClick: () => select({ year: year - 1 }),
@@ -65278,7 +65305,7 @@ function Hydrants() {
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
               {
-                className: "grid h-8 w-8 place-items-center rounded-lg border border-border hover:bg-muted disabled:opacity-40",
+                className: "grid h-8 w-8 pointer-coarse:h-11 pointer-coarse:w-11 place-items-center rounded-lg border border-border hover:bg-muted disabled:opacity-40",
                 "aria-label": "Next year",
                 disabled: year >= thisYear() + 1,
                 onClick: () => select({ year: year + 1 }),
@@ -77782,7 +77809,7 @@ function Training() {
             setUpcomingLimit(PAGE_SIZE);
             setHistoryLimit(PAGE_SIZE);
           },
-          className: `px-3 py-1 rounded-full text-xs font-medium transition-colors border ${watchFilter === w ? "bg-indigo-600 text-white border-indigo-600" : "bg-muted/50 text-muted-foreground border-border hover:bg-muted hover:text-foreground"}`,
+          className: `tap-chip px-3 py-1 rounded-full text-xs font-medium transition-colors border ${watchFilter === w ? "bg-indigo-600 text-white border-indigo-600" : "bg-muted/50 text-muted-foreground border-border hover:bg-muted hover:text-foreground"}`,
           children: w ? `${w} Watch` : "All Watches"
         },
         w || "all"
