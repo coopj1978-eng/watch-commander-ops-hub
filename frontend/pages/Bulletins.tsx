@@ -582,14 +582,14 @@ function NewBulletinForm({ onPosted }: { onPosted: () => void }) {
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Scope */}
-        <div className="grid sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
           <div>
             <Label htmlFor="bulletin-scope" className="text-xs">Scope</Label>
             <Select
               value={scope}
               onValueChange={(v) => setScope(v as bulletin.BulletinScope)}
             >
-              <SelectTrigger id="bulletin-scope" className="mt-1">
+              <SelectTrigger id="bulletin-scope" className="mt-1 w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -604,7 +604,7 @@ function NewBulletinForm({ onPosted }: { onPosted: () => void }) {
             <div>
               <Label htmlFor="bulletin-watch" className="text-xs">Watch</Label>
               <Select value={watchUnit} onValueChange={setWatchUnit}>
-                <SelectTrigger id="bulletin-watch" className="mt-1">
+                <SelectTrigger id="bulletin-watch" className="mt-1 w-full">
                   <SelectValue placeholder="Choose a watch" />
                 </SelectTrigger>
                 <SelectContent>
@@ -628,7 +628,7 @@ function NewBulletinForm({ onPosted }: { onPosted: () => void }) {
         </div>
 
         {/* Priority + expiry */}
-        <div className="grid sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
           <div>
             <Label htmlFor="bulletin-priority" className="text-xs">Priority</Label>
             <Select
@@ -637,7 +637,7 @@ function NewBulletinForm({ onPosted }: { onPosted: () => void }) {
                 setPriority(v as bulletin.BulletinPriority)
               }
             >
-              <SelectTrigger id="bulletin-priority" className="mt-1">
+              <SelectTrigger id="bulletin-priority" className="mt-1 w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -652,7 +652,7 @@ function NewBulletinForm({ onPosted }: { onPosted: () => void }) {
               Expires
             </Label>
             <Select value={expiresIn} onValueChange={setExpiresIn}>
-              <SelectTrigger id="bulletin-expiry" className="mt-1">
+              <SelectTrigger id="bulletin-expiry" className="mt-1 w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

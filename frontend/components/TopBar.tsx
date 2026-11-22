@@ -343,7 +343,7 @@ export default function TopBar({ onSearch }: TopBarProps) {
   return (
     <header className="sticky top-0 z-30 flex items-center gap-3 px-4 md:px-6 py-2.5 pt-[calc(0.625rem+env(safe-area-inset-top))] bg-background/80 backdrop-blur-md border-b border-border print:hidden">
       {/* ── Left: the page you're on ───────────────────────────────────── */}
-      <div className="flex items-center gap-2.5 min-w-0 shrink-0 max-w-[50%]">
+      <div className="flex items-center gap-2.5 min-w-0 shrink-0 max-w-[68%] md:max-w-[50%]">
         {page && (
           <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-muted/70 text-foreground/80 md:hidden" aria-hidden>
             <page.icon className="h-4 w-4" />

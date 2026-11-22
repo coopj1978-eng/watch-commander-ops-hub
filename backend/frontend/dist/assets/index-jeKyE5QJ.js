@@ -33646,7 +33646,7 @@ function TopBar({ onSearch }) {
   const page = menuEntryFor(location.pathname);
   const isDashboard = location.pathname === "/";
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "sticky top-0 z-30 flex items-center gap-3 px-4 md:px-6 py-2.5 pt-[calc(0.625rem+env(safe-area-inset-top))] bg-background/80 backdrop-blur-md border-b border-border print:hidden", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2.5 min-w-0 shrink-0 max-w-[50%]", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2.5 min-w-0 shrink-0 max-w-[68%] md:max-w-[50%]", children: [
       page && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-muted/70 text-foreground/80 md:hidden", "aria-hidden": true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(page.icon, { className: "h-4 w-4" }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold text-foreground truncate text-base md:text-sm", children: (page == null ? void 0 : page.name) ?? "Ops" })
     ] }),
@@ -66816,6 +66816,14 @@ function References() {
     (_a3 = document.getElementById(hash.slice(1))) == null ? void 0 : _a3.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [hash, isLoading]);
   const blocks = [0, 1, 2, 3, 4].map((i) => REFERENCE_START + i * 2 + 10 * Math.floor((year - REFERENCE_START) / 10));
+  const planner = reactExports.useRef(null);
+  reactExports.useEffect(() => {
+    const el = planner.current;
+    const now = el == null ? void 0 : el.querySelector("[data-now]");
+    const first = el == null ? void 0 : el.querySelector("th");
+    if (!el || !now || !first || el.scrollWidth <= el.clientWidth) return;
+    el.scrollTo({ left: now.offsetLeft - first.offsetWidth });
+  }, []);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", style: { gap: "var(--gap-section)" }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eyebrow", children: [
@@ -66832,17 +66840,17 @@ function References() {
         "."
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { "aria-label": "10-year planner", className: "overflow-x-auto rounded-2xl border border-border/70 bg-card", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { ref: planner, "aria-label": "10-year planner", className: "overflow-x-auto rounded-2xl border border-border/70 bg-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full min-w-[640px] text-sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "border-b border-border/60 text-left", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-2.5 text-xs font-medium text-muted-foreground", children: "Watch" }),
-          blocks.map((b) => /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: cn("px-3 py-2.5 font-mono text-xs font-semibold", periodLabel$1(b) === periodLabel$1(year) ? "text-foreground" : "text-muted-foreground"), children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "sticky left-0 z-10 bg-card px-4 py-2.5 text-xs font-medium text-muted-foreground", children: "Watch" }),
+          blocks.map((b) => /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { "data-now": periodLabel$1(b) === periodLabel$1(year) ? "" : void 0, className: cn("whitespace-nowrap px-3 py-2.5 font-mono text-xs font-semibold", periodLabel$1(b) === periodLabel$1(year) ? "text-foreground" : "text-muted-foreground"), children: [
             periodLabel$1(b),
             periodLabel$1(b) === periodLabel$1(year) && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-1.5 rounded bg-foreground px-1.5 py-0.5 text-[10px] text-background", children: "NOW" })
           ] }, b))
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: REFERENCE_WATCHES.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: cn("border-b border-border/40 last:border-0", w === watch && "bg-muted/40"), children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "whitespace-nowrap px-4 py-2 font-medium", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: cn("sticky left-0 z-10 whitespace-nowrap px-4 py-2 font-medium", w === watch ? "bg-muted" : "bg-card"), children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(WatchDot, { watch: w, size: "sm" }),
             " ",
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-1.5", children: w }),
@@ -66851,7 +66859,7 @@ function References() {
           blocks.map((b) => {
             const r2 = watchReferences(w, b);
             const now = periodLabel$1(b) === periodLabel$1(year);
-            return /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: cn("px-3 py-2", now && "bg-muted/60"), children: [
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: cn("whitespace-nowrap px-3 py-2", now && "bg-muted/60"), children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: cn("font-semibold", !now && "text-muted-foreground"), children: [
                 "Ref ",
                 r2.main
@@ -78860,7 +78868,7 @@ function NewBulletinForm({ onPosted }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(CardHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { className: "text-base", children: "New bulletin" }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "space-y-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid sm:grid-cols-2 gap-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-3 sm:gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "bulletin-scope", className: "text-xs", children: "Scope" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -78869,7 +78877,7 @@ function NewBulletinForm({ onPosted }) {
               value: scope,
               onValueChange: (v) => setScope(v),
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "bulletin-scope", className: "mt-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "bulletin-scope", className: "mt-1 w-full", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "watch", children: "Watch" }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: "station", disabled: !canPostStation, children: [
@@ -78884,7 +78892,7 @@ function NewBulletinForm({ onPosted }) {
         scope === "watch" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "bulletin-watch", className: "text-xs", children: "Watch" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watchUnit, onValueChange: setWatchUnit, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "bulletin-watch", className: "mt-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Choose a watch" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "bulletin-watch", className: "mt-1 w-full", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Choose a watch" }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$1.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
               SelectItem,
               {
@@ -78900,7 +78908,7 @@ function NewBulletinForm({ onPosted }) {
           ] })
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid sm:grid-cols-2 gap-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-3 sm:gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "bulletin-priority", className: "text-xs", children: "Priority" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -78909,7 +78917,7 @@ function NewBulletinForm({ onPosted }) {
               value: priority,
               onValueChange: (v) => setPriority(v),
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "bulletin-priority", className: "mt-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "bulletin-priority", className: "mt-1 w-full", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "routine", children: "Routine" }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "important", children: "Important" }),
@@ -78922,7 +78930,7 @@ function NewBulletinForm({ onPosted }) {
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "bulletin-expiry", className: "text-xs", children: "Expires" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: expiresIn, onValueChange: setExpiresIn, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "bulletin-expiry", className: "mt-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "bulletin-expiry", className: "mt-1 w-full", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "never", children: "Never" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "7", children: "In 7 days" }),

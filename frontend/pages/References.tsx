@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ExternalLink, Pencil } from "lucide-react";
@@ -56,6 +56,18 @@ export default function References() {
 
   const blocks = [0, 1, 2, 3, 4].map((i) => REFERENCE_START + i * 2 + 10 * Math.floor((year - REFERENCE_START) / 10));
 
+  // On a phone the planner scrolls sideways: open it on the current two
+  // years (it showed 2022–2025 and cut "now" off the edge), with the watch
+  // names staying put down the left.
+  const planner = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = planner.current;
+    const now = el?.querySelector<HTMLElement>("[data-now]");
+    const first = el?.querySelector<HTMLElement>("th");
+    if (!el || !now || !first || el.scrollWidth <= el.clientWidth) return;
+    el.scrollTo({ left: now.offsetLeft - first.offsetWidth });
+  }, []);
+
   return (
     <div className="flex flex-col" style={{ gap: "var(--gap-section)" }}>
       <div>
@@ -68,13 +80,13 @@ export default function References() {
       </div>
 
       {/* ── The 10-year planner ─────────────────────────────────────────── */}
-      <section aria-label="10-year planner" className="overflow-x-auto rounded-2xl border border-border/70 bg-card">
+      <section ref={planner} aria-label="10-year planner" className="overflow-x-auto rounded-2xl border border-border/70 bg-card">
         <table className="w-full min-w-[640px] text-sm">
           <thead>
             <tr className="border-b border-border/60 text-left">
-              <th className="px-4 py-2.5 text-xs font-medium text-muted-foreground">Watch</th>
+              <th className="sticky left-0 z-10 bg-card px-4 py-2.5 text-xs font-medium text-muted-foreground">Watch</th>
               {blocks.map((b) => (
-                <th key={b} className={cn("px-3 py-2.5 font-mono text-xs font-semibold", periodLabel(b) === periodLabel(year) ? "text-foreground" : "text-muted-foreground")}>
+                <th key={b} data-now={periodLabel(b) === periodLabel(year) ? "" : undefined} className={cn("whitespace-nowrap px-3 py-2.5 font-mono text-xs font-semibold", periodLabel(b) === periodLabel(year) ? "text-foreground" : "text-muted-foreground")}>
                   {periodLabel(b)}{periodLabel(b) === periodLabel(year) && <span className="ml-1.5 rounded bg-foreground px-1.5 py-0.5 text-[10px] text-background">NOW</span>}
                 </th>
               ))}
@@ -83,12 +95,12 @@ export default function References() {
           <tbody>
             {REFERENCE_WATCHES.map((w) => (
               <tr key={w} className={cn("border-b border-border/40 last:border-0", w === watch && "bg-muted/40")}>
-                <td className="whitespace-nowrap px-4 py-2 font-medium"><WatchDot watch={w} size="sm" /> <span className="ml-1.5">{w}</span>{w === watch && <span className="ml-1.5 text-xs text-muted-foreground">(you)</span>}</td>
+                <td className={cn("sticky left-0 z-10 whitespace-nowrap px-4 py-2 font-medium", w === watch ? "bg-muted" : "bg-card")}><WatchDot watch={w} size="sm" /> <span className="ml-1.5">{w}</span>{w === watch && <span className="ml-1.5 text-xs text-muted-foreground">(you)</span>}</td>
                 {blocks.map((b) => {
                   const r = watchReferences(w, b)!;
                   const now = periodLabel(b) === periodLabel(year);
                   return (
-                    <td key={b} className={cn("px-3 py-2", now && "bg-muted/60")}>
+                    <td key={b} className={cn("whitespace-nowrap px-3 py-2", now && "bg-muted/60")}>
                       <span className={cn("font-semibold", !now && "text-muted-foreground")}>Ref {r.main}</span>
                       <span className="ml-1.5 text-xs text-muted-foreground">sec. {r.secondary}</span>
                     </td>
