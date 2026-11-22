@@ -1,6 +1,7 @@
 import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { XIcon } from "lucide-react"
+import { focusPopupItselfOnTouch } from "@/lib/touchPopupFocus"
 
 import { cn } from "@/lib/utils"
 
@@ -53,19 +54,10 @@ function DialogContent({
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean
 }) {
-  // On a touch screen a pop-up opens with nothing picked: putting the cursor
-  // in its first box throws up the keyboard — or, for a date box on an
-  // iPhone, the whole date picker — over the form before it's been read
-  // (seen on Log Sick, 22 Nov 2026). The pop-up itself takes the focus, so a
-  // screen reader still lands in it. A mouse-and-keyboard computer is
-  // unchanged: the first box is ready to type in.
+  // On touch the pop-up itself takes the focus, not its first box (see lib/touchPopupFocus).
   const handleOpenAutoFocus = (e: Event) => {
     onOpenAutoFocus?.(e)
-    if (e.defaultPrevented) return
-    if (typeof window !== "undefined" && window.matchMedia?.("(pointer: coarse)").matches) {
-      e.preventDefault()
-      ;(e.currentTarget as HTMLElement | null)?.focus?.({ preventScroll: true })
-    }
+    focusPopupItselfOnTouch(e)
   }
   return (
     <DialogPortal data-slot="dialog-portal">

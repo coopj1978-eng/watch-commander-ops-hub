@@ -1,6 +1,7 @@
 import { useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { CalendarDays, CalendarPlus, ClipboardPlus, GraduationCap, Plus, X, type LucideIcon } from "lucide-react";
+import { focusPopupItselfOnTouch } from "@/lib/touchPopupFocus";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -85,8 +86,9 @@ export function CalendarNewFab({ onPick, dayLabel, isManager = true }: { onPick:
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px] data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0" />
         <Dialog.Content
+          onOpenAutoFocus={focusPopupItselfOnTouch}
           className={cn(
-            "fixed inset-x-0 bottom-0 z-50 rounded-t-3xl border-t border-border bg-background px-4 pt-3 shadow-2xl",
+            "fixed inset-x-0 bottom-0 z-50 outline-none rounded-t-3xl border-t border-border bg-background px-4 pt-3 shadow-2xl",
             "data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom data-[state=open]:duration-300",
             "data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom data-[state=closed]:duration-200",
           )}

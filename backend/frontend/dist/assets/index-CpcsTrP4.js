@@ -32996,6 +32996,13 @@ var Content$1 = DialogContent$1;
 var Title = DialogTitle$1;
 var Description = DialogDescription$1;
 var Close = DialogClose;
+function focusPopupItselfOnTouch(e) {
+  var _a3, _b3, _c2;
+  if (e.defaultPrevented) return;
+  if (typeof window === "undefined" || !((_a3 = window.matchMedia) == null ? void 0 : _a3.call(window, "(pointer: coarse)").matches)) return;
+  e.preventDefault();
+  (_c2 = (_b3 = e.currentTarget) == null ? void 0 : _b3.focus) == null ? void 0 : _c2.call(_b3, { preventScroll: true });
+}
 function Dialog({
   ...props
 }) {
@@ -33030,13 +33037,8 @@ function DialogContent({
   ...props
 }) {
   const handleOpenAutoFocus = (e) => {
-    var _a3, _b3, _c2;
     onOpenAutoFocus == null ? void 0 : onOpenAutoFocus(e);
-    if (e.defaultPrevented) return;
-    if (typeof window !== "undefined" && ((_a3 = window.matchMedia) == null ? void 0 : _a3.call(window, "(pointer: coarse)").matches)) {
-      e.preventDefault();
-      (_c2 = (_b3 = e.currentTarget) == null ? void 0 : _b3.focus) == null ? void 0 : _c2.call(_b3, { preventScroll: true });
-    }
+    focusPopupItselfOnTouch(e);
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogPortal, { "data-slot": "dialog-portal", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(DialogOverlay, {}),
@@ -33978,8 +33980,9 @@ function MoreSheet({ open, onOpenChange, groups, onSearch, onChangePassword }) {
     /* @__PURE__ */ jsxRuntimeExports.jsxs(
       Content$1,
       {
+        onOpenAutoFocus: focusPopupItselfOnTouch,
         className: cn(
-          "fixed inset-x-0 bottom-0 z-50 flex max-h-[88dvh] flex-col rounded-t-3xl border-t border-border bg-background shadow-2xl",
+          "fixed inset-x-0 bottom-0 z-50 outline-none flex max-h-[88dvh] flex-col rounded-t-3xl border-t border-border bg-background shadow-2xl",
           "data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom data-[state=open]:duration-300",
           "data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom data-[state=closed]:duration-200"
         ),
@@ -34136,8 +34139,9 @@ function QuickAddButton() {
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
         Content$1,
         {
+          onOpenAutoFocus: focusPopupItselfOnTouch,
           className: cn(
-            "fixed inset-x-0 bottom-0 z-50 rounded-t-2xl border-t border-border bg-background px-4 pt-3 shadow-2xl",
+            "fixed inset-x-0 bottom-0 z-50 outline-none rounded-t-2xl border-t border-border bg-background px-4 pt-3 shadow-2xl",
             "data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom data-[state=open]:duration-300",
             "data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom data-[state=closed]:duration-200"
           ),
@@ -51647,8 +51651,9 @@ function CalendarNewFab({ onPick, dayLabel: dayLabel2, isManager = true }) {
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
         Content$1,
         {
+          onOpenAutoFocus: focusPopupItselfOnTouch,
           className: cn(
-            "fixed inset-x-0 bottom-0 z-50 rounded-t-3xl border-t border-border bg-background px-4 pt-3 shadow-2xl",
+            "fixed inset-x-0 bottom-0 z-50 outline-none rounded-t-3xl border-t border-border bg-background px-4 pt-3 shadow-2xl",
             "data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom data-[state=open]:duration-300",
             "data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom data-[state=closed]:duration-200"
           ),
