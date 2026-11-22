@@ -33832,7 +33832,7 @@ const Switch$1 = reactExports.forwardRef(({ className, ...props }, ref) => /* @_
   Root$3,
   {
     className: cn(
-      "peer inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-indigo-600 data-[state=unchecked]:bg-input",
+      "tap peer inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-indigo-600 data-[state=unchecked]:bg-input",
       className
     ),
     ...props,
@@ -34079,6 +34079,7 @@ function useScrollingDown() {
   }, []);
   return down;
 }
+const TUCKED_AWAY = "pointer-events-none translate-y-6 opacity-0 focus-visible:pointer-events-auto focus-visible:translate-y-0 focus-visible:opacity-100";
 function QuickAddButton() {
   const [open, setOpen] = reactExports.useState(false);
   const navigate = useNavigate();
@@ -34101,7 +34102,7 @@ function QuickAddButton() {
           "bg-brand text-brand-foreground shadow-[0_10px_28px_-6px_rgba(49,46,129,0.55)]",
           "transition-[transform,opacity] duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/30",
           // Out of the way while reading down; still there for a keyboard.
-          tuckedAway && !open && "pointer-events-none translate-y-6 opacity-0 focus-visible:pointer-events-auto focus-visible:translate-y-0 focus-visible:opacity-100"
+          tuckedAway && !open && TUCKED_AWAY
         ),
         style: { bottom: "calc(80px + env(safe-area-inset-bottom))" },
         children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-6 w-6", strokeWidth: 2.5 })
@@ -35044,7 +35045,7 @@ function ShiftWeather({
   ] });
   if (compact) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenu, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuTrigger, { className: cn("inline-flex items-center gap-1.5 text-left font-mono text-xs text-white/70 hover:text-white", className), children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuTrigger, { className: cn("tap inline-flex items-center gap-1.5 text-left font-mono text-xs text-white/70 hover:text-white", className), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "h-3.5 w-3.5 text-white/80" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-white/90", children: [
           temp,
@@ -35335,6 +35336,14 @@ const ROLE_LABEL = {
   ff: "FF",
   detached: "Detached"
 };
+const ROLE_SHORT = {
+  oic: "OIC",
+  driver: "DRV",
+  ba: "BA",
+  baeco: "ECO",
+  ff: "FF",
+  detached: "DET"
+};
 function useNow(intervalMs = 3e4) {
   const [now, setNow] = reactExports.useState(() => /* @__PURE__ */ new Date());
   reactExports.useEffect(() => {
@@ -35449,7 +35458,7 @@ function RidingBoard({
               ),
               children: [
                 initials$3(name),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "absolute -bottom-1 left-1/2 -translate-x-1/2 rounded bg-neutral-950 px-1 font-mono text-[8px] leading-3 text-white/70 ring-1 ring-white/10", children: ROLE_LABEL[s.crew_role] ?? s.crew_role })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-neutral-950 px-1 font-mono text-[9px] leading-3 text-white/80 ring-1 ring-white/10", children: ROLE_SHORT[s.crew_role] ?? ROLE_LABEL[s.crew_role] ?? s.crew_role })
               ]
             },
             i
@@ -35641,7 +35650,7 @@ function ShiftHero() {
                   Link,
                   {
                     to: crewShift ? `/handover?tab=crewing&date=${crewShift.shiftDate}&shift=${encodeURIComponent(crewShift.shiftType)}` : "/handover",
-                    className: "shrink-0 font-medium text-white hover:underline",
+                    className: "tap shrink-0 font-medium text-white hover:underline",
                     children: isManager ? entries.length ? "Edit crewing →" : "Set crewing →" : "Crewing →"
                   }
                 )
@@ -38362,7 +38371,7 @@ function ReferenceHolder({ refNo, className }) {
     {
       to: `/references#ref-${refNo}`,
       title: `Reference ${refNo}${title ? ` — ${title}` : ""}. Main: ${main} Watch · secondary: ${secondary} Watch (covers it when ${main} Watch is off).`,
-      className: cn("inline-flex items-center gap-1.5 rounded-md border border-border/70 px-2 py-0.5 text-[11px] font-medium text-muted-foreground hover:bg-muted hover:text-foreground", className),
+      className: cn("tap inline-flex items-center gap-1.5 rounded-md border border-border/70 px-2 py-0.5 text-[11px] font-medium text-muted-foreground hover:bg-muted hover:text-foreground", className),
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(BookMarked, { className: "h-3 w-3" }),
         "Ref ",
@@ -38947,7 +38956,7 @@ function ShiftRunningOrder() {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
         tasks.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(Bar, { done: doneCount, total: tasks.length }),
-        canOpen("/tasks") && /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: "/tasks", className: "text-xs font-medium text-brand hover:underline", children: "Shift board →" })
+        canOpen("/tasks") && /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: "/tasks", className: "tap text-xs font-medium text-brand hover:underline", children: "Shift board →" })
       ] })
     ] }),
     boardQ.isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2 p-4 sm:p-5", children: [0, 1, 2, 3].map((i) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-11 animate-pulse rounded-lg bg-muted/60" }, i)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ol", { className: "relative px-2 py-2 sm:px-3", children: rows.map((r2, i) => {
@@ -50046,7 +50055,7 @@ function StateBadges({ item }) {
   const badge = {
     alignSelf: "flex-start",
     marginTop: 2,
-    fontSize: 10.5,
+    fontSize: 11,
     fontWeight: 600,
     padding: "2px 7px",
     borderRadius: 999,
@@ -50557,7 +50566,7 @@ function MonthView({
                 "span",
                 {
                   style: {
-                    fontSize: 10.5,
+                    fontSize: 11,
                     fontWeight: 600,
                     padding: "2px 6px",
                     borderRadius: 999,
@@ -50697,7 +50706,7 @@ function YearView({
               ] })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: 2, textAlign: "center" }, children: [
-              ["M", "T", "W", "T", "F", "S", "S"].map((d, i) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 10, fontWeight: 600, color: "var(--cal-muted)", paddingBottom: 2 }, children: d }, i)),
+              ["M", "T", "W", "T", "F", "S", "S"].map((d, i) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 11, fontWeight: 600, color: "var(--cal-muted)", paddingBottom: 2 }, children: d }, i)),
               cells.map((day2, i) => {
                 if (!day2) return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { height: 26 } }, i);
                 const k = userWatch ? shiftKind(getShiftForDate(userWatch, day2) ?? void 0) : null;
@@ -51150,8 +51159,8 @@ function PhoneHeader({ date: date2, onPrev, onNext, onToday, filters, list: list
           onClick: () => onListChange(l),
           className: "cal-focus",
           style: {
-            height: 34,
-            padding: "0 12px",
+            height: 40,
+            padding: "0 14px",
             borderRadius: 9,
             border: "none",
             font: "inherit",
@@ -51540,6 +51549,7 @@ function CalendarNewButton({ onPick, isManager = true }) {
 }
 function CalendarNewFab({ onPick, dayLabel: dayLabel2, isManager = true }) {
   const [open, setOpen] = reactExports.useState(false);
+  const tuckedAway = useScrollingDown();
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Root$4, { open, onOpenChange: setOpen, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(Trigger$2, { asChild: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
       "button",
@@ -51549,7 +51559,8 @@ function CalendarNewFab({ onPick, dayLabel: dayLabel2, isManager = true }) {
         className: cn(
           "md:hidden print:hidden fixed right-4 z-40 grid h-14 w-14 place-items-center rounded-full",
           "bg-brand text-brand-foreground shadow-[0_10px_28px_-6px_rgba(49,46,129,0.55)]",
-          "transition-transform active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/30"
+          "transition-[transform,opacity] duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/30",
+          tuckedAway && !open && TUCKED_AWAY
         ),
         style: { bottom: "calc(80px + env(safe-area-inset-bottom))" },
         children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-6 w-6", strokeWidth: 2.5 })
@@ -57281,7 +57292,7 @@ function RoutineHeader({
             style: {
               position: "relative",
               alignSelf: "flex-start",
-              fontSize: compact ? 9 : 10,
+              fontSize: compact ? 10 : 11,
               fontWeight: 700,
               letterSpacing: ".1em",
               textTransform: "uppercase",
@@ -57365,7 +57376,7 @@ function ReferenceHeader({
             style: {
               position: "relative",
               alignSelf: "flex-start",
-              fontSize: compact ? 9 : 10,
+              fontSize: compact ? 10 : 11,
               fontWeight: 700,
               letterSpacing: ".1em",
               textTransform: "uppercase",
@@ -57986,7 +57997,7 @@ function CardChecklist({ task: task2, onToggle }) {
                 title: `${item.done_by_name}${item.done_at ? ` · ${tickTime(item.done_at)}` : ""}`,
                 style: { display: "inline-flex", alignItems: "center", gap: 4, flex: "none" },
                 children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 10, color: "var(--cal-muted)" }, children: tickTime(item.done_at) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 11, color: "var(--cal-muted)" }, children: tickTime(item.done_at) }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx(
                     "span",
                     {
@@ -57996,7 +58007,7 @@ function CardChecklist({ task: task2, onToggle }) {
                         minWidth: 22,
                         padding: "0 4px",
                         borderRadius: 6,
-                        fontSize: 9.5,
+                        fontSize: 11,
                         fontWeight: 600,
                         display: "grid",
                         placeItems: "center",
@@ -62120,7 +62131,7 @@ function RoutinePlanner({ open, onClose, canManage, onOpenOtherChecks }) {
                   const today = now.startsWith(d.key);
                   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 6, padding: "0 4px 2px" }, children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 14, fontWeight: 700, color: today ? "var(--cal-brand-text)" : "var(--cal-ink)" }, children: d.long }),
-                    today && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 10, fontWeight: 600, padding: "2px 6px", borderRadius: 6, background: "var(--cal-brand)", color: "#fff" }, children: "TODAY" })
+                    today && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 11, fontWeight: 600, padding: "2px 6px", borderRadius: 6, background: "var(--cal-brand)", color: "#fff" }, children: "TODAY" })
                   ] }, d.key);
                 }),
                 SHIFTS.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsxs(reactExports.Fragment, { children: [
@@ -62169,7 +62180,7 @@ function SlotCell(p) {
       children: [
         (p.title || p.isNow) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 6, padding: "2px 4px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { flex: 1, minWidth: 0 }, children: p.title }),
-          p.isNow && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 10, fontWeight: 600, color: "var(--cal-brand-text)" }, children: "NOW" })
+          p.isNow && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 11, fontWeight: 600, color: "var(--cal-brand-text)" }, children: "NOW" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: p.row ? "grid" : "flex", gridTemplateColumns: p.row ? "repeat(auto-fill, minmax(280px, 1fr))" : void 0, flexDirection: "column", gap: 8 }, children: p.cards.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx(CardEditor, { ...p, card: c }, c.key)) }),
         p.cards.length === 0 && !p.canManage && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 12, color: "var(--cal-muted)", padding: "2px 4px" }, children: "Nothing set." }),
@@ -62635,6 +62646,7 @@ function Tasks() {
   const [showFilterSheet, setShowFilterSheet] = reactExports.useState(false);
   const [showFilterPop, setShowFilterPop] = reactExports.useState(false);
   const isPhone = useIsPhone();
+  const tuckedAway = useScrollingDown();
   const canAssignTasks = ["WC", "CC"].includes(userRole);
   const canEditStatus = ["WC", "CC", "FF"].includes(userRole);
   const watchName = (user2 == null ? void 0 : user2.watch_unit) ?? "Watch";
@@ -63179,7 +63191,7 @@ function Tasks() {
           {
             type: "button",
             onClick: handleNewTask,
-            className: "cal-focus",
+            className: `cal-focus transition-[transform,opacity] duration-200 ${tuckedAway ? TUCKED_AWAY : ""}`,
             style: {
               position: "fixed",
               right: 16,
@@ -64107,7 +64119,7 @@ function CommunityCard({ watch, fq, canEdit }) {
             /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "mr-1 h-4 w-4" }),
             " Add engagement"
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setDrawer(true), className: "ml-auto text-xs font-medium text-muted-foreground hover:text-foreground", children: "Details →" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setDrawer(true), className: "tap ml-auto text-xs font-medium text-muted-foreground hover:text-foreground", children: "Details →" })
         ] }),
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-3 flex items-center gap-2 text-xs", children: [
@@ -64136,7 +64148,7 @@ function CommunityCard({ watch, fq, canEdit }) {
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx(PaceLines, { pace: p, noun: "engagements", shifts: null, watch }),
-          items.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "mt-4 space-y-1 border-t border-border/60 pt-3", children: items.slice(0, 6).map((it) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-center gap-2.5 text-sm", children: [
+          items.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "mt-4 space-y-1 border-t border-border/60 pt-3", children: items.slice(0, 6).map((it) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-center gap-2.5 text-sm pointer-coarse:min-h-11", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
               {
@@ -64145,7 +64157,7 @@ function CommunityCard({ watch, fq, canEdit }) {
                 onClick: () => toggle.mutate(it.id),
                 "aria-label": it.completed ? "Mark not done" : "Mark done",
                 className: cn(
-                  "grid h-5 w-5 shrink-0 place-items-center rounded-md border transition-colors",
+                  "tap grid h-5 w-5 shrink-0 place-items-center rounded-md border transition-colors",
                   it.completed ? "border-emerald-500 bg-emerald-500 text-white" : "border-muted-foreground/40 hover:border-foreground"
                 ),
                 children: it.completed && /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-3.5 w-3.5", strokeWidth: 3 })
@@ -64207,7 +64219,7 @@ function MultiStoryCard({ watch, fq, canEdit }) {
               disabled: !canEdit || toggle.isPending,
               onClick: () => toggle.mutate(it),
               className: cn(
-                "flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-sm transition-colors",
+                "flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 pointer-coarse:min-h-11 text-left text-sm transition-colors",
                 canEdit && "hover:bg-muted/60"
               ),
               children: [
@@ -74369,7 +74381,7 @@ function CanteenToggle({ userId, role }) {
       "aria-pressed": on,
       "aria-label": on ? "On canteen" : "Put on canteen",
       className: cn(
-        "grid h-6 w-6 shrink-0 place-items-center rounded-md transition-colors",
+        "tap grid h-6 w-6 shrink-0 place-items-center rounded-md transition-colors",
         on ? "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300" : "text-muted-foreground/40 hover:bg-muted hover:text-foreground sm:opacity-0 sm:group-hover:opacity-100"
       ),
       children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChefHat, { className: "h-3.5 w-3.5" })
@@ -74392,10 +74404,10 @@ function CanteenCard({
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(ChefHat, { className: "h-4 w-4 text-amber-600 dark:text-amber-400" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-sm font-semibold", children: "Canteen" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-muted-foreground", children: "· 1–2 per shift, still riding" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-muted-foreground max-sm:hidden", children: "· 1–2 per shift, still riding" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
-        onOpenRota && /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onOpenRota, className: "text-xs font-medium text-brand hover:underline", children: "Rota & history →" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex shrink-0 items-center gap-3", children: [
+        onOpenRota && /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onOpenRota, className: "tap whitespace-nowrap text-xs font-medium text-brand hover:underline", children: "Rota & history →" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono text-xs tabular-nums text-muted-foreground", children: [
           duties.length,
           "/",
@@ -74403,6 +74415,7 @@ function CanteenCard({
         ] })
       ] })
     ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "px-4 pt-1 text-xs text-muted-foreground sm:hidden", children: "1–2 per shift, still riding" }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2 p-4", children: [
       duties.map((d) => /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-2 rounded-full bg-amber-100 py-1 pl-3 pr-1 text-sm font-medium text-amber-900 dark:bg-amber-900/40 dark:text-amber-200", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(ChefHat, { className: "h-3.5 w-3.5" }),
@@ -74936,7 +74949,7 @@ function DraggableFilledSlot({
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(CanteenToggle, { userId: entry.user_id, role: entry.user_system_role }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0 ${ROLE_BADGE[entry.crew_role]}`, children: slot.label }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0 whitespace-nowrap ${ROLE_BADGE[entry.crew_role]}`, children: entry.crew_role === "baeco" ? "BA ECO" : slot.label }),
         canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
           {

@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import * as Dialog from "@radix-ui/react-dialog";
 import { cn } from "@/lib/utils";
 import { Plus, X } from "lucide-react";
 import { useNav } from "@/lib/navigation";
+import { TUCKED_AWAY, useScrollingDown } from "@/lib/useScrollingDown";
 
 // ──────────────────────────────────────────────────────────────────────────────
 // QuickAddButton — phones only. A "+" above the bottom bar that opens a sheet
@@ -14,36 +15,6 @@ import { useNav } from "@/lib/navigation";
 // Hidden on the Tasks and Calendar pages, which have their own "+" in the
 // same spot.
 // ──────────────────────────────────────────────────────────────────────────────
-
-/**
- * True while the page is being read downwards. The "+" floats over the right
- * edge of the page, which is where cards keep their "→" links, so it steps
- * aside while you scroll down and comes back as soon as you scroll up (or
- * reach the top). Small wobbles of the thumb don't count.
- */
-function useScrollingDown(): boolean {
-  const [down, setDown] = useState(false);
-  useEffect(() => {
-    let last = window.scrollY;
-    let queued = false;
-    const onScroll = () => {
-      if (queued) return;
-      queued = true;
-      requestAnimationFrame(() => {
-        queued = false;
-        const y = window.scrollY;
-        if (y < 40) setDown(false);
-        else if (y - last > 12) setDown(true);
-        else if (last - y > 12) setDown(false);
-        else return;
-        last = y;
-      });
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-  return down;
-}
 
 export function QuickAddButton() {
   const [open, setOpen] = useState(false);
@@ -72,7 +43,7 @@ export function QuickAddButton() {
             "bg-brand text-brand-foreground shadow-[0_10px_28px_-6px_rgba(49,46,129,0.55)]",
             "transition-[transform,opacity] duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/30",
             // Out of the way while reading down; still there for a keyboard.
-            tuckedAway && !open && "pointer-events-none translate-y-6 opacity-0 focus-visible:pointer-events-auto focus-visible:translate-y-0 focus-visible:opacity-100",
+            tuckedAway && !open && TUCKED_AWAY,
           )}
           style={{ bottom: "calc(80px + env(safe-area-inset-bottom))" }}
         >

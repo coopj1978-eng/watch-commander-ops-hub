@@ -66,7 +66,7 @@ export function CommunityCard({ watch, fq, canEdit }: { watch: string; fq: FyQua
                 <Plus className="mr-1 h-4 w-4" /> Add engagement
               </Button>
             )}
-            <button onClick={() => setDrawer(true)} className="ml-auto text-xs font-medium text-muted-foreground hover:text-foreground">
+            <button onClick={() => setDrawer(true)} className="tap ml-auto text-xs font-medium text-muted-foreground hover:text-foreground">
               Details →
             </button>
           </>
@@ -96,14 +96,14 @@ export function CommunityCard({ watch, fq, canEdit }: { watch: string; fq: FyQua
         {items.length > 0 && (
           <ul className="mt-4 space-y-1 border-t border-border/60 pt-3">
             {items.slice(0, 6).map((it) => (
-              <li key={it.id} className="flex items-center gap-2.5 text-sm">
+              <li key={it.id} className="flex items-center gap-2.5 text-sm pointer-coarse:min-h-11">
                 <button
                   type="button"
                   disabled={!canEdit || toggle.isPending}
                   onClick={() => toggle.mutate(it.id)}
                   aria-label={it.completed ? "Mark not done" : "Mark done"}
                   className={cn(
-                    "grid h-5 w-5 shrink-0 place-items-center rounded-md border transition-colors",
+                    "tap grid h-5 w-5 shrink-0 place-items-center rounded-md border transition-colors",
                     it.completed ? "border-emerald-500 bg-emerald-500 text-white" : "border-muted-foreground/40 hover:border-foreground",
                   )}
                 >

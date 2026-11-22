@@ -783,8 +783,10 @@ function DraggableFilledSlot({
         )}
       </div>
       <CanteenToggle userId={entry.user_id} role={entry.user_system_role} />
-      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0 ${ROLE_BADGE[entry.crew_role]}`}>
-        {slot.label}
+      {/* The row already names the seat in full; the chip stays short so it
+          never squeezes the person's name off a phone. */}
+      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0 whitespace-nowrap ${ROLE_BADGE[entry.crew_role]}`}>
+        {entry.crew_role === "baeco" ? "BA ECO" : slot.label}
       </span>
       {canEdit && (
         <button

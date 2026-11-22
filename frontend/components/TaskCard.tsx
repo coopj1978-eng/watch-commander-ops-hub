@@ -380,11 +380,11 @@ function CardChecklist({ task, onToggle }: { task: Task; onToggle: (label: strin
                   title={`${item.done_by_name}${item.done_at ? ` · ${tickTime(item.done_at)}` : ""}`}
                   style={{ display: "inline-flex", alignItems: "center", gap: 4, flex: "none" }}
                 >
-                  <span className="cal-mono" style={{ fontSize: 10, color: "var(--cal-muted)" }}>{tickTime(item.done_at)}</span>
+                  <span className="cal-mono" style={{ fontSize: 11, color: "var(--cal-muted)" }}>{tickTime(item.done_at)}</span>
                   <span
                     className="cal-mono"
                     style={{
-                      height: 18, minWidth: 22, padding: "0 4px", borderRadius: 6, fontSize: 9.5, fontWeight: 600, display: "grid", placeItems: "center",
+                      height: 18, minWidth: 22, padding: "0 4px", borderRadius: 6, fontSize: 11, fontWeight: 600, display: "grid", placeItems: "center",
                       background: `var(--pp-${personTint(item.done_by ?? item.done_by_name)}-bg)`, color: `var(--pp-${personTint(item.done_by ?? item.done_by_name)}-fg)`,
                     }}
                   >

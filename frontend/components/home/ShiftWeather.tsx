@@ -59,7 +59,7 @@ export function ShiftWeather({
   if (compact) {
     return (
       <DropdownMenu>
-        <DropdownMenuTrigger className={cn("inline-flex items-center gap-1.5 text-left font-mono text-xs text-white/70 hover:text-white", className)}>
+        <DropdownMenuTrigger className={cn("tap inline-flex items-center gap-1.5 text-left font-mono text-xs text-white/70 hover:text-white", className)}>
           <Icon className="h-3.5 w-3.5 text-white/80" />
           <span className="text-white/90">{temp}°</span> {weatherLabel(c.weather_code)}
           {rain !== null && <> · rain {rain}% {shiftWord}</>}

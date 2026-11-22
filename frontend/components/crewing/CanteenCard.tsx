@@ -88,7 +88,7 @@ export function CanteenToggle({ userId, role }: { userId?: string | null; role?:
       aria-pressed={on}
       aria-label={on ? "On canteen" : "Put on canteen"}
       className={cn(
-        "grid h-6 w-6 shrink-0 place-items-center rounded-md transition-colors",
+        "tap grid h-6 w-6 shrink-0 place-items-center rounded-md transition-colors",
         on
           ? "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300"
           : "text-muted-foreground/40 hover:bg-muted hover:text-foreground sm:opacity-0 sm:group-hover:opacity-100",
@@ -121,17 +121,19 @@ export function CanteenCard({
         <div className="flex items-center gap-2">
           <ChefHat className="h-4 w-4 text-amber-600 dark:text-amber-400" />
           <h3 className="text-sm font-semibold">Canteen</h3>
-          <span className="text-xs text-muted-foreground">· 1–2 per shift, still riding</span>
+          <span className="text-xs text-muted-foreground max-sm:hidden">· 1–2 per shift, still riding</span>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-3">
           {onOpenRota && (
-            <button onClick={onOpenRota} className="text-xs font-medium text-brand hover:underline">
+            <button onClick={onOpenRota} className="tap whitespace-nowrap text-xs font-medium text-brand hover:underline">
               Rota &amp; history →
             </button>
           )}
           <span className="font-mono text-xs tabular-nums text-muted-foreground">{duties.length}/{MAX}</span>
         </div>
       </header>
+      {/* Phones: the note gets its own line, so the heading isn't squeezed. */}
+      <p className="px-4 pt-1 text-xs text-muted-foreground sm:hidden">1–2 per shift, still riding</p>
 
       <div className="flex flex-wrap items-center gap-2 p-4">
         {duties.map((d) => (

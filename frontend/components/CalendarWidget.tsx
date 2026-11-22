@@ -473,7 +473,7 @@ function StateBadges({ item }: { item: CalendarItem }) {
   const ev = eventData(item);
   if (!ev?.cancelled_at && !ev?.rescheduled_from) return null;
   const badge: React.CSSProperties = {
-    alignSelf: "flex-start", marginTop: 2, fontSize: 10.5, fontWeight: 600, padding: "2px 7px",
+    alignSelf: "flex-start", marginTop: 2, fontSize: 11, fontWeight: 600, padding: "2px 7px",
     borderRadius: 999, background: "var(--cal-surface)", color: "var(--cal-ink-2)",
     display: "inline-flex", alignItems: "center", gap: 4, textDecoration: "none",
   };
@@ -933,7 +933,7 @@ function MonthView({
                 {k && shift && (
                   <span
                     style={{
-                      fontSize: 10.5, fontWeight: 600, padding: "2px 6px", borderRadius: 999, background: tok(k, "bg"), color: tok(k, "fg"), whiteSpace: "nowrap",
+                      fontSize: 11, fontWeight: 600, padding: "2px 6px", borderRadius: 999, background: tok(k, "bg"), color: tok(k, "fg"), whiteSpace: "nowrap",
                       // Your watch is on, but you're not.
                       ...(note?.state === "off" ? { textDecoration: "line-through", opacity: 0.6 } : {}),
                     }}
@@ -1060,7 +1060,7 @@ function YearView({
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: 2, textAlign: "center" }}>
                 {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
-                  <span key={i} style={{ fontSize: 10, fontWeight: 600, color: "var(--cal-muted)", paddingBottom: 2 }}>{d}</span>
+                  <span key={i} style={{ fontSize: 11, fontWeight: 600, color: "var(--cal-muted)", paddingBottom: 2 }}>{d}</span>
                 ))}
                 {cells.map((day, i) => {
                   if (!day) return <span key={i} style={{ height: 26 }} />;
@@ -1516,7 +1516,7 @@ function PhoneHeader({ date, onPrev, onNext, onToday, filters, list, onListChang
               onClick={() => onListChange(l)}
               className="cal-focus"
               style={{
-                height: 34, padding: "0 12px", borderRadius: 9, border: "none", font: "inherit", fontSize: 13, cursor: "pointer",
+                height: 40, padding: "0 14px", borderRadius: 9, border: "none", font: "inherit", fontSize: 13, cursor: "pointer",
                 ...(list === l
                   ? { background: "var(--cal-surface)", color: "var(--cal-ink)", fontWeight: 600, boxShadow: "var(--cal-shadow)" }
                   : { background: "transparent", color: "var(--cal-ink-2)", fontWeight: 500 }),

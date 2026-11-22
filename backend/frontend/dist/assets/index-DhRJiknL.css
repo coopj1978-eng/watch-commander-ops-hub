@@ -7508,6 +7508,12 @@
     }
   }
 
+  @media not all and (min-width: 40rem) {
+    .max-sm\:hidden {
+      display: none;
+    }
+  }
+
   @media (min-width: 40rem) {
     .sm\:not-sr-only {
       clip-path: none;

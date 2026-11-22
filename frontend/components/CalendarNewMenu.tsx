@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { TUCKED_AWAY, useScrollingDown } from "@/lib/useScrollingDown";
 
 // One "New" on the calendar (Nov 2026) in place of the three toolbar buttons
 // plus the phone's separate "New event": a menu on desktop, the "+" on phones.
@@ -63,6 +64,7 @@ export function CalendarNewButton({ onPick, isManager = true }: { onPick: (kind:
 /** Phones: the calendar's own "+" (the app-wide one is hidden here). */
 export function CalendarNewFab({ onPick, dayLabel, isManager = true }: { onPick: (kind: NewKind) => void; dayLabel: string; isManager?: boolean }) {
   const [open, setOpen] = useState(false);
+  const tuckedAway = useScrollingDown();
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
@@ -72,7 +74,8 @@ export function CalendarNewFab({ onPick, dayLabel, isManager = true }: { onPick:
           className={cn(
             "md:hidden print:hidden fixed right-4 z-40 grid h-14 w-14 place-items-center rounded-full",
             "bg-brand text-brand-foreground shadow-[0_10px_28px_-6px_rgba(49,46,129,0.55)]",
-            "transition-transform active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/30",
+            "transition-[transform,opacity] duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/30",
+            tuckedAway && !open && TUCKED_AWAY,
           )}
           style={{ bottom: "calc(80px + env(safe-area-inset-bottom))" }}
         >

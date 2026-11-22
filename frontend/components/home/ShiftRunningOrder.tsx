@@ -248,7 +248,7 @@ export function ShiftRunningOrder() {
         </div>
         <div className="flex items-center gap-3">
           {tasks.length > 0 && <Bar done={doneCount} total={tasks.length} />}
-          {canOpen("/tasks") && <Link to="/tasks" className="text-xs font-medium text-brand hover:underline">Shift board →</Link>}
+          {canOpen("/tasks") && <Link to="/tasks" className="tap text-xs font-medium text-brand hover:underline">Shift board →</Link>}
         </div>
       </header>
 

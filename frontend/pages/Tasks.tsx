@@ -17,6 +17,7 @@ import RoutinePlanner from "@/components/tasks/RoutinePlanner";
 import ShiftProgress from "@/components/tasks/ShiftProgress";
 import { autoStatusFor, personTint, useIsPhone } from "@/lib/taskUi";
 import { TASK_LABELS } from "@/lib/taskLabels";
+import { TUCKED_AWAY, useScrollingDown } from "@/lib/useScrollingDown";
 import type { Task, ChecklistItem, TaskTemplate, TaskColumn } from "~backend/task/types";
 
 export default function Tasks() {
@@ -49,6 +50,7 @@ export default function Tasks() {
   const [showFilterSheet, setShowFilterSheet] = useState(false);
   const [showFilterPop, setShowFilterPop] = useState(false);
   const isPhone = useIsPhone();
+  const tuckedAway = useScrollingDown();
 
   const canAssignTasks = ["WC", "CC"].includes(userRole);
   const canEditStatus = ["WC", "CC", "FF"].includes(userRole);
@@ -636,7 +638,7 @@ export default function Tasks() {
         <button
           type="button"
           onClick={handleNewTask}
-          className="cal-focus"
+          className={`cal-focus transition-[transform,opacity] duration-200 ${tuckedAway ? TUCKED_AWAY : ""}`}
           style={{
             position: "fixed", right: 16, bottom: "calc(84px + env(safe-area-inset-bottom))", zIndex: 40,
             height: 52, padding: "0 8px 0 20px", borderRadius: 999, border: "none", background: "var(--cal-brand)", color: "#fff",

@@ -18,7 +18,7 @@ export function ReferenceHolder({ refNo, className }: { refNo: number; className
     <Link
       to={`/references#ref-${refNo}`}
       title={`Reference ${refNo}${title ? ` — ${title}` : ""}. Main: ${main} Watch · secondary: ${secondary} Watch (covers it when ${main} Watch is off).`}
-      className={cn("inline-flex items-center gap-1.5 rounded-md border border-border/70 px-2 py-0.5 text-[11px] font-medium text-muted-foreground hover:bg-muted hover:text-foreground", className)}
+      className={cn("tap inline-flex items-center gap-1.5 rounded-md border border-border/70 px-2 py-0.5 text-[11px] font-medium text-muted-foreground hover:bg-muted hover:text-foreground", className)}
     >
       <BookMarked className="h-3 w-3" />
       Ref {refNo}

@@ -378,7 +378,7 @@ export default function RoutinePlanner({ open, onClose, canManage, onOpenOtherCh
                     return (
                       <div key={d.key} style={{ display: "flex", alignItems: "center", gap: 6, padding: "0 4px 2px" }}>
                         <span style={{ fontSize: 14, fontWeight: 700, color: today ? "var(--cal-brand-text)" : "var(--cal-ink)" }}>{d.long}</span>
-                        {today && <span className="cal-mono" style={{ fontSize: 10, fontWeight: 600, padding: "2px 6px", borderRadius: 6, background: "var(--cal-brand)", color: "#fff" }}>TODAY</span>}
+                        {today && <span className="cal-mono" style={{ fontSize: 11, fontWeight: 600, padding: "2px 6px", borderRadius: 6, background: "var(--cal-brand)", color: "#fff" }}>TODAY</span>}
                       </div>
                     );
                   })}
@@ -457,7 +457,7 @@ function SlotCell(p: CellProps) {
       {(p.title || p.isNow) && (
         <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "2px 4px" }}>
           <div style={{ flex: 1, minWidth: 0 }}>{p.title}</div>
-          {p.isNow && <span className="cal-mono" style={{ fontSize: 10, fontWeight: 600, color: "var(--cal-brand-text)" }}>NOW</span>}
+          {p.isNow && <span className="cal-mono" style={{ fontSize: 11, fontWeight: 600, color: "var(--cal-brand-text)" }}>NOW</span>}
         </div>
       )}
       <div style={{ display: p.row ? "grid" : "flex", gridTemplateColumns: p.row ? "repeat(auto-fill, minmax(280px, 1fr))" : undefined, flexDirection: "column", gap: 8 }}>

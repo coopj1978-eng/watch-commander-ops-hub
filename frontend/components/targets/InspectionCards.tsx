@@ -70,7 +70,7 @@ export function MultiStoryCard({ watch, fq, canEdit }: { watch: string; fq: FyQu
                     disabled={!canEdit || toggle.isPending}
                     onClick={() => toggle.mutate(it)}
                     className={cn(
-                      "flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-sm transition-colors",
+                      "flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 pointer-coarse:min-h-11 text-left text-sm transition-colors",
                       canEdit && "hover:bg-muted/60",
                     )}
                   >

@@ -42,6 +42,10 @@ const ROLE_ORDER = ["oic", "driver", "ba", "baeco", "ff"];
 const ROLE_LABEL: Record<string, string> = {
   oic: "OIC", driver: "Driver", ba: "BA", baeco: "BA ECO", ff: "FF", detached: "Detached",
 };
+// Under a 32px circle there is room for three letters at a size you can read.
+const ROLE_SHORT: Record<string, string> = {
+  oic: "OIC", driver: "DRV", ba: "BA", baeco: "ECO", ff: "FF", detached: "DET",
+};
 
 function useNow(intervalMs = 30_000) {
   const [now, setNow] = useState(() => new Date());
@@ -171,8 +175,8 @@ function RidingBoard({
                     )}
                   >
                     {initials(name)}
-                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded bg-neutral-950 px-1 font-mono text-[8px] leading-3 text-white/70 ring-1 ring-white/10">
-                      {ROLE_LABEL[s.crew_role] ?? s.crew_role}
+                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-neutral-950 px-1 font-mono text-[9px] leading-3 text-white/80 ring-1 ring-white/10">
+                      {ROLE_SHORT[s.crew_role] ?? ROLE_LABEL[s.crew_role] ?? s.crew_role}
                     </span>
                   </span>
                 );
@@ -403,7 +407,7 @@ export function ShiftHero() {
                   <Link
                     // This shift's board by name: after midnight the Crewing page opens on the next shift.
                     to={crewShift ? `/handover?tab=crewing&date=${crewShift.shiftDate}&shift=${encodeURIComponent(crewShift.shiftType)}` : "/handover"}
-                    className="shrink-0 font-medium text-white hover:underline"
+                    className="tap shrink-0 font-medium text-white hover:underline"
                   >
                     {isManager ? (entries.length ? "Edit crewing →" : "Set crewing →") : "Crewing →"}
                   </Link>
