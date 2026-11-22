@@ -7513,28 +7513,32 @@
   }
 
   @media not all and (min-width: 40rem) {
-    .max-sm\:order-1 {
-      order: 1;
+    .max-sm\:col-span-2 {
+      grid-column: span 2 / span 2;
     }
 
-    .max-sm\:order-2 {
-      order: 2;
+    .max-sm\:col-span-3 {
+      grid-column: span 3 / span 3;
     }
 
-    .max-sm\:order-3 {
-      order: 3;
+    .max-sm\:col-start-1 {
+      grid-column-start: 1;
     }
 
-    .max-sm\:order-4 {
-      order: 4;
+    .max-sm\:col-start-2 {
+      grid-column-start: 2;
     }
 
-    .max-sm\:order-5 {
-      order: 5;
+    .max-sm\:col-start-3 {
+      grid-column-start: 3;
     }
 
-    .max-sm\:order-6 {
-      order: 6;
+    .max-sm\:row-span-3 {
+      grid-row: span 3 / span 3;
+    }
+
+    .max-sm\:row-start-1 {
+      grid-row-start: 1;
     }
 
     .max-sm\:ml-auto {
@@ -7549,6 +7553,10 @@
       display: flex;
     }
 
+    .max-sm\:grid {
+      display: grid;
+    }
+
     .max-sm\:hidden {
       display: none;
     }
@@ -7561,12 +7569,12 @@
       max-width: none;
     }
 
-    .max-sm\:min-w-0 {
-      min-width: calc(var(--spacing) * 0);
-    }
-
     .max-sm\:flex-1 {
       flex: 1;
+    }
+
+    .max-sm\:grid-cols-\[minmax\(0\,1fr\)_auto_auto\] {
+      grid-template-columns: minmax(0, 1fr) auto auto;
     }
 
     .max-sm\:flex-wrap {
@@ -7581,6 +7589,10 @@
       justify-content: center;
     }
 
+    .max-sm\:gap-0 {
+      gap: calc(var(--spacing) * 0);
+    }
+
     .max-sm\:gap-3 {
       gap: calc(var(--spacing) * 3);
     }
@@ -7593,8 +7605,16 @@
       column-gap: calc(var(--spacing) * 2);
     }
 
+    .max-sm\:gap-y-0\.5 {
+      row-gap: calc(var(--spacing) * .5);
+    }
+
     .max-sm\:gap-y-1 {
       row-gap: calc(var(--spacing) * 1);
+    }
+
+    .max-sm\:self-center {
+      align-self: center;
     }
 
     .max-sm\:p-0 {
@@ -7639,6 +7659,11 @@
       content: var(--tw-content);
     }
 
+    .max-sm\:before\:content-\[\'Expires_\'\]:before {
+      --tw-content: "Expires ";
+      content: var(--tw-content);
+    }
+
     .max-sm\:before\:content-\[\'·_Days\:_\'\]:before {
       --tw-content: "· Days: ";
       content: var(--tw-content);
@@ -7646,11 +7671,6 @@
 
     .max-sm\:before\:content-\[\'·_Duty_days\:_\'\]:before {
       --tw-content: "· Duty days: ";
-      content: var(--tw-content);
-    }
-
-    .max-sm\:before\:content-\[\'·_Expires_\'\]:before {
-      --tw-content: "· Expires ";
       content: var(--tw-content);
     }
 

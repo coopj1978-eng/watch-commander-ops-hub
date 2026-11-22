@@ -44811,14 +44811,14 @@ function SkillsTab({ profileId, userId }) {
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Notes" }),
         canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Actions" })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TableBody, { className: "max-sm:block", children: skills.map((skill2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { className: "max-sm:flex max-sm:flex-wrap max-sm:items-center max-sm:gap-x-2 max-sm:gap-y-1 max-sm:px-4 max-sm:py-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "font-medium max-sm:order-1 max-sm:min-w-0 max-sm:flex-1 max-sm:whitespace-normal max-sm:p-0", children: skill2.skill_name }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "max-sm:order-3 max-sm:p-0 max-sm:text-xs max-sm:text-muted-foreground max-sm:before:content-['Acquired_']", children: skill2.acquired_date ? new Date(skill2.acquired_date).toLocaleDateString() : "-" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "max-sm:order-4 max-sm:p-0 max-sm:text-xs max-sm:text-muted-foreground max-sm:before:content-['·_Expires_']", children: skill2.expiry_date ? new Date(skill2.expiry_date).toLocaleDateString() : "-" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(TableBody, { className: "max-sm:block", children: skills.map((skill2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { className: "max-sm:grid max-sm:grid-cols-[minmax(0,1fr)_auto_auto] max-sm:items-center max-sm:gap-x-2 max-sm:gap-y-0.5 max-sm:px-4 max-sm:py-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "font-medium max-sm:col-start-1 max-sm:row-start-1 max-sm:whitespace-normal max-sm:p-0", children: skill2.skill_name }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: `max-sm:col-span-2 max-sm:col-start-1 max-sm:p-0 max-sm:text-xs max-sm:text-muted-foreground max-sm:before:content-['Acquired_'] ${skill2.acquired_date ? "" : "max-sm:hidden"}`, children: skill2.acquired_date ? new Date(skill2.acquired_date).toLocaleDateString() : "-" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: `max-sm:col-span-2 max-sm:col-start-1 max-sm:p-0 max-sm:text-xs max-sm:text-muted-foreground max-sm:before:content-['Expires_'] ${skill2.expiry_date ? "" : "max-sm:hidden"}`, children: skill2.expiry_date ? new Date(skill2.expiry_date).toLocaleDateString() : "-" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "max-sm:hidden", children: skill2.reminder_date ? new Date(skill2.reminder_date).toLocaleDateString() : "-" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "max-sm:order-2 max-sm:p-0", children: getStatusBadge(skill2.status, skill2.days_until_expiry) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: `max-w-xs truncate max-sm:order-5 max-sm:w-full max-sm:max-w-none max-sm:whitespace-normal max-sm:p-0 max-sm:text-xs max-sm:text-muted-foreground ${skill2.notes ? "" : "max-sm:hidden"}`, children: skill2.notes || "-" }),
-        canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "max-sm:order-6 max-sm:ml-auto max-sm:p-0", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "max-sm:col-start-2 max-sm:row-start-1 max-sm:p-0", children: getStatusBadge(skill2.status, skill2.days_until_expiry) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: `max-w-xs truncate max-sm:col-span-3 max-sm:col-start-1 max-sm:max-w-none max-sm:whitespace-normal max-sm:p-0 max-sm:text-xs max-sm:text-muted-foreground ${skill2.notes ? "" : "max-sm:hidden"}`, children: skill2.notes || "-" }),
+        canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "max-sm:col-start-3 max-sm:row-span-3 max-sm:row-start-1 max-sm:self-center max-sm:p-0", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 max-sm:gap-0", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Button,
             {

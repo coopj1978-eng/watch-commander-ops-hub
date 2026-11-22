@@ -281,8 +281,9 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
         </Card>
       ) : (
         <Card>
-          {/* On a phone each skill is a few stacked lines (same cells, laid
-              out as a wrapping row) so nothing scrolls sideways. */}
+          {/* On a phone each skill is a few stacked lines (same cells, placed
+              on a small grid: name and status on top, dates under, buttons
+              down the right) so nothing scrolls sideways. */}
           <div className="overflow-x-auto">
           <Table className="max-sm:block">
             <TableHeader className="max-sm:hidden">
@@ -298,24 +299,24 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
             </TableHeader>
             <TableBody className="max-sm:block">
               {skills.map((skill) => (
-                <TableRow key={skill.id} className="max-sm:flex max-sm:flex-wrap max-sm:items-center max-sm:gap-x-2 max-sm:gap-y-1 max-sm:px-4 max-sm:py-3">
-                  <TableCell className="font-medium max-sm:order-1 max-sm:min-w-0 max-sm:flex-1 max-sm:whitespace-normal max-sm:p-0">{skill.skill_name}</TableCell>
-                  <TableCell className="max-sm:order-3 max-sm:p-0 max-sm:text-xs max-sm:text-muted-foreground max-sm:before:content-['Acquired_']">
+                <TableRow key={skill.id} className="max-sm:grid max-sm:grid-cols-[minmax(0,1fr)_auto_auto] max-sm:items-center max-sm:gap-x-2 max-sm:gap-y-0.5 max-sm:px-4 max-sm:py-3">
+                  <TableCell className="font-medium max-sm:col-start-1 max-sm:row-start-1 max-sm:whitespace-normal max-sm:p-0">{skill.skill_name}</TableCell>
+                  <TableCell className={`max-sm:col-span-2 max-sm:col-start-1 max-sm:p-0 max-sm:text-xs max-sm:text-muted-foreground max-sm:before:content-['Acquired_'] ${skill.acquired_date ? "" : "max-sm:hidden"}`}>
                     {skill.acquired_date ? new Date(skill.acquired_date).toLocaleDateString() : "-"}
                   </TableCell>
-                  <TableCell className="max-sm:order-4 max-sm:p-0 max-sm:text-xs max-sm:text-muted-foreground max-sm:before:content-['·_Expires_']">
+                  <TableCell className={`max-sm:col-span-2 max-sm:col-start-1 max-sm:p-0 max-sm:text-xs max-sm:text-muted-foreground max-sm:before:content-['Expires_'] ${skill.expiry_date ? "" : "max-sm:hidden"}`}>
                     {skill.expiry_date ? new Date(skill.expiry_date).toLocaleDateString() : "-"}
                   </TableCell>
                   <TableCell className="max-sm:hidden">
                     {skill.reminder_date ? new Date(skill.reminder_date).toLocaleDateString() : "-"}
                   </TableCell>
-                  <TableCell className="max-sm:order-2 max-sm:p-0">
+                  <TableCell className="max-sm:col-start-2 max-sm:row-start-1 max-sm:p-0">
                     {getStatusBadge(skill.status, skill.days_until_expiry)}
                   </TableCell>
-                  <TableCell className={`max-w-xs truncate max-sm:order-5 max-sm:w-full max-sm:max-w-none max-sm:whitespace-normal max-sm:p-0 max-sm:text-xs max-sm:text-muted-foreground ${skill.notes ? "" : "max-sm:hidden"}`}>{skill.notes || "-"}</TableCell>
+                  <TableCell className={`max-w-xs truncate max-sm:col-span-3 max-sm:col-start-1 max-sm:max-w-none max-sm:whitespace-normal max-sm:p-0 max-sm:text-xs max-sm:text-muted-foreground ${skill.notes ? "" : "max-sm:hidden"}`}>{skill.notes || "-"}</TableCell>
                   {canEdit && (
-                    <TableCell className="max-sm:order-6 max-sm:ml-auto max-sm:p-0">
-                      <div className="flex gap-2">
+                    <TableCell className="max-sm:col-start-3 max-sm:row-span-3 max-sm:row-start-1 max-sm:self-center max-sm:p-0">
+                      <div className="flex gap-2 max-sm:gap-0">
                         <Button
                           variant="ghost"
                           size="sm"
