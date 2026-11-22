@@ -6238,6 +6238,10 @@
     padding-bottom: calc(var(--spacing) * 0);
   }
 
+  .empty\:hidden:empty {
+    display: none;
+  }
+
   .focus-within\:outline-2:focus-within {
     outline-style: var(--tw-outline-style);
     outline-width: 2px;
@@ -9665,6 +9669,12 @@
     color: var(--destructive) !important;
   }
 
+  @media not all and (min-width: 40rem) {
+    .max-sm\:\[\&\>\*\]\:flex-1 > * {
+      flex: 1;
+    }
+  }
+
   .\[\&\>\[role\=checkbox\]\]\:translate-y-\[2px\] > [role="checkbox"] {
     --tw-translate-y: 2px;
     translate: var(--tw-translate-x) var(--tw-translate-y);
@@ -10761,6 +10771,26 @@ table.plain tbody tr:last-child td {
 
   [data-slot="tabs-trigger"] {
     min-height: 38px;
+  }
+
+  [data-slot="input"], [data-slot="select-trigger"] {
+    min-height: 44px;
+  }
+
+  [data-slot="dialog-content"] > [data-slot="dialog-close"] {
+    padding: 14px;
+    top: 2px;
+    right: 2px;
+  }
+
+  [data-slot="checkbox"] {
+    position: relative;
+  }
+
+  [data-slot="checkbox"]:after {
+    content: "";
+    position: absolute;
+    inset: -12px;
   }
 
   .tap {

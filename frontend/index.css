@@ -711,6 +711,13 @@ table.plain tbody tr:last-child td { border-bottom: none; }
   [data-slot="button"][data-size^="icon"] { min-width: 44px; }
   [data-slot="tabs-list"] { height: auto; min-height: 44px; }
   [data-slot="tabs-trigger"] { min-height: 38px; }
+  /* Text boxes and drop-downs are finger-height too. */
+  [data-slot="input"], [data-slot="select-trigger"] { min-height: 44px; }
+  /* The X in the corner of every pop-up: same cross, a 44px square to hit. */
+  [data-slot="dialog-content"] > [data-slot="dialog-close"] { padding: 14px; top: 2px; right: 2px; }
+  /* A tick box is 16px to look at and 40px to hit. */
+  [data-slot="checkbox"] { position: relative; }
+  [data-slot="checkbox"]::after { content: ""; position: absolute; inset: -12px; }
   /* A small link or icon that stands on its own ("Calendar →", a copy
      button): it looks the same, but the area that takes the tap is 44px
      tall and a little wider. Not for things packed side by side or in

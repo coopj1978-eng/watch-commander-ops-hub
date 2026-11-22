@@ -151,8 +151,8 @@ export default function EventForm({
           type="button"
           aria-label="Close"
           onClick={onCancel}
-          className="cal-focus"
-          style={{ width: 32, height: 32, borderRadius: 10, border: "none", background: "var(--cal-surface-2)", color: "var(--cal-ink-2)", display: "grid", placeItems: "center", cursor: "pointer" }}
+          className="cal-focus tap"
+          style={{ width: 36, height: 36, borderRadius: 10, border: "none", background: "var(--cal-surface-2)", color: "var(--cal-ink-2)", display: "grid", placeItems: "center", cursor: "pointer" }}
         >
           <X className="h-4 w-4" />
         </button>
@@ -213,14 +213,14 @@ export default function EventForm({
           aria-checked={allDay}
           aria-label="All-day"
           onClick={() => setAllDay((v) => !v)}
-          className="cal-focus"
+          className="cal-focus tap"
           style={{ width: 44, height: 26, borderRadius: 999, border: "none", background: allDay ? "var(--cal-brand)" : "var(--cal-surface-3)", position: "relative", cursor: "pointer", padding: 0, transition: "background .15s" }}
         >
           <span style={{ position: "absolute", left: allDay ? 21 : 3, top: 3, width: 20, height: 20, borderRadius: "50%", background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,.25)", transition: "left .15s" }} />
         </button>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: allDay ? "48px minmax(0,1fr)" : "48px minmax(0,1fr) 92px", gap: 8, alignItems: "center" }}>
+      <div style={{ display: "grid", gridTemplateColumns: allDay ? "48px minmax(0,1fr)" : "48px minmax(0,1fr) 112px", gap: 8, alignItems: "center" }}>
         <span style={label}>Starts</span>
         <input
           type="date"

@@ -52087,8 +52087,8 @@ function EventForm({
               type: "button",
               "aria-label": "Close",
               onClick: onCancel,
-              className: "cal-focus",
-              style: { width: 32, height: 32, borderRadius: 10, border: "none", background: "var(--cal-surface-2)", color: "var(--cal-ink-2)", display: "grid", placeItems: "center", cursor: "pointer" },
+              className: "cal-focus tap",
+              style: { width: 36, height: 36, borderRadius: 10, border: "none", background: "var(--cal-surface-2)", color: "var(--cal-ink-2)", display: "grid", placeItems: "center", cursor: "pointer" },
               children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4" })
             }
           )
@@ -52154,13 +52154,13 @@ function EventForm({
               "aria-checked": allDay,
               "aria-label": "All-day",
               onClick: () => setAllDay((v) => !v),
-              className: "cal-focus",
+              className: "cal-focus tap",
               style: { width: 44, height: 26, borderRadius: 999, border: "none", background: allDay ? "var(--cal-brand)" : "var(--cal-surface-3)", position: "relative", cursor: "pointer", padding: 0, transition: "background .15s" },
               children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { position: "absolute", left: allDay ? 21 : 3, top: 3, width: 20, height: 20, borderRadius: "50%", background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,.25)", transition: "left .15s" } })
             }
           )
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: allDay ? "48px minmax(0,1fr)" : "48px minmax(0,1fr) 92px", gap: 8, alignItems: "center" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: allDay ? "48px minmax(0,1fr)" : "48px minmax(0,1fr) 112px", gap: 8, alignItems: "center" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: label, children: "Starts" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
@@ -71906,14 +71906,14 @@ function CheckForm({
         )
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogFooter, { className: "sticky bottom-0 -mx-6 flex-row items-center justify-between sm:justify-between gap-2 border-t bg-background px-6 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-w-0", children: defectiveCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "destructive", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogFooter, { className: "sticky bottom-0 -mx-6 min-w-0 flex-col gap-2 border-t bg-background px-6 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:flex-row sm:items-center sm:justify-between", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-w-0 empty:hidden", children: defectiveCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "destructive", children: [
         defectiveCount,
         " issue",
         defectiveCount !== 1 ? "s" : "",
         " found"
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 max-sm:[&>*]:flex-1", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", onClick: () => handleOpenChange(false), children: "Cancel" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Button,

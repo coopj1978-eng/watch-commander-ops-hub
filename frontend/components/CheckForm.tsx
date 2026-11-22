@@ -446,15 +446,18 @@ export default function CheckForm({
         </div>
 
         {/* Pinned to the bottom of the scrolling form, so it's always in reach. */}
-        <DialogFooter className="sticky bottom-0 -mx-6 flex-row items-center justify-between sm:justify-between gap-2 border-t bg-background px-6 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-          <div className="min-w-0">
+        {/* On a phone the count sits above the two buttons, which share the
+            width: side by side all three are wider than the screen, and that
+            used to push the whole form off the right-hand edge. */}
+        <DialogFooter className="sticky bottom-0 -mx-6 min-w-0 flex-col gap-2 border-t bg-background px-6 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0 empty:hidden">
             {defectiveCount > 0 && (
               <Badge variant="destructive">
                 {defectiveCount} issue{defectiveCount !== 1 ? "s" : ""} found
               </Badge>
             )}
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 max-sm:[&>*]:flex-1">
             <Button variant="outline" onClick={() => handleOpenChange(false)}>
               Cancel
             </Button>
