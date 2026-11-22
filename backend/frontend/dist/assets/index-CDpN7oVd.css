@@ -11031,7 +11031,28 @@ table.plain tbody tr:last-child td {
   input::-webkit-date-and-time-value {
     text-align: left;
   }
+}
 
+@supports (-webkit-touch-callout: none) {
+  input[type="date"][value=""]:not([data-no-hint]):before, input[type="time"][value=""]:not([data-no-hint]):before, input[type="datetime-local"][value=""]:not([data-no-hint]):before {
+    color: var(--muted-foreground);
+    white-space: nowrap;
+  }
+
+  input[type="date"][value=""]:not([data-no-hint]):before {
+    content: "Pick a date";
+  }
+
+  input[type="time"][value=""]:not([data-no-hint]):before {
+    content: "Pick a time";
+  }
+
+  input[type="datetime-local"][value=""]:not([data-no-hint]):before {
+    content: "Pick a date and time";
+  }
+}
+
+@media (pointer: coarse) {
   [data-slot="dropdown-menu-item"], [data-slot="dropdown-menu-checkbox-item"], [data-slot="dropdown-menu-radio-item"], [data-slot="dropdown-menu-sub-trigger"], [data-slot="select-item"] {
     min-height: 40px;
   }

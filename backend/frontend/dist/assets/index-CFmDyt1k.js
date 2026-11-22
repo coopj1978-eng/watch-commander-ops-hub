@@ -63958,6 +63958,7 @@ function ActivityDrawer({
             {
               type: "date",
               className: "h-7 text-sm",
+              "data-no-hint": true,
               defaultValue: item.engagement_date ? new Date(item.engagement_date).toISOString().split("T")[0] : "",
               disabled: !isWCOrCC,
               onBlur: (e) => {

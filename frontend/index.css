@@ -745,6 +745,25 @@ table.plain tbody tr:last-child td { border-bottom: none; }
     max-width: 100%;
   }
   input::-webkit-date-and-time-value { text-align: left; }
+}
+/* An empty date or time box on an iPhone is a blank white box — nothing says
+   it can be tapped. Give it a hint, on iOS only (other phones show their own
+   dd/mm/yyyy). It goes by the box's value in the page, which React keeps up
+   to date for a box it controls; a box left to look after itself
+   (defaultValue) must carry data-no-hint or the hint would stay over the
+   date once one is picked. Tried on the iPhone simulator, 22 Nov 2026. */
+@supports (-webkit-touch-callout: none) {
+  input[type="date"][value=""]:not([data-no-hint])::before,
+  input[type="time"][value=""]:not([data-no-hint])::before,
+  input[type="datetime-local"][value=""]:not([data-no-hint])::before {
+    color: var(--muted-foreground);
+    white-space: nowrap;
+  }
+  input[type="date"][value=""]:not([data-no-hint])::before { content: "Pick a date"; }
+  input[type="time"][value=""]:not([data-no-hint])::before { content: "Pick a time"; }
+  input[type="datetime-local"][value=""]:not([data-no-hint])::before { content: "Pick a date and time"; }
+}
+@media (pointer: coarse) {
   /* Lines in a drop-down menu or a pick list are a finger tall. */
   [data-slot="dropdown-menu-item"], [data-slot="dropdown-menu-checkbox-item"],
   [data-slot="dropdown-menu-radio-item"], [data-slot="dropdown-menu-sub-trigger"],
