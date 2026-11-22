@@ -181,7 +181,7 @@ export function CanteenCard({
       </div>
 
       <Dialog open={picking} onOpenChange={setPicking}>
-        <DialogContent className="max-h-[85vh] max-w-md overflow-y-auto">
+        <DialogContent className="max-h-[85vh] sm:max-w-md overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Canteen</DialogTitle>
             <DialogDescription>Fairest first — whoever has gone longest without canteen (or never done it) is at the top. Tap a name to put them on.</DialogDescription>

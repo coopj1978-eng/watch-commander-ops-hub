@@ -158,7 +158,7 @@ export default function PolicyUpload({ open, onOpenChange }: PolicyUploadProps) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Upload Document</DialogTitle>
           <DialogDescription>
@@ -167,7 +167,7 @@ export default function PolicyUpload({ open, onOpenChange }: PolicyUploadProps) 
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="min-w-0 space-y-4 py-4">
           <div>
             <Label htmlFor="file">PDF File *</Label>
             <div className="mt-2">

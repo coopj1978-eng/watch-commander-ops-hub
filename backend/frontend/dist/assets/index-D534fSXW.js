@@ -34839,7 +34839,7 @@ function useKeyboardShortcuts(opts = {}) {
   return { showHelp, setShowHelp };
 }
 function ShortcutsHelpModal({ open, onClose }) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: (v) => !v && onClose(), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-sm", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: (v) => !v && onClose(), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-sm", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { className: "flex items-center gap-2", children: [
       "Keyboard Shortcuts",
       /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-normal text-muted-foreground", children: [
@@ -43246,7 +43246,7 @@ function CustomiseDialog({
   onToggle,
   onReset
 }) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-md max-h-[85vh] overflow-y-auto", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-md max-h-[85vh] overflow-y-auto", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Customise dashboard" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: "The shift panel, Needs you and the running order always show. Choose the rest — saved on this device." })
@@ -43560,12 +43560,12 @@ function AddPersonModal({ isOpen, onClose }) {
     }
     createPersonMutation.mutate();
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: isOpen, onOpenChange: handleClose, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-3xl max-h-[90vh] overflow-y-auto", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: isOpen, onOpenChange: handleClose, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-3xl max-h-[90vh] overflow-y-auto", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Add Person" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: "Create a new person record. Fields marked with * are required." })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSubmit, className: "space-y-4", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSubmit, className: "min-w-0 space-y-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Label, { htmlFor: "name", children: [
@@ -43814,7 +43814,7 @@ function ColumnsDrawer({
     });
     setVisibleColumns(visible);
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: isOpen, onOpenChange: onClose, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-md max-h-[90vh] overflow-y-auto", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: isOpen, onOpenChange: onClose, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-md max-h-[90vh] overflow-y-auto", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { className: "flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Settings2, { className: "h-5 w-5" }),
@@ -48247,12 +48247,12 @@ function OffboardingWizard({ user: user2, open, onClose, onComplete }) {
     }
   };
   const hasAssetsToReassign = ((preview == null ? void 0 : preview.taskCount) ?? 0) > 0 || ((preview == null ? void 0 : preview.inspectionCount) ?? 0) > 0 || ((preview == null ? void 0 : preview.absenceCount) ?? 0) > 0;
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: onClose, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-2xl", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: onClose, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-2xl", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { children: [
       user2.name,
       " has left the station"
     ] }) }),
-    step === 1 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+    step === 1 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0 space-y-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "deactivationDate", children: "Last day at the station" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -48304,7 +48304,7 @@ function OffboardingWizard({ user: user2, open, onClose, onComplete }) {
         ] })
       ] })
     ] }),
-    step === 2 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+    step === 2 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0 space-y-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "Select a replacement user and choose which assets to reassign:" }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "replacement", children: "Replacement User" }),
@@ -48367,7 +48367,7 @@ function OffboardingWizard({ user: user2, open, onClose, onComplete }) {
       ] }),
       !hasAssetsToReassign && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground italic", children: "No assets require reassignment for this user." })
     ] }),
-    step === 3 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+    step === 3 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0 space-y-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "Check the details before confirming:" }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-muted rounded-lg p-4 space-y-2 text-sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between", children: [
@@ -52665,7 +52665,7 @@ function InspectionEventModal({ open, onClose, defaultDate, editingEvent }) {
     if (template.type === "hfsv") return !!date2;
     return !!date2;
   })();
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: () => onClose(), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-lg", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: () => onClose(), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-lg", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { className: "flex items-center gap-2 text-base font-semibold", children: [
       isEditing ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "h-4 w-4 text-indigo-500" }),
@@ -63925,7 +63925,7 @@ function ActivityDrawer({
     community: "Community Engagement"
   };
   const quarterLabel2 = quarter ? `Q${quarter} ${financial_year}/${String(financial_year + 1).slice(2)}` : `${financial_year}/${String(financial_year + 1).slice(2)}`;
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: (v) => !v && onClose(), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-2xl max-h-[85vh] flex flex-col overflow-hidden", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: (v) => !v && onClose(), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-2xl max-h-[85vh] flex flex-col overflow-hidden", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { className: "shrink-0", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: titles[type] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-muted-foreground", children: [
@@ -65186,7 +65186,7 @@ function HydrantReport({
   const mailto = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text2)}`;
   const long = text2.length > MAILTO_SAFE;
   const btn = "inline-flex h-9 items-center gap-2 rounded-lg border border-border px-3 text-sm font-medium hover:bg-muted";
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-2xl", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-2xl", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Hydrant fault report" }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogDescription, { children: [
@@ -67209,12 +67209,12 @@ function PolicyUpload({ open, onOpenChange }) {
     }
     uploadMutation.mutate();
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-2xl", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-2xl", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Upload Document" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: "Upload a PDF — operational guidance, policy, safety bulletin, SOP or training material. Add a category so it's findable later." })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 py-4", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0 space-y-4 py-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "file", children: "PDF File *" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -69640,7 +69640,7 @@ function InviteUserDialog({ open, onClose, onSuccess }) {
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: (o) => {
     if (!o) handleClose();
-  }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-md", children: [
+  }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-md", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: inviteLink ? `Invite ${name}` : "Add Staff Member" }),
       inviteLink && /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogDescription, { children: [
@@ -70157,7 +70157,7 @@ function DictionaryManager({ type, title, description, icon, isOpen, onClose }) 
     isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-10 w-full" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-20 w-full" })
-    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border rounded-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { children: [
+    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-w-0 border rounded-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(TableHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Value" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Status" }),
@@ -70232,7 +70232,7 @@ function DictionaryManager({ type, title, description, icon, isOpen, onClose }) 
     ] }) }) })
   ] });
   if (isOpen !== void 0 && onClose) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: isOpen, onOpenChange: onClose, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-2xl max-h-[80vh] overflow-y-auto", children: [
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: isOpen, onOpenChange: onClose, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-2xl max-h-[80vh] overflow-y-auto", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { className: "flex items-center gap-2", children: [
           icon || defaultIcon,
@@ -72788,7 +72788,7 @@ function AddApplianceModal({
       toast2({ title: "Failed to add appliance", variant: "destructive" });
     }
   });
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-md", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-md", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { className: "flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Truck, { className: "h-5 w-5" }),
@@ -74253,7 +74253,7 @@ function PersonPicker({
       ]
     }
   ) });
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: (v) => !v && onClose(), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "flex max-h-[85vh] max-w-md flex-col gap-3 overflow-hidden p-0 sm:p-0", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: (v) => !v && onClose(), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "flex max-h-[85vh] sm:max-w-md flex-col gap-3 overflow-hidden p-0 sm:p-0", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { className: "space-y-1 px-5 pt-5", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: title }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogDescription, { children: [
@@ -74437,7 +74437,7 @@ function AutoCrewDialog({
   onClose
 }) {
   const required = plan.unfilled.filter((s) => s.required);
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: (v) => !v && !busy && onClose(), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-md", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: (v) => !v && !busy && onClose(), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-md", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Auto-crew" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: "Qualified people who are free this shift, officers in charge, drivers with LGV, BA wearers in BA seats. Nothing is saved until you apply — you can still swap anyone afterwards." })
@@ -74631,7 +74631,7 @@ function CanteenCard({
       ] }),
       !duties.length && !canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-muted-foreground", children: "Nobody on canteen yet." })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: picking, onOpenChange: setPicking, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-h-[85vh] max-w-md overflow-y-auto", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: picking, onOpenChange: setPicking, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-h-[85vh] sm:max-w-md overflow-y-auto", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Canteen" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: "Fairest first — whoever has gone longest without canteen (or never done it) is at the top. Tap a name to put them on." })
@@ -75726,7 +75726,7 @@ function ExternalDialog({
     reset();
     onClose();
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: (v) => !v && handleClose(), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-sm", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: (v) => !v && handleClose(), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-sm", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Add External / Change of Shift" }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 pt-1", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex rounded-md border overflow-hidden text-xs bg-border gap-px", children: [

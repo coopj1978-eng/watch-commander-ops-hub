@@ -101,7 +101,7 @@ export function PersonPicker({
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="flex max-h-[85vh] max-w-md flex-col gap-3 overflow-hidden p-0 sm:p-0">
+      <DialogContent className="flex max-h-[85vh] sm:max-w-md flex-col gap-3 overflow-hidden p-0 sm:p-0">
         <DialogHeader className="space-y-1 px-5 pt-5">
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>Needs {QUAL[role]}. Tap someone to put them in this seat.</DialogDescription>

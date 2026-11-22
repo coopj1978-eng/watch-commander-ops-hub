@@ -319,7 +319,7 @@ export default function InspectionEventModal({ open, onClose, defaultDate, editi
   // ── Render ───────────────────────────────────────────────────────────────
   return (
     <Dialog open={open} onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-base font-semibold">
             {isEditing

@@ -239,7 +239,7 @@ export function DictionaryManager({ type, title, description, icon, isOpen, onCl
           <Skeleton className="h-20 w-full" />
         </div>
       ) : (
-        <div className="border rounded-lg">
+        <div className="min-w-0 border rounded-lg">
           <div className="overflow-x-auto">
           <Table>
             <TableHeader>
@@ -344,7 +344,7 @@ export function DictionaryManager({ type, title, description, icon, isOpen, onCl
   if (isOpen !== undefined && onClose) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               {icon || defaultIcon}

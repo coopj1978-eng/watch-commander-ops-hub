@@ -1642,7 +1642,7 @@ function ExternalDialog({
 
   return (
     <Dialog open={open} onOpenChange={v => !v && handleClose()}>
-      <DialogContent className="max-w-sm">
+      <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>Add External / Change of Shift</DialogTitle>
         </DialogHeader>

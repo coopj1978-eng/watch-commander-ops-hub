@@ -141,13 +141,13 @@ export function OffboardingWizard({ user, open, onClose, onComplete }: Offboardi
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{user.name} has left the station</DialogTitle>
         </DialogHeader>
 
         {step === 1 && (
-          <div className="space-y-4">
+          <div className="min-w-0 space-y-4">
             <div>
               <Label htmlFor="deactivationDate">Last day at the station</Label>
               <Input
@@ -194,7 +194,7 @@ export function OffboardingWizard({ user, open, onClose, onComplete }: Offboardi
         )}
 
         {step === 2 && (
-          <div className="space-y-4">
+          <div className="min-w-0 space-y-4">
             <p className="text-sm text-muted-foreground">
               Select a replacement user and choose which assets to reassign:
             </p>
@@ -265,7 +265,7 @@ export function OffboardingWizard({ user, open, onClose, onComplete }: Offboardi
         )}
 
         {step === 3 && (
-          <div className="space-y-4">
+          <div className="min-w-0 space-y-4">
             <p className="text-sm text-muted-foreground">
               Check the details before confirming:
             </p>

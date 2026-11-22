@@ -87,7 +87,7 @@ export function InviteUserDialog({ open, onClose, onSuccess }: InviteUserDialogP
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); }}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{inviteLink ? `Invite ${name}` : "Add Staff Member"}</DialogTitle>
           {inviteLink && (

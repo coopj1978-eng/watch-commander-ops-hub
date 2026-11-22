@@ -17,7 +17,7 @@ export function AutoCrewDialog({
   const required = plan.unfilled.filter((s) => s.required);
   return (
     <Dialog open={open} onOpenChange={(v) => !v && !busy && onClose()}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Auto-crew</DialogTitle>
           <DialogDescription>
