@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import * as Dialog from "@radix-ui/react-dialog";
 import { ChevronRight, KeyRound, LogOut, Moon, MoreHorizontal, Search, Sun, X } from "lucide-react";
-import { focusPopupItselfOnTouch } from "@/lib/touchPopupFocus";
+import { focusPopupItselfOnTouch, leaveOpenerAloneOnTouch } from "@/lib/touchPopupFocus";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/App";
 import { isActivePath, useNav, type NavItem } from "@/lib/navigation";
@@ -146,6 +146,7 @@ function MoreSheet({ open, onOpenChange, groups, onSearch, onChangePassword }: {
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px] data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0" />
         <Dialog.Content
           onOpenAutoFocus={focusPopupItselfOnTouch}
+          onCloseAutoFocus={leaveOpenerAloneOnTouch}
           className={cn(
             "fixed inset-x-0 bottom-0 z-50 outline-none flex max-h-[88dvh] flex-col rounded-t-3xl border-t border-border bg-background shadow-2xl",
             "data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom data-[state=open]:duration-300",

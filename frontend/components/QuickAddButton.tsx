@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import * as Dialog from "@radix-ui/react-dialog";
 import { cn } from "@/lib/utils";
 import { Plus, X } from "lucide-react";
-import { focusPopupItselfOnTouch } from "@/lib/touchPopupFocus";
+import { focusPopupItselfOnTouch, leaveOpenerAloneOnTouch } from "@/lib/touchPopupFocus";
 import { useNav } from "@/lib/navigation";
 import { TUCKED_AWAY, useScrollingDown } from "@/lib/useScrollingDown";
 import { useAuth } from "@/App";
@@ -62,6 +62,7 @@ export function QuickAddButton() {
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px] data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0" />
         <Dialog.Content
           onOpenAutoFocus={focusPopupItselfOnTouch}
+          onCloseAutoFocus={leaveOpenerAloneOnTouch}
           className={cn(
             "fixed inset-x-0 bottom-0 z-50 outline-none rounded-t-2xl border-t border-border bg-background px-4 pt-3 shadow-2xl",
             "data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom data-[state=open]:duration-300",

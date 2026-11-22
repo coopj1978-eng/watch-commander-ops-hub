@@ -15,3 +15,14 @@ export function focusPopupItselfOnTouch(e: Event): void {
   e.preventDefault();
   (e.currentTarget as HTMLElement | null)?.focus?.({ preventScroll: true });
 }
+
+/**
+ * For `onCloseAutoFocus`. On a touch screen, don't hand the focus back to the
+ * button that opened the pop-up: nobody is tabbing, and it leaves a focus halo
+ * round the "+" after its sheet closes.
+ */
+export function leaveOpenerAloneOnTouch(e: Event): void {
+  if (e.defaultPrevented) return;
+  if (typeof window === "undefined" || !window.matchMedia?.("(pointer: coarse)").matches) return;
+  e.preventDefault();
+}
