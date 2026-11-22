@@ -13,7 +13,7 @@ import { TUCKED_AWAY, useScrollingDown } from "@/lib/useScrollingDown";
 // anywhere instead of navigate → find the button → tap.
 //
 // Hidden on the Tasks and Calendar pages, which have their own "+" in the
-// same spot.
+// same spot, and on the People list (buttons down the right of every card).
 // ──────────────────────────────────────────────────────────────────────────────
 
 export function QuickAddButton() {
@@ -24,8 +24,9 @@ export function QuickAddButton() {
   const tuckedAway = useScrollingDown();
 
   // Pages with a tick list down the right of the screen, and the calendar,
-  // which has its own "+".
-  if (pathname.startsWith("/tasks") || pathname.startsWith("/hydrants") || pathname.startsWith("/calendar") || pathname.startsWith("/requests")) return null;
+  // which has its own "+". The People list too: its Log sick / Mark fit
+  // buttons run down the right, and a "+" over them invites the wrong tap.
+  if (pathname === "/people" || pathname.startsWith("/tasks") || pathname.startsWith("/hydrants") || pathname.startsWith("/calendar") || pathname.startsWith("/requests")) return null;
 
   const go = (to: string) => {
     setOpen(false);

@@ -34086,7 +34086,7 @@ function QuickAddButton() {
   const { pathname } = useLocation();
   const { actions } = useNav();
   const tuckedAway = useScrollingDown();
-  if (pathname.startsWith("/tasks") || pathname.startsWith("/hydrants") || pathname.startsWith("/calendar") || pathname.startsWith("/requests")) return null;
+  if (pathname === "/people" || pathname.startsWith("/tasks") || pathname.startsWith("/hydrants") || pathname.startsWith("/calendar") || pathname.startsWith("/requests")) return null;
   const go = (to) => {
     setOpen(false);
     navigate(to);
