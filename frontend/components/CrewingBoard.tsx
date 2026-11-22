@@ -337,7 +337,7 @@ function TileCard({ member, assignedEntry, isAbsent, adjustment, isDragging, isO
     <div
       className={`
         rounded-xl border select-none transition-all
-        w-[120px] max-sm:w-[calc(50%-0.25rem)] p-2.5 space-y-1.5
+        w-[120px] p-2.5 space-y-1.5
         ${isOverlay
           ? "shadow-xl ring-2 ring-indigo-400 bg-white dark:bg-gray-900 rotate-3 scale-105"
           : isAbsent
@@ -497,7 +497,7 @@ function ExternalRosterTile({
       style={style}
       {...listeners}
       {...attributes}
-      className={`relative group w-[120px] max-sm:w-[calc(50%-0.25rem)] rounded-xl border-2 border-dashed border-amber-400 bg-amber-50 dark:bg-amber-950/30 px-3 py-2 cursor-grab active:cursor-grabbing touch-none select-none ${isDragging ? "opacity-40 ring-2 ring-amber-300" : ""}`}
+      className={`relative group w-[120px] rounded-xl border-2 border-dashed border-amber-400 bg-amber-50 dark:bg-amber-950/30 px-3 py-2 cursor-grab active:cursor-grabbing touch-none select-none ${isDragging ? "opacity-40 ring-2 ring-amber-300" : ""}`}
     >
       {/* dismiss X */}
       <button
@@ -557,7 +557,7 @@ function CoverNameTile({
       {...(usable ? attributes : {})}
       onClick={usable ? onTap : undefined}
       aria-label={placed ? `${name}, H4H cover, on the board` : `${name}, H4H cover. Tap, then tap a seat`}
-      className={`rounded-xl border w-[120px] max-sm:w-[calc(50%-0.25rem)] p-2.5 space-y-1.5 select-none ${
+      className={`rounded-xl border w-[120px] p-2.5 space-y-1.5 select-none ${
         placed
           ? "border-border bg-muted/40 opacity-60"
           : `border-purple-300 dark:border-purple-700 bg-purple-50 dark:bg-purple-950/40 ${usable ? "cursor-grab active:cursor-grabbing touch-none" : ""}`

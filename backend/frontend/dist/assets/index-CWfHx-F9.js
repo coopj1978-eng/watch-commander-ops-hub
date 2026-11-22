@@ -66584,7 +66584,7 @@ function Guides() {
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-2", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "guide-body", children: "The guide" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: () => setPreview((p) => !p), className: "inline-flex items-center gap-1.5 text-xs font-medium text-brand hover:underline", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: () => setPreview((p) => !p), className: "tap inline-flex items-center gap-1.5 text-xs font-medium text-brand hover:underline", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(Eye, { className: "h-3.5 w-3.5" }),
                 preview ? "Back to writing" : "See how it looks"
               ] })
@@ -74793,7 +74793,7 @@ function TileCard({ member, assignedEntry, isAbsent, adjustment, isDragging, isO
     {
       className: `
         rounded-xl border select-none transition-all
-        w-[120px] max-sm:w-[calc(50%-0.25rem)] p-2.5 space-y-1.5
+        w-[120px] p-2.5 space-y-1.5
         ${isOverlay ? "shadow-xl ring-2 ring-indigo-400 bg-white dark:bg-gray-900 rotate-3 scale-105" : isAbsent ? "border-border bg-muted/40 opacity-50" : isAssigned ? "border-border bg-muted/50" : isDragging ? "border-indigo-300 bg-indigo-50/60 dark:bg-indigo-950/30 opacity-50" : "border-border bg-card hover:border-indigo-400 hover:shadow-sm"}
       `,
       children: [
@@ -74874,7 +74874,7 @@ function ExternalRosterTile({
       style,
       ...listeners2,
       ...attributes,
-      className: `relative group w-[120px] max-sm:w-[calc(50%-0.25rem)] rounded-xl border-2 border-dashed border-amber-400 bg-amber-50 dark:bg-amber-950/30 px-3 py-2 cursor-grab active:cursor-grabbing touch-none select-none ${isDragging ? "opacity-40 ring-2 ring-amber-300" : ""}`,
+      className: `relative group w-[120px] rounded-xl border-2 border-dashed border-amber-400 bg-amber-50 dark:bg-amber-950/30 px-3 py-2 cursor-grab active:cursor-grabbing touch-none select-none ${isDragging ? "opacity-40 ring-2 ring-amber-300" : ""}`,
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
@@ -74919,7 +74919,7 @@ function CoverNameTile({
       ...usable ? attributes : {},
       onClick: usable ? onTap : void 0,
       "aria-label": placed ? `${name}, H4H cover, on the board` : `${name}, H4H cover. Tap, then tap a seat`,
-      className: `rounded-xl border w-[120px] max-sm:w-[calc(50%-0.25rem)] p-2.5 space-y-1.5 select-none ${placed ? "border-border bg-muted/40 opacity-60" : `border-purple-300 dark:border-purple-700 bg-purple-50 dark:bg-purple-950/40 ${usable ? "cursor-grab active:cursor-grabbing touch-none" : ""}`} ${isTapSelected ? "ring-2 ring-indigo-500" : ""} ${isDragging ? "opacity-40" : ""}`,
+      className: `rounded-xl border w-[120px] p-2.5 space-y-1.5 select-none ${placed ? "border-border bg-muted/40 opacity-60" : `border-purple-300 dark:border-purple-700 bg-purple-50 dark:bg-purple-950/40 ${usable ? "cursor-grab active:cursor-grabbing touch-none" : ""}`} ${isTapSelected ? "ring-2 ring-indigo-500" : ""} ${isDragging ? "opacity-40" : ""}`,
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-8 w-8 rounded-full bg-gradient-to-br from-purple-400 to-indigo-500 flex items-center justify-center text-white text-[10px] font-bold", children: name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase() }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs font-semibold leading-tight truncate", children: name }),
