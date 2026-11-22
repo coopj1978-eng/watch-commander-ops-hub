@@ -35261,7 +35261,7 @@ function MyNextShifts() {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { "aria-label": "My next shifts", className: "rounded-2xl border border-border/70 bg-card p-4 sm:p-5", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline justify-between gap-2", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-sm font-semibold", children: "My next shifts" }),
-      calendar2 && /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: "/calendar", className: "text-xs text-muted-foreground hover:text-foreground", children: "Calendar →" })
+      calendar2 && /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: "/calendar", className: "tap text-xs text-muted-foreground hover:text-foreground", children: "Calendar →" })
     ] }),
     q.isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 space-y-2", children: [0, 1, 2].map((i) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-11 animate-pulse rounded-lg bg-muted/60" }, i)) }) : q.isError ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-3 text-sm text-muted-foreground", children: "Couldn't load your shifts. Pull down to try again." }) : !((_c2 = q.data) == null ? void 0 : _c2.watch) && shifts.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-3 text-sm text-muted-foreground", children: "Your watch isn't set on your profile yet, so there's no rota to show. Ask your Watch Commander to set it." }) : rows.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-3 text-sm text-muted-foreground", children: "No shifts in the next three weeks." }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ol", { className: "mt-1.5 divide-y divide-border/50", children: rows.map((r2) => {
       if (r2.kind === "leave") {
@@ -39186,7 +39186,7 @@ function OurReference() {
         " on 1 Jan ",
         nextChangeYear(year)
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: "/references", className: "font-medium text-brand hover:underline", children: "All references →" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: "/references", className: "tap font-medium text-brand hover:underline", children: "All references →" })
     ] })
   ] });
 }
@@ -64282,7 +64282,7 @@ function HydrantCard({ watch, fq }) {
             " not fully functional — fault report on the route"
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: link, className: "mt-3 inline-block text-sm font-medium text-brand hover:underline", children: "Open the route →" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: link, className: "tap mt-3 inline-block text-sm font-medium text-brand hover:underline", children: "Open the route →" })
       ]
     }
   );

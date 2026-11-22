@@ -104,7 +104,7 @@ export function MyNextShifts() {
       <div className="flex items-baseline justify-between gap-2">
         <h2 className="text-sm font-semibold">My next shifts</h2>
         {calendar && (
-          <Link to="/calendar" className="text-xs text-muted-foreground hover:text-foreground">
+          <Link to="/calendar" className="tap text-xs text-muted-foreground hover:text-foreground">
             Calendar →
           </Link>
         )}

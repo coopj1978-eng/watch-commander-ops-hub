@@ -144,7 +144,7 @@ export function HydrantCard({ watch, fq }: { watch: string; fq: FyQuarter }) {
           )}
         </>
       )}
-      <Link to={link} className="mt-3 inline-block text-sm font-medium text-brand hover:underline">Open the route →</Link>
+      <Link to={link} className="tap mt-3 inline-block text-sm font-medium text-brand hover:underline">Open the route →</Link>
     </TargetCard>
   );
 }

@@ -45,7 +45,7 @@ export function OurReference() {
       </Link>
       <div className="mt-3 flex items-center justify-between gap-2 border-t border-border/60 pt-3 text-xs text-muted-foreground">
         <span>Moves to Reference {(mine.main % 5) + 1} on 1 Jan {nextChangeYear(year)}</span>
-        <Link to="/references" className="font-medium text-brand hover:underline">All references →</Link>
+        <Link to="/references" className="tap font-medium text-brand hover:underline">All references →</Link>
       </div>
     </section>
   );
