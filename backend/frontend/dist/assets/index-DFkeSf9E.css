@@ -7569,6 +7569,10 @@
       display: none;
     }
 
+    .max-sm\:w-\[calc\(50\%-0\.25rem\)\] {
+      width: calc(50% - .25rem);
+    }
+
     .max-sm\:w-full {
       width: 100%;
     }
@@ -7906,6 +7910,10 @@
 
     .sm\:w-auto {
       width: auto;
+    }
+
+    .sm\:w-fit {
+      width: fit-content;
     }
 
     .sm\:max-w-2xl {

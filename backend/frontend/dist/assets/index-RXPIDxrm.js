@@ -34086,7 +34086,9 @@ function QuickAddButton() {
   const { pathname } = useLocation();
   const { actions } = useNav();
   const tuckedAway = useScrollingDown();
-  if (pathname === "/people" || pathname.startsWith("/tasks") || pathname.startsWith("/hydrants") || pathname.startsWith("/calendar") || pathname.startsWith("/requests")) return null;
+  const { user: user2 } = useAuth();
+  const makesUpTheBoard = ((user2 == null ? void 0 : user2.role) === "WC" || (user2 == null ? void 0 : user2.role) === "CC") && pathname.startsWith("/handover");
+  if (makesUpTheBoard || pathname === "/people" || pathname.startsWith("/tasks") || pathname.startsWith("/hydrants") || pathname.startsWith("/calendar") || pathname.startsWith("/requests")) return null;
   const go = (to) => {
     setOpen(false);
     navigate(to);
@@ -74791,7 +74793,7 @@ function TileCard({ member, assignedEntry, isAbsent, adjustment, isDragging, isO
     {
       className: `
         rounded-xl border select-none transition-all
-        w-[120px] p-2.5 space-y-1.5
+        w-[120px] max-sm:w-[calc(50%-0.25rem)] p-2.5 space-y-1.5
         ${isOverlay ? "shadow-xl ring-2 ring-indigo-400 bg-white dark:bg-gray-900 rotate-3 scale-105" : isAbsent ? "border-border bg-muted/40 opacity-50" : isAssigned ? "border-border bg-muted/50" : isDragging ? "border-indigo-300 bg-indigo-50/60 dark:bg-indigo-950/30 opacity-50" : "border-border bg-card hover:border-indigo-400 hover:shadow-sm"}
       `,
       children: [
@@ -74872,7 +74874,7 @@ function ExternalRosterTile({
       style,
       ...listeners2,
       ...attributes,
-      className: `relative group w-[120px] rounded-xl border-2 border-dashed border-amber-400 bg-amber-50 dark:bg-amber-950/30 px-3 py-2 cursor-grab active:cursor-grabbing touch-none select-none ${isDragging ? "opacity-40 ring-2 ring-amber-300" : ""}`,
+      className: `relative group w-[120px] max-sm:w-[calc(50%-0.25rem)] rounded-xl border-2 border-dashed border-amber-400 bg-amber-50 dark:bg-amber-950/30 px-3 py-2 cursor-grab active:cursor-grabbing touch-none select-none ${isDragging ? "opacity-40 ring-2 ring-amber-300" : ""}`,
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
@@ -74917,7 +74919,7 @@ function CoverNameTile({
       ...usable ? attributes : {},
       onClick: usable ? onTap : void 0,
       "aria-label": placed ? `${name}, H4H cover, on the board` : `${name}, H4H cover. Tap, then tap a seat`,
-      className: `rounded-xl border w-[120px] p-2.5 space-y-1.5 select-none ${placed ? "border-border bg-muted/40 opacity-60" : `border-purple-300 dark:border-purple-700 bg-purple-50 dark:bg-purple-950/40 ${usable ? "cursor-grab active:cursor-grabbing touch-none" : ""}`} ${isTapSelected ? "ring-2 ring-indigo-500" : ""} ${isDragging ? "opacity-40" : ""}`,
+      className: `rounded-xl border w-[120px] max-sm:w-[calc(50%-0.25rem)] p-2.5 space-y-1.5 select-none ${placed ? "border-border bg-muted/40 opacity-60" : `border-purple-300 dark:border-purple-700 bg-purple-50 dark:bg-purple-950/40 ${usable ? "cursor-grab active:cursor-grabbing touch-none" : ""}`} ${isTapSelected ? "ring-2 ring-indigo-500" : ""} ${isDragging ? "opacity-40" : ""}`,
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-8 w-8 rounded-full bg-gradient-to-br from-purple-400 to-indigo-500 flex items-center justify-center text-white text-[10px] font-bold", children: name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase() }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs font-semibold leading-tight truncate", children: name }),
@@ -75129,7 +75131,7 @@ function InlinePicker({
           setUserId("");
           setExtName("");
         },
-        className: "text-[11px] text-amber-600 hover:underline dark:text-amber-400 whitespace-nowrap",
+        className: "tap text-[11px] text-amber-600 hover:underline dark:text-amber-400 whitespace-nowrap",
         children: mode === "roster" ? "+ External / CoS" : "← Roster"
       }
     ),
@@ -76753,11 +76755,11 @@ function HandoverItemsEditor({ items, onChange }) {
     }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 8, padding: 10, borderRadius: 14, border: "2px dashed var(--cal-line-2)" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { role: "radiogroup", "aria-label": "Type of line", style: { display: "flex", gap: 6, flexWrap: "wrap" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", role: "radio", "aria-checked": kind === "action", onClick: () => setKind("action"), className: "cal-focus", style: chip(kind === "action"), children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", role: "radio", "aria-checked": kind === "action", onClick: () => setKind("action"), className: "cal-focus pointer-coarse:!h-10", style: chip(kind === "action"), children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(ListTodo, { className: "h-3.5 w-3.5" }),
           " Needs doing"
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", role: "radio", "aria-checked": kind === "info", onClick: () => setKind("info"), className: "cal-focus", style: chip(kind === "info"), children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", role: "radio", "aria-checked": kind === "info", onClick: () => setKind("info"), className: "cal-focus pointer-coarse:!h-10", style: chip(kind === "info"), children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Info, { className: "h-3.5 w-3.5" }),
           " For info"
         ] }),
@@ -76887,7 +76889,7 @@ function DetachmentsTabPanel({ watch, initialSub = "rota" }) {
   const total = ((_d2 = historyQuery.data) == null ? void 0 : _d2.total) ?? 0;
   const hasMore = (historyPage + 1) * DET_PAGE_SIZE < total;
   if (!watch) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "py-12 text-center text-sm text-muted-foreground", children: "No watch assigned to your profile" });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "py-12 text-center text-sm text-muted-foreground", children: "Pick a watch to see its rotas." });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialog, { open: !!removing, onOpenChange: (open) => !open && setRemoving(null), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogContent, { children: [
@@ -76913,15 +76915,16 @@ function DetachmentsTabPanel({ watch, initialSub = "rota" }) {
         )
       ] })
     ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1 p-1 bg-muted rounded-lg w-fit", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1 p-1 bg-muted rounded-lg w-full sm:w-fit", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "button",
         {
           onClick: () => setSubTab("rota"),
-          className: `flex items-center gap-1.5 px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${subTab === "rota" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`,
+          className: `flex items-center justify-center gap-1.5 px-2 sm:px-4 py-1.5 rounded-md text-sm font-medium transition-colors max-sm:flex-1 pointer-coarse:min-h-10 ${subTab === "rota" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`,
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Trophy, { className: "h-3.5 w-3.5" }),
-            "Detachment rota"
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sm:hidden", children: "Detached" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "max-sm:hidden", children: "Detachment rota" })
           ]
         }
       ),
@@ -76929,10 +76932,11 @@ function DetachmentsTabPanel({ watch, initialSub = "rota" }) {
         "button",
         {
           onClick: () => setSubTab("canteen"),
-          className: `flex items-center gap-1.5 px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${subTab === "canteen" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`,
+          className: `flex items-center justify-center gap-1.5 px-2 sm:px-4 py-1.5 rounded-md text-sm font-medium transition-colors max-sm:flex-1 pointer-coarse:min-h-10 ${subTab === "canteen" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`,
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(ChefHat, { className: "h-3.5 w-3.5" }),
-            "Canteen rota"
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sm:hidden", children: "Canteen" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "max-sm:hidden", children: "Canteen rota" })
           ]
         }
       ),
@@ -76940,10 +76944,11 @@ function DetachmentsTabPanel({ watch, initialSub = "rota" }) {
         "button",
         {
           onClick: () => setSubTab("history"),
-          className: `flex items-center gap-1.5 px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${subTab === "history" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`,
+          className: `flex items-center justify-center gap-1.5 px-2 sm:px-4 py-1.5 rounded-md text-sm font-medium transition-colors max-sm:flex-1 pointer-coarse:min-h-10 ${subTab === "history" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`,
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(History, { className: "h-3.5 w-3.5" }),
-            "Detachment history"
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sm:hidden", children: "History" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "max-sm:hidden", children: "Detachment history" })
           ]
         }
       )
@@ -77128,6 +77133,7 @@ function Handover() {
   const [rotaSub, setRotaSub] = reactExports.useState(
     searchParams.get("rota") === "canteen" ? "canteen" : searchParams.get("rota") === "history" ? "history" : "rota"
   );
+  const [rotaWatch, setRotaWatch] = reactExports.useState("");
   const [showForm, setShowForm] = reactExports.useState(false);
   const [expandedId, setExpandedId] = reactExports.useState(null);
   const [editingId, setEditingId] = reactExports.useState(null);
@@ -77319,7 +77325,23 @@ function Handover() {
         }
       }
     ),
-    activeTab === "detachments" && /* @__PURE__ */ jsxRuntimeExports.jsx(DetachmentsTabPanel, { initialSub: rotaSub, watch: (user2 == null ? void 0 : user2.watch_unit) ?? "" }, rotaSub),
+    activeTab === "detachments" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      !(user2 == null ? void 0 : user2.watch_unit) && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap items-center gap-2", role: "group", "aria-label": "Watch", children: WATCHES$3.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "button",
+        {
+          type: "button",
+          "aria-pressed": rotaWatch === w,
+          onClick: () => setRotaWatch(w),
+          className: `tap-chip px-3 py-1 rounded-full text-xs font-medium transition-colors border ${rotaWatch === w ? "bg-indigo-600 text-white border-indigo-600" : "bg-muted/50 text-muted-foreground border-border hover:bg-muted hover:text-foreground"}`,
+          children: [
+            w,
+            " Watch"
+          ]
+        },
+        w
+      )) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DetachmentsTabPanel, { initialSub: rotaSub, watch: (user2 == null ? void 0 : user2.watch_unit) || rotaWatch }, `${rotaSub}-${(user2 == null ? void 0 : user2.watch_unit) || rotaWatch}`)
+    ] }),
     activeTab === "handover" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
       !showForm && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold text-muted-foreground uppercase tracking-wide mr-1", children: "Filter:" }),
@@ -77330,7 +77352,7 @@ function Handover() {
               setWatchFilter(w);
               setLimit(PAGE_SIZE$1);
             },
-            className: `px-3 py-1 rounded-full text-xs font-medium transition-colors border ${watchFilter === w ? "bg-indigo-600 text-white border-indigo-600" : "bg-muted/50 text-muted-foreground border-border hover:bg-muted hover:text-foreground"}`,
+            className: `tap-chip px-3 py-1 rounded-full text-xs font-medium transition-colors border ${watchFilter === w ? "bg-indigo-600 text-white border-indigo-600" : "bg-muted/50 text-muted-foreground border-border hover:bg-muted hover:text-foreground"}`,
             children: w ? `${w} Watch` : "All Watches"
           },
           w || "all"

@@ -107,10 +107,10 @@ export default function HandoverItemsEditor({ items, onChange }: { items: Item[]
       {/* New line */}
       <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: 10, borderRadius: 14, border: "2px dashed var(--cal-line-2)" }}>
         <div role="radiogroup" aria-label="Type of line" style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-          <button type="button" role="radio" aria-checked={kind === "action"} onClick={() => setKind("action")} className="cal-focus" style={chip(kind === "action")}>
+          <button type="button" role="radio" aria-checked={kind === "action"} onClick={() => setKind("action")} className="cal-focus pointer-coarse:!h-10" style={chip(kind === "action")}>
             <ListTodo className="h-3.5 w-3.5" /> Needs doing
           </button>
-          <button type="button" role="radio" aria-checked={kind === "info"} onClick={() => setKind("info")} className="cal-focus" style={chip(kind === "info")}>
+          <button type="button" role="radio" aria-checked={kind === "info"} onClick={() => setKind("info")} className="cal-focus pointer-coarse:!h-10" style={chip(kind === "info")}>
             <Info className="h-3.5 w-3.5" /> For info
           </button>
           <span style={{ width: 1, height: 20, background: "var(--cal-line-2)", alignSelf: "center", margin: "0 2px" }} />

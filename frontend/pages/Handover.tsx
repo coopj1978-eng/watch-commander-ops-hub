@@ -139,7 +139,7 @@ function DetachmentsTabPanel({ watch, initialSub = "rota" }: { watch: string; in
   if (!watch) {
     return (
       <div className="py-12 text-center text-sm text-muted-foreground">
-        No watch assigned to your profile
+        Pick a watch to see its rotas.
       </div>
     );
   }
@@ -166,39 +166,42 @@ function DetachmentsTabPanel({ watch, initialSub = "rota" }: { watch: string; in
         </AlertDialogContent>
       </AlertDialog>
       {/* Sub-tab pills */}
-      <div className="flex gap-1 p-1 bg-muted rounded-lg w-fit">
+      <div className="flex gap-1 p-1 bg-muted rounded-lg w-full sm:w-fit">
         <button
           onClick={() => setSubTab("rota")}
-          className={`flex items-center gap-1.5 px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+          className={`flex items-center justify-center gap-1.5 px-2 sm:px-4 py-1.5 rounded-md text-sm font-medium transition-colors max-sm:flex-1 pointer-coarse:min-h-10 ${
             subTab === "rota"
               ? "bg-background shadow-sm text-foreground"
               : "text-muted-foreground hover:text-foreground"
           }`}
         >
           <Trophy className="h-3.5 w-3.5" />
-          Detachment rota
+          <span className="sm:hidden">Detached</span>
+          <span className="max-sm:hidden">Detachment rota</span>
         </button>
         <button
           onClick={() => setSubTab("canteen")}
-          className={`flex items-center gap-1.5 px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+          className={`flex items-center justify-center gap-1.5 px-2 sm:px-4 py-1.5 rounded-md text-sm font-medium transition-colors max-sm:flex-1 pointer-coarse:min-h-10 ${
             subTab === "canteen"
               ? "bg-background shadow-sm text-foreground"
               : "text-muted-foreground hover:text-foreground"
           }`}
         >
           <ChefHat className="h-3.5 w-3.5" />
-          Canteen rota
+          <span className="sm:hidden">Canteen</span>
+          <span className="max-sm:hidden">Canteen rota</span>
         </button>
         <button
           onClick={() => setSubTab("history")}
-          className={`flex items-center gap-1.5 px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+          className={`flex items-center justify-center gap-1.5 px-2 sm:px-4 py-1.5 rounded-md text-sm font-medium transition-colors max-sm:flex-1 pointer-coarse:min-h-10 ${
             subTab === "history"
               ? "bg-background shadow-sm text-foreground"
               : "text-muted-foreground hover:text-foreground"
           }`}
         >
           <History className="h-3.5 w-3.5" />
-          Detachment history
+          <span className="sm:hidden">History</span>
+          <span className="max-sm:hidden">Detachment history</span>
         </button>
       </div>
 
@@ -428,6 +431,8 @@ export default function Handover() {
   const [rotaSub, setRotaSub] = useState<"rota" | "canteen" | "history">(
     searchParams.get("rota") === "canteen" ? "canteen" : searchParams.get("rota") === "history" ? "history" : "rota",
   );
+  // Whose rotas an account with no watch of its own is looking at.
+  const [rotaWatch, setRotaWatch]     = useState<string>("");
   const [showForm, setShowForm]       = useState(false);
   const [expandedId, setExpandedId]   = useState<number | null>(null);
   const [editingId, setEditingId]     = useState<number | null>(null);
@@ -637,7 +642,29 @@ export default function Handover() {
       )}
 
       {activeTab === "detachments" && (
-        <DetachmentsTabPanel key={rotaSub} initialSub={rotaSub} watch={user?.watch_unit ?? ""} />
+        <>
+          {/* Someone not on a watch (the admin account) picks whose rotas to look at. */}
+          {!user?.watch_unit && (
+            <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Watch">
+              {WATCHES.map((w) => (
+                <button
+                  key={w}
+                  type="button"
+                  aria-pressed={rotaWatch === w}
+                  onClick={() => setRotaWatch(w)}
+                  className={`tap-chip px-3 py-1 rounded-full text-xs font-medium transition-colors border ${
+                    rotaWatch === w
+                      ? "bg-indigo-600 text-white border-indigo-600"
+                      : "bg-muted/50 text-muted-foreground border-border hover:bg-muted hover:text-foreground"
+                  }`}
+                >
+                  {w} Watch
+                </button>
+              ))}
+            </div>
+          )}
+          <DetachmentsTabPanel key={`${rotaSub}-${user?.watch_unit || rotaWatch}`} initialSub={rotaSub} watch={user?.watch_unit || rotaWatch} />
+        </>
       )}
 
       {activeTab === "handover" && (
@@ -651,7 +678,7 @@ export default function Handover() {
                 <button
                   key={w || "all"}
                   onClick={() => { setWatchFilter(w); setLimit(PAGE_SIZE); }}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors border ${
+                  className={`tap-chip px-3 py-1 rounded-full text-xs font-medium transition-colors border ${
                     watchFilter === w
                       ? "bg-indigo-600 text-white border-indigo-600"
                       : "bg-muted/50 text-muted-foreground border-border hover:bg-muted hover:text-foreground"

@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Plus, X } from "lucide-react";
 import { useNav } from "@/lib/navigation";
 import { TUCKED_AWAY, useScrollingDown } from "@/lib/useScrollingDown";
+import { useAuth } from "@/App";
 
 // ──────────────────────────────────────────────────────────────────────────────
 // QuickAddButton — phones only. A "+" above the bottom bar that opens a sheet
@@ -22,11 +23,15 @@ export function QuickAddButton() {
   const { pathname } = useLocation();
   const { actions } = useNav();
   const tuckedAway = useScrollingDown();
+  const { user } = useAuth();
+  // A WC/CC makes up the crewing board on the Shift page: "Other…" on every
+  // empty seat runs down the right, where the "+" would sit over it.
+  const makesUpTheBoard = (user?.role === "WC" || user?.role === "CC") && pathname.startsWith("/handover");
 
   // Pages with a tick list down the right of the screen, and the calendar,
   // which has its own "+". The People list too: its Log sick / Mark fit
   // buttons run down the right, and a "+" over them invites the wrong tap.
-  if (pathname === "/people" || pathname.startsWith("/tasks") || pathname.startsWith("/hydrants") || pathname.startsWith("/calendar") || pathname.startsWith("/requests")) return null;
+  if (makesUpTheBoard || pathname === "/people" || pathname.startsWith("/tasks") || pathname.startsWith("/hydrants") || pathname.startsWith("/calendar") || pathname.startsWith("/requests")) return null;
 
   const go = (to: string) => {
     setOpen(false);
