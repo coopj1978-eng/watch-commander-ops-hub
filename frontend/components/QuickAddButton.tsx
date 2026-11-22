@@ -31,8 +31,9 @@ export function QuickAddButton() {
 
   // Pages with a tick list down the right of the screen, and the calendar,
   // which has its own "+". The People list too: its Log sick / Mark fit
-  // buttons run down the right, and a "+" over them invites the wrong tap.
-  if (makesUpTheBoard || pathname === "/people" || pathname.startsWith("/tasks") || pathname.startsWith("/hydrants") || pathname.startsWith("/calendar") || pathname.startsWith("/requests")) return null;
+  // buttons run down the right, and a "+" over them invites the wrong tap;
+  // and Overtime, where the hours are down the right.
+  if (makesUpTheBoard || pathname === "/people" || pathname === "/overtime" || pathname.startsWith("/tasks") || pathname.startsWith("/hydrants") || pathname.startsWith("/calendar") || pathname.startsWith("/requests")) return null;
 
   const go = (to: string) => {
     setOpen(false);

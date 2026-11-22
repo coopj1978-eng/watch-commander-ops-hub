@@ -34125,7 +34125,7 @@ function QuickAddButton() {
   const tuckedAway = useScrollingDown();
   const { user: user2 } = useAuth();
   const makesUpTheBoard = ((user2 == null ? void 0 : user2.role) === "WC" || (user2 == null ? void 0 : user2.role) === "CC") && pathname.startsWith("/handover");
-  if (makesUpTheBoard || pathname === "/people" || pathname.startsWith("/tasks") || pathname.startsWith("/hydrants") || pathname.startsWith("/calendar") || pathname.startsWith("/requests")) return null;
+  if (makesUpTheBoard || pathname === "/people" || pathname === "/overtime" || pathname.startsWith("/tasks") || pathname.startsWith("/hydrants") || pathname.startsWith("/calendar") || pathname.startsWith("/requests")) return null;
   const go = (to) => {
     setOpen(false);
     navigate(to);
