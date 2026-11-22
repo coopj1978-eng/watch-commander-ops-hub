@@ -32,14 +32,15 @@ function RequestRow({ r, onOpen, extra }: { r: Req; onOpen: () => void; extra?: 
       <button type="button" onClick={onOpen} className="flex w-full items-center gap-3 px-3 py-3 text-left transition-colors hover:bg-muted/60 sm:px-4">
         <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground"><Icon className="h-4 w-4" aria-hidden /></span>
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-semibold text-foreground">
+          {/* On a phone the line wraps: who it's with, and why it's flagged, are the point. */}
+          <span className="block text-sm font-semibold text-foreground sm:truncate">
             {r.user_name}
             <span className="font-normal text-muted-foreground"> · {REQUEST_LABEL[r.type]}{r.cover_name ? ` with ${r.cover_name}` : ""}</span>
           </span>
           <span className="block truncate text-[13px] text-muted-foreground">
             {dayText(r.shift_date)} · {r.shift_type} · {r.watch}
           </span>
-          <span className="block truncate text-[13px] text-muted-foreground">
+          <span className="block text-[13px] text-muted-foreground sm:truncate">
             {r.payback_status === "with_wc" ? "Payback with the WC" : STATUS_LABEL[r.status]}{extra ? ` · ${extra}` : ""}
           </span>
         </span>

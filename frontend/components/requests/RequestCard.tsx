@@ -207,7 +207,7 @@ function KronosResult({ d, act, busy }: { d: Detail; act: (f: () => Promise<Deta
         Record the answer here once it comes back. It only goes on the calendar when approved.
       </p>
       {r.type === "flexi" && (
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-2">
+        <div className="grid grid-cols-1 items-end gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
           <div>
             <Label htmlFor="flexi-payback" className="text-sm">Payback date Kronos gave</Label>
             <Input id="flexi-payback" type="date" value={date} onChange={(e) => { setDate(e.target.value); setProblem(""); }} />
@@ -231,7 +231,7 @@ function AddPayback({ d, act, busy }: { d: Detail; act: (f: () => Promise<Detail
   return (
     <Section title="Payback">
       <p className="text-sm text-muted-foreground">{d.request.status === "approved" ? "Add the date once it's agreed. It goes straight on both calendars, and the WC is told." : "Add the date once it's agreed. It goes to the WC to check first."}</p>
-      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-2">
+      <div className="grid grid-cols-1 items-end gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
         <div>
           <Label htmlFor="h4h-payback" className="text-sm">Payback date</Label>
           <Input id="h4h-payback" type="date" value={date} onChange={(e) => setDate(e.target.value)} />

@@ -48,15 +48,31 @@ function DialogContent({
   className,
   children,
   showCloseButton = true,
+  onOpenAutoFocus,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean
 }) {
+  // On a touch screen a pop-up opens with nothing picked: putting the cursor
+  // in its first box throws up the keyboard — or, for a date box on an
+  // iPhone, the whole date picker — over the form before it's been read
+  // (seen on Log Sick, 22 Nov 2026). The pop-up itself takes the focus, so a
+  // screen reader still lands in it. A mouse-and-keyboard computer is
+  // unchanged: the first box is ready to type in.
+  const handleOpenAutoFocus = (e: Event) => {
+    onOpenAutoFocus?.(e)
+    if (e.defaultPrevented) return
+    if (typeof window !== "undefined" && window.matchMedia?.("(pointer: coarse)").matches) {
+      e.preventDefault()
+      ;(e.currentTarget as HTMLElement | null)?.focus?.({ preventScroll: true })
+    }
+  }
   return (
     <DialogPortal data-slot="dialog-portal">
       <DialogOverlay />
       <DialogPrimitive.Content
         data-slot="dialog-content"
+        onOpenAutoFocus={handleOpenAutoFocus}
         className={cn(
           "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[calc(var(--vvt,0px)+var(--vvh,100dvh)/2)] left-[50%] z-50 grid max-h-[calc(var(--vvh,100dvh)-2rem-env(safe-area-inset-top))] w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 overflow-y-auto overscroll-contain rounded-lg border p-6 shadow-lg duration-200 outline-none sm:max-w-lg",
           className
@@ -67,7 +83,7 @@ function DialogContent({
         {showCloseButton && (
           <DialogPrimitive.Close
             data-slot="dialog-close"
-            className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-2 right-2 rounded-xs p-2 opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+            className="ring-offset-background focus-visible:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-2 right-2 rounded-xs p-2 opacity-70 transition-opacity hover:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
           >
             <XIcon />
             <span className="sr-only">Close</span>

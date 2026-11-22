@@ -1,5 +1,6 @@
 import { useEffect, useState, createContext, useContext } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useScrollToTopOnNavigate } from "@/lib/useScrollToTopOnNavigate";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import Layout from "./components/Layout";
@@ -163,8 +164,7 @@ function AppInner() {
 
 function AppRoutes() {
   const { isSignedIn, user } = useAuth();
-
-  console.log("AppRoutes - isSignedIn:", isSignedIn, "user:", user);
+  useScrollToTopOnNavigate();
 
   if (!isSignedIn) {
     return (

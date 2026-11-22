@@ -207,13 +207,18 @@ export default function People() {
 
   const people = peopleData?.people || [];
 
-  // The first time only, start on your own station. After that it's whatever
-  // you last left — including "all stations".
+  // The first time only, start on your own station and your own watch (on a
+  // phone the whole station is 39 cards before you reach your crew). After
+  // that it's whatever you last left — including "all stations".
   useEffect(() => {
     if (firstVisit && peopleData && authUser && !stationFilter && !searchParams.get("station")) {
       const myProfile = peopleData.people?.find((p: any) => p.user.id === authUser.id);
       if (myProfile?.profile?.station) {
         setStationFilter(myProfile.profile.station);
+      }
+      const myWatch = authUser.watch_unit || myProfile?.profile?.watch;
+      if (myWatch && watchFilters.length === 0 && !searchParams.get("watch")) {
+        setWatchFilters([myWatch]);
       }
     }
   }, [peopleData, authUser]);

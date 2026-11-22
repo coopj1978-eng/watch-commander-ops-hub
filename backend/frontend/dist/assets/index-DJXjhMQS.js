@@ -13312,6 +13312,9 @@ function useLocation() {
   );
   return reactExports.useContext(LocationContext).location;
 }
+function useNavigationType() {
+  return reactExports.useContext(LocationContext).navigationType;
+}
 var navigateEffectWarning = `You should call navigate() in a React.useEffect(), not when your component is first rendered.`;
 function useIsomorphicLayoutEffect$2(cb) {
   let isStatic = reactExports.useContext(NavigationContext).static;
@@ -14951,6 +14954,13 @@ function useViewTransitionState(to, { relative } = {}) {
 }
 var reactDomExports = requireReactDom();
 const ReactDOM = /* @__PURE__ */ getDefaultExportFromCjs(reactDomExports);
+function useScrollToTopOnNavigate() {
+  const { pathname } = useLocation();
+  const type = useNavigationType();
+  reactExports.useEffect(() => {
+    if (type !== "POP") window.scrollTo(0, 0);
+  }, [pathname, type]);
+}
 var Subscribable = class {
   constructor() {
     this.listeners = /* @__PURE__ */ new Set();
@@ -33016,14 +33026,25 @@ function DialogContent({
   className,
   children,
   showCloseButton = true,
+  onOpenAutoFocus,
   ...props
 }) {
+  const handleOpenAutoFocus = (e) => {
+    var _a3, _b3, _c2;
+    onOpenAutoFocus == null ? void 0 : onOpenAutoFocus(e);
+    if (e.defaultPrevented) return;
+    if (typeof window !== "undefined" && ((_a3 = window.matchMedia) == null ? void 0 : _a3.call(window, "(pointer: coarse)").matches)) {
+      e.preventDefault();
+      (_c2 = (_b3 = e.currentTarget) == null ? void 0 : _b3.focus) == null ? void 0 : _c2.call(_b3, { preventScroll: true });
+    }
+  };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogPortal, { "data-slot": "dialog-portal", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(DialogOverlay, {}),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(
       Content$1,
       {
         "data-slot": "dialog-content",
+        onOpenAutoFocus: handleOpenAutoFocus,
         className: cn(
           "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[calc(var(--vvt,0px)+var(--vvh,100dvh)/2)] left-[50%] z-50 grid max-h-[calc(var(--vvh,100dvh)-2rem-env(safe-area-inset-top))] w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 overflow-y-auto overscroll-contain rounded-lg border p-6 shadow-lg duration-200 outline-none sm:max-w-lg",
           className
@@ -33035,7 +33056,7 @@ function DialogContent({
             Close,
             {
               "data-slot": "dialog-close",
-              className: "ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-2 right-2 rounded-xs p-2 opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+              className: "ring-offset-background focus-visible:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-2 right-2 rounded-xs p-2 opacity-70 transition-opacity hover:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
               children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(X, {}),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sr-only", children: "Close" })
@@ -37711,7 +37732,7 @@ function WCAlertBanner() {
       id: "absence-triggers",
       severity: "warning",
       Icon: ShieldAlert,
-      label: "Absence triggers hit",
+      label: triggered.length === 1 ? "Absence trigger hit" : "Absence triggers hit",
       count: triggered.length,
       href: triggered.length === 1 ? `/people/${triggered[0].id}` : "/people",
       people: triggered
@@ -44118,11 +44139,15 @@ function People() {
   });
   const people = (peopleData == null ? void 0 : peopleData.people) || [];
   reactExports.useEffect(() => {
-    var _a3, _b3;
+    var _a3, _b3, _c2;
     if (firstVisit && peopleData && authUser && !stationFilter && !searchParams.get("station")) {
       const myProfile = (_a3 = peopleData.people) == null ? void 0 : _a3.find((p) => p.user.id === authUser.id);
       if ((_b3 = myProfile == null ? void 0 : myProfile.profile) == null ? void 0 : _b3.station) {
         setStationFilter(myProfile.profile.station);
+      }
+      const myWatch = authUser.watch_unit || ((_c2 = myProfile == null ? void 0 : myProfile.profile) == null ? void 0 : _c2.watch);
+      if (myWatch && watchFilters.length === 0 && !searchParams.get("watch")) {
+        setWatchFilters([myWatch]);
       }
     }
   }, [peopleData, authUser]);
@@ -67856,7 +67881,7 @@ function KronosResult({ d, act, busy }) {
       d.kronos_by ? `Submit it on Kronos by ${deadlineText(d.kronos_by)}. ` : "Submit it on Kronos. ",
       "Record the answer here once it comes back. It only goes on the calendar when approved."
     ] }),
-    r2.type === "flexi" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-[minmax(0,1fr)_auto] items-end gap-2", children: [
+    r2.type === "flexi" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 items-end gap-2 sm:grid-cols-[minmax(0,1fr)_auto]", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "flexi-payback", className: "text-sm", children: "Payback date Kronos gave" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "flexi-payback", type: "date", value: date2, onChange: (e) => {
@@ -67879,7 +67904,7 @@ function AddPayback({ d, act, busy }) {
   const [shift2, setShift] = reactExports.useState("Day");
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Section$1, { title: "Payback", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: d.request.status === "approved" ? "Add the date once it's agreed. It goes straight on both calendars, and the WC is told." : "Add the date once it's agreed. It goes to the WC to check first." }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-[minmax(0,1fr)_auto] items-end gap-2", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 items-end gap-2 sm:grid-cols-[minmax(0,1fr)_auto]", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "h4h-payback", className: "text-sm", children: "Payback date" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "h4h-payback", type: "date", value: date2, onChange: (e) => setDate(e.target.value) })
@@ -68027,7 +68052,7 @@ function RequestRow({ r: r2, onOpen, extra }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: onOpen, className: "flex w-full items-center gap-3 px-3 py-3 text-left transition-colors hover:bg-muted/60 sm:px-4", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "h-4 w-4", "aria-hidden": true }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "min-w-0 flex-1", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "block truncate text-sm font-semibold text-foreground", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "block text-sm font-semibold text-foreground sm:truncate", children: [
         r2.user_name,
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-normal text-muted-foreground", children: [
           " · ",
@@ -68042,7 +68067,7 @@ function RequestRow({ r: r2, onOpen, extra }) {
         " · ",
         r2.watch
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "block truncate text-[13px] text-muted-foreground", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "block text-[13px] text-muted-foreground sm:truncate", children: [
         r2.payback_status === "with_wc" ? "Payback with the WC" : STATUS_LABEL[r2.status],
         extra ? ` · ${extra}` : ""
       ] })
@@ -79556,7 +79581,7 @@ function AppInner() {
 }
 function AppRoutes() {
   const { isSignedIn, user: user2 } = useAuth();
-  console.log("AppRoutes - isSignedIn:", isSignedIn, "user:", user2);
+  useScrollToTopOnNavigate();
   if (!isSignedIn) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(Routes, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/sign-in", element: /* @__PURE__ */ jsxRuntimeExports.jsx(SignIn, {}) }),

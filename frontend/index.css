@@ -735,6 +735,16 @@ table.plain tbody tr:last-child td { border-bottom: none; }
   }
   /* Filter chips and other pills that sit in rows: properly taller. */
   .tap-chip { min-height: 40px; }
+  /* Date and time boxes on an iPhone refuse to be narrower than Safari's own
+     idea of them, so two side by side overlapped and ran off the edge of a
+     pop-up (Log Sick, 22 Nov 2026). Plain boxes take the width they're given. */
+  input[type="date"], input[type="time"], input[type="datetime-local"] {
+    -webkit-appearance: none;
+    appearance: none;
+    min-width: 0;
+    max-width: 100%;
+  }
+  input::-webkit-date-and-time-value { text-align: left; }
   /* Lines in a drop-down menu or a pick list are a finger tall. */
   [data-slot="dropdown-menu-item"], [data-slot="dropdown-menu-checkbox-item"],
   [data-slot="dropdown-menu-radio-item"], [data-slot="dropdown-menu-sub-trigger"],

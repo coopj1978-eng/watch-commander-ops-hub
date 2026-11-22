@@ -194,7 +194,7 @@ export function WCAlertBanner() {
       id:    "absence-triggers",
       severity: "warning",
       Icon:  ShieldAlert,
-      label: "Absence triggers hit",
+      label: triggered.length === 1 ? "Absence trigger hit" : "Absence triggers hit",
       count: triggered.length,
       href:  triggered.length === 1 ? `/people/${triggered[0].id}` : "/people",
       people: triggered,
