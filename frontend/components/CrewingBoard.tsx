@@ -636,7 +636,7 @@ function SlotDropZone({
           aria-label={`Choose someone for ${slot.label}`}
           className={`
             ${suggestion && !isDragActive ? "shrink-0 w-auto" : "w-full"} flex items-center justify-center gap-1.5 rounded-lg border-2 border-dashed
-            py-2 px-3 text-xs transition-all duration-150
+            py-2 px-3 text-xs transition-all duration-150 pointer-coarse:min-h-10
             ${highlight && dragQualifies === false
               ? "border-red-500 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 scale-[1.02] shadow-sm"
               : highlight

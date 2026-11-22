@@ -33,7 +33,7 @@ const sizeText = (bytes: number) =>
   bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
 const titleCls = "h-10 w-full rounded-xl border border-border bg-background px-3 text-sm font-medium placeholder:font-normal";
 const textCls = "w-full rounded-xl border border-border bg-background p-3 text-sm";
-const dateCls = "h-8 rounded-lg border border-border bg-background px-2 text-xs text-foreground";
+const dateCls = "h-8 pointer-coarse:h-11 rounded-lg border border-border bg-background px-2 text-xs text-foreground";
 
 interface Draft {
   title: string;
@@ -79,7 +79,7 @@ function NoteFields({ draft, onChange, firstName, autoFocus }: {
             className={dateCls}
           />
         </label>
-        <label className="flex cursor-pointer items-center gap-1.5 text-xs">
+        <label className="flex cursor-pointer items-center gap-1.5 text-xs pointer-coarse:min-h-11">
           <input
             type="checkbox"
             checked={draft.reminder_enabled}

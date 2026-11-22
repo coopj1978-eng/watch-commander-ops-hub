@@ -375,7 +375,7 @@ function ActivityLogTab() {
       </CardHeader>
       <CardContent>
         {/* Filter row */}
-        <div className="grid gap-3 md:grid-cols-5 mb-4">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-5 mb-4">
           <div>
             <Label htmlFor="filter-action" className="text-xs">Action</Label>
             <input
@@ -445,7 +445,33 @@ function ActivityLogTab() {
             ))}
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+          {/* Phone: each event as a couple of lines, nothing to scroll sideways. */}
+          <ul className={`divide-y divide-border/60 md:hidden ${isFetching ? "opacity-60" : ""}`}>
+            {logs.map((log) => {
+              const details = formatDetails(log.details);
+              return (
+                <li key={log.id} className="py-2.5">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <span className="min-w-0 text-sm font-medium">{log.action.replace(/_/g, " ")}</span>
+                    <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+                      {new Date(log.timestamp).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                  </div>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {log.user_name || log.user_id || "System"} · {log.entity_type}
+                  </p>
+                  {details !== "—" && <p className="mt-0.5 line-clamp-2 break-words text-xs text-muted-foreground">{details}</p>}
+                </li>
+              );
+            })}
+            {logs.length === 0 && (
+              <li className="py-8 text-center text-sm text-muted-foreground">
+                {hasFilters ? "No events match these filters" : "No activity logs yet"}
+              </li>
+            )}
+          </ul>
+          <div className="hidden overflow-x-auto md:block">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -494,11 +520,12 @@ function ActivityLogTab() {
               </TableBody>
             </Table>
           </div>
+          </>
         )}
 
         {/* Pagination footer */}
         {total > 0 && (
-          <div className="flex items-center justify-between mt-4 text-sm text-muted-foreground">
+          <div className="flex flex-wrap items-center justify-between gap-2 mt-4 text-sm text-muted-foreground">
             <span>
               Showing {showingFrom.toLocaleString()}–{showingTo.toLocaleString()} of{" "}
               {total.toLocaleString()}

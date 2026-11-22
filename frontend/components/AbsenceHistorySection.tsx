@@ -247,9 +247,11 @@ export function AbsenceHistorySection({
         </div>
       </CardHeader>
       <CardContent>
+        {/* On a phone each absence is a few stacked lines (same cells, laid
+            out as a wrapping row) so nothing scrolls sideways. */}
         <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
+          <Table className="max-sm:block">
+            <TableHeader className="max-sm:hidden">
               <TableRow>
                 <TableHead>Type</TableHead>
                 <TableHead>Start Date</TableHead>
@@ -260,10 +262,10 @@ export function AbsenceHistorySection({
                 {canManage && <TableHead className="text-right">Actions</TableHead>}
               </TableRow>
             </TableHeader>
-            <TableBody>
+            <TableBody className="max-sm:block">
               {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={canManage ? 7 : 6} className="text-center py-8">
+                <TableRow className="max-sm:flex max-sm:justify-center">
+                  <TableCell colSpan={canManage ? 7 : 6} className="text-center py-8 max-sm:w-full">
                     <Skeleton className="h-6 w-full" />
                   </TableCell>
                 </TableRow>
@@ -276,8 +278,8 @@ export function AbsenceHistorySection({
                     absence.status === "approved" &&
                     !absence.returned_to_work_at;
                   return (
-                    <TableRow key={absence.id}>
-                      <TableCell>
+                    <TableRow key={absence.id} className="max-sm:flex max-sm:flex-wrap max-sm:items-center max-sm:gap-x-1.5 max-sm:gap-y-1 max-sm:py-3">
+                      <TableCell className="max-sm:w-full max-sm:whitespace-normal max-sm:p-0">
                         <div className="flex items-center gap-2">
                           <Badge variant="outline">{absenceTypeLabels[absence.type]}</Badge>
                           {isOpenSickness && (
@@ -337,21 +339,21 @@ export function AbsenceHistorySection({
                           )
                         )}
                       </TableCell>
-                      <TableCell>{new Date(absence.start_date).toLocaleDateString()}</TableCell>
-                      <TableCell>{new Date(absence.end_date).toLocaleDateString()}</TableCell>
-                      <TableCell>
+                      <TableCell className="max-sm:p-0 max-sm:text-muted-foreground max-sm:after:content-['_–']">{new Date(absence.start_date).toLocaleDateString()}</TableCell>
+                      <TableCell className="max-sm:p-0 max-sm:text-muted-foreground">{new Date(absence.end_date).toLocaleDateString()}</TableCell>
+                      <TableCell className={`max-sm:p-0 max-sm:text-muted-foreground ${isDutyDay ? "max-sm:before:content-['·_Duty_days:_']" : "max-sm:before:content-['·_Days:_']"}`}>
                         {isOpenSickness
                           ? `${countDays(toIsoDate(absence.start_date), localTodayIso(), isDutyDay)} so far`
                           : days}
                       </TableCell>
-                      <TableCell className="max-w-xs truncate">{absence.reason}</TableCell>
-                      <TableCell>
+                      <TableCell className="max-w-xs truncate empty:hidden max-sm:w-full max-sm:max-w-none max-sm:whitespace-normal max-sm:p-0 max-sm:text-muted-foreground">{absence.reason}</TableCell>
+                      <TableCell className="max-sm:p-0">
                         <Badge className={statusBadgeClass[absence.status] ?? ""}>
                           {absence.status}
                         </Badge>
                       </TableCell>
                       {canManage && (
-                        <TableCell className="text-right">
+                        <TableCell className="text-right max-sm:ml-auto max-sm:p-0">
                           <div className="flex items-center justify-end gap-1">
                             {isOpenSickness && (
                               <Button
@@ -409,8 +411,8 @@ export function AbsenceHistorySection({
                   );
                 })
               ) : (
-                <TableRow>
-                  <TableCell colSpan={canManage ? 7 : 6} className="text-center py-8 text-muted-foreground">
+                <TableRow className="max-sm:flex max-sm:justify-center">
+                  <TableCell colSpan={canManage ? 7 : 6} className="text-center py-8 text-muted-foreground max-sm:w-full">
                     No absences recorded
                   </TableCell>
                 </TableRow>

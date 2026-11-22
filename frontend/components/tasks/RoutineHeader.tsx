@@ -133,7 +133,7 @@ export function ReferenceHeader({
       <span
         className="cal-mono"
         style={{
-          position: "relative", alignSelf: "flex-start", fontSize: compact ? 10 : 11, fontWeight: 700, letterSpacing: ".1em",
+          position: "relative", alignSelf: "flex-start", fontSize: 11, fontWeight: 700, letterSpacing: ".1em",
           textTransform: "uppercase", padding: "2px 6px", borderRadius: 5, background: "rgba(0,0,0,.28)", marginBottom: compact ? 2 : 4,
         }}
       >

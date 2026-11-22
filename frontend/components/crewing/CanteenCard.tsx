@@ -159,7 +159,7 @@ export function CanteenCard({
               <button
                 onClick={() => add.mutate(next.user_id)}
                 disabled={busy}
-                className="inline-flex items-center gap-2 rounded-full border border-emerald-300/80 bg-emerald-50/70 px-3 py-1 text-sm text-emerald-900 transition-colors hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-200"
+                className="tap-chip inline-flex items-center gap-2 rounded-full border border-emerald-300/80 bg-emerald-50/70 px-3 py-1 text-sm text-emerald-900 transition-colors hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-200"
                 title="Longest since canteen"
               >
                 <Plus className="h-3.5 w-3.5" />
@@ -171,7 +171,7 @@ export function CanteenCard({
             )}
             <button
               onClick={() => setPicking(true)}
-              className="rounded-full border border-dashed border-border px-3 py-1 text-sm text-muted-foreground hover:border-foreground/30 hover:text-foreground"
+              className="tap-chip rounded-full border border-dashed border-border px-3 py-1 text-sm text-muted-foreground hover:border-foreground/30 hover:text-foreground"
             >
               {next ? "Other…" : "Choose…"}
             </button>

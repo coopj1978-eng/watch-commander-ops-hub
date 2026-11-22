@@ -469,12 +469,12 @@ export default function ProfileDetail() {
     <div className="flex flex-col gap-4">
       {myIndex >= 0 && watchmates.length > 1 && (
         <nav aria-label="People on this watch" className="-mb-1 flex items-center justify-between gap-2 text-xs text-muted-foreground">
-          <Link to="/people" className="hover:text-foreground">← All people</Link>
+          <Link to="/people" className="tap hover:text-foreground">← All people</Link>
           <span className="flex items-center gap-1">
             <Link
               to={`/people/${watchmates[(myIndex - 1 + watchmates.length) % watchmates.length].user.id}${tab !== "overview" ? `?tab=${tab}` : ""}`}
               aria-label="Previous person on the watch"
-              className="grid h-7 w-7 place-items-center rounded-lg hover:bg-muted hover:text-foreground"
+              className="grid h-7 w-7 place-items-center rounded-lg hover:bg-muted hover:text-foreground pointer-coarse:h-10 pointer-coarse:w-10"
             >
               <ChevronLeft className="h-4 w-4" />
             </Link>
@@ -482,7 +482,7 @@ export default function ProfileDetail() {
             <Link
               to={`/people/${watchmates[(myIndex + 1) % watchmates.length].user.id}${tab !== "overview" ? `?tab=${tab}` : ""}`}
               aria-label="Next person on the watch"
-              className="grid h-7 w-7 place-items-center rounded-lg hover:bg-muted hover:text-foreground"
+              className="grid h-7 w-7 place-items-center rounded-lg hover:bg-muted hover:text-foreground pointer-coarse:h-10 pointer-coarse:w-10"
             >
               <ChevronRight className="h-4 w-4" />
             </Link>
@@ -613,7 +613,7 @@ export default function ProfileDetail() {
               {...sectionProps("contact", (canEdit || isViewingOwnProfile) && ["phone", "emergency_contact_name", "emergency_contact_phone"].some(canEditField))}
             >
               <Field label="Phone">
-                {editableValue("contact", "phone", profile.phone ? <a href={`tel:${profile.phone.replace(/[^\d+]/g, "")}`} className="font-mono hover:underline">{profile.phone}</a> : "—", (
+                {editableValue("contact", "phone", profile.phone ? <a href={`tel:${profile.phone.replace(/[^\d+]/g, "")}`} className="tap font-mono hover:underline">{profile.phone}</a> : "—", (
                   <input className={cn(inputCls, "font-mono")} type="tel" inputMode="tel" value={getDisplayValue("phone") || ""} onChange={(e) => set({ phone: e.target.value })} />
                 ))}
               </Field>
@@ -638,7 +638,7 @@ export default function ProfileDetail() {
                 ))}
               </Field>
               <Field label="Their number">
-                {editableValue("contact", "emergency_contact_phone", profile.emergency_contact_phone ? <a href={`tel:${profile.emergency_contact_phone.replace(/[^\d+]/g, "")}`} className="font-mono hover:underline">{profile.emergency_contact_phone}</a> : "—", (
+                {editableValue("contact", "emergency_contact_phone", profile.emergency_contact_phone ? <a href={`tel:${profile.emergency_contact_phone.replace(/[^\d+]/g, "")}`} className="tap font-mono hover:underline">{profile.emergency_contact_phone}</a> : "—", (
                   <input className={cn(inputCls, "font-mono")} type="tel" inputMode="tel" placeholder="Phone" value={getDisplayValue("emergency_contact_phone") || ""} onChange={(e) => set({ emergency_contact_phone: e.target.value })} />
                 ))}
               </Field>
@@ -693,7 +693,7 @@ export default function ProfileDetail() {
                   aria-selected={hoursActive === o.key}
                   onClick={() => setHoursView(o.key)}
                   className={cn(
-                    "h-8 rounded-lg text-xs font-medium transition-colors",
+                    "h-8 rounded-lg text-xs font-medium transition-colors pointer-coarse:h-10",
                     hoursActive === o.key ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
                   )}
                 >

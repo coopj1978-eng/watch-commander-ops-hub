@@ -157,7 +157,7 @@ export default function Links() {
                       type="button"
                       aria-label={`Change ${l.title}`}
                       onClick={() => setDraft({ id: l.id, section: l.section, title: l.title, url: l.url, note: l.note ?? "" })}
-                      className="absolute bottom-2 right-2 grid h-8 w-8 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
+                      className="absolute bottom-2 right-2 grid h-8 w-8 place-items-center rounded-lg pointer-coarse:bottom-1 pointer-coarse:right-1 pointer-coarse:h-10 pointer-coarse:w-10 text-muted-foreground hover:bg-muted hover:text-foreground"
                     >
                       <Pencil className="h-3.5 w-3.5" />
                     </button>

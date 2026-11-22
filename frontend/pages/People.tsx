@@ -6,7 +6,7 @@ import { useBackend, useCanViewPeople, useCanCreatePerson, useIsWatchCommander, 
 import { useAuth } from "@/App";
 import { STATION_OPTIONS } from "@/lib/constants";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ShieldAlert, Search, UserPlus, Settings2, ChevronDown, ChevronUp, Stethoscope, Users } from "lucide-react";
+import { ShieldAlert, Search, UserPlus, Settings2, ChevronDown, ChevronRight, ChevronUp, Stethoscope, Users } from "lucide-react";
 import AddPersonModal from "@/components/AddPersonModal";
 import ColumnsDrawer from "@/components/ColumnsDrawer";
 import { LogSickDialog } from "@/components/LogSickDialog";
@@ -337,8 +337,8 @@ export default function People() {
           action buttons. The eyebrow surfaces the active watch, station and
           counts so the WC has the same situational frame here as on the
           dashboard. */}
-      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-3">
-        <div className="flex items-baseline flex-wrap gap-x-4 gap-y-1">
+      <div className="flex items-start sm:items-baseline justify-between gap-3">
+        <div className="flex min-w-0 items-baseline flex-wrap gap-x-4 gap-y-1">
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
             <Users className="h-7 w-7 text-brand shrink-0" />
             People
@@ -353,8 +353,9 @@ export default function People() {
             )}
           </span>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" onClick={() => setShowColumnsDrawer(true)} aria-label="Columns">
+        <div className="flex shrink-0 flex-wrap gap-2">
+          {/* Columns belong to the table, which a phone doesn't show. */}
+          <Button variant="outline" className="hidden md:inline-flex" onClick={() => setShowColumnsDrawer(true)} aria-label="Columns">
             <Settings2 className="h-4 w-4 sm:mr-2" />
             <span className="hidden sm:inline">Columns</span>
           </Button>
@@ -382,11 +383,11 @@ export default function People() {
         />
       </div>
 
-      <Card className="border-border/60">
-        <CardHeader className="pb-3">
+      <Card className="border-border/60 max-sm:gap-3 max-sm:py-3">
+        <CardHeader className="pb-3 max-sm:px-3 max-sm:pb-0">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div className="flex items-center gap-2 flex-wrap">
-              <CardTitle className="eyebrow !text-foreground mr-1">Filters</CardTitle>
+              <CardTitle className="eyebrow !text-foreground mr-1 max-sm:hidden">Filters</CardTitle>
               {/* One-tap watch chips — the filter people reach for most */}
               {WATCH_OPTIONS.map((watch) => {
                 const on = watchFilters.includes(watch);
@@ -414,8 +415,8 @@ export default function People() {
             {/* Quick status switch — segmented control matches the design's
                 .seg primitive. Backed by the same statusFilter state as the
                 Select dropdown below — they're kept in sync. */}
-            <div className="flex items-center gap-2 flex-wrap">
-            <div className="seg" style={{ width: 260 }}>
+            <div className="flex items-center gap-2 max-sm:w-full sm:flex-wrap">
+            <div className="seg min-w-0 max-sm:flex-1 sm:w-[260px]">
               <button
                 data-on={statusFilter === "active"}
                 onClick={() => setStatusFilter("active")}
@@ -432,13 +433,13 @@ export default function People() {
                 data-on={statusFilter === "inactive"}
                 onClick={() => setStatusFilter("inactive")}
               >
-                Left station
+                Left<span className="max-sm:hidden"> station</span>
               </button>
             </div>
             <Button
               variant="outline"
               size="sm"
-              className="h-[30px] text-xs"
+              className="h-[30px] shrink-0 text-xs"
               onClick={() => setShowFilterPanel((v) => !v)}
               aria-expanded={showFilterPanel}
             >
@@ -579,6 +580,7 @@ export default function People() {
                       {watch && <WatchBadge watch={watch} />}
                     </div>
                   </div>
+                  <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/60" aria-hidden="true" />
                 </button>
               );
             })}

@@ -104,6 +104,8 @@ const CSS = `
 .tdd-edit:hover{color:var(--cal-ink);background:var(--cal-surface-3)}
 @media (hover:hover){.tdd-row:hover{background:var(--cal-surface-2)}}
 @media (hover:hover) and (min-width:640px){.tdd-del{opacity:0}.tdd-row:hover .tdd-del,.tdd-del:focus-visible{opacity:1}}
+/* Touch: the labels and the reword / delete pair are finger-sized, so delete isn't hit by mistake. */
+@media (pointer:coarse){.tdd-chip{height:40px}.tdd-del{width:40px;height:40px}}
 .tdd-noscroll{scrollbar-width:none}
 .tdd-noscroll::-webkit-scrollbar{display:none}
 .tdd-pop{box-shadow:var(--cal-card-shadow)}
@@ -448,7 +450,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
         {checkTiming} Change what's on it in the {fromRoutine ? "weekly routine" : "other checks"}.
       </span>
       {onOpenRoutine && (
-        <button type="button" onClick={onOpenRoutine} className="cal-btn" style={{ alignSelf: "flex-start", height: 34, padding: "0 12px", fontSize: 13 }}>
+        <button type="button" onClick={onOpenRoutine} className="cal-btn pointer-coarse:!h-10" style={{ alignSelf: "flex-start", height: 34, padding: "0 12px", fontSize: 13 }}>
           Open weekly routine
         </button>
       )}

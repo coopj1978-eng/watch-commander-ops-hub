@@ -142,11 +142,87 @@ export function AdminUsers() {
     return new Date(date).toLocaleDateString();
   };
 
+  // The same three pieces are used by the table (computer) and the cards (phone).
+  const roleControl = (user: (typeof users)[number]) =>
+    !user.left_at ? (
+      <Select value={user.role} onValueChange={(value) => handleRoleChange(user.id, value as UserRole)}>
+        <SelectTrigger className="w-24 md:w-32" aria-label={`Role for ${user.name}`}>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="WC">WC</SelectItem>
+          <SelectItem value="CC">CC</SelectItem>
+          <SelectItem value="FF">FF</SelectItem>
+          {/* Read Only isn't given out any more (9 Nov 2026) — only listed for an old account that still has it. */}
+          {user.role === "RO" && <SelectItem value="RO">RO</SelectItem>}
+        </SelectContent>
+      </Select>
+    ) : (
+      <Badge variant="outline">{user.role}</Badge>
+    );
+  const statusBadges = (user: (typeof users)[number]) => (
+    <>
+      {user.is_admin && !user.left_at && <Badge className="mr-1.5 bg-indigo-600">Admin</Badge>}
+      {user.left_at ? (
+        <Badge variant="outline">Left {new Date(user.left_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</Badge>
+      ) : user.is_active ? (
+        <Badge className="bg-green-500">Active</Badge>
+      ) : (
+        <Badge variant="outline" className="border-amber-400 text-amber-700 dark:text-amber-400">Not signed up yet</Badge>
+      )}
+    </>
+  );
+  const actionButtons = (user: (typeof users)[number]) => (
+    <>
+      {/* Admin access: a Watch Commander can be given it; nobody takes away their own. */}
+      {!user.left_at && user.role === "WC" && !user.is_admin && (
+        <Button size="sm" variant="outline" onClick={() => setAdminAsk({ user, isAdmin: true })}>
+          <ShieldCheck className="w-4 h-4 mr-1" />
+          Make admin
+        </Button>
+      )}
+      {!user.left_at && user.is_admin && user.id !== me?.id && user.rank !== "Admin" && (
+        <Button size="sm" variant="outline" onClick={() => setAdminAsk({ user, isAdmin: false })}>
+          <ShieldOff className="w-4 h-4 mr-1" />
+          Remove admin
+        </Button>
+      )}
+      {!user.left_at ? (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => setOffboardingUser(user)}
+        >
+          <UserX className="w-4 h-4 mr-1" />
+          Has left
+        </Button>
+      ) : (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => handleReactivate(user.id)}
+        >
+          <UserCheck className="w-4 h-4 mr-1" />
+          Back at the station
+        </Button>
+      )}
+      <Button
+        size="sm"
+        variant="ghost"
+        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+        onClick={() => setDeleteUser(user)}
+        aria-label={`Delete ${user.name}`}
+      >
+        <Trash2 className="w-4 h-4" />
+      </Button>
+    </>
+  );
+
   return (
     // Shown inside the Admin page, which Layout already wraps — so no PageContainer here.
     <div className="space-y-6">
       <h2 className="text-xl font-semibold">User Management</h2>
-      <div className="flex justify-between items-center mb-6">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-muted-foreground">
           Manage user roles, permissions, and account status
         </p>
@@ -163,7 +239,27 @@ export function AdminUsers() {
           ))}
         </div>
       ) : (
-        <div className="bg-card rounded-lg border">
+        <>
+        {/* Phone: a card each, so nothing has to be scrolled sideways. */}
+        <ul className="space-y-2 md:hidden">
+          {users.map((user) => (
+            <li key={user.id} className="rounded-xl border bg-card p-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate font-semibold">{user.name}</p>
+                  <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+                </div>
+                <div className="shrink-0">{roleControl(user)}</div>
+              </div>
+              <div className="mt-2 flex flex-wrap items-center gap-y-1 text-xs text-muted-foreground">
+                {statusBadges(user)}
+                <span className="ml-1.5">Last signed in: {formatDate(user.last_login_at)}</span>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">{actionButtons(user)}</div>
+            </li>
+          ))}
+        </ul>
+        <div className="hidden rounded-lg border bg-card md:block">
           <div className="overflow-x-auto">
           <Table>
             <TableHeader>
@@ -181,81 +277,11 @@ export function AdminUsers() {
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">{user.name}</TableCell>
                   <TableCell>{user.email}</TableCell>
-                  <TableCell>
-                    {!user.left_at ? (
-                      <Select
-                        value={user.role}
-                        onValueChange={(value) => handleRoleChange(user.id, value as UserRole)}
-                      >
-                        <SelectTrigger className="w-32">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="WC">WC</SelectItem>
-                          <SelectItem value="CC">CC</SelectItem>
-                          <SelectItem value="FF">FF</SelectItem>
-                          {/* Read Only isn't given out any more (9 Nov 2026) — only listed for an old account that still has it. */}
-                          {user.role === "RO" && <SelectItem value="RO">RO</SelectItem>}
-                        </SelectContent>
-                      </Select>
-                    ) : (
-                      <Badge variant="outline">{user.role}</Badge>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {user.is_admin && !user.left_at && <Badge className="mr-1.5 bg-indigo-600">Admin</Badge>}
-                    {user.left_at ? (
-                      <Badge variant="outline">Left {new Date(user.left_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</Badge>
-                    ) : user.is_active ? (
-                      <Badge className="bg-green-500">Active</Badge>
-                    ) : (
-                      <Badge variant="outline" className="border-amber-400 text-amber-700 dark:text-amber-400">Not signed up yet</Badge>
-                    )}
-                  </TableCell>
+                  <TableCell>{roleControl(user)}</TableCell>
+                  <TableCell>{statusBadges(user)}</TableCell>
                   <TableCell>{formatDate(user.last_login_at)}</TableCell>
                   <TableCell className="text-right">
-                    <div className="flex gap-2 justify-end">
-                      {/* Admin access: a Watch Commander can be given it; nobody takes away their own. */}
-                      {!user.left_at && user.role === "WC" && !user.is_admin && (
-                        <Button size="sm" variant="outline" onClick={() => setAdminAsk({ user, isAdmin: true })}>
-                          <ShieldCheck className="w-4 h-4 mr-1" />
-                          Make admin
-                        </Button>
-                      )}
-                      {!user.left_at && user.is_admin && user.id !== me?.id && user.rank !== "Admin" && (
-                        <Button size="sm" variant="outline" onClick={() => setAdminAsk({ user, isAdmin: false })}>
-                          <ShieldOff className="w-4 h-4 mr-1" />
-                          Remove admin
-                        </Button>
-                      )}
-                      {!user.left_at ? (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => setOffboardingUser(user)}
-                        >
-                          <UserX className="w-4 h-4 mr-1" />
-                          Has left
-                        </Button>
-                      ) : (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleReactivate(user.id)}
-                        >
-                          <UserCheck className="w-4 h-4 mr-1" />
-                          Back at the station
-                        </Button>
-                      )}
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        onClick={() => setDeleteUser(user)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
+                    <div className="flex gap-2 justify-end">{actionButtons(user)}</div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -263,6 +289,7 @@ export function AdminUsers() {
           </Table>
           </div>
         </div>
+        </>
       )}
 
       {offboardingUser && (

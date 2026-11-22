@@ -281,9 +281,11 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
         </Card>
       ) : (
         <Card>
+          {/* On a phone each skill is a few stacked lines (same cells, laid
+              out as a wrapping row) so nothing scrolls sideways. */}
           <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
+          <Table className="max-sm:block">
+            <TableHeader className="max-sm:hidden">
               <TableRow>
                 <TableHead>Skill</TableHead>
                 <TableHead>Acquired</TableHead>
@@ -294,30 +296,31 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
                 {canEdit && <TableHead>Actions</TableHead>}
               </TableRow>
             </TableHeader>
-            <TableBody>
+            <TableBody className="max-sm:block">
               {skills.map((skill) => (
-                <TableRow key={skill.id}>
-                  <TableCell className="font-medium">{skill.skill_name}</TableCell>
-                  <TableCell>
+                <TableRow key={skill.id} className="max-sm:flex max-sm:flex-wrap max-sm:items-center max-sm:gap-x-2 max-sm:gap-y-1 max-sm:px-4 max-sm:py-3">
+                  <TableCell className="font-medium max-sm:order-1 max-sm:min-w-0 max-sm:flex-1 max-sm:whitespace-normal max-sm:p-0">{skill.skill_name}</TableCell>
+                  <TableCell className="max-sm:order-3 max-sm:p-0 max-sm:text-xs max-sm:text-muted-foreground max-sm:before:content-['Acquired_']">
                     {skill.acquired_date ? new Date(skill.acquired_date).toLocaleDateString() : "-"}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="max-sm:order-4 max-sm:p-0 max-sm:text-xs max-sm:text-muted-foreground max-sm:before:content-['·_Expires_']">
                     {skill.expiry_date ? new Date(skill.expiry_date).toLocaleDateString() : "-"}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="max-sm:hidden">
                     {skill.reminder_date ? new Date(skill.reminder_date).toLocaleDateString() : "-"}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="max-sm:order-2 max-sm:p-0">
                     {getStatusBadge(skill.status, skill.days_until_expiry)}
                   </TableCell>
-                  <TableCell className="max-w-xs truncate">{skill.notes || "-"}</TableCell>
+                  <TableCell className={`max-w-xs truncate max-sm:order-5 max-sm:w-full max-sm:max-w-none max-sm:whitespace-normal max-sm:p-0 max-sm:text-xs max-sm:text-muted-foreground ${skill.notes ? "" : "max-sm:hidden"}`}>{skill.notes || "-"}</TableCell>
                   {canEdit && (
-                    <TableCell>
+                    <TableCell className="max-sm:order-6 max-sm:ml-auto max-sm:p-0">
                       <div className="flex gap-2">
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => openEditDialog(skill)}
+                          aria-label={`Change ${skill.skill_name}`}
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -329,6 +332,7 @@ export default function SkillsTab({ profileId, userId }: SkillsTabProps) {
                               deleteSkillMutation.mutate(skill.id);
                             }
                           }}
+                          aria-label={`Delete ${skill.skill_name}`}
                         >
                           <Trash2 className="h-4 w-4 text-red-500" />
                         </Button>

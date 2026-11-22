@@ -44211,8 +44211,8 @@ function People() {
     }
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-baseline justify-between gap-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline flex-wrap gap-x-4 gap-y-1", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start sm:items-baseline justify-between gap-3", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 items-baseline flex-wrap gap-x-4 gap-y-1", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-3xl font-bold text-foreground flex items-center gap-3", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { className: "h-7 w-7 text-brand shrink-0" }),
           "People"
@@ -44232,8 +44232,8 @@ function People() {
           ] })
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline", onClick: () => setShowColumnsDrawer(true), "aria-label": "Columns", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex shrink-0 flex-wrap gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline", className: "hidden md:inline-flex", onClick: () => setShowColumnsDrawer(true), "aria-label": "Columns", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Settings2, { className: "h-4 w-4 sm:mr-2" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Columns" })
         ] }),
@@ -44263,10 +44263,10 @@ function People() {
         }
       )
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { className: "border-border/60", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(CardHeader, { className: "pb-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-3 flex-wrap", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { className: "border-border/60 max-sm:gap-3 max-sm:py-3", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(CardHeader, { className: "pb-3 max-sm:px-3 max-sm:pb-0", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-3 flex-wrap", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-wrap", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { className: "eyebrow !text-foreground mr-1", children: "Filters" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { className: "eyebrow !text-foreground mr-1 max-sm:hidden", children: "Filters" }),
           WATCH_OPTIONS.map((watch) => {
             const on = watchFilters.includes(watch);
             return /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -44290,8 +44290,8 @@ function People() {
             ")"
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-wrap", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "seg", style: { width: 260 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 max-sm:w-full sm:flex-wrap", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "seg min-w-0 max-sm:flex-1 sm:w-[260px]", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
               {
@@ -44308,12 +44308,15 @@ function People() {
                 children: "All"
               }
             ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "button",
               {
                 "data-on": statusFilter === "inactive",
                 onClick: () => setStatusFilter("inactive"),
-                children: "Left station"
+                children: [
+                  "Left",
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "max-sm:hidden", children: " station" })
+                ]
               }
             )
           ] }),
@@ -44322,7 +44325,7 @@ function People() {
             {
               variant: "outline",
               size: "sm",
-              className: "h-[30px] text-xs",
+              className: "h-[30px] shrink-0 text-xs",
               onClick: () => setShowFilterPanel((v) => !v),
               "aria-expanded": showFilterPanel,
               children: [
@@ -44435,7 +44438,8 @@ function People() {
                   (profile2 == null ? void 0 : profile2.rank) && watch && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground/40", children: "·" }),
                   watch && /* @__PURE__ */ jsxRuntimeExports.jsx(WatchBadge$2, { watch })
                 ] })
-              ] })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-4 w-4 shrink-0 text-muted-foreground/60", "aria-hidden": "true" })
             ]
           },
           user2.id
@@ -44797,8 +44801,8 @@ function SkillsTab({ profileId, userId }) {
         "Add Skill / Cert"
       ] })
     ] }),
-    isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: "Loading skills..." }) : skills.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { className: "py-12 text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground", children: "No skills recorded" }) }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TableHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
+    isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: "Loading skills..." }) : skills.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { className: "py-12 text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground", children: "No skills recorded" }) }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { className: "max-sm:block", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(TableHeader, { className: "max-sm:hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Skill" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Acquired" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Expiry" }),
@@ -44807,20 +44811,21 @@ function SkillsTab({ profileId, userId }) {
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Notes" }),
         canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Actions" })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TableBody, { children: skills.map((skill2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "font-medium", children: skill2.skill_name }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: skill2.acquired_date ? new Date(skill2.acquired_date).toLocaleDateString() : "-" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: skill2.expiry_date ? new Date(skill2.expiry_date).toLocaleDateString() : "-" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: skill2.reminder_date ? new Date(skill2.reminder_date).toLocaleDateString() : "-" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: getStatusBadge(skill2.status, skill2.days_until_expiry) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "max-w-xs truncate", children: skill2.notes || "-" }),
-        canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(TableBody, { className: "max-sm:block", children: skills.map((skill2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { className: "max-sm:flex max-sm:flex-wrap max-sm:items-center max-sm:gap-x-2 max-sm:gap-y-1 max-sm:px-4 max-sm:py-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "font-medium max-sm:order-1 max-sm:min-w-0 max-sm:flex-1 max-sm:whitespace-normal max-sm:p-0", children: skill2.skill_name }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "max-sm:order-3 max-sm:p-0 max-sm:text-xs max-sm:text-muted-foreground max-sm:before:content-['Acquired_']", children: skill2.acquired_date ? new Date(skill2.acquired_date).toLocaleDateString() : "-" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "max-sm:order-4 max-sm:p-0 max-sm:text-xs max-sm:text-muted-foreground max-sm:before:content-['·_Expires_']", children: skill2.expiry_date ? new Date(skill2.expiry_date).toLocaleDateString() : "-" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "max-sm:hidden", children: skill2.reminder_date ? new Date(skill2.reminder_date).toLocaleDateString() : "-" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "max-sm:order-2 max-sm:p-0", children: getStatusBadge(skill2.status, skill2.days_until_expiry) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: `max-w-xs truncate max-sm:order-5 max-sm:w-full max-sm:max-w-none max-sm:whitespace-normal max-sm:p-0 max-sm:text-xs max-sm:text-muted-foreground ${skill2.notes ? "" : "max-sm:hidden"}`, children: skill2.notes || "-" }),
+        canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "max-sm:order-6 max-sm:ml-auto max-sm:p-0", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Button,
             {
               variant: "ghost",
               size: "sm",
               onClick: () => openEditDialog(skill2),
+              "aria-label": `Change ${skill2.skill_name}`,
               children: /* @__PURE__ */ jsxRuntimeExports.jsx(SquarePen, { className: "h-4 w-4" })
             }
           ),
@@ -44834,6 +44839,7 @@ function SkillsTab({ profileId, userId }) {
                   deleteSkillMutation.mutate(skill2.id);
                 }
               },
+              "aria-label": `Delete ${skill2.skill_name}`,
               children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "h-4 w-4 text-red-500" })
             }
           )
@@ -47432,8 +47438,8 @@ function AbsenceHistorySection({
         isDutyDay ? " (rostered shifts only)" : ""
       ] })
     ] }) }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TableHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { className: "max-sm:block", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(TableHeader, { className: "max-sm:hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Type" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Start Date" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "End Date" }),
@@ -47442,12 +47448,12 @@ function AbsenceHistorySection({
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Status" }),
         canManage && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "text-right", children: "Actions" })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TableBody, { children: isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(TableRow, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { colSpan: canManage ? 7 : 6, className: "text-center py-8", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-6 w-full" }) }) }) : absences.length > 0 ? absences.map((absence2) => {
+      /* @__PURE__ */ jsxRuntimeExports.jsx(TableBody, { className: "max-sm:block", children: isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(TableRow, { className: "max-sm:flex max-sm:justify-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { colSpan: canManage ? 7 : 6, className: "text-center py-8 max-sm:w-full", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-6 w-full" }) }) }) : absences.length > 0 ? absences.map((absence2) => {
         const days = countDays(toIsoDate(absence2.start_date), toIsoDate(absence2.end_date), isDutyDay);
         const interview = interviewFor(absence2.id);
         const isOpenSickness = absence2.type === "sickness" && absence2.status === "approved" && !absence2.returned_to_work_at;
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(TableCell, { children: [
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { className: "max-sm:flex max-sm:flex-wrap max-sm:items-center max-sm:gap-x-1.5 max-sm:gap-y-1 max-sm:py-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(TableCell, { className: "max-sm:w-full max-sm:whitespace-normal max-sm:p-0", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", children: absenceTypeLabels[absence2.type] }),
               isOpenSickness && /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: "bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900", children: "Open" })
@@ -47493,12 +47499,12 @@ function AbsenceHistorySection({
               )
             ] }))
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: new Date(absence2.start_date).toLocaleDateString() }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: new Date(absence2.end_date).toLocaleDateString() }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: isOpenSickness ? `${countDays(toIsoDate(absence2.start_date), localTodayIso(), isDutyDay)} so far` : days }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "max-w-xs truncate", children: absence2.reason }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: statusBadgeClass[absence2.status] ?? "", children: absence2.status }) }),
-          canManage && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "text-right", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-end gap-1", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "max-sm:p-0 max-sm:text-muted-foreground max-sm:after:content-['_–']", children: new Date(absence2.start_date).toLocaleDateString() }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "max-sm:p-0 max-sm:text-muted-foreground", children: new Date(absence2.end_date).toLocaleDateString() }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: `max-sm:p-0 max-sm:text-muted-foreground ${isDutyDay ? "max-sm:before:content-['·_Duty_days:_']" : "max-sm:before:content-['·_Days:_']"}`, children: isOpenSickness ? `${countDays(toIsoDate(absence2.start_date), localTodayIso(), isDutyDay)} so far` : days }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "max-w-xs truncate empty:hidden max-sm:w-full max-sm:max-w-none max-sm:whitespace-normal max-sm:p-0 max-sm:text-muted-foreground", children: absence2.reason }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "max-sm:p-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: statusBadgeClass[absence2.status] ?? "", children: absence2.status }) }),
+          canManage && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "text-right max-sm:ml-auto max-sm:p-0", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-end gap-1", children: [
             isOpenSickness && /* @__PURE__ */ jsxRuntimeExports.jsxs(
               Button,
               {
@@ -47552,7 +47558,7 @@ function AbsenceHistorySection({
             )
           ] }) })
         ] }, absence2.id);
-      }) : /* @__PURE__ */ jsxRuntimeExports.jsx(TableRow, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { colSpan: canManage ? 7 : 6, className: "text-center py-8 text-muted-foreground", children: "No absences recorded" }) }) })
+      }) : /* @__PURE__ */ jsxRuntimeExports.jsx(TableRow, { className: "max-sm:flex max-sm:justify-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { colSpan: canManage ? 7 : 6, className: "text-center py-8 text-muted-foreground max-sm:w-full", children: "No absences recorded" }) }) })
     ] }) }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: !!sickLine, onOpenChange: (open) => !open && setSickLine(null), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-2xl", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
@@ -48553,7 +48559,7 @@ const fileKey = (f) => `${f.name}:${f.size}:${f.lastModified}`;
 const sizeText = (bytes) => bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
 const titleCls = "h-10 w-full rounded-xl border border-border bg-background px-3 text-sm font-medium placeholder:font-normal";
 const textCls = "w-full rounded-xl border border-border bg-background p-3 text-sm";
-const dateCls = "h-8 rounded-lg border border-border bg-background px-2 text-xs text-foreground";
+const dateCls = "h-8 pointer-coarse:h-11 rounded-lg border border-border bg-background px-2 text-xs text-foreground";
 const EMPTY$3 = { title: "", note_text: "", next_follow_up_date: "", reminder_enabled: false };
 function NoteFields({ draft, onChange, firstName, autoFocus }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
@@ -48593,7 +48599,7 @@ function NoteFields({ draft, onChange, firstName, autoFocus }) {
           }
         )
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex cursor-pointer items-center gap-1.5 text-xs", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex cursor-pointer items-center gap-1.5 text-xs pointer-coarse:min-h-11", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
           {
@@ -49383,14 +49389,14 @@ function ProfileDetail() {
   const hoursActive = ((_e2 = hoursOptions.find((o) => o.key === hoursView)) == null ? void 0 : _e2.key) ?? hoursOptions[0].key;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-4", children: [
     myIndex >= 0 && watchmates.length > 1 && /* @__PURE__ */ jsxRuntimeExports.jsxs("nav", { "aria-label": "People on this watch", className: "-mb-1 flex items-center justify-between gap-2 text-xs text-muted-foreground", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: "/people", className: "hover:text-foreground", children: "← All people" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: "/people", className: "tap hover:text-foreground", children: "← All people" }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center gap-1", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Link,
           {
             to: `/people/${watchmates[(myIndex - 1 + watchmates.length) % watchmates.length].user.id}${tab !== "overview" ? `?tab=${tab}` : ""}`,
             "aria-label": "Previous person on the watch",
-            className: "grid h-7 w-7 place-items-center rounded-lg hover:bg-muted hover:text-foreground",
+            className: "grid h-7 w-7 place-items-center rounded-lg hover:bg-muted hover:text-foreground pointer-coarse:h-10 pointer-coarse:w-10",
             children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronLeft, { className: "h-4 w-4" })
           }
         ),
@@ -49407,7 +49413,7 @@ function ProfileDetail() {
           {
             to: `/people/${watchmates[(myIndex + 1) % watchmates.length].user.id}${tab !== "overview" ? `?tab=${tab}` : ""}`,
             "aria-label": "Next person on the watch",
-            className: "grid h-7 w-7 place-items-center rounded-lg hover:bg-muted hover:text-foreground",
+            className: "grid h-7 w-7 place-items-center rounded-lg hover:bg-muted hover:text-foreground pointer-coarse:h-10 pointer-coarse:w-10",
             children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-4 w-4" })
           }
         )
@@ -49515,7 +49521,7 @@ function ProfileDetail() {
             title: "Contact",
             ...sectionProps("contact", (canEdit || isViewingOwnProfile) && ["phone", "emergency_contact_name", "emergency_contact_phone"].some(canEditField)),
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Field$2, { label: "Phone", children: editableValue("contact", "phone", profile2.phone ? /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: `tel:${profile2.phone.replace(/[^\d+]/g, "")}`, className: "font-mono hover:underline", children: profile2.phone }) : "—", /* @__PURE__ */ jsxRuntimeExports.jsx("input", { className: cn(inputCls, "font-mono"), type: "tel", inputMode: "tel", value: getDisplayValue("phone") || "", onChange: (e) => set({ phone: e.target.value }) })) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Field$2, { label: "Phone", children: editableValue("contact", "phone", profile2.phone ? /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: `tel:${profile2.phone.replace(/[^\d+]/g, "")}`, className: "tap font-mono hover:underline", children: profile2.phone }) : "—", /* @__PURE__ */ jsxRuntimeExports.jsx("input", { className: cn(inputCls, "font-mono"), type: "tel", inputMode: "tel", value: getDisplayValue("phone") || "", onChange: (e) => set({ phone: e.target.value }) })) }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(Field$2, { label: "Email", children: (user2 == null ? void 0 : user2.email) ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex max-w-full items-center gap-1", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: `mailto:${user2.email}`, className: "truncate hover:underline", children: user2.email }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -49533,7 +49539,7 @@ function ProfileDetail() {
                 )
               ] }) : "—" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(Field$2, { label: "Emergency contact", children: editableValue("contact", "emergency_contact_name", profile2.emergency_contact_name || "—", /* @__PURE__ */ jsxRuntimeExports.jsx("input", { className: inputCls, placeholder: "Name", value: getDisplayValue("emergency_contact_name") || "", onChange: (e) => set({ emergency_contact_name: e.target.value }) })) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Field$2, { label: "Their number", children: editableValue("contact", "emergency_contact_phone", profile2.emergency_contact_phone ? /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: `tel:${profile2.emergency_contact_phone.replace(/[^\d+]/g, "")}`, className: "font-mono hover:underline", children: profile2.emergency_contact_phone }) : "—", /* @__PURE__ */ jsxRuntimeExports.jsx("input", { className: cn(inputCls, "font-mono"), type: "tel", inputMode: "tel", placeholder: "Phone", value: getDisplayValue("emergency_contact_phone") || "", onChange: (e) => set({ emergency_contact_phone: e.target.value }) })) })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Field$2, { label: "Their number", children: editableValue("contact", "emergency_contact_phone", profile2.emergency_contact_phone ? /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: `tel:${profile2.emergency_contact_phone.replace(/[^\d+]/g, "")}`, className: "tap font-mono hover:underline", children: profile2.emergency_contact_phone }) : "—", /* @__PURE__ */ jsxRuntimeExports.jsx("input", { className: cn(inputCls, "font-mono"), type: "tel", inputMode: "tel", placeholder: "Phone", value: getDisplayValue("emergency_contact_phone") || "", onChange: (e) => set({ emergency_contact_phone: e.target.value }) })) })
             ]
           }
         )
@@ -49588,7 +49594,7 @@ function ProfileDetail() {
           "aria-selected": hoursActive === o.key,
           onClick: () => setHoursView(o.key),
           className: cn(
-            "h-8 rounded-lg text-xs font-medium transition-colors",
+            "h-8 rounded-lg text-xs font-medium transition-colors pointer-coarse:h-10",
             hoursActive === o.key ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
           ),
           children: o.label
@@ -57376,7 +57382,7 @@ function ReferenceHeader({
             style: {
               position: "relative",
               alignSelf: "flex-start",
-              fontSize: compact ? 10 : 11,
+              fontSize: 11,
               fontWeight: 700,
               letterSpacing: ".1em",
               textTransform: "uppercase",
@@ -59777,6 +59783,8 @@ const CSS$1 = `
 .tdd-edit:hover{color:var(--cal-ink);background:var(--cal-surface-3)}
 @media (hover:hover){.tdd-row:hover{background:var(--cal-surface-2)}}
 @media (hover:hover) and (min-width:640px){.tdd-del{opacity:0}.tdd-row:hover .tdd-del,.tdd-del:focus-visible{opacity:1}}
+/* Touch: the labels and the reword / delete pair are finger-sized, so delete isn't hit by mistake. */
+@media (pointer:coarse){.tdd-chip{height:40px}.tdd-del{width:40px;height:40px}}
 .tdd-noscroll{scrollbar-width:none}
 .tdd-noscroll::-webkit-scrollbar{display:none}
 .tdd-pop{box-shadow:var(--cal-card-shadow)}
@@ -60072,7 +60080,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
       fromRoutine ? "weekly routine" : "other checks",
       "."
     ] }),
-    onOpenRoutine && /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: onOpenRoutine, className: "cal-btn", style: { alignSelf: "flex-start", height: 34, padding: "0 12px", fontSize: 13 }, children: "Open weekly routine" })
+    onOpenRoutine && /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: onOpenRoutine, className: "cal-btn pointer-coarse:!h-10", style: { alignSelf: "flex-start", height: 34, padding: "0 12px", fontSize: 13 }, children: "Open weekly routine" })
   ] });
   const coverStyle = getCoverStyle(coverColour);
   const statusCol = columns.find((c) => c.status_key === status);
@@ -65295,7 +65303,7 @@ function Hydrants() {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-end justify-between gap-x-6 gap-y-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eyebrow", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: "/targets", className: "hover:underline", children: "Targets" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: "/targets", className: "tap hover:underline", children: "Targets" }),
           " · ",
           watch ? `${watch} Watch` : "No watch set",
           data && ` · Year ${data.cycle_year} of 15`
@@ -65333,7 +65341,7 @@ function Hydrants() {
           onClick: () => select({ watch: w }),
           "aria-pressed": w === watch,
           className: cn(
-            "inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition-colors",
+            "tap-chip inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition-colors",
             w === watch ? "border-foreground/70 bg-foreground text-background" : "border-border hover:bg-muted"
           ),
           children: [
@@ -66272,7 +66280,7 @@ function Links() {
             type: "button",
             "aria-label": `Change ${l.title}`,
             onClick: () => setDraft({ id: l.id, section: l.section, title: l.title, url: l.url, note: l.note ?? "" }),
-            className: "absolute bottom-2 right-2 grid h-8 w-8 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground",
+            className: "absolute bottom-2 right-2 grid h-8 w-8 place-items-center rounded-lg pointer-coarse:bottom-1 pointer-coarse:right-1 pointer-coarse:h-10 pointer-coarse:w-10 text-muted-foreground hover:bg-muted hover:text-foreground",
             children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "h-3.5 w-3.5" })
           }
         )
@@ -66824,7 +66832,7 @@ function ReferenceCard({ n, data, loading, canEdit, badge }) {
             setText(toText((data == null ? void 0 : data.sections) ?? []));
             setEditing(true);
           },
-          className: "inline-flex h-8 items-center gap-1.5 rounded-lg border border-border px-2.5 text-xs font-medium hover:bg-muted",
+          className: "tap-chip inline-flex h-8 items-center gap-1.5 rounded-lg border border-border px-2.5 text-xs font-medium hover:bg-muted",
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "h-3.5 w-3.5" }),
             " Edit"
@@ -66903,7 +66911,7 @@ function ReferenceCards({ n, cards, canEdit, holder }) {
         holder,
         " Watch's board"
       ] }),
-      canEdit && !editing && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: startEdit, className: "inline-flex h-8 items-center gap-1.5 rounded-lg border border-border px-2.5 text-xs font-medium hover:bg-muted", children: [
+      canEdit && !editing && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: startEdit, className: "tap-chip inline-flex h-8 items-center gap-1.5 rounded-lg border border-border px-2.5 text-xs font-medium hover:bg-muted", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "h-3.5 w-3.5" }),
         " Edit cards"
       ] })
@@ -69671,98 +69679,114 @@ function AdminUsers() {
     if (!date2) return "Never";
     return new Date(date2).toLocaleDateString();
   };
+  const roleControl = (user2) => !user2.left_at ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: user2.role, onValueChange: (value) => handleRoleChange(user2.id, value), children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "w-24 md:w-32", "aria-label": `Role for ${user2.name}`, children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "WC", children: "WC" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "CC", children: "CC" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "FF", children: "FF" }),
+      user2.role === "RO" && /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "RO", children: "RO" })
+    ] })
+  ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", children: user2.role });
+  const statusBadges = (user2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    user2.is_admin && !user2.left_at && /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: "mr-1.5 bg-indigo-600", children: "Admin" }),
+    user2.left_at ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", children: [
+      "Left ",
+      new Date(user2.left_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+    ] }) : user2.is_active ? /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: "bg-green-500", children: "Active" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "border-amber-400 text-amber-700 dark:text-amber-400", children: "Not signed up yet" })
+  ] });
+  const actionButtons = (user2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    !user2.left_at && user2.role === "WC" && !user2.is_admin && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { size: "sm", variant: "outline", onClick: () => setAdminAsk({ user: user2, isAdmin: true }), children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldCheck, { className: "w-4 h-4 mr-1" }),
+      "Make admin"
+    ] }),
+    !user2.left_at && user2.is_admin && user2.id !== (me == null ? void 0 : me.id) && user2.rank !== "Admin" && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { size: "sm", variant: "outline", onClick: () => setAdminAsk({ user: user2, isAdmin: false }), children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldOff, { className: "w-4 h-4 mr-1" }),
+      "Remove admin"
+    ] }),
+    !user2.left_at ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      Button,
+      {
+        size: "sm",
+        variant: "outline",
+        onClick: () => setOffboardingUser(user2),
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(UserX, { className: "w-4 h-4 mr-1" }),
+          "Has left"
+        ]
+      }
+    ) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      Button,
+      {
+        size: "sm",
+        variant: "outline",
+        onClick: () => handleReactivate(user2.id),
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(UserCheck, { className: "w-4 h-4 mr-1" }),
+          "Back at the station"
+        ]
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Button,
+      {
+        size: "sm",
+        variant: "ghost",
+        className: "text-red-600 hover:text-red-700 hover:bg-red-50",
+        onClick: () => setDeleteUser(user2),
+        "aria-label": `Delete ${user2.name}`,
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" })
+      }
+    )
+  ] });
   return (
     // Shown inside the Admin page, which Layout already wraps — so no PageContainer here.
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl font-semibold", children: "User Management" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-6", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground", children: "Manage user roles, permissions, and account status" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { onClick: () => setShowInviteDialog(true), children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(UserPlus, { className: "w-4 h-4 mr-2" }),
           "Add Staff Member"
         ] })
       ] }),
-      loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: [...Array(8)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-12 w-full" }, i)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-card rounded-lg border", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Name" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Email" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Role" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Status" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Last Login" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "text-right", children: "Actions" })
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableBody, { children: users.map((user2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "font-medium", children: user2.name }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: user2.email }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: !user2.left_at ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            Select,
-            {
-              value: user2.role,
-              onValueChange: (value) => handleRoleChange(user2.id, value),
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "w-32", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "WC", children: "WC" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "CC", children: "CC" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "FF", children: "FF" }),
-                  user2.role === "RO" && /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "RO", children: "RO" })
-                ] })
-              ]
-            }
-          ) : /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", children: user2.role }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(TableCell, { children: [
-            user2.is_admin && !user2.left_at && /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: "mr-1.5 bg-indigo-600", children: "Admin" }),
-            user2.left_at ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "outline", children: [
-              "Left ",
-              new Date(user2.left_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
-            ] }) : user2.is_active ? /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { className: "bg-green-500", children: "Active" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "border-amber-400 text-amber-700 dark:text-amber-400", children: "Not signed up yet" })
+      loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: [...Array(8)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-12 w-full" }, i)) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "space-y-2 md:hidden", children: users.map((user2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "rounded-xl border bg-card p-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start justify-between gap-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "truncate font-semibold", children: user2.name }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "truncate text-xs text-muted-foreground", children: user2.email })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "shrink-0", children: roleControl(user2) })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: formatDate(user2.last_login_at) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "text-right", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 justify-end", children: [
-            !user2.left_at && user2.role === "WC" && !user2.is_admin && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { size: "sm", variant: "outline", onClick: () => setAdminAsk({ user: user2, isAdmin: true }), children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldCheck, { className: "w-4 h-4 mr-1" }),
-              "Make admin"
-            ] }),
-            !user2.left_at && user2.is_admin && user2.id !== (me == null ? void 0 : me.id) && user2.rank !== "Admin" && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { size: "sm", variant: "outline", onClick: () => setAdminAsk({ user: user2, isAdmin: false }), children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldOff, { className: "w-4 h-4 mr-1" }),
-              "Remove admin"
-            ] }),
-            !user2.left_at ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              Button,
-              {
-                size: "sm",
-                variant: "outline",
-                onClick: () => setOffboardingUser(user2),
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(UserX, { className: "w-4 h-4 mr-1" }),
-                  "Has left"
-                ]
-              }
-            ) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              Button,
-              {
-                size: "sm",
-                variant: "outline",
-                onClick: () => handleReactivate(user2.id),
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(UserCheck, { className: "w-4 h-4 mr-1" }),
-                  "Back at the station"
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Button,
-              {
-                size: "sm",
-                variant: "ghost",
-                className: "text-red-600 hover:text-red-700 hover:bg-red-50",
-                onClick: () => setDeleteUser(user2),
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" })
-              }
-            )
-          ] }) })
-        ] }, user2.id)) })
-      ] }) }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 flex flex-wrap items-center gap-y-1 text-xs text-muted-foreground", children: [
+            statusBadges(user2),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ml-1.5", children: [
+              "Last signed in: ",
+              formatDate(user2.last_login_at)
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 flex flex-wrap gap-2", children: actionButtons(user2) })
+        ] }, user2.id)) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hidden rounded-lg border bg-card md:block", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TableHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Name" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Email" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Role" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Status" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Last Login" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "text-right", children: "Actions" })
+          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TableBody, { children: users.map((user2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "font-medium", children: user2.name }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: user2.email }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: roleControl(user2) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: statusBadges(user2) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: formatDate(user2.last_login_at) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "text-right", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-2 justify-end", children: actionButtons(user2) }) })
+          ] }, user2.id)) })
+        ] }) }) })
+      ] }),
       offboardingUser && /* @__PURE__ */ jsxRuntimeExports.jsx(
         OffboardingWizard,
         {
@@ -70011,7 +70035,7 @@ function DictionaryManager({ type, title, description, icon, isOpen, onClose }) 
       /* @__PURE__ */ jsxRuntimeExports.jsx(TableHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Value" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Status" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Created" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "hidden sm:table-cell", children: "Created" }),
         isWC && /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { className: "w-[100px]", children: "Actions" })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(TableBody, { children: !dictionaries || dictionaries.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(TableRow, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TableCell, { colSpan: isWC ? 4 : 3, className: "text-center py-8 text-muted-foreground", children: [
@@ -70036,7 +70060,7 @@ function DictionaryManager({ type, title, description, icon, isOpen, onClose }) 
           }
         ) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: item.value }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: item.active ? "default" : "outline", children: item.active ? "Active" : "Inactive" }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "text-muted-foreground text-sm", children: new Date(item.created_at).toLocaleDateString() }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "hidden text-muted-foreground text-sm sm:table-cell", children: new Date(item.created_at).toLocaleDateString() }),
         isWC && /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: editingId === item.id ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Button,
@@ -71285,7 +71309,7 @@ function ActivityLogTab() {
       /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { children: total === 0 && !hasFilters ? "Recent system activity and audit trail" : `${total.toLocaleString()} ${total === 1 ? "event" : "events"}${hasFilters ? total === 1 ? " matches your filters" : " match your filters" : ""}` })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid gap-3 md:grid-cols-5 mb-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-3 md:grid-cols-5 mb-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "filter-action", className: "text-xs", children: "Action" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -71371,26 +71395,46 @@ function ActivityLogTab() {
         ] })
       ] }),
       hasFilters && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "ghost", size: "sm", onClick: clearFilters, className: "text-xs", children: "Clear filters" }) }),
-      isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: [...Array(10)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-12 w-full" }, i)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TableHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Timestamp" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "User" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Action" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Entity" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Details" })
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(TableBody, { children: [
-          logs.map((log) => /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { className: isFetching ? "opacity-60" : "", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "text-muted-foreground whitespace-nowrap", children: new Date(log.timestamp).toLocaleString() }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: log.user_name ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { title: log.user_id, children: log.user_name }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-xs", children: log.user_id || "System" }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "font-medium", children: log.action.replace(/_/g, " ") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { children: log.entity_type }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "text-sm text-muted-foreground max-w-xs truncate", children: formatDetails(log.details) })
-          ] }, log.id)),
-          logs.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(TableRow, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { colSpan: 5, className: "text-center py-8", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground", children: hasFilters ? "No events match these filters" : "No activity logs yet" }) }) })
-        ] })
-      ] }) }),
-      total > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mt-4 text-sm text-muted-foreground", children: [
+      isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: [...Array(10)].map((_, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { className: "h-12 w-full" }, i)) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { className: `divide-y divide-border/60 md:hidden ${isFetching ? "opacity-60" : ""}`, children: [
+          logs.map((log) => {
+            const details = formatDetails(log.details);
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "py-2.5", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline justify-between gap-3", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "min-w-0 text-sm font-medium", children: log.action.replace(/_/g, " ") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "shrink-0 text-xs tabular-nums text-muted-foreground", children: new Date(log.timestamp).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "mt-0.5 text-xs text-muted-foreground", children: [
+                log.user_name || log.user_id || "System",
+                " · ",
+                log.entity_type
+              ] }),
+              details !== "—" && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-0.5 line-clamp-2 break-words text-xs text-muted-foreground", children: details })
+            ] }, log.id);
+          }),
+          logs.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("li", { className: "py-8 text-center text-sm text-muted-foreground", children: hasFilters ? "No events match these filters" : "No activity logs yet" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hidden overflow-x-auto md:block", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TableHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Timestamp" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "User" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Action" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Entity" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TableHead, { children: "Details" })
+          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(TableBody, { children: [
+            logs.map((log) => /* @__PURE__ */ jsxRuntimeExports.jsxs(TableRow, { className: isFetching ? "opacity-60" : "", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "text-muted-foreground whitespace-nowrap", children: new Date(log.timestamp).toLocaleString() }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: log.user_name ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { title: log.user_id, children: log.user_name }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-xs", children: log.user_id || "System" }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "font-medium", children: log.action.replace(/_/g, " ") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { children: log.entity_type }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { className: "text-sm text-muted-foreground max-w-xs truncate", children: formatDetails(log.details) })
+            ] }, log.id)),
+            logs.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(TableRow, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(TableCell, { colSpan: 5, className: "text-center py-8", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground", children: hasFilters ? "No events match these filters" : "No activity logs yet" }) }) })
+          ] })
+        ] }) })
+      ] }),
+      total > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-2 mt-4 text-sm text-muted-foreground", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
           "Showing ",
           showingFrom.toLocaleString(),
@@ -74437,7 +74481,7 @@ function CanteenCard({
           {
             onClick: () => add2.mutate(next.user_id),
             disabled: busy,
-            className: "inline-flex items-center gap-2 rounded-full border border-emerald-300/80 bg-emerald-50/70 px-3 py-1 text-sm text-emerald-900 transition-colors hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-200",
+            className: "tap-chip inline-flex items-center gap-2 rounded-full border border-emerald-300/80 bg-emerald-50/70 px-3 py-1 text-sm text-emerald-900 transition-colors hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-200",
             title: "Longest since canteen",
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-3.5 w-3.5" }),
@@ -74453,7 +74497,7 @@ function CanteenCard({
           "button",
           {
             onClick: () => setPicking(true),
-            className: "rounded-full border border-dashed border-border px-3 py-1 text-sm text-muted-foreground hover:border-foreground/30 hover:text-foreground",
+            className: "tap-chip rounded-full border border-dashed border-border px-3 py-1 text-sm text-muted-foreground hover:border-foreground/30 hover:text-foreground",
             children: next ? "Other…" : "Choose…"
           }
         )
@@ -74876,7 +74920,7 @@ function SlotDropZone({
         "aria-label": `Choose someone for ${slot.label}`,
         className: `
             ${suggestion && !isDragActive ? "shrink-0 w-auto" : "w-full"} flex items-center justify-center gap-1.5 rounded-lg border-2 border-dashed
-            py-2 px-3 text-xs transition-all duration-150
+            py-2 px-3 text-xs transition-all duration-150 pointer-coarse:min-h-10
             ${highlight && dragQualifies === false ? "border-red-500 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 scale-[1.02] shadow-sm" : highlight ? "border-green-500 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 scale-[1.02] shadow-sm" : unqualForDrag ? "border-red-300/70 bg-red-50/40 dark:bg-red-950/20 text-red-500/80" : isDragActive ? "border-brand/40 bg-brand/10 text-brand animate-pulse" : slot.required ? "border-amber-300/70 bg-amber-50/40 dark:bg-amber-950/10 text-amber-600/70 dark:text-amber-400/60 hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/20 hover:text-amber-700 dark:hover:text-amber-400" : "border-muted-foreground/20 text-muted-foreground/40 hover:border-brand/50 hover:text-brand hover:bg-brand/5"}
           `,
         children: [
@@ -77912,7 +77956,7 @@ function Training() {
                   ...f,
                   competencies: checked ? f.competencies.filter((c) => c !== comp) : [...f.competencies, comp]
                 })),
-                className: `px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${checked ? "bg-teal-100 text-teal-700 border-teal-300 dark:bg-teal-900/40 dark:text-teal-300 dark:border-teal-700" : "bg-muted/50 text-muted-foreground border-border hover:bg-muted"}`,
+                className: `tap-chip px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${checked ? "bg-teal-100 text-teal-700 border-teal-300 dark:bg-teal-900/40 dark:text-teal-300 dark:border-teal-700" : "bg-muted/50 text-muted-foreground border-border hover:bg-muted"}`,
                 children: [
                   checked && /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-3 w-3 inline mr-1" }),
                   comp
@@ -78002,7 +78046,7 @@ function Training() {
                     { id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, name: "", rank: "", station: "" }
                   ]
                 })),
-                className: "text-xs font-semibold text-teal-600 hover:text-teal-700 dark:text-teal-400 flex items-center gap-1 normal-case tracking-normal",
+                className: "tap text-xs font-semibold text-teal-600 hover:text-teal-700 dark:text-teal-400 flex items-center gap-1 normal-case tracking-normal",
                 children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-3 w-3" }),
                   "Add person"
@@ -78129,7 +78173,7 @@ function UpcomingPanel({
       " planned session",
       total !== 1 ? "s" : ""
     ] }),
-    records.map((r2) => /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { className: "border-t-2 border-t-teal-500 transition-all hover:shadow-md", children: /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { className: "py-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-center justify-between gap-3", children: [
+    records.map((r2) => /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { className: "border-t-2 border-t-teal-500 transition-all hover:shadow-md max-sm:py-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { className: "py-4 max-sm:px-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-center justify-between gap-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5 min-w-0", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-wrap", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold text-foreground", children: format(parseISO(r2.training_date), "EEE dd MMM yyyy") }),
@@ -78162,6 +78206,7 @@ function UpcomingPanel({
             variant: "ghost",
             className: "text-muted-foreground hover:text-red-500",
             onClick: () => onCancel(r2.id),
+            "aria-label": "Cancel this session",
             children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" })
           }
         )

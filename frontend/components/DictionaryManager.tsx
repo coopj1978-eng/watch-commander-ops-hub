@@ -246,7 +246,8 @@ export function DictionaryManager({ type, title, description, icon, isOpen, onCl
               <TableRow>
                 <TableHead>Value</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Created</TableHead>
+                {/* A phone hasn't room for the date and the buttons; the buttons win. */}
+                <TableHead className="hidden sm:table-cell">Created</TableHead>
                 {isWC && <TableHead className="w-[100px]">Actions</TableHead>}
               </TableRow>
             </TableHeader>
@@ -285,7 +286,7 @@ export function DictionaryManager({ type, title, description, icon, isOpen, onCl
                         {item.active ? "Active" : "Inactive"}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-muted-foreground text-sm">
+                    <TableCell className="hidden text-muted-foreground text-sm sm:table-cell">
                       {new Date(item.created_at).toLocaleDateString()}
                     </TableCell>
                     {isWC && (

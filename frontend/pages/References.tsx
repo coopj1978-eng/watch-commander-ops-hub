@@ -164,7 +164,7 @@ function ReferenceCard({ n, data, loading, canEdit, badge }: { n: number; data?:
           <button
             type="button"
             onClick={() => { setTitle(data?.title ?? ""); setText(toText(data?.sections ?? [])); setEditing(true); }}
-            className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-border px-2.5 text-xs font-medium hover:bg-muted"
+            className="tap-chip inline-flex h-8 items-center gap-1.5 rounded-lg border border-border px-2.5 text-xs font-medium hover:bg-muted"
           >
             <Pencil className="h-3.5 w-3.5" /> Edit
           </button>
@@ -253,7 +253,7 @@ function ReferenceCards({ n, cards, canEdit, holder }: { n: number; cards: refer
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-sm font-semibold">Cards on {holder} Watch's board</h3>
         {canEdit && !editing && (
-          <button type="button" onClick={startEdit} className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-border px-2.5 text-xs font-medium hover:bg-muted">
+          <button type="button" onClick={startEdit} className="tap-chip inline-flex h-8 items-center gap-1.5 rounded-lg border border-border px-2.5 text-xs font-medium hover:bg-muted">
             <Pencil className="h-3.5 w-3.5" /> Edit cards
           </button>
         )}

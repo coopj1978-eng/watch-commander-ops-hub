@@ -211,7 +211,7 @@ export default function Hydrants() {
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
         <div>
           <div className="eyebrow">
-            <Link to="/targets" className="hover:underline">Targets</Link> · {watch ? `${watch} Watch` : "No watch set"}
+            <Link to="/targets" className="tap hover:underline">Targets</Link> · {watch ? `${watch} Watch` : "No watch set"}
             {data && ` · Year ${data.cycle_year} of 15`}
           </div>
           <div className="mt-1 flex flex-wrap items-center gap-3">
@@ -240,7 +240,7 @@ export default function Hydrants() {
               onClick={() => select({ watch: w })}
               aria-pressed={w === watch}
               className={cn(
-                "inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition-colors",
+                "tap-chip inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition-colors",
                 w === watch ? "border-foreground/70 bg-foreground text-background" : "border-border hover:bg-muted",
               )}
             >

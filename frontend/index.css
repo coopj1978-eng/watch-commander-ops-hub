@@ -735,6 +735,9 @@ table.plain tbody tr:last-child td { border-bottom: none; }
   }
   /* Filter chips and other pills that sit in rows: properly taller. */
   .tap-chip { min-height: 40px; }
+  /* The segmented switch (Current / All / Left) matches the buttons beside it. */
+  .seg { height: 44px; }
+  .seg button { font-size: 13px; }
 }
 /* While a phone keyboard is up (lib/visualViewport.ts sets data-keyboard),
    no dialog is taller than the part of the screen still visible. */

@@ -416,7 +416,7 @@ export default function Training() {
                             : [...f.competencies, comp],
                         }))
                       }
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                      className={`tap-chip px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
                         checked
                           ? "bg-teal-100 text-teal-700 border-teal-300 dark:bg-teal-900/40 dark:text-teal-300 dark:border-teal-700"
                           : "bg-muted/50 text-muted-foreground border-border hover:bg-muted"
@@ -530,7 +530,7 @@ export default function Training() {
                       ],
                     }))
                   }
-                  className="text-xs font-semibold text-teal-600 hover:text-teal-700 dark:text-teal-400 flex items-center gap-1 normal-case tracking-normal"
+                  className="tap text-xs font-semibold text-teal-600 hover:text-teal-700 dark:text-teal-400 flex items-center gap-1 normal-case tracking-normal"
                 >
                   <Plus className="h-3 w-3" />
                   Add person
@@ -667,8 +667,8 @@ function UpcomingPanel({
     <div className="space-y-3">
       <p className="text-xs text-muted-foreground">{total} planned session{total !== 1 ? "s" : ""}</p>
       {records.map((r) => (
-        <Card key={r.id} className="border-t-2 border-t-teal-500 transition-all hover:shadow-md">
-          <CardContent className="py-4">
+        <Card key={r.id} className="border-t-2 border-t-teal-500 transition-all hover:shadow-md max-sm:py-0">
+          <CardContent className="py-4 max-sm:px-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="space-y-1.5 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
@@ -701,6 +701,7 @@ function UpcomingPanel({
                     variant="ghost"
                     className="text-muted-foreground hover:text-red-500"
                     onClick={() => onCancel(r.id)}
+                    aria-label="Cancel this session"
                   >
                     <X className="h-3.5 w-3.5" />
                   </Button>
