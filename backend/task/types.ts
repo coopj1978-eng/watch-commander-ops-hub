@@ -5,6 +5,8 @@ export type TaskCategory = "Training" | "Inspection" | "HFSV" | "Admin" | "Other
 export interface ChecklistItem {
   label: string;
   done: boolean;
+  /** A web address the wording opens (the tick box still just ticks). Set in the weekly routine. */
+  url?: string;
   /** Who ticked it and when — stamped by the server, never by the client. */
   done_by?: string;
   done_by_name?: string;
@@ -69,6 +71,8 @@ export interface TaskTemplate {
   /** Header: null = automatic (day + how often); a colour id, image URL or uploaded picture. */
   cover?: string | null;
   routine_position?: number;
+  /** Links put on every card it makes ("Name\nhttps://…" or just the address), as a card's own links. */
+  links?: string[];
   /** A reference duty card (1–5) — made by the reference rota, not shown under Other checks. */
   reference_no?: number | null;
   is_active: boolean;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cleanRoutineItems, mergeChecklist, routineSlotSpec, stampChecklist, routineRuleFires, ticksOnly } from "./routine";
+import { cleanCardLinks, cleanLinkUrl, cleanRoutineItems, mergeCardLinks, mergeChecklist, routineSlotSpec, stampChecklist, routineRuleFires, ticksOnly, urlsByLabel } from "./routine";
 
 describe("routineSlotSpec", () => {
   it("makes a weekday's day and night routines", () => {
@@ -22,7 +22,72 @@ describe("cleanRoutineItems", () => {
   });
 });
 
+describe("cleanRoutineItems links", () => {
+  it("links an item's wording when given an address, by the item's place in the list", () => {
+    const out = cleanRoutineItems(["BA sets", "", "Hydrants"], ["firescotland.sharepoint.com/ba", "", "https://maps.example.com/h"]);
+    expect(out).toEqual([
+      { label: "BA sets", done: false, url: "https://firescotland.sharepoint.com/ba" },
+      { label: "Hydrants", done: false, url: "https://maps.example.com/h" },
+    ]);
+  });
+  it("leaves out anything that isn't a web address", () => {
+    const out = cleanRoutineItems(["A", "B", "C"], ["javascript:alert(1)", "not a link", "ftp://x.com/f"]);
+    expect(out.every((i) => !("url" in i))).toBe(true);
+  });
+});
+
+describe("cleanLinkUrl", () => {
+  it("adds https:// and refuses other kinds of address", () => {
+    expect(cleanLinkUrl("example.com/a")).toBe("https://example.com/a");
+    expect(cleanLinkUrl("http://example.com")).toBe("http://example.com/");
+    expect(cleanLinkUrl("mailto:a@b.com")).toBeNull();
+    expect(cleanLinkUrl("data:text/html,hi")).toBeNull();
+    expect(cleanLinkUrl("intranet")).toBeNull();
+    expect(cleanLinkUrl("")).toBeNull();
+  });
+});
+
+describe("urlsByLabel", () => {
+  it("finds each item's link by its wording", () => {
+    const existing = [{ label: "BA sets", done: false, url: "https://a.com/" }, { label: "J4", done: false }];
+    expect(urlsByLabel(existing, ["j4", "ba sets ", "New"])).toEqual([null, "https://a.com/", null]);
+  });
+});
+
+describe("cleanCardLinks", () => {
+  it("keeps names, tidies addresses and drops repeats and non-links", () => {
+    expect(cleanCardLinks(["Risk assessment\nexample.com/ra", "https://example.com/ra", "nope", "https://b.com/x"]))
+      .toEqual(["Risk assessment\nhttps://example.com/ra", "https://b.com/x"]);
+  });
+  it("takes no more than ten", () => {
+    expect(cleanCardLinks(Array.from({ length: 14 }, (_, i) => `https://e.com/${i}`))).toHaveLength(10);
+  });
+  it("is empty for anything that isn't a list", () => {
+    expect(cleanCardLinks("https://e.com")).toEqual([]);
+  });
+});
+
+describe("mergeCardLinks", () => {
+  it("puts the routine's links first and keeps the card's own", () => {
+    const card = ["https://old.com/", "Own\nhttps://mine.com/"];
+    expect(mergeCardLinks(card, ["https://old.com/"], ["New\nhttps://new.com/"]))
+      .toEqual(["New\nhttps://new.com/", "Own\nhttps://mine.com/"]);
+  });
+  it("renames a link without doubling it", () => {
+    expect(mergeCardLinks(["https://a.com/"], ["https://a.com/"], ["Named\nhttps://a.com/"])).toEqual(["Named\nhttps://a.com/"]);
+  });
+  it("copes with a card that had none", () => {
+    expect(mergeCardLinks(null, [], ["https://a.com/"])).toEqual(["https://a.com/"]);
+  });
+});
+
 describe("mergeChecklist", () => {
+  it("gives each item the template's link, keeping its tick", () => {
+    const card = [{ label: "BA", done: true, done_by: "u1", url: "https://old.com/" }, { label: "J4", done: false }];
+    const out = mergeChecklist(card, [{ label: "BA", done: false }, { label: "J4", done: false, url: "https://j4.com/" }]);
+    expect(out).toEqual([{ label: "BA", done: true, done_by: "u1" }, { label: "J4", done: false, url: "https://j4.com/" }]);
+  });
+
   const ticked = { label: "J4", done: true, done_by: "u1", done_by_name: "Andy", done_at: "2026-11-02T09:00:00Z" };
   it("keeps ticks by label and adds new items unticked", () => {
     const out = mergeChecklist([ticked, { label: "Trauma", done: false }], [{ label: "J4", done: false }, { label: "Trauma", done: false }, { label: "BA", done: false }]);

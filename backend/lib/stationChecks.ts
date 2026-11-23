@@ -52,6 +52,7 @@ export async function ensureStationChecks(now: Date = new Date()): Promise<{ cre
     routine_slot: string | null;
     routine_rule: string | null;
     cover: string | null;
+    links: string[] | null;
     reference_no: number | null;
     created_by: string;
     created_at: Date | null;
@@ -113,12 +114,14 @@ export async function ensureStationChecks(now: Date = new Date()): Promise<{ cre
     const tx = await db.begin();
     try {
       const task = await tx.rawQueryRow<{ id: number }>(
-        `INSERT INTO tasks (title, description, category, assigned_by, priority, checklist, rrule, status, watch_unit, source_type, due_at, tags, cover_colour)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, 'NotStarted', $11, 'template', $8, $9, $10)
+        `INSERT INTO tasks (title, description, category, assigned_by, priority, checklist, rrule, status, watch_unit, source_type, due_at, tags, cover_colour, attachments)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, 'NotStarted', $11, 'template', $8, $9, $10, $12)
          RETURNING id`,
         fillTitle(t.title_template, slot.date, slot.type, t.per_shift), t.task_description ?? null, t.category, t.created_by, t.priority, checklist, t.rrule, due,
         t.routine_slot ? ["routine"] : null, t.cover ?? null,
-        owner?.watch ?? null
+        owner?.watch ?? null,
+        // The routine card's links come with it, every time.
+        t.links?.length ? t.links : null
       );
       const instance = task && await tx.rawQueryRow<{ id: number }>(
         `INSERT INTO task_template_instances (template_id, task_id, generated_for_date, generated_for_shift)

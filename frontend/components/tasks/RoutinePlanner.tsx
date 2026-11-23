@@ -2,12 +2,13 @@ import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as Menu from "@radix-ui/react-dropdown-menu";
-import { ArrowRight, Check, Copy, GripVertical, ImagePlus, Moon, MoreHorizontal, Plus, Repeat, Sun, Trash2, X } from "lucide-react";
+import { ArrowRight, Check, Copy, ExternalLink, GripVertical, ImagePlus, Link2, Moon, MoreHorizontal, Pencil, Plus, Repeat, Sun, Trash2, X } from "lucide-react";
 import backend from "@/lib/backend";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { rewordLine, useIsPhone } from "@/lib/taskUi";
 import { CARD_COVERS } from "@/lib/taskLabels";
+import { formatTaskLink, taskLinks, tidyUrl } from "@/lib/taskLinks";
 import { DAY_NAMES, RULE_OPTIONS, ruleLabel } from "@/lib/routineRules";
 import { RoutineHeader } from "@/components/tasks/RoutineHeader";
 import type { TaskTemplate } from "~backend/task/types";
@@ -34,6 +35,12 @@ const SHIFTS = [
   { key: "night", label: "Night", hours: "18:00–08:00", Icon: Moon },
 ] as const;
 
+/** A check on a routine card; its wording can link somewhere (the tick box still just ticks). */
+interface PlanItem {
+  label: string;
+  url?: string;
+}
+
 interface PlanCard {
   /** The template id as a string, or a made-up key until the first save comes back. */
   key: string;
@@ -41,7 +48,9 @@ interface PlanCard {
   name: string;
   rule: string;
   cover: string | null;
-  items: string[];
+  items: PlanItem[];
+  /** The card's own links, stored as a task card keeps them ("Name\nhttps://…" or the address). */
+  links: string[];
 }
 type DragState = { slot: string; card: string; idx: number } | null;
 type OverState = { slot: string; card: string; idx: number | null } | null;
@@ -89,11 +98,13 @@ interface Props {
   open: boolean;
   onClose: () => void;
   canManage: boolean;
+  /** Adding, changing and removing links on the cards and their checks — the admin's (John, Nov 2026). */
+  canEditLinks?: boolean;
   /** Opens the other scheduled checks (fortnightly, every few months…). */
   onOpenOtherChecks: () => void;
 }
 
-export default function RoutinePlanner({ open, onClose, canManage, onOpenOtherChecks }: Props) {
+export default function RoutinePlanner({ open, onClose, canManage, canEditLinks = false, onOpenOtherChecks }: Props) {
   const { toast } = useToast();
   const qc = useQueryClient();
   const isPhone = useIsPhone();
@@ -115,7 +126,8 @@ export default function RoutinePlanner({ open, onClose, canManage, onOpenOtherCh
       const list = m.get(t.routine_slot!) ?? [];
       list.push({
         key: String(t.id), id: t.id, name: t.name, rule: t.routine_rule ?? "weekly", cover: t.cover ?? null,
-        items: (t.checklist ?? []).map((i) => i.label),
+        items: (t.checklist ?? []).map((i) => (i.url ? { label: i.label, url: i.url } : { label: i.label })),
+        links: t.links ?? [],
       });
       m.set(t.routine_slot!, list);
     }
@@ -140,7 +152,10 @@ export default function RoutinePlanner({ open, onClose, canManage, onOpenOtherCh
       const latest = draftRef.current[slot] ?? [];
       try {
         const res = await backend.task.saveRoutine(slot, {
-          cards: latest.map((c) => ({ key: c.key, id: c.id, name: c.name, rule: c.rule, cover: c.cover, items: c.items })),
+          cards: latest.map((c) => ({
+            key: c.key, id: c.id, name: c.name, rule: c.rule, cover: c.cover,
+            items: c.items.map((i) => i.label), item_links: c.items.map((i) => i.url ?? ""), links: c.links,
+          })),
         });
         const ids = new Map(res.keys.map((k) => [k.key, k.id]));
         const withIds = (draftRef.current[slot] ?? []).map((c) => (c.id || !ids.has(c.key) ? c : { ...c, id: ids.get(c.key) }));
@@ -163,7 +178,7 @@ export default function RoutinePlanner({ open, onClose, canManage, onOpenOtherCh
 
   const addCard = (slot: string) => {
     const cards = cardsOf(slot);
-    save(slot, [...cards, { key: newKey(), name: defaultName(slot, cards), rule: cards.length && slot !== "every" ? "first" : "weekly", cover: null, items: [] }]);
+    save(slot, [...cards, { key: newKey(), name: defaultName(slot, cards), rule: cards.length && slot !== "every" ? "first" : "weekly", cover: null, items: [], links: [] }]);
   };
   const removeCard = (slot: string, key: string) => {
     const before = cardsOf(slot);
@@ -189,21 +204,28 @@ export default function RoutinePlanner({ open, onClose, canManage, onOpenOtherCh
   const addItem = (slot: string, key: string, label: string) => {
     const card = cardsOf(slot).find((c) => c.key === key);
     if (!card) return;
-    if (card.items.some((i) => i.toLowerCase() === label.toLowerCase())) {
+    if (card.items.some((i) => i.label.toLowerCase() === label.toLowerCase())) {
       toast({ title: "Already there", description: `"${label}" is already on this card.` });
       return;
     }
-    patchCard(slot, key, { items: [...card.items, label] });
+    patchCard(slot, key, { items: [...card.items, { label }] });
   };
   const renameItem = (slot: string, key: string, idx: number, label: string) => {
     const card = cardsOf(slot).find((c) => c.key === key);
     if (!card) return;
-    const res = rewordLine(card.items, idx, label);
+    const res = rewordLine(card.items.map((i) => i.label), idx, label);
     if ("skip" in res) {
       if (res.skip === "duplicate") toast({ title: "Already there", description: "Another check on this card says the same." });
       return;
     }
-    patchCard(slot, key, { items: res.labels });
+    // A reworded check keeps its link.
+    patchCard(slot, key, { items: card.items.map((it, i) => ({ ...it, label: res.labels[i] })) });
+  };
+  /** Links a check's wording to an address, or (null) takes the link off. */
+  const setItemLink = (slot: string, key: string, idx: number, url: string | null) => {
+    const card = cardsOf(slot).find((c) => c.key === key);
+    if (!card || !card.items[idx]) return;
+    patchCard(slot, key, { items: card.items.map((it, i) => (i !== idx ? it : url ? { label: it.label, url } : { label: it.label })) });
   };
   const removeItem = (slot: string, key: string, idx: number) => {
     const card = cardsOf(slot).find((c) => c.key === key);
@@ -218,23 +240,23 @@ export default function RoutinePlanner({ open, onClose, canManage, onOpenOtherCh
     setDrag(null); setOver(null);
     if (!from) return;
     const src = cardsOf(from.slot).find((c) => c.key === from.card);
-    const label = src?.items[from.idx];
-    if (!src || label === undefined) return;
+    const item = src?.items[from.idx];
+    if (!src || item === undefined) return;
     if (from.slot === slot && from.card === cardKey) {
       const items = src.items.filter((_, i) => i !== from.idx);
       const at = Math.max(0, Math.min(items.length, beforeIdx === null ? items.length : beforeIdx > from.idx ? beforeIdx - 1 : beforeIdx));
-      items.splice(at, 0, label);
-      if (items.join("\n") !== src.items.join("\n")) patchCard(slot, cardKey, { items });
+      items.splice(at, 0, item);
+      if (items.some((it, i) => it !== src.items[i])) patchCard(slot, cardKey, { items });
       return;
     }
     const dest = cardsOf(slot).find((c) => c.key === cardKey);
     if (!dest) return;
-    if (dest.items.some((i) => i.toLowerCase() === label.toLowerCase())) {
-      toast({ title: "Already there", description: `"${label}" is already on that card.` });
+    if (dest.items.some((i) => i.label.toLowerCase() === item.label.toLowerCase())) {
+      toast({ title: "Already there", description: `"${item.label}" is already on that card.` });
       return;
     }
     const items = [...dest.items];
-    items.splice(beforeIdx ?? items.length, 0, label);
+    items.splice(beforeIdx ?? items.length, 0, item);
     if (from.slot === slot) {
       save(slot, cardsOf(slot).map((c) =>
         c.key === cardKey ? { ...c, items } : c.key === from.card ? { ...c, items: c.items.filter((_, i) => i !== from.idx) } : c));
@@ -264,6 +286,7 @@ export default function RoutinePlanner({ open, onClose, canManage, onOpenOtherCh
       slot={slot}
       cards={cardsOf(slot)}
       canManage={canManage}
+      canEditLinks={canEditLinks}
       isNow={slot === now}
       title={opts.title}
       row={opts.row}
@@ -275,6 +298,7 @@ export default function RoutinePlanner({ open, onClose, canManage, onOpenOtherCh
       onAddItem={(key, label) => addItem(slot, key, label)}
       onRenameItem={(key, idx, label) => renameItem(slot, key, idx, label)}
       onRemoveItem={(key, idx) => removeItem(slot, key, idx)}
+      onSetItemLink={(key, idx, url) => setItemLink(slot, key, idx, url)}
       onUploadError={(msg) => toast({ title: msg, variant: "destructive" })}
       drag={drag}
       over={over}
@@ -393,7 +417,7 @@ export default function RoutinePlanner({ open, onClose, canManage, onOpenOtherCh
 
               <p style={{ margin: 0, fontSize: 13, color: "var(--cal-muted)", maxWidth: 860 }}>
                 {canManage
-                  ? `Changes save as you go and reach today's cards straight away (ticks are kept). ${isPhone ? "" : "Drag an item to move it to another card. "}Use a card's ⋯ to set how often it comes round, change its header or copy it to another day. A weekly card stays with its watch until it's done or their 2nd Night ends, and an every-shift card until the shift ends. Anything not done by then is marked missed and shows on the WC dashboard.`
+                  ? `Changes save as you go and reach today's cards straight away (ticks are kept). ${isPhone ? "" : "Drag an item to move it to another card. "}Use a card's ⋯ to set how often it comes round, change its header or copy it to another day.${canEditLinks ? " Add a link to a card, or tap the link button on a check to make its wording open a page — the tick box still just ticks." : ""} A weekly card stays with its watch until it's done or their 2nd Night ends, and an every-shift card until the shift ends. Anything not done by then is marked missed and shows on the WC dashboard.`
                   : "Only Watch and Crew Commanders can change the routine."}
               </p>
             </>
@@ -422,6 +446,7 @@ interface CellProps {
   slot: string;
   cards: PlanCard[];
   canManage: boolean;
+  canEditLinks: boolean;
   isNow: boolean;
   title?: React.ReactNode;
   row?: boolean;
@@ -433,6 +458,7 @@ interface CellProps {
   onAddItem: (key: string, label: string) => void;
   onRenameItem: (key: string, idx: number, label: string) => void;
   onRemoveItem: (key: string, idx: number) => void;
+  onSetItemLink: (key: string, idx: number, url: string | null) => void;
   onUploadError: (msg: string) => void;
   drag: DragState;
   over: OverState;
@@ -449,7 +475,9 @@ function SlotCell(p: CellProps) {
     <section
       aria-label={p.slot === "every" ? "Every shift" : p.slot}
       style={{
-        display: "flex", flexDirection: "column", gap: 8, padding: 8, borderRadius: 16, minHeight: p.minHeight,
+        // flexShrink 0: in the phone sheet's scrolling column, a minHeight
+        // would otherwise let the box squash and its cards spill over the next.
+        display: "flex", flexDirection: "column", gap: 8, padding: 8, borderRadius: 16, minHeight: p.minHeight, flexShrink: 0,
         background: "var(--cal-surface-2)", border: "1px solid var(--cal-line)",
         boxShadow: p.isNow ? "0 0 0 2px var(--cal-brand)" : undefined,
       }}
@@ -486,13 +514,32 @@ function SlotCell(p: CellProps) {
   );
 }
 
-/** A routine card: header, name, ⋯ (how often, header, copy, delete), and its items. */
-function CardEditor({ slot, card, canManage, onPatch, onRemoveCard, onCopyCard, onAddItem, onRenameItem, onRemoveItem, onUploadError, drag, over, onDragStart, onDragEnd, onDragOver, onDrop }: CellProps & { card: PlanCard }) {
+/** A routine card: header, name, ⋯ (how often, header, copy, delete), its links and its items. */
+function CardEditor({ slot, card, canManage, canEditLinks, onPatch, onRemoveCard, onCopyCard, onAddItem, onRenameItem, onRemoveItem, onSetItemLink, onUploadError, drag, over, onDragStart, onDragEnd, onDragOver, onDrop }: CellProps & { card: PlanCard }) {
   const isPhone = useIsPhone();
   const [adding, setAdding] = useState(false);
   const [text, setText] = useState("");
   const [renaming, setRenaming] = useState(false);
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
+  /** The check whose link is being set. */
+  const [linkingIdx, setLinkingIdx] = useState<number | null>(null);
+  /** The card link being added ("new") or changed (its place in the list). */
+  const [cardLinkForm, setCardLinkForm] = useState<"new" | number | null>(null);
+  const links = taskLinks(card.links);
+  const saveCardLink = (url: string, name: string) => {
+    const stored = formatTaskLink(url, name);
+    const at = cardLinkForm === "new" ? -1 : cardLinkForm ?? -1;
+    if (card.links.some((l, i) => i !== at && taskLinks([l])[0]?.url === url)) {
+      onUploadError("That link is already on this card.");
+      return;
+    }
+    onPatch(card.key, { links: at < 0 ? [...card.links, stored] : card.links.map((l, i) => (i === at ? stored : l)) });
+    setCardLinkForm(null);
+  };
+  const smallBtn: React.CSSProperties = {
+    width: isPhone ? 34 : 22, height: isPhone ? 34 : 22, borderRadius: 6, border: "none", background: "transparent",
+    color: "var(--cal-muted)", display: "grid", placeItems: "center", cursor: "pointer", padding: 0, flex: "none",
+  };
   const [name, setName] = useState(card.name);
   const fileRef = useRef<HTMLInputElement>(null);
   useEffect(() => { if (!renaming) setName(card.name); }, [card.name, renaming]);
@@ -618,15 +665,65 @@ function CardEditor({ slot, card, canManage, onPatch, onRemoveCard, onCopyCard, 
         />
       </div>
 
+      {/* The card's own links — on every card it makes, like a task card's links. */}
+      {(links.length > 0 || cardLinkForm !== null) && (
+        <ul aria-label="Links" style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 2 }}>
+          {links.map((l) => cardLinkForm === l.index ? (
+            <li key={`edit-${l.index}`}>
+              <LinkForm
+                withName
+                initialUrl={l.url}
+                initialName={l.named ? l.label : ""}
+                openUrl={l.url}
+                onSave={saveCardLink}
+                onRemove={() => { onPatch(card.key, { links: card.links.filter((_, i) => i !== l.index) }); setCardLinkForm(null); }}
+                onCancel={() => setCardLinkForm(null)}
+              />
+            </li>
+          ) : (
+            <li key={`${l.index}-${l.url}`} className="rp-item" style={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <a
+                href={l.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={l.url}
+                className="cal-focus"
+                style={{
+                  flex: 1, minWidth: 0, display: "inline-flex", alignItems: "center", gap: 6, minHeight: isPhone ? 38 : 26, padding: "0 6px",
+                  borderRadius: 8, background: "var(--cal-surface-2)", color: "var(--cal-brand-text)", fontSize: 12.5, fontWeight: 600, textDecoration: "none",
+                }}
+              >
+                <Link2 className="h-3.5 w-3.5" style={{ flex: "none" }} aria-hidden />
+                <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.label}</span>
+              </a>
+              {canEditLinks && (
+                <button type="button" aria-label={`Change or remove the link ${l.label}`} title="Change link" onClick={() => setCardLinkForm(l.index)} className="rp-del cal-focus" style={smallBtn}>
+                  <Pencil className="h-3 w-3" />
+                </button>
+              )}
+            </li>
+          ))}
+          {cardLinkForm === "new" && (
+            <li>
+              <LinkForm withName onSave={saveCardLink} onCancel={() => setCardLinkForm(null)} />
+            </li>
+          )}
+        </ul>
+      )}
+
       <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 1 }}>
-        {card.items.map((label, idx) => {
+        {card.items.map((item, idx) => {
+          const { label, url } = item;
           const dragging = drag?.slot === slot && drag.card === card.key && drag.idx === idx;
           const before = !!drag && over?.slot === slot && over.card === card.key && over.idx === idx && !dragging;
+          const linkStyle: React.CSSProperties = url
+            ? { color: "var(--cal-brand-text)", textDecoration: "underline", textDecorationColor: "color-mix(in srgb, currentColor 40%, transparent)", textUnderlineOffset: 2 }
+            : {};
           return (
+            <Fragment key={`${idx}-${label}`}>
             <li
-              key={`${idx}-${label}`}
               className="rp-item"
-              draggable={canManage && !isPhone && editingIdx !== idx}
+              draggable={canManage && !isPhone && editingIdx !== idx && linkingIdx !== idx}
               onDragStart={(e) => { e.dataTransfer.effectAllowed = "move"; onDragStart(card.key, idx); }}
               onDragEnd={onDragEnd}
               onDragOver={(e) => { if (!drag) return; e.preventDefault(); e.stopPropagation(); onDragOver(card.key, idx); }}
@@ -652,14 +749,38 @@ function CardEditor({ slot, card, canManage, onPatch, onRemoveCard, onCopyCard, 
                 <button
                   type="button"
                   onClick={() => setEditingIdx(idx)}
-                  title="Reword"
+                  title={url ? `Reword · links to ${url}` : "Reword"}
                   className="cal-focus"
-                  style={{ flex: 1, minWidth: 0, textAlign: "left", border: "none", background: "transparent", borderRadius: 6, font: "inherit", color: "inherit", fontSize: 12.5, lineHeight: 1.3, overflowWrap: "anywhere", padding: "3px 0", cursor: "text" }}
+                  style={{ flex: 1, minWidth: 0, textAlign: "left", border: "none", background: "transparent", borderRadius: 6, font: "inherit", color: "inherit", fontSize: 12.5, lineHeight: 1.3, overflowWrap: "anywhere", padding: "3px 0", cursor: "text", ...linkStyle }}
                 >
                   {label}
                 </button>
+              ) : url ? (
+                <a href={url} target="_blank" rel="noopener noreferrer" title={url} className="cal-focus" style={{ flex: 1, minWidth: 0, fontSize: 12.5, lineHeight: 1.3, overflowWrap: "anywhere", padding: "3px 0", borderRadius: 6, ...linkStyle }}>
+                  {label}
+                </a>
               ) : (
                 <span style={{ flex: 1, minWidth: 0, fontSize: 12.5, lineHeight: 1.3, overflowWrap: "anywhere", padding: "3px 0" }}>{label}</span>
+              )}
+              {/* Where the wording is a button (to reword it), the link opens from
+                  here — or, for whoever sets links, from the link's own form. */}
+              {canManage && !canEditLinks && url && editingIdx !== idx && (
+                <a href={url} target="_blank" rel="noopener noreferrer" aria-label={`Open the link for "${label}"`} title={url} className="rp-del cal-focus" style={{ ...smallBtn, color: "var(--cal-brand-text)" }}>
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              )}
+              {canEditLinks && editingIdx !== idx && (
+                <button
+                  type="button"
+                  aria-label={url ? `Change the link on "${label}"` : `Link "${label}" to a page`}
+                  aria-expanded={linkingIdx === idx}
+                  title={url ? "Change link" : "Add a link"}
+                  onClick={() => setLinkingIdx(linkingIdx === idx ? null : idx)}
+                  className={linkingIdx === idx ? "cal-focus" : "rp-del cal-focus"}
+                  style={{ ...smallBtn, color: url ? "var(--cal-brand-text)" : "var(--cal-muted)" }}
+                >
+                  <Link2 className="h-3 w-3" />
+                </button>
               )}
               {canManage && editingIdx !== idx && (
                 <button
@@ -667,12 +788,26 @@ function CardEditor({ slot, card, canManage, onPatch, onRemoveCard, onCopyCard, 
                   aria-label={`Remove "${label}"`}
                   onClick={() => onRemoveItem(card.key, idx)}
                   className="rp-del cal-focus"
-                  style={{ width: 22, height: 22, borderRadius: 6, border: "none", background: "transparent", color: "var(--cal-muted)", display: "grid", placeItems: "center", cursor: "pointer", padding: 0, flex: "none" }}
+                  style={smallBtn}
                 >
                   <X className="h-3 w-3" />
                 </button>
               )}
             </li>
+            {linkingIdx === idx && (
+              <li style={{ padding: "2px 0 4px" }}>
+                <LinkForm
+                  initialUrl={url}
+                  openUrl={url}
+                  saveLabel={url ? "Save" : "Link it"}
+                  hint={`The wording "${label}" will open this page. The tick box still just ticks.`}
+                  onSave={(next) => { onSetItemLink(card.key, idx, next); setLinkingIdx(null); }}
+                  onRemove={url ? () => { onSetItemLink(card.key, idx, null); setLinkingIdx(null); } : undefined}
+                  onCancel={() => setLinkingIdx(null)}
+                />
+              </li>
+            )}
+            </Fragment>
           );
         })}
         {card.items.length === 0 && !adding && (
@@ -680,7 +815,7 @@ function CardEditor({ slot, card, canManage, onPatch, onRemoveCard, onCopyCard, 
         )}
       </ul>
 
-      {canManage && (adding ? (
+      {canManage && adding ? (
         <input
           autoFocus
           aria-label="New check"
@@ -695,17 +830,109 @@ function CardEditor({ slot, card, canManage, onPatch, onRemoveCard, onCopyCard, 
           className="cal-field"
           style={{ height: 32, width: "100%", fontSize: 12.5 }}
         />
-      ) : (
-        <button
-          type="button"
-          onClick={() => setAdding(true)}
-          className="cal-focus"
-          style={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 4, height: isPhone ? 38 : 26, padding: "0 6px", borderRadius: 8, border: "none", background: "transparent", color: "var(--cal-ink-2)", font: "inherit", fontSize: 12, fontWeight: 500, cursor: "pointer" }}
-        >
-          <Plus className="h-3 w-3" /> Add check
-        </button>
-      ))}
+      ) : (canManage || canEditLinks) && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+          {canManage && (
+            <button type="button" onClick={() => setAdding(true)} className="cal-focus" style={footBtn(isPhone)}>
+              <Plus className="h-3 w-3" /> Add check
+            </button>
+          )}
+          {canEditLinks && cardLinkForm === null && (
+            <button type="button" onClick={() => setCardLinkForm("new")} className="cal-focus" style={footBtn(isPhone)}>
+              <Link2 className="h-3 w-3" /> Add link
+            </button>
+          )}
+        </div>
+      )}
     </article>
+  );
+}
+
+const footBtn = (isPhone: boolean): React.CSSProperties => ({
+  display: "inline-flex", alignItems: "center", gap: 4, height: isPhone ? 38 : 26, padding: "0 6px", borderRadius: 8, border: "none",
+  background: "transparent", color: "var(--cal-ink-2)", font: "inherit", fontSize: 12, fontWeight: 500, cursor: "pointer",
+});
+
+/**
+ * Putting in a link: the address (https:// added if it's left off) and, for a
+ * card's own links, an optional name. Enter saves, Escape puts it back.
+ */
+function LinkForm({ initialUrl = "", initialName = "", withName, openUrl, saveLabel, hint, onSave, onRemove, onCancel }: {
+  initialUrl?: string;
+  initialName?: string;
+  withName?: boolean;
+  /** The link as it's saved now, to open from here. */
+  openUrl?: string;
+  saveLabel?: string;
+  hint?: string;
+  onSave: (url: string, name: string) => void;
+  onRemove?: () => void;
+  onCancel: () => void;
+}) {
+  const isPhone = useIsPhone();
+  const [url, setUrl] = useState(initialUrl);
+  const [name, setName] = useState(initialName);
+  const [problem, setProblem] = useState<string | null>(null);
+  const submit = () => {
+    const tidy = tidyUrl(url);
+    if (!tidy) { setProblem("That doesn't look like a link — paste the full web address, e.g. https://…"); return; }
+    onSave(tidy, name.replace(/\s+/g, " ").trim());
+  };
+  const keys = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") { e.preventDefault(); submit(); }
+    // Escape only closes this; it mustn't also close the routine behind.
+    if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); onCancel(); }
+  };
+  const btn: React.CSSProperties = { height: isPhone ? 38 : 28, padding: "0 10px", borderRadius: 9, fontSize: 12.5 };
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: 6, borderRadius: 10, background: "var(--cal-surface-2)", border: "1px solid var(--cal-line)" }}>
+      <input
+        autoFocus
+        type="url"
+        inputMode="url"
+        autoCapitalize="none"
+        autoCorrect="off"
+        spellCheck={false}
+        aria-label="Link address"
+        placeholder="Paste a link"
+        value={url}
+        onChange={(e) => { setUrl(e.target.value); setProblem(null); }}
+        onKeyDown={keys}
+        className="cal-field"
+        style={{ height: isPhone ? 40 : 30, width: "100%", fontSize: 12.5, background: "var(--cal-surface)" }}
+      />
+      {withName && (
+        <input
+          aria-label="Name for the link (optional)"
+          placeholder="Name (optional)"
+          value={name}
+          maxLength={80}
+          onChange={(e) => setName(e.target.value)}
+          onKeyDown={keys}
+          className="cal-field"
+          style={{ height: isPhone ? 40 : 30, width: "100%", fontSize: 12.5, background: "var(--cal-surface)" }}
+        />
+      )}
+      {problem
+        ? <span role="alert" style={{ fontSize: 12, color: "var(--cal-danger-fg)" }}>{problem}</span>
+        : hint && <span style={{ fontSize: 11.5, color: "var(--cal-muted)", lineHeight: 1.35 }}>{hint}</span>}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+        <button type="button" onClick={submit} className="cal-focus" style={{ ...btn, border: "none", background: "var(--cal-brand)", color: "#fff", fontWeight: 600, cursor: "pointer" }}>
+          {saveLabel ?? "Save"}
+        </button>
+        {onRemove && (
+          <button type="button" onClick={onRemove} className="cal-btn" style={{ ...btn, color: "var(--cal-danger-fg)" }}>
+            <Trash2 className="h-3.5 w-3.5" /> Remove link
+          </button>
+        )}
+        <button type="button" onClick={onCancel} className="cal-btn" style={btn}>Cancel</button>
+        {openUrl && (
+          <a href={openUrl} target="_blank" rel="noopener noreferrer" className="cal-btn" style={{ ...btn, textDecoration: "none", color: "var(--cal-brand-text)" }}>
+            <ExternalLink className="h-3.5 w-3.5" /> Open
+          </a>
+        )}
+      </div>
+    </div>
   );
 }
 

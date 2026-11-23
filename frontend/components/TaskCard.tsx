@@ -340,6 +340,29 @@ function ShiftTag({ task, shiftStart }: { task: Task & { kind?: string; check_fr
 
 const CHECKLIST_SHOWN = 5;
 
+/** Who ticked a line and when: the time and their initials. */
+function TickedBy({ item }: { item: { done_by?: string; done_by_name?: string; done_at?: string } }) {
+  if (!item.done_by_name) return null;
+  const tint = personTint(item.done_by ?? item.done_by_name);
+  return (
+    <span
+      title={`${item.done_by_name}${item.done_at ? ` · ${tickTime(item.done_at)}` : ""}`}
+      style={{ display: "inline-flex", alignItems: "center", gap: 4, flex: "none" }}
+    >
+      <span className="cal-mono" style={{ fontSize: 11, color: "var(--cal-muted)" }}>{tickTime(item.done_at)}</span>
+      <span
+        className="cal-mono"
+        style={{
+          height: 18, minWidth: 22, padding: "0 4px", borderRadius: 6, fontSize: 11, fontWeight: 600, display: "grid", placeItems: "center",
+          background: `var(--pp-${tint}-bg)`, color: `var(--pp-${tint}-fg)`,
+        }}
+      >
+        {initialsOf(item.done_by_name)}
+      </span>
+    </span>
+  );
+}
+
 /** The card's checklist, tickable in place; ticked items show who and when. */
 function CardChecklist({ task, onToggle }: { task: Task; onToggle: (label: string, done: boolean) => void }) {
   const [all, setAll] = useState(false);
@@ -350,51 +373,78 @@ function CardChecklist({ task, onToggle }: { task: Task; onToggle: (label: strin
     // Ticking mustn't open the card (click) or trigger its Enter-to-open (keydown).
     <div onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()} style={{ display: "flex", flexDirection: "column", margin: "-2px -6px 0" }}>
       <ul aria-label="Checklist" style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column" }}>
-        {shown.map((item, i) => (
-          <li key={`${i}-${item.label}`}>
-            <button
-              type="button"
-              role="checkbox"
-              aria-checked={item.done}
-              onClick={() => onToggle(item.label, !item.done)}
-              className="cal-focus tc-check"
+        {shown.map((item, i) => {
+          const box = (
+            <span
+              aria-hidden
               style={{
-                width: "100%", minHeight: isPhone ? 40 : 32, display: "flex", alignItems: "center", gap: 9, padding: "4px 6px",
-                border: "none", borderRadius: 9, background: "transparent", font: "inherit", textAlign: "left", cursor: "pointer", color: "var(--cal-ink)",
+                width: 18, height: 18, borderRadius: 6, flex: "none", display: "grid", placeItems: "center", transition: "background-color .12s",
+                ...(item.done ? { background: "var(--cal-brand)" } : { boxShadow: "inset 0 0 0 1.5px var(--cal-line-2)", background: "var(--cal-surface)" }),
               }}
             >
-              <span
-                aria-hidden
-                style={{
-                  width: 18, height: 18, borderRadius: 6, flex: "none", display: "grid", placeItems: "center", transition: "background-color .12s",
-                  ...(item.done ? { background: "var(--cal-brand)" } : { boxShadow: "inset 0 0 0 1.5px var(--cal-line-2)", background: "var(--cal-surface)" }),
-                }}
-              >
-                {item.done && <Check className="h-3 w-3" strokeWidth={3.4} color="#fff" />}
-              </span>
-              <span style={{ flex: 1, minWidth: 0, fontSize: 13, lineHeight: 1.3, overflowWrap: "anywhere", ...(item.done ? { color: "var(--cal-muted)", textDecoration: "line-through" } : {}) }}>
-                {item.label}
-              </span>
-              {item.done && item.done_by_name && (
-                <span
-                  title={`${item.done_by_name}${item.done_at ? ` · ${tickTime(item.done_at)}` : ""}`}
-                  style={{ display: "inline-flex", alignItems: "center", gap: 4, flex: "none" }}
-                >
-                  <span className="cal-mono" style={{ fontSize: 11, color: "var(--cal-muted)" }}>{tickTime(item.done_at)}</span>
-                  <span
-                    className="cal-mono"
+              {item.done && <Check className="h-3 w-3" strokeWidth={3.4} color="#fff" />}
+            </span>
+          );
+          const wording: React.CSSProperties = {
+            flex: 1, minWidth: 0, fontSize: 13, lineHeight: 1.3, overflowWrap: "anywhere",
+            ...(item.done ? { color: "var(--cal-muted)", textDecoration: "line-through" } : {}),
+          };
+          const rowHeight = isPhone ? 40 : 32;
+          return (
+            <li key={`${i}-${item.label}`}>
+              {item.url ? (
+                // The wording opens its page; only the box ticks.
+                <div className="tc-check" style={{ width: "100%", minHeight: rowHeight, display: "flex", alignItems: "center", borderRadius: 9 }}>
+                  <button
+                    type="button"
+                    role="checkbox"
+                    aria-checked={item.done}
+                    aria-label={item.label}
+                    onClick={() => onToggle(item.label, !item.done)}
+                    className="cal-focus"
                     style={{
-                      height: 18, minWidth: 22, padding: "0 4px", borderRadius: 6, fontSize: 11, fontWeight: 600, display: "grid", placeItems: "center",
-                      background: `var(--pp-${personTint(item.done_by ?? item.done_by_name)}-bg)`, color: `var(--pp-${personTint(item.done_by ?? item.done_by_name)}-fg)`,
+                      alignSelf: "stretch", minHeight: rowHeight, display: "flex", alignItems: "center", padding: "0 9px 0 6px",
+                      border: "none", borderRadius: 9, background: "transparent", cursor: "pointer", flex: "none",
                     }}
                   >
-                    {initialsOf(item.done_by_name)}
-                  </span>
-                </span>
+                    {box}
+                  </button>
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={item.url}
+                    className="cal-focus"
+                    style={{
+                      ...wording, padding: "4px 6px 4px 0", borderRadius: 6,
+                      ...(item.done ? {} : { color: "var(--cal-brand-text)", textDecoration: "underline", textUnderlineOffset: 2 }),
+                    }}
+                  >
+                    {item.label}
+                    <ExternalLink className="h-3 w-3" aria-hidden style={{ display: "inline", marginLeft: 4, verticalAlign: "-1px", opacity: 0.7 }} />
+                  </a>
+                  {item.done && item.done_by_name && <span style={{ paddingRight: 6, display: "inline-flex" }}><TickedBy item={item} /></span>}
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  role="checkbox"
+                  aria-checked={item.done}
+                  onClick={() => onToggle(item.label, !item.done)}
+                  className="cal-focus tc-check"
+                  style={{
+                    width: "100%", minHeight: rowHeight, display: "flex", alignItems: "center", gap: 9, padding: "4px 6px",
+                    border: "none", borderRadius: 9, background: "transparent", font: "inherit", textAlign: "left", cursor: "pointer", color: "var(--cal-ink)",
+                  }}
+                >
+                  {box}
+                  <span style={wording}>{item.label}</span>
+                  {item.done && item.done_by_name && <TickedBy item={item} />}
+                </button>
               )}
-            </button>
-          </li>
-        ))}
+            </li>
+          );
+        })}
       </ul>
       {items.length > CHECKLIST_SHOWN && (
         <button

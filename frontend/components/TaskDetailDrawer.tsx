@@ -712,6 +712,45 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                               </div>
                             ) : (
                               <div key={idx} className="tdd-row flex items-center gap-1">
+                                {item.url ? (
+                                  // The wording opens its page; only the box ticks.
+                                  <div className="flex flex-1 min-w-0 items-center min-h-11 sm:min-h-10">
+                                    <button
+                                      type="button"
+                                      role="checkbox"
+                                      aria-checked={item.done}
+                                      aria-label={item.label}
+                                      disabled={!canWork}
+                                      className="cal-focus flex self-stretch items-center pl-1 pr-3 sm:pl-2"
+                                      style={{ border: "none", background: "transparent", borderRadius: 10, cursor: canWork ? "pointer" : "default", flex: "none" }}
+                                      onClick={() => handleChecklistToggle(idx)}
+                                    >
+                                      <span className="tdd-box grid place-items-center h-6 w-6 sm:h-[22px] sm:w-[22px]" data-on={item.done ? "" : undefined}>
+                                        {item.done && <Check className="h-[13px] w-[13px]" strokeWidth={3.4} color="#ffffff" />}
+                                      </span>
+                                    </button>
+                                    <a
+                                      href={item.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      title={item.url}
+                                      className="cal-focus text-[15px] sm:text-sm"
+                                      style={{
+                                        flex: 1, minWidth: 0, lineHeight: 1.35, overflowWrap: "anywhere", padding: "4px 0", borderRadius: 6,
+                                        color: item.done ? "var(--cal-muted)" : "var(--cal-brand-text)",
+                                        textDecoration: item.done ? "line-through" : "underline", textUnderlineOffset: 2,
+                                      }}
+                                    >
+                                      {item.label}
+                                      <ExternalLink className="h-3.5 w-3.5" aria-hidden style={{ display: "inline", marginLeft: 5, verticalAlign: "-2px", opacity: 0.7 }} />
+                                    </a>
+                                    {item.done && item.done_by_name && (
+                                      <span className="cal-mono" style={{ flex: "none", fontSize: 11, color: "var(--cal-muted)", paddingLeft: 8 }}>
+                                        {item.done_by_name.split(" ")[0]} · {tickTime(item.done_at)}
+                                      </span>
+                                    )}
+                                  </div>
+                                ) : (
                                 <button
                                   type="button"
                                   role="checkbox"
@@ -736,6 +775,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                                     </span>
                                   )}
                                 </button>
+                                )}
                                 {canEdit && (
                                   <>
                                     <button type="button" aria-label={`Reword "${item.label}"`} title="Reword" className="tdd-del tdd-edit cal-focus grid place-items-center" onClick={() => setEditingIdx(idx)}>

@@ -685,7 +685,8 @@ export default function Tasks() {
       <RoutinePlanner
         open={showRoutines}
         onClose={() => setShowRoutines(false)}
-        canManage={canAssignTasks}
+        canManage={canAssignTasks || !!user?.is_admin}
+        canEditLinks={!!user?.is_admin}
         onOpenOtherChecks={() => { setShowRoutines(false); setShowTemplateManager(true); }}
       />
       <TaskTemplateManager

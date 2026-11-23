@@ -4747,6 +4747,8 @@ export namespace task {
     export interface ChecklistItem {
         label: string
         done: boolean
+        /** A web address the wording opens (the tick box still just ticks). Set in the weekly routine. */
+        url?: string
         /** Who ticked it and when (set by the server). */
         "done_by"?: string
         "done_by_name"?: string
@@ -4881,6 +4883,8 @@ export namespace task {
         /** Header: null = automatic; a colour id, image URL or uploaded picture. */
         cover?: string | null
         "routine_position"?: number
+        /** Links put on every card it makes ("Name\nhttps://…" or just the address). */
+        links?: string[]
         "reference_no"?: number | null
         "is_active": boolean
         "created_by": string
@@ -4915,6 +4919,10 @@ export namespace task {
         rule?: string
         cover?: string | null
         items: string[]
+        /** Per item (same order), the address its wording links to; "" for none. Left out: kept as they were. */
+        "item_links"?: string[]
+        /** The card's own links ("Name\nhttps://…" or the address). Left out: kept as they were. */
+        links?: string[]
     }
 
     export interface ShiftInfo {

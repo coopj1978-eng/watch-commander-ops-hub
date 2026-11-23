@@ -58,19 +58,84 @@ export function routineRuleFires(rule: string | null | undefined, dateIso: strin
   }
 }
 
-/** Item labels from the planner: trimmed, no blanks, no repeats, at most 40. */
-export function cleanRoutineItems(labels: string[]): ChecklistItem[] {
+/**
+ * A typed or pasted web address made safe to keep: http(s) only, "https://"
+ * added when it was left off. Null when it isn't an address. (The same rule
+ * as the app's tidyUrl, so what it saves comes back unchanged.)
+ */
+export function cleanLinkUrl(input: unknown): string | null {
+  const raw = String(input ?? "").trim();
+  if (!raw || /\s/.test(raw) || raw.length > 2000) return null;
+  const withScheme = /^[a-z][a-z0-9+.-]*:/i.test(raw) ? raw : `https://${raw}`;
+  try {
+    const u = new URL(withScheme);
+    if (u.protocol !== "http:" && u.protocol !== "https:") return null;
+    if (!u.hostname.includes(".") && u.hostname !== "localhost") return null;
+    return u.toString();
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Item labels from the planner: trimmed, no blanks, no repeats, at most 40.
+ * `urls` (same order as the labels) links an item's wording somewhere; a
+ * blank or unusable one leaves the item unlinked.
+ */
+export function cleanRoutineItems(labels: string[], urls?: (string | null | undefined)[]): ChecklistItem[] {
   const seen = new Set<string>();
   const items: ChecklistItem[] = [];
-  for (const raw of labels) {
+  for (const [i, raw] of labels.entries()) {
     const label = String(raw ?? "").trim().slice(0, 120);
     const key = label.toLowerCase();
     if (!label || seen.has(key)) continue;
     seen.add(key);
-    items.push({ label, done: false });
+    const url = cleanLinkUrl(urls?.[i]);
+    items.push(url ? { label, done: false, url } : { label, done: false });
     if (items.length >= 40) break;
   }
   return items;
+}
+
+/**
+ * The links an item already had, by wording — for a save from an older copy
+ * of the app that doesn't send them, so they aren't lost.
+ */
+export function urlsByLabel(existing: ChecklistItem[], labels: string[]): (string | null)[] {
+  const byLabel = new Map(existing.filter((i) => i.url).map((i) => [norm(i.label), i.url!]));
+  return labels.map((l) => byLabel.get(norm(String(l ?? ""))) ?? null);
+}
+
+const linkUrlOf = (stored: string) => (stored.split("\n").pop() ?? "").trim();
+
+/**
+ * A routine card's own links, as a task card keeps them: the address, or a
+ * name and the address on two lines. Web addresses only, no repeats, at most 10.
+ */
+export function cleanCardLinks(links: unknown): string[] {
+  if (!Array.isArray(links)) return [];
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const raw of links) {
+    const lines = String(raw ?? "").split("\n").map((l) => l.trim()).filter(Boolean);
+    const url = cleanLinkUrl(lines.pop());
+    if (!url || seen.has(url)) continue;
+    seen.add(url);
+    const name = lines.join(" ").replace(/\s+/g, " ").slice(0, 80);
+    out.push(name ? `${name}\n${url}` : url);
+    if (out.length >= 10) break;
+  }
+  return out;
+}
+
+/**
+ * A card on the board after its routine card's links change: the routine's
+ * links first, then any the card was given of its own that day.
+ */
+export function mergeCardLinks(card: string[] | null | undefined, oldTemplate: string[], newTemplate: string[]): string[] {
+  const fromTemplate = new Set([...oldTemplate, ...newTemplate].map(linkUrlOf));
+  const own = (card ?? []).filter((a) => !fromTemplate.has(linkUrlOf(a)));
+  return [...newTemplate, ...own];
 }
 
 const norm = (s: string) => s.trim().toLowerCase();
@@ -92,7 +157,8 @@ function rewordedFrom(before: ChecklistItem[], afterLabels: string[], idx: numbe
  * A template's new checklist applied to a card that's already on the board:
  * items keep their ticks (and who ticked them) by label, a reworded item
  * keeps its tick, new items arrive unticked, and items taken off the
- * template go — unless already ticked, so nobody's work disappears.
+ * template go — unless already ticked, so nobody's work disappears. Each
+ * item's link is the template's.
  */
 export function mergeChecklist(card: ChecklistItem[], template: ChecklistItem[]): ChecklistItem[] {
   const byLabel = new Map(card.map((i) => [norm(i.label), i]));
@@ -101,7 +167,9 @@ export function mergeChecklist(card: ChecklistItem[], template: ChecklistItem[])
   const merged: ChecklistItem[] = template.map((t, idx) => {
     const had = byLabel.get(norm(t.label)) ?? rewordedFrom(card, labels, idx);
     if (had) used.add(had);
-    return had ? { ...had, label: t.label } : { label: t.label, done: false };
+    const { url: _old, ...item } = had ? { ...had, label: t.label } : { label: t.label, done: false };
+    // The wording's link is the template's to set.
+    return t.url ? { ...item, url: t.url } : item;
   });
   const kept = new Set(template.map((t) => norm(t.label)));
   for (const i of card) if (i.done && !used.has(i) && !kept.has(norm(i.label))) merged.push(i);

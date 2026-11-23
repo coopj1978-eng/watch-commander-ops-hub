@@ -1,7 +1,7 @@
 import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
-import { ROUTINE_RULES, cleanRoutineItems, mergeChecklist, routineSlotSpec } from "../lib/routine";
+import { ROUTINE_RULES, cleanCardLinks, cleanRoutineItems, mergeCardLinks, mergeChecklist, routineSlotSpec, urlsByLabel } from "../lib/routine";
 import type { TaskTemplate, TaskCategory, TaskPriority, ChecklistItem } from "./types";
 
 interface ListTemplatesResponse {
@@ -47,6 +47,7 @@ export const listTemplates = api<void, ListTemplatesResponse>(
     const templates: TaskTemplate[] = rawTemplates.map((t) => ({
       ...t,
       checklist: typeof t.checklist === "string" ? JSON.parse(t.checklist) : (t.checklist ?? []),
+      links: Array.isArray(t.links) ? t.links : [],
     }));
     return { templates };
   }
@@ -167,6 +168,25 @@ async function syncOpenCards(templateId: number, checklist: ChecklistItem[]): Pr
   }
 }
 
+/**
+ * A routine card's changed links also reach its cards already on the board;
+ * links someone put on one of those cards themselves stay.
+ */
+async function syncOpenCardLinks(templateId: number, oldLinks: string[], links: string[]): Promise<void> {
+  const cards = await db.rawQueryAll<{ id: number; attachments: string[] | null }>(
+    `SELECT t.id, t.attachments FROM tasks t
+     JOIN task_template_instances i ON i.task_id = t.id
+     WHERE i.template_id = $1 AND t.status NOT IN ('Done', 'Missed')`,
+    templateId
+  );
+  for (const c of cards) {
+    await db.rawExec(
+      `UPDATE tasks SET attachments = $1, updated_at = NOW() WHERE id = $2`,
+      mergeCardLinks(c.attachments, oldLinks, links), c.id
+    );
+  }
+}
+
 // ─── Weekly routine (the Routines planner) ───────────────────────────────────
 
 interface RoutineCardInput {
@@ -180,6 +200,16 @@ interface RoutineCardInput {
   /** null = automatic header; else a colour id, image URL or uploaded picture (data URL). */
   cover?: string | null;
   items: string[];
+  /**
+   * For each item (same order), a web address its wording links to — "" for
+   * none. Left out (an older copy of the app): the links stay as they were.
+   */
+  item_links?: string[];
+  /**
+   * The card's own links ("Name\nhttps://…" or just the address), put on
+   * every card it makes. Left out: they stay as they were.
+   */
+  links?: string[];
 }
 
 interface SaveRoutineRequest {
@@ -207,27 +237,36 @@ function cleanCover(cover: string | null | undefined): string | null {
 const parseTemplate = (raw: any): TaskTemplate => ({
   ...raw,
   checklist: typeof raw.checklist === "string" ? JSON.parse(raw.checklist) : (raw.checklist ?? []),
+  links: Array.isArray(raw.links) ? raw.links : [],
 });
 
-// PUT /task-templates/routine/:slot — set one slot's cards (WC/CC). Each card
-// is a template; cards on today's board pick up name, header and item changes
-// (ticks are kept), and a card taken out of the planner leaves the board if
-// nobody has ticked anything on it yet.
+const parseChecklist = (raw: unknown): ChecklistItem[] => {
+  const list = typeof raw === "string" ? JSON.parse(raw) : raw;
+  return Array.isArray(list) ? list : [];
+};
+
+// PUT /task-templates/routine/:slot — set one slot's cards (WC/CC, or the
+// admin). Each card is a template; cards on today's board pick up name,
+// header, link and item changes (ticks are kept), and a card taken out of the
+// planner leaves the board if nobody has ticked anything on it yet. Adding or
+// changing links is offered to the admin only, in the app (John, Nov 2026);
+// a WC/CC's changes carry the links along as they are.
 export const saveRoutine = api<SaveRoutineRequest, SaveRoutineResponse>(
   { auth: true, expose: true, method: "PUT", path: "/task-templates/routine/:slot" },
   async ({ slot, cards }) => {
     const auth = getAuthData()!;
-    if (!["WC", "CC"].includes(auth.role)) {
+    if (!["WC", "CC"].includes(auth.role) && !auth.isAdmin) {
       throw APIError.permissionDenied("only Watch Commanders and Crew Commanders can change the routine");
     }
     const spec = routineSlotSpec(slot);
     if (!spec) throw APIError.invalidArgument("unknown routine slot");
     const input = (Array.isArray(cards) ? cards : []).slice(0, 12);
 
-    const existing = await db.rawQueryAll<{ id: number; checklist: unknown }>(
-      `SELECT id, checklist FROM task_templates WHERE routine_slot = $1`, slot
+    const existing = await db.rawQueryAll<{ id: number; checklist: unknown; links: string[] | null }>(
+      `SELECT id, checklist, links FROM task_templates WHERE routine_slot = $1`, slot
     );
     const existingIds = new Set(existing.map((e) => e.id));
+    const before = new Map(existing.map((e) => [e.id, e]));
     const keys: { key: string; id: number }[] = [];
     const kept = new Set<number>();
 
@@ -235,15 +274,22 @@ export const saveRoutine = api<SaveRoutineRequest, SaveRoutineResponse>(
       const name = String(card.name ?? "").trim().slice(0, 80) || spec.name;
       const rule = slot === "every" ? "weekly" : (ROUTINE_RULES as readonly string[]).includes(card.rule ?? "") ? card.rule! : "weekly";
       const cover = cleanCover(card.cover);
-      const checklist = cleanRoutineItems(Array.isArray(card.items) ? card.items : []);
+      const labels = Array.isArray(card.items) ? card.items : [];
+      const old = card.id ? before.get(card.id) : undefined;
+      const oldLinks = old?.links ?? [];
+      const checklist = cleanRoutineItems(
+        labels,
+        Array.isArray(card.item_links) ? card.item_links : urlsByLabel(parseChecklist(old?.checklist), labels),
+      );
+      const links = card.links === undefined ? oldLinks : cleanCardLinks(card.links);
 
       if (card.id && existingIds.has(card.id)) {
         await db.rawExec(
           `UPDATE task_templates
            SET name = $1, title_template = $1, checklist = $2, routine_rule = $3, cover = $4,
-               routine_position = $5, is_active = $6, updated_at = NOW()
-           WHERE id = $7`,
-          name, JSON.stringify(checklist), rule, cover, position, checklist.length > 0, card.id
+               routine_position = $5, is_active = $6, links = $7, updated_at = NOW()
+           WHERE id = $8`,
+          name, JSON.stringify(checklist), rule, cover, position, checklist.length > 0, links, card.id
         );
         await syncOpenCards(card.id, checklist);
         await db.rawExec(
@@ -252,16 +298,17 @@ export const saveRoutine = api<SaveRoutineRequest, SaveRoutineResponse>(
              AND status NOT IN ('Done', 'Missed')`,
           name, cover, card.id
         );
+        if (links.join("\n\n") !== oldLinks.join("\n\n")) await syncOpenCardLinks(card.id, oldLinks, links);
         kept.add(card.id);
         if (card.key) keys.push({ key: card.key, id: card.id });
       } else {
         const row = await db.rawQueryRow<{ id: number }>(
           `INSERT INTO task_templates
              (name, description, title_template, category, priority, checklist, rrule, created_by, per_shift, shift_only,
-              routine_slot, routine_rule, cover, routine_position, is_active)
-           VALUES ($1, NULL, $1, 'Other', 'Med', $2, $3, $4, true, $5, $6, $7, $8, $9, $10)
+              routine_slot, routine_rule, cover, routine_position, is_active, links)
+           VALUES ($1, NULL, $1, 'Other', 'Med', $2, $3, $4, true, $5, $6, $7, $8, $9, $10, $11)
            RETURNING id`,
-          name, JSON.stringify(checklist), spec.rrule, auth.userID, spec.shift_only, slot, rule, cover, position, checklist.length > 0
+          name, JSON.stringify(checklist), spec.rrule, auth.userID, spec.shift_only, slot, rule, cover, position, checklist.length > 0, links
         );
         if (row) {
           kept.add(row.id);
