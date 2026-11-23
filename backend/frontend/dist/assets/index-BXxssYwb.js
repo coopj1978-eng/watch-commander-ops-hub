@@ -31699,8 +31699,8 @@ var Root3 = Menu;
 var Anchor2 = MenuAnchor;
 var Portal$2 = MenuPortal;
 var Content2$3 = MenuContent;
-var Group$1 = MenuGroup;
-var Label$2 = MenuLabel;
+var Group$2 = MenuGroup;
+var Label$3 = MenuLabel;
 var Item2$1 = MenuItem;
 var CheckboxItem = MenuCheckboxItem;
 var RadioGroup = MenuRadioGroup;
@@ -31843,7 +31843,7 @@ var DropdownMenuGroup = reactExports.forwardRef(
   (props, forwardedRef) => {
     const { __scopeDropdownMenu, ...groupProps } = props;
     const menuScope = useMenuScope(__scopeDropdownMenu);
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(Group$1, { ...menuScope, ...groupProps, ref: forwardedRef });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(Group$2, { ...menuScope, ...groupProps, ref: forwardedRef });
   }
 );
 DropdownMenuGroup.displayName = GROUP_NAME$1;
@@ -31852,7 +31852,7 @@ var DropdownMenuLabel$1 = reactExports.forwardRef(
   (props, forwardedRef) => {
     const { __scopeDropdownMenu, ...labelProps } = props;
     const menuScope = useMenuScope(__scopeDropdownMenu);
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(Label$2, { ...menuScope, ...labelProps, ref: forwardedRef });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(Label$3, { ...menuScope, ...labelProps, ref: forwardedRef });
   }
 );
 DropdownMenuLabel$1.displayName = LABEL_NAME$1;
@@ -33432,6 +33432,8 @@ function NotificationIcon({ type }) {
       return /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldAlert, { className: "h-4 w-4 text-red-500 shrink-0" });
     case "bulletin_posted":
       return /* @__PURE__ */ jsxRuntimeExports.jsx(Megaphone, { className: "h-4 w-4 text-brand shrink-0" });
+    case "task_assigned":
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(UserCheck, { className: "h-4 w-4 text-brand shrink-0" });
     default:
       return /* @__PURE__ */ jsxRuntimeExports.jsx(Info, { className: "h-4 w-4 text-blue-500 shrink-0" });
   }
@@ -34664,7 +34666,7 @@ var Primitive = NODES.reduce((primitive, node) => {
   return { ...primitive, [node]: Node2 };
 }, {});
 var NAME$1 = "Label";
-var Label$1 = reactExports.forwardRef((props, forwardedRef) => {
+var Label$2 = reactExports.forwardRef((props, forwardedRef) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
     Primitive.label,
     {
@@ -34680,9 +34682,9 @@ var Label$1 = reactExports.forwardRef((props, forwardedRef) => {
     }
   );
 });
-Label$1.displayName = NAME$1;
-var Root$2 = Label$1;
-function Label({
+Label$2.displayName = NAME$1;
+var Root$2 = Label$2;
+function Label$1({
   className,
   ...props
 }) {
@@ -34739,7 +34741,7 @@ function ChangePasswordDialog({ open, onOpenChange }) {
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: submit, className: "space-y-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "cp-current", children: "Current password" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "cp-current", children: "Current password" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Input,
           {
@@ -34754,7 +34756,7 @@ function ChangePasswordDialog({ open, onOpenChange }) {
         )
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "cp-new", children: "New password" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "cp-new", children: "New password" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Input,
           {
@@ -34771,7 +34773,7 @@ function ChangePasswordDialog({ open, onOpenChange }) {
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "At least 8 characters" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "cp-confirm", children: "Confirm new password" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "cp-confirm", children: "Confirm new password" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Input,
           {
@@ -40613,12 +40615,12 @@ function LogSickDialog({ open, onOpenChange, person }) {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarDays, { className: "h-4 w-4 text-muted-foreground" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-sm font-medium", children: "Sick from / to" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-sm font-medium", children: "Sick from / to" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Label,
+              Label$1,
               {
                 htmlFor: "log-sick-start",
                 className: "text-[11px] text-muted-foreground mb-1 block",
@@ -40639,7 +40641,7 @@ function LogSickDialog({ open, onOpenChange, person }) {
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Label,
+              Label$1,
               {
                 htmlFor: "log-sick-end",
                 className: "text-[11px] text-muted-foreground mb-1 block",
@@ -40672,7 +40674,7 @@ function LogSickDialog({ open, onOpenChange, person }) {
         ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-red-600 dark:text-red-400", children: "Pick a valid date range" }) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Label, { htmlFor: "log-sick-reason", className: "text-sm font-medium", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Label$1, { htmlFor: "log-sick-reason", className: "text-sm font-medium", children: [
           "Notes",
           " ",
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground font-normal", children: "(optional)" })
@@ -42317,23 +42319,23 @@ var SelectViewport = reactExports.forwardRef(
 SelectViewport.displayName = VIEWPORT_NAME;
 var GROUP_NAME = "SelectGroup";
 var [SelectGroupContextProvider, useSelectGroupContext] = createSelectContext(GROUP_NAME);
-var SelectGroup = reactExports.forwardRef(
+var SelectGroup$1 = reactExports.forwardRef(
   (props, forwardedRef) => {
     const { __scopeSelect, ...groupProps } = props;
     const groupId = useId();
     return /* @__PURE__ */ jsxRuntimeExports.jsx(SelectGroupContextProvider, { scope: __scopeSelect, id: groupId, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Primitive$1.div, { role: "group", "aria-labelledby": groupId, ...groupProps, ref: forwardedRef }) });
   }
 );
-SelectGroup.displayName = GROUP_NAME;
+SelectGroup$1.displayName = GROUP_NAME;
 var LABEL_NAME = "SelectLabel";
-var SelectLabel = reactExports.forwardRef(
+var SelectLabel$1 = reactExports.forwardRef(
   (props, forwardedRef) => {
     const { __scopeSelect, ...labelProps } = props;
     const groupContext = useSelectGroupContext(LABEL_NAME, __scopeSelect);
     return /* @__PURE__ */ jsxRuntimeExports.jsx(Primitive$1.div, { id: groupContext.id, ...labelProps, ref: forwardedRef });
   }
 );
-SelectLabel.displayName = LABEL_NAME;
+SelectLabel$1.displayName = LABEL_NAME;
 var ITEM_NAME = "SelectItem";
 var [SelectItemContextProvider, useSelectItemContext] = createSelectContext(ITEM_NAME);
 var SelectItem$1 = reactExports.forwardRef(
@@ -42700,6 +42702,8 @@ var Icon = SelectIcon;
 var Portal = SelectPortal;
 var Content2$1 = SelectContent$1;
 var Viewport = SelectViewport;
+var Group$1 = SelectGroup$1;
+var Label = SelectLabel$1;
 var Item = SelectItem$1;
 var ItemText = SelectItemText;
 var ItemIndicator = SelectItemIndicator;
@@ -42709,6 +42713,11 @@ function Select({
   ...props
 }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(Root2$2, { "data-slot": "select", ...props });
+}
+function SelectGroup({
+  ...props
+}) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Group$1, { "data-slot": "select-group", ...props });
 }
 function SelectValue({
   ...props
@@ -42773,6 +42782,19 @@ function SelectContent({
       ]
     }
   ) });
+}
+function SelectLabel({
+  className,
+  ...props
+}) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    Label,
+    {
+      "data-slot": "select-label",
+      className: cn("text-muted-foreground px-2 py-1.5 text-xs", className),
+      ...props
+    }
+  );
 }
 function SelectItem({
   className,
@@ -43060,7 +43082,7 @@ function ToilWidget() {
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 pt-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground mb-1 block", children: "Hours worked" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-xs text-muted-foreground mb-1 block", children: "Hours worked" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Input,
             {
@@ -43075,7 +43097,7 @@ function ToilWidget() {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground mb-1 block", children: "Date" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-xs text-muted-foreground mb-1 block", children: "Date" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Input,
             {
@@ -43087,7 +43109,7 @@ function ToilWidget() {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground mb-1 block", children: "Job Number" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-xs text-muted-foreground mb-1 block", children: "Job Number" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Input,
             {
@@ -43099,7 +43121,7 @@ function ToilWidget() {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground mb-1 block", children: "Reason" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-xs text-muted-foreground mb-1 block", children: "Reason" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Input,
             {
@@ -43597,7 +43619,7 @@ function AddPersonModal({ isOpen, onClose }) {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSubmit, className: "min-w-0 space-y-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Label, { htmlFor: "name", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Label$1, { htmlFor: "name", children: [
             "Name ",
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-red-500", children: "*" })
           ] }),
@@ -43613,7 +43635,7 @@ function AddPersonModal({ isOpen, onClose }) {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Label, { htmlFor: "email", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Label$1, { htmlFor: "email", children: [
             "Email ",
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-red-500", children: "*" })
           ] }),
@@ -43630,7 +43652,7 @@ function AddPersonModal({ isOpen, onClose }) {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "watch", children: "Watch" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "watch", children: "Watch" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watch, onValueChange: setWatch, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select watch" }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
@@ -43643,7 +43665,7 @@ function AddPersonModal({ isOpen, onClose }) {
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Label, { htmlFor: "rank", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Label$1, { htmlFor: "rank", children: [
             "Rank ",
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-red-500", children: "*" })
           ] }),
@@ -43656,7 +43678,7 @@ function AddPersonModal({ isOpen, onClose }) {
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Label, { htmlFor: "serviceNumber", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Label$1, { htmlFor: "serviceNumber", children: [
             "Staff Number ",
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-red-500", children: "*" })
           ] }),
@@ -43672,7 +43694,7 @@ function AddPersonModal({ isOpen, onClose }) {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "phone", children: "Phone Number" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "phone", children: "Phone Number" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Input,
             {
@@ -43685,14 +43707,14 @@ function AddPersonModal({ isOpen, onClose }) {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "station", children: "Station or Area" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "station", children: "Station or Area" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: station, onValueChange: setStation, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select station or area" }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: STATION_OPTIONS.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: s.value, children: s.label }, s.value)) })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "niNumber", children: "NI Number" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "niNumber", children: "NI Number" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Input,
             {
@@ -43704,7 +43726,7 @@ function AddPersonModal({ isOpen, onClose }) {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "driverPathway", children: "Driver Pathway Status" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "driverPathway", children: "Driver Pathway Status" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: driverPathwayStatus, onValueChange: setDriverPathwayStatus, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select status" }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
@@ -43714,7 +43736,7 @@ function AddPersonModal({ isOpen, onClose }) {
           ] })
         ] }),
         (driverPathwayStatus === "passed_LGV" || driverPathwayStatus === "awaiting_ERD" || driverPathwayStatus === "passed") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "lgvPassedDate", children: "LGV Passed Date" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "lgvPassedDate", children: "LGV Passed Date" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Input,
             {
@@ -43925,7 +43947,7 @@ function ColumnsDrawer({
           /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-sm font-semibold", children: "Add Custom Column" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "columnName", children: "Column Name" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "columnName", children: "Column Name" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 Input,
                 {
@@ -43937,7 +43959,7 @@ function ColumnsDrawer({
               )
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "columnType", children: "Data Type" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "columnType", children: "Data Type" }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: newColumnType, onValueChange: (v) => setNewColumnType(v), children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "columnType", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
@@ -45044,7 +45066,7 @@ function SkillsTab({ profileId, userId }) {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Skill / Certification" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Skill / Certification" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: selectedSkill, onValueChange: setSelectedSkill, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "mt-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select skill or certification" }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
@@ -45063,7 +45085,7 @@ function SkillsTab({ profileId, userId }) {
           ] })
         ] }),
         selectedSkill === "custom" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Custom Name" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Custom Name" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Input,
             {
@@ -45076,7 +45098,7 @@ function SkillsTab({ profileId, userId }) {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-4", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Acquired Date" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Acquired Date" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               Input,
               {
@@ -45088,7 +45110,7 @@ function SkillsTab({ profileId, userId }) {
             )
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Expiry Date" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Expiry Date" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               Input,
               {
@@ -45111,7 +45133,7 @@ function SkillsTab({ profileId, userId }) {
             )
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Reminder Date (auto: 30 days before expiry)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Reminder Date (auto: 30 days before expiry)" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               Input,
               {
@@ -45124,7 +45146,7 @@ function SkillsTab({ profileId, userId }) {
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Notes" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Notes" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Textarea,
             {
@@ -45148,7 +45170,7 @@ function SkillsTab({ profileId, userId }) {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Skill / Certification" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Skill / Certification" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: selectedSkill, onValueChange: setSelectedSkill, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "mt-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select skill or certification" }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
@@ -45166,7 +45188,7 @@ function SkillsTab({ profileId, userId }) {
           ] })
         ] }),
         selectedSkill === "custom" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Custom Name" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Custom Name" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Input,
             {
@@ -45179,7 +45201,7 @@ function SkillsTab({ profileId, userId }) {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-4", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Acquired Date" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Acquired Date" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               Input,
               {
@@ -45191,7 +45213,7 @@ function SkillsTab({ profileId, userId }) {
             )
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Expiry Date" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Expiry Date" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               Input,
               {
@@ -45214,7 +45236,7 @@ function SkillsTab({ profileId, userId }) {
             )
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Reminder Date (auto: 30 days before expiry)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Reminder Date (auto: 30 days before expiry)" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               Input,
               {
@@ -45227,7 +45249,7 @@ function SkillsTab({ profileId, userId }) {
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Notes" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Notes" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Textarea,
             {
@@ -45887,7 +45909,7 @@ function AddHoursDialog({
         "."
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "toil-hours", className: "text-xs", children: "Hours worked" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "toil-hours", className: "text-xs", children: "Hours worked" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Input,
           {
@@ -45903,7 +45925,7 @@ function AddHoursDialog({
         )
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "toil-date", className: "text-xs", children: "Incident date" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "toil-date", className: "text-xs", children: "Incident date" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Input,
           {
@@ -45916,7 +45938,7 @@ function AddHoursDialog({
         )
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Label, { htmlFor: "toil-job", className: "text-xs", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Label$1, { htmlFor: "toil-job", className: "text-xs", children: [
           "Job number",
           " ",
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground font-normal", children: "(optional)" })
@@ -45933,7 +45955,7 @@ function AddHoursDialog({
         )
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "toil-reason", className: "text-xs", children: "Reason" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "toil-reason", className: "text-xs", children: "Reason" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Input,
           {
@@ -46300,7 +46322,7 @@ function NewRequestDialog({ open, onClose, initialType = "flexi", defaultDate, o
         forOther && /* @__PURE__ */ jsxRuntimeExports.jsx(WatchPerson, { label: "Who it's for", watch: forWatch, onWatch: setForWatch, person: forId, onPerson: setForId })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "req-date", className: "text-sm", children: type === "flexi" ? "Shift you want off" : "Shift to swap" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "req-date", className: "text-sm", children: type === "flexi" ? "Shift you want off" : "Shift to swap" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "req-date", type: "date", value: date2, onChange: (e) => setDate(e.target.value) }),
         (preview == null ? void 0 : preview.shift_type) && !preview.needs_day_night && /Day|Night/.test(preview.shift_type) && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "mt-1 text-xs text-muted-foreground", children: [
           preview.shift_type,
@@ -46309,12 +46331,12 @@ function NewRequestDialog({ open, onClose, initialType = "flexi", defaultDate, o
         ] })
       ] }),
       (preview == null ? void 0 : preview.needs_day_night) && type === "h4h" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-sm", children: "That's annual leave. Which shift are you swapping?" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-sm", children: "That's annual leave. Which shift are you swapping?" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Toggle, { label: "Which shift", value: dayNight, onChange: setDayNight, options: DAY_NIGHT$1 })
       ] }),
       type === "h4h" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-sm", children: "Who's working it?" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-sm", children: "Who's working it?" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Toggle, { label: "Where they are", value: coverMode, onChange: setCoverMode, options: [
             { value: "app", label: "Someone in the app" },
             { value: "other", label: "Not in the app" }
@@ -46341,7 +46363,7 @@ function NewRequestDialog({ open, onClose, initialType = "flexi", defaultDate, o
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "req-notes", className: "text-sm", children: "Note (optional)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "req-notes", className: "text-sm", children: "Note (optional)" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Textarea, { id: "req-notes", rows: 2, value: notes, onChange: (e) => setNotes(e.target.value) })
       ] }),
       previewError && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { role: "alert", className: "text-sm text-red-700 dark:text-red-300", children: previewError.message }),
@@ -46740,7 +46762,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
             TYPE_CONFIG[type].label
           ] })
         ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground mb-2 block", children: "Off your watch" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-xs text-muted-foreground mb-2 block", children: "Off your watch" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-2", children: ["flexi", "training", "h4h", "toil"].map((key2) => {
             const cfg = TYPE_CONFIG[key2];
             const Icon2 = cfg.icon;
@@ -46762,7 +46784,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
               key2
             );
           }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground mb-2 mt-3 block", children: "Additional shifts" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-xs text-muted-foreground mb-2 mt-3 block", children: "Additional shifts" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-3 gap-2", children: ["flexi_payback", "orange_day", "overtime"].map((key2) => {
             const cfg = TYPE_CONFIG[key2];
             const Icon2 = cfg.icon;
@@ -46789,7 +46811,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
         type && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: type === "overtime" ? "grid grid-cols-1 gap-3" : "grid grid-cols-2 gap-3", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground mb-1 block", children: type === "overtime" ? "Date worked" : "First day" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-xs text-muted-foreground mb-1 block", children: type === "overtime" ? "Date worked" : "First day" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "input",
                 {
@@ -46804,7 +46826,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
               )
             ] }),
             type !== "overtime" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground mb-1 block", children: "Last day" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-xs text-muted-foreground mb-1 block", children: "Last day" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "input",
                 {
@@ -46825,7 +46847,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
           (type === "h4h" || type === "toil") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50/40 dark:bg-blue-950/30 p-3", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarDays, { className: "h-4 w-4 text-blue-500" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-sm font-medium text-blue-700 dark:text-blue-300", children: "Which shift are you off?" })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-sm font-medium text-blue-700 dark:text-blue-300", children: "Which shift are you off?" })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-2", children: ["Day", "Night"].map((s) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "button",
@@ -46844,7 +46866,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
           (type === "h4h" || type === "toil") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 rounded-xl border border-purple-200 dark:border-purple-800 bg-purple-50/40 dark:bg-purple-950/30 p-3", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { className: "h-4 w-4 text-purple-500" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-sm font-medium text-purple-700 dark:text-purple-300", children: "Who is covering for you?" })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-sm font-medium text-purple-700 dark:text-purple-300", children: "Who is covering for you?" })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -46901,7 +46923,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
           type === "flexi_payback" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 rounded-xl border border-teal-200 dark:border-teal-800 bg-teal-50/40 dark:bg-teal-950/30 p-3", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { className: "h-4 w-4 text-teal-500" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-sm font-medium text-teal-700 dark:text-teal-300", children: "Which watch are you covering?" })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-sm font-medium text-teal-700 dark:text-teal-300", children: "Which watch are you covering?" })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: inboundWatch, onValueChange: setInboundWatch, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-10 w-full text-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select watch…" }) }),
@@ -46911,7 +46933,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
               ] }, w)) })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground mb-1 block", children: "Shift" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-xs text-muted-foreground mb-1 block", children: "Shift" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-2", children: ["Day", "Night"].map((s) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "button",
                 {
@@ -46930,7 +46952,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
           type === "orange_day" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 rounded-xl border border-orange-200 dark:border-orange-800 bg-orange-50/40 dark:bg-orange-950/30 p-3", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Sun, { className: "h-4 w-4 text-orange-500" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-sm font-medium text-orange-700 dark:text-orange-300", children: "Which shift?" })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-sm font-medium text-orange-700 dark:text-orange-300", children: "Which shift?" })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-2", children: ["Day", "Night"].map((s) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "button",
@@ -46949,7 +46971,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
           type === "overtime" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 rounded-xl border border-sky-200 dark:border-sky-800 bg-sky-50/40 dark:bg-sky-950/30 p-3", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Timer, { className: "h-4 w-4 text-sky-500" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-sm font-medium text-sky-700 dark:text-sky-300", children: "Which watch was it with?" })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-sm font-medium text-sky-700 dark:text-sky-300", children: "Which watch was it with?" })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: overtimeWatch, onValueChange: setOvertimeWatch, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-10 w-full text-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select watch…" }) }),
@@ -46960,7 +46982,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
               ] }, w)) })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground mb-1 block", children: "Shift" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-xs text-muted-foreground mb-1 block", children: "Shift" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-2", children: ["Day", "Night"].map((s) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "button",
                 {
@@ -46976,7 +46998,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
               )) })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "overtime-hours", className: "text-xs text-muted-foreground mb-1 block", children: "Hours worked" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "overtime-hours", className: "text-xs text-muted-foreground mb-1 block", children: "Hours worked" }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "button",
@@ -47039,7 +47061,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
           type === "toil" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/30 p-3", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: "h-4 w-4 text-emerald-500" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-sm font-medium text-emerald-700 dark:text-emerald-300", children: "How many TOIL hours?" })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-sm font-medium text-emerald-700 dark:text-emerald-300", children: "How many TOIL hours?" })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -47103,7 +47125,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
             ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground mb-1 block", children: "Notes (optional)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-xs text-muted-foreground mb-1 block", children: "Notes (optional)" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               Input,
               {
@@ -47832,7 +47854,7 @@ function AbsenceHistorySection({
       editing && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 py-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-3", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "edit-absence-start", children: "First day off" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "edit-absence-start", children: "First day off" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               Input,
               {
@@ -47845,7 +47867,7 @@ function AbsenceHistorySection({
             )
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "edit-absence-end", children: "Last day off" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "edit-absence-end", children: "Last day off" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               Input,
               {
@@ -48415,7 +48437,7 @@ function OffboardingWizard({ user: user2, open, onClose, onComplete }) {
     ] }) }),
     step === 1 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0 space-y-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "deactivationDate", children: "Last day at the station" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "deactivationDate", children: "Last day at the station" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Input,
           {
@@ -48428,7 +48450,7 @@ function OffboardingWizard({ user: user2, open, onClose, onComplete }) {
         )
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "reason", children: "Reason (Optional)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "reason", children: "Reason (Optional)" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Textarea,
           {
@@ -48468,7 +48490,7 @@ function OffboardingWizard({ user: user2, open, onClose, onComplete }) {
     step === 2 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0 space-y-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "Select a replacement user and choose which assets to reassign:" }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "replacement", children: "Replacement User" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "replacement", children: "Replacement User" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: replacementUserId, onValueChange: setReplacementUserId, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "replacement", className: "mt-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select a user..." }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: activeUsers.map((u) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: u.id, children: [
@@ -48489,7 +48511,7 @@ function OffboardingWizard({ user: user2, open, onClose, onComplete }) {
               onCheckedChange: (checked) => setReassignTasks(checked === true)
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Label, { htmlFor: "reassign-tasks", className: "cursor-pointer", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Label$1, { htmlFor: "reassign-tasks", className: "cursor-pointer", children: [
             "Reassign ",
             preview == null ? void 0 : preview.taskCount,
             " open task(s)"
@@ -48504,7 +48526,7 @@ function OffboardingWizard({ user: user2, open, onClose, onComplete }) {
               onCheckedChange: (checked) => setReassignInspections(checked === true)
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Label, { htmlFor: "reassign-inspections", className: "cursor-pointer", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Label$1, { htmlFor: "reassign-inspections", className: "cursor-pointer", children: [
             "Reassign ",
             preview == null ? void 0 : preview.inspectionCount,
             " assigned inspection(s)"
@@ -48519,7 +48541,7 @@ function OffboardingWizard({ user: user2, open, onClose, onComplete }) {
               onCheckedChange: (checked) => setReassignAbsences(checked === true)
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Label, { htmlFor: "reassign-absences", className: "cursor-pointer", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Label$1, { htmlFor: "reassign-absences", className: "cursor-pointer", children: [
             "Reassign ",
             preview == null ? void 0 : preview.absenceCount,
             " pending approval(s)"
@@ -52916,7 +52938,7 @@ function InspectionEventModal({ open, onClose, defaultDate, editingEvent }) {
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px] opacity-60 mt-0.5", children: "Inspection record is locked — only address and schedule can be changed" })
       ] }),
       !isEditing && template.type !== "hfsv" && template.type !== "activity" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Label, { className: "text-xs", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Label$1, { className: "text-xs", children: [
           "Select from your ",
           template.label,
           " list"
@@ -52948,7 +52970,7 @@ function InspectionEventModal({ open, onClose, defaultDate, editingEvent }) {
         )
       ] }),
       !isEditing && template.type === "activity" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs", children: "Event Title" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-xs", children: "Event Title" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Input,
           {
@@ -52959,7 +52981,7 @@ function InspectionEventModal({ open, onClose, defaultDate, editingEvent }) {
         )
       ] }),
       template.type !== "activity" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Label, { className: "text-xs", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Label$1, { className: "text-xs", children: [
           "Address / Location",
           " ",
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground font-normal", children: template.type === "hfsv" ? "(saved to HFSV record)" : "(optional)" })
@@ -52976,20 +52998,20 @@ function InspectionEventModal({ open, onClose, defaultDate, editingEvent }) {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-3 gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "col-span-1 space-y-1.5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs", children: "Date" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-xs", children: "Date" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { type: "date", value: date2, onChange: (e) => setDate(e.target.value), className: "text-sm" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs", children: "Start" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-xs", children: "Start" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { type: "time", value: startTime, onChange: (e) => setStartTime(e.target.value), className: "text-sm" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs", children: "End" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-xs", children: "End" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { type: "time", value: endTime, onChange: (e) => setEndTime(e.target.value), className: "text-sm" })
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs", children: "Visibility" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-xs", children: "Visibility" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-2", children: ["watch", "station"].map((v) => /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
           {
@@ -53154,7 +53176,7 @@ function ScheduleTrainingDialog({
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 pt-2", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid gap-4 sm:grid-cols-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Training Date *" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Training Date *" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Input,
             {
@@ -53165,7 +53187,7 @@ function ScheduleTrainingDialog({
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Shift (optional)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Shift (optional)" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             Select,
             {
@@ -53180,7 +53202,7 @@ function ScheduleTrainingDialog({
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Training Type *" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Training Type *" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           Select,
           {
@@ -53194,7 +53216,7 @@ function ScheduleTrainingDialog({
         )
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Topic *" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Topic *" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Input,
           {
@@ -60051,6 +60073,24 @@ function LineEditInput({ value, onCommit, onCancel, ariaLabel = "Reword this lin
     }
   );
 }
+const WATCH_ORDER = ["Green", "Red", "White", "Blue", "Amber"];
+function stationPeople(rows, myWatch) {
+  var _a3;
+  const groups = /* @__PURE__ */ new Map();
+  for (const { user: user2, profile: profile2 } of rows) {
+    if (user2.left_at) continue;
+    const station = ((profile2 == null ? void 0 : profile2.station) ?? "").trim();
+    if (station && station !== HOME_STATION) continue;
+    if (((profile2 == null ? void 0 : profile2.rank) ?? "").trim() === "Admin") continue;
+    const raw = (user2.watch_unit || (profile2 == null ? void 0 : profile2.watch) || "").trim();
+    const watch = raw ? raw[0].toUpperCase() + raw.slice(1).toLowerCase() : "";
+    const person = { id: user2.id, name: user2.name || ((_a3 = user2.email) == null ? void 0 : _a3.split("@")[0]) || "Unknown", rank: (profile2 == null ? void 0 : profile2.rank) ?? void 0, watch };
+    groups.set(watch, [...groups.get(watch) ?? [], person]);
+  }
+  const mine = (myWatch ?? "").toLowerCase();
+  const rank2 = (w) => w && w.toLowerCase() === mine ? -1 : w ? WATCH_ORDER.indexOf(w) + 1 || 50 : 99;
+  return [...groups.entries()].sort(([a], [b]) => rank2(a) - rank2(b) || a.localeCompare(b)).map(([watch, people]) => ({ watch, people: people.sort((a, b) => a.name.localeCompare(b.name)) }));
+}
 const PRIORITY_OPTIONS$1 = [
   { value: "High", label: "High" },
   { value: "Med", label: "Medium" },
@@ -60139,7 +60179,7 @@ function ProgressBar({ pct, className }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className, "aria-hidden": "true", style: { height: 6, borderRadius: 3, background: "var(--cal-surface-3)", overflow: "hidden" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: `${pct}%`, height: "100%", borderRadius: 3, background: pct === 100 ? "var(--cal-leave-dot)" : "var(--cal-brand)", transition: "width .3s" } }) });
 }
 function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: canWork = false, isNewTask = false, onCompleted, onOpenRoutine }) {
-  var _a3, _b3;
+  var _a3, _b3, _c2;
   const { user: user2 } = useAuth();
   const userRole = useUserRole();
   const canEdit = canWork && (isNewTask || canEditTaskDetails(task2, user2, userRole));
@@ -60151,6 +60191,12 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
   const [priority, setPriority] = reactExports.useState("Med");
   const [dueDate, setDueDate] = reactExports.useState("");
   const [watchUnit, setWatchUnit] = reactExports.useState("");
+  const [assignee, setAssignee] = reactExports.useState("");
+  const { data: peopleData } = useQuery({
+    queryKey: ["people-for-tasks"],
+    queryFn: async () => (await backendClient.profile.listWithUsers({ limit: 500 })).people ?? [],
+    staleTime: 5 * 60 * 1e3
+  });
   const [checklist, setChecklist] = reactExports.useState([]);
   const [newChecklistItem, setNewChecklistItem] = reactExports.useState("");
   const [addingItem, setAddingItem] = reactExports.useState(false);
@@ -60186,6 +60232,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
     setChecklist(task2.checklist ? [...task2.checklist] : []);
     setTags(task2.tags ?? []);
     setWatchUnit(task2.watch_unit ?? "");
+    setAssignee(task2.assigned_to_user_id ?? "");
     setCoverColour(task2.cover_colour ?? "");
     setAddingItem(false);
     setNewChecklistItem("");
@@ -60295,6 +60342,19 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
   const handleDueChange = (e) => {
     setDueDate(e.target.value);
     save({ due_date: e.target.value ? new Date(e.target.value) : void 0 });
+  };
+  const canAssignOthers = userRole === "WC" || userRole === "CC" || !!(user2 == null ? void 0 : user2.is_admin);
+  const station = stationPeople(peopleData ?? [], user2 == null ? void 0 : user2.watch_unit);
+  const assigneePerson = station.flatMap((g) => g.people).find((p) => p.id === assignee) ?? (assignee ? { id: assignee, name: ((_a3 = (peopleData ?? []).find((p) => p.user.id === assignee)) == null ? void 0 : _a3.user.name) ?? "Someone", watch: "" } : null);
+  const pickable = canAssignOthers ? station : station.map((g) => ({ ...g, people: g.people.filter((p) => p.id === (user2 == null ? void 0 : user2.id) || p.id === assignee) })).filter((g) => g.people.length);
+  const handleAssigneeChange = (v) => {
+    var _a4;
+    const val = v === "__none__" ? "" : v;
+    if (val === assignee) return;
+    setAssignee(val);
+    save({ assigned_to: val });
+    const name = (_a4 = station.flatMap((g) => g.people).find((p) => p.id === val)) == null ? void 0 : _a4.name;
+    if (val && val !== (user2 == null ? void 0 : user2.id) && name) toast2({ title: `Given to ${name}`, description: "They'll get a notification." });
   };
   const handleWatchChange = (v) => {
     const val = v === "__none__" ? "" : v;
@@ -60419,9 +60479,9 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
   ] });
   const coverStyle = getCoverStyle(coverColour);
   const statusCol = columns.find((c) => c.status_key === status);
-  const firstColKey = (_a3 = [...columns].sort((a, b) => a.position - b.position)[0]) == null ? void 0 : _a3.status_key;
+  const firstColKey = (_b3 = [...columns].sort((a, b) => a.position - b.position)[0]) == null ? void 0 : _b3.status_key;
   const statusTone2 = isDoneStatus(status) ? { bg: "var(--cal-leave-bg)", fg: "var(--cal-leave-fg)" } : status === "NotStarted" || status === firstColKey ? { bg: "var(--cal-surface-2)", fg: "var(--cal-ink-2)" } : { bg: "var(--cal-brand-soft)", fg: "var(--cal-brand-text)" };
-  const priorityText = ((_b3 = PRIORITY_OPTIONS$1.find((p) => p.value === priority)) == null ? void 0 : _b3.label) ?? "Medium";
+  const priorityText = ((_c2 = PRIORITY_OPTIONS$1.find((p) => p.value === priority)) == null ? void 0 : _c2.label) ?? "Medium";
   const columnItems = columns.map((col) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: col.status_key, className: ITEM_CLS, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center gap-2", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(Dot, { color: col.color }),
     col.name
@@ -60430,6 +60490,21 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
     /* @__PURE__ */ jsxRuntimeExports.jsx(Dot, { color: `var(--cal-${priorityKey(p.value)}-dot)` }),
     p.label
   ] }) }, p.value));
+  const assigneeItems = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "__none__", className: ITEM_CLS, children: "Nobody" }),
+    pickable.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectGroup, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectLabel, { className: "tdd-lbl px-3 pt-2.5 pb-1", children: g.watch ? `${g.watch} Watch` : "No watch" }),
+      g.people.map((p) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: p.id, className: ITEM_CLS, children: [
+        p.name,
+        p.id === (user2 == null ? void 0 : user2.id) ? " (me)" : "",
+        p.rank ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--cal-muted)" }, children: [
+          " · ",
+          p.rank
+        ] }) : null
+      ] }, p.id))
+    ] }, g.watch || "none"))
+  ] });
+  const assigneeText = assigneePerson ? `${assigneePerson.name}${assigneePerson.id === (user2 == null ? void 0 : user2.id) ? " (me)" : ""}` : "Nobody";
   const watchSelect = (id) => /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watchUnit || "__none__", onValueChange: handleWatchChange, disabled: !canEdit, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id, className: "tdd-field cal-focus", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Assign watch…" }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { className: "cal-menu", children: [
@@ -60585,7 +60660,14 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
                       ] })
                     ] }),
                     !isCheck && dueHint,
-                    checkNote
+                    checkNote,
+                    !isCheck && (canEdit || assignee) && /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: assignee || "__none__", onValueChange: handleAssigneeChange, disabled: !canEdit, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectTrigger, { className: "tdd-tile cal-focus w-full", "aria-label": "Assigned to", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tdd-k", children: "Assigned to" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tdd-v", style: { color: assignee ? "var(--cal-ink)" : "var(--cal-muted)" }, children: assigneeText }) })
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { className: "cal-menu", children: assigneeItems })
+                    ] })
                   ] }),
                   (canEdit || checklist.length > 0) && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "order-3 flex flex-col gap-2", children: checklist.length === 0 && !addingItem ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center gap-1", style: { padding: 14, borderRadius: 14, border: "1.5px dashed var(--cal-line-2)" }, children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 13, fontWeight: 600, color: "var(--cal-ink-2)" }, children: "No checklist yet" }),
@@ -61026,9 +61108,10 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
                       "Created ",
                       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", children: new Date(task2.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) })
                     ] }),
-                    task2.assigned_to_user_id && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1.5", children: [
+                    assigneePerson && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1.5", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx(User, { className: "h-[13px] w-[13px]" }),
-                      " Assigned"
+                      " Assigned to ",
+                      assigneeText
                     ] })
                   ] })
                 ] }),
@@ -61053,6 +61136,10 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
                         disabled: !canEdit
                       }
                     ) }),
+                    (canEdit || assignee) && /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Assigned to", htmlFor: `${uid}-who`, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: assignee || "__none__", onValueChange: handleAssigneeChange, disabled: !canEdit, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: `${uid}-who`, className: "tdd-field cal-focus", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: assignee ? void 0 : "var(--cal-muted)" }, children: assigneeText }) }) }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { className: "cal-menu", children: assigneeItems })
+                    ] }) }),
                     userRole === "WC" && /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Move to watch", htmlFor: `${uid}-watch`, children: watchSelect(`${uid}-watch`) })
                   ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-1.5", children: [
@@ -63392,6 +63479,20 @@ function Tasks() {
     }, { replace: true });
     handleNewTask();
   }, [searchParams, columns.length, shift2]);
+  const linkedTask = Number(searchParams.get("task")) || null;
+  reactExports.useEffect(() => {
+    if (!linkedTask) return;
+    const found = filteredTasks.find((t) => t.id === linkedTask);
+    if (!found && (isLoading || shiftLoading)) return;
+    setSearchParams((p) => {
+      p.delete("task");
+      return p;
+    }, { replace: true });
+    if (found) {
+      setIsNewTask(false);
+      setSelectedTask(found);
+    } else toast2({ title: "That task isn't on your board", description: "It may have been finished or removed." });
+  }, [linkedTask, filteredTasks, isLoading, shiftLoading]);
   const handleTitleEdit = (taskId, newTitle) => {
     updateTaskMutation.mutate({ id: taskId, title: newTitle });
     if ((selectedTask == null ? void 0 : selectedTask.id) === taskId) setSelectedTask((prev) => prev ? { ...prev, title: newTitle } : prev);
@@ -66521,7 +66622,7 @@ function Contacts() {
           },
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "contact-section", children: draft.newSection ? "Section name" : "Section" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "contact-section", children: draft.newSection ? "Section name" : "Section" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 Input,
                 {
@@ -66538,23 +66639,23 @@ function Contacts() {
               /* @__PURE__ */ jsxRuntimeExports.jsx("datalist", { id: "contact-headings", children: headings.map((h) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: h }, h)) })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "contact-name", children: "Who or what" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "contact-name", children: "Who or what" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "contact-name", value: draft.name, onChange: (e) => setDraft({ ...draft, name: e.target.value }), placeholder: "e.g. Control", maxLength: 100 })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(Label, { htmlFor: "contact-detail", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(Label$1, { htmlFor: "contact-detail", children: [
                 "What it's for ",
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-normal text-muted-foreground", children: "(optional)" })
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "contact-detail", value: draft.detail, onChange: (e) => setDraft({ ...draft, detail: e.target.value }), placeholder: "e.g. Property manager", maxLength: 120 })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "contact-numbers", children: "Number" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "contact-numbers", children: "Number" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "contact-numbers", inputMode: "tel", value: draft.numbers, onChange: (e) => setDraft({ ...draft, numbers: e.target.value }), placeholder: "e.g. 3999 / 0141 000 0000", maxLength: 200 }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "More than one? Put a / between them." })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(Label, { htmlFor: "contact-note", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(Label$1, { htmlFor: "contact-note", children: [
                 "Note ",
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-normal text-muted-foreground", children: "(optional)" })
               ] }),
@@ -66596,7 +66697,7 @@ function Contacts() {
           },
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "section-name", children: "Section name" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "section-name", children: "Section name" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "section-name", autoFocus: true, value: renaming.to, onChange: (e) => setRenaming({ ...renaming, to: e.target.value }), maxLength: 60 })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogFooter, { className: "flex-row justify-end gap-2 pt-2", children: [
@@ -66909,21 +67010,21 @@ function Links() {
         if (valid && !save.isPending) save.mutate(draft);
       }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "link-section", children: draft.newSection ? "Section name" : "Section" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "link-section", children: draft.newSection ? "Section name" : "Section" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "link-section", list: draft.newSection ? void 0 : "link-headings", autoFocus: !!draft.newSection, value: draft.section, onChange: (e) => setDraft({ ...draft, section: e.target.value }), placeholder: "e.g. Systems", maxLength: 60 }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("datalist", { id: "link-headings", children: headings.map((h) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: h }, h)) })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "link-title", children: "Name" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "link-title", children: "Name" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "link-title", value: draft.title, onChange: (e) => setDraft({ ...draft, title: e.target.value }), placeholder: "e.g. Kronos", maxLength: 100 })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "link-url", children: "Address" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "link-url", children: "Address" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "link-url", inputMode: "url", value: draft.url, onChange: (e) => setDraft({ ...draft, url: e.target.value }), placeholder: "https://", maxLength: 2e3 }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "Paste the page's address. Leave out anything after a ? if it has your name or a session in it." })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Label, { htmlFor: "link-note", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Label$1, { htmlFor: "link-note", children: [
             "Note ",
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-normal text-muted-foreground", children: "(optional)" })
           ] }),
@@ -66949,7 +67050,7 @@ function Links() {
         if (renaming.to.trim() && !renameSection.isPending) renameSection.mutate(renaming);
       }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "link-section-name", children: "Section name" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "link-section-name", children: "Section name" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "link-section-name", autoFocus: true, value: renaming.to, onChange: (e) => setRenaming({ ...renaming, to: e.target.value }), maxLength: 60 })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogFooter, { className: "flex-row justify-end gap-2 pt-2", children: [
@@ -67133,17 +67234,17 @@ function Guides() {
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-h-0 flex-1 space-y-3 overflow-y-auto pr-1", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid gap-3 sm:grid-cols-2", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "guide-section", children: "Section" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "guide-section", children: "Section" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "guide-section", list: "guide-headings", value: draft.section, onChange: (e) => setDraft({ ...draft, section: e.target.value }), placeholder: "e.g. Defects and equipment", maxLength: 60 }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("datalist", { id: "guide-headings", children: headings.map((h) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: h }, h)) })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "guide-title", children: "Title" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "guide-title", children: "Title" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "guide-title", value: draft.title, onChange: (e) => setDraft({ ...draft, title: e.target.value }), placeholder: "e.g. Raising a station defect", maxLength: 120 })
             ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Label, { htmlFor: "guide-summary", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(Label$1, { htmlFor: "guide-summary", children: [
               "One line on what it's for ",
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-normal text-muted-foreground", children: "(optional)" })
             ] }),
@@ -67151,7 +67252,7 @@ function Guides() {
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-2", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "guide-body", children: "The guide" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "guide-body", children: "The guide" }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: () => setPreview((p) => !p), className: "tap inline-flex items-center gap-1.5 text-xs font-medium text-brand hover:underline", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(Eye, { className: "h-3.5 w-3.5" }),
                 preview ? "Back to writing" : "See how it looks"
@@ -67712,7 +67813,7 @@ function PolicyUpload({ open, onOpenChange }) {
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0 space-y-4 py-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "file", children: "PDF File *" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "file", children: "PDF File *" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "label",
           {
@@ -67746,7 +67847,7 @@ function PolicyUpload({ open, onOpenChange }) {
         ) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "title", children: "Title *" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "title", children: "Title *" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Input,
           {
@@ -67761,7 +67862,7 @@ function PolicyUpload({ open, onOpenChange }) {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "category", children: "Category" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "category", children: "Category" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             Select,
             {
@@ -67776,7 +67877,7 @@ function PolicyUpload({ open, onOpenChange }) {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "version", children: "Version" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "version", children: "Version" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Input,
             {
@@ -67791,7 +67892,7 @@ function PolicyUpload({ open, onOpenChange }) {
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "tags", children: "Tags (comma-separated)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "tags", children: "Tags (comma-separated)" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Input,
           {
@@ -68363,7 +68464,7 @@ function Decision({ d, act, busy }) {
   const rec = d.recommended;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Section$1, { title: "Your decision", children: [
     r2.type === "flexi" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-sm", children: "Pinch point on Kronos" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-sm", children: "Pinch point on Kronos" }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground", children: [
         "Only Kronos has this. Look it up under Pinch Points, Time Off, for ",
         dayText$1(r2.shift_date),
@@ -68395,7 +68496,7 @@ function Decision({ d, act, busy }) {
     ] }),
     r2.type === "h4h" && !rec && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "The cover isn't in the app, so check Kronos, then choose." }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "wc-comments", className: "text-sm", children: "Comments" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "wc-comments", className: "text-sm", children: "Comments" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Textarea, { id: "wc-comments", rows: 2, value: comments, onChange: (e) => {
         setComments(e.target.value);
         setProblem("");
@@ -68434,7 +68535,7 @@ function KronosResult({ d, act, busy }) {
     ] }),
     r2.type === "flexi" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 items-end gap-2 sm:grid-cols-[minmax(0,1fr)_auto]", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "flexi-payback", className: "text-sm", children: "Payback date Kronos gave" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "flexi-payback", className: "text-sm", children: "Payback date Kronos gave" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "flexi-payback", type: "date", value: date2, onChange: (e) => {
           setDate(e.target.value);
           setProblem("");
@@ -68457,7 +68558,7 @@ function AddPayback({ d, act, busy }) {
     /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: d.request.status === "approved" ? "Add the date once it's agreed. It goes straight on both calendars, and the WC is told." : "Add the date once it's agreed. It goes to the WC to check first." }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 items-end gap-2 sm:grid-cols-[minmax(0,1fr)_auto]", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "h4h-payback", className: "text-sm", children: "Payback date" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "h4h-payback", className: "text-sm", children: "Payback date" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "h4h-payback", type: "date", value: date2, onChange: (e) => setDate(e.target.value) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Choice, { label: "Payback shift", value: shift2, onChange: setShift, options: DAY_NIGHT })
@@ -68776,7 +68877,7 @@ function LimitsForm({ limits }) {
     onError: (err2) => toast2({ title: "Couldn't save those", description: err2.message, variant: "destructive" })
   });
   const field = (key2, label2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: `limit-${key2}`, className: "text-xs text-muted-foreground", children: label2 }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: `limit-${key2}`, className: "text-xs text-muted-foreground", children: label2 }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: `limit-${key2}`, type: "number", inputMode: "numeric", min: 0, className: "h-9 w-24", value: form[key2], onChange: (e) => setForm({ ...form, [key2]: Number(e.target.value) }) })
   ] });
   const changed = form.per_year !== limits.per_year || form.days_ahead !== limits.days_ahead || form.notice_hours !== limits.notice_hours;
@@ -68968,7 +69069,7 @@ function NewReportDialog({
     /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "New Quarterly Report" }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 py-2", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Watch" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Watch" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watch, onValueChange: setWatch, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$a.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: w, children: [
@@ -68978,12 +69079,12 @@ function NewReportDialog({
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Watch Commander Name" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Watch Commander Name" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { value: wcName, onChange: (e) => setWcName(e.target.value) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Quarter" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Quarter" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: quarter, onValueChange: setQuarter, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
@@ -68995,7 +69096,7 @@ function NewReportDialog({
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Financial Year Start" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Financial Year Start" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Input,
             {
@@ -69225,7 +69326,7 @@ function Reports() {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "space-y-4", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "table-select", children: "Select Table" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "table-select", children: "Select Table" }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: selectedTable, onValueChange: setSelectedTable, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "table-select", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Choose a table" }) }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: EXPORT_TABLES.map((table) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: table.value, children: table.label }, table.value)) })
@@ -69255,7 +69356,7 @@ function Reports() {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "space-y-4", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "csv-upload", children: "Upload CSV File" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "csv-upload", children: "Upload CSV File" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               Input,
               {
@@ -70172,23 +70273,23 @@ function InviteUserDialog({ open, onClose, onSuccess }) {
       /* @__PURE__ */ jsxRuntimeExports.jsx(DialogFooter, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: handleClose, children: "Done" }) })
     ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSubmit, className: "space-y-4 py-1", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "iu-name", children: "Full name" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "iu-name", children: "Full name" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "iu-name", value: name, onChange: (e) => setName(e.target.value), required: true })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "iu-email", children: "Email" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "iu-email", children: "Email" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "iu-email", type: "email", value: email, onChange: (e) => setEmail(e.target.value), required: true })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Rank" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Rank" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: rank2, onValueChange: setRank, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: RANKS.map((r2) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: r2, children: r2 }, r2)) })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Watch" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Watch" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watchUnit, onValueChange: setWatchUnit, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Choose…" }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$9.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
@@ -70896,7 +70997,7 @@ function AbsenceThresholds() {
       /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "space-y-6", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid gap-4 md:grid-cols-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "threshold-days", children: "Threshold (Days)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "threshold-days", children: "Threshold (Days)" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               Input,
               {
@@ -70911,7 +71012,7 @@ function AbsenceThresholds() {
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "Trigger alert when absences exceed this many days" })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "period-months", children: "Rolling Period (Months)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "period-months", children: "Rolling Period (Months)" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               Input,
               {
@@ -70990,7 +71091,7 @@ function AbsenceThresholds() {
             /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "font-semibold mb-3 text-blue-600 dark:text-blue-400", children: "Stage 1" }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid gap-4 md:grid-cols-2", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "stage1-episodes", children: "Episodes" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "stage1-episodes", children: "Episodes" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   Input,
                   {
@@ -71004,7 +71105,7 @@ function AbsenceThresholds() {
                 )
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "stage1-days", children: "Duty days" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "stage1-days", children: "Duty days" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   Input,
                   {
@@ -71029,7 +71130,7 @@ function AbsenceThresholds() {
             /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "font-semibold mb-3 text-yellow-600 dark:text-yellow-400", children: "Stage 2" }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid gap-4 md:grid-cols-2", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "stage2-episodes", children: "Episodes" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "stage2-episodes", children: "Episodes" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   Input,
                   {
@@ -71043,7 +71144,7 @@ function AbsenceThresholds() {
                 )
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "stage2-days", children: "Duty days" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "stage2-days", children: "Duty days" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   Input,
                   {
@@ -71068,7 +71169,7 @@ function AbsenceThresholds() {
             /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "font-semibold mb-3 text-red-600 dark:text-red-400", children: "Stage 3" }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid gap-4 md:grid-cols-2", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "stage3-episodes", children: "Episodes" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "stage3-episodes", children: "Episodes" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   Input,
                   {
@@ -71082,7 +71183,7 @@ function AbsenceThresholds() {
                 )
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "stage3-days", children: "Duty days" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "stage3-days", children: "Duty days" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   Input,
                   {
@@ -71862,7 +71963,7 @@ function FeatureManagementTab() {
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `h-9 w-9 rounded-lg flex items-center justify-center ${isOn ? "bg-indigo-100 dark:bg-indigo-900/30" : "bg-muted"}`, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: `h-5 w-5 ${isOn ? "text-indigo-600 dark:text-indigo-400" : "text-muted-foreground/50"}` }) }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: `feature-${feature.key}`, className: `font-medium cursor-pointer ${!isOn && "text-muted-foreground"}`, children: feature.label }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: `feature-${feature.key}`, className: `font-medium cursor-pointer ${!isOn && "text-muted-foreground"}`, children: feature.label }),
                     /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground mt-0.5", children: feature.description })
                   ] })
                 ] }),
@@ -71934,7 +72035,7 @@ function ActivityLogTab() {
     /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-3 md:grid-cols-5 mb-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "filter-action", className: "text-xs", children: "Action" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "filter-action", className: "text-xs", children: "Action" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
@@ -71951,7 +72052,7 @@ function ActivityLogTab() {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "filter-entity", className: "text-xs", children: "Entity Type" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "filter-entity", className: "text-xs", children: "Entity Type" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
@@ -71968,7 +72069,7 @@ function ActivityLogTab() {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "filter-user", className: "text-xs", children: "User ID" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "filter-user", className: "text-xs", children: "User ID" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
@@ -71985,7 +72086,7 @@ function ActivityLogTab() {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "filter-start", className: "text-xs", children: "From" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "filter-start", className: "text-xs", children: "From" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
@@ -72001,7 +72102,7 @@ function ActivityLogTab() {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "filter-end", className: "text-xs", children: "To" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "filter-end", className: "text-xs", children: "To" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
@@ -72412,7 +72513,7 @@ function CheckForm({
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0 space-y-6 py-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 sm:grid-cols-2 gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { id: "j4-shift", children: "Shift" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { id: "j4-shift", children: "Shift" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { role: "radiogroup", "aria-labelledby": "j4-shift", className: "mt-1.5 flex gap-2", children: ["Day", "Night"].map((s) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "button",
             {
@@ -72501,7 +72602,7 @@ function CheckForm({
                             ] })
                           ] }),
                           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex shrink-0 items-center gap-2", children: [
-                            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: `qty-${item.equipment_item_id}`, className: "text-xs text-muted-foreground whitespace-nowrap", children: "Qty" }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: `qty-${item.equipment_item_id}`, className: "text-xs text-muted-foreground whitespace-nowrap", children: "Qty" }),
                             /* @__PURE__ */ jsxRuntimeExports.jsx(
                               Input,
                               {
@@ -72560,7 +72661,7 @@ function CheckForm({
         })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "check-notes", children: "Check Notes (optional)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "check-notes", children: "Check Notes (optional)" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Textarea,
           {
@@ -72632,7 +72733,7 @@ function CheckHistory({ appliances }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground", children: "Appliance" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-xs text-muted-foreground", children: "Appliance" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: filterAppliance, onValueChange: setFilterAppliance, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "w-[180px]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "All appliances" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
@@ -72642,7 +72743,7 @@ function CheckHistory({ appliances }) {
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs text-muted-foreground", children: "Shift" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-xs text-muted-foreground", children: "Shift" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: filterWatch, onValueChange: setFilterWatch, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "w-[140px]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "All shifts" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
@@ -73070,12 +73171,12 @@ function EquipmentManager({
           },
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "kit-name", children: "Name" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "kit-name", children: "Name" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "kit-name", autoFocus: true, value: form.name, maxLength: 120, onChange: (e) => setForm({ ...form, name: e.target.value }), placeholder: "e.g. Salvage Sheets" })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-3", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "kit-qty", children: "How many" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "kit-qty", children: "How many" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   Input,
                   {
@@ -73089,7 +73190,7 @@ function EquipmentManager({
                 )
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "kit-type", children: "Type" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "kit-type", children: "Type" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: form.category, onValueChange: (v) => setForm({ ...form, category: v }), children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "kit-type", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: CATEGORIES.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: c.value, children: c.label }, c.value)) })
@@ -73097,7 +73198,7 @@ function EquipmentManager({
               ] })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "kit-locker", children: "Locker or cab" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "kit-locker", children: "Locker or cab" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 Input,
                 {
@@ -73112,7 +73213,7 @@ function EquipmentManager({
               /* @__PURE__ */ jsxRuntimeExports.jsx("datalist", { id: "kit-lockers", children: lockers.map((l) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: l }, l)) })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(Label, { htmlFor: "kit-shelf", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(Label$1, { htmlFor: "kit-shelf", children: [
                 "Shelf ",
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-normal text-muted-foreground", children: "(if the locker has them)" })
               ] }),
@@ -73131,7 +73232,7 @@ function EquipmentManager({
               /* @__PURE__ */ jsxRuntimeExports.jsx("datalist", { id: "kit-shelves", children: formShelves.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: s }, s)) })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(Label, { htmlFor: "kit-serial", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(Label$1, { htmlFor: "kit-serial", children: [
                 "Serial or set number ",
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-normal text-muted-foreground", children: "(optional)" })
               ] }),
@@ -73179,7 +73280,7 @@ function EquipmentManager({
           },
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "kit-heading", children: "Name" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "kit-heading", children: "Name" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "kit-heading", autoFocus: true, value: renaming.to, maxLength: 80, onChange: (e) => setRenaming({ ...renaming, to: e.target.value }) })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogFooter, { className: "flex-row justify-end gap-2 pt-2", children: [
@@ -73294,7 +73395,7 @@ function AddApplianceModal({
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 py-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "call_sign", children: "Call Sign *" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "call_sign", children: "Call Sign *" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Input,
           {
@@ -73306,7 +73407,7 @@ function AddApplianceModal({
         )
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "name", children: "Name *" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "name", children: "Name *" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Input,
           {
@@ -73318,7 +73419,7 @@ function AddApplianceModal({
         )
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "type", children: "Type *" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "type", children: "Type *" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           Select,
           {
@@ -73339,7 +73440,7 @@ function AddApplianceModal({
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "station_call_sign", children: "Station Call Sign" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "station_call_sign", children: "Station Call Sign" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Input,
             {
@@ -73353,7 +73454,7 @@ function AddApplianceModal({
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "station_name", children: "Station Name" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "station_name", children: "Station Name" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Input,
             {
@@ -73478,7 +73579,7 @@ function ReportDefectDialog({
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 pt-2", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "What is it?" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "What is it?" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-3 gap-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             TypePill,
@@ -73510,7 +73611,7 @@ function ReportDefectDialog({
         ] })
       ] }),
       defectType !== "station" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Appliance *" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Appliance *" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           Select,
           {
@@ -73532,7 +73633,7 @@ function ReportDefectDialog({
         )
       ] }),
       defectType === "equipment" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Equipment *" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Equipment *" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           Select,
           {
@@ -73550,7 +73651,7 @@ function ReportDefectDialog({
         )
       ] }),
       defectType === "station" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Location" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Location" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Input,
           {
@@ -73561,7 +73662,7 @@ function ReportDefectDialog({
         )
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: defectType === "equipment" ? "What's wrong *" : "Item *" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: defectType === "equipment" ? "What's wrong *" : "Item *" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Input,
           {
@@ -73573,7 +73674,7 @@ function ReportDefectDialog({
         )
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: defectType === "equipment" ? "Remarks" : "Remarks *" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: defectType === "equipment" ? "Remarks" : "Remarks *" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Textarea,
           {
@@ -73592,11 +73693,11 @@ function ReportDefectDialog({
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "Copying a line from the office board? Set when it went up and which watch found it." }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-3", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "defect-date", children: "Date" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "defect-date", children: "Date" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "defect-date", type: "date", max: todayIso(), value: reportedOn, onChange: (e) => setReportedOn(e.target.value) })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Watch" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Watch" }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watch, onValueChange: setWatch, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Watch" }) }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$7.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: w, children: w }, w)) })
@@ -74215,7 +74316,7 @@ function QuickAssignTasks() {
     /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSubmit, className: "space-y-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid gap-4 md:grid-cols-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "title", children: "Task Title" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "title", children: "Task Title" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Input,
             {
@@ -74227,7 +74328,7 @@ function QuickAssignTasks() {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "priority", children: "Priority" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "priority", children: "Priority" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             Select,
             {
@@ -74241,7 +74342,7 @@ function QuickAssignTasks() {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "start_date", children: "Start Date" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "start_date", children: "Start Date" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Input,
             {
@@ -74253,7 +74354,7 @@ function QuickAssignTasks() {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "stagger_days", children: "Stagger Days" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "stagger_days", children: "Stagger Days" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Input,
             {
@@ -74268,7 +74369,7 @@ function QuickAssignTasks() {
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "description", children: "Description (Optional)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "description", children: "Description (Optional)" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Textarea,
           {
@@ -74282,7 +74383,7 @@ function QuickAssignTasks() {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Label, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Label$1, { children: [
             "Select Firefighters (",
             selectedFFs.size,
             " selected)"
@@ -76252,7 +76353,7 @@ function ExternalDialog({
       ] }),
       mode === "roster" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs", children: "Watch" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-xs", children: "Watch" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             Select,
             {
@@ -76272,7 +76373,7 @@ function ExternalDialog({
           )
         ] }),
         selectedWatch && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs", children: "Person" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-xs", children: "Person" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: userId, onValueChange: setUserId, disabled: rosterLoading || !otherRoster.length, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-9", children: rosterLoading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center gap-2 text-muted-foreground", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "h-3.5 w-3.5 animate-spin" }),
@@ -76287,7 +76388,7 @@ function ExternalDialog({
         ] })
       ] }),
       mode === "freetext" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs", children: "Name" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-xs", children: "Name" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Input,
           {
@@ -76354,7 +76455,7 @@ function DetachmentModal({
         "."
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs", children: "Detached to (station)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-xs", children: "Detached to (station)" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Input,
           {
@@ -76367,14 +76468,14 @@ function DetachmentModal({
         )
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs", children: "Reason" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-xs", children: "Reason" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: reason, onValueChange: setReason, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "h-9", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: DETACHMENT_REASONS.map((r2) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: r2, children: r2 }, r2)) })
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Label, { className: "text-xs", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Label$1, { className: "text-xs", children: [
           "Notes ",
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground/60", children: "(optional)" })
         ] }),
@@ -77952,7 +78053,7 @@ function Handover() {
         /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "space-y-5", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid gap-4 md:grid-cols-3", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Watch *" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Watch *" }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 Select,
                 {
@@ -77969,7 +78070,7 @@ function Handover() {
               )
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Shift *" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Shift *" }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 Select,
                 {
@@ -77986,7 +78087,7 @@ function Handover() {
               )
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Date *" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Date *" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 Input,
                 {
@@ -77998,12 +78099,12 @@ function Handover() {
             ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Handover for the next watch" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Handover for the next watch" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: `Short lines, as you'd say them at changeover. "Needs doing" goes on the board until someone does it; "For info" shows on the next watch's Tasks page.` }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(HandoverItemsEditor, { items: form.items, onChange: (items) => setForm((f) => ({ ...f, items })) })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Label, { className: "flex items-center gap-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(Label$1, { className: "flex items-center gap-2", children: [
               "Anything else",
               /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "outline", className: "text-xs", children: "optional" })
             ] }),
@@ -78145,7 +78246,7 @@ function Handover() {
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { className: `pt-0 border-t handover-card-body ${isExpanded ? "" : "hidden"}`, children: editingId === h.id ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 pt-4", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Handover lines" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Handover lines" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(HandoverItemsEditor, { items: editForm.items, onChange: (items) => setEditForm((f) => ({ ...f, items })) })
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -78566,7 +78667,7 @@ function Training() {
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5 pt-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid gap-4 sm:grid-cols-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Duration (hours)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Duration (hours)" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Input,
             {
@@ -78580,7 +78681,7 @@ function Training() {
           )
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Notes / Debrief" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "Notes / Debrief" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Textarea,
             {
@@ -78592,7 +78693,7 @@ function Training() {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { className: "text-xs font-semibold uppercase tracking-wide text-muted-foreground", children: "Competencies Covered" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { className: "text-xs font-semibold uppercase tracking-wide text-muted-foreground", children: "Competencies Covered" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-2", children: COMPETENCIES.map((comp) => {
             const checked = logForm.competencies.includes(comp);
             return /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -78614,7 +78715,7 @@ function Training() {
           }) })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Label, { className: "text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Label$1, { className: "text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { className: "h-3.5 w-3.5" }),
             "Attendees",
             logForm.selectedUserIds.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { variant: "secondary", className: "text-[10px] py-0 px-1.5", children: [
@@ -78676,7 +78777,7 @@ function Training() {
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Label, { className: "text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center justify-between gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Label$1, { className: "text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center justify-between gap-2", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center gap-2", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { className: "h-3.5 w-3.5" }),
               "External Attendees",
@@ -79550,7 +79651,7 @@ function NewBulletinForm({ onPosted }) {
     /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "space-y-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-3 sm:gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "bulletin-scope", className: "text-xs", children: "Scope" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "bulletin-scope", className: "text-xs", children: "Scope" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             Select,
             {
@@ -79570,7 +79671,7 @@ function NewBulletinForm({ onPosted }) {
           )
         ] }),
         scope === "watch" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "bulletin-watch", className: "text-xs", children: "Watch" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "bulletin-watch", className: "text-xs", children: "Watch" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: watchUnit, onValueChange: setWatchUnit, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "bulletin-watch", className: "mt-1 w-full", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Choose a watch" }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: WATCHES$1.map((w) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -79590,7 +79691,7 @@ function NewBulletinForm({ onPosted }) {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-3 sm:gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "bulletin-priority", className: "text-xs", children: "Priority" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "bulletin-priority", className: "text-xs", children: "Priority" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             Select,
             {
@@ -79608,7 +79709,7 @@ function NewBulletinForm({ onPosted }) {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "bulletin-expiry", className: "text-xs", children: "Expires" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "bulletin-expiry", className: "text-xs", children: "Expires" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: expiresIn, onValueChange: setExpiresIn, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "bulletin-expiry", className: "mt-1 w-full", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
@@ -79622,7 +79723,7 @@ function NewBulletinForm({ onPosted }) {
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "bulletin-title", className: "text-xs", children: "Title" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "bulletin-title", className: "text-xs", children: "Title" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Input,
           {
@@ -79640,7 +79741,7 @@ function NewBulletinForm({ onPosted }) {
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "bulletin-body", className: "text-xs", children: "Body" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "bulletin-body", className: "text-xs", children: "Body" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Textarea,
           {
@@ -79820,7 +79921,7 @@ function SignIn() {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         view === "signin" && /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSignIn, className: "space-y-4", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "email", children: "Email" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "email", children: "Email" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               Input,
               {
@@ -79838,7 +79939,7 @@ function SignIn() {
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "password", children: "Password" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "password", children: "Password" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "button",
                 {
@@ -79890,7 +79991,7 @@ function SignIn() {
         ] }),
         view === "forgot" && /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleForgot, className: "space-y-4", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "forgot-email", children: "Email address" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "forgot-email", children: "Email address" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               Input,
               {
@@ -80016,7 +80117,7 @@ function SignUp() {
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSignUp, className: "space-y-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "name", children: "Full Name" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "name", children: "Full Name" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Input,
           {
@@ -80032,7 +80133,7 @@ function SignUp() {
         )
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "email", children: "Email" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "email", children: "Email" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Input,
@@ -80052,7 +80153,7 @@ function SignUp() {
         isInviteFlow && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "This email was set by your Watch Commander and cannot be changed here." })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "password", children: isInviteFlow ? "Choose a Password" : "Password" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "password", children: isInviteFlow ? "Choose a Password" : "Password" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Input,
           {
@@ -80070,7 +80171,7 @@ function SignUp() {
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "At least 8 characters" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "confirm-password", children: "Confirm Password" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "confirm-password", children: "Confirm Password" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Input,
           {
@@ -80184,7 +80285,7 @@ function ResetPassword() {
       ] }),
       !done && !error && /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleReset, className: "space-y-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "password", children: "New password" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "password", children: "New password" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Input,
             {
@@ -80202,7 +80303,7 @@ function ResetPassword() {
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "At least 8 characters" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "confirm", children: "Confirm new password" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: "confirm", children: "Confirm new password" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Input,
             {
