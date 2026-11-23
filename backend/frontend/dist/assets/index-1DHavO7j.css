@@ -2460,6 +2460,10 @@
     align-self: flex-start;
   }
 
+  .self-stretch {
+    align-self: stretch;
+  }
+
   .justify-self-end {
     justify-self: flex-end;
   }
@@ -2836,6 +2840,16 @@
     border-color: var(--card);
   }
 
+  .border-current\/30 {
+    border-color: currentColor;
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .border-current\/30 {
+      border-color: color-mix(in oklab, currentcolor 30%, transparent);
+    }
+  }
+
   .border-destructive, .border-destructive\/20 {
     border-color: var(--destructive);
   }
@@ -3054,6 +3068,10 @@
 
   .border-purple-500 {
     border-color: var(--color-purple-500);
+  }
+
+  .border-red-200 {
+    border-color: var(--color-red-200);
   }
 
   .border-red-300 {
@@ -3358,7 +3376,17 @@
     background-color: var(--color-amber-600);
   }
 
-  .bg-background, .bg-background\/80 {
+  .bg-background, .bg-background\/60 {
+    background-color: var(--background);
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .bg-background\/60 {
+      background-color: color-mix(in oklab, var(--background) 60%, transparent);
+    }
+  }
+
+  .bg-background\/80 {
     background-color: var(--background);
   }
 
@@ -8173,6 +8201,10 @@
       padding-bottom: 26px;
     }
 
+    .sm\:pl-2 {
+      padding-left: calc(var(--spacing) * 2);
+    }
+
     .sm\:text-left {
       text-align: left;
     }
@@ -8581,6 +8613,16 @@
     border-color: var(--color-amber-900);
   }
 
+  .dark\:border-amber-900\/60:is(.dark *) {
+    border-color: #7b330699;
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .dark\:border-amber-900\/60:is(.dark *) {
+      border-color: color-mix(in oklab, var(--color-amber-900) 60%, transparent);
+    }
+  }
+
   .dark\:border-blue-700:is(.dark *) {
     border-color: var(--color-blue-700);
   }
@@ -8693,6 +8735,16 @@
 
   .dark\:border-red-900:is(.dark *) {
     border-color: var(--color-red-900);
+  }
+
+  .dark\:border-red-900\/60:is(.dark *) {
+    border-color: #82181a99;
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .dark\:border-red-900\/60:is(.dark *) {
+      border-color: color-mix(in oklab, var(--color-red-900) 60%, transparent);
+    }
   }
 
   .dark\:border-sky-700:is(.dark *) {
