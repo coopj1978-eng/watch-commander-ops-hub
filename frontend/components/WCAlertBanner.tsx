@@ -35,8 +35,31 @@ interface AlertItem {
   label: string;
   count: number;
   href: string;
-  /** People the alert is about — each links to their profile. */
-  people?: { id: string; name: string }[];
+  /** People the alert is about — each links to their profile (or `href` when given). */
+  people?: { id: string; name: string; href?: string }[];
+  /** How many more people there are than are named. */
+  morePeople?: number;
+}
+
+/** Names shown on one alert row before it says "and N more". */
+const MAX_NAMED = 3;
+
+/**
+ * Certifications by person, for an alert that says who: each person once,
+ * with the certs in brackets, linking to their Skills tab.
+ */
+function certPeople(entries: { user_id: string; user_name: string; skill_name: string }[]) {
+  const byPerson = new Map<string, { name: string; skills: string[] }>();
+  for (const e of entries) {
+    const p = byPerson.get(e.user_id) ?? { name: e.user_name || "Unknown", skills: [] };
+    if (!p.skills.includes(e.skill_name)) p.skills.push(e.skill_name);
+    byPerson.set(e.user_id, p);
+  }
+  return [...byPerson.entries()].map(([id, p]) => ({
+    id,
+    name: `${p.name} (${p.skills.join(", ")})`,
+    href: `/people/${id}?tab=skills`,
+  }));
 }
 
 // ── Severity styling ───────────────────────────────────────────────────────────
@@ -169,16 +192,20 @@ export function WCAlertBanner() {
     });
   }
 
-  // CRITICAL: Expired certifications
+  // CRITICAL: Expired certifications — say whose, and open their Skills tab
+  // (one person) or People showing just those who have one (several).
   const expiredSkills = skillsData?.expired_count ?? 0;
   if (expiredSkills > 0) {
+    const who = certPeople((skillsData?.skills ?? []).filter((s) => s.status === "expired"));
     alerts.push({
       id:    "expired-skills",
       severity: "critical",
       Icon:  XCircle,
       label: expiredSkills === 1 ? "Expired certification" : "Expired certifications",
       count: expiredSkills,
-      href:  "/people",
+      href:  who.length === 1 ? who[0].href : "/people?certs=expired",
+      people: who.slice(0, MAX_NAMED),
+      morePeople: Math.max(0, who.length - MAX_NAMED),
     });
   }
 
@@ -306,13 +333,16 @@ export function WCAlertBanner() {
   // WARNING: Certifications expiring soon
   const expiringSoon = skillsData?.warning_count ?? 0;
   if (expiringSoon > 0) {
+    const who = certPeople((skillsData?.skills ?? []).filter((s) => s.status === "warning"));
     alerts.push({
       id:    "expiring-skills",
       severity: "warning",
       Icon:  AlertTriangle,
       label: expiringSoon === 1 ? "Certification expiring soon" : "Certifications expiring soon",
       count: expiringSoon,
-      href:  "/people",
+      href:  who.length === 1 ? who[0].href : "/people?certs=due",
+      people: who.slice(0, MAX_NAMED),
+      morePeople: Math.max(0, who.length - MAX_NAMED),
     });
   }
 
@@ -387,7 +417,8 @@ export function WCAlertBanner() {
         <ul className="divide-y divide-border/60 border-t border-border/60">
           {alerts.map((alert) => {
             const Icon = alert.Icon;
-            const action = alert.people?.length === 1 ? "See profile" : alert.people?.length ? "See all" : "Open";
+            const named = (alert.people?.length ?? 0) + (alert.morePeople ?? 0);
+            const action = named === 1 ? "See profile" : named ? "See all" : "Open";
             return (
               <li key={alert.id} className={cn("relative flex items-center gap-3 pl-5 pr-3 py-3 transition-colors group", rowHover[alert.severity])}>
                 <span className={cn("absolute left-0 inset-y-0 w-[3px]", rail[alert.severity])} aria-hidden="true" />
@@ -403,11 +434,19 @@ export function WCAlertBanner() {
                       {alert.people.map((p, i) => (
                         <span key={p.id}>
                           {i > 0 && ", "}
-                          <Link to={`/people/${p.id}`} className="font-medium underline-offset-2 hover:underline hover:text-primary">
+                          <Link to={p.href ?? `/people/${p.id}`} className="font-medium underline-offset-2 hover:underline hover:text-primary">
                             {p.name}
                           </Link>
                         </span>
                       ))}
+                      {alert.morePeople ? (
+                        <>
+                          {" and "}
+                          <Link to={alert.href} className="font-medium underline-offset-2 hover:underline hover:text-primary">
+                            {alert.morePeople} more
+                          </Link>
+                        </>
+                      ) : null}
                     </>
                   ) : null}
                 </span>

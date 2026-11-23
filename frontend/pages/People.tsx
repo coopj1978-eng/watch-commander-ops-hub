@@ -6,7 +6,7 @@ import { useBackend, useCanViewPeople, useCanCreatePerson, useIsWatchCommander, 
 import { useAuth } from "@/App";
 import { STATION_OPTIONS } from "@/lib/constants";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ShieldAlert, Search, UserPlus, Settings2, ChevronDown, ChevronRight, ChevronUp, HeartPulse, Stethoscope, Users } from "lucide-react";
+import { AlertTriangle, ShieldAlert, Search, UserPlus, Settings2, ChevronDown, ChevronRight, ChevronUp, HeartPulse, Stethoscope, Users, X, XCircle } from "lucide-react";
 import AddPersonModal from "@/components/AddPersonModal";
 import ColumnsDrawer from "@/components/ColumnsDrawer";
 import { LogSickDialog } from "@/components/LogSickDialog";
@@ -41,6 +41,8 @@ import { invalidateAbsenceViews, localTodayIso, useSickOn } from "@/lib/absences
 import { useToast } from "@/components/ui/use-toast";
 
 type SortField = "name" | "watch" | "rank" | "email" | "phone" | "staffNumber" | "lastConversation";
+/** "?certs=expired" / "?certs=due": just the people with a certification in that state (from the Home alerts). */
+type CertFilter = "expired" | "due";
 type SortDirection = "asc" | "desc";
 
 const WATCH_OPTIONS = ["Green", "Red", "White", "Blue", "Amber"];
@@ -98,6 +100,10 @@ export default function People() {
   const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "");
   const [debouncedSearch, setDebouncedSearch] = useState(searchTerm);
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">(opening.status);
+  const [certFilter, setCertFilter] = useState<CertFilter | null>(() => {
+    const c = searchParams.get("certs");
+    return c === "expired" || c === "due" ? c : null;
+  });
   // Station / rank / skills / driver filters fold away; the watch chips and
   // status switch stay in view.
   const [showFilterPanel, setShowFilterPanel] = useState(false);
@@ -157,6 +163,8 @@ export default function People() {
     if (stationFilter) params.station = stationFilter;
     if (sortField !== "watch") params.sortBy = sortField;
     if (sortDirection !== "asc") params.sortDir = sortDirection;
+    // Kept in the link while it's on, but never saved as the filters you left.
+    if (certFilter) params.certs = certFilter;
 
     setSearchParams(params, { replace: true });
     try {
@@ -165,7 +173,7 @@ export default function People() {
         driverPathway: driverPathwayFilter, station: stationFilter, sortBy: sortField, sortDir: sortDirection,
       }));
     } catch { /* private window: it just won't be remembered */ }
-  }, [filtersKey, debouncedSearch, statusFilter, watchFilters, rankFilters, skillFilters, driverPathwayFilter, stationFilter, sortField, sortDirection, setSearchParams]);
+  }, [filtersKey, debouncedSearch, statusFilter, watchFilters, rankFilters, skillFilters, driverPathwayFilter, stationFilter, sortField, sortDirection, certFilter, setSearchParams]);
 
   const { data: peopleData, isLoading } = useQuery({
     queryKey: ["people", statusFilter],
@@ -178,6 +186,27 @@ export default function People() {
     queryKey: ["dictionaries", "skills"],
     queryFn: async () => backend.dictionary.list({ type: "skill" }),
   });
+
+  // Certifications expired or due within 30 days (same cache as the Home
+  // alerts), so each person with one carries a warning here.
+  const { data: expiringData } = useQuery({
+    queryKey: ["wc-skills-expiring"],
+    queryFn: async () => backend.skill.listExpiring(),
+    refetchInterval: 5 * 60 * 1000,
+  });
+  const certsByUser = useMemo(() => {
+    const m = new Map<string, { expired: string[]; due: string[] }>();
+    for (const s of expiringData?.skills ?? []) {
+      const c = m.get(s.user_id) ?? { expired: [], due: [] };
+      (s.status === "expired" ? c.expired : c.due).push(s.skill_name);
+      m.set(s.user_id, c);
+    }
+    return m;
+  }, [expiringData]);
+  const hasCert = (userId: string, which: CertFilter) => {
+    const c = certsByUser.get(userId);
+    return !!c && (which === "expired" ? c.expired.length > 0 : c.due.length > 0);
+  };
 
   // Off sick today across the station (names only for other watches), so
   // an open sickness shows here and can't be booked a second time — by any
@@ -248,6 +277,10 @@ export default function People() {
         if (!matchesSearch) return false;
       }
       
+      // From a Home alert: everyone with a cert in that state, whatever watch
+      // or station the other filters are on (the banner above says so).
+      if (certFilter) return hasCert(user.id, certFilter);
+
       const effectiveWatch = user.watch_unit || profile?.watch || "";
       if (watchFilters.length && !watchFilters.includes(effectiveWatch)) return false;
       const effectiveStation = profile?.station || "";
@@ -298,7 +331,10 @@ export default function People() {
     });
 
     return filtered;
-  }, [people, debouncedSearch, watchFilters, rankFilters, skillFilters, driverPathwayFilter, stationFilter, sortField, sortDirection]);
+  }, [people, debouncedSearch, watchFilters, rankFilters, skillFilters, driverPathwayFilter, stationFilter, sortField, sortDirection, certFilter, certsByUser]);
+
+  // With the cert filter on, a person opens on their Skills tab.
+  const profileHref = (id: string) => `/people/${id}${certFilter ? "?tab=skills" : ""}`;
 
   const activeFiltersCount =
     [watchFilters.length > 0, rankFilters.length > 0, skillFilters.length > 0, !!driverPathwayFilter, !!(stationFilter && stationFilter.trim())].filter(Boolean).length +
@@ -537,6 +573,34 @@ export default function People() {
         )}
       </Card>
 
+      {certFilter && (
+        <div
+          role="status"
+          className={`flex items-center gap-3 rounded-xl border px-4 py-3 text-sm ${
+            certFilter === "expired"
+              ? "border-red-200 bg-red-50 text-red-800 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-200"
+              : "border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200"
+          }`}
+        >
+          {certFilter === "expired"
+            ? <XCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
+            : <AlertTriangle className="h-4 w-4 shrink-0" aria-hidden="true" />}
+          <span className="flex-1 min-w-0">
+            <span className="font-semibold">
+              {certFilter === "expired" ? "People with an expired certification" : "People with a certification due in 30 days"}
+            </span>
+            <span className="opacity-80"> — every watch. Tap someone to open their skills.</span>
+          </span>
+          <button
+            type="button"
+            onClick={() => setCertFilter(null)}
+            className="tap-chip inline-flex shrink-0 items-center gap-1 rounded-md border border-current/30 bg-background/60 px-2.5 py-1 text-xs font-medium hover:bg-background"
+          >
+            <X className="h-3.5 w-3.5" aria-hidden="true" /> Show everyone
+          </button>
+        </div>
+      )}
+
       {isLoading ? (
         <div className="space-y-2">
           {[...Array(5)].map((_, i) => (
@@ -561,7 +625,7 @@ export default function People() {
                 <div key={user.id} className="flex items-stretch overflow-hidden rounded-xl border border-border bg-card">
                   <button
                     type="button"
-                    onClick={() => navigate(`/people/${user.id}`)}
+                    onClick={() => navigate(profileHref(user.id))}
                     className="flex min-w-0 flex-1 items-center gap-3 p-3 text-left transition-colors hover:bg-muted/40 active:bg-muted/60"
                   >
                     <div className="h-11 w-11 rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 flex items-center justify-center text-white font-bold shrink-0">
@@ -570,6 +634,7 @@ export default function People() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-semibold truncate">{user.name}</span>
+                        <CertBadge certs={certsByUser.get(user.id)} compact />
                         {isSick && (
                           <Badge variant="outline" className="text-[10px] bg-red-500/10 text-red-600 border-red-500/20 gap-1">
                             <Stethoscope className="h-2.5 w-2.5" /> Sick
@@ -699,12 +764,13 @@ export default function People() {
                   <TableRow
                     key={user.id}
                     className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => navigate(`/people/${user.id}`)}
+                    onClick={() => navigate(profileHref(user.id))}
                   >
                     {visibleColumns.name && (
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-2 flex-wrap">
                           {user.name}
+                          <CertBadge certs={certsByUser.get(user.id)} />
                           {sickToday?.has(user.id) && (
                             <Badge variant="outline" className="text-xs bg-red-500/10 text-red-600 border-red-500/20 gap-1 shrink-0">
                               <Stethoscope className="h-3 w-3" /> Off Sick
@@ -890,5 +956,33 @@ export default function People() {
         person={logSickPerson}
       />
     </div>
+  );
+}
+
+/**
+ * A warning on someone with a certification out of date (red) or due within
+ * 30 days (amber); which ones is in the tooltip and read out to a screen reader.
+ */
+function CertBadge({ certs, compact }: { certs?: { expired: string[]; due: string[] }; compact?: boolean }) {
+  if (!certs || (certs.expired.length === 0 && certs.due.length === 0)) return null;
+  const expired = certs.expired.length > 0;
+  const names = expired ? certs.expired : certs.due;
+  const detail = `${expired ? "Expired" : "Due within 30 days"}: ${names.join(", ")}`
+    + (expired && certs.due.length ? ` · due soon: ${certs.due.join(", ")}` : "");
+  const Icon = expired ? XCircle : AlertTriangle;
+  return (
+    <Badge
+      variant="outline"
+      title={detail}
+      className={`${compact ? "text-[10px]" : "text-xs"} gap-1 shrink-0 ${
+        expired
+          ? "bg-red-500/10 text-red-600 border-red-500/30 dark:text-red-400"
+          : "bg-amber-500/10 text-amber-700 border-amber-500/30 dark:text-amber-400"
+      }`}
+    >
+      <Icon className={compact ? "h-2.5 w-2.5" : "h-3 w-3"} aria-hidden="true" />
+      {expired ? "Cert expired" : "Cert due"}
+      <span className="sr-only"> — {detail}</span>
+    </Badge>
   );
 }
