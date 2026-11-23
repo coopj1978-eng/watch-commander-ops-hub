@@ -3,11 +3,14 @@ import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { logActivity } from "../logging/logger";
 import type { CreateTaskRequest, Task } from "./types";
+import { tellAssignee, vetAssignee } from "./assign";
 
 export const create = api<CreateTaskRequest, Task>(
   { auth: true, expose: true, method: "POST", path: "/api/tasks" },
   async (req) => {
     const auth = getAuthData()!;
+    // A WC/CC can give it to anyone at the station; anyone can take it themselves.
+    const assignee = await vetAssignee(auth, req.assigned_to);
 
     // Derive watch_unit: use explicit value, or fall back to creator's watch
     let watchUnit = req.watch_unit ?? null;
@@ -24,7 +27,7 @@ export const create = api<CreateTaskRequest, Task>(
        RETURNING * /* tasks v68 */`,
       req.title,
       req.description ?? null,
-      req.assigned_to ?? null,
+      assignee ?? null,
       auth.userID, // who set it = who's logged in (edit rights depend on it), not what the request says
       req.priority ?? "Med",
       req.due_date ?? null,
@@ -44,6 +47,8 @@ export const create = api<CreateTaskRequest, Task>(
     if (!task) {
       throw new Error("Failed to create task");
     }
+
+    if (assignee) await tellAssignee(task, assignee, auth);
 
     await logActivity({
       user_id: auth.userID,

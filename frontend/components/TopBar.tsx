@@ -4,8 +4,17 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "react-router-dom";
 import backend from "@/lib/backend";
 import {
-  Bell, Stethoscope, AlertCircle, Info, CheckCheck, ShieldAlert,
-  ClipboardList, Search, X as XIcon, Megaphone,
+  Bell,
+  Stethoscope,
+  AlertCircle,
+  Info,
+  CheckCheck,
+  ShieldAlert,
+  ClipboardList,
+  Search,
+  X as XIcon,
+  Megaphone,
+  UserCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -47,6 +56,8 @@ function NotificationIcon({ type }: { type: notification.NotificationType }) {
       return <ShieldAlert className="h-4 w-4 text-red-500 shrink-0" />;
     case "bulletin_posted":
       return <Megaphone className="h-4 w-4 text-brand shrink-0" />;
+    case "task_assigned":
+      return <UserCheck className="h-4 w-4 text-brand shrink-0" />;
     default:
       return <Info className="h-4 w-4 text-blue-500 shrink-0" />;
   }

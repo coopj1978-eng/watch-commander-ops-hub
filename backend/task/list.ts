@@ -35,8 +35,10 @@ export const list = api<ListTasksRequest, ListTasksResponse>(
       conditions.push(`assigned_to_user_id = $${paramIndex++}`);
       params.push(req.assigned_to);
     } else if (req.watch_unit) {
-      // Explicit watch filter (case-insensitive — tolerate inconsistent casing)
-      conditions.push(`LOWER(watch_unit) = LOWER($${paramIndex++})`);
+      // Explicit watch filter (case-insensitive — tolerate inconsistent casing),
+      // plus tasks given to one of its people from another watch.
+      conditions.push(`(LOWER(watch_unit) = LOWER($${paramIndex}) OR assigned_to_user_id IN (SELECT id FROM users WHERE LOWER(watch_unit) = LOWER($${paramIndex})))`);
+      paramIndex++;
       params.push(req.watch_unit);
     } else {
       // Default: show all tasks for the requesting user's watch

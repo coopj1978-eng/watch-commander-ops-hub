@@ -1,11 +1,11 @@
 import { dueDayDiff } from "@/lib/taskDue";
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/App";
 import { useUserRole } from "@/lib/rbac";
 import { getNextShiftDate, getShiftForDate } from "@/lib/shiftRota";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import backend from "@/lib/backend";
 import { useToast } from "@/components/ui/use-toast";
 import {
@@ -15,6 +15,7 @@ import { TASK_LABELS, CARD_COVERS, getCoverStyle } from "@/lib/taskLabels";
 import { autoStatusFor, canEditTaskDetails, priorityKey, rewordLine, tickTime } from "@/lib/taskUi";
 import LineEditInput from "@/components/tasks/LineEditInput";
 import { formatTaskLink, linkHost, taskLinks, tidyUrl } from "@/lib/taskLinks";
+import { stationPeople } from "@/lib/taskAssign";
 import type { Task, TaskColumn, ChecklistItem, TaskPriority } from "~backend/task/types";
 
 interface TaskDetailDrawerProps {
@@ -151,6 +152,13 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
   const [priority, setPriority] = useState<TaskPriority>("Med");
   const [dueDate, setDueDate] = useState("");
   const [watchUnit, setWatchUnit] = useState("");
+  const [assignee, setAssignee] = useState("");
+  // The station's people, for "Assigned to" (same list as the Tasks page).
+  const { data: peopleData } = useQuery({
+    queryKey: ["people-for-tasks"],
+    queryFn: async () => (await backend.profile.listWithUsers({ limit: 500 })).people ?? [],
+    staleTime: 5 * 60 * 1000,
+  });
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
   const [newChecklistItem, setNewChecklistItem] = useState("");
   const [addingItem, setAddingItem] = useState(false);
@@ -187,6 +195,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
     setChecklist(task.checklist ? [...task.checklist] : []);
     setTags(task.tags ?? []);
     setWatchUnit((task as any).watch_unit ?? "");
+    setAssignee(task.assigned_to_user_id ?? "");
     setCoverColour((task as any).cover_colour ?? "");
     setAddingItem(false);
     setNewChecklistItem("");
@@ -303,6 +312,24 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
   const handleDueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setDueDate(e.target.value);
     save({ due_date: e.target.value ? new Date(e.target.value) : undefined });
+  };
+
+  // ── Who it's given to: a WC/CC (or the admin) picks anyone at the station,
+  // on any watch; anyone else can take it themselves or hand it back. ──
+  const canAssignOthers = userRole === "WC" || userRole === "CC" || !!user?.is_admin;
+  const station = stationPeople(peopleData ?? [], user?.watch_unit);
+  const assigneePerson = station.flatMap((g) => g.people).find((p) => p.id === assignee)
+    ?? (assignee ? { id: assignee, name: (peopleData ?? []).find((p) => p.user.id === assignee)?.user.name ?? "Someone", watch: "" } : null);
+  const pickable = canAssignOthers
+    ? station
+    : station.map((g) => ({ ...g, people: g.people.filter((p) => p.id === user?.id || p.id === assignee) })).filter((g) => g.people.length);
+  const handleAssigneeChange = (v: string) => {
+    const val = v === "__none__" ? "" : v;
+    if (val === assignee) return;
+    setAssignee(val);
+    save({ assigned_to: val });
+    const name = station.flatMap((g) => g.people).find((p) => p.id === val)?.name;
+    if (val && val !== user?.id && name) toast({ title: `Given to ${name}`, description: "They'll get a notification." });
   };
 
   const handleWatchChange = (v: string) => {
@@ -477,6 +504,25 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
       <span className="flex items-center gap-2"><Dot color={`var(--cal-${priorityKey(p.value)}-dot)`} />{p.label}</span>
     </SelectItem>
   ));
+
+  const assigneeItems = (
+    <>
+      <SelectItem value="__none__" className={ITEM_CLS}>Nobody</SelectItem>
+      {pickable.map((g) => (
+        <SelectGroup key={g.watch || "none"}>
+          <SelectLabel className="tdd-lbl px-3 pt-2.5 pb-1">{g.watch ? `${g.watch} Watch` : "No watch"}</SelectLabel>
+          {g.people.map((p) => (
+            <SelectItem key={p.id} value={p.id} className={ITEM_CLS}>
+              {p.name}{p.id === user?.id ? " (me)" : ""}{p.rank ? <span style={{ color: "var(--cal-muted)" }}> · {p.rank}</span> : null}
+            </SelectItem>
+          ))}
+        </SelectGroup>
+      ))}
+    </>
+  );
+  const assigneeText = assigneePerson
+    ? `${assigneePerson.name}${assigneePerson.id === user?.id ? " (me)" : ""}`
+    : "Nobody";
 
   const watchSelect = (id: string) => (
     <Select value={watchUnit || "__none__"} onValueChange={handleWatchChange} disabled={!canEdit}>
@@ -663,6 +709,15 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                   </div>
                   {!isCheck && dueHint}
                   {checkNote}
+                  {!isCheck && (canEdit || assignee) && (
+                    <Select value={assignee || "__none__"} onValueChange={handleAssigneeChange} disabled={!canEdit}>
+                      <SelectTrigger className="tdd-tile cal-focus w-full" aria-label="Assigned to">
+                        <span className="tdd-k">Assigned to</span>
+                        <SelectValue><span className="tdd-v" style={{ color: assignee ? "var(--cal-ink)" : "var(--cal-muted)" }}>{assigneeText}</span></SelectValue>
+                      </SelectTrigger>
+                      <SelectContent className="cal-menu">{assigneeItems}</SelectContent>
+                    </Select>
+                  )}
                 </div>
 
                 {/* Checklist */}
@@ -1077,9 +1132,9 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                     <Clock className="h-[13px] w-[13px]" />
                     Created <span className="cal-mono">{new Date(task.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</span>
                   </span>
-                  {task.assigned_to_user_id && (
+                  {assigneePerson && (
                     <span className="inline-flex items-center gap-1.5">
-                      <User className="h-[13px] w-[13px]" /> Assigned
+                      <User className="h-[13px] w-[13px]" /> Assigned to {assigneeText}
                     </span>
                   )}
                 </div>
@@ -1110,6 +1165,17 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                     disabled={!canEdit}
                   />
                 </Field>
+
+                {(canEdit || assignee) && (
+                  <Field label="Assigned to" htmlFor={`${uid}-who`}>
+                    <Select value={assignee || "__none__"} onValueChange={handleAssigneeChange} disabled={!canEdit}>
+                      <SelectTrigger id={`${uid}-who`} className="tdd-field cal-focus">
+                        <SelectValue><span style={{ color: assignee ? undefined : "var(--cal-muted)" }}>{assigneeText}</span></SelectValue>
+                      </SelectTrigger>
+                      <SelectContent className="cal-menu">{assigneeItems}</SelectContent>
+                    </Select>
+                  </Field>
+                )}
 
                 {/* Move to Watch (WC only) */}
                 {userRole === "WC" && <Field label="Move to watch" htmlFor={`${uid}-watch`}>{watchSelect(`${uid}-watch`)}</Field>}

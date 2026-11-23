@@ -205,6 +205,17 @@ export default function Tasks() {
     handleNewTask();
   }, [searchParams, columns.length, shift]);
 
+  // "?task=12" (a "Task for you" notification) opens that card once it's loaded.
+  const linkedTask = Number(searchParams.get("task")) || null;
+  useEffect(() => {
+    if (!linkedTask) return;
+    const found = filteredTasks.find((t) => t.id === linkedTask);
+    if (!found && (isLoading || shiftLoading)) return;
+    setSearchParams((p) => { p.delete("task"); return p; }, { replace: true });
+    if (found) { setIsNewTask(false); setSelectedTask(found); }
+    else toast({ title: "That task isn't on your board", description: "It may have been finished or removed." });
+  }, [linkedTask, filteredTasks, isLoading, shiftLoading]);
+
   const handleTitleEdit = (taskId: number, newTitle: string) => {
     updateTaskMutation.mutate({ id: taskId, title: newTitle });
     if (selectedTask?.id === taskId) setSelectedTask((prev) => prev ? { ...prev, title: newTitle } : prev);

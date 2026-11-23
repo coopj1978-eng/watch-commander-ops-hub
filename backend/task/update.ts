@@ -6,6 +6,7 @@ import type { UpdateTaskRequest, Task } from "./types";
 import { assertCanModifyTask } from "./permissions";
 import { stampChecklist, ticksOnly } from "../lib/routine";
 import type { ChecklistItem } from "./types";
+import { tellAssignee, vetAssignee } from "./assign";
 
 // Fields any watch member may change by working the shared board.
 const BOARD_MOVE_FIELDS = new Set(["status", "position", "checklist"]);
@@ -35,9 +36,15 @@ export const update = api(
       setClauses.push(`description = $${paramIndex++}`);
       queryParams.push(updates.description);
     }
-    if (updates.assigned_to !== undefined) {
+    // Given to someone: checked (who may, and that they're at the station),
+    // and they're told if it's new to them. "" hands it back to nobody.
+    const assignee = await vetAssignee(auth, updates.assigned_to);
+    const assignedBefore = assignee !== undefined
+      ? (await db.rawQueryRow<{ assigned_to_user_id: string | null }>(`SELECT assigned_to_user_id FROM tasks WHERE id = $1`, id))?.assigned_to_user_id ?? null
+      : null;
+    if (assignee !== undefined) {
       setClauses.push(`assigned_to_user_id = $${paramIndex++}`);
-      queryParams.push(updates.assigned_to);
+      queryParams.push(assignee);
     }
     if (updates.status !== undefined) {
       setClauses.push(`status = $${paramIndex++}`);
@@ -129,6 +136,8 @@ export const update = api(
     if (!task) {
       throw APIError.notFound("task not found");
     }
+
+    if (assignee && assignee !== assignedBefore) await tellAssignee(task, assignee, auth);
 
     // Cascade inspection completion when task moves to/from Done
     if (updates.status !== undefined && task) {

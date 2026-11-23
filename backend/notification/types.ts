@@ -4,6 +4,7 @@ export type NotificationType =
   | "task_overdue"
   | "crewing_gap"
   | "bulletin_posted"
+  | "task_assigned"
   | "general";
 
 export interface Notification {

@@ -3349,7 +3349,7 @@ export namespace notification {
         "created_at": string
     }
 
-    export type NotificationType = "sick_booking" | "cert_expiry" | "task_overdue" | "crewing_gap" | "bulletin_posted" | "general"
+    export type NotificationType = "sick_booking" | "cert_expiry" | "task_overdue" | "crewing_gap" | "bulletin_posted" | "task_assigned" | "general"
 
     export interface RefreshResponse {
         generated: number
