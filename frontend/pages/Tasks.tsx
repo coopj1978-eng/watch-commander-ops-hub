@@ -67,7 +67,11 @@ export default function Tasks() {
   // and overtime too) sees the same board. "mine": your own watch's current
   // or next shift. Station checks, the watch's tasks due by the end of the
   // shift (unfinished ones roll on by themselves) and the calendar's tasks.
-  const [boardView, setBoardView] = useState<"duty" | "mine">("duty");
+  // Opens on your own watch (John, 25 Nov 2026: "I'd like it to default to my
+  // watch's tasks … with the option to change to the shift that's on that
+  // day … the same for all accounts"). Someone with no watch gets the watch
+  // on duty, as there's nothing else to show.
+  const [boardView, setBoardView] = useState<"duty" | "mine">("mine");
   const { data: shiftData, isLoading: shiftLoading } = useQuery({
     queryKey: ["tasks", "shift", boardView, user?.watch_unit],
     queryFn: () => backend.task.shiftBoard({ watch: boardView === "mine" ? user?.watch_unit : undefined }),
@@ -305,7 +309,7 @@ export default function Tasks() {
   // Your watch isn't on: switch between the shift on duty and your own watch's next shift.
   const viewSwitch = !myWatchOnDuty && shiftData?.on_duty_watch && user?.watch_unit ? (
     <div role="group" aria-label="Which board" style={{ display: "inline-flex", alignSelf: "flex-start", padding: 4, borderRadius: 12, background: "var(--cal-surface-3)", gap: 2 }}>
-      {([["duty", `On duty · ${shiftData.on_duty_watch}`], ["mine", `My watch · ${user.watch_unit}`]] as const).map(([v, label]) => (
+      {([["mine", `My watch · ${user.watch_unit}`], ["duty", `On duty now · ${shiftData.on_duty_watch}`]] as const).map(([v, label]) => (
         <button
           key={v}
           type="button"

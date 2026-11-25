@@ -63547,7 +63547,7 @@ function Tasks() {
     queryFn: async () => (await backendClient.task.list({ watch_unit: user2 == null ? void 0 : user2.watch_unit, limit: 1e3 })).tasks,
     enabled: !!user2
   });
-  const [boardView, setBoardView] = reactExports.useState("duty");
+  const [boardView, setBoardView] = reactExports.useState("mine");
   const { data: shiftData, isLoading: shiftLoading } = useQuery({
     queryKey: ["tasks", "shift", boardView, user2 == null ? void 0 : user2.watch_unit],
     queryFn: () => backendClient.task.shiftBoard({ watch: boardView === "mine" ? user2 == null ? void 0 : user2.watch_unit : void 0 }),
@@ -63765,7 +63765,7 @@ function Tasks() {
       p.id
     );
   };
-  const viewSwitch = !myWatchOnDuty && (shiftData == null ? void 0 : shiftData.on_duty_watch) && (user2 == null ? void 0 : user2.watch_unit) ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { role: "group", "aria-label": "Which board", style: { display: "inline-flex", alignSelf: "flex-start", padding: 4, borderRadius: 12, background: "var(--cal-surface-3)", gap: 2 }, children: [["duty", `On duty · ${shiftData.on_duty_watch}`], ["mine", `My watch · ${user2.watch_unit}`]].map(([v, label2]) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+  const viewSwitch = !myWatchOnDuty && (shiftData == null ? void 0 : shiftData.on_duty_watch) && (user2 == null ? void 0 : user2.watch_unit) ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { role: "group", "aria-label": "Which board", style: { display: "inline-flex", alignSelf: "flex-start", padding: 4, borderRadius: 12, background: "var(--cal-surface-3)", gap: 2 }, children: [["mine", `My watch · ${user2.watch_unit}`], ["duty", `On duty now · ${shiftData.on_duty_watch}`]].map(([v, label2]) => /* @__PURE__ */ jsxRuntimeExports.jsx(
     "button",
     {
       type: "button",
