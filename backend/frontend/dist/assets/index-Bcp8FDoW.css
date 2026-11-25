@@ -3488,15 +3488,7 @@
     }
   }
 
-  .bg-brand {
-    background-color: var(--brand);
-  }
-
-  .bg-brand-bright {
-    background-color: var(--brand-bright);
-  }
-
-  .bg-brand\/5 {
+  .bg-brand, .bg-brand\/5 {
     background-color: var(--brand);
   }
 

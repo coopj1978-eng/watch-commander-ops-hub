@@ -34,7 +34,7 @@ function BrandPanel() {
 
       <div className="flex h-full flex-col justify-between gap-10 p-6 sm:p-10 lg:p-14">
         <div className="flex items-center gap-3">
-          <div className="grid h-10 w-10 place-items-center rounded bg-brand-bright font-mono text-sm font-semibold tracking-wide text-neutral-900">WC</div>
+          <img src="/logo.svg" alt="" width={40} height={40} className="h-10 w-10 rounded-lg ring-1 ring-white/10" />
           <div>
             <div className="text-sm font-semibold">The Station Hub</div>
             <div className="font-mono text-[10.5px] uppercase tracking-[0.14em] text-white/50">B10 Springburn</div>

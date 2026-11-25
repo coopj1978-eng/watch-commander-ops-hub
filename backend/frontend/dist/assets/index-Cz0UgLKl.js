@@ -32380,18 +32380,9 @@ function SidebarNav({
       "aria-label": "Main navigation",
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: cn("flex h-16 shrink-0 items-center gap-3", open ? "px-4" : "justify-center"), children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "div",
-            {
-              className: cn(
-                "grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-brand-bright text-neutral-900",
-                "font-mono text-sm font-semibold tracking-wide"
-              ),
-              children: "WC"
-            }
-          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: "/logo.svg", alt: "", width: 40, height: 40, className: "h-10 w-10 shrink-0 rounded-lg ring-1 ring-white/10" }),
           open && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0 animate-in fade-in-0 duration-200", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "truncate text-[13px] font-semibold leading-tight text-white", children: "Watch Commander" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "truncate text-[13px] font-semibold leading-tight text-white", children: "The Station Hub" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-0.5 truncate font-mono text-[10px] uppercase leading-tight tracking-[0.08em] text-white/40", children: "B10 Springburn" })
           ] })
         ] }),
@@ -79846,7 +79837,7 @@ function BrandPanel() {
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { "aria-hidden": true, className: "pointer-events-none absolute -bottom-40 -left-24 -z-10 h-[28rem] w-[28rem] rounded-full blur-3xl opacity-25", style: { background: accent } }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex h-full flex-col justify-between gap-10 p-6 sm:p-10 lg:p-14", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid h-10 w-10 place-items-center rounded bg-brand-bright font-mono text-sm font-semibold tracking-wide text-neutral-900", children: "WC" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: "/logo.svg", alt: "", width: 40, height: 40, className: "h-10 w-10 rounded-lg ring-1 ring-white/10" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold", children: "The Station Hub" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono text-[10.5px] uppercase tracking-[0.14em] text-white/50", children: "B10 Springburn" })

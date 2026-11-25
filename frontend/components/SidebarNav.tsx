@@ -96,17 +96,11 @@ export default function SidebarNav({
     >
       {/* ── Brand ─────────────────────────────────────────────────────── */}
       <div className={cn("flex h-16 shrink-0 items-center gap-3", open ? "px-4" : "justify-center")}>
-        <div
-          className={cn(
-            "grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-brand-bright text-neutral-900",
-            "font-mono text-sm font-semibold tracking-wide",
-          )}
-        >
-          WC
-        </div>
+        {/* The Station Hub mark (John's logo, Nov 2026): knot, five-watch ring and flame */}
+        <img src="/logo.svg" alt="" width={40} height={40} className="h-10 w-10 shrink-0 rounded-lg ring-1 ring-white/10" />
         {open && (
           <div className="min-w-0 animate-in fade-in-0 duration-200">
-            <p className="truncate text-[13px] font-semibold leading-tight text-white">Watch Commander</p>
+            <p className="truncate text-[13px] font-semibold leading-tight text-white">The Station Hub</p>
             <p className="mt-0.5 truncate font-mono text-[10px] uppercase leading-tight tracking-[0.08em] text-white/40">
               B10 Springburn
             </p>
