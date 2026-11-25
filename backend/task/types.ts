@@ -5,6 +5,11 @@ export type TaskCategory = "Training" | "Inspection" | "HFSV" | "Admin" | "Other
 export interface ChecklistItem {
   label: string;
   done: boolean;
+  /**
+   * A web address the line's wording opens (John, 25 Nov 2026: "the tick
+   * part to be left tickable but the text to be linkable"). http/https only.
+   */
+  url?: string;
   /** Who ticked it and when — stamped by the server, never by the client. */
   done_by?: string;
   done_by_name?: string;

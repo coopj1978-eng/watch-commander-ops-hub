@@ -58010,6 +58010,109 @@ function taskLinks(attachments) {
     return l ? [{ ...l, index: index2 }] : [];
   });
 }
+function LineEditInput({ value, onCommit, onCancel, ariaLabel = "Reword this line", className, style, placeholder, maxLength = 200, inputMode }) {
+  const [text2, setText] = reactExports.useState(value);
+  const ref = reactExports.useRef(null);
+  const done = reactExports.useRef(false);
+  reactExports.useEffect(() => {
+    var _a3, _b3;
+    (_a3 = ref.current) == null ? void 0 : _a3.focus();
+    (_b3 = ref.current) == null ? void 0 : _b3.select();
+  }, []);
+  const finish = (save) => {
+    if (done.current) return;
+    done.current = true;
+    if (save) onCommit(text2.replace(/\s+/g, " ").trim());
+    else onCancel();
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "input",
+    {
+      ref,
+      "aria-label": ariaLabel,
+      value: text2,
+      maxLength,
+      placeholder,
+      inputMode,
+      autoCapitalize: inputMode === "url" ? "none" : void 0,
+      autoCorrect: inputMode === "url" ? "off" : void 0,
+      spellCheck: inputMode === "url" ? false : void 0,
+      enterKeyHint: "done",
+      onChange: (e) => setText(e.target.value),
+      onBlur: () => finish(true),
+      onKeyDown: (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          finish(true);
+        }
+        if (e.key === "Escape") {
+          e.preventDefault();
+          e.stopPropagation();
+          finish(false);
+        }
+      },
+      className,
+      style
+    }
+  );
+}
+function LineLinkText({ label: label2, url, done, className, style }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "a",
+    {
+      href: url,
+      target: "_blank",
+      rel: "noopener noreferrer",
+      title: `Opens ${linkHost(url)}`,
+      onClick: (e) => e.stopPropagation(),
+      className: `cal-focus ${className ?? ""}`,
+      style: {
+        flex: 1,
+        minWidth: 0,
+        lineHeight: 1.35,
+        overflowWrap: "anywhere",
+        borderRadius: 6,
+        color: done ? "var(--cal-muted)" : "var(--cal-brand-text)",
+        textDecoration: done ? "underline line-through" : "underline",
+        textUnderlineOffset: 3,
+        ...style
+      },
+      children: [
+        label2,
+        /* @__PURE__ */ jsxRuntimeExports.jsx(ExternalLink, { "aria-hidden": "true", size: 12, style: { display: "inline", marginLeft: 5, verticalAlign: "-1px", opacity: 0.75 } }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sr-only", children: " (opens in a new tab)" })
+      ]
+    }
+  );
+}
+const LINK_PLACEHOLDER = "Paste a web address — leave empty for no link";
+const LINK_MAX = 2e3;
+function LineLinkButton({ label: label2, url, onClick, size: size2 = 22 }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "button",
+    {
+      type: "button",
+      onClick,
+      "aria-label": url ? `Change the link on "${label2}" (${linkHost(url)})` : `Add a link to "${label2}"`,
+      title: url ? `Opens ${linkHost(url)} — change or remove` : "Add a link",
+      className: "cal-focus",
+      style: {
+        width: size2,
+        height: size2,
+        flex: "none",
+        borderRadius: 6,
+        border: "none",
+        padding: 0,
+        cursor: "pointer",
+        display: "grid",
+        placeItems: "center",
+        background: url ? "var(--cal-brand-soft)" : "transparent",
+        color: url ? "var(--cal-brand-text)" : "var(--cal-muted)"
+      },
+      children: /* @__PURE__ */ jsxRuntimeExports.jsx(Link2, { size: Math.round(size2 * 0.6), strokeWidth: 2, "aria-hidden": "true" })
+    }
+  );
+}
 function Chip({
   k,
   icon,
@@ -58527,7 +58630,51 @@ function CardChecklist({ task: task2, onToggle }) {
   return (
     // Ticking mustn't open the card (click) or trigger its Enter-to-open (keydown).
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { onClick: (e) => e.stopPropagation(), onKeyDown: (e) => e.stopPropagation(), style: { display: "flex", flexDirection: "column", margin: "-2px -6px 0" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { "aria-label": "Checklist", style: { listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column" }, children: shown.map((item, i) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { "aria-label": "Checklist", style: { listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column" }, children: shown.map((item, i) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: item.url ? (
+        // A line with a link: the box ticks, the wording opens the page.
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 3 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              role: "checkbox",
+              "aria-checked": item.done,
+              "aria-label": item.label,
+              onClick: () => onToggle(item.label, !item.done),
+              className: "cal-focus tc-check",
+              style: {
+                width: isPhone ? 40 : 30,
+                minHeight: isPhone ? 40 : 32,
+                flex: "none",
+                display: "grid",
+                placeItems: "center",
+                padding: 0,
+                border: "none",
+                borderRadius: 9,
+                background: "transparent",
+                cursor: "pointer"
+              },
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "span",
+                {
+                  "aria-hidden": true,
+                  style: {
+                    width: 18,
+                    height: 18,
+                    borderRadius: 6,
+                    display: "grid",
+                    placeItems: "center",
+                    transition: "background-color .12s",
+                    ...item.done ? { background: "var(--cal-brand)" } : { boxShadow: "inset 0 0 0 1.5px var(--cal-line-2)", background: "var(--cal-surface)" }
+                  },
+                  children: item.done && /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-3 w-3", strokeWidth: 3.4, color: "#fff" })
+                }
+              )
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(LineLinkText, { label: item.label, url: item.url, done: item.done, style: { fontSize: 13, lineHeight: 1.3, padding: "6px 6px 6px 0" } })
+        ] })
+      ) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "button",
         {
           type: "button",
@@ -60265,46 +60412,37 @@ function assigneeList(people, watch) {
   rows.sort((a, b) => Number(b.own) - Number(a.own) || a.watch.localeCompare(b.watch) || a.name.localeCompare(b.name));
   return rows.map((r2) => ({ id: r2.id, name: r2.name, note: r2.own ? "" : r2.watch ? `${r2.watch} Watch` : "no watch" }));
 }
-function LineEditInput({ value, onCommit, onCancel, ariaLabel = "Reword this line", className, style }) {
-  const [text2, setText] = reactExports.useState(value);
-  const ref = reactExports.useRef(null);
-  const done = reactExports.useRef(false);
-  reactExports.useEffect(() => {
-    var _a3, _b3;
-    (_a3 = ref.current) == null ? void 0 : _a3.focus();
-    (_b3 = ref.current) == null ? void 0 : _b3.select();
-  }, []);
-  const finish = (save) => {
-    if (done.current) return;
-    done.current = true;
-    if (save) onCommit(text2.replace(/\s+/g, " ").trim());
-    else onCancel();
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    "input",
-    {
-      ref,
-      "aria-label": ariaLabel,
-      value: text2,
-      maxLength: 200,
-      enterKeyHint: "done",
-      onChange: (e) => setText(e.target.value),
-      onBlur: () => finish(true),
-      onKeyDown: (e) => {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          finish(true);
-        }
-        if (e.key === "Escape") {
-          e.preventDefault();
-          e.stopPropagation();
-          finish(false);
-        }
-      },
-      className,
-      style
-    }
-  );
+const linkKey = (label2) => label2.trim().toLowerCase();
+function linkOf(links, label2) {
+  return links == null ? void 0 : links[linkKey(label2)];
+}
+function setLineLink(links, label2, url) {
+  const next = { ...links ?? {} };
+  if (url) next[linkKey(label2)] = url;
+  else delete next[linkKey(label2)];
+  return next;
+}
+function moveLineLink(links, from, to) {
+  const url = linkOf(links, from);
+  const next = setLineLink(links, from, null);
+  return url ? setLineLink(next, to, url) : next;
+}
+function linksForSave(links, items) {
+  return items.flatMap((label2) => {
+    const url = linkOf(links, label2);
+    return url ? [{ label: label2, url }] : [];
+  });
+}
+function linksFromChecklist(checklist) {
+  const out = {};
+  for (const i of checklist ?? []) if (i.url) out[linkKey(i.label)] = i.url;
+  return out;
+}
+function readTypedLink(input) {
+  const raw = input.trim();
+  if (!raw) return { clear: true };
+  const url = tidyUrl(raw);
+  return url ? { url } : { bad: true };
 }
 const PRIORITY_OPTIONS$1 = [
   { value: "High", label: "High" },
@@ -60622,6 +60760,22 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
     setChecklist(updated2);
     save({ checklist: updated2 });
   };
+  const [linkIdx, setLinkIdx] = reactExports.useState(null);
+  const handleChecklistLink = (idx, typed) => {
+    setLinkIdx(null);
+    const res = readTypedLink(typed);
+    if ("bad" in res) {
+      toast2({ title: "That isn't a web address", description: "Paste the full address, like https://…", variant: "destructive" });
+      return;
+    }
+    const updated2 = checklist.map((item, i) => {
+      if (i !== idx) return item;
+      const { url: _was, ...rest } = item;
+      return "url" in res ? { ...rest, url: res.url } : rest;
+    });
+    setChecklist(updated2);
+    save({ checklist: updated2 });
+  };
   const handleAddChecklistItem = () => {
     var _a4;
     if (!newChecklistItem.trim()) return;
@@ -60910,7 +61064,52 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
                           style: { height: 36, fontSize: 14, borderRadius: 10, background: "var(--cal-surface)" }
                         }
                       )
-                    ] }, idx) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tdd-row flex items-center gap-1", children: [
+                    ] }, idx) : linkIdx === idx ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 min-h-11 sm:min-h-10 px-1 sm:px-2", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tdd-box grid place-items-center h-6 w-6 sm:h-[22px] sm:w-[22px]", "data-on": item.done ? "" : void 0, "aria-hidden": "true", children: item.done && /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-[13px] w-[13px]", strokeWidth: 3.4, color: "#ffffff" }) }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        LineEditInput,
+                        {
+                          value: item.url ?? "",
+                          ariaLabel: `Link for ${item.label}`,
+                          placeholder: LINK_PLACEHOLDER,
+                          maxLength: LINK_MAX,
+                          inputMode: "url",
+                          onCommit: (typed) => handleChecklistLink(idx, typed),
+                          onCancel: () => setLinkIdx(null),
+                          className: "cal-field flex-1 min-w-0",
+                          style: { height: 36, fontSize: 14, borderRadius: 10, background: "var(--cal-surface)" }
+                        }
+                      )
+                    ] }, idx) : item.url ? (
+                      // A line with a link: the box ticks, the wording opens the page.
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tdd-row flex items-center gap-1", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "button",
+                          {
+                            type: "button",
+                            role: "checkbox",
+                            "aria-checked": item.done,
+                            "aria-label": item.label,
+                            disabled: !canWork,
+                            className: "cal-focus grid flex-none place-items-center min-h-11 min-w-11 sm:min-h-10 sm:min-w-10",
+                            style: { border: "none", background: "transparent", borderRadius: 10, cursor: canWork ? "pointer" : "default" },
+                            onClick: () => handleChecklistToggle(idx),
+                            children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tdd-box grid place-items-center h-6 w-6 sm:h-[22px] sm:w-[22px]", "data-on": item.done ? "" : void 0, children: item.done && /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-[13px] w-[13px]", strokeWidth: 3.4, color: "#ffffff" }) })
+                          }
+                        ),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(LineLinkText, { label: item.label, url: item.url, done: item.done, className: "text-[15px] sm:text-sm py-2" }),
+                        item.done && item.done_by_name && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cal-mono", style: { flex: "none", fontSize: 11, color: "var(--cal-muted)", marginRight: 6 }, children: [
+                          item.done_by_name.split(" ")[0],
+                          " · ",
+                          tickTime(item.done_at)
+                        ] }),
+                        canEdit && !isCheck && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(LineLinkButton, { label: item.label, url: item.url, onClick: () => setLinkIdx(idx), size: 28 }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": `Reword "${item.label}"`, title: "Reword", className: "tdd-del tdd-edit cal-focus grid place-items-center", onClick: () => setEditingIdx(idx), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "h-3.5 w-3.5" }) }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": `Delete "${item.label}"`, title: "Delete", className: "tdd-del cal-focus grid place-items-center mr-1", onClick: () => handleChecklistDelete(idx), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" }) })
+                        ] })
+                      ] }, idx)
+                    ) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tdd-row flex items-center gap-1", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsxs(
                         "button",
                         {
@@ -60939,6 +61138,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
                           ]
                         }
                       ),
+                      canEdit && !isCheck && /* @__PURE__ */ jsxRuntimeExports.jsx(LineLinkButton, { label: item.label, onClick: () => setLinkIdx(idx), size: 28 }),
                       canEdit && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": `Reword "${item.label}"`, title: "Reword", className: "tdd-del tdd-edit cal-focus grid place-items-center", onClick: () => setEditingIdx(idx), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "h-3.5 w-3.5" }) }),
                         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-label": `Delete "${item.label}"`, title: "Delete", className: "tdd-del cal-focus grid place-items-center mr-1", onClick: () => handleChecklistDelete(idx), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" }) })
@@ -61640,6 +61840,22 @@ function TaskTemplateManager({ isOpen, onClose, onUseTemplate, canManage }) {
     }
     setF({ checklist: form.checklist.map((item, i) => i === idx ? { ...item, label: res.labels[idx] } : item) });
   };
+  const [linkIdx, setLinkIdx] = reactExports.useState(null);
+  const linkChecklistItem = (idx, typed) => {
+    setLinkIdx(null);
+    const res = readTypedLink(typed);
+    if ("bad" in res) {
+      toast2({ title: "That isn't a web address", description: "Paste the full address, like https://…", variant: "destructive" });
+      return;
+    }
+    setF({
+      checklist: form.checklist.map((item, i) => {
+        if (i !== idx) return item;
+        const { url: _was, ...rest } = item;
+        return "url" in res ? { ...rest, url: res.url } : rest;
+      })
+    });
+  };
   const moveChecklistItem = (from, to) => {
     if (from === to) return;
     const next = [...form.checklist];
@@ -61869,7 +62085,7 @@ function TaskTemplateManager({ isOpen, onClose, onUseTemplate, canManage }) {
                       "div",
                       {
                         className: "ttm-cl-item",
-                        draggable: editingIdx !== idx,
+                        draggable: editingIdx !== idx && linkIdx !== idx,
                         "data-dragging": dragIdx === idx ? "" : void 0,
                         "data-over": overIdx === idx && dragIdx !== null && dragIdx !== idx ? "" : void 0,
                         onDragStart: (e) => {
@@ -61903,8 +62119,21 @@ function TaskTemplateManager({ isOpen, onClose, onUseTemplate, canManage }) {
                               onCancel: () => setEditingIdx(null),
                               className: "ttm-cl-edit"
                             }
+                          ) : linkIdx === idx ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            LineEditInput,
+                            {
+                              value: item.url ?? "",
+                              ariaLabel: `Link for ${item.label}`,
+                              placeholder: LINK_PLACEHOLDER,
+                              maxLength: LINK_MAX,
+                              inputMode: "url",
+                              onCommit: (typed) => linkChecklistItem(idx, typed),
+                              onCancel: () => setLinkIdx(null),
+                              className: "ttm-cl-edit"
+                            }
                           ) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                             /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "ttm-cl-label ttm-cl-btn cal-focus", title: "Reword", onClick: () => setEditingIdx(idx), children: item.label }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(LineLinkButton, { label: item.label, url: item.url, onClick: () => setLinkIdx(idx), size: 28 }),
                             /* @__PURE__ */ jsxRuntimeExports.jsx(
                               "button",
                               {
@@ -62495,7 +62724,8 @@ function RoutinePlanner({ open, onClose, canManage, onOpenOtherChecks }) {
         name: t.name,
         rule: t.routine_rule ?? "weekly",
         cover: t.cover ?? null,
-        items: (t.checklist ?? []).map((i) => i.label)
+        items: (t.checklist ?? []).map((i) => i.label),
+        links: linksFromChecklist(t.checklist)
       });
       m.set(t.routine_slot, list2);
     }
@@ -62518,7 +62748,7 @@ function RoutinePlanner({ open, onClose, canManage, onOpenOtherChecks }) {
       const latest = draftRef.current[slot] ?? [];
       try {
         const res = await backendClient.task.saveRoutine(slot, {
-          cards: latest.map((c) => ({ key: c.key, id: c.id, name: c.name, rule: c.rule, cover: c.cover, items: c.items }))
+          cards: latest.map((c) => ({ key: c.key, id: c.id, name: c.name, rule: c.rule, cover: c.cover, items: c.items, links: linksForSave(c.links, c.items) }))
         });
         const ids2 = new Map(res.keys.map((k) => [k.key, k.id]));
         const withIds = (draftRef.current[slot] ?? []).map((c) => c.id || !ids2.has(c.key) ? c : { ...c, id: ids2.get(c.key) });
@@ -62578,7 +62808,7 @@ function RoutinePlanner({ open, onClose, canManage, onOpenOtherChecks }) {
       if (res.skip === "duplicate") toast2({ title: "Already there", description: "Another check on this card says the same." });
       return;
     }
-    patchCard(slot, key2, { items: res.labels });
+    patchCard(slot, key2, { items: res.labels, links: moveLineLink(card.links, card.items[idx], res.labels[idx]) });
   };
   const removeItem = (slot, key2, idx) => {
     const card = cardsOf(slot).find((c) => c.key === key2);
@@ -62609,11 +62839,12 @@ function RoutinePlanner({ open, onClose, canManage, onOpenOtherChecks }) {
     }
     const items = [...dest.items];
     items.splice(beforeIdx ?? items.length, 0, label2);
+    const links = setLineLink(dest.links, label2, linkOf(src.links, label2) ?? null);
     if (from.slot === slot) {
-      save(slot, cardsOf(slot).map((c) => c.key === cardKey ? { ...c, items } : c.key === from.card ? { ...c, items: c.items.filter((_, i) => i !== from.idx) } : c));
+      save(slot, cardsOf(slot).map((c) => c.key === cardKey ? { ...c, items, links } : c.key === from.card ? { ...c, items: c.items.filter((_, i) => i !== from.idx) } : c));
     } else {
       patchCard(from.slot, from.card, { items: src.items.filter((_, i) => i !== from.idx) });
-      patchCard(slot, cardKey, { items });
+      patchCard(slot, cardKey, { items, links });
     }
   };
   const now = currentSlot();
@@ -62852,6 +63083,16 @@ function CardEditor({ slot, card, canManage, onPatch, onRemoveCard, onCopyCard, 
   const [text2, setText] = reactExports.useState("");
   const [renaming, setRenaming] = reactExports.useState(false);
   const [editingIdx, setEditingIdx] = reactExports.useState(null);
+  const [linkIdx, setLinkIdx] = reactExports.useState(null);
+  const commitLink = (label2, typed) => {
+    setLinkIdx(null);
+    const res = readTypedLink(typed);
+    if ("bad" in res) {
+      onUploadError("That isn't a web address — paste the full address, like https://…");
+      return;
+    }
+    onPatch(card.key, { links: setLineLink(card.links, label2, "url" in res ? res.url : null) });
+  };
   const [name, setName] = reactExports.useState(card.name);
   const fileRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
@@ -62999,7 +63240,7 @@ function CardEditor({ slot, card, canManage, onPatch, onRemoveCard, onCopyCard, 
               "li",
               {
                 className: "rp-item",
-                draggable: canManage && !isPhone && editingIdx !== idx,
+                draggable: canManage && !isPhone && editingIdx !== idx && linkIdx !== idx,
                 onDragStart: (e) => {
                   e.dataTransfer.effectAllowed = "move";
                   onDragStart(card.key, idx);
@@ -63037,6 +63278,19 @@ function CardEditor({ slot, card, canManage, onPatch, onRemoveCard, onCopyCard, 
                       className: "cal-field",
                       style: { flex: 1, minWidth: 0, height: isPhone ? 34 : 26, fontSize: 12.5 }
                     }
+                  ) : linkIdx === idx ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    LineEditInput,
+                    {
+                      value: linkOf(card.links, label2) ?? "",
+                      ariaLabel: `Link for ${label2}`,
+                      placeholder: LINK_PLACEHOLDER,
+                      maxLength: LINK_MAX,
+                      inputMode: "url",
+                      onCommit: (typed) => commitLink(label2, typed),
+                      onCancel: () => setLinkIdx(null),
+                      className: "cal-field",
+                      style: { flex: 1, minWidth: 0, height: isPhone ? 34 : 26, fontSize: 12.5 }
+                    }
                   ) : canManage ? /* @__PURE__ */ jsxRuntimeExports.jsx(
                     "button",
                     {
@@ -63048,7 +63302,8 @@ function CardEditor({ slot, card, canManage, onPatch, onRemoveCard, onCopyCard, 
                       children: label2
                     }
                   ) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { flex: 1, minWidth: 0, fontSize: 12.5, lineHeight: 1.3, overflowWrap: "anywhere", padding: "3px 0" }, children: label2 }),
-                  canManage && editingIdx !== idx && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  canManage && editingIdx !== idx && linkIdx !== idx && /* @__PURE__ */ jsxRuntimeExports.jsx(LineLinkButton, { label: label2, url: linkOf(card.links, label2), onClick: () => setLinkIdx(idx), size: isPhone ? 30 : 22 }),
+                  canManage && editingIdx !== idx && linkIdx !== idx && /* @__PURE__ */ jsxRuntimeExports.jsx(
                     "button",
                     {
                       type: "button",

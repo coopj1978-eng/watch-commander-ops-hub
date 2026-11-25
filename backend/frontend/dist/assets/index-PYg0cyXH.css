@@ -1902,6 +1902,10 @@
     min-width: calc(var(--spacing) * 5);
   }
 
+  .min-w-11 {
+    min-width: calc(var(--spacing) * 11);
+  }
+
   .min-w-40 {
     min-width: calc(var(--spacing) * 40);
   }
@@ -7977,6 +7981,10 @@
 
     .sm\:min-w-0 {
       min-width: calc(var(--spacing) * 0);
+    }
+
+    .sm\:min-w-10 {
+      min-width: calc(var(--spacing) * 10);
     }
 
     .sm\:grid-cols-2 {

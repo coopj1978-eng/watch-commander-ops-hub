@@ -5,7 +5,7 @@ import { logActivity } from "../logging/logger";
 import type { UpdateTaskRequest, Task } from "./types";
 import { assertCanModifyTask } from "./permissions";
 import { tellAssignee } from "./assign_notify";
-import { stampChecklist, ticksOnly } from "../lib/routine";
+import { cleanChecklistLinks, stampChecklist, ticksOnly } from "../lib/routine";
 import type { ChecklistItem } from "./types";
 
 // Fields any watch member may change by working the shared board.
@@ -85,7 +85,7 @@ export const update = api(
       const before: ChecklistItem[] = Array.isArray(raw) ? raw : [];
       // Someone working the board may tick lines; only who may edit the card
       // may add, remove or reword them.
-      const wanted = access === "full" ? updates.checklist : ticksOnly(before, updates.checklist);
+      const wanted = access === "full" ? cleanChecklistLinks(updates.checklist) : ticksOnly(before, updates.checklist);
       const stamped = stampChecklist(before, wanted, { id: auth.userID, name: row?.name ?? null });
       setClauses.push(`checklist = $${paramIndex++}`);
       queryParams.push(JSON.stringify(stamped));

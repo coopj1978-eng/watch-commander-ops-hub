@@ -11,7 +11,8 @@ import { CARD_COVERS } from "@/lib/taskLabels";
 import { DAY_NAMES, RULE_OPTIONS, ruleLabel } from "@/lib/routineRules";
 import { RoutineHeader } from "@/components/tasks/RoutineHeader";
 import type { TaskTemplate } from "~backend/task/types";
-import LineEditInput from "./LineEditInput";
+import LineEditInput, { LINK_MAX, LINK_PLACEHOLDER, LineLinkButton } from "./LineEditInput";
+import { linkOf, linksForSave, linksFromChecklist, moveLineLink, readTypedLink, setLineLink, type LineLinks } from "@/lib/lineLinks";
 
 // The weekly routine (Nov 2026). A station's routine changes every day but
 // repeats each week, as on the Blue Watch Trello board: each day has its own
@@ -42,6 +43,8 @@ interface PlanCard {
   rule: string;
   cover: string | null;
   items: string[];
+  /** The web address a line's wording opens, for the lines that have one (lib/lineLinks.ts). */
+  links?: LineLinks;
 }
 type DragState = { slot: string; card: string; idx: number } | null;
 type OverState = { slot: string; card: string; idx: number | null } | null;
@@ -116,6 +119,7 @@ export default function RoutinePlanner({ open, onClose, canManage, onOpenOtherCh
       list.push({
         key: String(t.id), id: t.id, name: t.name, rule: t.routine_rule ?? "weekly", cover: t.cover ?? null,
         items: (t.checklist ?? []).map((i) => i.label),
+        links: linksFromChecklist(t.checklist),
       });
       m.set(t.routine_slot!, list);
     }
@@ -140,7 +144,7 @@ export default function RoutinePlanner({ open, onClose, canManage, onOpenOtherCh
       const latest = draftRef.current[slot] ?? [];
       try {
         const res = await backend.task.saveRoutine(slot, {
-          cards: latest.map((c) => ({ key: c.key, id: c.id, name: c.name, rule: c.rule, cover: c.cover, items: c.items })),
+          cards: latest.map((c) => ({ key: c.key, id: c.id, name: c.name, rule: c.rule, cover: c.cover, items: c.items, links: linksForSave(c.links, c.items) })),
         });
         const ids = new Map(res.keys.map((k) => [k.key, k.id]));
         const withIds = (draftRef.current[slot] ?? []).map((c) => (c.id || !ids.has(c.key) ? c : { ...c, id: ids.get(c.key) }));
@@ -203,7 +207,8 @@ export default function RoutinePlanner({ open, onClose, canManage, onOpenOtherCh
       if (res.skip === "duplicate") toast({ title: "Already there", description: "Another check on this card says the same." });
       return;
     }
-    patchCard(slot, key, { items: res.labels });
+    // The line's link follows its new wording.
+    patchCard(slot, key, { items: res.labels, links: moveLineLink(card.links, card.items[idx], res.labels[idx]) });
   };
   const removeItem = (slot: string, key: string, idx: number) => {
     const card = cardsOf(slot).find((c) => c.key === key);
@@ -235,12 +240,14 @@ export default function RoutinePlanner({ open, onClose, canManage, onOpenOtherCh
     }
     const items = [...dest.items];
     items.splice(beforeIdx ?? items.length, 0, label);
+    // A line dragged to another card takes its link with it.
+    const links = setLineLink(dest.links, label, linkOf(src.links, label) ?? null);
     if (from.slot === slot) {
       save(slot, cardsOf(slot).map((c) =>
-        c.key === cardKey ? { ...c, items } : c.key === from.card ? { ...c, items: c.items.filter((_, i) => i !== from.idx) } : c));
+        c.key === cardKey ? { ...c, items, links } : c.key === from.card ? { ...c, items: c.items.filter((_, i) => i !== from.idx) } : c));
     } else {
       patchCard(from.slot, from.card, { items: src.items.filter((_, i) => i !== from.idx) });
-      patchCard(slot, cardKey, { items });
+      patchCard(slot, cardKey, { items, links });
     }
   };
 
@@ -493,6 +500,14 @@ function CardEditor({ slot, card, canManage, onPatch, onRemoveCard, onCopyCard, 
   const [text, setText] = useState("");
   const [renaming, setRenaming] = useState(false);
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
+  // A line's link: its wording opens the web page on the card, the tick still ticks.
+  const [linkIdx, setLinkIdx] = useState<number | null>(null);
+  const commitLink = (label: string, typed: string) => {
+    setLinkIdx(null);
+    const res = readTypedLink(typed);
+    if ("bad" in res) { onUploadError("That isn't a web address — paste the full address, like https://…"); return; }
+    onPatch(card.key, { links: setLineLink(card.links, label, "url" in res ? res.url : null) });
+  };
   const [name, setName] = useState(card.name);
   const fileRef = useRef<HTMLInputElement>(null);
   useEffect(() => { if (!renaming) setName(card.name); }, [card.name, renaming]);
@@ -626,7 +641,7 @@ function CardEditor({ slot, card, canManage, onPatch, onRemoveCard, onCopyCard, 
             <li
               key={`${idx}-${label}`}
               className="rp-item"
-              draggable={canManage && !isPhone && editingIdx !== idx}
+              draggable={canManage && !isPhone && editingIdx !== idx && linkIdx !== idx}
               onDragStart={(e) => { e.dataTransfer.effectAllowed = "move"; onDragStart(card.key, idx); }}
               onDragEnd={onDragEnd}
               onDragOver={(e) => { if (!drag) return; e.preventDefault(); e.stopPropagation(); onDragOver(card.key, idx); }}
@@ -648,6 +663,18 @@ function CardEditor({ slot, card, canManage, onPatch, onRemoveCard, onCopyCard, 
                   className="cal-field"
                   style={{ flex: 1, minWidth: 0, height: isPhone ? 34 : 26, fontSize: 12.5 }}
                 />
+              ) : linkIdx === idx ? (
+                <LineEditInput
+                  value={linkOf(card.links, label) ?? ""}
+                  ariaLabel={`Link for ${label}`}
+                  placeholder={LINK_PLACEHOLDER}
+                  maxLength={LINK_MAX}
+                  inputMode="url"
+                  onCommit={(typed) => commitLink(label, typed)}
+                  onCancel={() => setLinkIdx(null)}
+                  className="cal-field"
+                  style={{ flex: 1, minWidth: 0, height: isPhone ? 34 : 26, fontSize: 12.5 }}
+                />
               ) : canManage ? (
                 <button
                   type="button"
@@ -661,7 +688,10 @@ function CardEditor({ slot, card, canManage, onPatch, onRemoveCard, onCopyCard, 
               ) : (
                 <span style={{ flex: 1, minWidth: 0, fontSize: 12.5, lineHeight: 1.3, overflowWrap: "anywhere", padding: "3px 0" }}>{label}</span>
               )}
-              {canManage && editingIdx !== idx && (
+              {canManage && editingIdx !== idx && linkIdx !== idx && (
+                <LineLinkButton label={label} url={linkOf(card.links, label)} onClick={() => setLinkIdx(idx)} size={isPhone ? 30 : 22} />
+              )}
+              {canManage && editingIdx !== idx && linkIdx !== idx && (
                 <button
                   type="button"
                   aria-label={`Remove "${label}"`}

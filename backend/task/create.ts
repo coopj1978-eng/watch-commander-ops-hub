@@ -4,6 +4,7 @@ import db from "../db";
 import { logActivity } from "../logging/logger";
 import type { CreateTaskRequest, Task } from "./types";
 import { tellAssignee } from "./assign_notify";
+import { cleanChecklistLinks } from "../lib/routine";
 
 export const create = api<CreateTaskRequest, Task>(
   { auth: true, expose: true, method: "POST", path: "/api/tasks" },
@@ -30,7 +31,7 @@ export const create = api<CreateTaskRequest, Task>(
       req.priority ?? "Med",
       req.due_date ?? null,
       req.category,
-      JSON.stringify(req.checklist ?? []),
+      JSON.stringify(cleanChecklistLinks(req.checklist ?? [])),
       req.attachments ?? null,
       req.rrule ?? null,
       req.tags ?? null,

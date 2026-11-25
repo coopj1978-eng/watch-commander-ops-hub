@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import * as Menu from "@radix-ui/react-dropdown-menu";
 import { ArrowRightLeft, CalendarDays, Check, ChevronRight, ClipboardCheck, ExternalLink, History, Link2, MoreHorizontal, Repeat } from "lucide-react";
+import { LineLinkText } from "@/components/tasks/LineEditInput";
 import { taskLinks } from "@/lib/taskLinks";
 import type { Task, TaskColumn, TaskPriority } from "~backend/task/types";
 import { getCoverStyle, getLabelById } from "@/lib/taskLabels";
@@ -352,6 +353,34 @@ function CardChecklist({ task, onToggle }: { task: Task; onToggle: (label: strin
       <ul aria-label="Checklist" style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column" }}>
         {shown.map((item, i) => (
           <li key={`${i}-${item.label}`}>
+            {item.url ? (
+              // A line with a link: the box ticks, the wording opens the page.
+              <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                <button
+                  type="button"
+                  role="checkbox"
+                  aria-checked={item.done}
+                  aria-label={item.label}
+                  onClick={() => onToggle(item.label, !item.done)}
+                  className="cal-focus tc-check"
+                  style={{
+                    width: isPhone ? 40 : 30, minHeight: isPhone ? 40 : 32, flex: "none", display: "grid", placeItems: "center", padding: 0,
+                    border: "none", borderRadius: 9, background: "transparent", cursor: "pointer",
+                  }}
+                >
+                  <span
+                    aria-hidden
+                    style={{
+                      width: 18, height: 18, borderRadius: 6, display: "grid", placeItems: "center", transition: "background-color .12s",
+                      ...(item.done ? { background: "var(--cal-brand)" } : { boxShadow: "inset 0 0 0 1.5px var(--cal-line-2)", background: "var(--cal-surface)" }),
+                    }}
+                  >
+                    {item.done && <Check className="h-3 w-3" strokeWidth={3.4} color="#fff" />}
+                  </span>
+                </button>
+                <LineLinkText label={item.label} url={item.url} done={item.done} style={{ fontSize: 13, lineHeight: 1.3, padding: "6px 6px 6px 0" }} />
+              </div>
+            ) : (
             <button
               type="button"
               role="checkbox"
@@ -393,6 +422,7 @@ function CardChecklist({ task, onToggle }: { task: Task; onToggle: (label: strin
                 </span>
               )}
             </button>
+            )}
           </li>
         ))}
       </ul>

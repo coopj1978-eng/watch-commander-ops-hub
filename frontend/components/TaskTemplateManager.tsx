@@ -5,7 +5,8 @@ import backend from "@/lib/backend";
 import { useAuth } from "@/App";
 import { useToast } from "@/components/ui/use-toast";
 import { priorityKey, priorityLabel, rewordLine } from "@/lib/taskUi";
-import LineEditInput from "@/components/tasks/LineEditInput";
+import LineEditInput, { LINK_MAX, LINK_PLACEHOLDER, LineLinkButton } from "@/components/tasks/LineEditInput";
+import { readTypedLink } from "@/lib/lineLinks";
 import {
   X, Plus, Trash2, Repeat, Play, ChevronDown, ChevronLeft, GripVertical, Check, Minus,
 } from "lucide-react";
@@ -381,6 +382,24 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
     setF({ checklist: form.checklist.map((item, i) => (i === idx ? { ...item, label: res.labels[idx] } : item)) });
   };
 
+  // A line's link: its wording opens the web page, the tick still ticks.
+  const [linkIdx, setLinkIdx] = useState<number | null>(null);
+  const linkChecklistItem = (idx: number, typed: string) => {
+    setLinkIdx(null);
+    const res = readTypedLink(typed);
+    if ("bad" in res) {
+      toast({ title: "That isn't a web address", description: "Paste the full address, like https://…", variant: "destructive" });
+      return;
+    }
+    setF({
+      checklist: form.checklist.map((item, i) => {
+        if (i !== idx) return item;
+        const { url: _was, ...rest } = item;
+        return "url" in res ? { ...rest, url: res.url } : rest;
+      }),
+    });
+  };
+
   const moveChecklistItem = (from: number, to: number) => {
     if (from === to) return;
     const next = [...form.checklist];
@@ -634,7 +653,7 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
                         <div
                           key={idx}
                           className="ttm-cl-item"
-                          draggable={editingIdx !== idx}
+                          draggable={editingIdx !== idx && linkIdx !== idx}
                           data-dragging={dragIdx === idx ? "" : undefined}
                           data-over={overIdx === idx && dragIdx !== null && dragIdx !== idx ? "" : undefined}
                           onDragStart={(e) => {
@@ -664,11 +683,23 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
                               onCancel={() => setEditingIdx(null)}
                               className="ttm-cl-edit"
                             />
+                          ) : linkIdx === idx ? (
+                            <LineEditInput
+                              value={item.url ?? ""}
+                              ariaLabel={`Link for ${item.label}`}
+                              placeholder={LINK_PLACEHOLDER}
+                              maxLength={LINK_MAX}
+                              inputMode="url"
+                              onCommit={(typed) => linkChecklistItem(idx, typed)}
+                              onCancel={() => setLinkIdx(null)}
+                              className="ttm-cl-edit"
+                            />
                           ) : (
                             <>
                               <button type="button" className="ttm-cl-label ttm-cl-btn cal-focus" title="Reword" onClick={() => setEditingIdx(idx)}>
                                 {item.label}
                               </button>
+                              <LineLinkButton label={item.label} url={item.url} onClick={() => setLinkIdx(idx)} size={28} />
                               <button
                                 type="button"
                                 className="ttm-icon-btn cal-focus"

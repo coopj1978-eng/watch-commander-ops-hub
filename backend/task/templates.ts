@@ -1,7 +1,7 @@
 import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
-import { ROUTINE_RULES, cleanRoutineItems, mergeChecklist, routineSlotSpec } from "../lib/routine";
+import { ROUTINE_RULES, cleanChecklistLinks, cleanRoutineItems, mergeChecklist, routineSlotSpec } from "../lib/routine";
 import type { TaskTemplate, TaskCategory, TaskPriority, ChecklistItem } from "./types";
 
 interface ListTemplatesResponse {
@@ -71,7 +71,7 @@ export const createTemplate = api<CreateTemplateRequest, TaskTemplate>(
       req.task_description ?? null,
       req.category,
       req.priority,
-      JSON.stringify(req.checklist ?? []),
+      JSON.stringify(cleanChecklistLinks(req.checklist ?? [])),
       req.rrule,
       auth.userID,
       req.per_shift ?? false
@@ -104,7 +104,10 @@ export const updateTemplate = api(
     if (updates.task_description !== undefined) { setClauses.push(`task_description = $${paramIndex++}`); queryParams.push(updates.task_description); }
     if (updates.category !== undefined) { setClauses.push(`category = $${paramIndex++}`); queryParams.push(updates.category); }
     if (updates.priority !== undefined) { setClauses.push(`priority = $${paramIndex++}`); queryParams.push(updates.priority); }
-    if (updates.checklist !== undefined) { setClauses.push(`checklist = $${paramIndex++}`); queryParams.push(JSON.stringify(updates.checklist)); }
+    if (updates.checklist !== undefined) {
+      updates.checklist = cleanChecklistLinks(updates.checklist);
+      setClauses.push(`checklist = $${paramIndex++}`); queryParams.push(JSON.stringify(updates.checklist));
+    }
     if (updates.rrule !== undefined) { setClauses.push(`rrule = $${paramIndex++}`); queryParams.push(updates.rrule); }
     if (updates.is_active !== undefined) { setClauses.push(`is_active = $${paramIndex++}`); queryParams.push(updates.is_active); }
     if (updates.per_shift !== undefined) { setClauses.push(`per_shift = $${paramIndex++}`); queryParams.push(updates.per_shift); }
@@ -180,6 +183,13 @@ interface RoutineCardInput {
   /** null = automatic header; else a colour id, image URL or uploaded picture (data URL). */
   cover?: string | null;
   items: string[];
+  /** The web address a line's wording opens, for the lines that have one. */
+  links?: RoutineLineLink[];
+}
+
+interface RoutineLineLink {
+  label: string;
+  url: string;
 }
 
 interface SaveRoutineRequest {
@@ -235,7 +245,7 @@ export const saveRoutine = api<SaveRoutineRequest, SaveRoutineResponse>(
       const name = String(card.name ?? "").trim().slice(0, 80) || spec.name;
       const rule = slot === "every" ? "weekly" : (ROUTINE_RULES as readonly string[]).includes(card.rule ?? "") ? card.rule! : "weekly";
       const cover = cleanCover(card.cover);
-      const checklist = cleanRoutineItems(Array.isArray(card.items) ? card.items : []);
+      const checklist = cleanRoutineItems(Array.isArray(card.items) ? card.items : [], card.links ?? []);
 
       if (card.id && existingIds.has(card.id)) {
         await db.rawExec(

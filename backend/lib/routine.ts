@@ -58,8 +58,34 @@ export function routineRuleFires(rule: string | null | undefined, dateIso: strin
   }
 }
 
-/** Item labels from the planner: trimmed, no blanks, no repeats, at most 40. */
-export function cleanRoutineItems(labels: string[]): ChecklistItem[] {
+/**
+ * A line's link made safe to keep: a web address (http/https, no spaces, not
+ * absurdly long), or nothing. The wording opens it; the tick box still ticks.
+ */
+export function cleanLineUrl(url: unknown): string | undefined {
+  const u = typeof url === "string" ? url.trim() : "";
+  return u.length <= 2000 && /^https?:\/\/[^\s]+$/i.test(u) ? u : undefined;
+}
+
+/** A checklist with each line's link checked — a bad one is dropped, the line stays. */
+export function cleanChecklistLinks(list: ChecklistItem[]): ChecklistItem[] {
+  return (Array.isArray(list) ? list : []).map((item) => {
+    const { url, ...rest } = item;
+    const safe = cleanLineUrl(url);
+    return safe ? { ...rest, url: safe } : rest;
+  });
+}
+
+/**
+ * Item labels from the planner: trimmed, no blanks, no repeats, at most 40.
+ * `links` gives the web address for any line that has one, by its wording.
+ */
+export function cleanRoutineItems(labels: string[], links: { label: string; url: string }[] = []): ChecklistItem[] {
+  const urlOf = new Map<string, string>();
+  for (const l of Array.isArray(links) ? links : []) {
+    const safe = cleanLineUrl(l?.url);
+    if (safe) urlOf.set(String(l.label ?? "").trim().toLowerCase(), safe);
+  }
   const seen = new Set<string>();
   const items: ChecklistItem[] = [];
   for (const raw of labels) {
@@ -67,7 +93,8 @@ export function cleanRoutineItems(labels: string[]): ChecklistItem[] {
     const key = label.toLowerCase();
     if (!label || seen.has(key)) continue;
     seen.add(key);
-    items.push({ label, done: false });
+    const url = urlOf.get(key);
+    items.push(url ? { label, done: false, url } : { label, done: false });
     if (items.length >= 40) break;
   }
   return items;
@@ -101,7 +128,10 @@ export function mergeChecklist(card: ChecklistItem[], template: ChecklistItem[])
   const merged: ChecklistItem[] = template.map((t, idx) => {
     const had = byLabel.get(norm(t.label)) ?? rewordedFrom(card, labels, idx);
     if (had) used.add(had);
-    return had ? { ...had, label: t.label } : { label: t.label, done: false };
+    // The link is the template's: adding, changing or removing it there
+    // reaches the card, whatever the card had.
+    const { url: _was, ...kept } = had ?? { label: t.label, done: false };
+    return t.url ? { ...kept, label: t.label, url: t.url } : { ...kept, label: t.label };
   });
   const kept = new Set(template.map((t) => norm(t.label)));
   for (const i of card) if (i.done && !used.has(i) && !kept.has(norm(i.label))) merged.push(i);

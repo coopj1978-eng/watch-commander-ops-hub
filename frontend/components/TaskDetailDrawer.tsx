@@ -14,7 +14,8 @@ import {
 } from "lucide-react";
 import { TASK_LABELS, CARD_COVERS, getCoverStyle } from "@/lib/taskLabels";
 import { autoStatusFor, canEditTaskDetails, priorityKey, rewordLine, tickTime } from "@/lib/taskUi";
-import LineEditInput from "@/components/tasks/LineEditInput";
+import LineEditInput, { LINK_MAX, LINK_PLACEHOLDER, LineLinkButton, LineLinkText } from "@/components/tasks/LineEditInput";
+import { readTypedLink } from "@/lib/lineLinks";
 import { formatTaskLink, linkHost, taskLinks, tidyUrl } from "@/lib/taskLinks";
 import type { Task, TaskColumn, ChecklistItem, TaskPriority } from "~backend/task/types";
 
@@ -389,6 +390,25 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
     save({ checklist: updated });
   };
 
+  // A line's link (John, 25 Nov 2026): the wording opens the web page, the
+  // tick box still ticks.
+  const [linkIdx, setLinkIdx] = useState<number | null>(null);
+  const handleChecklistLink = (idx: number, typed: string) => {
+    setLinkIdx(null);
+    const res = readTypedLink(typed);
+    if ("bad" in res) {
+      toast({ title: "That isn't a web address", description: "Paste the full address, like https://…", variant: "destructive" });
+      return;
+    }
+    const updated = checklist.map((item, i) => {
+      if (i !== idx) return item;
+      const { url: _was, ...rest } = item;
+      return "url" in res ? { ...rest, url: res.url } : rest;
+    });
+    setChecklist(updated);
+    save({ checklist: updated });
+  };
+
   const handleAddChecklistItem = () => {
     if (!newChecklistItem.trim()) return;
     const updated = [...checklist, { label: newChecklistItem.trim(), done: false }];
@@ -744,6 +764,58 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                                   style={{ height: 36, fontSize: 14, borderRadius: 10, background: "var(--cal-surface)" }}
                                 />
                               </div>
+                            ) : linkIdx === idx ? (
+                              <div key={idx} className="flex items-center gap-3 min-h-11 sm:min-h-10 px-1 sm:px-2">
+                                <span className="tdd-box grid place-items-center h-6 w-6 sm:h-[22px] sm:w-[22px]" data-on={item.done ? "" : undefined} aria-hidden="true">
+                                  {item.done && <Check className="h-[13px] w-[13px]" strokeWidth={3.4} color="#ffffff" />}
+                                </span>
+                                <LineEditInput
+                                  value={item.url ?? ""}
+                                  ariaLabel={`Link for ${item.label}`}
+                                  placeholder={LINK_PLACEHOLDER}
+                                  maxLength={LINK_MAX}
+                                  inputMode="url"
+                                  onCommit={(typed) => handleChecklistLink(idx, typed)}
+                                  onCancel={() => setLinkIdx(null)}
+                                  className="cal-field flex-1 min-w-0"
+                                  style={{ height: 36, fontSize: 14, borderRadius: 10, background: "var(--cal-surface)" }}
+                                />
+                              </div>
+                            ) : item.url ? (
+                              // A line with a link: the box ticks, the wording opens the page.
+                              <div key={idx} className="tdd-row flex items-center gap-1">
+                                <button
+                                  type="button"
+                                  role="checkbox"
+                                  aria-checked={item.done}
+                                  aria-label={item.label}
+                                  disabled={!canWork}
+                                  className="cal-focus grid flex-none place-items-center min-h-11 min-w-11 sm:min-h-10 sm:min-w-10"
+                                  style={{ border: "none", background: "transparent", borderRadius: 10, cursor: canWork ? "pointer" : "default" }}
+                                  onClick={() => handleChecklistToggle(idx)}
+                                >
+                                  <span className="tdd-box grid place-items-center h-6 w-6 sm:h-[22px] sm:w-[22px]" data-on={item.done ? "" : undefined}>
+                                    {item.done && <Check className="h-[13px] w-[13px]" strokeWidth={3.4} color="#ffffff" />}
+                                  </span>
+                                </button>
+                                <LineLinkText label={item.label} url={item.url} done={item.done} className="text-[15px] sm:text-sm py-2" />
+                                {item.done && item.done_by_name && (
+                                  <span className="cal-mono" style={{ flex: "none", fontSize: 11, color: "var(--cal-muted)", marginRight: 6 }}>
+                                    {item.done_by_name.split(" ")[0]} · {tickTime(item.done_at)}
+                                  </span>
+                                )}
+                                {canEdit && !isCheck && (
+                                  <>
+                                    <LineLinkButton label={item.label} url={item.url} onClick={() => setLinkIdx(idx)} size={28} />
+                                    <button type="button" aria-label={`Reword "${item.label}"`} title="Reword" className="tdd-del tdd-edit cal-focus grid place-items-center" onClick={() => setEditingIdx(idx)}>
+                                      <Pencil className="h-3.5 w-3.5" />
+                                    </button>
+                                    <button type="button" aria-label={`Delete "${item.label}"`} title="Delete" className="tdd-del cal-focus grid place-items-center mr-1" onClick={() => handleChecklistDelete(idx)}>
+                                      <X className="h-3.5 w-3.5" />
+                                    </button>
+                                  </>
+                                )}
+                              </div>
                             ) : (
                               <div key={idx} className="tdd-row flex items-center gap-1">
                                 <button
@@ -770,6 +842,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                                     </span>
                                   )}
                                 </button>
+                                {canEdit && !isCheck && <LineLinkButton label={item.label} onClick={() => setLinkIdx(idx)} size={28} />}
                                 {canEdit && (
                                   <>
                                     <button type="button" aria-label={`Reword "${item.label}"`} title="Reword" className="tdd-del tdd-edit cal-focus grid place-items-center" onClick={() => setEditingIdx(idx)}>

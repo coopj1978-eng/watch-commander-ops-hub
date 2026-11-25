@@ -4809,6 +4809,8 @@ export namespace task {
     export interface ChecklistItem {
         label: string
         done: boolean
+        /** A web address the line's wording opens; the tick still ticks. */
+        url?: string
         /** Who ticked it and when (set by the server). */
         "done_by"?: string
         "done_by_name"?: string
@@ -4977,6 +4979,8 @@ export namespace task {
         rule?: string
         cover?: string | null
         items: string[]
+        /** The web address a line's wording opens, for the lines that have one. */
+        links?: { label: string; url: string }[]
     }
 
     export interface ShiftInfo {
