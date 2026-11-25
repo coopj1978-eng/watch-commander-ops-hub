@@ -26533,6 +26533,37 @@ var shift_adjustments;
       this.flexiBalances = this.flexiBalances.bind(this);
       this.setFlexiOpening = this.setFlexiOpening.bind(this);
       this.setFlexiLimits = this.setFlexiLimits.bind(this);
+      this.listRosterDays = this.listRosterDays.bind(this);
+      this.saveRosterDay = this.saveRosterDay.bind(this);
+      this.deleteRosterDay = this.deleteRosterDay.bind(this);
+      this.confirmRosterDay = this.confirmRosterDay.bind(this);
+      this.importRosterDays = this.importRosterDays.bind(this);
+    }
+    // A person's own days on top of the watch rota: orange days, purple shifts (hand-added, Nov 2026).
+    async listRosterDays(params) {
+      const query = makeRecord({
+        from: params.from,
+        to: params.to,
+        "user_id": params["user_id"],
+        watch: params.watch
+      });
+      const resp = await this.baseClient.callTypedAPI("GET", `/roster-days`, void 0, { query });
+      return await resp.json();
+    }
+    async saveRosterDay(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/roster-days`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async deleteRosterDay(id) {
+      await this.baseClient.callTypedAPI("DELETE", `/roster-days/${encodeURIComponent(id)}`);
+    }
+    async confirmRosterDay(id, params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/roster-days/${encodeURIComponent(id)}/confirm`, JSON.stringify(params));
+      return await resp.json();
+    }
+    async importRosterDays(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/roster-days/import`, JSON.stringify(params));
+      return await resp.json();
     }
     async previewRequest(params) {
       const resp = await this.baseClient.callTypedAPI("POST", `/shift-requests/preview`, JSON.stringify(params));
@@ -32254,7 +32285,7 @@ function useThemeMode() {
   };
   return { isDark, toggle };
 }
-const pill = {
+const pill$1 = {
   // On the near-black sidebar
   dark: {
     alert: "bg-red-500 text-white",
@@ -32280,7 +32311,7 @@ function NavCount({ badge, on = "light", className }) {
       className: cn(
         "inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1.5",
         "font-mono text-[10.5px] font-semibold tabular-nums leading-none",
-        pill[on][badge.tone],
+        pill$1[on][badge.tone],
         className
       ),
       title: badge.hint,
@@ -45861,7 +45892,7 @@ function AddHoursDialog({
   ] }) });
 }
 const isoDay$1 = (v) => typeof v === "string" ? v.slice(0, 10) : v.toISOString().slice(0, 10);
-const shiftHours = (dayNight) => dayNight === "Night" ? 14 : 10;
+const shiftHours$1 = (dayNight) => dayNight === "Night" ? 14 : 10;
 const hoursText = (h) => String(Math.round(h * 2) / 2);
 function monthName(month) {
   const [y, m] = month.split("-").map(Number);
@@ -46335,7 +46366,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
   const [orangeShift, setOrangeShift] = reactExports.useState("Day");
   const [overtimeWatch, setOvertimeWatch] = reactExports.useState("");
   const [overtimeShift, setOvertimeShift] = reactExports.useState("Day");
-  const [overtimeHours, setOvertimeHours] = reactExports.useState(shiftHours("Day"));
+  const [overtimeHours, setOvertimeHours] = reactExports.useState(shiftHours$1("Day"));
   const [outboundShift, setOutboundShift] = reactExports.useState("Day");
   const [toilHours, setToilHours] = reactExports.useState(4);
   const [forAnother, setForAnother] = reactExports.useState(false);
@@ -46360,7 +46391,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
       setOrangeShift("Day");
       setOvertimeWatch("");
       setOvertimeShift("Day");
-      setOvertimeHours(shiftHours("Day"));
+      setOvertimeHours(shiftHours$1("Day"));
       setOutboundShift("Day");
       setToilHours(4);
       setForAnother(false);
@@ -46521,7 +46552,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
     if (a.type === "overtime") {
       setOvertimeWatch(a.covering_watch ?? "");
       setOvertimeShift(a.shift_day_night ?? "Day");
-      setOvertimeHours(Number(a.overtime_hours ?? shiftHours(a.shift_day_night ?? "Day")));
+      setOvertimeHours(Number(a.overtime_hours ?? shiftHours$1(a.shift_day_night ?? "Day")));
     }
     if (a.type === "toil") {
       setToilHours(Number(a.toil_hours ?? 4));
@@ -46569,7 +46600,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
     if (dn) setInboundShift(dn);
   }, [open, startDate, inboundWatch, editingId, editAdjustment]);
   const pickOvertimeShift = (s) => {
-    setOvertimeHours((h) => h === shiftHours(overtimeShift) ? shiftHours(s) : h);
+    setOvertimeHours((h) => h === shiftHours$1(overtimeShift) ? shiftHours$1(s) : h);
     setOvertimeShift(s);
   };
   reactExports.useEffect(() => {
@@ -46915,7 +46946,7 @@ function ShiftAdjustmentModal({ open, onClose, defaultDate, editAdjustment }) {
                 "A whole ",
                 overtimeShift.toLowerCase(),
                 " shift is ",
-                shiftHours(overtimeShift),
+                shiftHours$1(overtimeShift),
                 " hours. Half-hours are fine."
               ] })
             ] }),
@@ -50029,13 +50060,16 @@ function myDayText(m) {
   if (m.state === "off") return `You're off · ${m.label}`;
   if (m.state === "asked") return `${m.label} asked for · waiting`;
   const when = m.shift === "Day" ? " · Day 08–18" : m.shift === "Night" ? " · Night 18–08" : "";
+  if (m.state === "maybe") return `${m.label} · might be called in${when}`;
+  if (m.state === "note") return m.tone === "purple" ? `${m.label} · may be sent elsewhere` : m.label;
   return `You're in · ${m.label}${when}`;
 }
+const orangeTone = (m) => (m == null ? void 0 : m.tone) === "orange" || (m == null ? void 0 : m.tone) === "maybe" ? m.tone : null;
 function MyDayPill({ note: note2, small }) {
   const open = reactExports.useContext(MyDayOpenContext);
   if (!note2) return null;
   const k = myKind(note2) ?? "personal";
-  const colours = note2.state === "asked" ? { background: "var(--cal-surface)", color: "var(--cal-ink-2)", border: "1px dashed var(--cal-muted)" } : { background: tok(k, "bg"), color: tok(k, "fg") };
+  const colours = note2.state === "asked" ? { background: "var(--cal-surface)", color: "var(--cal-ink-2)", border: "1px dashed var(--cal-muted)" } : note2.tone === "maybe" ? { background: tok("maybe", "bg"), color: tok("maybe", "fg"), border: "1px dashed var(--cal-orange-dot)" } : note2.tone ? { background: tok(note2.tone, "bg"), color: tok(note2.tone, "fg") } : note2.state === "note" ? { background: "var(--cal-surface-2)", color: "var(--cal-ink-2)" } : { background: tok(k, "bg"), color: tok(k, "fg") };
   const style = {
     alignSelf: "flex-start",
     maxWidth: "100%",
@@ -50048,18 +50082,18 @@ function MyDayPill({ note: note2, small }) {
     borderRadius: 999,
     ...colours
   };
-  if (open && note2.bookingId != null) {
+  if (open && (note2.bookingId != null || note2.rosterId != null)) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx(
       "button",
       {
         type: "button",
         "data-event": true,
-        title: `${myDayText(note2)} — open to change or delete`,
+        title: `${myDayText(note2)} — open to ${note2.state === "maybe" ? "confirm or change" : "change or delete"}`,
         onClick: (e) => {
           e.stopPropagation();
           open(note2);
         },
-        style: { ...style, border: "none", cursor: "pointer", fontFamily: "inherit", textAlign: "left" },
+        style: { ...style, border: colours.border ?? "none", cursor: "pointer", fontFamily: "inherit", textAlign: "left" },
         children: myDayText(note2)
       }
     );
@@ -50673,6 +50707,7 @@ function MonthView({
       const shift2 = getShiftsForDay(shiftSchedule, day2, userWatch)[0];
       const note2 = mine == null ? void 0 : mine.get(isoDate(day2));
       const k = shiftKind(shift2) ?? myKind(note2);
+      const wash = orangeTone(note2) ?? k;
       const dayItems = items.filter((it) => spansDay(it, day2)).sort(cellOrder);
       const room = note2 ? 3 : 4;
       const visible = dayItems.slice(0, dayItems.length > room ? room - 1 : room);
@@ -50699,9 +50734,9 @@ function MonthView({
             // Shift days get a faint wash and a coloured top edge (day
             // amber, night indigo, leave green) so the rota reads at a
             // glance without drowning the events; rest days stay plain.
-            background: k ? `linear-gradient(var(--cal-${k}-shade), var(--cal-${k}-shade)), var(--cal-surface)` : "var(--cal-surface)",
+            background: wash ? `linear-gradient(var(--cal-${wash}-shade), var(--cal-${wash}-shade)), var(--cal-surface)` : "var(--cal-surface)",
             boxShadow: [
-              k ? `inset 0 3px 0 var(--cal-${k}-dot)` : "",
+              wash ? `inset 0 3px 0 var(--cal-${wash}-dot)` : "",
               isToday ? "inset 0 0 0 2px var(--cal-brand)" : "inset 0 0 0 1px var(--cal-line)"
             ].filter(Boolean).join(", "),
             minWidth: 0,
@@ -50787,6 +50822,26 @@ function YearView({
   const today = /* @__PURE__ */ new Date();
   const busy = new Set(items.map((it) => isoDate(it.startTime)));
   const riding = reactExports.useContext(RidingContext);
+  const mine = useMyDays();
+  const tones = /* @__PURE__ */ new Set();
+  mine == null ? void 0 : mine.forEach((m, d) => {
+    if (m.tone && d.startsWith(`${year}-`)) tones.add(m.tone);
+  });
+  const toneKey = (tone, label2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 500, color: "var(--cal-ink-2)" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "span",
+      {
+        style: {
+          width: 14,
+          height: 14,
+          borderRadius: 4,
+          boxSizing: "border-box",
+          ...tone === "purple" ? { boxShadow: "inset 0 0 0 2px var(--cal-purple-dot)" } : { background: tok(tone, "bg"), border: tone === "maybe" ? "1px dashed var(--cal-orange-dot)" : "none" }
+        }
+      }
+    ),
+    label2
+  ] });
   const chip2 = (k, label2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "span",
     {
@@ -50824,6 +50879,9 @@ function YearView({
       chip2("night", "Night"),
       chip2("leave", "Leave"),
       chip2("rest", "Rest"),
+      tones.has("maybe") && toneKey("maybe", "Orange · might be called in"),
+      tones.has("orange") && toneKey("orange", "Orange · confirmed"),
+      tones.has("purple") && toneKey("purple", "Purple shift"),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--cal-ink-2)" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 5, height: 5, borderRadius: "50%", background: "var(--cal-ink)" } }),
         " Something on"
@@ -50881,24 +50939,28 @@ function YearView({
                 const k = userWatch ? shiftKind(getShiftForDate(userWatch, day2) ?? void 0) : null;
                 const isToday = sameDay$2(day2, today);
                 const hasItems = busy.has(isoDate(day2));
+                const note2 = mine == null ? void 0 : mine.get(isoDate(day2));
+                const orange = orangeTone(note2);
                 return /* @__PURE__ */ jsxRuntimeExports.jsxs(
                   "button",
                   {
                     type: "button",
                     onClick: () => onDayClick(day2),
                     className: "cal-focus cal-mono",
-                    "aria-label": `${day2.getDate()} ${MONTH_NAMES[mi]}${k ? `, ${k === "leave" ? "leave" : `${k} shift`}` : ""}${shortWord(ridingFor(riding, day2))}${hasItems ? ", something on" : ""}`,
+                    "aria-label": `${day2.getDate()} ${MONTH_NAMES[mi]}${k ? `, ${k === "leave" ? "leave" : `${k} shift`}` : ""}${(note2 == null ? void 0 : note2.tone) ? `, ${myDayText(note2)}` : ""}${shortWord(ridingFor(riding, day2))}${hasItems ? ", something on" : ""}`,
+                    title: (note2 == null ? void 0 : note2.tone) ? myDayText(note2) : void 0,
                     style: {
                       position: "relative",
                       height: 26,
-                      border: "none",
                       padding: 0,
                       borderRadius: 6,
                       cursor: "pointer",
+                      border: orange === "maybe" && !isToday ? "1px dashed var(--cal-orange-dot)" : "none",
+                      boxShadow: (note2 == null ? void 0 : note2.tone) === "purple" && !isToday ? "inset 0 0 0 2px var(--cal-purple-dot)" : void 0,
                       font: "inherit",
                       fontSize: 11,
                       fontWeight: isToday ? 700 : 500,
-                      ...isToday ? { background: "var(--cal-brand)", color: "#fff" } : k ? { background: tok(k, "bg"), color: tok(k, "fg") } : { background: "transparent", color: "var(--cal-ink-2)" }
+                      ...isToday ? { background: "var(--cal-brand)", color: "#fff" } : orange ? { background: tok(orange, "bg"), color: tok(orange, "fg") } : k ? { background: tok(k, "bg"), color: tok(k, "fg") } : { background: "transparent", color: "var(--cal-ink-2)" }
                     },
                     children: [
                       day2.getDate(),
@@ -51124,6 +51186,8 @@ function MobileMonth({
       const k = watchK ?? myKind(note2);
       const barOff = (note2 == null ? void 0 : note2.state) === "off";
       const tinted = !!k && !selected;
+      const orange = selected ? null : orangeTone(note2);
+      const purple = !selected && (note2 == null ? void 0 : note2.tone) === "purple";
       const dots = Array.from(new Set(items.filter((it) => spansDay(it, day2)).sort(cellOrder).map((it) => calKey(it)))).slice(0, 3);
       return /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "button",
@@ -51135,25 +51199,25 @@ function MobileMonth({
           style: {
             position: "relative",
             height: 50,
-            border: "none",
             borderRadius: 12,
             padding: 0,
             cursor: "pointer",
             font: "inherit",
+            border: orange === "maybe" ? "1.5px dashed var(--cal-orange-dot)" : "none",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
             gap: 3,
-            background: selected ? "var(--cal-brand)" : tinted && !barOff ? `var(--cal-${k}-cell)` : "transparent",
-            color: selected ? "#fff" : tinted && !barOff ? tok(k, "fg") : isToday ? "var(--cal-brand)" : "var(--cal-ink)",
-            boxShadow: isToday && !selected ? "inset 0 0 0 2px var(--cal-brand)" : tinted && barOff ? `inset 0 0 0 1.5px var(--cal-${k}-cell)` : void 0,
+            background: selected ? "var(--cal-brand)" : orange ? `var(--cal-${orange}-cell)` : tinted && !barOff ? `var(--cal-${k}-cell)` : "transparent",
+            color: selected ? "#fff" : orange ? tok(orange, "fg") : tinted && !barOff ? tok(k, "fg") : isToday ? "var(--cal-brand)" : "var(--cal-ink)",
+            boxShadow: isToday && !selected ? "inset 0 0 0 2px var(--cal-brand)" : purple ? "inset 0 0 0 2px var(--cal-purple-dot)" : tinted && barOff ? `inset 0 0 0 1.5px var(--cal-${k}-cell)` : void 0,
             opacity: outside && !selected ? 0.4 : 1
           },
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(ShortMark, { day: day2 }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 14, fontWeight: isToday || selected ? 700 : 500 }, children: day2.getDate() }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 14, height: 3, borderRadius: 2, background: k && selected ? "#fff" : "transparent" } }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 14, height: 3, borderRadius: 2, background: (k || (note2 == null ? void 0 : note2.tone)) && selected ? "#fff" : "transparent" } }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { display: "flex", gap: 3, height: 5 }, children: dots.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 5, height: 5, borderRadius: "50%", background: selected ? "#fff" : tok(c, "dot") } }, c)) })
           ]
         },
@@ -51675,10 +51739,11 @@ function CalendarFilters({
 const ITEMS = [
   { kind: "event", label: "Event", hint: "Station, watch or personal", Icon: CalendarPlus, tint: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300" },
   { kind: "shift", label: "Log shift", hint: "TOIL, H4H, flexi, orange day, overtime", Icon: CalendarDays, tint: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300" },
+  { kind: "roster", label: "Orange or purple day", hint: "A day you might be called in, or a purple shift", Icon: CalendarClock, tint: "bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300" },
   { kind: "inspection", label: "Inspection", hint: "HFSV, hydrant, multi-storey, OI, care home", Icon: ClipboardPlus, tint: "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300" },
   { kind: "training", label: "Training", hint: "Plan a session for the watch", Icon: GraduationCap, tint: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" }
 ];
-const CREW_HINTS = { event: "On your calendar, or the watch's", shift: "Flexi, H4H, TOIL, orange day, overtime" };
+const CREW_HINTS = { event: "On your calendar, or the watch's", shift: "Flexi, H4H, TOIL, orange day, overtime", roster: "A day you might be called in, or a purple shift" };
 const newItemsFor = (isManager) => isManager ? ITEMS : ITEMS.filter((i) => CREW_HINTS[i.kind]).map((i) => ({ ...i, hint: CREW_HINTS[i.kind] }));
 function CalendarNewButton({ onPick, isManager = true }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenu, { children: [
@@ -52114,8 +52179,8 @@ function CalendarDayPeek({
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { ...label2, marginBottom: 4 }, children: "On this day" }),
       !note2 && items.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: 0, padding: "6px 8px", fontSize: 13.5, color: "var(--cal-muted)" }, children: "Nothing on this day yet." }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { style: { listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 2 }, children: [
-        note2 && /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: onOpenBooking && note2.bookingId != null ? /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: onOpenBooking, className: "cal-focus tc-check", style: rowBtn, title: "Open the booking to change or delete it", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 10, height: 10, borderRadius: 3, flex: "none", background: "var(--cal-personal-dot)" } }),
+        note2 && /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: onOpenBooking && (note2.bookingId != null || note2.rosterId != null) ? /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: onOpenBooking, className: "cal-focus tc-check", style: rowBtn, title: note2.state === "maybe" ? "Open to confirm or change it" : "Open the booking to change or delete it", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 10, height: 10, borderRadius: 3, flex: "none", boxSizing: "border-box", ...note2.tone === "maybe" ? { background: "var(--cal-maybe-bg)", border: "1px dashed var(--cal-orange-dot)" } : { background: note2.tone ? `var(--cal-${note2.tone}-dot)` : "var(--cal-personal-dot)" } } }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { flex: 1, minWidth: 0, fontSize: 13.5, fontWeight: 600 }, children: myDayText(note2) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-4 w-4 shrink-0", style: { color: "var(--cal-muted)" } })
         ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { ...rowBtn, margin: 0, cursor: "default" }, children: [
@@ -52941,6 +53006,288 @@ function InspectionEventModal({ open, onClose, defaultDate, editingEvent }) {
     ] })
   ] }) });
 }
+const KIND_LABEL = {
+  orange: "Orange day",
+  purple: "Purple shift",
+  training: "Training course",
+  leave: "Leave (moved)",
+  work: "Rostered shift",
+  payback: "Flexi payback"
+};
+function kindMeaning(kind, confirmed) {
+  switch (kind) {
+    case "orange":
+      return confirmed ? "You're confirmed in for this shift." : "A rest day you might be called in on. It stays faint until it's confirmed.";
+    case "purple":
+      return "You're on shift, but may be sent to another station or not needed — and called in on another day instead.";
+    case "training":
+      return "Training Centre or a course.";
+    case "leave":
+      return "Leave moved here from another date.";
+    case "work":
+      return "A shift you're rostered for when your watch isn't on.";
+    case "payback":
+      return "A flexi payback shift.";
+  }
+}
+const shiftHours = (dn) => dn === "Day" ? "Day 08–18" : dn === "Night" ? "Night 18–08" : "";
+function withRosterDays(base, days, me) {
+  const out = new Map(base);
+  for (const d of days) {
+    if (d.user_id !== me) continue;
+    const there = out.get(d.day);
+    const shift2 = d.day_night ?? void 0;
+    if (d.kind === "orange" && d.confirmed) {
+      out.set(d.day, (there == null ? void 0 : there.state) === "in" ? { ...there, tone: "orange", rosterId: d.id } : { state: "in", label: KIND_LABEL.orange, shift: shift2, tone: "orange", rosterId: d.id });
+      continue;
+    }
+    if (there) continue;
+    switch (d.kind) {
+      case "orange":
+        out.set(d.day, { state: "maybe", label: KIND_LABEL.orange, shift: shift2, tone: "maybe", rosterId: d.id });
+        break;
+      case "purple":
+        out.set(d.day, { state: "note", label: KIND_LABEL.purple, shift: shift2, tone: "purple", rosterId: d.id });
+        break;
+      case "training":
+        out.set(d.day, { state: "note", label: KIND_LABEL.training, rosterId: d.id });
+        break;
+      case "leave":
+        out.set(d.day, { state: "off", label: KIND_LABEL.leave, rosterId: d.id });
+        break;
+      case "work":
+      case "payback":
+        out.set(d.day, { state: "in", label: KIND_LABEL[d.kind], shift: shift2, rosterId: d.id });
+        break;
+    }
+  }
+  return out;
+}
+function isoFrom(v) {
+  const s = v.trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  const uk = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(s);
+  return uk ? `${uk[3]}-${uk[2].padStart(2, "0")}-${uk[1].padStart(2, "0")}` : "";
+}
+function parseScheduleCsv(text2) {
+  const rows = [];
+  let bad = 0;
+  for (const line of text2.split(/\r?\n/)) {
+    if (!line.trim()) continue;
+    const [num = "", date2 = "", code = ""] = line.split(/[,;\t]/).map((c) => c.trim().replace(/^"|"$/g, ""));
+    if (!/^\d+$/.test(num)) {
+      if (rows.length || bad) bad++;
+      continue;
+    }
+    const day2 = isoFrom(date2);
+    if (!day2 || !code) {
+      bad++;
+      continue;
+    }
+    rows.push({ service_number: num, day: day2, code: code.toUpperCase() });
+  }
+  return { rows, bad };
+}
+const ROSTER_DAYS_KEY = "roster-days";
+const ADDABLE = ["orange", "purple", "training"];
+const niceDay = (iso2) => (/* @__PURE__ */ new Date(`${iso2}T12:00:00`)).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+function RosterDayDialog({ open, onOpenChange, day: day2, defaultDate, forUser, meId }) {
+  const qc = useQueryClient();
+  const { toast: toast2 } = useToast();
+  const [date2, setDate] = reactExports.useState(defaultDate ?? "");
+  const [kind, setKind] = reactExports.useState("orange");
+  const [dn, setDn] = reactExports.useState("Day");
+  reactExports.useEffect(() => {
+    if (open && !day2) {
+      setDate(defaultDate ?? "");
+      setKind("orange");
+      setDn("Day");
+    }
+  }, [open, day2, defaultDate]);
+  const done = (title, description) => {
+    qc.invalidateQueries({ queryKey: [ROSTER_DAYS_KEY] });
+    refreshCalendar(qc);
+    toast2({ title, description });
+    onOpenChange(false);
+  };
+  const failed = (e) => toast2({ title: "That didn't save", description: e instanceof Error ? e.message : "Try again.", variant: "destructive" });
+  const own = day2 ? day2.user_id === meId : !forUser || forUser.id === meId;
+  const told = own ? "Your WC and CC are told." : `${(day2 == null ? void 0 : day2.user_name) ?? (forUser == null ? void 0 : forUser.name) ?? "They"} will be told.`;
+  const confirm2 = useMutation({
+    mutationFn: (confirmed) => backendClient.shift_adjustments.confirmRosterDay(day2.id, { confirmed }),
+    onSuccess: (_r, confirmed) => done(confirmed ? "Orange day confirmed" : "Back to “might be called in”", told),
+    onError: failed
+  });
+  const remove = useMutation({
+    mutationFn: () => backendClient.shift_adjustments.deleteRosterDay(day2.id),
+    onSuccess: () => done("Taken off the calendar", told),
+    onError: failed
+  });
+  const add2 = useMutation({
+    mutationFn: () => backendClient.shift_adjustments.saveRosterDay({
+      ...forUser && forUser.id !== meId ? { user_id: forUser.id } : {},
+      day: date2,
+      kind,
+      ...kind === "training" ? {} : { day_night: dn }
+    }),
+    onSuccess: () => done(`${KIND_LABEL[kind]} added`, told),
+    onError: failed
+  });
+  const busy = confirm2.isPending || remove.isPending || add2.isPending;
+  const seg = (on) => cn(
+    "tap flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors",
+    on ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background text-foreground hover:bg-muted"
+  );
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: (o) => !busy && onOpenChange(o), children: /* @__PURE__ */ jsxRuntimeExports.jsx(DialogContent, { className: "sm:max-w-md", children: day2 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { children: [
+        KIND_LABEL[day2.kind],
+        day2.kind === "orange" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "span",
+          {
+            className: "ml-2 inline-block rounded-full px-2 py-0.5 align-middle text-xs font-semibold",
+            style: day2.confirmed ? { background: "var(--cal-orange-bg)", color: "var(--cal-orange-fg)" } : { background: "var(--cal-maybe-bg)", color: "var(--cal-maybe-fg)", border: "1px dashed var(--cal-orange-dot)" },
+            children: day2.confirmed ? "Confirmed" : "Might be called in"
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogDescription, { children: [
+        !own && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          day2.user_name,
+          " · "
+        ] }),
+        niceDay(day2.day),
+        day2.day_night ? ` · ${shiftHours(day2.day_night)}` : ""
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: own ? kindMeaning(day2.kind, day2.confirmed) : kindMeaning(day2.kind, day2.confirmed).replace(/^You're/, "They're").replace(/\byou\b/g, "they") }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: told }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogFooter, { className: "gap-2 sm:justify-between", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "ghost", className: "text-destructive hover:text-destructive", disabled: busy, onClick: () => remove.mutate(), children: "Take off the calendar" }),
+      day2.kind === "orange" && (day2.confirmed ? /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", disabled: busy, onClick: () => confirm2.mutate(false), children: "Not confirmed after all" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { disabled: busy, onClick: () => confirm2.mutate(true), children: own ? "I'm in — confirm" : "Confirm they're in" }))
+    ] })
+  ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Orange or purple day" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogDescription, { children: [
+        forUser && forUser.id !== meId ? `On ${forUser.name}'s calendar.` : "On your own calendar.",
+        " ",
+        told
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "roster-day-date", children: "Date" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { id: "roster-day-date", type: "date", value: date2, onChange: (e) => setDate(e.target.value) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "What is it?" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-2", role: "group", "aria-label": "What is it?", children: ADDABLE.map((k) => /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-pressed": kind === k, className: seg(kind === k), onClick: () => setKind(k), children: KIND_LABEL[k] }, k)) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: kindMeaning(kind, false) })
+      ] }),
+      kind !== "training" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Shift" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-2", role: "group", "aria-label": "Shift", children: ["Day", "Night"].map((v) => /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", "aria-pressed": dn === v, className: seg(dn === v), onClick: () => setDn(v), children: shiftHours(v) }, v)) })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogFooter, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", disabled: busy, onClick: () => onOpenChange(false), children: "Cancel" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { disabled: busy || !date2, onClick: () => add2.mutate(), children: "Add to calendar" })
+    ] })
+  ] }) }) });
+}
+const shortDay = (iso2) => (/* @__PURE__ */ new Date(`${iso2}T12:00:00`)).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+function pill(d) {
+  const when = d.day_night ? ` · ${d.day_night}` : "";
+  if (d.kind === "orange") {
+    return d.confirmed ? { text: `Orange${when} · confirmed`, style: { background: "var(--cal-orange-bg)", color: "var(--cal-orange-fg)" } } : { text: `Orange${when} · might be called in`, style: { background: "var(--cal-maybe-bg)", color: "var(--cal-maybe-fg)", border: "1px dashed var(--cal-orange-dot)" } };
+  }
+  if (d.kind === "purple") return { text: `Purple${when}`, style: { background: "var(--cal-purple-bg)", color: "var(--cal-purple-fg)" } };
+  return { text: `${KIND_LABEL[d.kind]}${when}`, style: { background: "var(--cal-surface-2)", color: "var(--cal-ink-2)" } };
+}
+function WatchRosterDays({ watch, from, to, meId, onOpen }) {
+  const qc = useQueryClient();
+  const { toast: toast2 } = useToast();
+  const { data } = useQuery({
+    queryKey: [ROSTER_DAYS_KEY, "watch", watch, from, to],
+    queryFn: () => backendClient.shift_adjustments.listRosterDays({ from, to, watch }),
+    enabled: !!watch,
+    staleTime: 6e4
+  });
+  const confirm2 = useMutation({
+    mutationFn: (d) => backendClient.shift_adjustments.confirmRosterDay(d.id, { confirmed: true }),
+    onSuccess: (d) => {
+      qc.invalidateQueries({ queryKey: [ROSTER_DAYS_KEY] });
+      refreshCalendar(qc);
+      toast2({ title: "Orange day confirmed", description: d.user_id === meId ? "Your WC and CC are told." : `${d.user_name} will be told.` });
+    },
+    onError: (e) => toast2({ title: "That didn't save", description: e instanceof Error ? e.message : "Try again.", variant: "destructive" })
+  });
+  const days = (data == null ? void 0 : data.days) ?? [];
+  if (days.length === 0) return null;
+  const waiting = days.filter((d) => d.kind === "orange" && !d.confirmed).length;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "cal-card", "aria-label": `${watch} Watch orange and purple days`, style: { marginTop: 16, padding: "14px 16px" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { style: { margin: 0, fontSize: 15, fontWeight: 600, color: "var(--cal-ink)" }, children: [
+        "Orange and purple days · ",
+        watch,
+        " Watch"
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 12, color: "var(--cal-muted)" }, children: waiting > 0 ? `${waiting} orange ${waiting === 1 ? "day" : "days"} not confirmed yet` : "All orange days confirmed" })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { style: { listStyle: "none", margin: "10px 0 0", padding: 0 }, children: days.map((d) => {
+      const p = pill(d);
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "li",
+        {
+          style: { display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", padding: "8px 0", borderTop: "1px solid var(--cal-line)" },
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                onClick: () => onOpen(d),
+                className: "cal-focus",
+                style: {
+                  flex: "1 1 220px",
+                  minWidth: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  flexWrap: "wrap",
+                  border: "none",
+                  background: "transparent",
+                  padding: 0,
+                  font: "inherit",
+                  textAlign: "left",
+                  cursor: "pointer",
+                  color: "var(--cal-ink)"
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { width: 92, flex: "none", fontSize: 13, color: "var(--cal-ink-2)" }, children: shortDay(d.day) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 14, fontWeight: 500, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }, children: d.user_name }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 12, fontWeight: 600, padding: "3px 9px", borderRadius: 999, whiteSpace: "nowrap", ...p.style }, children: p.text })
+                ]
+              }
+            ),
+            d.kind === "orange" && !d.confirmed && /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                type: "button",
+                className: "cal-btn tap-chip",
+                disabled: confirm2.isPending,
+                onClick: () => confirm2.mutate(d),
+                style: { height: 34, padding: "0 12px", fontSize: 13 },
+                children: "Confirm in"
+              }
+            )
+          ]
+        },
+        d.id
+      );
+    }) })
+  ] });
+}
 const WAITING = /* @__PURE__ */ new Set(["with_cover", "with_wc", "authorised", "referred"]);
 const ASKED_LABEL = { flexi: "Flexi day", h4h: "H4H" };
 const OFF_LABEL = { flexi: "Flexi day", training: "Training", h4h: "H4H", toil: "TOIL" };
@@ -52963,7 +53310,7 @@ function myDays(bookings, me, days, watchShift, requests = []) {
         const what = b.type === "h4h" ? "H4H" : "TOIL cover";
         extra ?? (extra = { state: "in", label: withWatch(b.user_name ? `${what} for ${b.user_name}` : what, b.watch_unit), shift: dn, bookingId: idOf(b) });
       } else if (EXTRA_LABEL[b.type] && b.user_id === me) {
-        extra ?? (extra = { state: "in", label: withWatch(EXTRA_LABEL[b.type], b.covering_watch), shift: dn, bookingId: idOf(b) });
+        extra ?? (extra = { state: "in", label: withWatch(EXTRA_LABEL[b.type], b.covering_watch), shift: dn, bookingId: idOf(b), ...b.type === "orange_day" ? { tone: "orange" } : {} });
       } else if (OFF_LABEL[b.type] && b.user_id === me) {
         const mine = watchShift(day2);
         if (!mine || dn && dn !== mine) continue;
@@ -53220,6 +53567,14 @@ function UnifiedCalendar() {
     enabled: showMine,
     staleTime: 6e4
   });
+  const { data: myRoster } = useQuery({
+    queryKey: [ROSTER_DAYS_KEY, "mine", userId, ymd2(start), ymd2(end)],
+    queryFn: () => backendClient.shift_adjustments.listRosterDays({ from: ymd2(start), to: ymd2(end) }),
+    enabled: showMine,
+    staleTime: 6e4
+  });
+  const [rosterDay, setRosterDay] = reactExports.useState(null);
+  const [rosterAdd, setRosterAdd] = reactExports.useState(null);
   const myDays$1 = reactExports.useMemo(() => {
     if (!showMine) return void 0;
     const days = [];
@@ -53228,8 +53583,9 @@ function UnifiedCalendar() {
       const s = getShiftForDate(userWatch, /* @__PURE__ */ new Date(`${day2}T12:00:00`));
       return !s || s.isLeave ? null : s.shiftType.includes("Night") ? "Night" : s.shiftType.includes("Day") ? "Day" : null;
     };
-    return myDays((myBookings == null ? void 0 : myBookings.adjustments) ?? [], userId, days, watchShift, (myRequests == null ? void 0 : myRequests.requests) ?? []);
-  }, [showMine, myBookings, myRequests, userId, userWatch, startISO, endISO]);
+    const booked = myDays((myBookings == null ? void 0 : myBookings.adjustments) ?? [], userId, days, watchShift, (myRequests == null ? void 0 : myRequests.requests) ?? []);
+    return withRosterDays(booked, (myRoster == null ? void 0 : myRoster.days) ?? [], userId);
+  }, [showMine, myBookings, myRequests, myRoster, userId, userWatch, startISO, endISO]);
   const { data: tasks = [] } = useQuery({
     queryKey: ["cal-tasks", userId, startISO, endISO],
     queryFn: async () => {
@@ -53480,7 +53836,8 @@ This cancels the whole booking (TOIL/H4H/Flexi): any TOIL hours are refunded and
     else if (kind === "shift") {
       setShiftAdjDate(day2);
       setShiftAdjModalOpen(true);
-    } else if (kind === "inspection") {
+    } else if (kind === "roster") setRosterAdd(ymd2(day2));
+    else if (kind === "inspection") {
       setFormDate(day2);
       setInspectionModalOpen(true);
     } else {
@@ -53549,11 +53906,17 @@ This cancels the whole booking (TOIL/H4H/Flexi): any TOIL hours are refunded and
         riding,
         myDays: myDays$1,
         onMyDayClick: (note2) => {
+          const mine = note2.rosterId != null ? myRoster == null ? void 0 : myRoster.days.find((d) => d.id === note2.rosterId) : void 0;
+          if (mine) {
+            setRosterDay(mine);
+            return;
+          }
           const booking = myBookings == null ? void 0 : myBookings.adjustments.find((a) => Number(a.id) === note2.bookingId);
           if (booking) setBookingToEdit(booking);
         }
       }
     ),
+    isManager && rangeView !== "year" && /* @__PURE__ */ jsxRuntimeExports.jsx(WatchRosterDays, { watch: watchShown, from: ymd2(start), to: ymd2(end), meId: userId, onOpen: setRosterDay }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       CalendarNewFab,
       {
@@ -53634,9 +53997,17 @@ This cancels the whole booking (TOIL/H4H/Flexi): any TOIL hours are refunded and
               handleEventClick(item, dayPeek.anchor);
             },
             onOpenBooking: () => {
+              var _a3;
+              const rosterId = (_a3 = dayPeek.note) == null ? void 0 : _a3.rosterId;
+              const mine = rosterId != null ? myRoster == null ? void 0 : myRoster.days.find((d) => d.id === rosterId) : void 0;
+              if (mine) {
+                setDayPeek(null);
+                setRosterDay(mine);
+                return;
+              }
               const booking = myBookings == null ? void 0 : myBookings.adjustments.find((a) => {
-                var _a3;
-                return Number(a.id) === ((_a3 = dayPeek.note) == null ? void 0 : _a3.bookingId);
+                var _a4;
+                return Number(a.id) === ((_a4 = dayPeek.note) == null ? void 0 : _a4.bookingId);
               });
               if (booking) {
                 setDayPeek(null);
@@ -53703,6 +54074,21 @@ This cancels the whole booking (TOIL/H4H/Flexi): any TOIL hours are refunded and
         open: !!bookingToEdit,
         onClose: () => setBookingToEdit(null),
         editAdjustment: bookingToEdit
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      RosterDayDialog,
+      {
+        open: !!rosterDay || rosterAdd != null,
+        onOpenChange: (o) => {
+          if (!o) {
+            setRosterDay(null);
+            setRosterAdd(null);
+          }
+        },
+        day: rosterDay,
+        defaultDate: rosterAdd ?? void 0,
+        meId: userId
       }
     ),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -71314,6 +71700,121 @@ function InspectionPlans() {
     /* @__PURE__ */ jsxRuntimeExports.jsx(SectionCard, { icon: ClipboardCheck, title: "Operational Inspections", description: "Annual operational inspections — one watch assigned per premises", children: /* @__PURE__ */ jsxRuntimeExports.jsx(OperationalSection, { canEdit }) })
   ] });
 }
+const plural = (n, one, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
+function Summary({ r: r2 }) {
+  const kinds = Object.entries(r2.by_kind).sort((a, b) => b[1] - a[1]);
+  const skipped = Object.entries(r2.skipped).sort((a, b) => b[1] - a[1]);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2 rounded-lg border border-border bg-muted/40 p-3 text-sm", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "font-medium text-foreground", children: [
+      plural(r2.days, "day"),
+      " for ",
+      plural(r2.people, "person", "people"),
+      !r2.dry_run && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        " — ",
+        r2.added,
+        " added",
+        r2.kept > 0 ? `, ${r2.kept} left as they were (already confirmed or changed by hand)` : ""
+      ] })
+    ] }),
+    kinds.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground", children: kinds.map(([k, n]) => `${n} ${(KIND_LABEL[k] ?? k).toLowerCase()}`).join(" · ") }),
+    r2.unmatched.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-amber-700 dark:text-amber-400", children: [
+      "Nobody in the hub has ",
+      r2.unmatched.length === 1 ? "this payroll number" : "these payroll numbers",
+      ", so their days are left out:",
+      " ",
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono", children: r2.unmatched.join(", ") }),
+      ". Add the person (or their payroll number) and load the file again."
+    ] }),
+    skipped.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-muted-foreground", children: [
+      "Codes not kept: ",
+      skipped.map(([c, n]) => `${c} (${n})`).join(", "),
+      "."
+    ] }),
+    r2.bad > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-muted-foreground", children: [
+      plural(r2.bad, "line"),
+      " couldn't be read."
+    ] })
+  ] });
+}
+function ScheduleImport() {
+  const qc = useQueryClient();
+  const { toast: toast2 } = useToast();
+  const input = reactExports.useRef(null);
+  const [fileName, setFileName] = reactExports.useState("");
+  const [rows, setRows] = reactExports.useState([]);
+  const [unreadable, setUnreadable] = reactExports.useState(0);
+  const [checked, setChecked] = reactExports.useState(null);
+  const [loaded, setLoaded] = reactExports.useState(null);
+  const failed = (e) => toast2({ title: "That didn't work", description: e instanceof Error ? e.message : "Try again.", variant: "destructive" });
+  const check = useMutation({
+    mutationFn: (r2) => backendClient.shift_adjustments.importRosterDays({ rows: r2, dry_run: true }),
+    onSuccess: setChecked,
+    onError: failed
+  });
+  const load = useMutation({
+    mutationFn: () => backendClient.shift_adjustments.importRosterDays({ rows }),
+    onSuccess: (r2) => {
+      setLoaded(r2);
+      setChecked(null);
+      qc.invalidateQueries({ queryKey: [ROSTER_DAYS_KEY] });
+      refreshCalendar(qc);
+      toast2({ title: "Schedule loaded", description: `${plural(r2.added, "day")} added to ${plural(r2.people, "calendar")}.` });
+    },
+    onError: failed
+  });
+  const pick = async (file) => {
+    if (!file) return;
+    setLoaded(null);
+    setChecked(null);
+    const parsed = parseScheduleCsv(await file.text());
+    setFileName(file.name);
+    setRows(parsed.rows);
+    setUnreadable(parsed.bad);
+    if (parsed.rows.length === 0) {
+      toast2({ title: "No days found in that file", description: "Each line needs a payroll number, a date and a code.", variant: "destructive" });
+      return;
+    }
+    check.mutate(parsed.rows);
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(CardHeader, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { children: "Yearly schedule" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { children: "Puts each person's orange days and purple shifts for the year on their own calendar. Orange days show faint until the person or their WC/CC confirms them. Loading a year again replaces what was loaded before, but never a day someone has already confirmed or changed." })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "space-y-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            ref: input,
+            type: "file",
+            accept: ".csv,.txt,text/csv,text/plain",
+            className: "hidden",
+            onChange: (e) => {
+              var _a3;
+              void pick((_a3 = e.target.files) == null ? void 0 : _a3[0]);
+              e.target.value = "";
+            }
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", onClick: () => {
+          var _a3;
+          return (_a3 = input.current) == null ? void 0 : _a3.click();
+        }, disabled: check.isPending || load.isPending, children: "Choose schedule file" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-muted-foreground", children: fileName ? `${fileName} · ${plural(rows.length, "line")}${unreadable ? ` (${unreadable} unreadable)` : ""}` : "One line per day: payroll number, date, code" })
+      ] }),
+      check.isPending && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "Checking the file…" }),
+      checked && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Summary, { r: checked }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: () => load.mutate(), disabled: load.isPending || checked.days === 0, children: load.isPending ? "Loading…" : `Put ${plural(checked.days, "day")} on ${plural(checked.people, "calendar")}` }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-muted-foreground", children: "Nothing has been saved yet." })
+        ] })
+      ] }),
+      loaded && /* @__PURE__ */ jsxRuntimeExports.jsx(Summary, { r: loaded })
+    ] })
+  ] });
+}
 const FEATURE_CONFIG = [
   { key: "calendar", label: "Calendar", description: "Their own calendar first, then the watch's; log TOIL and orange days, ask for a flexi or H4H", icon: Calendar, phase: "Phase 1 · first release" },
   { key: "handover", label: "Shift", description: "Crewing board (to look at), handover notes to read, the detachment and canteen rotas", icon: ClipboardList, phase: "Phase 1 · first release" },
@@ -71343,7 +71844,8 @@ const STATION_TABS = [
 ];
 const ADMIN_TABS = [
   { value: "features", label: "Feature management" },
-  { value: "users", label: "Users" }
+  { value: "users", label: "Users" },
+  { value: "schedule", label: "Yearly schedule" }
 ];
 function AdminPanel() {
   const isAdmin = useIsAdmin();
@@ -71371,7 +71873,8 @@ function AdminPanel() {
       /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "inspection-plans", className: "mt-6 space-y-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(InspectionPlans, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "activity", className: "mt-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ActivityLogTab, {}) }),
       isAdmin && /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "features", className: "mt-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(FeatureManagementTab, {}) }),
-      isAdmin && /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "users", className: "mt-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(AdminUsers, {}) })
+      isAdmin && /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "users", className: "mt-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(AdminUsers, {}) }),
+      isAdmin && /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "schedule", className: "mt-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ScheduleImport, {}) })
     ] })
   ] });
 }

@@ -602,6 +602,11 @@ table.plain tbody tr:last-child td { border-bottom: none; }
      (--lb-<label id>) and the five initials colours (--pp-*). */
   --cal-board: #eceffa; --cal-todo-dot: #64748b;
   --cal-day-cell: #fbf1d4; --cal-night-cell: #e3e1fb; --cal-leave-cell: #e3f5e8;
+  /* Your own days (Nov 2026): an orange day you're in for, one not confirmed
+     yet ("maybe" — faint, dashed), and a purple shift. */
+  --cal-orange-bg: #fdba74; --cal-orange-fg: #431407; --cal-orange-dot: #ea580c; --cal-orange-shade: rgba(234,88,12,.16); --cal-orange-cell: #fdba74;
+  --cal-maybe-bg: #fff3e6; --cal-maybe-fg: #9a3412; --cal-maybe-dot: #fdba74; --cal-maybe-shade: rgba(234,88,12,.05); --cal-maybe-cell: #fff3e6;
+  --cal-purple-bg: #f5d9fb; --cal-purple-fg: #701a75; --cal-purple-dot: #c026d3; --cal-purple-shade: rgba(192,38,211,.08); --cal-purple-cell: #f3d4fa;
   --cal-card-shadow: 0 1px 2px rgba(17,20,39,.05), 0 4px 14px rgba(17,20,39,.05);
   --lb-urgent-bg: #fde4e4; --lb-urgent-fg: #991b1b; --lb-operational-bg: #ffead6; --lb-operational-fg: #9a3412;
   --lb-training-bg: #fdf3c4; --lb-training-fg: #713f12; --lb-routine-bg: #dcf7e4; --lb-routine-fg: #166534;
@@ -631,6 +636,9 @@ table.plain tbody tr:last-child td { border-bottom: none; }
   --cal-leave-bg: rgba(22,163,74,.22); --cal-leave-fg: #bbf7d0; --cal-leave-dot: #4ade80; --cal-leave-shade: rgba(22,163,74,.08);
   --cal-board: #10132a; --cal-todo-dot: #94a3b8;
   --cal-day-cell: #2a2516; --cal-night-cell: #262a5e; --cal-leave-cell: #15291d;
+  --cal-orange-bg: #c2410c; --cal-orange-fg: #fff7ed; --cal-orange-dot: #fb923c; --cal-orange-shade: rgba(249,115,22,.22); --cal-orange-cell: #c2410c;
+  --cal-maybe-bg: rgba(249,115,22,.13); --cal-maybe-fg: #fdba74; --cal-maybe-dot: #9a5a2a; --cal-maybe-shade: rgba(249,115,22,.06); --cal-maybe-cell: #2b1d12;
+  --cal-purple-bg: rgba(192,38,211,.26); --cal-purple-fg: #f5d0fe; --cal-purple-dot: #e879f9; --cal-purple-shade: rgba(192,38,211,.10); --cal-purple-cell: #3a1a45;
   --cal-card-shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.25);
   --lb-urgent-bg: rgba(239,68,68,.22); --lb-urgent-fg: #fecaca; --lb-operational-bg: rgba(249,115,22,.22); --lb-operational-fg: #fed7aa;
   --lb-training-bg: rgba(234,179,8,.22); --lb-training-fg: #fef08a; --lb-routine-bg: rgba(34,197,94,.20); --lb-routine-fg: #bbf7d0;

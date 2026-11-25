@@ -16,6 +16,9 @@ import { CALENDAR_EVENTS_KEY, CALENDAR_STRENGTH_KEY, refreshCalendar } from "@/l
 import EventForm, { type EventFormData } from "../components/EventForm";
 import InspectionEventModal, { type ExistingInspectionEvent } from "../components/InspectionEventModal";
 import ShiftAdjustmentModal from "@/components/ShiftAdjustmentModal";
+import RosterDayDialog, { ROSTER_DAYS_KEY } from "@/components/RosterDayDialog";
+import WatchRosterDays from "@/components/WatchRosterDays";
+import { withRosterDays } from "@/lib/rosterDays";
 import { useToast } from "@/components/ui/use-toast";
 import type { CalendarVisibility } from "~backend/calendar/types";
 import type { Task } from "~backend/task/types";
@@ -171,6 +174,16 @@ export default function UnifiedCalendar() {
     enabled: showMine,
     staleTime: 60_000,
   });
+  // Your own orange days and purple shifts from the yearly schedule: an
+  // orange day is faint until you or your WC/CC confirm it (John, 25 Nov 2026).
+  const { data: myRoster } = useQuery({
+    queryKey: [ROSTER_DAYS_KEY, "mine", userId, ymd(start), ymd(end)],
+    queryFn: () => backend.shift_adjustments.listRosterDays({ from: ymd(start), to: ymd(end) }),
+    enabled: showMine,
+    staleTime: 60_000,
+  });
+  const [rosterDay, setRosterDay] = useState<shift_adjustments.RosterDay | null>(null);
+  const [rosterAdd, setRosterAdd] = useState<string | null>(null);
   const myDays = useMemo(() => {
     if (!showMine) return undefined;
     const days: string[] = [];
@@ -179,8 +192,9 @@ export default function UnifiedCalendar() {
       const s = getShiftForDate(userWatch, new Date(`${day}T12:00:00`));
       return !s || s.isLeave ? null : s.shiftType.includes("Night") ? "Night" : s.shiftType.includes("Day") ? "Day" : null;
     };
-    return buildMyDays(myBookings?.adjustments ?? [], userId, days, watchShift, myRequests?.requests ?? []);
-  }, [showMine, myBookings, myRequests, userId, userWatch, startISO, endISO]);
+    const booked = buildMyDays(myBookings?.adjustments ?? [], userId, days, watchShift, myRequests?.requests ?? []);
+    return withRosterDays(booked, myRoster?.days ?? [], userId);
+  }, [showMine, myBookings, myRequests, myRoster, userId, userWatch, startISO, endISO]);
 
   const { data: tasks = [] } = useQuery({
     queryKey: ["cal-tasks", userId, startISO, endISO],
@@ -478,6 +492,7 @@ export default function UnifiedCalendar() {
   const onNew = (kind: NewKind, day: Date = newDay, anchor?: CalendarAnchor) => {
     if (kind === "event") handleSlotClick(day, anchor);
     else if (kind === "shift") { setShiftAdjDate(day); setShiftAdjModalOpen(true); }
+    else if (kind === "roster") setRosterAdd(ymd(day));
     else if (kind === "inspection") { setFormDate(day); setInspectionModalOpen(true); }
     else { setTrainingDate(day === newDay ? undefined : ymd(day)); setTrainingModalOpen(true); }
   };
@@ -536,10 +551,18 @@ export default function UnifiedCalendar() {
         riding={riding}
         myDays={myDays}
         onMyDayClick={(note) => {
+          // An orange or purple day opens its own card (confirm, or take it off).
+          const mine = note.rosterId != null ? myRoster?.days.find((d) => d.id === note.rosterId) : undefined;
+          if (mine) { setRosterDay(mine); return; }
           const booking = myBookings?.adjustments.find((a) => Number(a.id) === note.bookingId);
           if (booking) setBookingToEdit(booking);
         }}
       />
+
+      {/* WC/CC: the watch's orange and purple days this month, to confirm who's in */}
+      {isManager && rangeView !== "year" && (
+        <WatchRosterDays watch={watchShown} from={ymd(start)} to={ymd(end)} meId={userId} onOpen={setRosterDay} />
+      )}
 
       {/* Phones: the calendar's own "+" (the app-wide one is hidden here) */}
       <CalendarNewFab
@@ -608,6 +631,9 @@ export default function UnifiedCalendar() {
             onClose={() => setDayPeek(null)}
             onOpenItem={(item) => { setDayPeek(null); handleEventClick(item, dayPeek.anchor); }}
             onOpenBooking={() => {
+              const rosterId = dayPeek.note?.rosterId;
+              const mine = rosterId != null ? myRoster?.days.find((d) => d.id === rosterId) : undefined;
+              if (mine) { setDayPeek(null); setRosterDay(mine); return; }
               const booking = myBookings?.adjustments.find((a) => Number(a.id) === dayPeek.note?.bookingId);
               if (booking) { setDayPeek(null); setBookingToEdit(booking); }
             }}
@@ -656,6 +682,14 @@ export default function UnifiedCalendar() {
         open={!!bookingToEdit}
         onClose={() => setBookingToEdit(null)}
         editAdjustment={bookingToEdit}
+      />
+
+      <RosterDayDialog
+        open={!!rosterDay || rosterAdd != null}
+        onOpenChange={(o) => { if (!o) { setRosterDay(null); setRosterAdd(null); } }}
+        day={rosterDay}
+        defaultDate={rosterAdd ?? undefined}
+        meId={userId}
       />
 
       {/* ── Schedule Training modal ──────────────────────────────────────────── */}

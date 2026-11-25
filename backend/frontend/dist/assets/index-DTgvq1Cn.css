@@ -3040,6 +3040,10 @@
     border-color: var(--color-orange-500);
   }
 
+  .border-primary {
+    border-color: var(--primary);
+  }
+
   .border-purple-200 {
     border-color: var(--color-purple-200);
   }
@@ -10729,6 +10733,21 @@ table.plain tbody tr:last-child td {
   --cal-day-cell: #fbf1d4;
   --cal-night-cell: #e3e1fb;
   --cal-leave-cell: #e3f5e8;
+  --cal-orange-bg: #fdba74;
+  --cal-orange-fg: #431407;
+  --cal-orange-dot: #ea580c;
+  --cal-orange-shade: #ea580c29;
+  --cal-orange-cell: #fdba74;
+  --cal-maybe-bg: #fff3e6;
+  --cal-maybe-fg: #9a3412;
+  --cal-maybe-dot: #fdba74;
+  --cal-maybe-shade: #ea580c0d;
+  --cal-maybe-cell: #fff3e6;
+  --cal-purple-bg: #f5d9fb;
+  --cal-purple-fg: #701a75;
+  --cal-purple-dot: #c026d3;
+  --cal-purple-shade: #c026d314;
+  --cal-purple-cell: #f3d4fa;
   --cal-card-shadow: 0 1px 2px #1114270d, 0 4px 14px #1114270d;
   --lb-urgent-bg: #fde4e4;
   --lb-urgent-fg: #991b1b;
@@ -10820,6 +10839,21 @@ table.plain tbody tr:last-child td {
   --cal-day-cell: #2a2516;
   --cal-night-cell: #262a5e;
   --cal-leave-cell: #15291d;
+  --cal-orange-bg: #c2410c;
+  --cal-orange-fg: #fff7ed;
+  --cal-orange-dot: #fb923c;
+  --cal-orange-shade: #f9731638;
+  --cal-orange-cell: #c2410c;
+  --cal-maybe-bg: #f9731621;
+  --cal-maybe-fg: #fdba74;
+  --cal-maybe-dot: #9a5a2a;
+  --cal-maybe-shade: #f973160f;
+  --cal-maybe-cell: #2b1d12;
+  --cal-purple-bg: #c026d342;
+  --cal-purple-fg: #f5d0fe;
+  --cal-purple-dot: #e879f9;
+  --cal-purple-shade: #c026d31a;
+  --cal-purple-cell: #3a1a45;
   --cal-card-shadow: 0 1px 2px #0006, 0 6px 18px #00000040;
   --lb-urgent-bg: #ef444438;
   --lb-urgent-fg: #fecaca;

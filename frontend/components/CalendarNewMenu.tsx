@@ -1,6 +1,6 @@
 import { useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { CalendarDays, CalendarPlus, ClipboardPlus, GraduationCap, Plus, X, type LucideIcon } from "lucide-react";
+import { CalendarClock, CalendarDays, CalendarPlus, ClipboardPlus, GraduationCap, Plus, X, type LucideIcon } from "lucide-react";
 import { focusPopupItselfOnTouch, leaveOpenerAloneOnTouch } from "@/lib/touchPopupFocus";
 import {
   DropdownMenu,
@@ -14,18 +14,19 @@ import { TUCKED_AWAY, useScrollingDown } from "@/lib/useScrollingDown";
 // One "New" on the calendar (Nov 2026) in place of the three toolbar buttons
 // plus the phone's separate "New event": a menu on desktop, the "+" on phones.
 
-export type NewKind = "event" | "shift" | "inspection" | "training";
+export type NewKind = "event" | "shift" | "roster" | "inspection" | "training";
 
 const ITEMS: { kind: NewKind; label: string; hint: string; Icon: LucideIcon; tint: string }[] = [
   { kind: "event", label: "Event", hint: "Station, watch or personal", Icon: CalendarPlus, tint: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300" },
   { kind: "shift", label: "Log shift", hint: "TOIL, H4H, flexi, orange day, overtime", Icon: CalendarDays, tint: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300" },
+  { kind: "roster", label: "Orange or purple day", hint: "A day you might be called in, or a purple shift", Icon: CalendarClock, tint: "bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300" },
   { kind: "inspection", label: "Inspection", hint: "HFSV, hydrant, multi-storey, OI, care home", Icon: ClipboardPlus, tint: "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300" },
   { kind: "training", label: "Training", hint: "Plan a session for the watch", Icon: GraduationCap, tint: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" },
 ];
 
 // A firefighter adds to their own calendar and books their own time; planning
 // inspections and training is the WC/CC's (Nov 2026).
-const CREW_HINTS: Partial<Record<NewKind, string>> = { event: "On your calendar, or the watch's", shift: "Flexi, H4H, TOIL, orange day, overtime" };
+const CREW_HINTS: Partial<Record<NewKind, string>> = { event: "On your calendar, or the watch's", shift: "Flexi, H4H, TOIL, orange day, overtime", roster: "A day you might be called in, or a purple shift" };
 export const newItemsFor = (isManager: boolean) =>
   isManager ? ITEMS : ITEMS.filter((i) => CREW_HINTS[i.kind]).map((i) => ({ ...i, hint: CREW_HINTS[i.kind]! }));
 

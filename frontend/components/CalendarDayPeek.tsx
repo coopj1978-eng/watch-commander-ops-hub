@@ -94,9 +94,9 @@ export default function CalendarDayPeek({
         <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 2 }}>
           {note && (
             <li>
-              {onOpenBooking && note.bookingId != null ? (
-                <button type="button" onClick={onOpenBooking} className="cal-focus tc-check" style={rowBtn} title="Open the booking to change or delete it">
-                  <span style={{ width: 10, height: 10, borderRadius: 3, flex: "none", background: "var(--cal-personal-dot)" }} />
+              {onOpenBooking && (note.bookingId != null || note.rosterId != null) ? (
+                <button type="button" onClick={onOpenBooking} className="cal-focus tc-check" style={rowBtn} title={note.state === "maybe" ? "Open to confirm or change it" : "Open the booking to change or delete it"}>
+                  <span style={{ width: 10, height: 10, borderRadius: 3, flex: "none", boxSizing: "border-box", ...(note.tone === "maybe" ? { background: "var(--cal-maybe-bg)", border: "1px dashed var(--cal-orange-dot)" } : { background: note.tone ? `var(--cal-${note.tone}-dot)` : "var(--cal-personal-dot)" }) }} />
                   <span style={{ flex: 1, minWidth: 0, fontSize: 13.5, fontWeight: 600 }}>{myDayText(note)}</span>
                   <ChevronRight className="h-4 w-4 shrink-0" style={{ color: "var(--cal-muted)" }} />
                 </button>

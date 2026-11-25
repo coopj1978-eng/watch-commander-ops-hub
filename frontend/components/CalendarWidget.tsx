@@ -287,16 +287,31 @@ export function myDayText(m: MyDay): string {
   if (m.state === "off") return `You're off · ${m.label}`;
   if (m.state === "asked") return `${m.label} asked for · waiting`;
   const when = m.shift === "Day" ? " · Day 08–18" : m.shift === "Night" ? " · Night 18–08" : "";
+  // An orange day nobody has confirmed yet, and things to know about a shift
+  // you're on anyway (a purple shift, a course).
+  if (m.state === "maybe") return `${m.label} · might be called in${when}`;
+  if (m.state === "note") return m.tone === "purple" ? `${m.label} · may be sent elsewhere` : m.label;
   return `You're in · ${m.label}${when}`;
 }
+
+/** A day of yours that takes its own colour over the whole box: an orange day, confirmed or not. */
+const orangeTone = (m?: MyDay): "orange" | "maybe" | null => (m?.tone === "orange" || m?.tone === "maybe" ? m.tone : null);
 
 function MyDayPill({ note, small }: { note?: MyDay; small?: boolean }) {
   const open = useContext(MyDayOpenContext);
   if (!note) return null;
   const k = myKind(note) ?? "personal";
   // A request still waiting: dashed and quiet until it's decided.
+  // An orange day not confirmed yet: faint and dashed, darker once it is
+  // (John, 25 Nov 2026).
   const colours: React.CSSProperties = note.state === "asked"
     ? { background: "var(--cal-surface)", color: "var(--cal-ink-2)", border: "1px dashed var(--cal-muted)" }
+    : note.tone === "maybe"
+    ? { background: tok("maybe", "bg"), color: tok("maybe", "fg"), border: "1px dashed var(--cal-orange-dot)" }
+    : note.tone
+    ? { background: tok(note.tone, "bg"), color: tok(note.tone, "fg") }
+    : note.state === "note"
+    ? { background: "var(--cal-surface-2)", color: "var(--cal-ink-2)" }
     : { background: tok(k, "bg"), color: tok(k, "fg") };
   const style: React.CSSProperties = {
     alignSelf: "flex-start", maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
@@ -305,14 +320,14 @@ function MyDayPill({ note, small }: { note?: MyDay; small?: boolean }) {
   };
   // A booking of yours opens so you can change or delete it — an extra shift
   // on another watch has no entry of its own on this calendar to click.
-  if (open && note.bookingId != null) {
+  if (open && (note.bookingId != null || note.rosterId != null)) {
     return (
       <button
         type="button"
         data-event
-        title={`${myDayText(note)} — open to change or delete`}
+        title={`${myDayText(note)} — open to ${note.state === "maybe" ? "confirm or change" : "change or delete"}`}
         onClick={(e) => { e.stopPropagation(); open(note); }}
-        style={{ ...style, border: "none", cursor: "pointer", fontFamily: "inherit", textAlign: "left" }}
+        style={{ ...style, border: colours.border ?? "none", cursor: "pointer", fontFamily: "inherit", textAlign: "left" }}
       >
         {myDayText(note)}
       </button>
@@ -888,6 +903,8 @@ function MonthView({
           const note = mine?.get(isoDate(day));
           // An extra shift of yours on a rest day takes that shift's colours.
           const k = shiftKind(shift) ?? myKind(note);
+          // An orange day washes the box orange — faint until it's confirmed.
+          const wash = orangeTone(note) ?? k;
           const dayItems = items.filter((it) => spansDay(it, day)).sort(cellOrder);
           const room = note ? 3 : 4;
           const visible = dayItems.slice(0, dayItems.length > room ? room - 1 : room);
@@ -908,9 +925,9 @@ function MonthView({
                 // Shift days get a faint wash and a coloured top edge (day
                 // amber, night indigo, leave green) so the rota reads at a
                 // glance without drowning the events; rest days stay plain.
-                background: k ? `linear-gradient(var(--cal-${k}-shade), var(--cal-${k}-shade)), var(--cal-surface)` : "var(--cal-surface)",
+                background: wash ? `linear-gradient(var(--cal-${wash}-shade), var(--cal-${wash}-shade)), var(--cal-surface)` : "var(--cal-surface)",
                 boxShadow: [
-                  k ? `inset 0 3px 0 var(--cal-${k}-dot)` : "",
+                  wash ? `inset 0 3px 0 var(--cal-${wash}-dot)` : "",
                   isToday ? "inset 0 0 0 2px var(--cal-brand)" : "inset 0 0 0 1px var(--cal-line)",
                 ].filter(Boolean).join(", "),
                 minWidth: 0,
@@ -984,6 +1001,23 @@ function YearView({
   const today = new Date();
   const busy = new Set(items.map((it) => isoDate(it.startTime)));
   const riding = useContext(RidingContext);
+  const mine = useMyDays();
+  // Your own orange and purple days, when this year has any.
+  const tones = new Set<string>();
+  mine?.forEach((m, d) => { if (m.tone && d.startsWith(`${year}-`)) tones.add(m.tone); });
+  const toneKey = (tone: "orange" | "maybe" | "purple", label: string) => (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 500, color: "var(--cal-ink-2)" }}>
+      <span
+        style={{
+          width: 14, height: 14, borderRadius: 4, boxSizing: "border-box",
+          ...(tone === "purple"
+            ? { boxShadow: "inset 0 0 0 2px var(--cal-purple-dot)" }
+            : { background: tok(tone, "bg"), border: tone === "maybe" ? "1px dashed var(--cal-orange-dot)" : "none" }),
+        }}
+      />
+      {label}
+    </span>
+  );
   const chip = (k: ShiftKind | "rest", label: string) => (
     <span
       style={{
@@ -1009,6 +1043,9 @@ function YearView({
           {chip("night", "Night")}
           {chip("leave", "Leave")}
           {chip("rest", "Rest")}
+          {tones.has("maybe") && toneKey("maybe", "Orange · might be called in")}
+          {tones.has("orange") && toneKey("orange", "Orange · confirmed")}
+          {tones.has("purple") && toneKey("purple", "Purple shift")}
           <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--cal-ink-2)" }}>
             <span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--cal-ink)" }} /> Something on
           </span>
@@ -1067,18 +1104,25 @@ function YearView({
                   const k = userWatch ? shiftKind(getShiftForDate(userWatch, day) ?? undefined) : null;
                   const isToday = sameDay(day, today);
                   const hasItems = busy.has(isoDate(day));
+                  const note = mine?.get(isoDate(day));
+                  const orange = orangeTone(note);
                   return (
                     <button
                       key={i}
                       type="button"
                       onClick={() => onDayClick(day)}
                       className="cal-focus cal-mono"
-                      aria-label={`${day.getDate()} ${MONTH_NAMES[mi]}${k ? `, ${k === "leave" ? "leave" : `${k} shift`}` : ""}${shortWord(ridingFor(riding, day))}${hasItems ? ", something on" : ""}`}
+                      aria-label={`${day.getDate()} ${MONTH_NAMES[mi]}${k ? `, ${k === "leave" ? "leave" : `${k} shift`}` : ""}${note?.tone ? `, ${myDayText(note)}` : ""}${shortWord(ridingFor(riding, day))}${hasItems ? ", something on" : ""}`}
+                      title={note?.tone ? myDayText(note) : undefined}
                       style={{
-                        position: "relative", height: 26, border: "none", padding: 0, borderRadius: 6, cursor: "pointer",
+                        position: "relative", height: 26, padding: 0, borderRadius: 6, cursor: "pointer",
+                        border: orange === "maybe" && !isToday ? "1px dashed var(--cal-orange-dot)" : "none",
+                        boxShadow: note?.tone === "purple" && !isToday ? "inset 0 0 0 2px var(--cal-purple-dot)" : undefined,
                         font: "inherit", fontSize: 11, fontWeight: isToday ? 700 : 500,
                         ...(isToday
                           ? { background: "var(--cal-brand)", color: "#fff" }
+                          : orange
+                          ? { background: tok(orange, "bg"), color: tok(orange, "fg") }
                           : k
                           ? { background: tok(k, "bg"), color: tok(k, "fg") }
                           : { background: "transparent", color: "var(--cal-ink-2)" }),
@@ -1298,6 +1342,11 @@ function MobileMonth({
           // tint drops to an outline.
           const barOff = note?.state === "off";
           const tinted = !!k && !selected;
+          // Your own orange day: the whole box, faint with a dashed edge
+          // until it's confirmed, then solid and darker. A purple shift
+          // keeps its day or night colour and gets a purple ring.
+          const orange = selected ? null : orangeTone(note);
+          const purple = !selected && note?.tone === "purple";
           const dots = Array.from(new Set(items.filter((it) => spansDay(it, day)).sort(cellOrder).map((it) => calKey(it)))).slice(0, 3);
           return (
             <button
@@ -1307,12 +1356,14 @@ function MobileMonth({
               className="cal-focus"
               aria-label={`${day.getDate()} ${MONTH_NAMES[day.getMonth()]}${watchK ? `, ${watchK} shift` : ""}${note ? `, ${myDayText(note)}` : ""}${shortWord(ridingFor(riding, day))}${dots.length ? `, ${dots.length} calendar${dots.length > 1 ? "s" : ""} with events` : ""}`}
               style={{
-                position: "relative", height: 50, border: "none", borderRadius: 12, padding: 0, cursor: "pointer", font: "inherit",
+                position: "relative", height: 50, borderRadius: 12, padding: 0, cursor: "pointer", font: "inherit",
+                border: orange === "maybe" ? "1.5px dashed var(--cal-orange-dot)" : "none",
                 display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
-                background: selected ? "var(--cal-brand)" : tinted && !barOff ? `var(--cal-${k}-cell)` : "transparent",
-                color: selected ? "#fff" : tinted && !barOff ? tok(k!, "fg") : isToday ? "var(--cal-brand)" : "var(--cal-ink)",
+                background: selected ? "var(--cal-brand)" : orange ? `var(--cal-${orange}-cell)` : tinted && !barOff ? `var(--cal-${k}-cell)` : "transparent",
+                color: selected ? "#fff" : orange ? tok(orange, "fg") : tinted && !barOff ? tok(k!, "fg") : isToday ? "var(--cal-brand)" : "var(--cal-ink)",
                 boxShadow: isToday && !selected
                   ? "inset 0 0 0 2px var(--cal-brand)"
+                  : purple ? "inset 0 0 0 2px var(--cal-purple-dot)"
                   : tinted && barOff ? `inset 0 0 0 1.5px var(--cal-${k}-cell)` : undefined,
                 opacity: outside && !selected ? 0.4 : 1,
               }}
@@ -1320,7 +1371,7 @@ function MobileMonth({
               <ShortMark day={day} />
               <span className="cal-mono" style={{ fontSize: 14, fontWeight: isToday || selected ? 700 : 500 }}>{day.getDate()}</span>
               {/* The picked day is solid brand, so it keeps a small bar to say which shift it is. */}
-              <span style={{ width: 14, height: 3, borderRadius: 2, background: k && selected ? "#fff" : "transparent" }} />
+              <span style={{ width: 14, height: 3, borderRadius: 2, background: (k || note?.tone) && selected ? "#fff" : "transparent" }} />
               <span style={{ display: "flex", gap: 3, height: 5 }}>
                 {dots.map((c) => (
                   <span key={c} style={{ width: 5, height: 5, borderRadius: "50%", background: selected ? "#fff" : tok(c, "dot") }} />

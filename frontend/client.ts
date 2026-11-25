@@ -4426,6 +4426,42 @@ export namespace shift_adjustments {
             this.flexiBalances = this.flexiBalances.bind(this)
             this.setFlexiOpening = this.setFlexiOpening.bind(this)
             this.setFlexiLimits = this.setFlexiLimits.bind(this)
+            this.listRosterDays = this.listRosterDays.bind(this)
+            this.saveRosterDay = this.saveRosterDay.bind(this)
+            this.deleteRosterDay = this.deleteRosterDay.bind(this)
+            this.confirmRosterDay = this.confirmRosterDay.bind(this)
+            this.importRosterDays = this.importRosterDays.bind(this)
+        }
+
+        // A person's own days on top of the watch rota: orange days, purple shifts (hand-added, Nov 2026).
+        public async listRosterDays(params: { from: string; to: string; "user_id"?: string; watch?: string }): Promise<{ days: shift_adjustments.RosterDay[] }> {
+            const query = makeRecord<string, string | string[]>({
+                from:      params.from,
+                to:        params.to,
+                "user_id": params["user_id"],
+                watch:     params.watch,
+            })
+            const resp = await this.baseClient.callTypedAPI("GET", `/roster-days`, undefined, {query})
+            return await resp.json() as { days: shift_adjustments.RosterDay[] }
+        }
+
+        public async saveRosterDay(params: { "user_id"?: string; day: string; kind: shift_adjustments.RosterKind; "day_night"?: shift_adjustments.DayNight }): Promise<shift_adjustments.RosterDay> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/roster-days`, JSON.stringify(params))
+            return await resp.json() as shift_adjustments.RosterDay
+        }
+
+        public async deleteRosterDay(id: number): Promise<void> {
+            await this.baseClient.callTypedAPI("DELETE", `/roster-days/${encodeURIComponent(id)}`)
+        }
+
+        public async confirmRosterDay(id: number, params: { confirmed: boolean }): Promise<shift_adjustments.RosterDay> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/roster-days/${encodeURIComponent(id)}/confirm`, JSON.stringify(params))
+            return await resp.json() as shift_adjustments.RosterDay
+        }
+
+        public async importRosterDays(params: { rows: shift_adjustments.RosterImportRow[]; "dry_run"?: boolean }): Promise<shift_adjustments.ImportRosterDaysResponse> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/roster-days/import`, JSON.stringify(params))
+            return await resp.json() as shift_adjustments.ImportRosterDaysResponse
         }
 
         public async previewRequest(params: shift_adjustments.RequestDraft): Promise<shift_adjustments.RequestPreview> {
@@ -5534,6 +5570,40 @@ export namespace user {
 export namespace shift_adjustments {
     export type RequestType = "flexi" | "h4h"
     export type DayNight = "Day" | "Night"
+
+    export type RosterKind = "orange" | "purple" | "training" | "leave" | "work" | "payback"
+
+    export interface RosterDay {
+        id: number
+        "user_id": string
+        "user_name": string
+        watch: string | null
+        day: string
+        kind: RosterKind
+        "day_night": DayNight | null
+        code: string | null
+        source: "import" | "manual"
+        "shift_adjustment_id": number | null
+        confirmed: boolean
+    }
+
+    export interface RosterImportRow {
+        "service_number": string
+        day: string
+        code: string
+    }
+
+    export interface ImportRosterDaysResponse {
+        people: number
+        days: number
+        added: number
+        kept: number
+        "by_kind": { [key: string]: number }
+        unmatched: string[]
+        skipped: { [key: string]: number }
+        bad: number
+        "dry_run": boolean
+    }
     export type RequestStatus = "with_cover" | "cover_declined" | "with_wc" | "authorised" | "referred" | "declined" | "approved" | "not_approved" | "withdrawn" | "cancelled"
     export type RequestOutcome = "authorised" | "referred" | "declined"
 

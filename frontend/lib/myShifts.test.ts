@@ -42,7 +42,7 @@ describe("my days", () => {
       [book({ type: "orange_day", start_date: "2026-11-24", end_date: "2026-11-24", covering_watch: "Red", shift_day_night: "Day" })],
       ME, ["2026-11-24"], rota,
     );
-    expect(r.get("2026-11-24")).toEqual({ state: "in", label: "Orange day · Red", shift: "Day" });
+    expect(r.get("2026-11-24")).toEqual({ state: "in", label: "Orange day · Red", shift: "Day", tone: "orange" });
   });
 
   it("puts you in when you cover someone's H4H", () => {

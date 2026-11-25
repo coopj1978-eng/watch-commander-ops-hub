@@ -37,14 +37,26 @@ const WAITING = new Set(["with_cover", "with_wc", "authorised", "referred"]);
 const ASKED_LABEL: Record<string, string> = { flexi: "Flexi day", h4h: "H4H" };
 
 export interface MyDay {
-  /** off / in from a booking; asked = your request is still waiting. */
-  state: "off" | "in" | "asked";
+  /**
+   * off / in from a booking; asked = your request is still waiting;
+   * maybe = an orange day you might be called in on (not confirmed yet);
+   * note = something to know about the day that doesn't change whether
+   * you're in (a purple shift, a course).
+   */
+  state: "off" | "in" | "asked" | "maybe" | "note";
   /** "Flexi day", "H4H for Jo Bloggs · Red", "Orange day · Green"… */
   label: string;
   /** For an extra shift: day or night (unknown on older bookings). */
   shift?: DayNight;
   /** The booking behind it, so the calendar can open it to change or delete. */
   bookingId?: number;
+  /**
+   * The day's own colour: orange = an orange day you're in for, maybe = an
+   * orange day not confirmed yet (faint), purple = a purple shift.
+   */
+  tone?: "orange" | "maybe" | "purple";
+  /** The roster day behind it (lib/rosterDays.ts), so the calendar can open it to confirm or remove. */
+  rosterId?: number;
 }
 
 const OFF_LABEL: Record<string, string> = { flexi: "Flexi day", training: "Training", h4h: "H4H", toil: "TOIL" };
@@ -83,7 +95,7 @@ export function myDays(
         const what = b.type === "h4h" ? "H4H" : "TOIL cover";
         extra ??= { state: "in", label: withWatch(b.user_name ? `${what} for ${b.user_name}` : what, b.watch_unit), shift: dn, bookingId: idOf(b) };
       } else if (EXTRA_LABEL[b.type] && b.user_id === me) {
-        extra ??= { state: "in", label: withWatch(EXTRA_LABEL[b.type], b.covering_watch), shift: dn, bookingId: idOf(b) };
+        extra ??= { state: "in", label: withWatch(EXTRA_LABEL[b.type], b.covering_watch), shift: dn, bookingId: idOf(b), ...(b.type === "orange_day" ? { tone: "orange" as const } : {}) };
       } else if (OFF_LABEL[b.type] && b.user_id === me) {
         const mine = watchShift(day);
         // Off your own watch's shift: only when it's on, and the booking is

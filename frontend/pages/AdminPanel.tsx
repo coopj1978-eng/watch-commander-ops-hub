@@ -28,6 +28,7 @@ import { useSearchParams } from "react-router-dom";
 import { DictionariesManager } from "@/components/DictionaryManager";
 import { AbsenceThresholds } from "@/components/AbsenceThresholds";
 import { InspectionPlans } from "@/components/InspectionPlans";
+import { ScheduleImport } from "@/components/ScheduleImport";
 import { useCanAccessAdmin, useIsAdmin } from "@/lib/rbac";
 import { useFeatureFlags, type FeatureFlags } from "@/lib/feature-flags";
 import { useToast } from "@/components/ui/use-toast";
@@ -95,6 +96,7 @@ const STATION_TABS = [
 const ADMIN_TABS = [
   { value: "features", label: "Feature management" },
   { value: "users", label: "Users" },
+  { value: "schedule", label: "Yearly schedule" },
 ];
 
 export default function AdminPanel() {
@@ -154,6 +156,12 @@ export default function AdminPanel() {
         {isAdmin && (
           <TabsContent value="users" className="mt-6">
             <AdminUsers />
+          </TabsContent>
+        )}
+
+        {isAdmin && (
+          <TabsContent value="schedule" className="mt-6">
+            <ScheduleImport />
           </TabsContent>
         )}
       </Tabs>
