@@ -3362,6 +3362,13 @@ export namespace notification {
         generated: number
     }
 
+    /** Your switches for the extra bell alerts (hand-added, Nov 2026). */
+    export interface AlertPrefs {
+        "watch_tasks": boolean
+        "certs_soon": boolean
+        bookings: boolean
+    }
+
     export class ServiceClient {
         private baseClient: BaseClient
 
@@ -3371,6 +3378,18 @@ export namespace notification {
             this.markAllRead = this.markAllRead.bind(this)
             this.markRead = this.markRead.bind(this)
             this.refresh = this.refresh.bind(this)
+            this.getAlertPrefs = this.getAlertPrefs.bind(this)
+            this.setAlertPrefs = this.setAlertPrefs.bind(this)
+        }
+
+        public async getAlertPrefs(): Promise<AlertPrefs> {
+            const resp = await this.baseClient.callTypedAPI("GET", `/notifications/prefs`)
+            return await resp.json() as AlertPrefs
+        }
+
+        public async setAlertPrefs(params: Partial<AlertPrefs>): Promise<AlertPrefs> {
+            const resp = await this.baseClient.callTypedAPI("POST", `/notifications/prefs`, JSON.stringify(params))
+            return await resp.json() as AlertPrefs
         }
 
         public async list(): Promise<ListNotificationsResponse> {

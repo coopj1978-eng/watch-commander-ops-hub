@@ -19613,12 +19613,23 @@ const createLucideIcon = (iconName, iconNode) => {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$2r = [
+const __iconNode$2s = [
   ["path", { d: "M15 12H3", key: "6jk70r" }],
   ["path", { d: "M17 18H3", key: "1amg6g" }],
   ["path", { d: "M21 6H3", key: "1jwq7v" }]
 ];
-const AlignLeft = createLucideIcon("align-left", __iconNode$2r);
+const AlignLeft = createLucideIcon("align-left", __iconNode$2s);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$2r = [
+  ["path", { d: "M12 5v14", key: "s699le" }],
+  ["path", { d: "m19 12-7 7-7-7", key: "1idqje" }]
+];
+const ArrowDown = createLucideIcon("arrow-down", __iconNode$2r);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19626,10 +19637,12 @@ const AlignLeft = createLucideIcon("align-left", __iconNode$2r);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2q = [
-  ["path", { d: "M12 5v14", key: "s699le" }],
-  ["path", { d: "m19 12-7 7-7-7", key: "1idqje" }]
+  ["path", { d: "M8 3 4 7l4 4", key: "9rb6wj" }],
+  ["path", { d: "M4 7h16", key: "6tx8e3" }],
+  ["path", { d: "m16 21 4-4-4-4", key: "siv7j2" }],
+  ["path", { d: "M20 17H4", key: "h6l3hr" }]
 ];
-const ArrowDown = createLucideIcon("arrow-down", __iconNode$2q);
+const ArrowLeftRight = createLucideIcon("arrow-left-right", __iconNode$2q);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19637,12 +19650,10 @@ const ArrowDown = createLucideIcon("arrow-down", __iconNode$2q);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2p = [
-  ["path", { d: "M8 3 4 7l4 4", key: "9rb6wj" }],
-  ["path", { d: "M4 7h16", key: "6tx8e3" }],
-  ["path", { d: "m16 21 4-4-4-4", key: "siv7j2" }],
-  ["path", { d: "M20 17H4", key: "h6l3hr" }]
+  ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
+  ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowLeftRight = createLucideIcon("arrow-left-right", __iconNode$2p);
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$2p);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19650,10 +19661,12 @@ const ArrowLeftRight = createLucideIcon("arrow-left-right", __iconNode$2p);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2o = [
-  ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
-  ["path", { d: "M19 12H5", key: "x3x0zl" }]
+  ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
+  ["path", { d: "M20 7H4", key: "zbl0bi" }],
+  ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
+  ["path", { d: "M4 17h16", key: "g4d7ey" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$2o);
+const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$2o);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19661,12 +19674,10 @@ const ArrowLeft = createLucideIcon("arrow-left", __iconNode$2o);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2n = [
-  ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
-  ["path", { d: "M20 7H4", key: "zbl0bi" }],
-  ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
-  ["path", { d: "M4 17h16", key: "g4d7ey" }]
+  ["path", { d: "M5 12h14", key: "1ays0h" }],
+  ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$2n);
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$2n);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19674,10 +19685,10 @@ const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$2n);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2m = [
-  ["path", { d: "M5 12h14", key: "1ays0h" }],
-  ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
+  ["path", { d: "M7 7h10v10", key: "1tivn9" }],
+  ["path", { d: "M7 17 17 7", key: "1vkiza" }]
 ];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$2m);
+const ArrowUpRight = createLucideIcon("arrow-up-right", __iconNode$2m);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19685,10 +19696,10 @@ const ArrowRight = createLucideIcon("arrow-right", __iconNode$2m);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2l = [
-  ["path", { d: "M7 7h10v10", key: "1tivn9" }],
-  ["path", { d: "M7 17 17 7", key: "1vkiza" }]
+  ["path", { d: "m5 12 7-7 7 7", key: "hav0vg" }],
+  ["path", { d: "M12 19V5", key: "x0mq9r" }]
 ];
-const ArrowUpRight = createLucideIcon("arrow-up-right", __iconNode$2l);
+const ArrowUp = createLucideIcon("arrow-up", __iconNode$2l);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19696,17 +19707,6 @@ const ArrowUpRight = createLucideIcon("arrow-up-right", __iconNode$2l);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2k = [
-  ["path", { d: "m5 12 7-7 7 7", key: "hav0vg" }],
-  ["path", { d: "M12 19V5", key: "x0mq9r" }]
-];
-const ArrowUp = createLucideIcon("arrow-up", __iconNode$2k);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$2j = [
   [
     "path",
     {
@@ -19716,7 +19716,18 @@ const __iconNode$2j = [
   ],
   ["circle", { cx: "12", cy: "8", r: "6", key: "1vp47v" }]
 ];
-const Award = createLucideIcon("award", __iconNode$2j);
+const Award = createLucideIcon("award", __iconNode$2k);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$2j = [
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["path", { d: "m4.9 4.9 14.2 14.2", key: "1m5liu" }]
+];
+const Ban = createLucideIcon("ban", __iconNode$2j);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19724,10 +19735,12 @@ const Award = createLucideIcon("award", __iconNode$2j);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2i = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["path", { d: "m4.9 4.9 14.2 14.2", key: "1m5liu" }]
+  ["path", { d: "M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8", key: "1k78r4" }],
+  ["path", { d: "M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4", key: "fb3tl2" }],
+  ["path", { d: "M12 4v6", key: "1dcgq2" }],
+  ["path", { d: "M2 18h20", key: "ajqnye" }]
 ];
-const Ban = createLucideIcon("ban", __iconNode$2i);
+const BedDouble = createLucideIcon("bed-double", __iconNode$2i);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19735,12 +19748,18 @@ const Ban = createLucideIcon("ban", __iconNode$2i);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2h = [
-  ["path", { d: "M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8", key: "1k78r4" }],
-  ["path", { d: "M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4", key: "fb3tl2" }],
-  ["path", { d: "M12 4v6", key: "1dcgq2" }],
-  ["path", { d: "M2 18h20", key: "ajqnye" }]
+  ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
+  ["path", { d: "M22 8c0-2.3-.8-4.3-2-6", key: "5bb3ad" }],
+  [
+    "path",
+    {
+      d: "M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326",
+      key: "11g9vi"
+    }
+  ],
+  ["path", { d: "M4 2C2.8 3.7 2 5.7 2 8", key: "tap9e0" }]
 ];
-const BedDouble = createLucideIcon("bed-double", __iconNode$2h);
+const BellRing = createLucideIcon("bell-ring", __iconNode$2h);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -26173,6 +26192,16 @@ var notification;
       this.markAllRead = this.markAllRead.bind(this);
       this.markRead = this.markRead.bind(this);
       this.refresh = this.refresh.bind(this);
+      this.getAlertPrefs = this.getAlertPrefs.bind(this);
+      this.setAlertPrefs = this.setAlertPrefs.bind(this);
+    }
+    async getAlertPrefs() {
+      const resp = await this.baseClient.callTypedAPI("GET", `/notifications/prefs`);
+      return await resp.json();
+    }
+    async setAlertPrefs(params) {
+      const resp = await this.baseClient.callTypedAPI("POST", `/notifications/prefs`, JSON.stringify(params));
+      return await resp.json();
     }
     async list() {
       const resp = await this.baseClient.callTypedAPI("GET", `/notifications`);
@@ -72212,6 +72241,89 @@ function formatDetails(details) {
   if (entries.length === 0) return "—";
   return entries.map(([k, v]) => `${k}: ${typeof v === "object" ? JSON.stringify(v) : v}`).join(", ");
 }
+const KEY = ["alert-prefs"];
+const EXTRAS = [
+  { key: "watch_tasks", label: "Overdue watch tasks", hint: "Every overdue task on your watch, not only the ones given to you. Home counts them either way." },
+  { key: "certs_soon", label: "Certificates expiring soon", hint: "Anyone on your watch within 30 days of a certificate running out. You're always told once one has expired.", managers: true },
+  { key: "bookings", label: "Bookings logged", hint: "When someone on your watch logs TOIL, an orange day, training or overtime. They're on the calendar either way.", managers: true }
+];
+const ALWAYS_CREW = ["A task given to you", "Bulletins and policies to read", "Changes someone makes to your calendar", "Your own certificates running out", "Your TOIL being approved"];
+const ALWAYS_MANAGERS = [
+  "Crewing gaps (no OIC or driver)",
+  "Someone booked sick, or back fit",
+  "Back-to-work interviews due",
+  "Absence triggers hit",
+  "TOIL to approve",
+  "Flagged Flexi and Head for Head",
+  "Someone changing their own orange or purple day",
+  "An expired certificate on your watch"
+];
+function AlertSettings() {
+  const qc = useQueryClient();
+  const { toast: toast2 } = useToast();
+  const role = useUserRole();
+  const isManager = role === "WC" || role === "CC";
+  const { data } = useQuery({ queryKey: KEY, queryFn: () => backendClient.notification.getAlertPrefs() });
+  const save = useMutation({
+    mutationFn: (change) => backendClient.notification.setAlertPrefs(change),
+    // Flip the switch straight away; put it back if the save fails.
+    onMutate: async (change) => {
+      await qc.cancelQueries({ queryKey: KEY });
+      const before = qc.getQueryData(KEY);
+      if (before) qc.setQueryData(KEY, { ...before, ...change });
+      return { before };
+    },
+    onError: (_e2, _c2, ctx) => {
+      if (ctx == null ? void 0 : ctx.before) qc.setQueryData(KEY, ctx.before);
+      toast2({ title: "That didn't save", description: "Try again.", variant: "destructive" });
+    },
+    onSuccess: (prefs) => {
+      qc.setQueryData(KEY, prefs);
+      qc.invalidateQueries({ queryKey: ["notifications"] });
+    }
+  });
+  const always = isManager ? [...ALWAYS_MANAGERS, ...ALWAYS_CREW] : ALWAYS_CREW;
+  const extras = EXTRAS.filter((e) => !e.managers || isManager);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(CardHeader, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(CardTitle, { className: "flex items-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(BellRing, { className: "h-5 w-5 text-brand", "aria-hidden": "true" }),
+        "Alerts"
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { children: "What rings the bell for you. Saved to your account, so it's the same on every device." })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "space-y-6", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { "aria-labelledby": "alerts-extra", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { id: "alerts-extra", className: "text-sm font-semibold text-foreground", children: "Extra alerts" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-0.5 text-sm text-muted-foreground", children: "Off unless you turn them on." }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "mt-3 divide-y divide-border/70 rounded-xl border border-border/70", children: extras.map((e) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex cursor-pointer items-start gap-3 px-3 py-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "min-w-0 flex-1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block text-sm font-medium text-foreground", children: e.label }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mt-0.5 block text-xs text-muted-foreground", children: e.hint })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            Switch$1,
+            {
+              className: "mt-0.5 shrink-0",
+              checked: !!(data == null ? void 0 : data[e.key]),
+              disabled: !data,
+              onCheckedChange: (on) => save.mutate({ [e.key]: on }),
+              "aria-label": e.label
+            }
+          )
+        ] }) }, e.key)) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { "aria-labelledby": "alerts-always", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { id: "alerts-always", className: "text-sm font-semibold text-foreground", children: "Always on" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-0.5 text-sm text-muted-foreground", children: "These need you, or change who can ride, so they can't be switched off." }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "mt-3 grid gap-x-6 gap-y-1.5 sm:grid-cols-2", children: always.map((a) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-start gap-2 text-sm text-foreground/90", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400", "aria-hidden": "true" }),
+          a
+        ] }, a)) })
+      ] })
+    ] })
+  ] });
+}
 const MOVED_TO_ADMIN = {
   dictionaries: "skills",
   absence: "absence",
@@ -72232,7 +72344,7 @@ function Settings() {
         /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { className: "h-7 w-7 text-brand shrink-0" }),
         "Settings"
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eyebrow", children: "Your preferences · saved on this device" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eyebrow", children: "Your preferences" })
     ] }),
     canAdmin && /* @__PURE__ */ jsxRuntimeExports.jsxs(
       Link,
@@ -72253,14 +72365,15 @@ function Settings() {
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(CardHeader, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(CardTitle, { children: "Theme" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { children: "Dark mode is easier on the eyes on nights." })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(CardDescription, { children: "Dark mode is easier on the eyes on nights. Saved on this device." })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "grid h-9 w-9 place-items-center rounded-lg bg-muted text-foreground/80", children: isDark ? /* @__PURE__ */ jsxRuntimeExports.jsx(Moon, { className: "h-4 w-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Sun, { className: "h-4 w-4" }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "flex-1 text-sm font-medium", children: "Dark mode" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Switch$1, { checked: isDark, onCheckedChange: toggle, "aria-label": "Dark mode" })
       ] }) })
-    ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(AlertSettings, {})
   ] });
 }
 function ApplianceCard({

@@ -4,6 +4,7 @@ import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { slotForWatch } from "../lib/shiftRota";
 import { certRings, overdueTaskRings } from "../lib/bellRules";
+import { alertPrefsOf } from "./prefs";
 
 interface RefreshResponse {
   generated: number;
@@ -21,6 +22,8 @@ export const refresh = api<void, RefreshResponse>(
     const auth = getAuthData()!;
     const userId = auth.userID;
     let generated = 0;
+    // The extras this person has switched on in Settings (all off by default).
+    const prefs = await alertPrefsOf(userId);
 
     // Helper: insert a notification only if there isn't already one for the
     // same thing this week — an unread one, or one with the same title that
@@ -83,11 +86,18 @@ export const refresh = api<void, RefreshResponse>(
       const expiry = new Date(skill.expiry_date);
       const daysLeft = Math.ceil((expiry.getTime() - Date.now()) / 86400000);
       const isExpired = daysLeft < 0;
-      // Your own from 30 days out; your watch's (WC) only once expired —
-      // "expiring soon" for the watch is counted on Home (lib/bellRules.ts).
+      // Your own from 30 days out; your watch's (WC) once expired; "expiring
+      // soon" on the watch only for a WC/CC who has switched it on
+      // (lib/bellRules.ts) — Home counts those either way.
+      const sameWatch = !!userRow?.watch_unit && skill.watch === userRow.watch_unit;
       const rings = certRings(
         { owner_id: skill.user_id, days_left: daysLeft },
-        { id: userId, is_wc_of_owner: userRow?.role === "WC" && skill.watch === userRow.watch_unit },
+        {
+          id: userId,
+          is_wc_of_owner: userRow?.role === "WC" && sameWatch,
+          manages_owner: (userRow?.role === "WC" || userRow?.role === "CC") && sameWatch,
+        },
+        prefs,
       );
       if (!rings) continue;
 
@@ -131,9 +141,9 @@ export const refresh = api<void, RefreshResponse>(
     );
 
     for await (const task of overdueTasks) {
-      // Only a task given to you rings; the watch's overdue tasks are
-      // counted on Home (lib/bellRules.ts).
-      if (!overdueTaskRings(task, userId)) continue;
+      // A task given to you always rings; the watch's other overdue tasks
+      // only if you've switched them on (lib/bellRules.ts).
+      if (!overdueTaskRings(task, userId, prefs)) continue;
       const days = daysOverdue(task.due_at);
       await maybeInsert({
         type: "task_overdue",

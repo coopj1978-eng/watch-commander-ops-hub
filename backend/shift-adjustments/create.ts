@@ -4,7 +4,6 @@ import db from "../db";
 import { createNotification } from "../notification/helpers";
 import type { ShiftAdjustment, ShiftAdjustmentType } from "./types";
 import { assertOvertimeHours, insertAdjustmentEvents, spentReasonFor } from "./events";
-import { bookingLoggedRings } from "../lib/bellRules";
 
 export interface CreateShiftAdjustmentRequest {
   type: ShiftAdjustmentType;
@@ -190,17 +189,19 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
       }
     }
 
-    // Notify WCs — own watch for outbound/orange, covered watch for flexi_payback.
-    // Off since 25 Nov 2026 (lib/bellRules.ts): a logged booking is on the
-    // calendar and in the riding count, so it no longer rings the bell.
-    if (bookingLoggedRings(req.type)) try {
+    // Tell the watch's WC/CC — own watch for outbound/orange, covered watch
+    // for flexi_payback — but only those who've switched "bookings logged" on
+    // in Settings (lib/bellRules.ts, 25 Nov 2026): a booking is on the
+    // calendar and in the riding count either way.
+    try {
       const isFlexiPayback = req.type === "flexi_payback";
       const notifyWatch = isFlexiPayback ? (req.covering_watch ?? userInfo.watch_unit) : userInfo.watch_unit;
 
       const wcUsers = db.query<{ id: string }>`
-        SELECT id FROM users
-        WHERE role = 'WC' AND left_at IS NULL AND watch_unit = ${notifyWatch}
-          AND id != ${auth.userID}
+        SELECT u.id FROM users u
+        JOIN user_alert_prefs p ON p.user_id = u.id AND p.bookings
+        WHERE u.role IN ('WC', 'CC') AND u.left_at IS NULL AND u.watch_unit = ${notifyWatch}
+          AND u.id != ${auth.userID}
       `;
 
       const typeLabel =

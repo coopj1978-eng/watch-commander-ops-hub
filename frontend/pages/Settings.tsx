@@ -4,8 +4,10 @@ import { useThemeMode } from "@/components/ThemeSwitcher";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { useCanAccessAdmin } from "@/lib/rbac";
+import { AlertSettings } from "@/components/AlertSettings";
 
-// Your own preferences (Nov 2026): dark mode. Station setup — skills lists,
+// Your own preferences (Nov 2026): dark mode, and which extra alerts ring
+// the bell (AlertSettings). Station setup — skills lists,
 // absence triggers, inspection plans — is in Admin; the CSV export is on
 // Reports. (Accent colours and density went in the Nov 2026 audit.)
 const MOVED_TO_ADMIN: Record<string, string> = {
@@ -33,7 +35,7 @@ export default function Settings() {
           <SettingsIcon className="h-7 w-7 text-brand shrink-0" />
           Settings
         </h1>
-        <span className="eyebrow">Your preferences · saved on this device</span>
+        <span className="eyebrow">Your preferences</span>
       </div>
 
       {canAdmin && (
@@ -54,7 +56,7 @@ export default function Settings() {
       <Card>
         <CardHeader>
           <CardTitle>Theme</CardTitle>
-          <CardDescription>Dark mode is easier on the eyes on nights.</CardDescription>
+          <CardDescription>Dark mode is easier on the eyes on nights. Saved on this device.</CardDescription>
         </CardHeader>
         <CardContent>
           <label className="flex items-center gap-3">
@@ -67,6 +69,7 @@ export default function Settings() {
         </CardContent>
       </Card>
 
+      <AlertSettings />
     </div>
   );
 }

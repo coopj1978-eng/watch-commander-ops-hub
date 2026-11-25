@@ -2392,6 +2392,10 @@
     row-gap: calc(var(--spacing) * 1);
   }
 
+  .gap-y-1\.5 {
+    row-gap: calc(var(--spacing) * 1.5);
+  }
+
   .gap-y-2 {
     row-gap: calc(var(--spacing) * 2);
   }
