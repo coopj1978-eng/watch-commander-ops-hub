@@ -4,6 +4,7 @@ import db from "../db";
 import { logActivity } from "../logging/logger";
 import type { UpdateTaskRequest, Task } from "./types";
 import { assertCanModifyTask } from "./permissions";
+import { tellAssignee } from "./assign_notify";
 import { stampChecklist, ticksOnly } from "../lib/routine";
 import type { ChecklistItem } from "./types";
 
@@ -35,9 +36,15 @@ export const update = api(
       setClauses.push(`description = $${paramIndex++}`);
       queryParams.push(updates.description);
     }
+    // Who it was for before, so the new person is only told when it changes.
+    let assignedBefore: string | null = null;
     if (updates.assigned_to !== undefined) {
+      const was = await db.rawQueryRow<{ assigned_to_user_id: string | null }>(
+        `SELECT assigned_to_user_id FROM tasks WHERE id = $1`, id,
+      );
+      assignedBefore = was?.assigned_to_user_id ?? null;
       setClauses.push(`assigned_to_user_id = $${paramIndex++}`);
-      queryParams.push(updates.assigned_to);
+      queryParams.push(updates.assigned_to || null); // "" = nobody
     }
     if (updates.status !== undefined) {
       setClauses.push(`status = $${paramIndex++}`);
@@ -128,6 +135,10 @@ export const update = api(
 
     if (!task) {
       throw APIError.notFound("task not found");
+    }
+
+    if (updates.assigned_to !== undefined && (task.assigned_to_user_id ?? null) !== assignedBefore) {
+      await tellAssignee(task, auth.userID);
     }
 
     // Cascade inspection completion when task moves to/from Done

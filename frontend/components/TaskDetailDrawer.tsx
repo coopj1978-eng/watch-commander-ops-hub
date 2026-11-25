@@ -1,7 +1,8 @@
 import { dueDayDiff } from "@/lib/taskDue";
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { assigneeList } from "@/lib/taskAssign";
 import { useAuth } from "@/App";
 import { useUserRole } from "@/lib/rbac";
 import { getNextShiftDate, getShiftForDate } from "@/lib/shiftRota";
@@ -151,6 +152,14 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
   const [priority, setPriority] = useState<TaskPriority>("Med");
   const [dueDate, setDueDate] = useState("");
   const [watchUnit, setWatchUnit] = useState("");
+  // Who the task is for ("" = nobody in particular). The same people list
+  // the Tasks page already loads for the initials on each card.
+  const [assignedTo, setAssignedTo] = useState("");
+  const { data: people } = useQuery({
+    queryKey: ["people-for-tasks"],
+    queryFn: async () => (await backend.profile.listWithUsers({ limit: 500 })).people ?? [],
+    staleTime: 5 * 60 * 1000,
+  });
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
   const [newChecklistItem, setNewChecklistItem] = useState("");
   const [addingItem, setAddingItem] = useState(false);
@@ -187,6 +196,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
     setChecklist(task.checklist ? [...task.checklist] : []);
     setTags(task.tags ?? []);
     setWatchUnit((task as any).watch_unit ?? "");
+    setAssignedTo(task.assigned_to_user_id ?? "");
     setCoverColour((task as any).cover_colour ?? "");
     setAddingItem(false);
     setNewChecklistItem("");
@@ -484,6 +494,30 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
       <SelectContent className="cal-menu">
         <SelectItem value="__none__" className={ITEM_CLS}>— None —</SelectItem>
         {WATCHES.map((w) => <SelectItem key={w} value={w} className={ITEM_CLS}>{w} Watch</SelectItem>)}
+      </SelectContent>
+    </Select>
+  );
+
+  // Give the task to a person (John, 25 Nov 2026). The task's own watch comes
+  // first, then everyone else at the station; they get a notification.
+  const handleAssignChange = (v: string) => {
+    const id = v === "__none__" ? "" : v;
+    setAssignedTo(id);
+    save({ assigned_to: id });
+    const who = assignees.find((p) => p.id === id);
+    toast({ title: id ? `Given to ${who?.name ?? "them"}` : "No longer given to anyone", description: id && id !== user?.id ? "They've been sent a notification." : undefined });
+  };
+  const assignees = assigneeList(people ?? [], watchUnit || user?.watch_unit || "");
+  const assigneeSelect = (id: string) => (
+    <Select value={assignedTo || "__none__"} onValueChange={handleAssignChange} disabled={!canEdit}>
+      <SelectTrigger id={id} className="tdd-field cal-focus"><SelectValue placeholder="Nobody in particular" /></SelectTrigger>
+      <SelectContent className="cal-menu">
+        <SelectItem value="__none__" className={ITEM_CLS}>Nobody in particular</SelectItem>
+        {assignees.map((p) => (
+          <SelectItem key={p.id} value={p.id} className={ITEM_CLS}>
+            {p.name}{p.note && <span style={{ color: "var(--cal-muted)" }}> · {p.note}</span>}
+          </SelectItem>
+        ))}
       </SelectContent>
     </Select>
   );
@@ -888,6 +922,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
 
                 {/* Phones: the rest of the fields, further down the sheet */}
                 <div className="order-6 sm:hidden flex flex-col gap-3.5">
+                  {!isCheck && <Field label="Assigned to" htmlFor={`${uid}-who-m`}>{assigneeSelect(`${uid}-who-m`)}</Field>}
                   {userRole === "WC" && !isCheck && <Field label="Move to watch" htmlFor={`${uid}-watch-m`}>{watchSelect(`${uid}-watch-m`)}</Field>}
                   {canEdit && (
                     <Field label="Cover" htmlFor={`${uid}-cover-m`}>
@@ -1072,6 +1107,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
                 </Field>
 
                 {/* Move to Watch (WC only) */}
+                <Field label="Assigned to" htmlFor={`${uid}-who`}>{assigneeSelect(`${uid}-who`)}</Field>
                 {userRole === "WC" && <Field label="Move to watch" htmlFor={`${uid}-watch`}>{watchSelect(`${uid}-watch`)}</Field>}
                 </>}
 

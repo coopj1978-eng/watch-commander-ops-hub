@@ -3,6 +3,7 @@ import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { logActivity } from "../logging/logger";
 import type { CreateTaskRequest, Task } from "./types";
+import { tellAssignee } from "./assign_notify";
 
 export const create = api<CreateTaskRequest, Task>(
   { auth: true, expose: true, method: "POST", path: "/api/tasks" },
@@ -52,6 +53,9 @@ export const create = api<CreateTaskRequest, Task>(
       entity_id: task.id.toString(),
       details: { title: task.title, assigned_to: task.assigned_to_user_id },
     });
+
+    // A task made for someone else: they're told.
+    await tellAssignee(task, auth.userID);
 
     return task;
   }

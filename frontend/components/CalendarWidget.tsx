@@ -1280,7 +1280,7 @@ function MobileMonth({
   const mine = useMyDays();
   return (
     <section className="cal-card" style={{ padding: "10px 10px 12px" }}>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", textAlign: "center", rowGap: 4 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", textAlign: "center", rowGap: 4, columnGap: 3 }}>
         {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
           <span key={i} style={{ fontSize: 11, fontWeight: 600, color: "var(--cal-muted)", padding: "2px 0" }}>{d}</span>
         ))}
@@ -1291,8 +1291,13 @@ function MobileMonth({
           const note = mine?.get(isoDate(day));
           const watchK = shiftKind(getShiftsForDay(shiftSchedule, day, userWatch)[0]);
           const k = watchK ?? myKind(note);
-          // Your watch on, you off: the shift bar fades.
+          // The whole box takes the shift's colour (John, 25 Nov 2026: "fully
+          // colour the box of the shifts") — a soft tint, so the pattern of
+          // days, nights and leave reads across the month and the date stays
+          // easy to read. Rest days stay plain. Your watch on, you off: the
+          // tint drops to an outline.
           const barOff = note?.state === "off";
+          const tinted = !!k && !selected;
           const dots = Array.from(new Set(items.filter((it) => spansDay(it, day)).sort(cellOrder).map((it) => calKey(it)))).slice(0, 3);
           return (
             <button
@@ -1304,15 +1309,18 @@ function MobileMonth({
               style={{
                 position: "relative", height: 50, border: "none", borderRadius: 12, padding: 0, cursor: "pointer", font: "inherit",
                 display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
-                background: selected ? "var(--cal-brand)" : "transparent",
-                color: selected ? "#fff" : isToday ? "var(--cal-brand)" : "var(--cal-ink)",
-                boxShadow: isToday && !selected ? "inset 0 0 0 2px var(--cal-brand)" : undefined,
+                background: selected ? "var(--cal-brand)" : tinted && !barOff ? `var(--cal-${k}-cell)` : "transparent",
+                color: selected ? "#fff" : tinted && !barOff ? tok(k!, "fg") : isToday ? "var(--cal-brand)" : "var(--cal-ink)",
+                boxShadow: isToday && !selected
+                  ? "inset 0 0 0 2px var(--cal-brand)"
+                  : tinted && barOff ? `inset 0 0 0 1.5px var(--cal-${k}-cell)` : undefined,
                 opacity: outside && !selected ? 0.4 : 1,
               }}
             >
               <ShortMark day={day} />
               <span className="cal-mono" style={{ fontSize: 14, fontWeight: isToday || selected ? 700 : 500 }}>{day.getDate()}</span>
-              <span style={{ width: 14, height: 3, borderRadius: 2, background: k ? (selected ? "#fff" : tok(k, "dot")) : "transparent", opacity: barOff ? 0.3 : 1 }} />
+              {/* The picked day is solid brand, so it keeps a small bar to say which shift it is. */}
+              <span style={{ width: 14, height: 3, borderRadius: 2, background: k && selected ? "#fff" : "transparent" }} />
               <span style={{ display: "flex", gap: 3, height: 5 }}>
                 {dots.map((c) => (
                   <span key={c} style={{ width: 5, height: 5, borderRadius: "50%", background: selected ? "#fff" : tok(c, "dot") }} />

@@ -51113,7 +51113,7 @@ function MobileMonth({
   const today = /* @__PURE__ */ new Date();
   const riding = reactExports.useContext(RidingContext);
   const mine = useMyDays();
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("section", { className: "cal-card", style: { padding: "10px 10px 12px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", textAlign: "center", rowGap: 4 }, children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("section", { className: "cal-card", style: { padding: "10px 10px 12px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", textAlign: "center", rowGap: 4, columnGap: 3 }, children: [
     ["M", "T", "W", "T", "F", "S", "S"].map((d, i) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 11, fontWeight: 600, color: "var(--cal-muted)", padding: "2px 0" }, children: d }, i)),
     getMonthGridDays(date2).map((day2, i) => {
       const isToday = sameDay$2(day2, today);
@@ -51123,6 +51123,7 @@ function MobileMonth({
       const watchK = shiftKind(getShiftsForDay(shiftSchedule, day2, userWatch)[0]);
       const k = watchK ?? myKind(note2);
       const barOff = (note2 == null ? void 0 : note2.state) === "off";
+      const tinted = !!k && !selected;
       const dots = Array.from(new Set(items.filter((it) => spansDay(it, day2)).sort(cellOrder).map((it) => calKey(it)))).slice(0, 3);
       return /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "button",
@@ -51144,15 +51145,15 @@ function MobileMonth({
             alignItems: "center",
             justifyContent: "center",
             gap: 3,
-            background: selected ? "var(--cal-brand)" : "transparent",
-            color: selected ? "#fff" : isToday ? "var(--cal-brand)" : "var(--cal-ink)",
-            boxShadow: isToday && !selected ? "inset 0 0 0 2px var(--cal-brand)" : void 0,
+            background: selected ? "var(--cal-brand)" : tinted && !barOff ? `var(--cal-${k}-cell)` : "transparent",
+            color: selected ? "#fff" : tinted && !barOff ? tok(k, "fg") : isToday ? "var(--cal-brand)" : "var(--cal-ink)",
+            boxShadow: isToday && !selected ? "inset 0 0 0 2px var(--cal-brand)" : tinted && barOff ? `inset 0 0 0 1.5px var(--cal-${k}-cell)` : void 0,
             opacity: outside && !selected ? 0.4 : 1
           },
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(ShortMark, { day: day2 }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cal-mono", style: { fontSize: 14, fontWeight: isToday || selected ? 700 : 500 }, children: day2.getDate() }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 14, height: 3, borderRadius: 2, background: k ? selected ? "#fff" : tok(k, "dot") : "transparent", opacity: barOff ? 0.3 : 1 } }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 14, height: 3, borderRadius: 2, background: k && selected ? "#fff" : "transparent" } }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { display: "flex", gap: 3, height: 5 }, children: dots.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 5, height: 5, borderRadius: "50%", background: selected ? "#fff" : tok(c, "dot") } }, c)) })
           ]
         },
@@ -59840,6 +59841,24 @@ function TaskList({ tasks, isLoading, onTaskClick }) {
     )
   ] });
 }
+function assigneeList(people, watch) {
+  const mine = watch.trim().toLowerCase();
+  const rows = people.filter((p) => {
+    var _a3;
+    return !p.user.left_at && ((_a3 = p.profile) == null ? void 0 : _a3.rank) !== "Admin";
+  }).map((p) => {
+    var _a3, _b3;
+    const w = (p.user.watch_unit || ((_a3 = p.profile) == null ? void 0 : _a3.watch) || "").trim();
+    return {
+      id: p.user.id,
+      name: p.user.name || ((_b3 = p.user.email) == null ? void 0 : _b3.split("@")[0]) || "Unknown",
+      watch: w,
+      own: !!mine && w.toLowerCase() === mine
+    };
+  });
+  rows.sort((a, b) => Number(b.own) - Number(a.own) || a.watch.localeCompare(b.watch) || a.name.localeCompare(b.name));
+  return rows.map((r2) => ({ id: r2.id, name: r2.name, note: r2.own ? "" : r2.watch ? `${r2.watch} Watch` : "no watch" }));
+}
 function LineEditInput({ value, onCommit, onCancel, ariaLabel = "Reword this line", className, style }) {
   const [text2, setText] = reactExports.useState(value);
   const ref = reactExports.useRef(null);
@@ -59981,6 +60000,12 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
   const [priority, setPriority] = reactExports.useState("Med");
   const [dueDate, setDueDate] = reactExports.useState("");
   const [watchUnit, setWatchUnit] = reactExports.useState("");
+  const [assignedTo, setAssignedTo] = reactExports.useState("");
+  const { data: people } = useQuery({
+    queryKey: ["people-for-tasks"],
+    queryFn: async () => (await backendClient.profile.listWithUsers({ limit: 500 })).people ?? [],
+    staleTime: 5 * 60 * 1e3
+  });
   const [checklist, setChecklist] = reactExports.useState([]);
   const [newChecklistItem, setNewChecklistItem] = reactExports.useState("");
   const [addingItem, setAddingItem] = reactExports.useState(false);
@@ -60016,6 +60041,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
     setChecklist(task2.checklist ? [...task2.checklist] : []);
     setTags(task2.tags ?? []);
     setWatchUnit(task2.watch_unit ?? "");
+    setAssignedTo(task2.assigned_to_user_id ?? "");
     setCoverColour(task2.cover_colour ?? "");
     setAddingItem(false);
     setNewChecklistItem("");
@@ -60268,6 +60294,27 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
         w,
         " Watch"
       ] }, w))
+    ] })
+  ] });
+  const handleAssignChange = (v) => {
+    const id = v === "__none__" ? "" : v;
+    setAssignedTo(id);
+    save({ assigned_to: id });
+    const who = assignees.find((p) => p.id === id);
+    toast2({ title: id ? `Given to ${(who == null ? void 0 : who.name) ?? "them"}` : "No longer given to anyone", description: id && id !== (user2 == null ? void 0 : user2.id) ? "They've been sent a notification." : void 0 });
+  };
+  const assignees = assigneeList(people ?? [], watchUnit || (user2 == null ? void 0 : user2.watch_unit) || "");
+  const assigneeSelect = (id) => /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: assignedTo || "__none__", onValueChange: handleAssignChange, disabled: !canEdit, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id, className: "tdd-field cal-focus", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Nobody in particular" }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { className: "cal-menu", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "__none__", className: ITEM_CLS, children: "Nobody in particular" }),
+      assignees.map((p) => /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectItem, { value: p.id, className: ITEM_CLS, children: [
+        p.name,
+        p.note && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--cal-muted)" }, children: [
+          " · ",
+          p.note
+        ] })
+      ] }, p.id))
     ] })
   ] });
   const closeButtonCls = `tdd-soft cal-focus grid place-items-center flex-none ml-auto sm:ml-0 h-10 w-10 rounded-[12px] sm:h-9 sm:w-9 sm:rounded-[10px]${coverStyle ? " sm:hidden" : ""}`;
@@ -60654,6 +60701,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
                     )
                   ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "order-6 sm:hidden flex flex-col gap-3.5", children: [
+                    !isCheck && /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Assigned to", htmlFor: `${uid}-who-m`, children: assigneeSelect(`${uid}-who-m`) }),
                     userRole === "WC" && !isCheck && /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Move to watch", htmlFor: `${uid}-watch-m`, children: watchSelect(`${uid}-watch-m`) }),
                     canEdit && /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Cover", htmlFor: `${uid}-cover-m`, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
                       "button",
@@ -60835,6 +60883,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
                         disabled: !canEdit
                       }
                     ) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Assigned to", htmlFor: `${uid}-who`, children: assigneeSelect(`${uid}-who`) }),
                     userRole === "WC" && /* @__PURE__ */ jsxRuntimeExports.jsx(Field$1, { label: "Move to watch", htmlFor: `${uid}-watch`, children: watchSelect(`${uid}-watch`) })
                   ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-1.5", children: [
