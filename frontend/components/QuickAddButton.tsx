@@ -4,6 +4,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { cn } from "@/lib/utils";
 import { Plus, X } from "lucide-react";
 import { focusPopupItselfOnTouch, leaveOpenerAloneOnTouch } from "@/lib/touchPopupFocus";
+import { SheetHandle, useSwipeToClose } from "@/lib/useSwipeToClose";
 import { useNav } from "@/lib/navigation";
 import { TUCKED_AWAY, useScrollingDown } from "@/lib/useScrollingDown";
 import { useAuth } from "@/App";
@@ -20,6 +21,7 @@ import { useAuth } from "@/App";
 
 export function QuickAddButton() {
   const [open, setOpen] = useState(false);
+  const swipe = useSwipeToClose(() => setOpen(false));
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { actions } = useNav();
@@ -62,6 +64,7 @@ export function QuickAddButton() {
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px] data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0" />
         <Dialog.Content
+          ref={swipe.sheet as React.Ref<HTMLDivElement>}
           onOpenAutoFocus={focusPopupItselfOnTouch}
           onCloseAutoFocus={leaveOpenerAloneOnTouch}
           className={cn(
@@ -71,7 +74,7 @@ export function QuickAddButton() {
           )}
           style={{ paddingBottom: "calc(20px + env(safe-area-inset-bottom))" }}
         >
-          <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-muted-foreground/25" aria-hidden />
+          <SheetHandle swipe={swipe} />
           <div className="mb-2 flex items-center justify-between">
             <Dialog.Title className="text-base font-semibold">Add</Dialog.Title>
             <Dialog.Close className="grid h-11 w-11 place-items-center rounded-full text-muted-foreground hover:bg-muted" aria-label="Close">

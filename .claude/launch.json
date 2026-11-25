@@ -4,9 +4,22 @@
     {
       "name": "Frontend",
       "runtimeExecutable": "/bin/bash",
-      "runtimeArgs": ["-c", "cd frontend && /Users/johncooper/.bun/bin/bunx vite --host 127.0.0.1"],
+      "runtimeArgs": [
+        "-c",
+        "cd frontend && /Users/johncooper/.bun/bin/bunx vite --host 127.0.0.1"
+      ],
       "port": 5173,
       "autoPort": true
+    },
+    {
+      "name": "Preview (staging data)",
+      "runtimeExecutable": "/bin/bash",
+      "runtimeArgs": [
+        "-c",
+        "cd frontend && /Users/johncooper/.bun/bin/bunx vite --config vite.preview.config.ts --host 127.0.0.1 --port 5180 --strictPort"
+      ],
+      "port": 5180,
+      "url": "http://127.0.0.1:5180"
     }
   ]
 }

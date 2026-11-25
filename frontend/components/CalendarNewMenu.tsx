@@ -2,6 +2,7 @@ import { useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { CalendarDays, CalendarPlus, ClipboardPlus, GraduationCap, Plus, X, type LucideIcon } from "lucide-react";
 import { focusPopupItselfOnTouch, leaveOpenerAloneOnTouch } from "@/lib/touchPopupFocus";
+import { SheetHandle, useSwipeToClose } from "@/lib/useSwipeToClose";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -65,6 +66,7 @@ export function CalendarNewButton({ onPick, isManager = true }: { onPick: (kind:
 /** Phones: the calendar's own "+" (the app-wide one is hidden here). */
 export function CalendarNewFab({ onPick, dayLabel, isManager = true }: { onPick: (kind: NewKind) => void; dayLabel: string; isManager?: boolean }) {
   const [open, setOpen] = useState(false);
+  const swipe = useSwipeToClose(() => setOpen(false));
   const tuckedAway = useScrollingDown();
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
@@ -86,6 +88,7 @@ export function CalendarNewFab({ onPick, dayLabel, isManager = true }: { onPick:
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px] data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0" />
         <Dialog.Content
+          ref={swipe.sheet as React.Ref<HTMLDivElement>}
           onOpenAutoFocus={focusPopupItselfOnTouch}
           onCloseAutoFocus={leaveOpenerAloneOnTouch}
           className={cn(
@@ -95,7 +98,7 @@ export function CalendarNewFab({ onPick, dayLabel, isManager = true }: { onPick:
           )}
           style={{ paddingBottom: "calc(20px + env(safe-area-inset-bottom))" }}
         >
-          <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-muted-foreground/25" aria-hidden />
+          <SheetHandle swipe={swipe} />
           <div className="mb-2 flex items-center justify-between">
             <div>
               <Dialog.Title className="text-base font-semibold">Add to the calendar</Dialog.Title>

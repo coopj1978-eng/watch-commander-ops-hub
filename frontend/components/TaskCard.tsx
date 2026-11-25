@@ -7,6 +7,7 @@ import { taskLinks } from "@/lib/taskLinks";
 import type { Task, TaskColumn, TaskPriority } from "~backend/task/types";
 import { getCoverStyle, getLabelById } from "@/lib/taskLabels";
 import { ChecklistBar, DueChip, Initials, LabelTag, PriorityChip, initialsOf, personTint, priorityKey, priorityLabel, tickTime, useIsPhone } from "@/lib/taskUi";
+import { SheetHandle, useSwipeToClose } from "@/lib/useSwipeToClose";
 
 // Board card in the Claude Design Tasks layout: label tags + ⋯ menu on top,
 // priority dot and title, checklist bar, then due / priority / initials.
@@ -51,6 +52,7 @@ type MenuProps = {
 /** Phone: the ⋯ actions as a bottom sheet (Open, Move to…, Set priority, Delete, Cancel). */
 function CardActionSheet({ task, columns, columnCounts, onOpen, onMove, onSetPriority, onDelete, onClose }: MenuProps & { onClose: () => void }) {
   const [priorityOpen, setPriorityOpen] = useState(false);
+  const swipe = useSwipeToClose(onClose);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", onKey);
@@ -67,6 +69,7 @@ function CardActionSheet({ task, columns, columnCounts, onOpen, onMove, onSetPri
     <div className="cal-ui" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()} style={{ position: "fixed", inset: 0, zIndex: 50 }}>
       <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "rgba(10,12,24,.45)" }} />
       <section
+        ref={swipe.sheet}
         role="dialog"
         aria-modal="true"
         aria-label={`Actions for ${task.title}`}
@@ -76,7 +79,7 @@ function CardActionSheet({ task, columns, columnCounts, onOpen, onMove, onSetPri
           display: "flex", flexDirection: "column", gap: 4, boxShadow: "var(--cal-pop)",
         }}
       >
-        <span aria-hidden style={{ alignSelf: "center", width: 40, height: 5, borderRadius: 3, background: "var(--cal-line-2)", marginBottom: 10 }} />
+        <SheetHandle swipe={swipe} color="var(--cal-line-2)" style={{ margin: "-6px 0 2px" }} />
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 8px 12px", borderBottom: "1px solid var(--cal-line)" }}>
           <span style={{ width: 9, height: 9, borderRadius: "50%", flex: "none", background: `var(--cal-${priorityKey(task.priority)}-dot)` }} />
           <span style={{ fontSize: 16, fontWeight: 600, flex: 1, minWidth: 0 }}>{task.title}</span>

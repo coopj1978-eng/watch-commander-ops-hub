@@ -16,6 +16,7 @@ import { autoStatusFor, canEditTaskDetails, priorityKey, rewordLine, tickTime } 
 import LineEditInput from "@/components/tasks/LineEditInput";
 import { formatTaskLink, linkHost, taskLinks, tidyUrl } from "@/lib/taskLinks";
 import type { Task, TaskColumn, ChecklistItem, TaskPriority } from "~backend/task/types";
+import { SheetHandle, useSwipeToClose } from "@/lib/useSwipeToClose";
 
 interface TaskDetailDrawerProps {
   task: Task | null;
@@ -138,6 +139,7 @@ function ProgressBar({ pct, className }: { pct: number; className?: string }) {
 export default function TaskDetailDrawer({ task, columns, onClose, onDelete, canEdit: canWork = false, isNewTask = false, onCompleted, onOpenRoutine }: TaskDetailDrawerProps) {
   const { user } = useAuth();
   const userRole = useUserRole();
+  const swipe = useSwipeToClose(onClose);
   // canWork (the prop): move it between columns and tick its checklist — anyone
   // on the watch. canEdit: change its details — only who the server allows,
   // so nobody is offered a change that would then be refused.
@@ -501,6 +503,7 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
       {/* Panel — centred on desktop, a bottom sheet on phones (v2 design). */}
       <div className="cal-ui vv-fit fixed inset-0 z-50 flex items-end sm:items-start justify-center overflow-y-auto sm:py-10 sm:px-4" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
         <div
+          ref={swipe.sheet as React.Ref<HTMLDivElement>}
           role="dialog"
           aria-modal="true"
           aria-label={title || "Task"}
@@ -512,8 +515,8 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
           {/* ── Cover strip (phones: grab handle; desktop: Cover + Close) ── */}
           {coverStyle ? (
             <div className="relative flex-none h-16 sm:h-24 sm:rounded-t-[25px]" style={coverStyle}>
-              <div className="sm:hidden flex justify-center pt-2" aria-hidden="true">
-                <span style={{ width: 40, height: 5, borderRadius: 3, background: "rgba(255,255,255,.6)" }} />
+              <div className="sm:hidden">
+                <SheetHandle swipe={swipe} color="rgba(255,255,255,.6)" style={{ margin: 0, height: 32 }} />
               </div>
               {canEdit && (
                 <button
@@ -538,8 +541,8 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
               </button>
             </div>
           ) : (
-            <div className="sm:hidden flex-none flex justify-center pt-2" aria-hidden="true">
-              <span style={{ width: 40, height: 5, borderRadius: 3, background: "var(--cal-line-2)" }} />
+            <div className="sm:hidden flex-none">
+              <SheetHandle swipe={swipe} color="var(--cal-line-2)" style={{ margin: 0, height: 26 }} />
             </div>
           )}
 

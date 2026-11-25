@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import * as Dialog from "@radix-ui/react-dialog";
 import { ChevronRight, KeyRound, LogOut, Moon, MoreHorizontal, Search, Sun, X } from "lucide-react";
 import { focusPopupItselfOnTouch, leaveOpenerAloneOnTouch } from "@/lib/touchPopupFocus";
+import { SheetHandle, useSwipeToClose } from "@/lib/useSwipeToClose";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/App";
 import { isActivePath, useNav, type NavItem } from "@/lib/navigation";
@@ -133,6 +134,7 @@ function MoreSheet({ open, onOpenChange, groups, onSearch, onChangePassword }: {
   const name = user?.name || "You";
   const role = [user?.role, user?.watch_unit && `${user.watch_unit} Watch`].filter(Boolean).join(" · ");
 
+  const swipe = useSwipeToClose(() => onOpenChange(false));
   const go = (to: string) => {
     onOpenChange(false);
     navigate(to);
@@ -145,6 +147,7 @@ function MoreSheet({ open, onOpenChange, groups, onSearch, onChangePassword }: {
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px] data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0" />
         <Dialog.Content
+          ref={swipe.sheet as React.Ref<HTMLDivElement>}
           onOpenAutoFocus={focusPopupItselfOnTouch}
           onCloseAutoFocus={leaveOpenerAloneOnTouch}
           className={cn(
@@ -154,7 +157,7 @@ function MoreSheet({ open, onOpenChange, groups, onSearch, onChangePassword }: {
           )}
         >
           <div className="shrink-0 px-4 pt-3">
-            <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-muted-foreground/25" aria-hidden />
+            <SheetHandle swipe={swipe} />
             <div className="flex items-center justify-between">
               <Dialog.Title className="text-lg font-semibold">More</Dialog.Title>
               <Dialog.Close className="grid h-11 w-11 place-items-center rounded-full text-muted-foreground hover:bg-muted" aria-label="Close">

@@ -15,6 +15,7 @@ import { REQUEST_LABEL } from "@/lib/shiftRequests";
 import { refreshCalendar } from "@/lib/calendarQueries";
 import type { shift_adjustments } from "@/client";
 import { CheckList } from "./CheckList";
+import { ShiftDatePicker } from "@/components/ShiftDatePicker";
 
 // Putting a Flexi Day or a Head for Head on the calendar. Since 9 Nov 2026
 // it goes straight on (John: less resistance for firefighters); the watch's
@@ -233,7 +234,14 @@ export function NewRequestDialog({ open, onClose, initialType = "flexi", default
 
           <div>
             <Label htmlFor="req-date" className="text-sm">{type === "flexi" ? "Shift you want off" : "Shift to swap"}</Label>
-            <Input id="req-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+            {/* The month with that person's watch's shifts on it: only a shift can be picked. */}
+            <ShiftDatePicker
+              id="req-date"
+              value={date}
+              onChange={setDate}
+              watch={forOther ? forWatch : (user?.watch_unit ?? "")}
+              allowLeave={type === "h4h"}
+            />
             {preview?.shift_type && !preview.needs_day_night && /Day|Night/.test(preview.shift_type) && (
               <p className="mt-1 text-xs text-muted-foreground">{preview.shift_type}, {preview.day_night === "Night" ? "18:00 to 08:00" : "08:00 to 18:00"}</p>
             )}
