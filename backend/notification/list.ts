@@ -2,6 +2,7 @@ import { api } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
 import type { Notification, ListNotificationsResponse } from "./types";
+import { BELL_DAYS } from "../lib/bellRules";
 
 interface DBNotification {
   id: number;
@@ -38,9 +39,22 @@ export const list = api<void, ListNotificationsResponse>(
   async () => {
     const auth = getAuthData()!;
 
+    // Old alerts drop off the bell (and its count) after 30 days.
     const rows = db.query<DBNotification>`
       SELECT * FROM notifications
       WHERE user_id = ${auth.userID}
+        AND created_at > NOW() - (${BELL_DAYS} * INTERVAL '1 day')
+        -- An overdue-task alert only stays while the task is still open and
+        -- still yours (it was once sent for every task on the watch).
+        AND NOT (
+          type = 'task_overdue' AND entity_type = 'task'
+          AND NOT EXISTS (
+            SELECT 1 FROM tasks t
+            WHERE t.id::text = notifications.entity_id
+              AND t.assigned_to_user_id = notifications.user_id
+              AND t.status NOT IN ('Done', 'Missed')
+          )
+        )
       ORDER BY created_at DESC
       LIMIT 50
     `;

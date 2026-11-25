@@ -3,6 +3,7 @@ import { api } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { slotForWatch } from "../lib/shiftRota";
+import { certRings, overdueTaskRings } from "../lib/bellRules";
 
 interface RefreshResponse {
   generated: number;
@@ -79,13 +80,16 @@ export const refresh = api<void, RefreshResponse>(
     );
 
     for await (const skill of expiringSkills) {
-      // WC sees all expiries on their watch; individuals see their own
-      if (userRow?.role === "WC" && skill.watch !== userRow.watch_unit) continue;
-      if (userRow?.role !== "WC" && skill.user_id !== userId) continue;
-
       const expiry = new Date(skill.expiry_date);
       const daysLeft = Math.ceil((expiry.getTime() - Date.now()) / 86400000);
       const isExpired = daysLeft < 0;
+      // Your own from 30 days out; your watch's (WC) only once expired —
+      // "expiring soon" for the watch is counted on Home (lib/bellRules.ts).
+      const rings = certRings(
+        { owner_id: skill.user_id, days_left: daysLeft },
+        { id: userId, is_wc_of_owner: userRow?.role === "WC" && skill.watch === userRow.watch_unit },
+      );
+      if (!rings) continue;
 
       await maybeInsert({
         type: "cert_expiry",
@@ -121,12 +125,15 @@ export const refresh = api<void, RefreshResponse>(
            LOWER(t.watch_unit) = LOWER($1)
            OR t.assigned_to_user_id = $2
          )
-       ORDER BY t.due_at ASC
+       ORDER BY (t.assigned_to_user_id = $2) DESC NULLS LAST, t.due_at ASC
        LIMIT 20`,
       userRow?.watch_unit ?? "", userId
     );
 
     for await (const task of overdueTasks) {
+      // Only a task given to you rings; the watch's overdue tasks are
+      // counted on Home (lib/bellRules.ts).
+      if (!overdueTaskRings(task, userId)) continue;
       const days = daysOverdue(task.due_at);
       await maybeInsert({
         type: "task_overdue",

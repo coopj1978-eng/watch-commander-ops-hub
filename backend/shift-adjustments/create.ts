@@ -4,6 +4,7 @@ import db from "../db";
 import { createNotification } from "../notification/helpers";
 import type { ShiftAdjustment, ShiftAdjustmentType } from "./types";
 import { assertOvertimeHours, insertAdjustmentEvents, spentReasonFor } from "./events";
+import { bookingLoggedRings } from "../lib/bellRules";
 
 export interface CreateShiftAdjustmentRequest {
   type: ShiftAdjustmentType;
@@ -189,8 +190,10 @@ export const create = api<CreateShiftAdjustmentRequest, ShiftAdjustment>(
       }
     }
 
-    // Notify WCs — own watch for outbound/orange, covered watch for flexi_payback
-    try {
+    // Notify WCs — own watch for outbound/orange, covered watch for flexi_payback.
+    // Off since 25 Nov 2026 (lib/bellRules.ts): a logged booking is on the
+    // calendar and in the riding count, so it no longer rings the bell.
+    if (bookingLoggedRings(req.type)) try {
       const isFlexiPayback = req.type === "flexi_payback";
       const notifyWatch = isFlexiPayback ? (req.covering_watch ?? userInfo.watch_unit) : userInfo.watch_unit;
 
