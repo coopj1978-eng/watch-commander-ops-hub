@@ -230,6 +230,9 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
   const [addingItem, setAddingItem] = useState(false);
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
+  // Which line's link box is open (up here: hooks must come before the
+  // "not open" return below).
+  const [linkIdx, setLinkIdx] = useState<number | null>(null);
   const [overIdx, setOverIdx] = useState<number | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
@@ -383,7 +386,6 @@ export default function TaskTemplateManager({ isOpen, onClose, onUseTemplate, ca
   };
 
   // A line's link: its wording opens the web page, the tick still ticks.
-  const [linkIdx, setLinkIdx] = useState<number | null>(null);
   const linkChecklistItem = (idx: number, typed: string) => {
     setLinkIdx(null);
     const res = readTypedLink(typed);

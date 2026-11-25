@@ -61710,6 +61710,7 @@ function TaskTemplateManager({ isOpen, onClose, onUseTemplate, canManage }) {
   const [addingItem, setAddingItem] = reactExports.useState(false);
   const [dragIdx, setDragIdx] = reactExports.useState(null);
   const [editingIdx, setEditingIdx] = reactExports.useState(null);
+  const [linkIdx, setLinkIdx] = reactExports.useState(null);
   const [overIdx, setOverIdx] = reactExports.useState(null);
   const dialogRef = reactExports.useRef(null);
   const formRef = reactExports.useRef(null);
@@ -61840,7 +61841,6 @@ function TaskTemplateManager({ isOpen, onClose, onUseTemplate, canManage }) {
     }
     setF({ checklist: form.checklist.map((item, i) => i === idx ? { ...item, label: res.labels[idx] } : item) });
   };
-  const [linkIdx, setLinkIdx] = reactExports.useState(null);
   const linkChecklistItem = (idx, typed) => {
     setLinkIdx(null);
     const res = readTypedLink(typed);
