@@ -165,6 +165,9 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
   const [newChecklistItem, setNewChecklistItem] = useState("");
   const [addingItem, setAddingItem] = useState(false);
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
+  // Which line's link box is open (kept up here with the other state: hooks
+  // must all come before the "no task" return below).
+  const [linkIdx, setLinkIdx] = useState<number | null>(null);
   const [attachments, setAttachments] = useState<string[]>([]);
   const [addingLink, setAddingLink] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
@@ -392,7 +395,6 @@ export default function TaskDetailDrawer({ task, columns, onClose, onDelete, can
 
   // A line's link (John, 25 Nov 2026): the wording opens the web page, the
   // tick box still ticks.
-  const [linkIdx, setLinkIdx] = useState<number | null>(null);
   const handleChecklistLink = (idx: number, typed: string) => {
     setLinkIdx(null);
     const res = readTypedLink(typed);

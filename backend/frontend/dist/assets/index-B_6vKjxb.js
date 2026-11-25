@@ -60554,6 +60554,7 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
   const [newChecklistItem, setNewChecklistItem] = reactExports.useState("");
   const [addingItem, setAddingItem] = reactExports.useState(false);
   const [editingIdx, setEditingIdx] = reactExports.useState(null);
+  const [linkIdx, setLinkIdx] = reactExports.useState(null);
   const [attachments, setAttachments] = reactExports.useState([]);
   const [addingLink, setAddingLink] = reactExports.useState(false);
   const [linkUrl, setLinkUrl] = reactExports.useState("");
@@ -60760,7 +60761,6 @@ function TaskDetailDrawer({ task: task2, columns, onClose, onDelete, canEdit: ca
     setChecklist(updated2);
     save({ checklist: updated2 });
   };
-  const [linkIdx, setLinkIdx] = reactExports.useState(null);
   const handleChecklistLink = (idx, typed) => {
     setLinkIdx(null);
     const res = readTypedLink(typed);
