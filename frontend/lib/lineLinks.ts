@@ -45,6 +45,23 @@ export function linksFromChecklist(checklist: { label: string; url?: string }[] 
 }
 
 /**
+ * A line typed in a one-check-per-line box (the References page): a web
+ * address at the end of the line becomes the line's link —
+ * "Audit BA records https://…" → the wording, and where it opens.
+ */
+export function splitTypedLine(line: string): { label: string; url?: string } {
+  const text = line.replace(/^[-•*]\s*/, "").trim();
+  const m = /^(.*\S)\s+(https?:\/\/\S+)$/i.exec(text);
+  const url = m ? tidyUrl(m[2]) : null;
+  return m && url ? { label: m[1].trim(), url } : { label: text };
+}
+
+/** The other way, to put a saved line back in the box. */
+export function joinTypedLine(label: string, url?: string): string {
+  return url ? `${label} ${url}` : label;
+}
+
+/**
  * What someone typed or pasted into a line's link box: a web address
  * ("https://" added if left off), nothing (take the link off), or not an
  * address at all.

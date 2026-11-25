@@ -11,6 +11,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { REFERENCE_START, REFERENCE_WATCHES, nextChangeYear, nextReferenceCard, periodLabel, referenceHolders, watchReferences } from "@/lib/referenceRota";
 import { coverNow, useReferences } from "@/lib/references";
 import { ReferenceHeader } from "@/components/tasks/RoutineHeader";
+import { joinTypedLine, splitTypedLine } from "@/lib/lineLinks";
 
 // Station references (Nov 2026): the station standards' Appendix A (the five
 // watch references and the duties for all watches) and Appendix B (the
@@ -243,11 +244,17 @@ function ReferenceCards({ n, cards, canEdit, holder }: { n: number; cards: refer
 
   const save = useMutation({
     mutationFn: () => backend.references.saveReferenceCards(n, {
-      cards: CADENCES.map((c) => ({
-        cadence: c.key,
-        items: draft[c.key].split("\n").map((l) => l.replace(/^[-•*]\s*/, "").trim()).filter(Boolean),
-        link: links[c.key].trim() || null,
-      })),
+      cards: CADENCES.map((c) => {
+        // A web address at the end of a line makes that check's wording a
+        // link (John, 25 Nov 2026) — the tick on the card still ticks.
+        const lines = draft[c.key].split("\n").map(splitTypedLine).filter((l) => l.label);
+        return {
+          cadence: c.key,
+          items: lines.map((l) => l.label),
+          links: lines.flatMap((l) => (l.url ? [{ label: l.label, url: l.url }] : [])),
+          link: links[c.key].trim() || null,
+        };
+      }),
     }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["references"] });
@@ -258,7 +265,11 @@ function ReferenceCards({ n, cards, canEdit, holder }: { n: number; cards: refer
     onError: (e) => toast({ title: "Couldn't save the cards", description: (e as Error).message, variant: "destructive" }),
   });
   const startEdit = () => {
-    setDraft(Object.fromEntries(CADENCES.map((c) => [c.key, (card(c.key)?.items ?? []).join("\n")])));
+    setDraft(Object.fromEntries(CADENCES.map((c) => {
+      const cur = card(c.key);
+      const urlOf = new Map((cur?.links ?? []).map((l) => [l.label, l.url]));
+      return [c.key, (cur?.items ?? []).map((i) => joinTypedLine(i, urlOf.get(i))).join("\n")];
+    })));
     setLinks(Object.fromEntries(CADENCES.map((c) => [c.key, card(c.key)?.link ?? ""])));
     setEditing(true);
   };
@@ -297,6 +308,9 @@ function ReferenceCards({ n, cards, canEdit, holder }: { n: number; cards: refer
                     aria-label={`${c.label} checks`}
                     className="w-full rounded-lg border border-border bg-background p-2 text-xs leading-relaxed text-foreground"
                   />
+                  <p className="text-[11px] leading-snug text-muted-foreground">
+                    To make a check open a web page, paste the address at the end of its line. The tick still ticks.
+                  </p>
                   <input
                     type="url"
                     value={links[c.key]}
@@ -309,9 +323,17 @@ function ReferenceCards({ n, cards, canEdit, holder }: { n: number; cards: refer
               ) : cur?.items.length ? (
                 <>
                   <ul className="space-y-1">
-                    {cur.items.map((i) => (
-                      <li key={i} className="flex gap-2 text-xs"><span aria-hidden className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-muted-foreground" />{i}</li>
-                    ))}
+                    {cur.items.map((i) => {
+                      const url = cur.links?.find((l) => l.label === i)?.url;
+                      return (
+                        <li key={i} className="flex gap-2 text-xs">
+                          <span aria-hidden className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-muted-foreground" />
+                          {url
+                            ? <a href={url} target="_blank" rel="noopener noreferrer" className="font-medium text-brand underline underline-offset-2">{i}<span className="sr-only"> (opens in a new tab)</span></a>
+                            : i}
+                        </li>
+                      );
+                    })}
                   </ul>
                   {cur.link && (
                     <a href={cur.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 self-start text-xs font-medium text-brand hover:underline">

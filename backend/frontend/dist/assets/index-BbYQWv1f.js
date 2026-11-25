@@ -60438,6 +60438,15 @@ function linksFromChecklist(checklist) {
   for (const i of checklist ?? []) if (i.url) out[linkKey(i.label)] = i.url;
   return out;
 }
+function splitTypedLine(line) {
+  const text2 = line.replace(/^[-•*]\s*/, "").trim();
+  const m = /^(.*\S)\s+(https?:\/\/\S+)$/i.exec(text2);
+  const url = m ? tidyUrl(m[2]) : null;
+  return m && url ? { label: m[1].trim(), url } : { label: text2 };
+}
+function joinTypedLine(label2, url) {
+  return url ? `${label2} ${url}` : label2;
+}
 function readTypedLink(input) {
   const raw = input.trim();
   if (!raw) return { clear: true };
@@ -67771,11 +67780,15 @@ function ReferenceCards({ n, cards, canEdit, holder }) {
   const today = /* @__PURE__ */ new Date();
   const save = useMutation({
     mutationFn: () => backendClient.references.saveReferenceCards(n, {
-      cards: CADENCES.map((c) => ({
-        cadence: c.key,
-        items: draft[c.key].split("\n").map((l) => l.replace(/^[-•*]\s*/, "").trim()).filter(Boolean),
-        link: links[c.key].trim() || null
-      }))
+      cards: CADENCES.map((c) => {
+        const lines = draft[c.key].split("\n").map(splitTypedLine).filter((l) => l.label);
+        return {
+          cadence: c.key,
+          items: lines.map((l) => l.label),
+          links: lines.flatMap((l) => l.url ? [{ label: l.label, url: l.url }] : []),
+          link: links[c.key].trim() || null
+        };
+      })
     }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["references"] });
@@ -67787,8 +67800,9 @@ function ReferenceCards({ n, cards, canEdit, holder }) {
   });
   const startEdit = () => {
     setDraft(Object.fromEntries(CADENCES.map((c) => {
-      var _a3;
-      return [c.key, (((_a3 = card(c.key)) == null ? void 0 : _a3.items) ?? []).join("\n")];
+      const cur = card(c.key);
+      const urlOf = new Map(((cur == null ? void 0 : cur.links) ?? []).map((l) => [l.label, l.url]));
+      return [c.key, ((cur == null ? void 0 : cur.items) ?? []).map((i) => joinTypedLine(i, urlOf.get(i))).join("\n")];
     })));
     setLinks(Object.fromEntries(CADENCES.map((c) => {
       var _a3;
@@ -67836,6 +67850,7 @@ function ReferenceCards({ n, cards, canEdit, holder }) {
               className: "w-full rounded-lg border border-border bg-background p-2 text-xs leading-relaxed text-foreground"
             }
           ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px] leading-snug text-muted-foreground", children: "To make a check open a web page, paste the address at the end of its line. The tick still ticks." }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
@@ -67848,10 +67863,17 @@ function ReferenceCards({ n, cards, canEdit, holder }) {
             }
           )
         ] }) : (cur == null ? void 0 : cur.items.length) ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "space-y-1", children: cur.items.map((i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex gap-2 text-xs", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "aria-hidden": true, className: "mt-1.5 h-1 w-1 shrink-0 rounded-full bg-muted-foreground" }),
-            i
-          ] }, i)) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "space-y-1", children: cur.items.map((i) => {
+            var _a3, _b3;
+            const url = (_b3 = (_a3 = cur.links) == null ? void 0 : _a3.find((l) => l.label === i)) == null ? void 0 : _b3.url;
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex gap-2 text-xs", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "aria-hidden": true, className: "mt-1.5 h-1 w-1 shrink-0 rounded-full bg-muted-foreground" }),
+              url ? /* @__PURE__ */ jsxRuntimeExports.jsxs("a", { href: url, target: "_blank", rel: "noopener noreferrer", className: "font-medium text-brand underline underline-offset-2", children: [
+                i,
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sr-only", children: " (opens in a new tab)" })
+              ] }) : i
+            ] }, i);
+          }) }),
           cur.link && /* @__PURE__ */ jsxRuntimeExports.jsxs("a", { href: cur.link, target: "_blank", rel: "noopener noreferrer", className: "inline-flex items-center gap-1 self-start text-xs font-medium text-brand hover:underline", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(ExternalLink, { className: "h-3 w-3" }),
             " Link on the card"

@@ -24,6 +24,13 @@ export interface ReferenceCard {
   active: boolean;
   /** A web link shown on the card, e.g. a document it's about. */
   link: string | null;
+  /** The web address a check's wording opens, for the checks that have one. */
+  links: ReferenceLineLink[];
+}
+
+export interface ReferenceLineLink {
+  label: string;
+  url: string;
 }
 
 export interface StationReference {
@@ -108,6 +115,7 @@ async function referenceCards(): Promise<(ReferenceCard & { ref: number })[]> {
     .map((r) => ({
       id: r.id, ref: r.reference_no, cadence: r.reference_cadence,
       items: checklistOf(r.checklist).map((i) => i.label), active: r.is_active, link: r.link_url,
+      links: checklistOf(r.checklist).flatMap((i) => (i.url ? [{ label: i.label, url: i.url }] : [])),
     }))
     .sort((a, b) => a.ref - b.ref || ORDER[a.cadence] - ORDER[b.cadence]);
 }
@@ -117,7 +125,7 @@ async function referenceCards(): Promise<(ReferenceCard & { ref: number })[]> {
 // Cards already on a watch's board pick up the change; ticks are kept.
 export const saveReferenceCards = api(
   { auth: true, expose: true, method: "PUT", path: "/station-references/:ref/cards" },
-  async (req: { ref: number; cards: { cadence: string; items: string[]; link?: string | null }[] }): Promise<{ cards: ReferenceCard[] }> => {
+  async (req: { ref: number; cards: { cadence: string; items: string[]; link?: string | null; links?: ReferenceLineLink[] }[] }): Promise<{ cards: ReferenceCard[] }> => {
     const auth = getAuthData()!;
     requireRole(auth, "WC", "CC");
     const ref = Number(req.ref);
@@ -126,7 +134,8 @@ export const saveReferenceCards = api(
     for (const card of req.cards ?? []) {
       const cadence = String(card.cadence);
       if (!(REFERENCE_CADENCES as string[]).includes(cadence)) throw APIError.invalidArgument(`Unknown frequency "${cadence}".`);
-      const checklist = cleanRoutineItems(Array.isArray(card.items) ? card.items : []);
+      // A check's wording can open a web page (its tick still ticks).
+      const checklist = cleanRoutineItems(Array.isArray(card.items) ? card.items : [], card.links ?? []);
       const name = `Reference ${ref} · ${CADENCE_NAME[cadence]}`;
       // Left out = unchanged; empty = no link. Web links only.
       const setLink = card.link !== undefined;

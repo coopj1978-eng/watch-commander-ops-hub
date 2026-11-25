@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { linkOf, linksForSave, linksFromChecklist, moveLineLink, readTypedLink, setLineLink } from "./lineLinks";
+import { joinTypedLine, linkOf, linksForSave, linksFromChecklist, moveLineLink, readTypedLink, setLineLink, splitTypedLine } from "./lineLinks";
 
 describe("a link on a tick line", () => {
   it("is found by the line's wording, whatever the capitals", () => {
@@ -26,6 +26,20 @@ describe("a link on a tick line", () => {
   it("is read back from a saved checklist", () => {
     expect(linksFromChecklist([{ label: "BA sets", url: "https://example.org/ba" }, { label: "Ladders" }]))
       .toEqual({ "ba sets": "https://example.org/ba" });
+  });
+});
+
+describe("a line in a one-check-per-line box", () => {
+  it("takes a web address at the end of the line as the line's link", () => {
+    expect(splitTypedLine("- Audit BA records https://example.org/ba?x=1")).toEqual({ label: "Audit BA records", url: "https://example.org/ba?x=1" });
+    expect(splitTypedLine("Audit BA records")).toEqual({ label: "Audit BA records" });
+    // an address on its own is just the wording
+    expect(splitTypedLine("https://example.org/ba")).toEqual({ label: "https://example.org/ba" });
+  });
+  it("goes back in the box the same way", () => {
+    expect(joinTypedLine("Audit BA records", "https://example.org/ba")).toBe("Audit BA records https://example.org/ba");
+    expect(joinTypedLine("Audit BA records")).toBe("Audit BA records");
+    expect(splitTypedLine(joinTypedLine("Audit BA records", "https://example.org/ba"))).toEqual({ label: "Audit BA records", url: "https://example.org/ba" });
   });
 });
 
