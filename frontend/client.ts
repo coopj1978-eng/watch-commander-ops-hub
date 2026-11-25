@@ -3135,6 +3135,13 @@ export namespace localauth {
 
     export interface ResetPasswordResponse {
         success: boolean
+        token?: string
+        user?: {
+            id: string
+            email: string
+            name: string
+            role: string
+        }
     }
 
     export interface SignInRequest {

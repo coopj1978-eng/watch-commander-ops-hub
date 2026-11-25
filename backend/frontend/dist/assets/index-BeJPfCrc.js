@@ -79696,7 +79696,12 @@ function ResetPassword() {
     }
     setLoading(true);
     try {
-      await backendClient.localauth.resetPassword({ token, new_password: password });
+      const res = await backendClient.localauth.resetPassword({ token, new_password: password });
+      if (res.token) {
+        localStorage.setItem("auth_token", res.token);
+        window.location.href = "/";
+        return;
+      }
       setDone(true);
     } catch (err2) {
       const msg = (err2 == null ? void 0 : err2.message) || "Failed to reset password";

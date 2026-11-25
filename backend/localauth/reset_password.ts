@@ -1,7 +1,11 @@
 import { api, APIError } from "encore.dev/api";
 import * as bcrypt from "bcrypt";
 import db from "../db";
+import jwt from "jsonwebtoken";
 import { rateLimit, resetRateLimit, getRequestIp, RESET_PASSWORD_LIMIT } from "./rate_limit";
+import { getJwtSecret } from "./auth";
+import { logSignIn } from "../auth/login_logger";
+import type { User } from "../user/types";
 
 interface ResetPasswordRequest {
   token: string;
@@ -10,6 +14,16 @@ interface ResetPasswordRequest {
 
 interface ResetPasswordResponse {
   success: boolean;
+  /**
+   * A session for the person who has just set their password, so the page
+   * can take them straight into the app (Nov 2026). Before this an invite
+   * ended at "Your account is ready" and a sign-in page asking for the email
+   * and the same password again — the moment a new firefighter gives up.
+   * Whoever holds the link could already set the password and sign in with
+   * it, so this hands over nothing new.
+   */
+  token?: string;
+  user?: { id: string; email: string; name: string; role: string };
 }
 
 export const resetPassword = api<ResetPasswordRequest, ResetPasswordResponse>(
@@ -60,6 +74,19 @@ export const resetPassword = api<ResetPasswordRequest, ResetPasswordResponse>(
     // lockout left over from guessing the old password.
     resetRateLimit(`signin:email:${user.email.trim().toLowerCase()}`);
     resetRateLimit(`signin:ip:${getRequestIp()}`);
+
+    // Sign them in. If anything about that fails the password is still set:
+    // the page falls back to "now sign in".
+    try {
+      const fresh = await db.queryRow<User>`SELECT * FROM users WHERE id = ${user.id}`;
+      if (fresh && fresh.is_active) {
+        const token = jwt.sign({ userId: fresh.id, email: fresh.email, role: fresh.role }, getJwtSecret(), { expiresIn: "7d" });
+        await logSignIn(fresh);
+        return { success: true, token, user: { id: fresh.id, email: fresh.email, name: fresh.name, role: fresh.role } };
+      }
+    } catch (err) {
+      console.error("reset-password: password set, but signing in failed:", err);
+    }
 
     return { success: true };
   }

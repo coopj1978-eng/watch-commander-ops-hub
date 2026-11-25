@@ -39,7 +39,13 @@ export default function ResetPassword() {
 
     setLoading(true);
     try {
-      await backendClient.localauth.resetPassword({ token, new_password: password });
+      const res = await backendClient.localauth.resetPassword({ token, new_password: password });
+      if (res.token) {
+        // Straight into the app — the same two steps the sign-in page takes.
+        localStorage.setItem("auth_token", res.token);
+        window.location.href = "/";
+        return;
+      }
       setDone(true);
     } catch (err: any) {
       const msg = err?.message || "Failed to reset password";
