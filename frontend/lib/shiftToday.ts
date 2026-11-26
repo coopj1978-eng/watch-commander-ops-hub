@@ -60,6 +60,8 @@ export interface TodayEvent {
   id: string;
   type?: string;
   when: string;
+  /** A whole-day calendar entry (the server says so); else midnight is taken to mean it. */
+  all_day?: boolean;
   what: string;
   link?: string;
 }
@@ -75,6 +77,9 @@ function listOf(v: unknown): { label: string; done: boolean }[] {
 }
 
 const hhmm = (iso: string) => new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" });
+
+/** The UK calendar day an instant falls on, as YYYY-MM-DD. */
+const ukDay = (iso: string) => new Date(iso).toLocaleDateString("en-CA", { timeZone: "Europe/London" });
 
 /** "Andy James" → "Andy J" — enough to know who, short enough for one line. */
 export function shortName(name: string): string {
@@ -123,17 +128,20 @@ export function shiftToday(i: {
 
   // ── Timed things inside the shift, in time order. A calendar event with a
   //    card on the board opens the board, and shows done when its card is.
+  //    Something set for midnight is an all-day entry: it belongs to the day
+  //    the shift starts (not to a night shift that runs past midnight into
+  //    it), comes first, and shows no time.
   const shown = new Set<number>();
   const timed = i.events
-    .map((e) => ({ e, at: new Date(e.when).getTime() }))
-    .filter(({ at }) => at >= start && at < end)
-    .sort((a, b) => a.at - b.at);
-  for (const { e } of timed) {
+    .map((e) => ({ e, at: new Date(e.when).getTime(), allDay: e.all_day ?? hhmm(e.when) === "00:00" }))
+    .filter(({ e, at, allDay }) => (allDay ? ukDay(e.when) === shift.date : at >= start && at < end))
+    .sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.at - b.at);
+  for (const { e, allDay } of timed) {
     const calId = e.id.startsWith("cal-") ? Number(e.id.slice(4)) : NaN;
     const card = Number.isFinite(calId) ? tasks.find((t) => t.calendar_event_id === calId) : undefined;
     if (card) shown.add(calId);
     items.push({
-      key: `event-${e.id}`, kind: "event", time: hhmm(e.when),
+      key: `event-${e.id}`, kind: "event", time: allDay ? undefined : hhmm(e.when),
       label: SHORT_NAME[e.type ?? ""] ?? e.what,
       to: card ? "/tasks" : e.link || "/calendar",
       done: card?.status === "Done",

@@ -4262,6 +4262,8 @@ export namespace schedule {
         type: ScheduleEventType
         when: string
         "end_when"?: string
+        /** A calendar entry for the whole day. */
+        "all_day"?: boolean
         what: string
         location?: string
         "is_critical"?: boolean

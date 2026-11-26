@@ -35248,6 +35248,7 @@ function listOf(v) {
   return Array.isArray(arr) ? arr : [];
 }
 const hhmm$8 = (iso2) => new Date(iso2).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" });
+const ukDay = (iso2) => new Date(iso2).toLocaleDateString("en-CA", { timeZone: "Europe/London" });
 function shortName$1(name) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length < 2) return parts[0] ?? "";
@@ -35281,15 +35282,15 @@ function shiftToday(i) {
     }
   }
   const shown = /* @__PURE__ */ new Set();
-  const timed = i.events.map((e) => ({ e, at: new Date(e.when).getTime() })).filter(({ at }) => at >= start && at < end).sort((a, b) => a.at - b.at);
-  for (const { e } of timed) {
+  const timed = i.events.map((e) => ({ e, at: new Date(e.when).getTime(), allDay: e.all_day ?? hhmm$8(e.when) === "00:00" })).filter(({ e, at, allDay }) => allDay ? ukDay(e.when) === shift2.date : at >= start && at < end).sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.at - b.at);
+  for (const { e, allDay } of timed) {
     const calId = e.id.startsWith("cal-") ? Number(e.id.slice(4)) : NaN;
     const card = Number.isFinite(calId) ? tasks.find((t) => t.calendar_event_id === calId) : void 0;
     if (card) shown.add(calId);
     items.push({
       key: `event-${e.id}`,
       kind: "event",
-      time: hhmm$8(e.when),
+      time: allDay ? void 0 : hhmm$8(e.when),
       label: SHORT_NAME[e.type ?? ""] ?? e.what,
       to: card ? "/tasks" : e.link || "/calendar",
       done: (card == null ? void 0 : card.status) === "Done"

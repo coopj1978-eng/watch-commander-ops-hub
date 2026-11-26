@@ -48,6 +48,8 @@ export interface ScheduleEvent {
   type: ScheduleEventType;
   when: string; // ISO datetime
   end_when?: string;
+  /** A calendar entry for the whole day (its time of day means nothing). */
+  all_day?: boolean;
   what: string;
   /** Display prefix before `what` — usually the event's category label. */
   location?: string;
@@ -292,8 +294,9 @@ export const list = api<ListScheduleRequest, ListScheduleResponse>(
       start_time: Date;
       end_time: Date | null;
       attendees: string[] | null;
+      all_day: boolean | null;
     }>(
-      `SELECT ce.id, ce.title, ce.event_type, ce.start_time, ce.end_time, ce.attendees
+      `SELECT ce.id, ce.title, ce.event_type, ce.start_time, ce.end_time, ce.attendees, ce.all_day
        FROM calendar_events ce
        LEFT JOIN users creator ON creator.id = ce.created_by
        WHERE ce.start_time >= $1
@@ -358,6 +361,7 @@ export const list = api<ListScheduleRequest, ListScheduleResponse>(
           type,
           when: c.start_time.toISOString(),
           end_when: c.end_time?.toISOString(),
+          ...(c.all_day ? { all_day: true } : {}),
           what: c.title,
           crew,
           link: "/calendar",

@@ -40,6 +40,31 @@ describe("what's on this shift, one line each", () => {
     expect(r.find((x) => x.label === "Station meeting")!.to).toBe("/calendar");
   });
 
+  it("shows an all-day entry first with no time, on the day the shift starts", () => {
+    const r = shiftToday({
+      ...base,
+      events: [
+        { id: "cal-4", type: "drill", when: "2026-11-30T10:00:00Z", what: "Pump drill" },
+        { id: "cal-8", type: "other", when: "2026-11-30T00:00:00Z", what: "Station open day" },
+      ],
+    });
+    const events = r.filter((x) => x.kind === "event");
+    expect(events.map((x) => x.label)).toEqual(["Station open day", "Pump drill"]);
+    expect(events[0].time).toBeUndefined();
+  });
+
+  it("leaves tomorrow's all-day entry off a night shift that runs past midnight", () => {
+    const night: TodayShift = { date: "2026-11-30", type: "night", start: "2026-11-30T18:00:00Z", end: "2026-12-01T08:00:00Z", on_duty: true };
+    const r = shiftToday({
+      ...base, shift: night,
+      events: [
+        { id: "cal-9", type: "other", when: "2026-12-01T00:00:00Z", what: "Tomorrow's all-day thing" },
+        { id: "cal-10", type: "other", when: "2026-12-01T02:30:00Z", what: "Standby move" },
+      ],
+    });
+    expect(r.filter((x) => x.kind === "event").map((x) => `${x.time} ${x.label}`)).toEqual(["02:30 Standby move"]);
+  });
+
   it("opens the board for an event that has a card there, and doesn't count that card again", () => {
     const r = shiftToday({
       ...base,
