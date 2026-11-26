@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { crewingBoardShiftFor, crewingShiftFor, getWatchShiftStatus, type ShiftDay } from "@/lib/shiftRota";
 import { latestAbsencePerPerson, useTodaysAbsences } from "@/lib/absences";
 import { ShiftWeather } from "@/components/home/ShiftWeather";
+import { HeroToday } from "@/components/home/HeroToday";
 import { useMyShifts } from "@/components/home/MyNextShifts";
 import { shiftTag } from "@/lib/myNextShifts";
 import {
@@ -357,6 +358,9 @@ export function ShiftHero() {
               </p>
             )
           )}
+
+          {/* What's on this shift, one line each — each opens its own page. */}
+          <HeroToday watch={watch} accent={accent} />
 
           {/* Quick actions */}
           <div className="-mx-1 mt-6 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none]">

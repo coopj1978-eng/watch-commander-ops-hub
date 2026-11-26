@@ -34121,14 +34121,14 @@ function MoreSheet({ open, onOpenChange, groups, onSearch, onChangePassword }) {
                   ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-4 w-4 text-muted-foreground", "aria-hidden": "true" })
                 ] }),
-                settings2.map(({ name: label2, path, icon: Icon2 }) => /* @__PURE__ */ jsxRuntimeExports.jsx(Row$1, { icon: Icon2, label: label2, onClick: () => go(path), chevron: true }, path)),
+                settings2.map(({ name: label2, path, icon: Icon2 }) => /* @__PURE__ */ jsxRuntimeExports.jsx(Row$2, { icon: Icon2, label: label2, onClick: () => go(path), chevron: true }, path)),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex w-full items-center gap-3 px-3.5 py-3", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "grid h-8 w-8 place-items-center rounded-lg bg-muted text-foreground/80", children: isDark ? /* @__PURE__ */ jsxRuntimeExports.jsx(Moon, { className: "h-4 w-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Sun, { className: "h-4 w-4" }) }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "flex-1 text-[15px]", children: "Dark mode" }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx(Switch$1, { checked: isDark, onCheckedChange: toggle, "aria-label": "Dark mode" })
                 ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Row$1, { icon: KeyRound, label: "Change password", onClick: onChangePassword }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Row$1, { icon: LogOut, label: "Sign out", onClick: signOut })
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Row$2, { icon: KeyRound, label: "Change password", onClick: onChangePassword }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Row$2, { icon: LogOut, label: "Sign out", onClick: signOut })
               ] })
             ] })
           ] })
@@ -34137,7 +34137,7 @@ function MoreSheet({ open, onOpenChange, groups, onSearch, onChangePassword }) {
     )
   ] }) });
 }
-function Row$1({ icon: Icon2, label: label2, onClick, chevron }) {
+function Row$2({ icon: Icon2, label: label2, onClick, chevron }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick, className: "flex w-full items-center gap-3 px-3.5 py-3 text-left active:bg-muted", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "grid h-8 w-8 place-items-center rounded-lg bg-muted text-foreground/80", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "h-4 w-4", "aria-hidden": "true" }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "flex-1 text-[15px]", children: label2 }),
@@ -35197,6 +35197,222 @@ function ShiftWeather({
     forecast
   ] });
 }
+const DAY_NAMES = {
+  MO: "Monday",
+  TU: "Tuesday",
+  WE: "Wednesday",
+  TH: "Thursday",
+  FR: "Friday",
+  SA: "Saturday",
+  SU: "Sunday"
+};
+function ruleLabel(rule, dayKey2, short2 = false) {
+  const day2 = dayKey2 ? DAY_NAMES[dayKey2] ?? "" : "";
+  const d = short2 ? day2.slice(0, 3) : day2;
+  switch (rule) {
+    case "first":
+      return `Monthly · 1st ${d}`;
+    case "last":
+      return `Monthly · last ${d}`;
+    case "quarter-last":
+      return short2 ? `Quarterly · last ${d}` : `Quarterly · last ${d} of Jan, Apr, Jul, Oct`;
+    default:
+      return "Weekly";
+  }
+}
+const RULE_OPTIONS = [
+  { rule: "weekly", label: () => "Every week" },
+  { rule: "first", label: (d) => `1st ${d} of the month` },
+  { rule: "last", label: (d) => `Last ${d} of the month` },
+  { rule: "quarter-last", label: (d) => `Last ${d} of Jan, Apr, Jul and Oct` }
+];
+function routineRuleFires(rule, dateIso) {
+  const [y, m, d] = dateIso.split("-").map(Number);
+  const isLast = d + 7 > new Date(Date.UTC(y, m, 0)).getUTCDate();
+  if (rule === "first") return d <= 7;
+  if (rule === "last") return isLast;
+  if (rule === "quarter-last") return isLast && [1, 4, 7, 10].includes(m);
+  return true;
+}
+const DAYS$3 = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
+const SHORT_NAME = { hfsv: "HFSV", high_rise: "Multi-storey inspection", hydrant: "Hydrants" };
+const CANTEEN_LINK = "/handover?tab=detachments&rota=canteen";
+function listOf(v) {
+  const arr = typeof v === "string" ? (() => {
+    try {
+      return JSON.parse(v);
+    } catch {
+      return [];
+    }
+  })() : v;
+  return Array.isArray(arr) ? arr : [];
+}
+const hhmm$8 = (iso2) => new Date(iso2).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" });
+function shortName$1(name) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length < 2) return parts[0] ?? "";
+  return `${parts[0]} ${parts[parts.length - 1][0].toUpperCase()}`;
+}
+function shiftToday(i) {
+  const { shift: shift2, tasks } = i;
+  const start = new Date(shift2.start).getTime();
+  const end = new Date(shift2.end).getTime();
+  const items = [];
+  const checks = tasks.filter((t) => t.kind === "check");
+  for (const t of checks) {
+    const list2 = listOf(t.checklist);
+    const done = t.status === "Done";
+    items.push({
+      key: `check-${t.id}`,
+      kind: "check",
+      label: t.title,
+      to: "/tasks",
+      done,
+      note: done ? void 0 : list2.length ? `${list2.filter((l) => l.done).length}/${list2.length}` : void 0
+    });
+  }
+  if (!shift2.on_duty) {
+    const onBoard = new Set(checks.map((t) => t.title.trim().toLowerCase()));
+    const slot = `${DAYS$3[(/* @__PURE__ */ new Date(`${shift2.date}T12:00:00`)).getDay()]}-${shift2.type}`;
+    const due = i.templates.filter((t) => t.is_active !== false && (t.routine_slot === "every" || t.routine_slot === slot && routineRuleFires(t.routine_rule ?? "weekly", shift2.date))).filter((t) => !onBoard.has(t.name.trim().toLowerCase())).sort((a, b) => Number(b.routine_slot === "every") - Number(a.routine_slot === "every") || (a.routine_position ?? 0) - (b.routine_position ?? 0));
+    for (const t of due) {
+      const n = listOf(t.checklist).length;
+      items.push({ key: `routine-${t.id}`, kind: "check", label: t.name, to: "/tasks", note: n ? `${n} check${n === 1 ? "" : "s"}` : void 0 });
+    }
+  }
+  const shown = /* @__PURE__ */ new Set();
+  const timed = i.events.map((e) => ({ e, at: new Date(e.when).getTime() })).filter(({ at }) => at >= start && at < end).sort((a, b) => a.at - b.at);
+  for (const { e } of timed) {
+    const calId = e.id.startsWith("cal-") ? Number(e.id.slice(4)) : NaN;
+    const card = Number.isFinite(calId) ? tasks.find((t) => t.calendar_event_id === calId) : void 0;
+    if (card) shown.add(calId);
+    items.push({
+      key: `event-${e.id}`,
+      kind: "event",
+      time: hhmm$8(e.when),
+      label: SHORT_NAME[e.type ?? ""] ?? e.what,
+      to: card ? "/tasks" : e.link || "/calendar",
+      done: (card == null ? void 0 : card.status) === "Done"
+    });
+  }
+  const jobs = tasks.filter((t) => t.kind !== "check" && t.status !== "Done" && t.status !== "Missed" && !(t.calendar_event_id && shown.has(t.calendar_event_id)));
+  if (jobs.length) {
+    items.push({ key: "jobs", kind: "jobs", label: `${jobs.length} job${jobs.length === 1 ? "" : "s"} on the board`, to: "/tasks" });
+  }
+  const names = i.canteen.map(shortName$1).filter(Boolean);
+  items.push(names.length ? { key: "canteen", kind: "canteen", label: `Canteen · ${names.join(" & ")}`, to: CANTEEN_LINK } : { key: "canteen", kind: "canteen", label: "Canteen", note: "not set yet", empty: true, to: CANTEEN_LINK });
+  return items;
+}
+function todayLeft(items) {
+  return items.filter((it) => it.kind !== "canteen" && !it.done).length;
+}
+const ICON = { check: ClipboardCheck, event: CalendarClock, jobs: SquareKanban, canteen: ChefHat };
+const MAX_ROWS = 7;
+function Row$1({ item, accent, canOpen }) {
+  const Icon2 = ICON[item.kind];
+  const inner = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "flex w-11 shrink-0 items-center justify-start", children: item.done ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "grid h-5 w-5 place-items-center rounded-full bg-emerald-500/90 text-neutral-950", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "h-3 w-3", strokeWidth: 3.2, "aria-hidden": true }) }) : item.time ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono text-[13px] font-medium tabular-nums", style: { color: accent }, children: item.time }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "h-[18px] w-[18px] text-white/50", "aria-hidden": true }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "span",
+      {
+        className: cn(
+          "min-w-0 flex-1 truncate text-[15px] leading-tight sm:text-sm",
+          item.done ? "text-white/45 line-through" : item.empty ? "text-white/60" : "font-medium text-white"
+        ),
+        children: [
+          item.label,
+          item.done && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sr-only", children: " (done)" })
+        ]
+      }
+    ),
+    item.note && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "shrink-0 font-mono text-xs tabular-nums text-white/50", children: item.note })
+  ] });
+  const base = "flex min-h-11 items-center gap-2.5 px-3.5 py-2 sm:min-h-10";
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: canOpen(item.to.split("?")[0]) ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    Link,
+    {
+      to: item.to,
+      className: cn(base, "group transition-colors hover:bg-white/[0.06] focus-visible:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/40"),
+      children: [
+        inner,
+        /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-4 w-4 shrink-0 text-white/25 transition group-hover:translate-x-0.5 group-hover:text-white/60", "aria-hidden": true })
+      ]
+    }
+  ) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: base, children: inner }) });
+}
+function HeroToday({ watch, accent }) {
+  var _a3, _b3, _c2, _d2;
+  const canOpen = useCanOpen();
+  const boardQ = useQuery({
+    queryKey: ["tasks", "shift", "mine", watch],
+    queryFn: () => backendClient.task.shiftBoard({ watch }),
+    enabled: !!watch,
+    refetchInterval: 6e4
+  });
+  const shift2 = (_a3 = boardQ.data) == null ? void 0 : _a3.shift;
+  const templatesQ = useQuery({
+    queryKey: ["task-templates"],
+    queryFn: async () => (await backendClient.task.listTemplates()).templates,
+    enabled: !!watch
+  });
+  const from = shift2 == null ? void 0 : shift2.date;
+  const to = shift2 ? new Date(shift2.end).toISOString().slice(0, 10) : void 0;
+  const eventsQ = useQuery({
+    queryKey: ["schedule", from, to],
+    queryFn: () => backendClient.schedule.list({ from, to }),
+    enabled: !!from && !!to,
+    refetchInterval: 5 * 6e4
+  });
+  const canteenQ = useQuery({
+    queryKey: ["canteen", watch, (shift2 == null ? void 0 : shift2.date) ?? "", (shift2 == null ? void 0 : shift2.label) ?? ""],
+    queryFn: () => backendClient.crewing.listCanteen({ watch, shift_date: shift2.date, shift_type: shift2.label }),
+    enabled: !!watch && !!shift2
+  });
+  if (!watch) return null;
+  const heading = !shift2 ? "This shift" : shift2.on_duty ? "This shift" : `Next shift · ${new Date(shift2.start).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}`;
+  const items = shift2 ? shiftToday({
+    shift: shift2,
+    tasks: ((_b3 = boardQ.data) == null ? void 0 : _b3.tasks) ?? [],
+    templates: templatesQ.data ?? [],
+    events: ((_c2 = eventsQ.data) == null ? void 0 : _c2.events) ?? [],
+    canteen: (((_d2 = canteenQ.data) == null ? void 0 : _d2.duties) ?? []).map((d) => d.user_name ?? "").filter(Boolean)
+  }) : [];
+  const left = todayLeft(items);
+  const shown = items.length > MAX_ROWS ? items.slice(0, MAX_ROWS - 1) : items;
+  const more = items.length - shown.length;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-5 overflow-hidden rounded-xl bg-white/[0.04] ring-1 ring-white/10", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline justify-between gap-3 px-3.5 pb-1.5 pt-3", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-mono text-[10.5px] font-medium uppercase tracking-[0.14em] text-white/50", children: heading }),
+      shift2 && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-white/60", children: left > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono font-semibold text-white", children: left }),
+        " to do"
+      ] }) : items.length > 1 ? "All done" : null })
+    ] }),
+    boardQ.isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5 px-3.5 pb-3.5 pt-1", "aria-hidden": true, children: [0, 1, 2].map((i) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-8 animate-pulse rounded-md bg-white/[0.06]" }, i)) }) : !shift2 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "px-3.5 pb-3.5 pt-1 text-sm text-white/60", children: [
+      "No shift coming up for ",
+      watch,
+      " Watch."
+    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { className: "divide-y divide-white/[0.06] pb-1", children: [
+      shown.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsx(Row$1, { item, accent, canOpen }, item.key)),
+      more > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        Link,
+        {
+          to: "/tasks",
+          className: "flex min-h-11 items-center gap-2.5 px-3.5 py-2 text-sm text-white/70 transition-colors hover:bg-white/[0.06] hover:text-white sm:min-h-10",
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-11 shrink-0", "aria-hidden": true }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex-1", children: [
+              "+",
+              more,
+              " more on the shift board"
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-4 w-4 shrink-0 text-white/25", "aria-hidden": true })
+          ]
+        }
+      ) })
+    ] })
+  ] });
+}
 const CALENDAR_EVENTS_KEY = "cal-events";
 const CALENDAR_STRENGTH_KEY = "cal-strength";
 function refreshCalendar(queryClient2) {
@@ -35691,6 +35907,7 @@ function ShiftHero() {
               "Next shift ",
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium text-white", children: status.nextLabel })
             ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(HeroToday, { watch, accent }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "-mx-1 mt-6 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none]", children: actions.map(({ label: label2, to, Icon: Icon2 }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
               Link,
               {
@@ -38232,43 +38449,6 @@ function PolicyAcksTile() {
       )
     ] })
   ] });
-}
-const DAY_NAMES = {
-  MO: "Monday",
-  TU: "Tuesday",
-  WE: "Wednesday",
-  TH: "Thursday",
-  FR: "Friday",
-  SA: "Saturday",
-  SU: "Sunday"
-};
-function ruleLabel(rule, dayKey2, short2 = false) {
-  const day2 = dayKey2 ? DAY_NAMES[dayKey2] ?? "" : "";
-  const d = short2 ? day2.slice(0, 3) : day2;
-  switch (rule) {
-    case "first":
-      return `Monthly · 1st ${d}`;
-    case "last":
-      return `Monthly · last ${d}`;
-    case "quarter-last":
-      return short2 ? `Quarterly · last ${d}` : `Quarterly · last ${d} of Jan, Apr, Jul, Oct`;
-    default:
-      return "Weekly";
-  }
-}
-const RULE_OPTIONS = [
-  { rule: "weekly", label: () => "Every week" },
-  { rule: "first", label: (d) => `1st ${d} of the month` },
-  { rule: "last", label: (d) => `Last ${d} of the month` },
-  { rule: "quarter-last", label: (d) => `Last ${d} of Jan, Apr, Jul and Oct` }
-];
-function routineRuleFires(rule, dateIso) {
-  const [y, m, d] = dateIso.split("-").map(Number);
-  const isLast = d + 7 > new Date(Date.UTC(y, m, 0)).getUTCDate();
-  if (rule === "first") return d <= 7;
-  if (rule === "last") return isLast;
-  if (rule === "quarter-last") return isLast && [1, 4, 7, 10].includes(m);
-  return true;
 }
 const HFSV_TARGET_Q = 36;
 const COMMUNITY_TARGET_Q = 6;

@@ -2238,6 +2238,10 @@
     justify-content: flex-end;
   }
 
+  .justify-start {
+    justify-content: flex-start;
+  }
+
   .justify-items-start {
     justify-items: start;
   }
@@ -2461,6 +2465,16 @@
   @supports (color: color-mix(in lab, red, red)) {
     :where(.divide-border\/70 > :not(:last-child)) {
       border-color: color-mix(in oklab, var(--border) 70%, transparent);
+    }
+  }
+
+  :where(.divide-white\/\[0\.06\] > :not(:last-child)) {
+    border-color: #ffffff0f;
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    :where(.divide-white\/\[0\.06\] > :not(:last-child)) {
+      border-color: color-mix(in oklab, var(--color-white) 6%, transparent);
     }
   }
 
@@ -3586,6 +3600,16 @@
     }
   }
 
+  .bg-emerald-500\/90 {
+    background-color: #00bb7fe6;
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .bg-emerald-500\/90 {
+      background-color: color-mix(in oklab, var(--color-emerald-500) 90%, transparent);
+    }
+  }
+
   .bg-emerald-600 {
     background-color: var(--color-emerald-600);
   }
@@ -4687,6 +4711,10 @@
     padding-bottom: calc(var(--spacing) * 3);
   }
 
+  .pb-3\.5 {
+    padding-bottom: calc(var(--spacing) * 3.5);
+  }
+
   .pb-4 {
     padding-bottom: calc(var(--spacing) * 4);
   }
@@ -5422,6 +5450,16 @@
     color: var(--color-white);
   }
 
+  .text-white\/25 {
+    color: #ffffff40;
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .text-white\/25 {
+      color: color-mix(in oklab, var(--color-white) 25%, transparent);
+    }
+  }
+
   .text-white\/30 {
     color: #ffffff4d;
   }
@@ -6094,6 +6132,16 @@
 
     .group-hover\:text-white:is(:where(.group):hover *) {
       color: var(--color-white);
+    }
+
+    .group-hover\:text-white\/60:is(:where(.group):hover *) {
+      color: #fff9;
+    }
+
+    @supports (color: color-mix(in lab, red, red)) {
+      .group-hover\:text-white\/60:is(:where(.group):hover *) {
+        color: color-mix(in oklab, var(--color-white) 60%, transparent);
+      }
     }
 
     .group-hover\:opacity-100:is(:where(.group):hover *) {
@@ -6970,6 +7018,16 @@
     }
   }
 
+  .focus-visible\:bg-white\/\[0\.08\]:focus-visible {
+    background-color: #ffffff14;
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .focus-visible\:bg-white\/\[0\.08\]:focus-visible {
+      background-color: color-mix(in oklab, var(--color-white) 8%, transparent);
+    }
+  }
+
   .focus-visible\:opacity-100:focus-visible {
     opacity: 1;
   }
@@ -7037,6 +7095,16 @@
     }
   }
 
+  .focus-visible\:ring-white\/40:focus-visible {
+    --tw-ring-color: #fff6;
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .focus-visible\:ring-white\/40:focus-visible {
+      --tw-ring-color: color-mix(in oklab, var(--color-white) 40%, transparent);
+    }
+  }
+
   .focus-visible\:ring-white\/50:focus-visible {
     --tw-ring-color: #ffffff80;
   }
@@ -7091,6 +7159,10 @@
   .focus-visible\:outline-none:focus-visible {
     --tw-outline-style: none;
     outline-style: none;
+  }
+
+  .focus-visible\:ring-inset:focus-visible {
+    --tw-ring-inset: inset;
   }
 
   .active\:scale-95:active {
