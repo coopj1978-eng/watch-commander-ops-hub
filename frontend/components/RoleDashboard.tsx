@@ -10,7 +10,6 @@ import { ShiftHero }              from "@/components/ShiftHero";
 import { WCAlertBanner }          from "@/components/WCAlertBanner";
 import { BulletinsTile }          from "@/components/BulletinsTile";
 import { PolicyAcksTile }         from "@/components/PolicyAcksTile";
-import { ShiftRunningOrder }      from "@/components/home/ShiftRunningOrder";
 import { ComingUp }               from "@/components/home/ComingUp";
 import { TargetRings }            from "@/components/home/TargetRings";
 import { OurReference }           from "@/components/home/OurReference";
@@ -48,11 +47,12 @@ export default function RoleDashboard() {
 //      shift board;
 //   3. three columns that fill the width of a desktop screen:
 //        Needs you (every alert, ranked) · the crew · our reference
-//        the shift's running order · the week ahead · your own balances
+//        the week ahead · your own balances (the shift's running order sat
+//        here until 26 Nov 2026 — the hero's "This shift" list replaced it)
 //        targets · contacts.
 //      John (12 Nov 2026): the old two-column page was stretched, with half
 //      the screen empty under a short left column.
-//   On a phone it is one column: alerts, running order, then the rest.
+//   On a phone it is one column: alerts, then the rest.
 // Before this, ~17 cards repeated each other: absence triggers showed three
 // times, sickness three times, the handover and HFSV twice each, and the
 // 14-day inspections, staffing and KPI tiles duplicated the panels above.
@@ -112,7 +112,7 @@ function CustomiseDialog({
         <DialogHeader>
           <DialogTitle>Customise dashboard</DialogTitle>
           <DialogDescription>
-            The shift panel, Needs you and the running order always show. Choose the rest — saved on this device.
+            The shift panel and Needs you always show. Choose the rest — saved on this device.
           </DialogDescription>
         </DialogHeader>
         <ul className="divide-y divide-border/60 rounded-lg border border-border/70">
@@ -175,7 +175,8 @@ function WatchCommanderDashboard() {
         </div>
 
         <div className="flex min-w-0 flex-col gap-4 max-lg:contents lg:gap-5">
-          <Cell i={5} order="max-lg:order-2"><ShiftRunningOrder /></Cell>
+          {/* The running order card came off Home on 26 Nov 2026 (John: it
+              duplicated the hero's "This shift" list). */}
           {show("comingup") && <Cell i={8} order="max-lg:order-5"><ComingUp /></Cell>}
           {/* Your own balances, side by side under the week ahead. */}
           {(show("h4h") || show("toil")) && (

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { CalendarClock, Check, ChefHat, ChevronRight, ClipboardCheck, KanbanSquare, type LucideIcon } from "lucide-react";
+import { CalendarClock, Check, ChefHat, ChevronRight, ClipboardCheck, KanbanSquare, NotebookPen, type LucideIcon } from "lucide-react";
 import backend from "@/lib/backend";
 import type { crewing, task } from "@/client";
 import { useCanOpen } from "@/lib/navigation";
@@ -9,12 +9,12 @@ import { shiftToday, todayLeft, type TodayItem, type TodayKind } from "@/lib/shi
 
 // The short "this shift" list in the Home hero (John, 26 Nov 2026): the
 // routine cards, timed jobs and calendar events, the jobs on the board and
-// who's on canteen — one line each, each opening its own page. No detail
-// here on purpose; the running order further down Home has that. Uses the
-// same queries as the running order and the Tasks page, so it costs nothing
-// extra to load.
+// a handover still to read and who's on canteen — one line each, each
+// opening its own page. No detail here on purpose: it replaced the running
+// order card on Home (John, 26 Nov 2026), and the detail is on the page each
+// line opens. Shares its queries with the Tasks page.
 
-const ICON: Record<TodayKind, LucideIcon> = { check: ClipboardCheck, event: CalendarClock, jobs: KanbanSquare, canteen: ChefHat };
+const ICON: Record<TodayKind, LucideIcon> = { check: ClipboardCheck, event: CalendarClock, jobs: KanbanSquare, handover: NotebookPen, canteen: ChefHat };
 /** More than this and the rest fold into "+N more". */
 const MAX_ROWS = 7;
 
@@ -92,7 +92,19 @@ export function HeroToday({ watch, accent }: { watch: string; accent: string }) 
     enabled: !!watch && !!shift,
   });
 
+  // The last watch's "for info" handover lines not read yet (same query as the Tasks page).
+  const notesQ = useQuery({
+    queryKey: ["handover-notes", watch],
+    queryFn: () => backend.handover.boardNotes({ watch }),
+    enabled: !!watch,
+    refetchInterval: 60_000,
+  });
+
   if (!watch) return null;
+
+  const handoverToRead = (notesQ.data?.notes ?? [])
+    .filter((n) => n.unread)
+    .reduce((sum, n) => sum + n.items.filter((i) => i.kind === "info").length, 0);
 
   const heading = !shift
     ? "This shift"
@@ -107,6 +119,7 @@ export function HeroToday({ watch, accent }: { watch: string; accent: string }) 
         templates: templatesQ.data ?? [],
         events: eventsQ.data?.events ?? [],
         canteen: (canteenQ.data?.duties ?? []).map((d) => d.user_name ?? "").filter(Boolean),
+        handoverToRead,
       })
     : [];
   const left = todayLeft(items);

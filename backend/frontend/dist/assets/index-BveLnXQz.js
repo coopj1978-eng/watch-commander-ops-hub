@@ -19613,23 +19613,12 @@ const createLucideIcon = (iconName, iconNode) => {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$2s = [
+const __iconNode$2r = [
   ["path", { d: "M15 12H3", key: "6jk70r" }],
   ["path", { d: "M17 18H3", key: "1amg6g" }],
   ["path", { d: "M21 6H3", key: "1jwq7v" }]
 ];
-const AlignLeft = createLucideIcon("align-left", __iconNode$2s);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$2r = [
-  ["path", { d: "M12 5v14", key: "s699le" }],
-  ["path", { d: "m19 12-7 7-7-7", key: "1idqje" }]
-];
-const ArrowDown = createLucideIcon("arrow-down", __iconNode$2r);
+const AlignLeft = createLucideIcon("align-left", __iconNode$2r);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19637,12 +19626,10 @@ const ArrowDown = createLucideIcon("arrow-down", __iconNode$2r);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2q = [
-  ["path", { d: "M8 3 4 7l4 4", key: "9rb6wj" }],
-  ["path", { d: "M4 7h16", key: "6tx8e3" }],
-  ["path", { d: "m16 21 4-4-4-4", key: "siv7j2" }],
-  ["path", { d: "M20 17H4", key: "h6l3hr" }]
+  ["path", { d: "M12 5v14", key: "s699le" }],
+  ["path", { d: "m19 12-7 7-7-7", key: "1idqje" }]
 ];
-const ArrowLeftRight = createLucideIcon("arrow-left-right", __iconNode$2q);
+const ArrowDown = createLucideIcon("arrow-down", __iconNode$2q);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19650,10 +19637,12 @@ const ArrowLeftRight = createLucideIcon("arrow-left-right", __iconNode$2q);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2p = [
-  ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
-  ["path", { d: "M19 12H5", key: "x3x0zl" }]
+  ["path", { d: "M8 3 4 7l4 4", key: "9rb6wj" }],
+  ["path", { d: "M4 7h16", key: "6tx8e3" }],
+  ["path", { d: "m16 21 4-4-4-4", key: "siv7j2" }],
+  ["path", { d: "M20 17H4", key: "h6l3hr" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$2p);
+const ArrowLeftRight = createLucideIcon("arrow-left-right", __iconNode$2p);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19661,12 +19650,10 @@ const ArrowLeft = createLucideIcon("arrow-left", __iconNode$2p);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2o = [
-  ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
-  ["path", { d: "M20 7H4", key: "zbl0bi" }],
-  ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
-  ["path", { d: "M4 17h16", key: "g4d7ey" }]
+  ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
+  ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$2o);
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$2o);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19674,10 +19661,12 @@ const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$2o);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2n = [
-  ["path", { d: "M5 12h14", key: "1ays0h" }],
-  ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
+  ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
+  ["path", { d: "M20 7H4", key: "zbl0bi" }],
+  ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
+  ["path", { d: "M4 17h16", key: "g4d7ey" }]
 ];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$2n);
+const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$2n);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19685,10 +19674,10 @@ const ArrowRight = createLucideIcon("arrow-right", __iconNode$2n);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2m = [
-  ["path", { d: "M7 7h10v10", key: "1tivn9" }],
-  ["path", { d: "M7 17 17 7", key: "1vkiza" }]
+  ["path", { d: "M5 12h14", key: "1ays0h" }],
+  ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowUpRight = createLucideIcon("arrow-up-right", __iconNode$2m);
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$2m);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19696,10 +19685,10 @@ const ArrowUpRight = createLucideIcon("arrow-up-right", __iconNode$2m);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2l = [
-  ["path", { d: "m5 12 7-7 7 7", key: "hav0vg" }],
-  ["path", { d: "M12 19V5", key: "x0mq9r" }]
+  ["path", { d: "M7 7h10v10", key: "1tivn9" }],
+  ["path", { d: "M7 17 17 7", key: "1vkiza" }]
 ];
-const ArrowUp = createLucideIcon("arrow-up", __iconNode$2l);
+const ArrowUpRight = createLucideIcon("arrow-up-right", __iconNode$2l);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19707,6 +19696,17 @@ const ArrowUp = createLucideIcon("arrow-up", __iconNode$2l);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2k = [
+  ["path", { d: "m5 12 7-7 7 7", key: "hav0vg" }],
+  ["path", { d: "M12 19V5", key: "x0mq9r" }]
+];
+const ArrowUp = createLucideIcon("arrow-up", __iconNode$2k);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$2j = [
   [
     "path",
     {
@@ -19716,18 +19716,7 @@ const __iconNode$2k = [
   ],
   ["circle", { cx: "12", cy: "8", r: "6", key: "1vp47v" }]
 ];
-const Award = createLucideIcon("award", __iconNode$2k);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$2j = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["path", { d: "m4.9 4.9 14.2 14.2", key: "1m5liu" }]
-];
-const Ban = createLucideIcon("ban", __iconNode$2j);
+const Award = createLucideIcon("award", __iconNode$2j);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19735,12 +19724,10 @@ const Ban = createLucideIcon("ban", __iconNode$2j);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2i = [
-  ["path", { d: "M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8", key: "1k78r4" }],
-  ["path", { d: "M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4", key: "fb3tl2" }],
-  ["path", { d: "M12 4v6", key: "1dcgq2" }],
-  ["path", { d: "M2 18h20", key: "ajqnye" }]
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["path", { d: "m4.9 4.9 14.2 14.2", key: "1m5liu" }]
 ];
-const BedDouble = createLucideIcon("bed-double", __iconNode$2i);
+const Ban = createLucideIcon("ban", __iconNode$2i);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19748,6 +19735,19 @@ const BedDouble = createLucideIcon("bed-double", __iconNode$2i);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2h = [
+  ["path", { d: "M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8", key: "1k78r4" }],
+  ["path", { d: "M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4", key: "fb3tl2" }],
+  ["path", { d: "M12 4v6", key: "1dcgq2" }],
+  ["path", { d: "M2 18h20", key: "ajqnye" }]
+];
+const BedDouble = createLucideIcon("bed-double", __iconNode$2h);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$2g = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   ["path", { d: "M22 8c0-2.3-.8-4.3-2-6", key: "5bb3ad" }],
   [
@@ -19759,14 +19759,14 @@ const __iconNode$2h = [
   ],
   ["path", { d: "M4 2C2.8 3.7 2 5.7 2 8", key: "tap9e0" }]
 ];
-const BellRing = createLucideIcon("bell-ring", __iconNode$2h);
+const BellRing = createLucideIcon("bell-ring", __iconNode$2g);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$2g = [
+const __iconNode$2f = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -19776,14 +19776,14 @@ const __iconNode$2g = [
     }
   ]
 ];
-const Bell = createLucideIcon("bell", __iconNode$2g);
+const Bell = createLucideIcon("bell", __iconNode$2f);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$2f = [
+const __iconNode$2e = [
   ["path", { d: "M10 2v8l3-3 3 3V2", key: "sqw3rj" }],
   [
     "path",
@@ -19793,14 +19793,14 @@ const __iconNode$2f = [
     }
   ]
 ];
-const BookMarked = createLucideIcon("book-marked", __iconNode$2f);
+const BookMarked = createLucideIcon("book-marked", __iconNode$2e);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$2e = [
+const __iconNode$2d = [
   ["path", { d: "M12 7v14", key: "1akyts" }],
   [
     "path",
@@ -19810,14 +19810,14 @@ const __iconNode$2e = [
     }
   ]
 ];
-const BookOpen = createLucideIcon("book-open", __iconNode$2e);
+const BookOpen = createLucideIcon("book-open", __iconNode$2d);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$2d = [
+const __iconNode$2c = [
   ["path", { d: "M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z", key: "1b4qmf" }],
   ["path", { d: "M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2", key: "i71pzd" }],
   ["path", { d: "M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2", key: "10jefs" }],
@@ -19826,21 +19826,7 @@ const __iconNode$2d = [
   ["path", { d: "M10 14h4", key: "kelpxr" }],
   ["path", { d: "M10 18h4", key: "1ulq68" }]
 ];
-const Building2 = createLucideIcon("building-2", __iconNode$2d);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$2c = [
-  ["path", { d: "M8 2v4", key: "1cmpym" }],
-  ["path", { d: "M16 2v4", key: "4m81vk" }],
-  ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
-  ["path", { d: "M3 10h18", key: "8toen8" }],
-  ["path", { d: "m9 16 2 2 4-4", key: "19s6y9" }]
-];
-const CalendarCheck = createLucideIcon("calendar-check", __iconNode$2c);
+const Building2 = createLucideIcon("building-2", __iconNode$2c);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19848,14 +19834,13 @@ const CalendarCheck = createLucideIcon("calendar-check", __iconNode$2c);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2b = [
-  ["path", { d: "M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5", key: "1osxxc" }],
-  ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["path", { d: "M8 2v4", key: "1cmpym" }],
-  ["path", { d: "M3 10h5", key: "r794hk" }],
-  ["path", { d: "M17.5 17.5 16 16.3V14", key: "akvzfd" }],
-  ["circle", { cx: "16", cy: "16", r: "6", key: "qoo3c4" }]
+  ["path", { d: "M16 2v4", key: "4m81vk" }],
+  ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
+  ["path", { d: "M3 10h18", key: "8toen8" }],
+  ["path", { d: "m9 16 2 2 4-4", key: "19s6y9" }]
 ];
-const CalendarClock = createLucideIcon("calendar-clock", __iconNode$2b);
+const CalendarCheck = createLucideIcon("calendar-check", __iconNode$2b);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19863,6 +19848,21 @@ const CalendarClock = createLucideIcon("calendar-clock", __iconNode$2b);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2a = [
+  ["path", { d: "M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5", key: "1osxxc" }],
+  ["path", { d: "M16 2v4", key: "4m81vk" }],
+  ["path", { d: "M8 2v4", key: "1cmpym" }],
+  ["path", { d: "M3 10h5", key: "r794hk" }],
+  ["path", { d: "M17.5 17.5 16 16.3V14", key: "akvzfd" }],
+  ["circle", { cx: "16", cy: "16", r: "6", key: "qoo3c4" }]
+];
+const CalendarClock = createLucideIcon("calendar-clock", __iconNode$2a);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$29 = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
@@ -19874,22 +19874,7 @@ const __iconNode$2a = [
   ["path", { d: "M12 18h.01", key: "mhygvu" }],
   ["path", { d: "M16 18h.01", key: "kzsmim" }]
 ];
-const CalendarDays = createLucideIcon("calendar-days", __iconNode$2a);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$29 = [
-  ["path", { d: "M4.2 4.2A2 2 0 0 0 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 1.82-1.18", key: "16swn3" }],
-  ["path", { d: "M21 15.5V6a2 2 0 0 0-2-2H9.5", key: "yhw86o" }],
-  ["path", { d: "M16 2v4", key: "4m81vk" }],
-  ["path", { d: "M3 10h7", key: "1wap6i" }],
-  ["path", { d: "M21 10h-5.5", key: "quycpq" }],
-  ["path", { d: "m2 2 20 20", key: "1ooewy" }]
-];
-const CalendarOff = createLucideIcon("calendar-off", __iconNode$29);
+const CalendarDays = createLucideIcon("calendar-days", __iconNode$29);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19897,14 +19882,14 @@ const CalendarOff = createLucideIcon("calendar-off", __iconNode$29);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$28 = [
-  ["path", { d: "M8 2v4", key: "1cmpym" }],
+  ["path", { d: "M4.2 4.2A2 2 0 0 0 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 1.82-1.18", key: "16swn3" }],
+  ["path", { d: "M21 15.5V6a2 2 0 0 0-2-2H9.5", key: "yhw86o" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
-  ["path", { d: "M21 13V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8", key: "3spt84" }],
-  ["path", { d: "M3 10h18", key: "8toen8" }],
-  ["path", { d: "M16 19h6", key: "xwg31i" }],
-  ["path", { d: "M19 16v6", key: "tddt3s" }]
+  ["path", { d: "M3 10h7", key: "1wap6i" }],
+  ["path", { d: "M21 10h-5.5", key: "quycpq" }],
+  ["path", { d: "m2 2 20 20", key: "1ooewy" }]
 ];
-const CalendarPlus = createLucideIcon("calendar-plus", __iconNode$28);
+const CalendarOff = createLucideIcon("calendar-off", __iconNode$28);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19912,6 +19897,21 @@ const CalendarPlus = createLucideIcon("calendar-plus", __iconNode$28);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$27 = [
+  ["path", { d: "M8 2v4", key: "1cmpym" }],
+  ["path", { d: "M16 2v4", key: "4m81vk" }],
+  ["path", { d: "M21 13V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8", key: "3spt84" }],
+  ["path", { d: "M3 10h18", key: "8toen8" }],
+  ["path", { d: "M16 19h6", key: "xwg31i" }],
+  ["path", { d: "M19 16v6", key: "tddt3s" }]
+];
+const CalendarPlus = createLucideIcon("calendar-plus", __iconNode$27);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$26 = [
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["path", { d: "M3 10h18", key: "8toen8" }],
@@ -19921,20 +19921,7 @@ const __iconNode$27 = [
   ["path", { d: "M7 14h.01", key: "1qa3f1" }],
   ["path", { d: "M17 18h.01", key: "1bdyru" }]
 ];
-const CalendarRange = createLucideIcon("calendar-range", __iconNode$27);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$26 = [
-  ["path", { d: "M8 2v4", key: "1cmpym" }],
-  ["path", { d: "M16 2v4", key: "4m81vk" }],
-  ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
-  ["path", { d: "M3 10h18", key: "8toen8" }]
-];
-const Calendar = createLucideIcon("calendar", __iconNode$26);
+const CalendarRange = createLucideIcon("calendar-range", __iconNode$26);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19942,6 +19929,19 @@ const Calendar = createLucideIcon("calendar", __iconNode$26);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$25 = [
+  ["path", { d: "M8 2v4", key: "1cmpym" }],
+  ["path", { d: "M16 2v4", key: "4m81vk" }],
+  ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
+  ["path", { d: "M3 10h18", key: "8toen8" }]
+];
+const Calendar = createLucideIcon("calendar", __iconNode$25);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$24 = [
   [
     "path",
     {
@@ -19951,20 +19951,7 @@ const __iconNode$25 = [
   ],
   ["circle", { cx: "12", cy: "13", r: "3", key: "1vg3eu" }]
 ];
-const Camera = createLucideIcon("camera", __iconNode$25);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$24 = [
-  ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
-  ["path", { d: "M18 17V9", key: "2bz60n" }],
-  ["path", { d: "M13 17V5", key: "1frdt8" }],
-  ["path", { d: "M8 17v-3", key: "17ska0" }]
-];
-const ChartColumn = createLucideIcon("chart-column", __iconNode$24);
+const Camera = createLucideIcon("camera", __iconNode$24);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19972,11 +19959,12 @@ const ChartColumn = createLucideIcon("chart-column", __iconNode$24);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$23 = [
-  ["line", { x1: "18", x2: "18", y1: "20", y2: "10", key: "1xfpm4" }],
-  ["line", { x1: "12", x2: "12", y1: "20", y2: "4", key: "be30l9" }],
-  ["line", { x1: "6", x2: "6", y1: "20", y2: "14", key: "1r4le6" }]
+  ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
+  ["path", { d: "M18 17V9", key: "2bz60n" }],
+  ["path", { d: "M13 17V5", key: "1frdt8" }],
+  ["path", { d: "M8 17v-3", key: "17ska0" }]
 ];
-const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$23);
+const ChartColumn = createLucideIcon("chart-column", __iconNode$23);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19984,10 +19972,11 @@ const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$23
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$22 = [
-  ["path", { d: "M18 6 7 17l-5-5", key: "116fxf" }],
-  ["path", { d: "m22 10-7.5 7.5L13 16", key: "ke71qq" }]
+  ["line", { x1: "18", x2: "18", y1: "20", y2: "10", key: "1xfpm4" }],
+  ["line", { x1: "12", x2: "12", y1: "20", y2: "4", key: "be30l9" }],
+  ["line", { x1: "6", x2: "6", y1: "20", y2: "14", key: "1r4le6" }]
 ];
-const CheckCheck = createLucideIcon("check-check", __iconNode$22);
+const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$22);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -19995,6 +19984,17 @@ const CheckCheck = createLucideIcon("check-check", __iconNode$22);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$21 = [
+  ["path", { d: "M18 6 7 17l-5-5", key: "116fxf" }],
+  ["path", { d: "m22 10-7.5 7.5L13 16", key: "ke71qq" }]
+];
+const CheckCheck = createLucideIcon("check-check", __iconNode$21);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$20 = [
   [
     "path",
     {
@@ -20004,58 +20004,47 @@ const __iconNode$21 = [
   ],
   ["path", { d: "M6 17h12", key: "1jwigz" }]
 ];
-const ChefHat = createLucideIcon("chef-hat", __iconNode$21);
+const ChefHat = createLucideIcon("chef-hat", __iconNode$20);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$20 = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$20);
+const __iconNode$1$ = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$1$);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1$ = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-const ChevronDown = createLucideIcon("chevron-down", __iconNode$1$);
+const __iconNode$1_ = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+const ChevronDown = createLucideIcon("chevron-down", __iconNode$1_);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1_ = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
-const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1_);
+const __iconNode$1Z = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
+const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1Z);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1Z = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$1Z);
+const __iconNode$1Y = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$1Y);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1Y = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
-const ChevronUp = createLucideIcon("chevron-up", __iconNode$1Y);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1X = [
-  ["path", { d: "m11 17-5-5 5-5", key: "13zhaf" }],
-  ["path", { d: "m18 17-5-5 5-5", key: "h8a8et" }]
-];
-const ChevronsLeft = createLucideIcon("chevrons-left", __iconNode$1X);
+const __iconNode$1X = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
+const ChevronUp = createLucideIcon("chevron-up", __iconNode$1X);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20063,10 +20052,10 @@ const ChevronsLeft = createLucideIcon("chevrons-left", __iconNode$1X);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1W = [
-  ["path", { d: "m6 17 5-5-5-5", key: "xnjwq" }],
-  ["path", { d: "m13 17 5-5-5-5", key: "17xmmf" }]
+  ["path", { d: "m11 17-5-5 5-5", key: "13zhaf" }],
+  ["path", { d: "m18 17-5-5 5-5", key: "h8a8et" }]
 ];
-const ChevronsRight = createLucideIcon("chevrons-right", __iconNode$1W);
+const ChevronsLeft = createLucideIcon("chevrons-left", __iconNode$1W);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20074,10 +20063,10 @@ const ChevronsRight = createLucideIcon("chevrons-right", __iconNode$1W);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1V = [
-  ["path", { d: "m7 15 5 5 5-5", key: "1hf1tw" }],
-  ["path", { d: "m7 9 5-5 5 5", key: "sgt6xg" }]
+  ["path", { d: "m6 17 5-5-5-5", key: "xnjwq" }],
+  ["path", { d: "m13 17 5-5-5-5", key: "17xmmf" }]
 ];
-const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1V);
+const ChevronsRight = createLucideIcon("chevrons-right", __iconNode$1V);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20085,11 +20074,10 @@ const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1V);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1U = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
-  ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
+  ["path", { d: "m7 15 5 5 5-5", key: "1hf1tw" }],
+  ["path", { d: "m7 9 5-5 5 5", key: "sgt6xg" }]
 ];
-const CircleAlert = createLucideIcon("circle-alert", __iconNode$1U);
+const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1U);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20098,9 +20086,10 @@ const CircleAlert = createLucideIcon("circle-alert", __iconNode$1U);
  */
 const __iconNode$1T = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
+  ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
+  ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
 ];
-const CircleCheck = createLucideIcon("circle-check", __iconNode$1T);
+const CircleAlert = createLucideIcon("circle-alert", __iconNode$1T);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20108,10 +20097,10 @@ const CircleCheck = createLucideIcon("circle-check", __iconNode$1T);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1S = [
-  ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
-  ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1S);
+const CircleCheck = createLucideIcon("circle-check", __iconNode$1S);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20119,6 +20108,17 @@ const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1S);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1R = [
+  ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
+  ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
+];
+const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1R);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1Q = [
   ["path", { d: "M10.1 2.182a10 10 0 0 1 3.8 0", key: "5ilxe3" }],
   ["path", { d: "M13.9 21.818a10 10 0 0 1-3.8 0", key: "11zvb9" }],
   ["path", { d: "M17.609 3.721a10 10 0 0 1 2.69 2.7", key: "1iw5b2" }],
@@ -20128,19 +20128,7 @@ const __iconNode$1R = [
   ["path", { d: "M3.721 6.391a10 10 0 0 1 2.7-2.69", key: "1mcia2" }],
   ["path", { d: "M6.391 20.279a10 10 0 0 1-2.69-2.7", key: "1fvljs" }]
 ];
-const CircleDashed = createLucideIcon("circle-dashed", __iconNode$1R);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1Q = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["circle", { cx: "12", cy: "10", r: "3", key: "ilqhr7" }],
-  ["path", { d: "M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662", key: "154egf" }]
-];
-const CircleUser = createLucideIcon("circle-user", __iconNode$1Q);
+const CircleDashed = createLucideIcon("circle-dashed", __iconNode$1Q);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20149,36 +20137,30 @@ const CircleUser = createLucideIcon("circle-user", __iconNode$1Q);
  */
 const __iconNode$1P = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["circle", { cx: "12", cy: "10", r: "3", key: "ilqhr7" }],
+  ["path", { d: "M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662", key: "154egf" }]
+];
+const CircleUser = createLucideIcon("circle-user", __iconNode$1P);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1O = [
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
   ["path", { d: "m9 9 6 6", key: "z0biqf" }]
 ];
-const CircleX = createLucideIcon("circle-x", __iconNode$1P);
+const CircleX = createLucideIcon("circle-x", __iconNode$1O);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1O = [["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]];
-const Circle = createLucideIcon("circle", __iconNode$1O);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1N = [
-  ["rect", { width: "8", height: "4", x: "8", y: "2", rx: "1", ry: "1", key: "tgr4d6" }],
-  [
-    "path",
-    {
-      d: "M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2",
-      key: "116196"
-    }
-  ],
-  ["path", { d: "m9 14 2 2 4-4", key: "df797q" }]
-];
-const ClipboardCheck = createLucideIcon("clipboard-check", __iconNode$1N);
+const __iconNode$1N = [["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]];
+const Circle = createLucideIcon("circle", __iconNode$1N);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20194,12 +20176,9 @@ const __iconNode$1M = [
       key: "116196"
     }
   ],
-  ["path", { d: "M12 11h4", key: "1jrz19" }],
-  ["path", { d: "M12 16h4", key: "n85exb" }],
-  ["path", { d: "M8 11h.01", key: "1dfujw" }],
-  ["path", { d: "M8 16h.01", key: "18s6g9" }]
+  ["path", { d: "m9 14 2 2 4-4", key: "df797q" }]
 ];
-const ClipboardList = createLucideIcon("clipboard-list", __iconNode$1M);
+const ClipboardCheck = createLucideIcon("clipboard-check", __iconNode$1M);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20215,10 +20194,12 @@ const __iconNode$1L = [
       key: "116196"
     }
   ],
-  ["path", { d: "M9 14h6", key: "159ibu" }],
-  ["path", { d: "M12 17v-6", key: "1y8rbf" }]
+  ["path", { d: "M12 11h4", key: "1jrz19" }],
+  ["path", { d: "M12 16h4", key: "n85exb" }],
+  ["path", { d: "M8 11h.01", key: "1dfujw" }],
+  ["path", { d: "M8 16h.01", key: "18s6g9" }]
 ];
-const ClipboardPlus = createLucideIcon("clipboard-plus", __iconNode$1L);
+const ClipboardList = createLucideIcon("clipboard-list", __iconNode$1L);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20226,10 +20207,18 @@ const ClipboardPlus = createLucideIcon("clipboard-plus", __iconNode$1L);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1K = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["polyline", { points: "12 6 12 12 16.5 12", key: "1aq6pp" }]
+  ["rect", { width: "8", height: "4", x: "8", y: "2", rx: "1", ry: "1", key: "tgr4d6" }],
+  [
+    "path",
+    {
+      d: "M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2",
+      key: "116196"
+    }
+  ],
+  ["path", { d: "M9 14h6", key: "159ibu" }],
+  ["path", { d: "M12 17v-6", key: "1y8rbf" }]
 ];
-const Clock3 = createLucideIcon("clock-3", __iconNode$1K);
+const ClipboardPlus = createLucideIcon("clipboard-plus", __iconNode$1K);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20238,9 +20227,9 @@ const Clock3 = createLucideIcon("clock-3", __iconNode$1K);
  */
 const __iconNode$1J = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["polyline", { points: "12 6 12 12 16 14", key: "68esgv" }]
+  ["polyline", { points: "12 6 12 12 16.5 12", key: "1aq6pp" }]
 ];
-const Clock = createLucideIcon("clock", __iconNode$1J);
+const Clock3 = createLucideIcon("clock-3", __iconNode$1J);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20248,15 +20237,10 @@ const Clock = createLucideIcon("clock", __iconNode$1J);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1I = [
-  ["path", { d: "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242", key: "1pljnt" }],
-  ["path", { d: "M8 19v1", key: "1dk2by" }],
-  ["path", { d: "M8 14v1", key: "84yxot" }],
-  ["path", { d: "M16 19v1", key: "v220m7" }],
-  ["path", { d: "M16 14v1", key: "g12gj6" }],
-  ["path", { d: "M12 21v1", key: "q8vafk" }],
-  ["path", { d: "M12 16v1", key: "1mx6rx" }]
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["polyline", { points: "12 6 12 12 16 14", key: "68esgv" }]
 ];
-const CloudDrizzle = createLucideIcon("cloud-drizzle", __iconNode$1I);
+const Clock = createLucideIcon("clock", __iconNode$1I);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20265,10 +20249,14 @@ const CloudDrizzle = createLucideIcon("cloud-drizzle", __iconNode$1I);
  */
 const __iconNode$1H = [
   ["path", { d: "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242", key: "1pljnt" }],
-  ["path", { d: "M16 17H7", key: "pygtm1" }],
-  ["path", { d: "M17 21H9", key: "1u2q02" }]
+  ["path", { d: "M8 19v1", key: "1dk2by" }],
+  ["path", { d: "M8 14v1", key: "84yxot" }],
+  ["path", { d: "M16 19v1", key: "v220m7" }],
+  ["path", { d: "M16 14v1", key: "g12gj6" }],
+  ["path", { d: "M12 21v1", key: "q8vafk" }],
+  ["path", { d: "M12 16v1", key: "1mx6rx" }]
 ];
-const CloudFog = createLucideIcon("cloud-fog", __iconNode$1H);
+const CloudDrizzle = createLucideIcon("cloud-drizzle", __iconNode$1H);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20276,10 +20264,11 @@ const CloudFog = createLucideIcon("cloud-fog", __iconNode$1H);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1G = [
-  ["path", { d: "M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.973", key: "1cez44" }],
-  ["path", { d: "m13 12-3 5h4l-3 5", key: "1t22er" }]
+  ["path", { d: "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242", key: "1pljnt" }],
+  ["path", { d: "M16 17H7", key: "pygtm1" }],
+  ["path", { d: "M17 21H9", key: "1u2q02" }]
 ];
-const CloudLightning = createLucideIcon("cloud-lightning", __iconNode$1G);
+const CloudFog = createLucideIcon("cloud-fog", __iconNode$1G);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20287,10 +20276,10 @@ const CloudLightning = createLucideIcon("cloud-lightning", __iconNode$1G);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1F = [
-  ["path", { d: "M10.188 8.5A6 6 0 0 1 16 4a1 1 0 0 0 6 6 6 6 0 0 1-3 5.197", key: "erj67n" }],
-  ["path", { d: "M13 16a3 3 0 1 1 0 6H7a5 5 0 1 1 4.9-6Z", key: "p44pc9" }]
+  ["path", { d: "M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.973", key: "1cez44" }],
+  ["path", { d: "m13 12-3 5h4l-3 5", key: "1t22er" }]
 ];
-const CloudMoon = createLucideIcon("cloud-moon", __iconNode$1F);
+const CloudLightning = createLucideIcon("cloud-lightning", __iconNode$1F);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20298,12 +20287,10 @@ const CloudMoon = createLucideIcon("cloud-moon", __iconNode$1F);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1E = [
-  ["path", { d: "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242", key: "1pljnt" }],
-  ["path", { d: "M16 14v6", key: "1j4efv" }],
-  ["path", { d: "M8 14v6", key: "17c4r9" }],
-  ["path", { d: "M12 16v6", key: "c8a4gj" }]
+  ["path", { d: "M10.188 8.5A6 6 0 0 1 16 4a1 1 0 0 0 6 6 6 6 0 0 1-3 5.197", key: "erj67n" }],
+  ["path", { d: "M13 16a3 3 0 1 1 0 6H7a5 5 0 1 1 4.9-6Z", key: "p44pc9" }]
 ];
-const CloudRain = createLucideIcon("cloud-rain", __iconNode$1E);
+const CloudMoon = createLucideIcon("cloud-moon", __iconNode$1E);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20311,14 +20298,12 @@ const CloudRain = createLucideIcon("cloud-rain", __iconNode$1E);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1D = [
-  ["path", { d: "M12 2v2", key: "tus03m" }],
-  ["path", { d: "m4.93 4.93 1.41 1.41", key: "149t6j" }],
-  ["path", { d: "M20 12h2", key: "1q8mjw" }],
-  ["path", { d: "m19.07 4.93-1.41 1.41", key: "1shlcs" }],
-  ["path", { d: "M15.947 12.65a4 4 0 0 0-5.925-4.128", key: "dpwdj0" }],
-  ["path", { d: "M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z", key: "s09mg5" }]
+  ["path", { d: "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242", key: "1pljnt" }],
+  ["path", { d: "M16 14v6", key: "1j4efv" }],
+  ["path", { d: "M8 14v6", key: "17c4r9" }],
+  ["path", { d: "M12 16v6", key: "c8a4gj" }]
 ];
-const CloudSun = createLucideIcon("cloud-sun", __iconNode$1D);
+const CloudRain = createLucideIcon("cloud-rain", __iconNode$1D);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20326,9 +20311,14 @@ const CloudSun = createLucideIcon("cloud-sun", __iconNode$1D);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1C = [
-  ["path", { d: "M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z", key: "p7xjir" }]
+  ["path", { d: "M12 2v2", key: "tus03m" }],
+  ["path", { d: "m4.93 4.93 1.41 1.41", key: "149t6j" }],
+  ["path", { d: "M20 12h2", key: "1q8mjw" }],
+  ["path", { d: "m19.07 4.93-1.41 1.41", key: "1shlcs" }],
+  ["path", { d: "M15.947 12.65a4 4 0 0 0-5.925-4.128", key: "dpwdj0" }],
+  ["path", { d: "M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z", key: "s09mg5" }]
 ];
-const Cloud = createLucideIcon("cloud", __iconNode$1C);
+const CloudSun = createLucideIcon("cloud-sun", __iconNode$1C);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20336,10 +20326,9 @@ const Cloud = createLucideIcon("cloud", __iconNode$1C);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1B = [
-  ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
-  ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
+  ["path", { d: "M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z", key: "p7xjir" }]
 ];
-const Copy = createLucideIcon("copy", __iconNode$1B);
+const Cloud = createLucideIcon("cloud", __iconNode$1B);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20347,10 +20336,10 @@ const Copy = createLucideIcon("copy", __iconNode$1B);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1A = [
-  ["polyline", { points: "9 10 4 15 9 20", key: "r3jprv" }],
-  ["path", { d: "M20 4v7a4 4 0 0 1-4 4H4", key: "6o5b7l" }]
+  ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
+  ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
 ];
-const CornerDownLeft = createLucideIcon("corner-down-left", __iconNode$1A);
+const Copy = createLucideIcon("copy", __iconNode$1A);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20358,11 +20347,10 @@ const CornerDownLeft = createLucideIcon("corner-down-left", __iconNode$1A);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1z = [
-  ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
-  ["polyline", { points: "7 10 12 15 17 10", key: "2ggqvy" }],
-  ["line", { x1: "12", x2: "12", y1: "15", y2: "3", key: "1vk2je" }]
+  ["polyline", { points: "9 10 4 15 9 20", key: "r3jprv" }],
+  ["path", { d: "M20 4v7a4 4 0 0 1-4 4H4", key: "6o5b7l" }]
 ];
-const Download = createLucideIcon("download", __iconNode$1z);
+const CornerDownLeft = createLucideIcon("corner-down-left", __iconNode$1z);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20370,6 +20358,18 @@ const Download = createLucideIcon("download", __iconNode$1z);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1y = [
+  ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
+  ["polyline", { points: "7 10 12 15 17 10", key: "2ggqvy" }],
+  ["line", { x1: "12", x2: "12", y1: "15", y2: "3", key: "1vk2je" }]
+];
+const Download = createLucideIcon("download", __iconNode$1y);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1x = [
   [
     "path",
     {
@@ -20385,19 +20385,7 @@ const __iconNode$1y = [
     }
   ]
 ];
-const Droplets = createLucideIcon("droplets", __iconNode$1y);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1x = [
-  ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }],
-  ["circle", { cx: "19", cy: "12", r: "1", key: "1wjl8i" }],
-  ["circle", { cx: "5", cy: "12", r: "1", key: "1pcz8c" }]
-];
-const Ellipsis = createLucideIcon("ellipsis", __iconNode$1x);
+const Droplets = createLucideIcon("droplets", __iconNode$1x);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20405,11 +20393,11 @@ const Ellipsis = createLucideIcon("ellipsis", __iconNode$1x);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1w = [
-  ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
-  ["path", { d: "M10 14 21 3", key: "gplh6r" }],
-  ["path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6", key: "a6xqqp" }]
+  ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }],
+  ["circle", { cx: "19", cy: "12", r: "1", key: "1wjl8i" }],
+  ["circle", { cx: "5", cy: "12", r: "1", key: "1pcz8c" }]
 ];
-const ExternalLink = createLucideIcon("external-link", __iconNode$1w);
+const Ellipsis = createLucideIcon("ellipsis", __iconNode$1w);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20417,6 +20405,18 @@ const ExternalLink = createLucideIcon("external-link", __iconNode$1w);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1v = [
+  ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
+  ["path", { d: "M10 14 21 3", key: "gplh6r" }],
+  ["path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6", key: "a6xqqp" }]
+];
+const ExternalLink = createLucideIcon("external-link", __iconNode$1v);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1u = [
   [
     "path",
     {
@@ -20434,14 +20434,14 @@ const __iconNode$1v = [
   ],
   ["path", { d: "m2 2 20 20", key: "1ooewy" }]
 ];
-const EyeOff = createLucideIcon("eye-off", __iconNode$1v);
+const EyeOff = createLucideIcon("eye-off", __iconNode$1u);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1u = [
+const __iconNode$1t = [
   [
     "path",
     {
@@ -20451,19 +20451,7 @@ const __iconNode$1u = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Eye = createLucideIcon("eye", __iconNode$1u);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1t = [
-  ["path", { d: "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z", key: "1rqfz7" }],
-  ["path", { d: "M14 2v4a2 2 0 0 0 2 2h4", key: "tnqrlb" }],
-  ["path", { d: "m9 15 2 2 4-4", key: "1grp1n" }]
-];
-const FileCheck = createLucideIcon("file-check", __iconNode$1t);
+const Eye = createLucideIcon("eye", __iconNode$1t);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20471,6 +20459,18 @@ const FileCheck = createLucideIcon("file-check", __iconNode$1t);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1s = [
+  ["path", { d: "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z", key: "1rqfz7" }],
+  ["path", { d: "M14 2v4a2 2 0 0 0 2 2h4", key: "tnqrlb" }],
+  ["path", { d: "m9 15 2 2 4-4", key: "1grp1n" }]
+];
+const FileCheck = createLucideIcon("file-check", __iconNode$1s);
+/**
+ * @license lucide-react v0.484.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1r = [
   ["path", { d: "M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v2", key: "17k7jt" }],
   ["path", { d: "M14 2v4a2 2 0 0 0 2 2h4", key: "tnqrlb" }],
   [
@@ -20481,20 +20481,7 @@ const __iconNode$1s = [
     }
   ]
 ];
-const FileHeart = createLucideIcon("file-heart", __iconNode$1s);
-/**
- * @license lucide-react v0.484.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1r = [
-  ["path", { d: "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z", key: "1rqfz7" }],
-  ["path", { d: "M14 2v4a2 2 0 0 0 2 2h4", key: "tnqrlb" }],
-  ["circle", { cx: "10", cy: "12", r: "2", key: "737tya" }],
-  ["path", { d: "m20 17-1.296-1.296a2.41 2.41 0 0 0-3.408 0L9 22", key: "wt3hpn" }]
-];
-const FileImage = createLucideIcon("file-image", __iconNode$1r);
+const FileHeart = createLucideIcon("file-heart", __iconNode$1r);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20504,12 +20491,10 @@ const FileImage = createLucideIcon("file-image", __iconNode$1r);
 const __iconNode$1q = [
   ["path", { d: "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z", key: "1rqfz7" }],
   ["path", { d: "M14 2v4a2 2 0 0 0 2 2h4", key: "tnqrlb" }],
-  ["path", { d: "M8 13h2", key: "yr2amv" }],
-  ["path", { d: "M14 13h2", key: "un5t4a" }],
-  ["path", { d: "M8 17h2", key: "2yhykz" }],
-  ["path", { d: "M14 17h2", key: "10kma7" }]
+  ["circle", { cx: "10", cy: "12", r: "2", key: "737tya" }],
+  ["path", { d: "m20 17-1.296-1.296a2.41 2.41 0 0 0-3.408 0L9 22", key: "wt3hpn" }]
 ];
-const FileSpreadsheet = createLucideIcon("file-spreadsheet", __iconNode$1q);
+const FileImage = createLucideIcon("file-image", __iconNode$1q);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20519,11 +20504,12 @@ const FileSpreadsheet = createLucideIcon("file-spreadsheet", __iconNode$1q);
 const __iconNode$1p = [
   ["path", { d: "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z", key: "1rqfz7" }],
   ["path", { d: "M14 2v4a2 2 0 0 0 2 2h4", key: "tnqrlb" }],
-  ["path", { d: "M10 9H8", key: "b1mrlr" }],
-  ["path", { d: "M16 13H8", key: "t4e002" }],
-  ["path", { d: "M16 17H8", key: "z1uh3a" }]
+  ["path", { d: "M8 13h2", key: "yr2amv" }],
+  ["path", { d: "M14 13h2", key: "un5t4a" }],
+  ["path", { d: "M8 17h2", key: "2yhykz" }],
+  ["path", { d: "M14 17h2", key: "10kma7" }]
 ];
-const FileText = createLucideIcon("file-text", __iconNode$1p);
+const FileSpreadsheet = createLucideIcon("file-spreadsheet", __iconNode$1p);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -20531,10 +20517,13 @@ const FileText = createLucideIcon("file-text", __iconNode$1p);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$1o = [
-  ["path", { d: "M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z", key: "i9b6wo" }],
-  ["line", { x1: "4", x2: "4", y1: "22", y2: "15", key: "1cm3nv" }]
+  ["path", { d: "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z", key: "1rqfz7" }],
+  ["path", { d: "M14 2v4a2 2 0 0 0 2 2h4", key: "tnqrlb" }],
+  ["path", { d: "M10 9H8", key: "b1mrlr" }],
+  ["path", { d: "M16 13H8", key: "t4e002" }],
+  ["path", { d: "M16 17H8", key: "z1uh3a" }]
 ];
-const Flag = createLucideIcon("flag", __iconNode$1o);
+const FileText = createLucideIcon("file-text", __iconNode$1o);
 /**
  * @license lucide-react v0.484.0 - ISC
  *
@@ -35234,7 +35223,7 @@ function routineRuleFires(rule, dateIso) {
   if (rule === "quarter-last") return isLast && [1, 4, 7, 10].includes(m);
   return true;
 }
-const DAYS$3 = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
+const DAYS$2 = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
 const SHORT_NAME = { hfsv: "HFSV", high_rise: "Multi-storey inspection", hydrant: "Hydrants" };
 const CANTEEN_LINK = "/handover?tab=detachments&rota=canteen";
 function listOf(v) {
@@ -35247,7 +35236,7 @@ function listOf(v) {
   })() : v;
   return Array.isArray(arr) ? arr : [];
 }
-const hhmm$8 = (iso2) => new Date(iso2).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" });
+const hhmm$7 = (iso2) => new Date(iso2).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" });
 const ukDay = (iso2) => new Date(iso2).toLocaleDateString("en-CA", { timeZone: "Europe/London" });
 function shortName$1(name) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -35274,7 +35263,7 @@ function shiftToday(i) {
   }
   if (!shift2.on_duty) {
     const onBoard = new Set(checks.map((t) => t.title.trim().toLowerCase()));
-    const slot = `${DAYS$3[(/* @__PURE__ */ new Date(`${shift2.date}T12:00:00`)).getDay()]}-${shift2.type}`;
+    const slot = `${DAYS$2[(/* @__PURE__ */ new Date(`${shift2.date}T12:00:00`)).getDay()]}-${shift2.type}`;
     const due = i.templates.filter((t) => t.is_active !== false && (t.routine_slot === "every" || t.routine_slot === slot && routineRuleFires(t.routine_rule ?? "weekly", shift2.date))).filter((t) => !onBoard.has(t.name.trim().toLowerCase())).sort((a, b) => Number(b.routine_slot === "every") - Number(a.routine_slot === "every") || (a.routine_position ?? 0) - (b.routine_position ?? 0));
     for (const t of due) {
       const n = listOf(t.checklist).length;
@@ -35282,7 +35271,7 @@ function shiftToday(i) {
     }
   }
   const shown = /* @__PURE__ */ new Set();
-  const timed = i.events.map((e) => ({ e, at: new Date(e.when).getTime(), allDay: e.all_day ?? hhmm$8(e.when) === "00:00" })).filter(({ e, at, allDay }) => allDay ? ukDay(e.when) === shift2.date : at >= start && at < end).sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.at - b.at);
+  const timed = i.events.map((e) => ({ e, at: new Date(e.when).getTime(), allDay: e.all_day ?? hhmm$7(e.when) === "00:00" })).filter(({ e, at, allDay }) => allDay ? ukDay(e.when) === shift2.date : at >= start && at < end).sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.at - b.at);
   for (const { e, allDay } of timed) {
     const calId = e.id.startsWith("cal-") ? Number(e.id.slice(4)) : NaN;
     const card = Number.isFinite(calId) ? tasks.find((t) => t.calendar_event_id === calId) : void 0;
@@ -35290,7 +35279,7 @@ function shiftToday(i) {
     items.push({
       key: `event-${e.id}`,
       kind: "event",
-      time: allDay ? void 0 : hhmm$8(e.when),
+      time: allDay ? void 0 : hhmm$7(e.when),
       label: SHORT_NAME[e.type ?? ""] ?? e.what,
       to: card ? "/tasks" : e.link || "/calendar",
       done: (card == null ? void 0 : card.status) === "Done"
@@ -35300,6 +35289,9 @@ function shiftToday(i) {
   if (jobs.length) {
     items.push({ key: "jobs", kind: "jobs", label: `${jobs.length} job${jobs.length === 1 ? "" : "s"} on the board`, to: "/tasks" });
   }
+  if (i.handoverToRead && i.handoverToRead > 0) {
+    items.push({ key: "handover", kind: "handover", label: "Handover to read", note: String(i.handoverToRead), to: "/tasks" });
+  }
   const names = i.canteen.map(shortName$1).filter(Boolean);
   items.push(names.length ? { key: "canteen", kind: "canteen", label: `Canteen · ${names.join(" & ")}`, to: CANTEEN_LINK } : { key: "canteen", kind: "canteen", label: "Canteen", note: "not set yet", empty: true, to: CANTEEN_LINK });
   return items;
@@ -35307,7 +35299,7 @@ function shiftToday(i) {
 function todayLeft(items) {
   return items.filter((it) => it.kind !== "canteen" && !it.done).length;
 }
-const ICON = { check: ClipboardCheck, event: CalendarClock, jobs: SquareKanban, canteen: ChefHat };
+const ICON = { check: ClipboardCheck, event: CalendarClock, jobs: SquareKanban, handover: NotebookPen, canteen: ChefHat };
 const MAX_ROWS = 7;
 function Row$1({ item, accent, canOpen }) {
   const Icon2 = ICON[item.kind];
@@ -35342,7 +35334,7 @@ function Row$1({ item, accent, canOpen }) {
   ) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: base, children: inner }) });
 }
 function HeroToday({ watch, accent }) {
-  var _a3, _b3, _c2, _d2;
+  var _a3, _b3, _c2, _d2, _e2;
   const canOpen = useCanOpen();
   const boardQ = useQuery({
     queryKey: ["tasks", "shift", "mine", watch],
@@ -35369,14 +35361,22 @@ function HeroToday({ watch, accent }) {
     queryFn: () => backendClient.crewing.listCanteen({ watch, shift_date: shift2.date, shift_type: shift2.label }),
     enabled: !!watch && !!shift2
   });
+  const notesQ = useQuery({
+    queryKey: ["handover-notes", watch],
+    queryFn: () => backendClient.handover.boardNotes({ watch }),
+    enabled: !!watch,
+    refetchInterval: 6e4
+  });
   if (!watch) return null;
+  const handoverToRead = (((_b3 = notesQ.data) == null ? void 0 : _b3.notes) ?? []).filter((n) => n.unread).reduce((sum, n) => sum + n.items.filter((i) => i.kind === "info").length, 0);
   const heading = !shift2 ? "This shift" : shift2.on_duty ? "This shift" : `Next shift · ${new Date(shift2.start).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}`;
   const items = shift2 ? shiftToday({
     shift: shift2,
-    tasks: ((_b3 = boardQ.data) == null ? void 0 : _b3.tasks) ?? [],
+    tasks: ((_c2 = boardQ.data) == null ? void 0 : _c2.tasks) ?? [],
     templates: templatesQ.data ?? [],
-    events: ((_c2 = eventsQ.data) == null ? void 0 : _c2.events) ?? [],
-    canteen: (((_d2 = canteenQ.data) == null ? void 0 : _d2.duties) ?? []).map((d) => d.user_name ?? "").filter(Boolean)
+    events: ((_d2 = eventsQ.data) == null ? void 0 : _d2.events) ?? [],
+    canteen: (((_e2 = canteenQ.data) == null ? void 0 : _e2.duties) ?? []).map((d) => d.user_name ?? "").filter(Boolean),
+    handoverToRead
   }) : [];
   const left = todayLeft(items);
   const shown = items.length > MAX_ROWS ? items.slice(0, MAX_ROWS - 1) : items;
@@ -35433,7 +35433,7 @@ const addDays$3 = (iso2, n) => {
 const short$1 = (iso2) => (/* @__PURE__ */ new Date(`${iso2}T12:00:00`)).toLocaleDateString("en-GB", { weekday: "short", day: "numeric" });
 const shortMonth = (iso2) => (/* @__PURE__ */ new Date(`${iso2}T12:00:00`)).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
 const dayMonth$2 = (iso2) => (/* @__PURE__ */ new Date(`${iso2}T12:00:00`)).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
-const hhmm$7 = (d) => d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+const hhmm$6 = (d) => d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
 function timeLeft$1(ms) {
   const mins = Math.max(0, Math.round(ms / 6e4));
   const h = Math.floor(mins / 60);
@@ -35483,7 +35483,7 @@ function shiftLine(s, now) {
     when,
     date: date2,
     shift: s.state === "extra" && s.watch ? `${s.watch} · ${s.shift_type}` : s.shift_type,
-    times: `${hhmm$7(start)}–${hhmm$7(end)}`,
+    times: `${hhmm$6(start)}–${hhmm$6(end)}`,
     tag: s.state === "detached" ? "Detached" : shiftTag(s),
     detail,
     waiting,
@@ -35677,7 +35677,7 @@ function formatSpan(ms) {
   if (hours > 0) return `${hours}h ${String(m).padStart(2, "0")}m`;
   return `${m}m`;
 }
-const hhmm$6 = (d) => d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+const hhmm$5 = (d) => d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
 function initials$3(name) {
   var _a3;
   const parts = name.trim().split(/\s+/);
@@ -35690,7 +35690,7 @@ function ShiftTimeline({ shift: shift2, now }) {
   const hours = total / 36e5;
   const ticks = Array.from({ length: hours / 2 + 1 }, (_, i) => {
     const t = new Date(start.getTime() + i * 2 * 36e5);
-    return { left: i * 2 * 100 / hours, label: hhmm$6(t).slice(0, 2) };
+    return { left: i * 2 * 100 / hours, label: hhmm$5(t).slice(0, 2) };
   });
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-6", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative h-2 rounded-full bg-white/10", children: [
@@ -35899,7 +35899,7 @@ function ShiftHero() {
                 /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftWeather, { start: bounds == null ? void 0 : bounds.start, end: bounds == null ? void 0 : bounds.end, shiftWord }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "aria-hidden": true, className: "mt-2 h-12 w-px bg-white/10" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "px-2 py-1 text-right", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono text-4xl font-medium tabular-nums tracking-tight text-white/90", children: hhmm$6(now) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono text-4xl font-medium tabular-nums tracking-tight text-white/90", children: hhmm$5(now) }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-white/40", children: "UK time" })
                 ] })
               ] })
@@ -38451,6 +38451,62 @@ function PolicyAcksTile() {
     ] })
   ] });
 }
+const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+function ComingUp() {
+  const { user: user2 } = useAuth();
+  const watch = (user2 == null ? void 0 : user2.watch_unit) ?? "";
+  const { from, to } = reactExports.useMemo(() => {
+    const d = /* @__PURE__ */ new Date();
+    d.setDate(d.getDate() + 1);
+    const e = new Date(d);
+    e.setDate(e.getDate() + 6);
+    return { from: iso(d), to: iso(e) };
+  }, []);
+  const q = useQuery({
+    queryKey: ["schedule", from, to],
+    queryFn: () => backendClient.schedule.list({ from, to }),
+    refetchInterval: 10 * 6e4
+  });
+  const days = reactExports.useMemo(() => {
+    var _a3;
+    const byDay = /* @__PURE__ */ new Map();
+    for (const e of ((_a3 = q.data) == null ? void 0 : _a3.events) ?? []) {
+      const k = iso(new Date(e.when));
+      if (k < from || k > to) continue;
+      if (!byDay.has(k)) byDay.set(k, []);
+      byDay.get(k).push(e);
+    }
+    return [...byDay.entries()].sort(([a], [b]) => a.localeCompare(b));
+  }, [q.data, from, to]);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { "aria-label": "Coming up", className: "rounded-2xl border border-border/70 bg-card p-4 sm:p-5", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline justify-between gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-sm font-semibold", children: "Coming up · next 7 days" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: "/calendar", className: "tap text-xs text-muted-foreground hover:text-foreground", children: "Calendar →" })
+    ] }),
+    q.isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 space-y-2", children: [0, 1].map((i) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-9 animate-pulse rounded-lg bg-muted/60" }, i)) }) : days.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-3 text-sm text-muted-foreground", children: "Nothing on the calendar this week." }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2 divide-y divide-border/50", children: days.slice(0, 6).map(([day2, events2]) => {
+      const d = /* @__PURE__ */ new Date(`${day2}T12:00:00`);
+      const s = watch ? getShiftForDate(watch, d) : null;
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4 py-2.5", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-16 shrink-0", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold", children: d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] text-muted-foreground", children: (s == null ? void 0 : s.isWorking) ? s.shiftType : (s == null ? void 0 : s.isLeave) ? "Leave" : "Off" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { className: "min-w-0 flex-1 space-y-1", children: [
+          events2.slice(0, 4).map((e) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Link, { to: e.link || "/calendar", className: "flex items-baseline gap-2 text-sm hover:text-primary", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-10 shrink-0 font-mono text-xs tabular-nums text-muted-foreground", children: new Date(e.when).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "min-w-0 truncate", children: e.what }),
+            e.is_critical && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "shrink-0 text-[10px] font-semibold uppercase text-red-600 dark:text-red-400", children: "Critical" })
+          ] }) }, e.id)),
+          events2.length > 4 && /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "pl-12 text-xs text-muted-foreground", children: [
+            "+",
+            events2.length - 4,
+            " more"
+          ] })
+        ] })
+      ] }, day2);
+    }) })
+  ] });
+}
 const HFSV_TARGET_Q = 36;
 const COMMUNITY_TARGET_Q = 6;
 const COMMUNITY_TAP_MIN = 3;
@@ -38835,486 +38891,6 @@ function MonthLine({ month, count: count2, pace: pace2, noun }) {
     " · ",
     pace2,
     " a month keeps pace"
-  ] });
-}
-const STATION_WATCHES = ["Red", "White", "Green", "Blue", "Amber"];
-function MetricCell({ cell: cell2, label: label2 }) {
-  const pct = cell2.target > 0 ? Math.min(100, cell2.done / cell2.target * 100) : 0;
-  const behind = cell2.p.state === "behind" || cell2.p.state === "late" || cell2.p.state === "missed";
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-baseline justify-between gap-2 text-xs sm:hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: label2 }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline gap-1.5", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono text-sm font-semibold tabular-nums", children: cell2.target === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "—" }) : cell2.done }),
-      cell2.target > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono text-xs tabular-nums text-muted-foreground", children: [
-        "/ ",
-        cell2.target
-      ] }),
-      cell2.extra && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-auto text-[10px] font-medium text-muted-foreground", children: cell2.extra })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: cn("h-full rounded-full transition-[width] duration-700", BAR_COLOUR[cell2.p.state]), style: { width: `${pct}%` } }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: cn("mt-1 h-4 text-[11px]", behind ? cell2.p.state === "behind" ? "text-amber-700 dark:text-amber-400" : "text-red-600 dark:text-red-400" : "text-muted-foreground"), children: cell2.target === 0 ? "" : cell2.p.state === "done" ? "Done" : behind ? `${cell2.p.behindBy} behind` : cell2.p.state === "upcoming" ? "" : "On pace" })
-  ] });
-}
-function StationComparison({
-  fq,
-  ownWatch,
-  onPick
-}) {
-  const time2 = quarterTime(fq);
-  const year = fq.start.getFullYear();
-  const now = /* @__PURE__ */ new Date();
-  const yStart = new Date(year, 0, 1);
-  const yEnd = new Date(year, 11, 31);
-  const yPhase = now < yStart ? "future" : now > yEnd ? "past" : "now";
-  const yElapsed = yPhase === "now" ? (now.getTime() - yStart.getTime()) / (yEnd.getTime() - yStart.getTime()) : yPhase === "past" ? 1 : 0;
-  const results = useQueries({
-    queries: STATION_WATCHES.flatMap((w) => [
-      {
-        queryKey: ["activities", "hfsv", w, fq.fy, fq.q],
-        queryFn: () => backendClient.activity.list({ type: "hfsv", watch: w, financial_year: fq.fy, quarter: fq.q })
-      },
-      {
-        queryKey: ["activities", "community", w, fq.fy, fq.q],
-        queryFn: () => backendClient.activity.list({ type: "community", watch: w, financial_year: fq.fy, quarter: fq.q })
-      },
-      {
-        queryKey: ["assignments", "multistory", w, fq.fy, fq.q],
-        queryFn: () => backendClient.inspection_plans.listAssignments({ plan_type: "multistory", watch: w, ...multiStoryPeriod(fq) })
-      }
-    ])
-  });
-  const { data: hydrantYear } = useQuery({
-    queryKey: ["hydrants", "summary", year],
-    queryFn: () => backendClient.hydrants.getHydrantSummary({ year })
-  });
-  const rows = STATION_WATCHES.map((w, i) => {
-    var _a3, _b3;
-    const hf = results[i * 3].data;
-    const cm = results[i * 3 + 1].data;
-    const ms = results[i * 3 + 2].data;
-    const hy = hydrantYear == null ? void 0 : hydrantYear.watches.find((x) => x.watch === w);
-    const hfDone = (hf == null ? void 0 : hf.total_completed) ?? 0;
-    const cmDone = (cm == null ? void 0 : cm.total_completed) ?? 0;
-    const tap = (cm == null ? void 0 : cm.total_tap_completed) ?? 0;
-    const msDone = ((_a3 = ms == null ? void 0 : ms.totals) == null ? void 0 : _a3.complete) ?? 0;
-    const msTotal = msDone + (((_b3 = ms == null ? void 0 : ms.totals) == null ? void 0 : _b3.pending) ?? 0);
-    const hyDone = (hy == null ? void 0 : hy.done) ?? 0;
-    const hyTotal = (hy == null ? void 0 : hy.total) ?? 0;
-    return {
-      watch: w,
-      hfsv: { done: hfDone, target: HFSV_TARGET_Q, p: pace(hfDone, HFSV_TARGET_Q, time2.elapsed, time2.phase) },
-      community: {
-        done: cmDone,
-        target: COMMUNITY_TARGET_Q,
-        extra: `TAP ${tap}/${COMMUNITY_TAP_MIN}`,
-        p: pace(cmDone, COMMUNITY_TARGET_Q, time2.elapsed, time2.phase, tap >= COMMUNITY_TAP_MIN)
-      },
-      multistory: { done: msDone, target: msTotal, p: pace(msDone, msTotal, time2.elapsed, time2.phase) },
-      hydrant: { done: hyDone, target: hyTotal, p: pace(hyDone, hyTotal, yElapsed, yPhase) }
-    };
-  });
-  const sum = (k) => {
-    const done = rows.reduce((n, r2) => n + r2[k].done, 0);
-    const target = rows.reduce((n, r2) => n + r2[k].target, 0);
-    const el = k === "hydrant" ? yElapsed : time2.elapsed;
-    const ph = k === "hydrant" ? yPhase : time2.phase;
-    const p = pace(done, target, el, ph);
-    const behindBy = rows.reduce((n, r2) => n + r2[k].p.behindBy, 0);
-    const expected = rows.reduce((n, r2) => n + r2[k].p.expected, 0);
-    if (p.state === "behind" || p.state === "late" || p.state === "on" || p.state === "ahead") {
-      const state = behindBy === 0 ? done > expected ? "ahead" : "on" : el > 0.75 ? "late" : "behind";
-      return { done, target, p: { ...p, state, behindBy, expected } };
-    }
-    return { done, target, p };
-  };
-  const loading = results.some((r2) => r2.isLoading);
-  const COLS2 = "sm:grid sm:grid-cols-[minmax(120px,1fr)_repeat(4,minmax(0,1.3fr))_20px] sm:items-center sm:gap-5";
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "flex flex-wrap items-baseline justify-between gap-2 border-b border-border/60 px-5 py-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-[15px] font-semibold", children: [
-          "Station · ",
-          fq.label,
-          " · ",
-          fq.months
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "mt-0.5 text-xs text-muted-foreground", children: [
-          "Every watch against an even pace through the quarter. Hydrants are the ",
-          year,
-          " route."
-        ] })
-      ] }),
-      loading && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-muted-foreground", children: "Loading…" })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: cn("hidden px-5 pt-3 text-[10.5px] font-medium uppercase tracking-[0.12em] text-muted-foreground", COLS2), children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Watch" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "HFSV" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Community" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Multi-story" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Hydrants" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", {})
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { className: "divide-y divide-border/60", children: [
-      rows.map((r2) => {
-        const mine = r2.watch.toLowerCase() === ownWatch.toLowerCase();
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "button",
-          {
-            type: "button",
-            onClick: () => onPick(r2.watch),
-            className: cn("block w-full px-5 py-4 text-left transition-colors hover:bg-muted/40", mine && "bg-muted/30", COLS2),
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-3 flex items-center gap-2 sm:mb-0", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(WatchDot, { watch: r2.watch }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: r2.watch }),
-                mine && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "rounded-full bg-foreground px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-background", children: "You" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "ml-auto h-4 w-4 text-muted-foreground sm:hidden" })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-x-5 gap-y-3 sm:contents", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(MetricCell, { cell: r2.hfsv, label: "HFSV" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(MetricCell, { cell: r2.community, label: "Community" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(MetricCell, { cell: r2.multistory, label: "Multi-story" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(MetricCell, { cell: r2.hydrant, label: "Hydrants" })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "hidden h-4 w-4 text-muted-foreground sm:block" })
-            ]
-          }
-        ) }, r2.watch);
-      }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: cn("bg-muted/40 px-5 py-4", COLS2), children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-3 font-semibold sm:mb-0", children: "Station" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-x-5 gap-y-3 sm:contents", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(MetricCell, { cell: sum("hfsv"), label: "HFSV" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(MetricCell, { cell: sum("community"), label: "Community" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(MetricCell, { cell: sum("multistory"), label: "Multi-story" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(MetricCell, { cell: sum("hydrant"), label: "Hydrants" })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", {})
-      ] })
-    ] })
-  ] });
-}
-const DAYS$2 = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
-const hhmm$5 = (d) => new Date(d).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
-function checklistOf(v) {
-  const arr = typeof v === "string" ? (() => {
-    try {
-      return JSON.parse(v);
-    } catch {
-      return [];
-    }
-  })() : v;
-  return Array.isArray(arr) ? arr : [];
-}
-function nextWatch(shift2) {
-  const end = new Date(shift2.end);
-  const wantNight = shift2.type === "day";
-  for (const w of STATION_WATCHES) {
-    const s = getShiftForDate(w, end);
-    if ((s == null ? void 0 : s.isWorking) && s.shiftType.includes(wantNight ? "Night" : "Day")) return w;
-  }
-  return null;
-}
-function Bar({ done, total }) {
-  const pct = total ? Math.round(done / total * 100) : 0;
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center gap-2", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "h-1.5 w-20 overflow-hidden rounded-full bg-muted sm:w-28", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn("block h-full rounded-full", done === total ? "bg-emerald-500" : "bg-foreground/70"), style: { width: `${pct}%` } }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono text-[11px] tabular-nums text-muted-foreground", children: [
-      done,
-      "/",
-      total
-    ] })
-  ] });
-}
-function ShiftRunningOrder() {
-  var _a3, _b3, _c2, _d2;
-  const { user: user2 } = useAuth();
-  const watch = user2 == null ? void 0 : user2.watch_unit;
-  const canOpen = useCanOpen();
-  const isManager = (user2 == null ? void 0 : user2.role) === "WC" || (user2 == null ? void 0 : user2.role) === "CC";
-  const boardQ = useQuery({
-    queryKey: ["tasks", "shift", "mine", watch],
-    queryFn: () => backendClient.task.shiftBoard({ watch }),
-    enabled: !!watch,
-    refetchInterval: 6e4
-  });
-  const notesQ = useQuery({
-    queryKey: ["handover-notes", watch],
-    queryFn: () => backendClient.handover.boardNotes({ watch }),
-    enabled: !!watch,
-    refetchInterval: 6e4
-  });
-  const templatesQ = useQuery({
-    queryKey: ["task-templates"],
-    queryFn: async () => (await backendClient.task.listTemplates()).templates,
-    enabled: !!watch
-  });
-  const shift2 = (_a3 = boardQ.data) == null ? void 0 : _a3.shift;
-  const from = shift2 == null ? void 0 : shift2.date;
-  const to = shift2 ? new Date(shift2.end).toISOString().slice(0, 10) : void 0;
-  const eventsQ = useQuery({
-    queryKey: ["schedule", from, to],
-    queryFn: () => backendClient.schedule.list({ from, to }),
-    enabled: !!from && !!to,
-    refetchInterval: 5 * 6e4
-  });
-  if (!watch) return null;
-  const tasks = ((_b3 = boardQ.data) == null ? void 0 : _b3.tasks) ?? [];
-  const doneCount = tasks.filter((t) => t.status === "Done").length;
-  const start = shift2 ? new Date(shift2.start).getTime() : 0;
-  const end = shift2 ? new Date(shift2.end).getTime() : 0;
-  const now = Date.now();
-  const rows = [];
-  if (shift2) {
-    rows.push({
-      key: "parade",
-      at: start,
-      time: hhmm$5(shift2.start),
-      Icon: Flag,
-      title: "Parade",
-      body: canOpen("/handover") ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-        "Riding positions and duties — ",
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: "/handover", className: "font-medium text-foreground hover:underline", children: "crewing board" })
-      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Riding positions and duties" })
-    });
-    const checks = tasks.filter((t) => t.kind === "check");
-    for (const t of checks) {
-      const list2 = checklistOf(t.checklist);
-      const d = list2.filter((i) => i.done).length;
-      const carried = t.routine_slot && t.routine_slot !== "every" && t.status !== "Done" && new Date(t.created_at).getTime() < start;
-      rows.push({
-        key: `check-${t.id}`,
-        at: start + 1,
-        time: null,
-        Icon: ClipboardCheck,
-        to: "/tasks",
-        tone: t.status === "Done" ? "done" : carried ? "warn" : void 0,
-        title: t.title,
-        body: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex flex-wrap items-center gap-2", children: [
-          list2.length ? /* @__PURE__ */ jsxRuntimeExports.jsx(Bar, { done: d, total: list2.length }) : t.status === "Done" ? "Done" : t.check_freq,
-          carried && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-semibold text-amber-700 dark:text-amber-400", children: [
-            "Carried from ",
-            new Date(t.created_at).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })
-          ] })
-        ] })
-      });
-    }
-    if (!shift2.on_duty) {
-      const onBoard = new Set(checks.map((t) => t.title.trim().toLowerCase()));
-      const slot = `${DAYS$2[(/* @__PURE__ */ new Date(`${shift2.date}T12:00:00`)).getDay()]}-${shift2.type}`;
-      const due2 = (templatesQ.data ?? []).filter((t) => t.is_active && (t.routine_slot === "every" || t.routine_slot === slot && routineRuleFires(t.routine_rule, shift2.date))).filter((t) => !onBoard.has(t.name.trim().toLowerCase())).sort((a, b) => Number(b.routine_slot === "every") - Number(a.routine_slot === "every") || (a.routine_position ?? 0) - (b.routine_position ?? 0));
-      for (const t of due2) {
-        const items = checklistOf(t.checklist);
-        rows.push({
-          key: `preview-${t.id}`,
-          at: start + 1,
-          time: null,
-          Icon: ClipboardCheck,
-          to: "/tasks",
-          title: /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            t.name,
-            " ",
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-normal text-muted-foreground", children: [
-              "· ",
-              items.length,
-              " check",
-              items.length === 1 ? "" : "s"
-            ] })
-          ] }),
-          body: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex flex-wrap gap-1", children: [
-            items.slice(0, 4).map((i) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "rounded bg-muted px-1.5 py-0.5 text-[11px]", children: i.label }, i.label)),
-            items.length > 4 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "px-1 text-[11px] text-muted-foreground", children: [
-              "+",
-              items.length - 4,
-              " more"
-            ] })
-          ] })
-        });
-      }
-    }
-    const shownEvents = /* @__PURE__ */ new Set();
-    for (const e of ((_c2 = eventsQ.data) == null ? void 0 : _c2.events) ?? []) {
-      const at = new Date(e.when).getTime();
-      if (at < start || at >= end) continue;
-      const calId = e.id.startsWith("cal-") ? Number(e.id.slice(4)) : NaN;
-      const card = Number.isFinite(calId) ? tasks.find((t) => t.calendar_event_id === calId) : void 0;
-      if (card) shownEvents.add(calId);
-      rows.push({
-        key: `event-${e.id}`,
-        at,
-        time: hhmm$5(e.when),
-        Icon: CalendarClock,
-        to: card ? "/tasks" : e.link || "/calendar",
-        tone: (card == null ? void 0 : card.status) === "Done" ? "done" : e.is_critical ? "warn" : void 0,
-        title: e.what,
-        body: [e.location, e.crew.length ? e.crew.map((c) => c.initials).join(" ") : null].filter(Boolean).join(" · ") || void 0
-      });
-    }
-    const jobs = tasks.filter((t) => t.kind !== "check" && t.status !== "Done" && !(t.calendar_event_id && shownEvents.has(t.calendar_event_id)));
-    if (jobs.length) {
-      const carried = jobs.filter((t) => t.kind === "watch" && t.due_at && new Date(t.due_at).getTime() < start).length;
-      rows.push({
-        key: "jobs",
-        at: start + 2,
-        time: null,
-        Icon: SquareKanban,
-        to: "/tasks",
-        title: /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-          jobs.length,
-          " job",
-          jobs.length === 1 ? "" : "s",
-          " on the board",
-          carried > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ml-2 inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700 dark:text-amber-400", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat, { className: "h-3 w-3" }),
-            carried,
-            " carried over"
-          ] })
-        ] }),
-        body: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "line-clamp-2", children: [
-          jobs.slice(0, 4).map((t) => t.title).join(" · "),
-          jobs.length > 4 ? ` · +${jobs.length - 4} more` : ""
-        ] })
-      });
-    }
-    const notes = (((_d2 = notesQ.data) == null ? void 0 : _d2.notes) ?? []).filter((n) => n.unread && n.items.some((i) => i.kind === "info"));
-    if (notes.length) {
-      const items = notes.flatMap((n) => n.items.filter((i) => i.kind === "info").map((i) => ({ ...i, from: n.from_watch })));
-      rows.push({
-        key: "handover-in",
-        at: start + 3,
-        time: null,
-        Icon: NotebookPen,
-        to: "/tasks",
-        title: `Handover to read · ${items.length} from ${[...new Set(items.map((i) => i.from))].join(", ")} Watch`,
-        body: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "line-clamp-2", children: items.slice(0, 3).map((i) => i.text).join(" · ") })
-      });
-    }
-    const next = nextWatch(shift2);
-    const minsLeft = Math.round((end - now) / 6e4);
-    const due = shift2.on_duty && minsLeft <= 60 && minsLeft > 0;
-    rows.push({
-      key: "handover-out",
-      at: end,
-      time: hhmm$5(shift2.end),
-      Icon: ArrowRightLeft,
-      tone: due ? "warn" : void 0,
-      title: next ? `Handover to ${next} Watch` : "Shift ends",
-      body: isManager ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-        due && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-semibold text-amber-700 dark:text-amber-400", children: [
-          "In ",
-          minsLeft,
-          "m — "
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: "/handover?tab=handover&new=1", className: "font-medium text-foreground hover:underline", children: "Write the handover" })
-      ] }) : due ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-semibold text-amber-700 dark:text-amber-400", children: [
-        "In ",
-        minsLeft,
-        "m"
-      ] }) : void 0
-    });
-  }
-  for (const r2 of rows) if (r2.to && !canOpen(r2.to)) r2.to = void 0;
-  rows.sort((a, b) => a.at - b.at);
-  const nowIndex = (shift2 == null ? void 0 : shift2.on_duty) ? rows.findIndex((r2) => r2.time && r2.at > now) : -1;
-  const left = shift2 ? Math.max(0, end - now) : 0;
-  const leftLabel = left >= 36e5 ? `${Math.floor(left / 36e5)}h ${String(Math.round(left % 36e5 / 6e4)).padStart(2, "0")}m left` : `${Math.round(left / 6e4)}m left`;
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { "aria-label": "Running order", className: "rounded-2xl border border-border/70 bg-card", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "flex flex-wrap items-start justify-between gap-3 border-b border-border/60 px-4 py-3.5 sm:px-5", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "eyebrow", children: (shift2 == null ? void 0 : shift2.on_duty) ? "Running order · on now" : "Running order · next shift" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "mt-0.5 text-lg font-semibold tracking-tight", children: [
-          shift2 ? `${shift2.label}` : "Loading…",
-          shift2 && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-2 text-sm font-normal text-muted-foreground", children: shift2.on_duty ? leftLabel : new Date(shift2.start).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" }) })
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
-        tasks.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(Bar, { done: doneCount, total: tasks.length }),
-        canOpen("/tasks") && /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: "/tasks", className: "tap text-xs font-medium text-brand hover:underline", children: "Shift board →" })
-      ] })
-    ] }),
-    boardQ.isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2 p-4 sm:p-5", children: [0, 1, 2, 3].map((i) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-11 animate-pulse rounded-lg bg-muted/60" }, i)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ol", { className: "relative px-2 py-2 sm:px-3", children: rows.map((r2, i) => {
-      const inner = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-12 shrink-0 pt-0.5 text-right font-mono text-xs tabular-nums text-muted-foreground", children: r2.time ?? "" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "relative flex w-7 shrink-0 justify-center", children: [
-          i < rows.length - 1 && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "aria-hidden": true, className: "absolute bottom-[-14px] top-7 w-px bg-border" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn(
-            "relative grid h-7 w-7 place-items-center rounded-full border",
-            r2.tone === "done" ? "border-emerald-500 bg-emerald-500 text-white" : r2.tone === "warn" ? "border-amber-400 bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300" : "border-border bg-background text-muted-foreground"
-          ), children: r2.tone === "done" ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-3.5 w-3.5" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(r2.Icon, { className: "h-3.5 w-3.5" }) })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "min-w-0 flex-1 pb-1 pt-0.5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn("block text-sm font-medium", r2.tone === "done" && "text-muted-foreground line-through"), children: r2.title }),
-          r2.body && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mt-1 block text-xs text-muted-foreground", children: r2.body })
-        ] })
-      ] });
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
-        i === nowIndex && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "my-1 flex items-center gap-2 pl-[3.25rem]", "aria-label": "Now", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "h-2 w-2 rounded-full bg-red-500" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "h-px flex-1 bg-red-500/60" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono text-[10px] font-semibold text-red-600 dark:text-red-400", children: [
-            "NOW ",
-            hhmm$5(/* @__PURE__ */ new Date())
-          ] })
-        ] }),
-        r2.to ? /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: r2.to, className: "flex gap-2 rounded-xl px-1 py-2 transition-colors hover:bg-muted/50", children: inner }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-2 px-1 py-2", children: inner })
-      ] }, r2.key);
-    }) })
-  ] });
-}
-const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-function ComingUp() {
-  const { user: user2 } = useAuth();
-  const watch = (user2 == null ? void 0 : user2.watch_unit) ?? "";
-  const { from, to } = reactExports.useMemo(() => {
-    const d = /* @__PURE__ */ new Date();
-    d.setDate(d.getDate() + 1);
-    const e = new Date(d);
-    e.setDate(e.getDate() + 6);
-    return { from: iso(d), to: iso(e) };
-  }, []);
-  const q = useQuery({
-    queryKey: ["schedule", from, to],
-    queryFn: () => backendClient.schedule.list({ from, to }),
-    refetchInterval: 10 * 6e4
-  });
-  const days = reactExports.useMemo(() => {
-    var _a3;
-    const byDay = /* @__PURE__ */ new Map();
-    for (const e of ((_a3 = q.data) == null ? void 0 : _a3.events) ?? []) {
-      const k = iso(new Date(e.when));
-      if (k < from || k > to) continue;
-      if (!byDay.has(k)) byDay.set(k, []);
-      byDay.get(k).push(e);
-    }
-    return [...byDay.entries()].sort(([a], [b]) => a.localeCompare(b));
-  }, [q.data, from, to]);
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { "aria-label": "Coming up", className: "rounded-2xl border border-border/70 bg-card p-4 sm:p-5", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline justify-between gap-2", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-sm font-semibold", children: "Coming up · next 7 days" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: "/calendar", className: "tap text-xs text-muted-foreground hover:text-foreground", children: "Calendar →" })
-    ] }),
-    q.isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 space-y-2", children: [0, 1].map((i) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-9 animate-pulse rounded-lg bg-muted/60" }, i)) }) : days.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-3 text-sm text-muted-foreground", children: "Nothing on the calendar this week." }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2 divide-y divide-border/50", children: days.slice(0, 6).map(([day2, events2]) => {
-      const d = /* @__PURE__ */ new Date(`${day2}T12:00:00`);
-      const s = watch ? getShiftForDate(watch, d) : null;
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4 py-2.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-16 shrink-0", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold", children: d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] text-muted-foreground", children: (s == null ? void 0 : s.isWorking) ? s.shiftType : (s == null ? void 0 : s.isLeave) ? "Leave" : "Off" })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { className: "min-w-0 flex-1 space-y-1", children: [
-          events2.slice(0, 4).map((e) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Link, { to: e.link || "/calendar", className: "flex items-baseline gap-2 text-sm hover:text-primary", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-10 shrink-0 font-mono text-xs tabular-nums text-muted-foreground", children: new Date(e.when).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "min-w-0 truncate", children: e.what }),
-            e.is_critical && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "shrink-0 text-[10px] font-semibold uppercase text-red-600 dark:text-red-400", children: "Critical" })
-          ] }) }, e.id)),
-          events2.length > 4 && /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "pl-12 text-xs text-muted-foreground", children: [
-            "+",
-            events2.length - 4,
-            " more"
-          ] })
-        ] })
-      ] }, day2);
-    }) })
   ] });
 }
 function yearTime(year) {
@@ -43482,7 +43058,7 @@ function CustomiseDialog({
   return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "sm:max-w-md max-h-[85vh] overflow-y-auto", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Customise dashboard" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: "The shift panel, Needs you and the running order always show. Choose the rest — saved on this device." })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: "The shift panel and Needs you always show. Choose the rest — saved on this device." })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "divide-y divide-border/60 rounded-lg border border-border/70", children: RAIL_CARDS.map((card) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex cursor-pointer items-center justify-between gap-3 px-3 py-2.5 text-sm hover:bg-muted/40", children: [
       card.label,
@@ -43522,7 +43098,6 @@ function WatchCommanderDashboard() {
         show("reference") && /* @__PURE__ */ jsxRuntimeExports.jsx(Cell, { i: 9, order: "max-lg:order-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(OurReference, {}) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 flex-col gap-4 max-lg:contents lg:gap-5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Cell, { i: 5, order: "max-lg:order-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftRunningOrder, {}) }),
         show("comingup") && /* @__PURE__ */ jsxRuntimeExports.jsx(Cell, { i: 8, order: "max-lg:order-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ComingUp, {}) }),
         (show("h4h") || show("toil")) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid items-start gap-4 max-lg:contents sm:grid-cols-2 lg:gap-5", children: [
           show("h4h") && /* @__PURE__ */ jsxRuntimeExports.jsx(Cell, { i: 11, order: "max-lg:order-8", children: /* @__PURE__ */ jsxRuntimeExports.jsx(WCH4HWidget, {}) }),
@@ -65369,6 +64944,163 @@ function HydrantCard({ watch, fq }) {
     }
   );
 }
+const STATION_WATCHES = ["Red", "White", "Green", "Blue", "Amber"];
+function MetricCell({ cell: cell2, label: label2 }) {
+  const pct = cell2.target > 0 ? Math.min(100, cell2.done / cell2.target * 100) : 0;
+  const behind = cell2.p.state === "behind" || cell2.p.state === "late" || cell2.p.state === "missed";
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-baseline justify-between gap-2 text-xs sm:hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: label2 }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline gap-1.5", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono text-sm font-semibold tabular-nums", children: cell2.target === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "—" }) : cell2.done }),
+      cell2.target > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono text-xs tabular-nums text-muted-foreground", children: [
+        "/ ",
+        cell2.target
+      ] }),
+      cell2.extra && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-auto text-[10px] font-medium text-muted-foreground", children: cell2.extra })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: cn("h-full rounded-full transition-[width] duration-700", BAR_COLOUR[cell2.p.state]), style: { width: `${pct}%` } }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: cn("mt-1 h-4 text-[11px]", behind ? cell2.p.state === "behind" ? "text-amber-700 dark:text-amber-400" : "text-red-600 dark:text-red-400" : "text-muted-foreground"), children: cell2.target === 0 ? "" : cell2.p.state === "done" ? "Done" : behind ? `${cell2.p.behindBy} behind` : cell2.p.state === "upcoming" ? "" : "On pace" })
+  ] });
+}
+function StationComparison({
+  fq,
+  ownWatch,
+  onPick
+}) {
+  const time2 = quarterTime(fq);
+  const year = fq.start.getFullYear();
+  const now = /* @__PURE__ */ new Date();
+  const yStart = new Date(year, 0, 1);
+  const yEnd = new Date(year, 11, 31);
+  const yPhase = now < yStart ? "future" : now > yEnd ? "past" : "now";
+  const yElapsed = yPhase === "now" ? (now.getTime() - yStart.getTime()) / (yEnd.getTime() - yStart.getTime()) : yPhase === "past" ? 1 : 0;
+  const results = useQueries({
+    queries: STATION_WATCHES.flatMap((w) => [
+      {
+        queryKey: ["activities", "hfsv", w, fq.fy, fq.q],
+        queryFn: () => backendClient.activity.list({ type: "hfsv", watch: w, financial_year: fq.fy, quarter: fq.q })
+      },
+      {
+        queryKey: ["activities", "community", w, fq.fy, fq.q],
+        queryFn: () => backendClient.activity.list({ type: "community", watch: w, financial_year: fq.fy, quarter: fq.q })
+      },
+      {
+        queryKey: ["assignments", "multistory", w, fq.fy, fq.q],
+        queryFn: () => backendClient.inspection_plans.listAssignments({ plan_type: "multistory", watch: w, ...multiStoryPeriod(fq) })
+      }
+    ])
+  });
+  const { data: hydrantYear } = useQuery({
+    queryKey: ["hydrants", "summary", year],
+    queryFn: () => backendClient.hydrants.getHydrantSummary({ year })
+  });
+  const rows = STATION_WATCHES.map((w, i) => {
+    var _a3, _b3;
+    const hf = results[i * 3].data;
+    const cm = results[i * 3 + 1].data;
+    const ms = results[i * 3 + 2].data;
+    const hy = hydrantYear == null ? void 0 : hydrantYear.watches.find((x) => x.watch === w);
+    const hfDone = (hf == null ? void 0 : hf.total_completed) ?? 0;
+    const cmDone = (cm == null ? void 0 : cm.total_completed) ?? 0;
+    const tap = (cm == null ? void 0 : cm.total_tap_completed) ?? 0;
+    const msDone = ((_a3 = ms == null ? void 0 : ms.totals) == null ? void 0 : _a3.complete) ?? 0;
+    const msTotal = msDone + (((_b3 = ms == null ? void 0 : ms.totals) == null ? void 0 : _b3.pending) ?? 0);
+    const hyDone = (hy == null ? void 0 : hy.done) ?? 0;
+    const hyTotal = (hy == null ? void 0 : hy.total) ?? 0;
+    return {
+      watch: w,
+      hfsv: { done: hfDone, target: HFSV_TARGET_Q, p: pace(hfDone, HFSV_TARGET_Q, time2.elapsed, time2.phase) },
+      community: {
+        done: cmDone,
+        target: COMMUNITY_TARGET_Q,
+        extra: `TAP ${tap}/${COMMUNITY_TAP_MIN}`,
+        p: pace(cmDone, COMMUNITY_TARGET_Q, time2.elapsed, time2.phase, tap >= COMMUNITY_TAP_MIN)
+      },
+      multistory: { done: msDone, target: msTotal, p: pace(msDone, msTotal, time2.elapsed, time2.phase) },
+      hydrant: { done: hyDone, target: hyTotal, p: pace(hyDone, hyTotal, yElapsed, yPhase) }
+    };
+  });
+  const sum = (k) => {
+    const done = rows.reduce((n, r2) => n + r2[k].done, 0);
+    const target = rows.reduce((n, r2) => n + r2[k].target, 0);
+    const el = k === "hydrant" ? yElapsed : time2.elapsed;
+    const ph = k === "hydrant" ? yPhase : time2.phase;
+    const p = pace(done, target, el, ph);
+    const behindBy = rows.reduce((n, r2) => n + r2[k].p.behindBy, 0);
+    const expected = rows.reduce((n, r2) => n + r2[k].p.expected, 0);
+    if (p.state === "behind" || p.state === "late" || p.state === "on" || p.state === "ahead") {
+      const state = behindBy === 0 ? done > expected ? "ahead" : "on" : el > 0.75 ? "late" : "behind";
+      return { done, target, p: { ...p, state, behindBy, expected } };
+    }
+    return { done, target, p };
+  };
+  const loading = results.some((r2) => r2.isLoading);
+  const COLS2 = "sm:grid sm:grid-cols-[minmax(120px,1fr)_repeat(4,minmax(0,1.3fr))_20px] sm:items-center sm:gap-5";
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "flex flex-wrap items-baseline justify-between gap-2 border-b border-border/60 px-5 py-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-[15px] font-semibold", children: [
+          "Station · ",
+          fq.label,
+          " · ",
+          fq.months
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "mt-0.5 text-xs text-muted-foreground", children: [
+          "Every watch against an even pace through the quarter. Hydrants are the ",
+          year,
+          " route."
+        ] })
+      ] }),
+      loading && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-muted-foreground", children: "Loading…" })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: cn("hidden px-5 pt-3 text-[10.5px] font-medium uppercase tracking-[0.12em] text-muted-foreground", COLS2), children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Watch" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "HFSV" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Community" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Multi-story" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Hydrants" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", {})
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { className: "divide-y divide-border/60", children: [
+      rows.map((r2) => {
+        const mine = r2.watch.toLowerCase() === ownWatch.toLowerCase();
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: () => onPick(r2.watch),
+            className: cn("block w-full px-5 py-4 text-left transition-colors hover:bg-muted/40", mine && "bg-muted/30", COLS2),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-3 flex items-center gap-2 sm:mb-0", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(WatchDot, { watch: r2.watch }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: r2.watch }),
+                mine && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "rounded-full bg-foreground px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-background", children: "You" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "ml-auto h-4 w-4 text-muted-foreground sm:hidden" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-x-5 gap-y-3 sm:contents", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(MetricCell, { cell: r2.hfsv, label: "HFSV" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(MetricCell, { cell: r2.community, label: "Community" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(MetricCell, { cell: r2.multistory, label: "Multi-story" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(MetricCell, { cell: r2.hydrant, label: "Hydrants" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "hidden h-4 w-4 text-muted-foreground sm:block" })
+            ]
+          }
+        ) }, r2.watch);
+      }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: cn("bg-muted/40 px-5 py-4", COLS2), children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-3 font-semibold sm:mb-0", children: "Station" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-x-5 gap-y-3 sm:contents", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(MetricCell, { cell: sum("hfsv"), label: "HFSV" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(MetricCell, { cell: sum("community"), label: "Community" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(MetricCell, { cell: sum("multistory"), label: "Multi-story" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(MetricCell, { cell: sum("hydrant"), label: "Hydrants" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", {})
+      ] })
+    ] })
+  ] });
+}
 function Targets() {
   const { user: user2 } = useAuth();
   const ownWatch = (user2 == null ? void 0 : user2.watch_unit) ?? "";
@@ -74678,7 +74410,6 @@ function StaffPortal() {
     /* @__PURE__ */ jsxRuntimeExports.jsx(MyNextShifts, {}),
     /* @__PURE__ */ jsxRuntimeExports.jsx(PulseTiles, { audience: "crew" }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(SickLine, {}),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftRunningOrder, {}),
     /* @__PURE__ */ jsxRuntimeExports.jsx(OurReference, {})
   ] });
 }
@@ -75297,7 +75028,6 @@ function CrewCommanderHome() {
     /* @__PURE__ */ jsxRuntimeExports.jsx(PulseTiles, {}),
     /* @__PURE__ */ jsxRuntimeExports.jsx(MyNextShifts, {}),
     /* @__PURE__ */ jsxRuntimeExports.jsx(WCAlertBanner, {}),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(ShiftRunningOrder, {}),
     /* @__PURE__ */ jsxRuntimeExports.jsx(OurReference, {}),
     /* @__PURE__ */ jsxRuntimeExports.jsx(CrewKPIs, {}),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid gap-6 md:grid-cols-2", children: [

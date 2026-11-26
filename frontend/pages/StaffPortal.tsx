@@ -7,7 +7,6 @@ import FFSickLineUpload from "@/components/FFSickLineUpload";
 import { ShiftHero } from "@/components/ShiftHero";
 import { MyNextShifts } from "@/components/home/MyNextShifts";
 import { PulseTiles } from "@/components/home/PulseTiles";
-import { ShiftRunningOrder } from "@/components/home/ShiftRunningOrder";
 import { OurReference } from "@/components/home/OurReference";
 
 // A firefighter's Home (Nov 2026, the council's FF-first review): the shift
@@ -22,7 +21,6 @@ export default function StaffPortal() {
       {/* Your own shifts come first; then the watch at a glance. */}
       <PulseTiles audience="crew" />
       <SickLine />
-      <ShiftRunningOrder />
       <OurReference />
     </div>
   );

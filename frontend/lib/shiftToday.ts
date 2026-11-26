@@ -5,12 +5,13 @@
 //
 // One line each, in the order the shift runs: the routine and check cards,
 // timed things (an HFSV, a calendar event) at their time, the jobs on the
-// board as one count, and who's on canteen. The fuller version, with the
-// detail, is the running order further down Home.
+// board as one count, a handover still to read, and who's on canteen. It
+// replaced the running order card on Home (John, 26 Nov 2026: "it
+// duplicates it"); the detail is on the page each line opens.
 
 import { routineRuleFires } from "./routineRules";
 
-export type TodayKind = "check" | "event" | "jobs" | "canteen";
+export type TodayKind = "check" | "event" | "jobs" | "handover" | "canteen";
 
 export interface TodayItem {
   key: string;
@@ -95,6 +96,8 @@ export function shiftToday(i: {
   events: TodayEvent[];
   /** Names of whoever is on canteen this shift. */
   canteen: string[];
+  /** "For info" handover lines from the last watch that haven't been read yet. */
+  handoverToRead?: number;
 }): TodayItem[] {
   const { shift, tasks } = i;
   const start = new Date(shift.start).getTime();
@@ -152,6 +155,12 @@ export function shiftToday(i: {
   const jobs = tasks.filter((t) => t.kind !== "check" && t.status !== "Done" && t.status !== "Missed" && !(t.calendar_event_id && shown.has(t.calendar_event_id)));
   if (jobs.length) {
     items.push({ key: "jobs", kind: "jobs", label: `${jobs.length} job${jobs.length === 1 ? "" : "s"} on the board`, to: "/tasks" });
+  }
+
+  // ── The last watch's handover, while there's something in it still unread
+  //    (it came over from the running order card when that left Home).
+  if (i.handoverToRead && i.handoverToRead > 0) {
+    items.push({ key: "handover", kind: "handover", label: "Handover to read", note: String(i.handoverToRead), to: "/tasks" });
   }
 
   // ── Canteen for the shift.

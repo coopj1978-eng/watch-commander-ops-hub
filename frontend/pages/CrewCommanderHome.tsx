@@ -4,7 +4,6 @@ import { CrewUpcomingInspections } from "@/components/CrewUpcomingInspections";
 import { CrewOneToOnes } from "@/components/CrewOneToOnes";
 import { ShiftHero } from "@/components/ShiftHero";
 import { WCAlertBanner } from "@/components/WCAlertBanner";
-import { ShiftRunningOrder } from "@/components/home/ShiftRunningOrder";
 import { OurReference } from "@/components/home/OurReference";
 import { MyNextShifts } from "@/components/home/MyNextShifts";
 import { PulseTiles } from "@/components/home/PulseTiles";
@@ -22,7 +21,6 @@ export default function CrewCommanderHome() {
           the same "needs you" list the WC sees, for their own watch. */}
       <WCAlertBanner />
 
-      <ShiftRunningOrder />
       <OurReference />
 
       <CrewKPIs />

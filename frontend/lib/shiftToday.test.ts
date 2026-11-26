@@ -85,6 +85,12 @@ describe("what's on this shift, one line each", () => {
     expect(shiftToday(base).at(-1)).toMatchObject({ kind: "canteen", label: "Canteen", note: "not set yet", empty: true });
   });
 
+  it("says when there's a handover still to read, just above canteen", () => {
+    const r = shiftToday({ ...base, handoverToRead: 2 });
+    expect(r.at(-2)).toMatchObject({ kind: "handover", label: "Handover to read", note: "2", to: "/tasks" });
+    expect(shiftToday({ ...base, handoverToRead: 0 }).some((x) => x.kind === "handover")).toBe(false);
+  });
+
   it("before the shift starts, says which routine cards are coming", () => {
     const next: TodayShift = { ...on, on_duty: false };
     const r = shiftToday({
